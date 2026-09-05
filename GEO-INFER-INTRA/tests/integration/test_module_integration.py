@@ -1,221 +1,107 @@
-"""Integration tests for cross-module functionality."""
+"""Integration tests exercising real cross-module public APIs.
 
-import pytest
-import sys
-import yaml
-import tempfile
+These tests import the installed sibling packages (geo_infer_space,
+geo_infer_data) and INTRA's own public API, verifying that documented
+cross-module usage actually works end to end.
+"""
+
+import json
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from intra_utils import import_module_by_path, collect_test_modules
+import pytest
+
+import geo_infer_intra
+from geo_infer_intra import MODULE_PROFILES, render_svg_card
+from geo_infer_intra.utils.config import (
+    get_config_value,
+    get_schema_path,
+    load_config,
+    load_default_config,
+    validate_config,
+)
+from geo_infer_intra.utils.geospatial_utils import (
+    create_feature,
+    create_point,
+    is_valid_geojson,
+)
+from geo_infer_intra.utils.module_discovery import collect_test_modules
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 @pytest.mark.integration
 class TestCrossModuleIntegration:
-    """Test suite for cross-module integration."""
+    """Integration of INTRA with real sibling-module public APIs."""
 
-    @pytest.fixture(scope="class")
-    def geo_infer_modules(self):
-        """Collect all GEO-INFER modules."""
-        root_dir = Path(__file__).parent.parent.parent.parent
-        return collect_test_modules(root_dir)
+    def test_module_discovery_finds_sibling_modules(self):
+        """collect_test_modules discovers real GEO-INFER sibling modules."""
+        modules = collect_test_modules(REPO_ROOT)
+        assert len(modules) > 0
+        for required in ("geo_infer_space", "geo_infer_data", "geo_infer_intra"):
+            assert required in modules, f"Module {required} not found"
 
-    @pytest.fixture(scope="class")
-    def test_config_dir(self):
-        """Create a temporary directory for test configurations."""
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            config_dir = Path(tmp_dir) / "config"
-            config_dir.mkdir(exist_ok=True)
-            yield config_dir
+    def test_profile_registry_matches_discovered_modules(self):
+        """The 45-module preview registry is consistent with the repo layout."""
+        modules = collect_test_modules(REPO_ROOT)
+        for module_dir in modules.values():
+            slug = module_dir.name.replace("GEO-INFER-", "")
+            assert slug in MODULE_PROFILES, f"{slug} missing from MODULE_PROFILES"
 
-    @pytest.fixture(scope="class")
-    def test_log_dir(self):
-        """Create a temporary directory for test logs."""
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            log_dir = Path(tmp_dir) / "logs"
-            log_dir.mkdir(exist_ok=True)
-            yield log_dir
+    def test_space_h3_backend_public_api(self):
+        """GEO-INFER-SPACE H3 backend converts coordinates to H3 cells."""
+        from geo_infer_space.backends.h3.h3_backend import H3Backend
 
-    @pytest.fixture(scope="class")
-    def create_test_config_file(self, test_config_dir, test_log_dir):
-        """Factory fixture to create config files for different modules."""
+        backend = H3Backend()
+        assert backend.is_available()
+        cell = backend.latlng_to_cell(37.7749, -122.4194, 8)
+        assert isinstance(cell, str) and len(cell) > 0
+        lat, lng = backend.cell_to_latlng(cell)
+        assert abs(lat - 37.7749) < 0.5
+        assert abs(lng - (-122.4194)) < 0.5
 
-        def _create_config(module_name: str) -> Path:
-            config_file = test_config_dir / f"{module_name}_config.yml"
-            config = {
-                "module": module_name,
-                "environment": "test",
-                "debug": True,
-                "logging": {
-                    "level": "DEBUG",
-                    "format": "json",
-                    "file": str(test_log_dir / f"{module_name}.log"),
-                },
-            }
+    def test_data_file_connector_lists_written_geojson(self, tmp_path):
+        """GEO-INFER-DATA FileConnector discovers a GeoJSON file INTRA built."""
+        from geo_infer_data.connectors.file import FileConnector
 
-            # Add module-specific configuration
-            if module_name == "geo_infer_space":
-                config["coordinate_systems"] = ["WGS84", "EPSG:3857", "EPSG:4326"]
-                config["spatial_index"] = "H3"
-            elif module_name == "geo_infer_time":
-                config["time_formats"] = ["ISO8601", "RFC3339"]
-                config["timezone"] = "UTC"
-            elif module_name == "geo_infer_api":
-                config["server"] = {"host": "localhost", "port": 9000, "workers": 1}
-                config["auth"] = {"enabled": False}
+        feature = create_feature(create_point(-122.4194, 37.7749), {"name": "sf"})
+        assert is_valid_geojson(feature)
 
-            with open(config_file, "w") as f:
-                yaml.dump(config, f)
+        geojson_path = tmp_path / "point.geojson"
+        geojson_path.write_text(
+            json.dumps({"type": "FeatureCollection", "features": [feature]})
+        )
+        connector = FileConnector(base_path=str(tmp_path))
+        found = {p.name for p in connector.list_files(pattern="*.geojson")}
+        assert "point.geojson" in found
 
-            return config_file
+    def test_config_schema_available_in_installed_layout(self):
+        """validate_config resolves the packaged schema (importlib.resources)."""
+        schema_path = get_schema_path()
+        assert schema_path.is_file()
 
-        return _create_config
+        is_valid, errors = validate_config(load_default_config())
+        assert is_valid, errors
 
-    @pytest.fixture(scope="class")
-    def space_config_file(self, create_test_config_file):
-        """Create test configuration file for geo_infer_space module."""
-        return create_test_config_file("geo_infer_space")
+    def test_config_used_with_sibling_module_config(self, tmp_path):
+        """INTRA config utilities load and query a sibling-module style config."""
+        config_file = tmp_path / "space_config.yaml"
+        config_file.write_text(
+            "module: geo_infer_space\n"
+            "spatial_index: H3\n"
+            "coordinate_systems: [WGS84, EPSG:3857]\n"
+        )
+        cfg = load_config(config_file)
+        assert get_config_value(cfg, "spatial_index") == "H3"
+        # Missing key with an explicit None default is distinguishable.
+        assert get_config_value(cfg, "nonexistent.key", default=None) is None
 
-    @pytest.fixture(scope="class")
-    def time_config_file(self, create_test_config_file):
-        """Create test configuration file for geo_infer_time module."""
-        return create_test_config_file("geo_infer_time")
+    def test_preview_rendering_for_all_registered_modules(self):
+        """Every registered module renders a deterministic SVG preview card."""
+        for module_id in sorted(MODULE_PROFILES):
+            svg = render_svg_card(module_id)
+            assert f"GEO-INFER-{module_id}" in svg
 
-    @pytest.fixture(scope="class")
-    def api_config_file(self, create_test_config_file):
-        """Create test configuration file for geo_infer_api module."""
-        return create_test_config_file("geo_infer_api")
-
-    @pytest.fixture(scope="class")
-    def data_config_file(self, create_test_config_file):
-        """Create test configuration file for geo_infer_data module."""
-        return create_test_config_file("geo_infer_data")
-
-    @pytest.fixture(scope="class")
-    def test_geojson_feature(self):
-        """Create a GeoJSON Feature for testing."""
-        return {
-            "type": "Feature",
-            "properties": {"name": "Test Polygon", "value": 42},
-            "geometry": {
-                "type": "Polygon",
-                "coordinates": [
-                    [
-                        [100.0, 0.0],
-                        [101.0, 0.0],
-                        [101.0, 1.0],
-                        [100.0, 1.0],
-                        [100.0, 0.0],
-                    ]
-                ],
-            },
-        }
-
-    @pytest.fixture(scope="class")
-    def test_time_series_data(self):
-        """Create sample time series data for testing."""
-        return {
-            "timestamps": [
-                "2023-01-01T00:00:00Z",
-                "2023-01-02T00:00:00Z",
-                "2023-01-03T00:00:00Z",
-                "2023-01-04T00:00:00Z",
-                "2023-01-05T00:00:00Z",
-            ],
-            "values": [10.5, 11.2, 9.8, 12.3, 10.9],
-        }
-
-    def test_module_discovery(self, geo_infer_modules):
-        """Test that modules can be discovered."""
-        assert len(geo_infer_modules) > 0
-
-        # Check some key modules
-        expected_modules = ["geo_infer_space", "geo_infer_time", "geo_infer_data"]
-
-        # Adjust expectations based on what's actually available
-        available_expected = [m for m in expected_modules if m in geo_infer_modules]
-        if available_expected:
-            for module_name in available_expected:
-                assert (
-                    module_name in geo_infer_modules
-                ), f"Module {module_name} not found"
-        else:
-            pytest.fail("No expected modules found in the project")
-
-    def test_module_imports(self, geo_infer_modules):
-        """Test that modules can be imported."""
-        # Test importing a few key modules
-        modules_to_test = ["geo_infer_space", "geo_infer_time", "geo_infer_data"]
-        modules_found = False
-
-        for module_name in modules_to_test:
-            if module_name in geo_infer_modules:
-                modules_found = True
-                module_path = geo_infer_modules[module_name]
-                init_file = (
-                    module_path / "src" / module_name.replace("-", "_") / "__init__.py"
-                )
-
-                if init_file.exists():
-                    try:
-                        # Try to import the module
-                        imported_module = import_module_by_path(
-                            str(init_file), module_name
-                        )
-                        assert imported_module is not None
-                    except ImportError as e:
-                        pytest.fail(f"Could not import {module_name}: {e}")
-
-        if not modules_found:
-            pytest.fail("No testable modules found")
-
-    @pytest.mark.parametrize(
-        "config_fixture",
-        [
-            "space_config_file",
-            "time_config_file",
-            "api_config_file",
-            "data_config_file",
-        ],
-    )
-    def test_module_configs(self, request, config_fixture):
-        """Test that module-specific configuration files can be loaded."""
-        config_file = request.getfixturevalue(config_fixture)
-        assert config_file.exists()
-
-        # Try to load the config file
-        with open(config_file) as f:
-            config = yaml.safe_load(f)
-
-        assert "module" in config
-        assert "environment" in config
-        assert "debug" in config
-        assert "logging" in config
-
-    def test_space_time_integration(
-        self, geo_infer_modules, test_geojson_feature, test_time_series_data
-    ):
-        """Test integration between space and time modules."""
-        # Skip test if required modules not available
-        required_modules = ["geo_infer_space", "geo_infer_time"]
-        available_required = [m for m in required_modules if m in geo_infer_modules]
-        if len(available_required) < len(required_modules):
-            pytest.fail(f"Required modules {required_modules} not all available")
-
-        # Create a feature with time series data
-        space_time_feature = {
-            "type": "Feature",
-            "geometry": test_geojson_feature["geometry"],
-            "properties": {
-                **test_geojson_feature["properties"],
-                "time_series": test_time_series_data,
-            },
-        }
-
-        # Make assertions about the combined feature
-        assert "time_series" in space_time_feature["properties"]
-        assert "timestamps" in space_time_feature["properties"]["time_series"]
-        assert "values" in space_time_feature["properties"]["time_series"]
-        assert len(
-            space_time_feature["properties"]["time_series"]["timestamps"]
-        ) == len(space_time_feature["properties"]["time_series"]["values"])
+    def test_package_metadata_consistent(self):
+        """Package metadata stays aligned with the module directory name."""
+        assert geo_infer_intra.__version__
+        assert (REPO_ROOT / "GEO-INFER-INTRA").is_dir()

@@ -76,26 +76,26 @@ _available_models = []
 
 # Try to import model modules
 # Note: These modules may not have __all__ defined, so we import the modules themselves
-from geo_infer_math.models import regression as regression_module
+from geo_infer_math.models import regression as regression
 
 _available_models.append("regression")
 
-from geo_infer_math.models import clustering as clustering_module
+from geo_infer_math.models import clustering as clustering
 
 _available_models.append("clustering")
 
 # Try to import information theory
 try:
     from geo_infer_math.core.information_theory import (
-        shannon_entropy,
-        renyi_entropy,
-        tsallis_entropy,
-        spatial_entropy as info_spatial_entropy,
-        mutual_information,
-        kl_divergence,
-        EntropyCalculator,
-        MutualInformationCalculator,
-        KLDivergenceCalculator,
+        shannon_entropy as shannon_entropy,
+        renyi_entropy as renyi_entropy,
+        tsallis_entropy as tsallis_entropy,
+        spatial_entropy as info_spatial_entropy,  # noqa: F401 -- public renamed re-export (see __all__); redundant alias would shadow spatial_statistics.spatial_entropy
+        mutual_information as mutual_information,
+        kl_divergence as kl_divergence,
+        EntropyCalculator as EntropyCalculator,
+        MutualInformationCalculator as MutualInformationCalculator,
+        KLDivergenceCalculator as KLDivergenceCalculator,
     )
 
     _available_core.append("information_theory")
@@ -105,25 +105,34 @@ except ImportError:
 # Try to import theorem proving
 try:
     from geo_infer_math.core.theorem_proving import (
-        TheoremProver,
-        ProofResult,
-        create_prover,
-        TheoremDatabase,
+        TheoremProver as TheoremProver,
+        ProofResult as ProofResult,
+        create_prover as create_prover,
+        TheoremDatabase as TheoremDatabase,
     )
 
     _available_core.append("theorem_proving")
 except ImportError:
     pass
 
+# GPU acceleration (CPU fallback; cupy/torch are optional)
+from geo_infer_math.core.gpu_acceleration import (
+    GPUAccelerator as GPUAccelerator,
+    is_gpu_available as is_gpu_available,
+    get_gpu_info as get_gpu_info,
+)
+
+_available_core.append("gpu_acceleration")
+
 # Try to import convenience APIs
 try:
     from geo_infer_math.api.convenience import (
-        ActiveInferenceConvenience,
-        BayesianConvenience,
-        AIConvenience,
-        InformationTheoryConvenience,
-        SpatialConvenience,
-        IntegrationConvenience,
+        ActiveInferenceConvenience as ActiveInferenceConvenience,
+        BayesianConvenience as BayesianConvenience,
+        AIConvenience as AIConvenience,
+        InformationTheoryConvenience as InformationTheoryConvenience,
+        SpatialConvenience as SpatialConvenience,
+        IntegrationConvenience as IntegrationConvenience,
     )
 
     _convenience_available = True
@@ -133,19 +142,19 @@ except ImportError:
 # Try to import integration modules
 try:
     from geo_infer_math.integration.ai import (
-        AIGradientHelpers,
-        SpatialLossFunctions,
-        OptimizationBridges,
+        AIGradientHelpers as AIGradientHelpers,
+        SpatialLossFunctions as SpatialLossFunctions,
+        OptimizationBridges as OptimizationBridges,
     )
     from geo_infer_math.integration.act import (
-        FreeEnergyCalculator,
-        VariationalInferenceHelpers,
-        BeliefUpdating,
+        FreeEnergyCalculator as FreeEnergyCalculator,
+        VariationalInferenceHelpers as VariationalInferenceHelpers,
+        BeliefUpdating as BeliefUpdating,
     )
     from geo_infer_math.integration.bayes import (
-        PosteriorHelpers,
-        PriorBuilders,
-        MCMCHelpers,
+        PosteriorHelpers as PosteriorHelpers,
+        PriorBuilders as PriorBuilders,
+        MCMCHelpers as MCMCHelpers,
     )
 
     _integration_available = True
@@ -257,6 +266,8 @@ if _integration_available:
             "MCMCHelpers",
         ]
     )
+
+__all__.extend(["GPUAccelerator", "is_gpu_available", "get_gpu_info"])
 
 # Version information
 __version__ = "0.2.0"

@@ -169,9 +169,6 @@ class SecurityManager:
                 public_exponent=65537, key_size=key_size
             )
 
-            # Generate public key
-            private_key.public_key()
-
             # Generate CSR
             subject = cryptography.x509.Name(
                 [
@@ -203,13 +200,7 @@ class SecurityManager:
                 )
 
             logger.info("csr_generated", common_name=common_name)
-            pem = csr.public_bytes(serialization.Encoding.PEM).decode()
-            return (
-                f"{pem}"
-                f"# common_name={common_name}\n"
-                f"# organization={organization}\n"
-                f"# country={country}\n"
-            )
+            return csr.public_bytes(serialization.Encoding.PEM).decode()
         except Exception as e:
             logger.error("csr_generation_failed", error=str(e))
             raise

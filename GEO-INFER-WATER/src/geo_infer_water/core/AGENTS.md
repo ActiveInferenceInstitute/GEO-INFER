@@ -27,7 +27,6 @@
 - `water_balance.py`
 - `water_infrastructure.py`
 - `water_quality.py`
-- `watershed.py`
 - `watershed_delineation.py`
 
 ## Validation

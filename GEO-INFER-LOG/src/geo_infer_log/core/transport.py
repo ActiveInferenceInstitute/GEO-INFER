@@ -13,24 +13,9 @@ import matplotlib.pyplot as plt
 
 from geo_infer_log.models.schemas import VehicleType, FuelType, Vehicle, Route
 from geo_infer_log.core.routing import _load_gpickle
+from geo_infer_log.utils.geo import haversine_distance
 
 logger = logging.getLogger(__name__)
-
-
-def _haversine_km(lon1: float, lat1: float, lon2: float, lat2: float) -> float:
-    """Haversine distance between two (lon, lat) points in km."""
-    import math
-
-    R = 6371.0
-    dlat = math.radians(lat2 - lat1)
-    dlon = math.radians(lon2 - lon1)
-    a = (
-        math.sin(dlat / 2) ** 2
-        + math.cos(math.radians(lat1))
-        * math.cos(math.radians(lat2))
-        * math.sin(dlon / 2) ** 2
-    )
-    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
 class MultiModalPlanner:
@@ -145,7 +130,7 @@ class MultiModalPlanner:
                     for n, d in net.nodes(data=True):
                         nx_val = d.get("x", d.get("lon", 0))
                         ny_val = d.get("y", d.get("lat", 0))
-                        dist = _haversine_km(lon, lat, nx_val, ny_val)
+                        dist = haversine_distance((lon, lat), (nx_val, ny_val))
                         if dist < best_d:
                             best, best_d = n, dist
                     return best
@@ -229,9 +214,7 @@ class MultiModalPlanner:
                 )
         else:
             # Direct great-circle fallback
-            direct_dist = _haversine_km(
-                origin[0], origin[1], destination[0], destination[1]
-            )
+            direct_dist = haversine_distance(origin, destination)
             segments.append(
                 {
                     "mode": allowed_modes[0] if allowed_modes else "unknown",
@@ -443,24 +426,19 @@ class TransportationNetworkAnalyzer:
         )
         return [link for link, _ in critical_links[:top_n]]
 
-    def analyze_flow(self) -> Dict:
-        """Analyze transportation flow in the network.
+    def _edge_flows(self) -> Dict[Tuple[Any, Any], float]:
+        """Aggregate flow records into per-edge totals.
+
+        Expects a DataFrame with columns like 'origin'/'source'/'from',
+        'destination'/'target'/'to', and 'flow'/'volume'/'count'.
 
         Returns:
-            Dictionary with flow analysis results
+            Mapping of (origin, destination) to total flow
         """
-        if not self.network or not self.flow_data:
-            raise ValueError("Network and flow data must be loaded before analysis")
-
-        # Analyze flow patterns using edge capacity and observed flow
+        edge_flows: Dict[Tuple[Any, Any], float] = {}
         if isinstance(self.flow_data, pd.DataFrame) and not self.flow_data.empty:
-            # Expect columns like 'origin', 'destination', 'flow'
             origin_col = next(
-                (
-                    c
-                    for c in self.flow_data.columns
-                    if c in ("origin", "source", "from")
-                ),
+                (c for c in self.flow_data.columns if c in ("origin", "source", "from")),
                 None,
             )
             dest_col = next(
@@ -475,41 +453,51 @@ class TransportationNetworkAnalyzer:
                 (c for c in self.flow_data.columns if c in ("flow", "volume", "count")),
                 None,
             )
-
             if origin_col and dest_col and flow_col:
-                edge_flows: Dict[Tuple[str, str], float] = {}
                 for _, row in self.flow_data.iterrows():
                     key = (row[origin_col], row[dest_col])
                     edge_flows[key] = edge_flows.get(key, 0) + row[flow_col]
+        return edge_flows
 
-                total_flow = sum(edge_flows.values())
-                max_flow_edge = (
-                    max(edge_flows, key=lambda k: edge_flows[k]) if edge_flows else None
-                )
-                max_flow_val = edge_flows[max_flow_edge] if max_flow_edge else 0
+    def analyze_flow(self) -> Dict:
+        """Analyze transportation flow in the network.
 
-                # Identify edges where flow > 80% of capacity
-                congestion_points = []
-                for (u, v), flow in edge_flows.items():
-                    if self.network.has_edge(u, v):
-                        capacity = self.network[u][v].get("capacity", float("inf"))
-                        if capacity > 0 and flow / capacity > 0.8:
-                            congestion_points.append(
-                                {
-                                    "edge": (u, v),
-                                    "flow": flow,
-                                    "capacity": capacity,
-                                    "utilization": flow / capacity,
-                                }
-                            )
+        Returns:
+            Dictionary with flow analysis results
+        """
+        if not self.network or not self.flow_data:
+            raise ValueError("Network and flow data must be loaded before analysis")
 
-                return {
-                    "total_flow": total_flow,
-                    "max_flow": max_flow_val,
-                    "max_flow_edge": max_flow_edge,
-                    "num_edges_with_flow": len(edge_flows),
-                    "congestion_points": congestion_points,
-                }
+        edge_flows = self._edge_flows()
+        if edge_flows:
+            total_flow = sum(edge_flows.values())
+            max_flow_edge = (
+                max(edge_flows, key=lambda k: edge_flows[k]) if edge_flows else None
+            )
+            max_flow_val = edge_flows[max_flow_edge] if max_flow_edge else 0
+
+            # Identify edges where flow > 80% of capacity
+            congestion_points = []
+            for (u, v), flow in edge_flows.items():
+                if self.network.has_edge(u, v):
+                    capacity = self.network[u][v].get("capacity", float("inf"))
+                    if capacity > 0 and flow / capacity > 0.8:
+                        congestion_points.append(
+                            {
+                                "edge": (u, v),
+                                "flow": flow,
+                                "capacity": capacity,
+                                "utilization": flow / capacity,
+                            }
+                        )
+
+            return {
+                "total_flow": total_flow,
+                "max_flow": max_flow_val,
+                "max_flow_edge": max_flow_edge,
+                "num_edges_with_flow": len(edge_flows),
+                "congestion_points": congestion_points,
+            }
 
         # Fallback: compute max-flow between first/last node if we have capacity data
         nodes = list(self.network.nodes())
@@ -559,14 +547,14 @@ class TransportationNetworkAnalyzer:
                 self.network, pos, edgelist=critical_links, width=3, edge_color="red"
             )
 
-        if with_flow and self.flow_data is not None:
+        if with_flow:
+            edge_flows = self._edge_flows()
+            max_flow = max(edge_flows.values(), default=0.0)
             edge_widths = []
             for u, v in self.network.edges():
-                flow = self.flow_data.get((u, v), 0)
+                flow = edge_flows.get((u, v), 0.0)
                 edge_widths.append(
-                    max(0.5, flow / max(self.flow_data.values()) * 5)
-                    if self.flow_data.values()
-                    else 0.5
+                    max(0.5, flow / max_flow * 5) if max_flow > 0 else 0.5
                 )
             nx.draw_networkx_edges(
                 self.network, pos, width=edge_widths, alpha=0.6, edge_color="blue"

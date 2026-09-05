@@ -106,7 +106,7 @@ class PricingEngine:
             config: Pricing engine configuration
         """
         self.config = config or {}
-        self.logger = logging.getLogger("geo_infer_risk.underwriting.pricing_engine")
+        self.logger = logging.getLogger("geo_infer_insurance.underwriting.pricing_engine")
 
         # Pricing parameters
         self.expense_ratio = self.config.get("expense_ratio", 0.25)
@@ -642,7 +642,7 @@ class PremiumCalculator:
         """
         self.config = config or {}
         self.logger = logging.getLogger(
-            "geo_infer_risk.underwriting.premium_calculator"
+            "geo_infer_insurance.underwriting.premium_calculator"
         )
 
         # Load rate tables
@@ -724,7 +724,6 @@ class PremiumCalculator:
 
         for layer in layers:
             layer_limit = layer.get("limit", 0)
-            layer_deductible = layer.get("deductible", 0)
 
             # Calculate layer premium (simplified)
             layer_premium = layer_limit * 0.001  # 0.1% rate

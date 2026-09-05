@@ -2,10 +2,11 @@
 name: geo-infer-ant
 description: Ant Colony Optimization and swarm intelligence for geospatial problems. Use when solving spatial optimization with ACO, PSO, ABC algorithms, implementing stigmergic coordination, or optimizing geographic routing and resource allocation with bio-inspired methods.
 prerequisites:
-  required:
-    - geo-infer-space
+  required: []
   recommended:
-    - geo-infer-math
+    - geo-infer-space
+    - geo-infer-act
+    - geo-infer-agent
 difficulty: advanced
 estimated_time: 60min
 examples_dir: ../GEO-INFER-EXAMPLES/examples/

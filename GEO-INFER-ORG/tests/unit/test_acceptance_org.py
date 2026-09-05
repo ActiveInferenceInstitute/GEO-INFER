@@ -278,17 +278,19 @@ class TestConsensusModelAcceptance:
         assert result["recommendation"] == "alpha"
         assert result["participant_count"] == 2
 
-    def test_convergence_below_threshold(self):
-        """check_convergence returns True when scores barely change."""
+    def test_resubmitted_ratings_overwrite_and_converge(self):
+        """Resubmitting ratings for an existing participant overwrites
+        their previous round (documented overwrite semantics); the small
+        score change stays below the convergence threshold."""
         cm = ConsensusModel(convergence_threshold=0.5)
         cm.set_options(["alpha", "beta"])
         cm.submit_rating("p1", {"alpha": 7.0, "beta": 5.0})
         cm.submit_rating("p2", {"alpha": 7.0, "beta": 5.0})
         current = cm.compute_consensus()["option_scores"]
-        # Submit slightly different ratings; change is small enough to converge.
+        # p1 resubmits: values are replaced, not accumulated as a new round.
         cm.submit_rating("p1", {"alpha": 7.2, "beta": 5.1})
-        previous = current
-        assert cm.check_convergence(previous) is True
+        assert cm.compute_consensus()["participant_count"] == 2
+        assert cm.check_convergence(current) is True
 
     def test_no_ratings_raises(self):
         """Computing consensus with no ratings raises."""

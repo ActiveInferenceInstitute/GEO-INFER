@@ -1,13 +1,14 @@
 """
 Stream connectors for GEO-INFER-DATA.
 
-This module provides comprehensive streaming data connectivity for
-real-time geospatial data sources including MQTT, Kafka, and WebSocket streams.
+This module provides streaming data connectivity for real-time geospatial
+data sources: MQTT (via ``aiomqtt``), WebSocket (via ``aiohttp``), and an
+explicit Kafka connector whose client library is not a declared
+dependency of this package.
 """
-
+import json
 import logging
-from typing import Dict, Any, AsyncIterator
-import asyncio
+from typing import Any, AsyncIterator, Dict, Optional
 
 
 logger = logging.getLogger(__name__)
@@ -18,18 +19,8 @@ class StreamConnector:
     Base class for streaming data connectors.
 
     This abstract base class defines the interface for connecting to streaming
-    data sources including MQTT, Kafka, WebSocket, and other real-time data streams.
-
-    Examples:
-        >>> # MQTT connector implementation
-        >>> class MQTTConnector(StreamConnector):
-        ...     async def connect(self) -> bool:
-        ...         # MQTT connection logic
-        ...         return True
-        ...
-        ...     async def stream_data(self, topic: str) -> AsyncIterator[Dict[str, Any]]:
-        ...         # MQTT streaming logic
-        ...         yield {'data': 'stream_data'}
+    data sources including MQTT, Kafka, WebSocket, and other real-time data
+    streams.
     """
 
     async def connect(self) -> bool:
@@ -60,70 +51,123 @@ class StreamConnector:
         )
 
 
+def _decode_payload(payload: Any) -> Any:
+    """Decode an MQTT payload into text or parsed JSON where possible."""
+    if isinstance(payload, (bytes, bytearray)):
+        text = bytes(payload).decode("utf-8", errors="replace")
+        try:
+            return json.loads(text)
+        except (ValueError, TypeError):
+            return text
+    return payload
+
+
 class MQTTConnector(StreamConnector):
     """
-    MQTT streaming data connector.
+    MQTT streaming data connector backed by ``aiomqtt``.
 
-    This class provides MQTT connectivity for real-time geospatial data streams
-    including sensor networks, IoT devices, and live monitoring systems.
+    The connector opens a real TCP connection to the broker on ``connect()``
+    and subscribes to the requested topic on ``stream_data()``. Every yielded
+    record comes from the broker; nothing is fabricated locally.
+
+    Config keys:
+        host: Broker hostname (default ``localhost``).
+        port: Broker port (default ``1883``).
+        client_id: MQTT client identifier (default ``geo_infer_data``).
+        username / password: Optional broker credentials.
+        qos: Subscription QoS level (default ``0``).
     """
 
     def __init__(self, config: Dict[str, Any]):
+        import aiomqtt
+
+        self._aiomqtt = aiomqtt
         self.config = config
         self.host = config.get("host", "localhost")
         self.port = config.get("port", 1883)
         self.client_id = config.get("client_id", "geo_infer_data")
+        self.username = config.get("username")
+        self.password = config.get("password")
+        self.qos = config.get("qos", 0)
+        self._client: Optional[Any] = None
 
         logger.info(f"Initialized MQTTConnector for {self.host}:{self.port}")
 
+    def _require_client(self) -> Any:
+        """Return the connected aiomqtt client or raise."""
+        if self._client is None:
+            raise RuntimeError(
+                "MQTTConnector is not connected; call connect() first"
+            )
+        return self._client
+
     async def connect(self) -> bool:
         """
-        Connect to MQTT broker.
+        Connect to the MQTT broker.
 
         Returns:
             True if connection successful
+
+        Raises:
+            aiomqtt.MqttError: If the broker cannot be reached or rejects
+                the credentials.
         """
-        # Deterministic local implementation - would use actual MQTT library
-        logger.info(f"Connecting to MQTT broker at {self.host}:{self.port}")
+        client = self._aiomqtt.Client(
+            hostname=self.host,
+            port=self.port,
+            identifier=self.client_id,
+            username=self.username,
+            password=self.password,
+        )
+        await client.connect()
+        self._client = client
+        logger.info(f"Connected to MQTT broker at {self.host}:{self.port}")
         return True
 
     async def stream_data(  # type: ignore[override]
         self, topic: str, **kwargs: Any
     ) -> AsyncIterator[Dict[str, Any]]:
         """
-        Stream data from MQTT topic.
+        Stream messages from an MQTT topic.
 
         Args:
             topic: MQTT topic to subscribe to
-            **kwargs: Additional streaming parameters
+            **kwargs: Additional subscription parameters
 
         Yields:
-            MQTT messages as dictionaries
+            One record per broker message with keys ``topic``, ``payload``,
+            ``qos``, ``retain``, and ``properties`` (when present).
         """
-        # Deterministic local implementation
-        logger.info(f"Streaming data from topic: {topic}")
+        client = self._require_client()
+        await client.subscribe(topic, qos=self.qos)
+        logger.info(f"Subscribed to MQTT topic: {topic}")
 
-        # Simulate streaming data
-        for i in range(10):
-            yield {
-                "topic": topic,
-                "message_id": i,
-                "timestamp": asyncio.get_event_loop().time(),
-                "data": {"temperature": 20 + i, "humidity": 60 + i},
+        async for message in client.messages:
+            record: Dict[str, Any] = {
+                "topic": message.topic.value,
+                "payload": _decode_payload(message.payload),
+                "qos": message.qos,
+                "retain": message.retain,
             }
-            await asyncio.sleep(1)
+            if getattr(message, "properties", None) is not None:
+                record["properties"] = message.properties
+            yield record
 
     async def disconnect(self) -> None:
-        """Disconnect from MQTT broker."""
+        """Disconnect from the MQTT broker."""
+        if self._client is not None:
+            await self._client.disconnect()
+            self._client = None
         logger.info("MQTT connection closed")
 
 
 class KafkaConnector(StreamConnector):
     """
-    Apache Kafka streaming data connector.
+    Apache Kafka streaming connector for the not-installed-client case.
 
-    This class provides Kafka connectivity for high-throughput streaming
-    geospatial data processing and real-time analytics.
+    No Kafka client library (e.g. ``aiokafka``) is a declared dependency of
+    this package, so every operation raises ``RuntimeError`` naming the
+    missing library rather than returning fabricated records.
     """
 
     def __init__(self, config: Dict[str, Any]):
@@ -133,102 +177,122 @@ class KafkaConnector(StreamConnector):
 
         logger.info(f"Initialized KafkaConnector for {self.bootstrap_servers}")
 
-    async def connect(self) -> bool:
-        """
-        Connect to Kafka cluster.
+    def _unavailable(self, operation: str) -> RuntimeError:
+        return RuntimeError(
+            f"KafkaConnector does not implement {operation}: no Kafka client "
+            "library is a declared dependency of geo-infer-data. Declare "
+            "'aiokafka' (or equivalent) and implement the connector to enable "
+            "Kafka streaming."
+        )
 
-        Returns:
-            True if connection successful
-        """
-        # Deterministic local implementation
-        logger.info(f"Connecting to Kafka cluster: {self.bootstrap_servers}")
-        return True
+    async def connect(self) -> bool:
+        raise self._unavailable("connect()")
 
     async def stream_data(  # type: ignore[override]
         self, topic: str, **kwargs: Any
     ) -> AsyncIterator[Dict[str, Any]]:
-        """
-        Stream data from Kafka topic.
-
-        Args:
-            topic: Kafka topic to consume from
-            **kwargs: Additional streaming parameters
-
-        Yields:
-            Kafka messages as dictionaries
-        """
-        # Deterministic local implementation
-        logger.info(f"Streaming data from Kafka topic: {topic}")
-
-        for i in range(5):
-            yield {
-                "topic": topic,
-                "partition": 0,
-                "offset": i,
-                "timestamp": asyncio.get_event_loop().time(),
-                "data": {"sensor_id": f"sensor_{i}", "value": 100 + i},
-            }
-            await asyncio.sleep(0.5)
+        raise self._unavailable("stream_data()")
+        yield  # pragma: no cover - makes this an async generator
 
     async def disconnect(self) -> None:
-        """Disconnect from Kafka cluster."""
         logger.info("Kafka connection closed")
 
 
 class WebSocketConnector(StreamConnector):
     """
-    WebSocket streaming data connector.
+    WebSocket streaming data connector backed by ``aiohttp``.
 
-    This class provides WebSocket connectivity for real-time geospatial
-    data streaming including live sensor data and monitoring systems.
+    The connector opens a real WebSocket connection on ``connect()`` and
+    yields every message received from the server. Nothing is fabricated
+    locally.
+
+    Config keys:
+        url: WebSocket URL (e.g. ``ws://localhost:8765/geo``).
+        reconnect_interval: Seconds between reconnect attempts (reserved for
+            callers that drive their own reconnection loop).
     """
 
     def __init__(self, config: Dict[str, Any]):
         self.config = config
         self.url = config.get("url", "ws://localhost:8765")
         self.reconnect_interval = config.get("reconnect_interval", 5)
+        self._session: Optional[Any] = None
+        self._connection: Optional[Any] = None
 
         logger.info(f"Initialized WebSocketConnector for {self.url}")
 
+    def _require_connection(self) -> Any:
+        """Return the live WebSocket connection or raise."""
+        if self._connection is None or self._connection.closed:
+            raise RuntimeError(
+                "WebSocketConnector is not connected; call connect() first"
+            )
+        return self._connection
+
     async def connect(self) -> bool:
         """
-        Connect to WebSocket server.
+        Connect to the WebSocket server.
 
         Returns:
             True if connection successful
+
+        Raises:
+            aiohttp.ClientError: If the server cannot be reached or rejects
+                the upgrade request.
         """
-        # Deterministic local implementation
-        logger.info(f"Connecting to WebSocket: {self.url}")
+        import aiohttp
+
+        self._session = aiohttp.ClientSession()
+        try:
+            self._connection = await self._session.ws_connect(self.url)
+        except Exception:
+            await self._session.close()
+            self._session = None
+            raise
+        logger.info(f"Connected to WebSocket: {self.url}")
         return True
 
     async def stream_data(  # type: ignore[override, misc]
         self, **kwargs: Any
     ) -> AsyncIterator[Dict[str, Any]]:
         """
-        Stream data from WebSocket connection.
+        Stream messages from the WebSocket connection.
 
         Args:
             **kwargs: Additional streaming parameters
 
         Yields:
-            WebSocket messages as dictionaries
+            One record per server message with keys ``type`` (``text`` or
+            ``binary``) and ``data``; text payloads that parse as JSON are
+            yielded as parsed objects.
         """
-        # Deterministic local implementation
-        logger.info("Streaming data from WebSocket")
+        import aiohttp
 
-        for i in range(8):
-            yield {
-                "type": "websocket_message",
-                "message_id": i,
-                "timestamp": asyncio.get_event_loop().time(),
-                "data": {
-                    "latitude": 37.7749 + i * 0.001,
-                    "longitude": -122.4194 + i * 0.001,
-                    "measurement": 25 + i,
-                },
-            }
-            await asyncio.sleep(0.8)
+        connection = self._require_connection()
+        async for message in connection:
+            if message.type == aiohttp.WSMsgType.TEXT:
+                try:
+                    data: Any = json.loads(message.data)
+                except (ValueError, TypeError):
+                    data = message.data
+                yield {"type": "text", "data": data}
+            elif message.type == aiohttp.WSMsgType.BINARY:
+                yield {"type": "binary", "data": _decode_payload(message.data)}
+            elif message.type == aiohttp.WSMsgType.ERROR:
+                raise RuntimeError(f"WebSocket stream error: {connection.exception()}")
+            elif message.type in (
+                aiohttp.WSMsgType.CLOSE,
+                aiohttp.WSMsgType.CLOSING,
+                aiohttp.WSMsgType.CLOSED,
+            ):
+                break
 
     async def disconnect(self) -> None:
-        """Disconnect from WebSocket server."""
+        """Disconnect from the WebSocket server and release the session."""
+        if self._connection is not None:
+            await self._connection.close()
+            self._connection = None
+        if self._session is not None:
+            await self._session.close()
+            self._session = None
         logger.info("WebSocket connection closed")

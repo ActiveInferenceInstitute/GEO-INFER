@@ -6,26 +6,15 @@ spatial prediction, and feature engineering based on Analytics Vidhya guide:
 https://www.analyticsvidhya.com/blog/2025/03/ubers-h3-for-spatial-indexing/
 """
 
-import importlib.util
 import logging
 import math
 from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime
 from .core import H3Grid, H3Cell
 
+import numpy as np
+
 logger = logging.getLogger(__name__)
-
-try:
-    import numpy as np
-
-    NUMPY_AVAILABLE = True
-except ImportError:
-    NUMPY_AVAILABLE = False
-    logger.warning("numpy not available. Some ML functionality will be limited.")
-
-PANDAS_AVAILABLE = importlib.util.find_spec("pandas") is not None
-if not PANDAS_AVAILABLE:
-    logger.warning("pandas not available. DataFrame operations will be limited.")
 
 try:
     import h3
@@ -182,30 +171,18 @@ class H3MLFeatureEngine:
                                 break
 
                     if ring_values:
-                        if NUMPY_AVAILABLE:
-                            neighbor_features[f"ring_{ring}_mean"] = float(
-                                np.mean(ring_values)
-                            )
-                            neighbor_features[f"ring_{ring}_std"] = float(
-                                np.std(ring_values)
-                            )
-                            neighbor_features[f"ring_{ring}_max"] = float(
-                                np.max(ring_values)
-                            )
-                            neighbor_features[f"ring_{ring}_min"] = float(
-                                np.min(ring_values)
-                            )
-                        else:
-                            neighbor_features[f"ring_{ring}_mean"] = sum(
-                                ring_values
-                            ) / len(ring_values)
-                            mean_val = neighbor_features[f"ring_{ring}_mean"]
-                            neighbor_features[f"ring_{ring}_std"] = math.sqrt(
-                                sum((v - mean_val) ** 2 for v in ring_values)
-                                / len(ring_values)
-                            )
-                            neighbor_features[f"ring_{ring}_max"] = max(ring_values)
-                            neighbor_features[f"ring_{ring}_min"] = min(ring_values)
+                        neighbor_features[f"ring_{ring}_mean"] = float(
+                            np.mean(ring_values)
+                        )
+                        neighbor_features[f"ring_{ring}_std"] = float(
+                            np.std(ring_values)
+                        )
+                        neighbor_features[f"ring_{ring}_max"] = float(
+                            np.max(ring_values)
+                        )
+                        neighbor_features[f"ring_{ring}_min"] = float(
+                            np.min(ring_values)
+                        )
 
                         neighbor_features[f"ring_{ring}_count"] = len(ring_values)
                     else:
@@ -232,28 +209,17 @@ class H3MLFeatureEngine:
                             break
 
                 if all_neighbor_values:
-                    if NUMPY_AVAILABLE:
-                        neighbor_features["neighbor_density"] = (
-                            len(all_neighbor_values) / len(all_neighbors)
-                            if all_neighbors
-                            else 0
-                        )
-                        neighbor_features["neighbor_total"] = float(
-                            np.sum(all_neighbor_values)
-                        )
-                        neighbor_features["neighbor_avg"] = float(
-                            np.mean(all_neighbor_values)
-                        )
-                    else:
-                        neighbor_features["neighbor_density"] = (
-                            len(all_neighbor_values) / len(all_neighbors)
-                            if all_neighbors
-                            else 0
-                        )
-                        neighbor_features["neighbor_total"] = sum(all_neighbor_values)
-                        neighbor_features["neighbor_avg"] = sum(
-                            all_neighbor_values
-                        ) / len(all_neighbor_values)
+                    neighbor_features["neighbor_density"] = (
+                        len(all_neighbor_values) / len(all_neighbors)
+                        if all_neighbors
+                        else 0
+                    )
+                    neighbor_features["neighbor_total"] = float(
+                        np.sum(all_neighbor_values)
+                    )
+                    neighbor_features["neighbor_avg"] = float(
+                        np.mean(all_neighbor_values)
+                    )
                 else:
                     neighbor_features["neighbor_density"] = 0.0
                     neighbor_features["neighbor_total"] = 0.0
@@ -675,21 +641,10 @@ class H3DisasterResponse:
             # Approximate: each ring adds ~edge_length to radius
             cell_resolution = h3.get_resolution(hazard_cell.index)
 
-            # Rough edge length estimates by resolution (km)
-            edge_lengths = {
-                6: 3.229,
-                7: 1.220,
-                8: 0.461,
-                9: 0.174,
-                10: 0.065,
-                11: 0.025,
-                12: 0.009,
-                13: 0.003,
-                14: 0.001,
-                15: 0.0005,
-            }
-
-            edge_length_km = edge_lengths.get(cell_resolution, 1.0)
+            # Real average edge length from the H3 API (valid for resolutions 0-15)
+            edge_length_km = float(
+                h3.average_hexagon_edge_length(cell_resolution, unit="km")
+            )
             estimated_rings = max(1, int(radius_km / edge_length_km))
 
             # Get cells within evacuation radius
@@ -827,28 +782,14 @@ class H3DisasterResponse:
 
         # Calculate summary statistics
         if all_changes:
-            if NUMPY_AVAILABLE:
-                changes_array = np.array([c["relative_change"] for c in all_changes])
-                summary_stats = {
-                    "mean_change": float(np.mean(changes_array)),
-                    "std_change": float(np.std(changes_array)),
-                    "max_change": float(np.max(changes_array)),
-                    "min_change": float(np.min(changes_array)),
-                    "median_change": float(np.median(changes_array)),
-                }
-            else:
-                changes_list = [c["relative_change"] for c in all_changes]
-                mean_change = sum(changes_list) / len(changes_list)
-                summary_stats = {
-                    "mean_change": mean_change,
-                    "std_change": math.sqrt(
-                        sum((c - mean_change) ** 2 for c in changes_list)
-                        / len(changes_list)
-                    ),
-                    "max_change": max(changes_list),
-                    "min_change": min(changes_list),
-                    "median_change": sorted(changes_list)[len(changes_list) // 2],
-                }
+            changes_array = np.array([c["relative_change"] for c in all_changes])
+            summary_stats = {
+                "mean_change": float(np.mean(changes_array)),
+                "std_change": float(np.std(changes_array)),
+                "max_change": float(np.max(changes_array)),
+                "min_change": float(np.min(changes_array)),
+                "median_change": float(np.median(changes_array)),
+            }
         else:
             summary_stats = {}
 
@@ -914,18 +855,11 @@ class H3DisasterResponse:
                 # Calculate cluster statistics
                 cluster_changes = [c["relative_change"] for c in cluster_cells]
 
-                if NUMPY_AVAILABLE:
-                    cluster_stats = {
-                        "mean_change": float(np.mean(cluster_changes)),
-                        "max_change": float(np.max(cluster_changes)),
-                        "min_change": float(np.min(cluster_changes)),
-                    }
-                else:
-                    cluster_stats = {
-                        "mean_change": sum(cluster_changes) / len(cluster_changes),
-                        "max_change": max(cluster_changes),
-                        "min_change": min(cluster_changes),
-                    }
+                cluster_stats = {
+                    "mean_change": float(np.mean(cluster_changes)),
+                    "max_change": float(np.max(cluster_changes)),
+                    "min_change": float(np.min(cluster_changes)),
+                }
 
                 clusters.append(
                     {
@@ -1089,24 +1023,15 @@ class H3PerformanceOptimizer:
             >>> rec = optimizer.optimize_grid_resolution(100.0, analysis_type='ml')
             >>> print(f"Recommended resolution: {rec['recommended_resolution']}")
         """
-        # H3 resolution statistics (approximate)
+        # H3 resolution statistics computed from the real H3 API
         resolution_stats = {
-            0: {"avg_area_km2": 4250546.848, "edge_length_km": 1107.712},
-            1: {"avg_area_km2": 607220.982, "edge_length_km": 418.676},
-            2: {"avg_area_km2": 86745.854, "edge_length_km": 158.244},
-            3: {"avg_area_km2": 12392.264, "edge_length_km": 59.810},
-            4: {"avg_area_km2": 1770.323, "edge_length_km": 22.606},
-            5: {"avg_area_km2": 252.903, "edge_length_km": 8.544},
-            6: {"avg_area_km2": 36.129, "edge_length_km": 3.229},
-            7: {"avg_area_km2": 5.161, "edge_length_km": 1.220},
-            8: {"avg_area_km2": 0.737, "edge_length_km": 0.461},
-            9: {"avg_area_km2": 0.105, "edge_length_km": 0.174},
-            10: {"avg_area_km2": 0.015, "edge_length_km": 0.065},
-            11: {"avg_area_km2": 0.002, "edge_length_km": 0.025},
-            12: {"avg_area_km2": 0.0003, "edge_length_km": 0.009},
-            13: {"avg_area_km2": 0.00004, "edge_length_km": 0.003},
-            14: {"avg_area_km2": 0.000007, "edge_length_km": 0.001},
-            15: {"avg_area_km2": 0.000001, "edge_length_km": 0.0005},
+            res: {
+                "avg_area_km2": float(h3.average_hexagon_area(res, unit="km^2")),
+                "edge_length_km": float(
+                    h3.average_hexagon_edge_length(res, unit="km")
+                ),
+            }
+            for res in range(16)
         }
 
         recommendations = []

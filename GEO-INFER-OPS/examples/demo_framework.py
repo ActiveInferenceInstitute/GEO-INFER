@@ -22,20 +22,20 @@ def demo_space_module():
     logger.info("=== SPACE Module Demo ===")
     
     try:
-        from geo_infer_space import setup_osc_geo, create_h3_grid_manager, H3GridManager
-        
-        # Test H3 grid creation (without resolution parameter)
-        grid_manager = create_h3_grid_manager()
-        logger.info(f"✓ Created H3 grid manager")
-        
-        # Test OSC setup
-        setup_result = setup_osc_geo()
-        logger.info(f"✓ OSC setup completed: {setup_result}")
-        
-        # Test H3GridManager directly
-        h3_manager = H3GridManager()
-        logger.info(f"✓ Created H3GridManager directly")
-        
+        from geo_infer_space import (
+            SpatialIndexingInterface, latlng_to_cell, cell_to_latlng
+        )
+
+        # Round-trip a coordinate through the unified spatial API.
+        cell = latlng_to_cell(37.7749, -122.4194, 8)
+        restored = cell_to_latlng(cell)
+        logger.info(f"✓ H3 round-trip: SF -> {cell} -> {restored}")
+
+        # Exercise the indexing interface directly
+        interface = SpatialIndexingInterface()
+        interface_cell = interface.latlng_to_cell(47.6062, -122.3321, 8)
+        logger.info(f"✓ SpatialIndexingInterface resolved {interface_cell}")
+
         return True
     except Exception as e:
         logger.error(f"✗ SPACE demo failed: {e}")
@@ -46,21 +46,17 @@ def demo_place_module():
     logger.info("=== PLACE Module Demo ===")
     
     try:
-        from geo_infer_place import PlaceAnalyzer
+        from geo_infer_space import PlaceAnalyzer
         from pathlib import Path
-        
+
         # Create output directory if it doesn't exist
         demo_dir = Path.cwd() / "demo_output"
         demo_dir.mkdir(exist_ok=True)
-        
+
         # Create a place analyzer
-        analyzer = PlaceAnalyzer(
-            place_name="test_location",
-            base_dir=demo_dir,
-            processor=None
-        )
-        logger.info(f"✓ Created PlaceAnalyzer for test_location")
-        
+        analyzer = PlaceAnalyzer(base_dir=str(demo_dir))
+        logger.info(f"✓ Created PlaceAnalyzer with base_dir {demo_dir}")
+
         return True
     except Exception as e:
         logger.error(f"✗ PLACE demo failed: {e}")
@@ -92,8 +88,7 @@ def demo_cross_module_integration():
     
     try:
         # Import from multiple modules
-        from geo_infer_space import setup_osc_geo
-        from geo_infer_place import PlaceAnalyzer
+        from geo_infer_space import PlaceAnalyzer
         from geo_infer_iot import IoTDataIngestion
         from geo_infer_sec import SecurityFramework
         

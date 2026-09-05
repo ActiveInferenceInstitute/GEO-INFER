@@ -25,17 +25,14 @@ python from geo_infer_econ import EconomicForecastingEngine # Create economic fo
 python from geo_infer_econ.resources import ResourceAllocationEngine # Create resource allocation engine resource_engine = ResourceAllocationEngine( allocation_parameters={ 'resource_distribution': True, 'cost_optimization': True, 'demand_forecasting': True, 'supply_chain': True } ) # Allocate resources allocation_result = resource_engine.allocate_resources( resource_data=resource_information, demand_data=demand_forecasts, supply_data=supply_chain_data )
 ```
  ## 📚 Core Features ### 1. Economic Impact Assessment Engine **Purpose**: Assess economic impacts of policies, projects, and events.
-```
 ```python
  from geo_infer_econ.impact import EconomicImpactEngine # Initialize economic impact engine impact_engine = EconomicImpactEngine() # Define impact assessment parameters impact_config = impact_engine.configure_impact_assessment({ 'direct_effects': True, 'indirect_effects': True, 'induced_effects': True, 'multiplier_analysis': True, 'regional_analysis': True }) # Assess economic impacts impact_result = impact_engine.assess_economic_impacts( economic_data=economic_indicators, policy_data=policy_impacts, spatial_data=regional_boundaries, impact_config=impact_config )
 ```
  ### 2. Market Analysis Engine **Purpose**: Analyze market dynamics and economic patterns.
-```
 ```python
  from geo_infer_econ.market import MarketAnalysisEngine # Initialize market analysis engine market_engine = MarketAnalysisEngine() # Define market analysis parameters market_config = market_engine.configure_market_analysis({ 'market_structure': True, 'competition_analysis': True, 'demand_analysis': True, 'supply_analysis': True, 'price_analysis': True }) # Analyze market dynamics market_result = market_engine.analyze_market_dynamics( market_data=market_information, economic_data=economic_indicators, spatial_data=market_boundaries, market_config=market_config )
 ```
  ### 3. Cost-Benefit Analysis Engine **Purpose**: Conduct cost-benefit analysis.
-```
 ```python
  from geo_infer_econ.cba import CostBenefitAnalysisEngine # Initialize cost-benefit analysis engine cba_engine = CostBenefitAnalysisEngine() # Define CBA parameters cba_config = cba_engine.configure_cost_benefit_analysis({ 'cost_analysis': True, 'benefit_analysis': True, 'discounting': True, 'sensitivity_analysis': True, 'risk_assessment': True }) # Conduct cost-benefit analysis cba_result = cba_engine.conduct_cost_benefit_analysis( project_data=project_information, cost_data=cost_estimates, benefit_data=benefit_estimates, cba_config=cba_config )
 ```

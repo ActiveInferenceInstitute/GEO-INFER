@@ -32,6 +32,7 @@ MODULES = {
     'ECON': {'dependencies': ['SPACE', 'TIME', 'DATA'], 'description': 'Economics'},
     'RISK': {'dependencies': ['SPACE', 'TIME', 'DATA'], 'description': 'Risk management'},
     'LOG': {'dependencies': ['SPACE', 'TIME', 'DATA'], 'description': 'Logistics'},
+    'INSURANCE': {'dependencies': ['SPACE', 'TIME', 'DATA', 'RISK'], 'description': 'Insurance operations: underwriting, policy, claims, pricing'},
     'BIO': {'dependencies': ['SPACE', 'TIME', 'DATA'], 'description': 'Bioinformatics'},
     
     # Infrastructure modules (Phase 4)

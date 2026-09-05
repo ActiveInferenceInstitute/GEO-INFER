@@ -10,7 +10,7 @@ This module provides validation capabilities for:
 """
 
 import logging
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Any
 from datetime import datetime
 from dataclasses import dataclass
 
@@ -29,7 +29,7 @@ class UnderwritingValidator:
 
     def __init__(self) -> None:
         """Initialize the validator."""
-        self.logger = logging.getLogger("geo_infer_risk.underwriting.validator")
+        self.logger = logging.getLogger("geo_infer_insurance.underwriting.validator")
 
         # Validation rules
         self.application_rules = self._load_application_rules()
@@ -420,7 +420,7 @@ class PolicyValidator:
 
     def __init__(self) -> None:
         """Initialize the policy validator."""
-        self.logger = logging.getLogger("geo_infer_risk.underwriting.policy_validator")
+        self.logger = logging.getLogger("geo_infer_insurance.underwriting.policy_validator")
 
     def validate_policy_renewal(self, current_policy: Dict[str, Any],
                                renewal_data: Dict[str, Any]) -> ValidationResult:

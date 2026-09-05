@@ -108,6 +108,16 @@ def test_polygon_contains_point():
     assert polygon_contains_point(polygon_dict, outside_point) is False
 
 
+def test_polygon_contains_point_horizontal_first_segment():
+    """Regression: a polygon whose first ring segment is horizontal must not
+    crash with UnboundLocalError or use a stale crossing value."""
+    square = {"type": "Polygon", "coordinates": [[(0, 0), (10, 0), (10, 10), (0, 10), (0, 0)]]}
+    assert polygon_contains_point(square, (5.0, 5.0)) is True
+    assert polygon_contains_point(square, (-5.0, 5.0)) is False
+    assert polygon_contains_point(square, (15.0, 5.0)) is False
+    assert polygon_contains_point(square, (5.0, 10.0)) is False  # boundary excluded
+
+
 def test_simplify_polygon():
     """Test simplification of a polygon."""
     # Create a more complex polygon with unnecessary points
@@ -135,9 +145,15 @@ def test_simplify_polygon():
     # We're now ensuring the polygon has at least 4 points, so instead of checking if it has
     # fewer points, let's check that it's valid
     assert len(simplified.coordinates[0]) >= 4
-    
-    # But it should still have at least 4 points (triangle + closing point)
-    assert len(simplified.coordinates[0]) >= 4
+
+
+def test_simplify_polygon_accepts_dict():
+    """simplify_polygon accepts the same Union[Polygon, Dict] contract as the
+    other geometry helpers."""
+    coords = [[(-122.51, 37.77), (-122.42, 37.81), (-122.37, 37.73), (-122.51, 37.77)]]
+    result = simplify_polygon({"type": "Polygon", "coordinates": coords}, tolerance=0.1)
+    assert result.type == GeoJSONType.POLYGON
+    assert validate_polygon_rings(result.coordinates) is True
 
 
 def test_create_polygon_feature():

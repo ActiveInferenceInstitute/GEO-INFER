@@ -6,7 +6,7 @@ point pattern analysis, and clustering statistics.
 """
 
 import logging
-from typing import Dict, Any, List, Tuple, Optional, TYPE_CHECKING, cast
+from typing import Dict, Any, List, Optional, TYPE_CHECKING, cast
 import numpy as np
 
 if TYPE_CHECKING:
@@ -225,7 +225,11 @@ class SpatialStatistics:
                 try:
                     neighbors = backend.get_cell_neighbors(cell, k=distance)
                     neighborhood = [cell] + [n for n in neighbors if n in cell_set]
-                except Exception:
+                except (ValueError, KeyError) as e:
+                    logger.warning(
+                        f"Neighbor lookup failed for {cell}; using self-only "
+                        f"neighborhood — local statistics may be degraded: {e}"
+                    )
                     neighborhood = [cell]
                 
                 # Get values in neighborhood

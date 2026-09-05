@@ -9,14 +9,14 @@ import logging
 import heapq
 from datetime import datetime
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Union, Tuple, Set
+from typing import Dict, List, Any, Optional, Tuple, Set
 from enum import Enum
-from collections import defaultdict, deque
+from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
 try:
-    import h3
+    import h3 as h3
     H3_AVAILABLE = True
 except ImportError:
     H3_AVAILABLE = False

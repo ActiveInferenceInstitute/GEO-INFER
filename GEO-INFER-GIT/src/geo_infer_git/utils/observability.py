@@ -13,20 +13,15 @@ This module provides advanced monitoring capabilities including:
 - Observability dashboards
 """
 
-import os
 import time
 import json
 import threading
-import logging
-from typing import Dict, List, Any, Optional, Callable, Union, Tuple
+from typing import Dict, List, Any, Optional, Callable, Union
 from dataclasses import dataclass, field
-from pathlib import Path
 from datetime import datetime, timedelta, timezone
-from collections import defaultdict, deque
+from collections import defaultdict
 import psutil
-import socket
 import uuid
-import weakref
 
 from ..utils.logging_utils import get_logger
 

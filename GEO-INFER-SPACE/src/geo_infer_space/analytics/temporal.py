@@ -7,17 +7,12 @@ and operates on standard data structures.
 """
 
 import logging
-from typing import List, Dict, Any, Optional, Union
+from typing import List, Dict, Any, Optional
 from datetime import datetime
-import math
 
 logger = logging.getLogger(__name__)
 
-try:
-    import numpy as np
-    NUMPY_AVAILABLE = True
-except ImportError:
-    NUMPY_AVAILABLE = False
+import numpy as np
 
 
 class TemporalAnalyzer:
@@ -143,21 +138,12 @@ class TemporalAnalyzer:
         # Calculate stats for each bucket
         result: Dict[int, Dict[str, float]] = {}
         for key, values in aggregated.items():
-            if NUMPY_AVAILABLE:
-                stats = {
-                    'mean': float(np.mean(values)),
-                    'sum': float(np.sum(values)),
-                    'count': len(values),
-                    'std': float(np.std(values))
-                }
-            else:
-                mean_val = sum(values) / len(values)
-                stats = {
-                    'mean': mean_val,
-                    'sum': sum(values),
-                    'count': len(values),
-                    'std': math.sqrt(sum((v - mean_val) ** 2 for v in values) / len(values)) if len(values) > 0 else 0
-                }
+            stats = {
+                'mean': float(np.mean(values)),
+                'sum': float(np.sum(values)),
+                'count': len(values),
+                'std': float(np.std(values))
+            }
             result[key] = stats
             
         return result
@@ -191,17 +177,9 @@ class TemporalAnalyzer:
             
         all_means = [d['mean'] for d in aggregated_data.values()]
         
-        if NUMPY_AVAILABLE:
-            return {
-                'overall_mean': float(np.mean(all_means)),
-                'overall_std': float(np.std(all_means)),
-                'min_mean': float(np.min(all_means)),
-                'max_mean': float(np.max(all_means))
-            }
-        else:
-            mean = sum(all_means) / len(all_means)
-            return {
-                'overall_mean': mean,
-                'min_mean': min(all_means),
-                'max_mean': max(all_means)
-            }
+        return {
+            'overall_mean': float(np.mean(all_means)),
+            'overall_std': float(np.std(all_means)),
+            'min_mean': float(np.min(all_means)),
+            'max_mean': float(np.max(all_means))
+        }

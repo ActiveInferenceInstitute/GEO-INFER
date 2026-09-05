@@ -25,17 +25,14 @@ python from geo_infer_git import RepositoryManager # Create repository manager r
 python from geo_infer_git.orchestration import OrchestrationEngine # Create orchestration engine orchestration_engine = OrchestrationEngine( orchestration_parameters={ 'workflow_automation': True, 'integration_support': True, 'ci_cd': True } ) # Orchestrate workflows orchestration_engine.orchestrate_workflows( workflow_data=workflow_definitions, integration_data=integration_points )
 ```
  ## 📚 Core Features ### 1. Code Versioning Engine **Purpose**: Manage code versioning and change tracking for geospatial projects.
-```
 ```python
  from geo_infer_git.versioning import CodeVersioningEngine # Initialize code versioning engine versioning_engine = CodeVersioningEngine() # Define code versioning parameters versioning_config = versioning_engine.configure_code_versioning({ 'change_tracking': True, 'version_history': True, 'branch_management': True, 'merge_strategies': True, 'conflict_resolution': True }) # Manage code versions versioning_result = versioning_engine.manage_code_versions( code_data=source_code, version_data=version_information, versioning_config=versioning_config )
 ```
  ### 2. Repository Management Engine **Purpose**: Manage repositories and development workflows.
-```
 ```python
  from geo_infer_git.management import RepositoryManagementEngine # Initialize repository management engine management_engine = RepositoryManagementEngine() # Define repository management parameters management_config = management_engine.configure_repository_management({ 'repository_organization': True, 'branch_management': True, 'merge_strategies': True, 'conflict_resolution': True, 'repository_optimization': True }) # Manage repositories management_result = management_engine.manage_repositories( repository_data=repository_information, branch_data=branch_structures, management_config=management_config )
 ```
  ### 3. Collaboration Tools Engine **Purpose**: Provide collaboration and team development tools.
-```
 ```python
  from geo_infer_git.collaboration import CollaborationToolsEngine # Initialize collaboration tools engine collaboration_engine = CollaborationToolsEngine() # Define collaboration tools parameters collaboration_config = collaboration_engine.configure_collaboration_tools({ 'team_coordination': True, 'code_review': True, 'issue_tracking': True, 'communication_tools': True, 'project_management': True }) # Manage collaboration collaboration_result = collaboration_engine.manage_collaboration( team_data=development_team, project_data=project_information, collaboration_config=collaboration_config )
 ```

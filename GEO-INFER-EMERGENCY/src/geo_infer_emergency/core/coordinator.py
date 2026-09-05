@@ -10,6 +10,7 @@ from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
+import zlib
 
 logger = logging.getLogger(__name__)
 
@@ -165,7 +166,7 @@ class EmergencyCoordinator:
             "command_structure": self.command_structure,
             "responding_agencies": agencies,
             "resource_assignments": [],
-            "communication_channels": self._assign_channels(incident_obj, agencies),
+            "communication_channels": self._assign_channels(incident_obj),
             "operational_period": "12_hours",
             "status": "coordinating"
         }
@@ -186,7 +187,7 @@ class EmergencyCoordinator:
         logger.info(f"Coordinated response for incident {incident_id} with {len(agencies)} agencies")
         return coordination
     
-    def _assign_channels(self, incident: Incident, agencies: List[str]) -> Dict[str, str]:
+    def _assign_channels(self, incident: Incident) -> Dict[str, str]:
         """Assign communication channels for incident."""
         channels = {
             "command": f"CMD-{incident.incident_id[:8]}",
@@ -195,6 +196,18 @@ class EmergencyCoordinator:
             "logistics": f"LOG-{incident.incident_id[:8]}"
         }
         return channels
+
+    @staticmethod
+    def _resource_quantity(resource_list: Any) -> int:
+        """Count units in a resource entry of any supported shape."""
+        if isinstance(resource_list, (list, tuple)):
+            return len(resource_list)
+        if isinstance(resource_list, dict):
+            numeric = [v for v in resource_list.values() if isinstance(v, (int, float))]
+            return int(sum(numeric)) if numeric else len(resource_list)
+        if isinstance(resource_list, (int, float)):
+            return int(resource_list)
+        return 1
     
     def _allocate_resources(
         self,
@@ -220,7 +233,7 @@ class EmergencyCoordinator:
             if resource_type in appropriate_types:
                 allocated.append({
                     "type": resource_type,
-                    "quantity": len(resource_list) if isinstance(resource_list, list) else resource_list,
+                    "quantity": self._resource_quantity(resource_list),
                     "assigned_at": datetime.now().isoformat()
                 })
         
@@ -228,9 +241,10 @@ class EmergencyCoordinator:
     
     def _assign_sector(self, agency_id: str, incident: Incident) -> str:
         """Assign operational sector to agency."""
-        # Simple sector assignment
+        # Deterministic sector assignment: zlib.crc32 is stable across
+        # Python processes (unlike hash(), which is salt-randomized).
         sectors = ["Alpha", "Bravo", "Charlie", "Delta"]
-        return sectors[hash(agency_id) % len(sectors)]
+        return sectors[zlib.crc32(agency_id.encode("utf-8")) % len(sectors)]
     
     def establish_command(
         self,
@@ -247,12 +261,31 @@ class EmergencyCoordinator:
             location: Command post location
             scale: Incident scale
             command_structure: ICS positions and personnel
-            
+
         Returns:
             Established command structure
         """
         incident_id = f"incident_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-        
+
+        # Register the incident in the active-incident registry so that
+        # establish_command and coordinate() share one ID space and
+        # get_active_incidents() sees command-post incidents.
+        try:
+            incident_type_enum = IncidentType(incident_type)
+        except ValueError:
+            incident_type_enum = IncidentType.OTHER
+        try:
+            scale_enum = IncidentScale(scale)
+        except ValueError:
+            scale_enum = IncidentScale.TYPE_3
+        self._active_incidents[incident_id] = Incident(
+            incident_id=incident_id,
+            incident_type=incident_type_enum,
+            name=command_structure.get("name", f"{incident_type.replace('_', ' ').title()} Incident"),
+            location=location,
+            scale=scale_enum
+        )
+
         # Create incident command
         command = IncidentCommand(
             incident_commander=command_structure.get("incident_commander", ""),
@@ -377,7 +410,7 @@ class EmergencyCoordinator:
         incident: Dict[str, Any],
         update_frequency: str = "hourly",
         distribution: Optional[List[str]] = None,
-        format: str = "ics_209"
+        report_format: str = "ics_209"
     ) -> Dict[str, Any]:
         """
         Generate situation report.
@@ -386,7 +419,7 @@ class EmergencyCoordinator:
             incident: Incident to report on
             update_frequency: How often to update
             distribution: Distribution list
-            format: Report format
+            report_format: Report format
             
         Returns:
             Situation report
@@ -398,7 +431,7 @@ class EmergencyCoordinator:
             "incident_id": incident_id,
             "incident_name": incident.get("name", "Unknown"),
             "report_time": datetime.now().isoformat(),
-            "format": format,
+            "format": report_format,
             "update_frequency": update_frequency,
             "distribution": distribution or ["eoc"],
             "current_status": {

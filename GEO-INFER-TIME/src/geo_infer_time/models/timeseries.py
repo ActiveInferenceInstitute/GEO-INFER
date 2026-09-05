@@ -6,7 +6,7 @@ temporal geospatial data with metadata and analysis capabilities.
 """
 
 import logging
-from typing import Dict, List, Optional, Any, Union, cast
+from typing import Dict, Optional, Any, Union, cast
 from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np

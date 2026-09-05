@@ -7,8 +7,7 @@ anomalies, changepoints, and significant events in time series data.
 
 import logging
 import math
-from typing import Dict, List, Optional, Any
-import pandas as pd
+from typing import Dict, Any
 import numpy as np
 
 from ..models.timeseries import TimeSeries

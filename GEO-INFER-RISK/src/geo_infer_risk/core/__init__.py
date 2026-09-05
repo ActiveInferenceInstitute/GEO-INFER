@@ -87,7 +87,10 @@ __all__ = [
     "create_enhanced_infrastructure_vulnerability_model",
     "create_enhanced_population_vulnerability_model",
     # Risk modeling components
+    "RiskParameters",
     "RiskModel",
+    "HazardModel",
+    "VulnerabilityModel",
     "ExposureModel",
     # Enhanced Catastrophe modeling
     "EnhancedCatastropheModel",

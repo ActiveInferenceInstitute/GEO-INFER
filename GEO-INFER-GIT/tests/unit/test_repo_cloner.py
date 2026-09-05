@@ -264,17 +264,30 @@ class TestRepoCloner:
         assert usage['total_bytes'] > 0
 
     def test_cleanup_failed_clones(self):
-        """Test cleanup of failed clones."""
-        # Create a directory that looks like a failed clone (no .git)
-        failed_dir = self.cloner.output_dir / 'failed_repo'
-        failed_dir.mkdir()
+        """Cleanup removes only owner/repo-shaped dirs lacking .git."""
+        # A failed clone attempt: owner/repo shaped without .git
+        failed_dir = self.cloner.output_dir / 'owner' / 'failed-repo'
+        failed_dir.mkdir(parents=True)
         (failed_dir / 'some_file.txt').write_text('test')
+
+        # An unrelated file and directory at the output root must survive
+        (self.cloner.output_dir / 'notes.md').write_text('keep me')
+        keep_dir = self.cloner.output_dir / 'project-notes'
+        keep_dir.mkdir()
+        (keep_dir / 'keep.txt').write_text('keep me too')
+
+        # An existing clone (with .git) must survive
+        good_dir = self.cloner.output_dir / 'owner' / 'good-repo'
+        good_dir.mkdir(parents=True)
+        (good_dir / '.git').mkdir()
 
         cleaned_count = self.cloner.cleanup_failed_clones()
 
-        # The cleanup should find and remove the failed directory
-        assert cleaned_count >= 0  # Should not raise an exception
-        # Note: The exact count may vary based on implementation
+        assert cleaned_count == 1
+        assert not failed_dir.exists()
+        assert good_dir.exists() and (good_dir / '.git').exists()
+        assert (self.cloner.output_dir / 'notes.md').exists()
+        assert (keep_dir / 'keep.txt').exists()
 
     def test_get_clone_stats(self):
         """Test getting clone statistics."""
@@ -318,8 +331,9 @@ class TestRepoCloner:
         assert 'recommended_approach' in estimate
 
     def test_close(self):
-        """Test cloner cleanup."""
+        """Test cloner cleanup resets progress state."""
+        self.cloner.progress.total_repos = 3
         self.cloner.close()
 
-        # Should not raise any exceptions
-        assert True
+        assert self.cloner.progress.total_repos == 0
+        assert self.cloner.progress.completed_repos == 0

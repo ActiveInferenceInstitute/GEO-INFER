@@ -1,7 +1,7 @@
 """Regression tests for the in-memory underwriting portfolio boundary."""
 
-from geo_infer_risk.underwriting import create_pricing_engine
-from geo_infer_risk.underwriting.core.portfolio_management import (
+from geo_infer_insurance.underwriting import create_pricing_engine
+from geo_infer_insurance.underwriting.core.portfolio_management import (
     PortfolioManager,
     PortfolioOptimizer,
 )

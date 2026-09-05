@@ -10,8 +10,12 @@ Examples workspace within `GEO-INFER-IOT`.
 
 ## Public Interface
 
-- `radiation_surveillance.py:RadiationSurveillanceSystem` (class)
+- `radiation_surveillance.py:build_config` (function)
+- `radiation_surveillance.py:simulate_measurements` (function)
 - `radiation_surveillance.py:main` (function)
+- `smart_sensor_network.py:build_network_config` (function)
+- `smart_sensor_network.py:register_deployment` (function)
+- `smart_sensor_network.py:simulate_measurements` (function)
 - `smart_sensor_network.py:main` (function)
 - `soil_sensor_network.py:SoilSensorNetwork` (class)
 - `soil_sensor_network.py:load_config` (function)
@@ -29,18 +33,18 @@ Examples workspace within `GEO-INFER-IOT`.
 
 ## Dependencies
 
-- `aiocoap>=0.4.3`
 - `aiomqtt>=2.4.0`
-- `confluent-kafka>=1.8.0`
 - `fastapi>=0.100.0`
 - `folium>=0.12.0`
-- `geopandas>=0.10.0`
+- `geo-infer-bayes`
+- `geo-infer-space`
 - `h3>=4.5.0,<5`
-- `influxdb-client>=1.24.0`
 - `matplotlib>=3.5.0`
+- `networkx>=2.6`
 - `numpy>=1.20.0`
 - `paho-mqtt>=1.6.0`
 - `pandas>=1.3.0`
+- `pydantic>=2.0.0`
 
 
 ## Validation

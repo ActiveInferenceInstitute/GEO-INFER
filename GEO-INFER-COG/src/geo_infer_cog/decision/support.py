@@ -26,7 +26,7 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional, Tuple, Any, Union
+from typing import Dict, List, Optional, Any
 
 import numpy as np
 
@@ -241,11 +241,13 @@ class SpatialDecisionSupport:
                 alternatives = self._apply_bias_mitigation(alternatives, stakeholder_profiles)
 
             # Step 3: Evaluate alternatives using selected framework
-            if self.decision_framework == 'prospect_theory':
+            # Framework selection is driven by the public DecisionStrategy
+            # enum; unrecognized values fall back to multi-criteria analysis.
+            if self.decision_framework == DecisionStrategy.PROSPECT_THEORY.value:
                 evaluations = self._apply_prospect_theory(alternatives, decision_criteria)
-            elif self.decision_framework == 'cognitive_weighted':
+            elif self.decision_framework == DecisionStrategy.COGNITIVE_WEIGHTED.value:
                 evaluations = self._apply_cognitive_weighting(alternatives, stakeholder_profiles, decision_criteria)
-            elif self.decision_framework == 'bayesian_decision':
+            elif self.decision_framework == DecisionStrategy.BAYESIAN_DECISION.value:
                 evaluations = self._apply_bayesian_decision(alternatives, decision_criteria)
             else:
                 evaluations = self._apply_multi_criteria_analysis(alternatives, decision_criteria)
@@ -279,6 +281,7 @@ class SpatialDecisionSupport:
             }
 
             logger.info(f"Decision analysis completed in {processing_time:.3f}s with {len(recommendations)} recommendations")
+            return analysis_result
 
         except Exception as e:
             logger.error(f"Error in decision analysis: {str(e)}")

@@ -78,7 +78,6 @@ class SoilMoistureModel(GenerativeModel):
 
 The `FreeEnergyCalculator` in `geo_infer_act.core.free_energy` supports both categorical and Gaussian models.
 
-```
 ```python
 from geo_infer_act.core.free_energy import FreeEnergyCalculator
 
@@ -105,7 +104,6 @@ Free energy decomposes as: F = Complexity - Accuracy, where Complexity is D_KL[Q
 
 GEO-INFER-BAYES provides a Gaussian Process implementation using Cholesky decomposition for numerical stability. The implementation falls back to NumPy/SciPy when TensorFlow Probability is not installed.
 
-```
 ```python
 from geo_infer_bayes.api.tfp_interface import TFPInterface
 import numpy as np
@@ -130,7 +128,6 @@ The `create_spatial_gp_model` method computes:
 
 To use a different kernel, wrap the GP interface:
 
-```
 ```python
 import numpy as np
 from scipy import linalg
@@ -168,7 +165,6 @@ def fit_gp_custom_kernel(X: np.ndarray, y: np.ndarray,
 
 The `TFPInterface.sample()` method runs Metropolis-Hastings on the GP hyperparameters in log-space:
 
-```
 ```python
 # Sample hyperparameter posteriors
 traces = gp.sample(n_samples=2000, n_warmup=500, seed=42)
@@ -184,7 +180,6 @@ GEO-INFER-BAYES implements real model comparison metrics. These are not stubs --
 
 ### LOO-CV (Leave-One-Out Cross-Validation)
 
-```
 ```python
 def loo_cv_score(X: np.ndarray, y: np.ndarray,
                   kernel_fn, lengthscale: float,
@@ -206,7 +201,6 @@ def loo_cv_score(X: np.ndarray, y: np.ndarray,
 
 ### WAIC (Widely Applicable Information Criterion)
 
-```
 ```python
 def compute_waic(log_likelihoods: np.ndarray) -> dict:
     """
@@ -227,7 +221,6 @@ def compute_waic(log_likelihoods: np.ndarray) -> dict:
 
 ### DIC (Deviance Information Criterion)
 
-```
 ```python
 def compute_dic(log_likelihoods: np.ndarray) -> dict:
     """Compute DIC from posterior samples of log-likelihood."""
@@ -240,7 +233,6 @@ def compute_dic(log_likelihoods: np.ndarray) -> dict:
 
 ### Comparing Models
 
-```
 ```python
 # Compare GP models with different kernels
 models = {
@@ -262,7 +254,6 @@ Use LOO when you have few observations (< 200). Use WAIC or DIC when you have po
 
 ### Example: Wildfire Risk Model
 
-```
 ```python
 import numpy as np
 from geo_infer_act.core.free_energy import FreeEnergyCalculator
@@ -297,7 +288,6 @@ class WildfireRiskModel:
 
 Custom models integrate through the standard module import pattern:
 
-```
 ```python
 # In your analysis script
 from geo_infer_space import SpatialAnalyzer

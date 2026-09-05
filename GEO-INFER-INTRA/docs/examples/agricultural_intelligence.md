@@ -32,7 +32,6 @@ Normalized Difference Vegetation Index (NDVI) time series serve as the primary o
 
 ### Loading NDVI Time Series
 
-```
 ```python
 import numpy as np
 import pandas as pd
@@ -109,7 +108,6 @@ print(f"Date range: {ndvi_df['date'].min()} to {ndvi_df['date'].max()}")
 
 ### Spatial Aggregation
 
-```
 ```python
 def aggregate_ndvi_to_field(ndvi_df: pd.DataFrame) -> pd.DataFrame:
     """Aggregate per-cell NDVI to field-level summary per timestep.
@@ -145,7 +143,6 @@ The core Active Inference model maintains beliefs about a hidden state that cycl
 
 ### Defining the Generative Model
 
-```
 ```python
 from geo_infer_act.core.active_inference import ActiveInferenceAgent
 
@@ -234,7 +231,6 @@ for key, val in model_params.items():
 
 ### Running Belief Updates Over Multiple Seasons
 
-```
 ```python
 def discretize_ndvi(ndvi_value: float) -> int:
     """Convert continuous NDVI to discrete observation index.
@@ -328,7 +324,6 @@ print(inference_results[["date", "most_likely_state", "selected_action"]].head()
 
 ### Visualizing Belief Trajectories
 
-```
 ```python
 import matplotlib.pyplot as plt
 
@@ -371,7 +366,6 @@ Agricultural decisions must account for market conditions. Expected free energy 
 
 ### Coupling Yield with Price Signals
 
-```
 ```python
 def build_market_preferences(
     base_yield_value: float = 250.0,
@@ -420,7 +414,6 @@ for action, prefs in market_prefs.items():
 
 ### Optimal Crop Rotation Policy
 
-```
 ```python
 def evaluate_rotation_policies(
     agent: ActiveInferenceAgent,
@@ -486,7 +479,6 @@ Integrating climate projections updates the agent's priors about future growing 
 
 ### Loading Climate Projections
 
-```
 ```python
 from geo_infer_climate.core.climate_analyzer import ClimateAnalyzer
 
@@ -552,7 +544,6 @@ for name, df in climate_scenarios.items():
 
 ### Updating Priors Based on Climate
 
-```
 ```python
 def adapt_model_to_climate(
     base_params: Dict[str, np.ndarray],
@@ -621,7 +612,6 @@ print(f"Transition matrix change (no_action, dormant->growing): "
 
 ### Adaptive Management Recommendations
 
-```
 ```python
 def generate_adaptation_report(
     scenarios: Dict[str, pd.DataFrame],
@@ -678,7 +668,6 @@ print(report.to_string(index=False))
 
 The following script ties all sections together into a single executable workflow.
 
-```
 ```python
 import numpy as np
 import pandas as pd

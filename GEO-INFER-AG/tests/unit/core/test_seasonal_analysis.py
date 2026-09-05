@@ -348,3 +348,43 @@ class TestSeasonalAnalysis:
         }
         with pytest.raises(ValueError):
             sa.plot_growing_season() 
+
+    def test_identify_phenological_stages_constant_series(self):
+        """A constant series must not produce NaN-normalized empty stages."""
+        dates = pd.date_range("2024-04-01", periods=120, freq="D")
+        sa = SeasonalAnalysis()
+        # Inject a detected season so the constant series can be analyzed
+        # directly (detect_growing_season cannot fire on a flat series).
+        sa.growing_season = {
+            "seasons": [
+                {"start_date": dates[0], "peak_date": dates[60], "end_date": dates[-1]}
+            ]
+        }
+        constant_series = pd.Series(0.5, index=dates)
+        result = sa.identify_phenological_stages(
+            crop_type="corn", time_series=constant_series
+        )
+
+        # Constant series maps to normalized 0.5, so stages whose window
+        # includes 0.5 are populated instead of every stage being dropped.
+        assert result["stages"], "expected at least one phenological stage"
+
+    def test_analyze_temporal_trends_resample_no_futurewarning(self):
+        """Monthly/annual resampling must not emit pandas FutureWarnings."""
+        import warnings
+
+        dates = pd.date_range("2024-01-01", periods=730, freq="D")
+        series = pd.Series(np.linspace(0.1, 0.9, len(dates)), index=dates)
+        sa = SeasonalAnalysis()
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", FutureWarning)
+            monthly = sa.analyze_temporal_trends(
+                time_series=series, period="monthly"
+            )
+            annual = sa.analyze_temporal_trends(
+                time_series=series, period="annual"
+            )
+
+        assert len(monthly["data"]["original"]) > 12
+        assert len(annual["data"]["original"]) >= 2

@@ -6,13 +6,12 @@ service area analysis, and delivery scheduling.
 """
 
 import logging
+import math
 import numpy as np
-import pandas as pd
 import geopandas as gpd
-import networkx as nx
-from shapely.geometry import Point, LineString, Polygon
-from shapely.ops import voronoi_diagram, unary_union
-from typing import Any, Dict, List, Optional, Tuple, Union, cast
+from shapely.geometry import Point, Polygon
+from shapely.ops import unary_union, voronoi_diagram
+from typing import Dict, List, Optional, Tuple
 from datetime import datetime, timedelta
 
 try:
@@ -30,7 +29,6 @@ _DEG_PER_KM_LAT = 1.0 / 111.32
 
 def _deg_per_km_lon(lat_deg: float) -> float:
     """Return the number of degrees of longitude per km at a given latitude."""
-    import math
     return 1.0 / (111.32 * math.cos(math.radians(lat_deg)))
 
 from geo_infer_log.models.schemas import Vehicle, Location, Route, RoutingParameters
@@ -47,7 +45,7 @@ class LastMileRouter:
             parameters: Routing parameters
         """
         self.parameters = parameters or RoutingParameters()
-        self.route_optimizer = RouteOptimizer(cast(Any, parameters))
+        self.route_optimizer = RouteOptimizer(parameters)
         self.service_areas: Dict[str, Polygon] = {}  # depot_id -> service area polygon
     
     def load_network(self, network_file: str) -> None:

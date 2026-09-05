@@ -33,7 +33,6 @@ uv pip install -e "./GEO-INFER-[MODULE][dev]"
 
 ### Basic Usage
 
-```
 ```python
 from geo_infer_[module].core.[submodule] import [MainClass]
 
@@ -50,7 +49,6 @@ print(result)
 
 ### Example: [Descriptive Name of Example]
 
-```
 ```python
 from geo_infer_[module].core.[submodule] import [MainClass]
 import numpy as np
@@ -80,7 +78,6 @@ print(f"[Description]: {[result]}")
 
 ### Package Structure
 
-```
 ```text
 GEO-INFER-[MODULE]/
     src/geo_infer_[module]/
@@ -129,7 +126,6 @@ These modules use this module's output:
 
 ### Cross-Module Example
 
-```
 ```python
 from geo_infer_[module].core.[submodule] import [MainClass]
 from geo_infer_[upstream].core.[submodule] import [UpstreamClass]
@@ -149,7 +145,6 @@ print(f"Output shape: {result.shape}")
 
 ### [MainClass]
 
-```
 ```python
 class [MainClass]:
     """[One-line description of the class purpose.]
@@ -185,7 +180,6 @@ class [MainClass]:
 
 ### [SecondaryClass]
 
-```
 ```python
 class [SecondaryClass]:
     """[One-line description.]"""
@@ -203,7 +197,6 @@ class [SecondaryClass]:
 
 ### Utility Functions
 
-```
 ```python
 def [utility_function]) -> [ReturnType]:
     """[Imperative description of the function.]
@@ -221,7 +214,6 @@ def [utility_function]) -> [ReturnType]:
 
 ### pyproject.toml
 
-```
 ```toml
 [project]
 name = "geo-infer-[module]"
@@ -253,28 +245,24 @@ dev = [
 
 ### Run All Tests
 
-```
 ```bash
 uv run python -m pytest GEO-INFER-[MODULE]/tests/ -v
 ```
 
 ### Run Unit Tests Only
 
-```
 ```bash
 uv run python -m pytest GEO-INFER-[MODULE]/tests/unit/ -v
 ```
 
 ### Run Integration Tests
 
-```
 ```bash
 uv run python -m pytest GEO-INFER-[MODULE]/tests/integration/ -v
 ```
 
 ### Run with Coverage
 
-```
 ```bash
 uv run python -m pytest GEO-INFER-[MODULE]/tests/ \
     --cov=GEO-INFER-[MODULE]/src \
@@ -284,7 +272,6 @@ uv run python -m pytest GEO-INFER-[MODULE]/tests/ \
 
 ### Run via Unified Test Runner
 
-```
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --module [MODULE]
 ```

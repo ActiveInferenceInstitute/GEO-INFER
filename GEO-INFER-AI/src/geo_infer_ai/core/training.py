@@ -15,9 +15,13 @@ import numpy as np
 from sklearn.metrics import (
     accuracy_score,
     classification_report,
+    confusion_matrix,
+    f1_score,
     mean_absolute_error,
     mean_squared_error,
+    precision_score,
     r2_score,
+    recall_score,
 )
 from sklearn.model_selection import KFold, StratifiedKFold, train_test_split
 
@@ -108,8 +112,6 @@ class ModelTrainer:
 
         # Split validation data if not provided
         if X_val is None or y_val is None:
-            from sklearn.model_selection import train_test_split
-
             X_train, X_val, y_train, y_val = train_test_split(
                 X_train,
                 y_train,
@@ -169,8 +171,6 @@ class ModelTrainer:
 
         # Split validation data if not provided
         if X_val is None or y_val is None:
-            from sklearn.model_selection import train_test_split
-
             X_train, X_val, y_train, y_val = train_test_split(
                 X_train,
                 y_train,
@@ -234,14 +234,6 @@ class ModelTrainer:
         if task_type == "classification":
             accuracy = accuracy_score(y_test, y_pred)
             report = classification_report(y_test, y_pred, output_dict=True)
-
-            # Additional classification metrics
-            from sklearn.metrics import (
-                precision_score,
-                recall_score,
-                f1_score,
-                confusion_matrix,
-            )
 
             # Handle multi-class vs binary
             if len(np.unique(y_test)) == 2:

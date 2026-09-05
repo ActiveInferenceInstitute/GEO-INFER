@@ -2,7 +2,6 @@
 from typing import Optional, List
 from datetime import datetime
 from pydantic import BaseModel
-from typing import Optional
 
 class InteractionLog(BaseModel):
     timestamp: datetime = datetime.now()

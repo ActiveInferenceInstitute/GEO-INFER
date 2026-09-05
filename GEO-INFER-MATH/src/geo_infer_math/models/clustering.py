@@ -7,14 +7,14 @@ hierarchical clustering methods.
 """
 
 import numpy as np
-from typing import Union, List, Tuple, Dict, Optional, Any, Callable, cast
+from typing import Optional, Any, cast
 from dataclasses import dataclass
-from scipy.spatial.distance import pdist, squareform
+from scipy.spatial.distance import pdist
 from scipy.cluster.hierarchy import linkage, fcluster
-from sklearn.cluster import KMeans, DBSCAN
+from sklearn.cluster import DBSCAN
 import logging
 
-from ..utils.rng import resolve_rng, SeedLike
+from ..utils.rng import resolve_rng
 
 logger = logging.getLogger(__name__)
 

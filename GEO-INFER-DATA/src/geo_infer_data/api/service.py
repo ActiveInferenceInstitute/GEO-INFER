@@ -7,7 +7,7 @@ dataset management, data access, and integration with other modules.
 
 import logging
 import inspect
-from typing import Dict, List, Optional, Any, Tuple, Sequence, cast
+from typing import Dict, List, Optional, Any, cast
 from datetime import datetime, timezone
 
 import geopandas as gpd
@@ -94,7 +94,7 @@ class DataService:
         logger.debug(f"Listing datasets with filters: {filters}")
 
         datasets = []
-        for dataset in list(self.datasets.values())[offset : offset + limit]:
+        for dataset in self.datasets.values():
             # Apply filters
             if filters:
                 if "type" in filters and dataset.type != filters["type"]:
@@ -110,7 +110,8 @@ class DataService:
 
             datasets.append(dataset)
 
-        return datasets
+        # Paginate over the filtered result set
+        return datasets[offset : offset + limit]
 
     def _bboxes_intersect(self, bbox1: List[float], bbox2: List[float]) -> bool:
         """Check if two bounding boxes intersect."""

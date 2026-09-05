@@ -168,3 +168,23 @@ class TestGeospatialAnonymizer(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main() 
+
+class TestLocationPerturbationCrsGuard(unittest.TestCase):
+    """location_perturbation assumes EPSG:4326 and rejects projected CRS."""
+
+    def _points(self, crs):
+        return gpd.GeoDataFrame(
+            {"value": [1, 2]},
+            geometry=[Point(-73.98, 40.75), Point(-73.99, 40.76)],
+            crs=crs,
+        )
+
+    def test_rejects_projected_crs(self):
+        gdf = self._points("EPSG:3857")
+        with self.assertRaises(ValueError, msg="EPSG:4326"):
+            GeospatialAnonymizer(seed=1).location_perturbation(gdf, epsilon=100.0)
+
+    def test_accepts_epsg_4326(self):
+        gdf = self._points("EPSG:4326")
+        result = GeospatialAnonymizer(seed=1).location_perturbation(gdf, epsilon=100.0)
+        self.assertEqual(len(result), 2)

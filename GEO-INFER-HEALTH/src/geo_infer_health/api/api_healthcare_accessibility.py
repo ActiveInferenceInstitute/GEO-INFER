@@ -13,6 +13,11 @@ router = APIRouter(
 _FACILITIES_DB: List[HealthFacility] = []
 _POPULATION_DATA_DB_ACC: List[PopulationData] = [] # Using a different name to avoid conflict if run in same context as surveillance
 
+def reset_stores() -> None:
+    """Clear the in-memory stores (for tests and demo resets)."""
+    _FACILITIES_DB.clear()
+    _POPULATION_DATA_DB_ACC.clear()
+
 @router.post("/facilities/", response_model=HealthFacility, status_code=201)
 async def add_health_facility(facility: HealthFacility = Body(...)) -> HealthFacility:
     """Add a new health facility to the system."""

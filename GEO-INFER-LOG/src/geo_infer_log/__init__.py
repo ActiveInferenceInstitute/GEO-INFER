@@ -1,17 +1,17 @@
 """
-GEO-INFER-LOG: Comprehensive Logging and Monitoring Module
+GEO-INFER-LOG: Geospatial Logistics Optimization Module
 
-This module provides advanced logging, monitoring, and observability capabilities
-for the GEO-INFER framework. It supports structured logging, performance metrics,
-distributed tracing, and integration with monitoring systems.
+This module provides logistics and supply-chain optimization for the
+GEO-INFER framework: route optimization, fleet management, last-mile
+delivery scheduling, multimodal transportation planning, and supply-chain
+network design with geospatial intelligence.
 
 Key Features:
-- Structured JSON logging with spatial context
-- Performance metrics collection and analysis
-- Real-time log aggregation and search
-- Integration with monitoring systems (Prometheus, Grafana)
-- Distributed tracing for multi-module workflows
-- Log-based alerting and anomaly detection
+- Route optimization and fleet management (network-based and network-free)
+- Last-mile delivery routing, scheduling, and service-area analysis
+- Multimodal transportation planning, traffic simulation, and emissions
+- Supply-chain network design, facility location, and inventory management
+- Enhanced structured logging with spatial context and performance metrics
 """
 
 import json
@@ -19,7 +19,7 @@ import importlib.util
 import time
 import threading
 from datetime import datetime, timezone, timedelta
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, field, asdict
 from collections import defaultdict, deque
 from pathlib import Path
@@ -49,12 +49,15 @@ __all__ = [
     "EmissionsCalculator",
     "TrafficSimulator",
     "SupplyChainModel",
-    "ResilienceAnalyzer",
-    "NetworkOptimizer",
-    "FacilityLocator",
-    "InventoryManager",
     "RouteOptimizer",
     "FleetManager",
+    "VehicleRouter",
+    "Vehicle",
+    "VehicleType",
+    "RoutingParameters",
+    "TravelTimeEstimator",
+    "MultiObjectiveOptimizer",
+    "RealTimeTracker",
 ]
 
 
@@ -72,9 +75,16 @@ def __getattr__(name: str) -> Any:
         "ResilienceAnalyzer": "geo_infer_log.core.supply_chain",
         "NetworkOptimizer": "geo_infer_log.core.supply_chain",
         "FacilityLocator": "geo_infer_log.core.supply_chain",
-        "InventoryManager": "geo_infer_log.core.supply_chain",
         "RouteOptimizer": "geo_infer_log.core.routing",
         "FleetManager": "geo_infer_log.core.routing",
+        "VehicleRouter": "geo_infer_log.core.routing",
+        "Vehicle": "geo_infer_log.core.routing",
+        "VehicleType": "geo_infer_log.core.routing",
+        "RoutingParameters": "geo_infer_log.core.routing",
+        "TravelTimeEstimator": "geo_infer_log.core.routing",
+        "MultiObjectiveOptimizer": "geo_infer_log.core.routing",
+        "RealTimeTracker": "geo_infer_log.core.routing",
+        "InventoryManager": "geo_infer_log.core.supply_chain",
     }
     if name in _logistics_map:
         import importlib
@@ -128,26 +138,26 @@ class PerformanceMetrics:
         self.counters: Dict[str, int] = defaultdict(int)
         self.gauges: Dict[str, float] = defaultdict(float)
         self.histograms: Dict[str, List[float]] = defaultdict(list)
-        self.start_times: Dict[str, float] = {}
+        self.start_times: Dict[str, Tuple[str, float]] = {}
         self.lock = threading.Lock()
 
     def start_timer(self, operation: str) -> str:
         """Start a timer for an operation."""
         timer_id = f"{operation}_{uuid.uuid4().hex[:8]}"
         with self.lock:
-            self.start_times[timer_id] = time.time()
+            self.start_times[timer_id] = (operation, time.time())
         return timer_id
 
     def end_timer(self, timer_id: str) -> float:
-        """End a timer and record the duration."""
+        """End a timer and record the duration under its full operation name."""
         with self.lock:
-            if timer_id in self.start_times:
-                duration = time.time() - self.start_times[timer_id]
-                operation = timer_id.split("_")[0]
-                self.record_duration(operation, duration)
-                del self.start_times[timer_id]
-                return duration
-        return 0.0
+            entry = self.start_times.pop(timer_id, None)
+        if entry is None:
+            return 0.0
+        operation, started = entry
+        duration = time.time() - started
+        self.record_duration(operation, duration)
+        return duration
 
     def record_duration(self, operation: str, duration: float) -> None:
         """Record operation duration."""
@@ -168,22 +178,25 @@ class PerformanceMetrics:
     def get_stats(self, operation: str) -> Dict[str, float]:
         """Get statistics for an operation."""
         with self.lock:
-            durations = list(self.metrics[f"{operation}_duration"])
-            if not durations:
-                return {}
+            return self._stats_locked(operation)
 
-            durations.sort()
-            n = len(durations)
+    def _stats_locked(self, operation: str) -> Dict[str, float]:
+        """Compute operation statistics; the lock must already be held."""
+        durations = sorted(self.metrics[f"{operation}_duration"])
+        if not durations:
+            return {}
 
-            return {
-                "count": n,
-                "mean": sum(durations) / n,
-                "min": durations[0],
-                "max": durations[-1],
-                "p50": durations[n // 2],
-                "p95": durations[int(n * 0.95)] if n > 0 else 0,
-                "p99": durations[int(n * 0.99)] if n > 0 else 0,
-            }
+        n = len(durations)
+
+        return {
+            "count": n,
+            "mean": sum(durations) / n,
+            "min": durations[0],
+            "max": durations[-1],
+            "p50": durations[n // 2],
+            "p95": durations[int(n * 0.95)] if n > 0 else 0,
+            "p99": durations[int(n * 0.99)] if n > 0 else 0,
+        }
 
     def get_all_metrics(self) -> Dict[str, Any]:
         """Get all collected metrics."""
@@ -192,10 +205,10 @@ class PerformanceMetrics:
                 "counters": dict(self.counters),
                 "gauges": dict(self.gauges),
                 "performance_stats": {
-                    op.replace("_duration", ""): self.get_stats(
-                        op.replace("_duration", "")
+                    op[: -len("_duration")]: self._stats_locked(
+                        op[: -len("_duration")]
                     )
-                    for op in self.metrics.keys()
+                    for op in list(self.metrics.keys())
                     if op.endswith("_duration")
                 },
             }

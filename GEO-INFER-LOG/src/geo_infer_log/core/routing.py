@@ -10,13 +10,16 @@ import numpy as np
 import geopandas as gpd
 import networkx as nx
 from typing import Any, Dict, List, Optional, Tuple, cast
-from dataclasses import dataclass
-from enum import Enum
 import logging
+from geo_infer_log.models.schemas import Vehicle, RoutingParameters, VehicleType as VehicleType
+from geo_infer_log.utils.geo import haversine_distance
 from scipy.spatial import KDTree
 from shapely.geometry import LineString
 
 logger = logging.getLogger(__name__)
+
+_DEFAULT_SPEED_KMH = 30.0  # Default urban speed for network-free routing
+
 
 
 def _load_gpickle(path: str) -> nx.Graph:
@@ -36,40 +39,6 @@ def _load_gpickle(path: str) -> nx.Graph:
         return pickle.load(handle)
 
 
-class VehicleType(Enum):
-    """Types of vehicles for routing."""
-
-    TRUCK = "truck"
-    VAN = "van"
-    CAR = "car"
-    BIKE = "bike"
-    DRONE = "drone"
-
-
-@dataclass
-class Vehicle:
-    """Representation of a vehicle for routing."""
-
-    id: str
-    type: VehicleType
-    capacity: float
-    max_range: float  # km
-    speed: float  # km/h
-    cost_per_km: float
-    emissions_per_km: float
-    location: Tuple[float, float]  # (lon, lat)
-
-
-@dataclass
-class RoutingParameters:
-    """Parameters for routing optimization."""
-
-    weight_factor: str = "time"  # time, distance, cost, emissions
-    avoid_highways: bool = False
-    avoid_tolls: bool = False
-    avoid_ferries: bool = False
-    traffic_model: str = "best_guess"  # best_guess, optimistic, pessimistic
-    departure_time: Optional[str] = None  # ISO datetime format
 
 
 class RouteOptimizer:
@@ -146,16 +115,21 @@ class RouteOptimizer:
     ) -> Dict:
         """Optimize a route between origin and destination.
 
+        With a loaded network, routing runs over the network graph. Without
+        a network, stops are ordered greedily (nearest neighbor) by haversine
+        distance and travel time assumes the default urban speed.
+
         Args:
             origin: (lon, lat) of starting point
             destination: (lon, lat) of ending point
             waypoints: Optional list of (lon, lat) points to visit
 
         Returns:
-            Dictionary with optimized route information
+            Dictionary with optimized route information, or {"error": ...}
+            when no route can be completed
         """
         if self.network is None:
-            raise ValueError("Network must be loaded before routing")
+            return self._optimize_route_haversine(origin, destination, waypoints)
 
         # Find nearest nodes in the network
         origin_node = self._find_nearest_node(origin)
@@ -165,30 +139,41 @@ class RouteOptimizer:
         if waypoints:
             waypoint_nodes = [self._find_nearest_node(wp) for wp in waypoints]
 
-        # Solve the routing problem
+        # Solve the routing problem. Both branches bind path/distance/
+        # travel_time or return an error result; the tuple is deliberately
+        # unpacked outside each try/except so the names are unambiguously
+        # bound before use below.
         if not waypoint_nodes:
             # Simple shortest path
             try:
-                path = nx.shortest_path(
-                    self.network,
-                    origin_node,
-                    dest_node,
-                    weight=self.parameters.weight_factor,
-                )
-                distance = nx.shortest_path_length(
-                    self.network, origin_node, dest_node, weight="distance"
-                )
-                travel_time = nx.shortest_path_length(
-                    self.network, origin_node, dest_node, weight="time"
+                solved = (
+                    nx.shortest_path(
+                        self.network,
+                        origin_node,
+                        dest_node,
+                        weight=self.parameters.weight_factor,
+                    ),
+                    nx.shortest_path_length(
+                        self.network, origin_node, dest_node, weight="distance"
+                    ),
+                    nx.shortest_path_length(
+                        self.network, origin_node, dest_node, weight="time"
+                    ),
                 )
             except nx.NetworkXNoPath:
                 logger.warning(f"No path found between {origin_node} and {dest_node}")
                 return {"error": "No path found"}
+            path, distance, travel_time = solved
         else:
             # With waypoints - solve as TSP
-            path, distance, travel_time = self._solve_with_waypoints(
-                origin_node, dest_node, waypoint_nodes
-            )
+            try:
+                solved = self._solve_with_waypoints(
+                    origin_node, dest_node, waypoint_nodes
+                )
+            except ValueError as exc:
+                logger.warning("Waypoint routing failed: %s", exc)
+                return {"error": str(exc)}
+            path, distance, travel_time = solved
 
         # Extract route geometry
         route_geometry = self._extract_route_geometry(path)
@@ -199,6 +184,52 @@ class RouteOptimizer:
             "distance": distance,  # km
             "travel_time": travel_time,  # minutes
             "geometry": route_geometry,
+            "origin": origin,
+            "destination": destination,
+            "waypoints": waypoints or [],
+        }
+
+    def _optimize_route_haversine(
+        self,
+        origin: Tuple[float, float],
+        destination: Tuple[float, float],
+        waypoints: Optional[List[Tuple[float, float]]] = None,
+    ) -> Dict:
+        """Route over great-circle distances without a loaded network.
+
+        Stops are visited in greedy nearest-neighbor order; distance is the
+        sum of haversine legs and travel time assumes
+        ``_DEFAULT_SPEED_KMH``.
+
+        Args:
+            origin: (lon, lat) of starting point
+            destination: (lon, lat) of ending point
+            waypoints: Optional list of (lon, lat) points to visit
+
+        Returns:
+            Dictionary with optimized route information
+        """
+        remaining = list(waypoints or [])
+        current = origin
+        ordered: List[Tuple[float, float]] = []
+        while remaining:
+            nearest = min(remaining, key=lambda p: haversine_distance(current, p))
+            ordered.append(nearest)
+            remaining.remove(nearest)
+            current = nearest
+
+        stops = [origin] + ordered + [destination]
+        distance = sum(
+            haversine_distance(a, b) for a, b in zip(stops, stops[1:])
+        )
+        travel_time = distance / _DEFAULT_SPEED_KMH * 60.0
+
+        coords = [(float(p[0]), float(p[1])) for p in stops]
+        return {
+            "path": coords,
+            "distance": distance,  # km
+            "travel_time": travel_time,  # minutes
+            "geometry": gpd.GeoSeries([LineString(coords)]),
             "origin": origin,
             "destination": destination,
             "waypoints": waypoints or [],
@@ -246,6 +277,10 @@ class RouteOptimizer:
 
         Returns:
             Tuple of (path, distance, travel_time)
+
+        Raises:
+            ValueError: When the route cannot be completed (e.g. the
+                destination is unreachable from the last waypoint)
         """
         try:
             # Construct a subgraph containing only relevant nodes for TSP approximation
@@ -321,14 +356,19 @@ class RouteOptimizer:
                 total_time += nx.shortest_path_length(
                     self.network, current_node, dest_node, weight="time"
                 )
-            except Exception:
-                pass  # path could not be completed
+            except (nx.NetworkXNoPath, nx.NodeNotFound, KeyError) as exc:
+                raise ValueError(
+                    f"Route could not be completed: no path from "
+                    f"{current_node} to destination {dest_node}"
+                ) from exc
 
             return full_path, total_distance, total_time
 
+        except ValueError:
+            raise
         except Exception as e:
             logger.error(f"TSP solving failed: {e}")
-            return [], 0.0, 0.0
+            raise ValueError(f"Waypoint routing failed: {e}") from e
 
     def _extract_route_geometry(self, path: List[int]) -> gpd.GeoSeries:
         """Extract the geometry of a route from the path.
@@ -554,25 +594,10 @@ class TravelTimeEstimator:
         Returns:
             Estimated travel time in minutes
         """
-        # Calculate haversine distance
-        from math import radians, sin, cos, sqrt, atan2
-
-        lon1, lat1 = origin
-        lon2, lat2 = destination
-
-        R = 6371  # Earth radius in km
-
-        phi1, phi2 = radians(lat1), radians(lat2)
-        dphi = radians(lat2 - lat1)
-        dlambda = radians(lon2 - lon1)
-
-        a = sin(dphi / 2) ** 2 + cos(phi1) * cos(phi2) * sin(dlambda / 2) ** 2
-        c = 2 * atan2(sqrt(a), sqrt(1 - a))
-
-        distance = R * c  # km
+        distance = haversine_distance(origin, destination)  # km
 
         # Estimate time based on average speed (30 km/h urban, adjusted for traffic)
-        base_speed = 30  # km/h
+        base_speed = _DEFAULT_SPEED_KMH  # km/h urban
 
         # Adjust for time of day if departure_time provided
         traffic_factor = 1.0
@@ -646,29 +671,13 @@ class TravelTimeEstimator:
         Returns:
             NxN numpy array of distances in km
         """
-        from math import radians, sin, cos, sqrt, atan2
-
         n = len(locations)
         matrix = np.zeros((n, n))
-        R = 6371  # Earth radius in km
 
         for i in range(n):
             for j in range(n):
                 if i != j:
-                    lon1, lat1 = locations[i]
-                    lon2, lat2 = locations[j]
-
-                    phi1, phi2 = radians(lat1), radians(lat2)
-                    dphi = radians(lat2 - lat1)
-                    dlambda = radians(lon2 - lon1)
-
-                    a = (
-                        sin(dphi / 2) ** 2
-                        + cos(phi1) * cos(phi2) * sin(dlambda / 2) ** 2
-                    )
-                    c = 2 * atan2(sqrt(a), sqrt(1 - a))
-
-                    matrix[i, j] = R * c
+                    matrix[i, j] = haversine_distance(locations[i], locations[j])
 
         return matrix
 
@@ -872,22 +881,7 @@ class RealTimeTracker:
         if stop is None:
             return False
 
-        from math import radians, sin, cos, sqrt, atan2
-
-        lon1, lat1 = position
-        lon2, lat2 = stop
-
-        R = 6371
-        phi1, phi2 = radians(lat1), radians(lat2)
-        dphi = radians(lat2 - lat1)
-        dlambda = radians(lon2 - lon1)
-
-        a = sin(dphi / 2) ** 2 + cos(phi1) * cos(phi2) * sin(dlambda / 2) ** 2
-        c = 2 * atan2(sqrt(a), sqrt(1 - a))
-
-        distance = R * c
-
-        return distance <= threshold_km
+        return haversine_distance(position, stop) <= threshold_km
 
     def get_fleet_positions(self) -> Dict:
         """Get current positions of all tracked vehicles.

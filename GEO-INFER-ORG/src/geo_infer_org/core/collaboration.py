@@ -5,10 +5,14 @@ Provides team formation analysis, knowledge sharing metrics,
 and coordination scoring for organizational collaboration.
 """
 
-import math
+import logging
 from typing import Dict, List, Optional, Tuple, Set, Any
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
+
+logger = logging.getLogger(__name__)
+
+
 
 
 class CollaborationType(Enum):
@@ -105,6 +109,10 @@ class CollaborationNetwork:
         self._adjacency[edge.source_id][edge.target_id] = current + edge.strength
 
         self._edges.append(edge)
+        logger.debug(
+            "Collaboration edge added: %s -> %s (%s, strength=%.2f)",
+            edge.source_id, edge.target_id, edge.collaboration_type.value, edge.strength,
+        )
 
     def compute_metrics(self) -> NetworkMetrics:
         """
@@ -234,7 +242,12 @@ class CollaborationNetwork:
                 if w != source:
                     centrality[w] += delta[w]
 
-        # Normalize
+        # Normalization: although this factor is the directed one, it is
+        # correct here. The per-source accumulation above runs over the
+        # undirected adjacency, so every unordered pair is counted twice
+        # (once from each endpoint); networkx applies the same 1/2 rescale
+        # for undirected graphs, so the results match exactly. Pinned by
+        # TestBetweennessVsNetworkx.
         n = len(self._nodes)
         norm = (n - 1) * (n - 2) if n > 2 else 1
         return {node: round(val / norm, 6) for node, val in centrality.items()}
@@ -304,7 +317,8 @@ class TeamFormation:
         Form an optimal team for the given skill requirements.
 
         Uses a greedy algorithm that iteratively selects the member
-        covering the most uncovered skills, with diversity bonuses.
+        covering the most uncovered skills, weighted by the member's
+        available capacity, with diversity bonuses.
 
         Args:
             required_skills: List of skills the team must cover.
@@ -344,7 +358,10 @@ class TeamFormation:
                 if prefer_diverse_units and member.unit_id and member.unit_id not in selected_units:
                     diversity_bonus = 0.5
 
-                score = new_coverage + diversity_bonus
+                # Capacity weights the contribution: a member at full
+                # availability contributes fully; a loaded member is
+                # discounted proportionally to their remaining capacity.
+                score = (new_coverage + diversity_bonus) * max(member.capacity, 0.0)
 
                 if score > best_score:
                     best_score = score
@@ -372,6 +389,10 @@ class TeamFormation:
 
         overall = 0.5 * skill_coverage + 0.3 * team_diversity + 0.2 * (1.0 - normalized_cost)
 
+        logger.info(
+            "Team formed: members=%s coverage=%.2f diversity=%.2f",
+            selected, skill_coverage, team_diversity,
+        )
         return TeamFormationResult(
             team_members=selected,
             skill_coverage=round(skill_coverage, 4),

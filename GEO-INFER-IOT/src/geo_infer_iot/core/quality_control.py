@@ -7,17 +7,16 @@ spatial consistency validation.
 """
 
 import logging
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta
 import numpy as np
-import pandas as pd
 from dataclasses import dataclass
 from collections import defaultdict, deque
 
 # Optional imports for enhanced functionality
 try:
     from sklearn.ensemble import IsolationForest
-    from sklearn.preprocessing import StandardScaler
+    from sklearn.preprocessing import StandardScaler as StandardScaler
     HAS_SKLEARN = True
 except ImportError:
     HAS_SKLEARN = False
@@ -199,7 +198,13 @@ class QualityController:
             # Calculate rate of change
             recent_values = [m['value'] for m in recent_measurements[-5:]]  # Last 5 measurements
             if len(recent_values) >= 2:
-                max_change_rate = self.config.get('max_change_rate', 0.1)
+                # Documented location is the nested
+                # temporal_consistency.max_change_rate; the flat key is
+                # kept only as a legacy fallback.
+                temporal_cfg = self.config.get('temporal_consistency', {})
+                max_change_rate = temporal_cfg.get(
+                    'max_change_rate', self.config.get('max_change_rate', 0.1)
+                )
 
                 for i in range(1, len(recent_values)):
                     prev_val = recent_values[i-1]

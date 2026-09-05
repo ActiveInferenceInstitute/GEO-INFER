@@ -17,7 +17,7 @@ import numpy as np
 import logging
 import json
 import csv
-from typing import Dict, List, Optional, Any, Tuple, Mapping, Iterable
+from typing import Dict, List, Optional, Any, Mapping, Iterable
 from datetime import datetime
 from pathlib import Path
 
@@ -811,7 +811,6 @@ def compute_information_flow(
             neighbors = np.where(neighbor_matrix[i] > 0)[0]
             if len(neighbors) > 0:
                 # Change at this cell
-                cell_change = np.sum(np.abs(curr_beliefs[i] - prev_beliefs[i]))
                 # Neighbor influence
                 neighbor_prev = np.mean(prev_beliefs[neighbors], axis=0)
                 influence = np.sum(curr_beliefs[i] * np.log((curr_beliefs[i] + 1e-8) / (neighbor_prev + 1e-8)))

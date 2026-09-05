@@ -3,7 +3,7 @@ Sea-level rise analysis module.
 """
 
 import logging
-from typing import Any, Dict, List, Optional, cast
+from typing import Dict, List, Optional, cast
 import numpy as np
 import xarray as xr
 

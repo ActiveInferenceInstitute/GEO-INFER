@@ -26,7 +26,7 @@ Quick Start::
     print(pi.status())
 """
 
-from typing import Dict, List, Optional, Any
+from typing import Dict as Dict, List as List, Optional as Optional, Any as Any
 import logging
 
 # Version information
@@ -37,24 +37,6 @@ __email__ = "geo-infer@activeinference.institute"
 # Configure logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
-# --- GEO-INFER-SPACE Core Imports (optional) ---
-try:
-    from geo_infer_space import PlaceAnalyzer
-    from geo_infer_space.core.data_integrator import DataIntegrator
-    from geo_infer_space.utils.config_loader import LocationConfigLoader
-
-    _HAS_SPACE = True
-except ImportError:
-    PlaceAnalyzer = None
-    DataIntegrator = None
-    LocationConfigLoader = None
-    _HAS_SPACE = False
-    logging.getLogger(__name__).info(
-        "geo_infer_space not installed; PlaceAnalyzer/DataIntegrator unavailable"
-    )
-
-# NOTE: PlaceAnalyzer/DataIntegrator/LocationConfigLoader are geo_infer_space classes
-# (imported above for internal use only). For geo_infer_place functionality use PlaceInterface.
 
 # --- Local Core Imports ---
 from .core.visualization_engine import InteractiveVisualizationEngine

@@ -31,17 +31,14 @@ python from geo_infer_spm import ProcessAnalyzer # Create process analyzer proce
 python from geo_infer_spm.dynamics import SpatialDynamicsModeler # Create spatial dynamics modeler dynamics_modeler = SpatialDynamicsModeler( modeling_parameters={ 'interaction_modeling': True, 'temporal_analysis': True, 'spatial_patterns': True } ) # Model spatial dynamics dynamics_result = dynamics_modeler.model_spatial_dynamics( spatial_data=spatial_information, interaction_data=spatial_interactions, temporal_data=temporal_patterns )
 ```
  ## 📚 Core Features ### 1. Statistical Parametric Mapping **Purpose**: Perform statistical analysis of spatial data.
-```
 ```python
  from geo_infer_spm.mapping import StatisticalMappingEngine # Initialize statistical mapping engine mapping_engine = StatisticalMappingEngine() # Define mapping parameters mapping_config = mapping_engine.configure_mapping({ 'statistical_test': 't_test', 'significance_level': 0.05, 'multiple_comparison_correction': 'fdr', 'spatial_smoothing': True, 'smoothing_fwhm': 8.0 # mm }) # Perform statistical parametric mapping mapping_result = mapping_engine.perform_spm_analysis( spatial_data=geospatial_data, experimental_design=design_matrix, statistical_model='glm', mapping_config=mapping_config )
 ```
  ### 2. Random Field Theory **Purpose**: Model and analyze spatial processes as random fields.
-```
 ```python
  from geo_infer_spm.random_fields import RandomFieldEngine # Initialize random field engine rf_engine = RandomFieldEngine() # Define random field parameters rf_config = rf_engine.configure_random_field({ 'field_type': 'gaussian', 'spatial_correlation': 0.3, 'temporal_correlation': 0.2, 'stationarity': True, 'isotropy': True }) # Analyze spatial random field field_analysis = rf_engine.analyze_spatial_field( spatial_data=spatial_process_data, field_model='stationary_gaussian', rf_config=rf_config )
 ```
  ### 3. Cluster-Level Inference **Purpose**: Perform statistical inference at spatial cluster levels.
-```
 ```python
  from geo_infer_spm.clustering import ClusterInferenceEngine # Initialize cluster inference engine cluster_engine = ClusterInferenceEngine() # Define cluster parameters cluster_config = cluster_engine.configure_clustering({ 'cluster_threshold': 0.01, 'cluster_size_threshold': 10, 'connectivity': 26, # 3D connectivity 'significance_level': 0.05 }) # Perform cluster-level inference cluster_result = cluster_engine.perform_cluster_inference( statistical_map=statistical_map, cluster_config=cluster_config )
 ```

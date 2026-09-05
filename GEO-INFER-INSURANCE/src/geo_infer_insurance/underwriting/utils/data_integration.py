@@ -12,12 +12,11 @@ This module provides data integration capabilities including:
 import logging
 import time
 import os
-from typing import Dict, List, Optional, Any, Callable, cast
-from datetime import datetime, timedelta
+from typing import Dict, List, Optional, Any, cast
+from datetime import datetime
 from dataclasses import dataclass, field
 import json
 import requests
-from urllib.parse import urljoin
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +48,7 @@ class DataIntegrationManager:
         Args:
             data_sources: List of data source names to initialize
         """
-        self.logger = logging.getLogger("geo_infer_risk.underwriting.data_integration")
+        self.logger = logging.getLogger("geo_infer_insurance.underwriting.data_integration")
 
         # Data source configurations
         self.data_sources: Dict[str, ExternalDataSource] = {}

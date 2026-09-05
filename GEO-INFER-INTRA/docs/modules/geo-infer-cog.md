@@ -25,17 +25,14 @@ python from geo_infer_cog import SpatialCognitionModel # Create spatial cognitio
 python from geo_infer_cog.attention import AttentionModel # Create attention model attention_model = AttentionModel( attention_types=['salience', 'relevance', 'novelty'], spatial_weights={ 'proximity': 0.3, 'familiarity': 0.2, 'importance': 0.5 } ) # Model attention allocation attention_result = attention_model.allocate_attention( spatial_elements=spatial_features, user_context=user_profile, task_context=current_task )
 ```
  ## 📚 Core Features ### 1. Spatial Cognition Modeling **Purpose**: Model how humans perceive and understand spatial relationships.
-```
 ```python
  from geo_infer_cog.spatial import SpatialCognitionEngine # Initialize spatial cognition engine cognition_engine = SpatialCognitionEngine() # Define cognitive parameters cognitive_config = cognition_engine.configure_cognition({ 'spatial_resolution': 100, # meters 'cognitive_load': 'medium', 'expertise_level': 'intermediate', 'cultural_context': 'western' }) # Model spatial understanding understanding_result = cognition_engine.model_spatial_understanding( spatial_data=geospatial_data, user_profile=user_cognitive_profile, cognitive_config=cognitive_config )
 ```
  ### 2. Attention Modeling **Purpose**: Model what spatial information humans focus on.
-```
 ```python
  from geo_infer_cog.attention import AttentionEngine # Initialize attention engine attention_engine = AttentionEngine() # Define attention parameters attention_config = attention_engine.configure_attention({ 'attention_span': 5, 'salience_threshold': 0.6, 'relevance_weight': 0.4, 'novelty_weight': 0.3 }) # Model attention allocation attention_result = attention_engine.model_attention( spatial_elements=spatial_features, user_context=user_profile, task_context=current_task, attention_config=attention_config )
 ```
  ### 3. Memory Modeling **Purpose**: Model spatial memory and recall processes.
-```
 ```python
  from geo_infer_cog.memory import SpatialMemoryEngine # Initialize spatial memory engine memory_engine = SpatialMemoryEngine() # Define memory parameters memory_config = memory_engine.configure_memory({ 'memory_capacity': 1000, 'forgetting_rate': 0.1, 'consolidation_time': 24, # hours 'retrieval_threshold': 0.5 }) # Model memory processes memory_result = memory_engine.model_memory_processes( spatial_experiences=spatial_interactions, user_profile=user_profile, memory_config=memory_config )
 ```

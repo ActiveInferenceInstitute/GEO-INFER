@@ -35,17 +35,14 @@ python from geo_infer_civ import CivicFramework # Create civic framework civic_f
 python from geo_infer_civ.stakeholders import StakeholderEngagementEngine # Create stakeholder engagement engine stakeholder_engine = StakeholderEngagementEngine( engagement_parameters={ 'stakeholder_mapping': True, 'interest_analysis': True, 'engagement_strategies': True, 'communication_planning': True, 'feedback_management': True } ) # Engage stakeholders stakeholder_result = stakeholder_engine.engage_stakeholders( stakeholder_data=stakeholder_information, community_data=community_characteristics, policy_data=policy_impacts, spatial_data=geographic_boundaries )
 ```
  ## 📚 Core Features ### 1. Community Participation Engine **Purpose**: Facilitate community participation and engagement.
-```
 ```python
  from geo_infer_civ.community import CommunityParticipationEngine # Initialize community participation engine community_engine = CommunityParticipationEngine() # Define community participation parameters community_config = community_engine.configure_community_participation({ 'participatory_mapping': True, 'community_consultation': True, 'feedback_systems': True, 'capacity_building': True, 'inclusive_engagement': True }) # Facilitate community participation community_result = community_engine.facilitate_community_participation( community_data=community_information, spatial_data=geographic_boundaries, community_config=community_config )
 ```
  ### 2. Stakeholder Engagement Engine **Purpose**: Analyze and engage stakeholders effectively.
-```
 ```python
  from geo_infer_civ.stakeholders import StakeholderEngagementEngine # Initialize stakeholder engagement engine stakeholder_engine = StakeholderEngagementEngine() # Define stakeholder engagement parameters stakeholder_config = stakeholder_engine.configure_stakeholder_engagement({ 'stakeholder_mapping': True, 'interest_analysis': True, 'engagement_strategies': True, 'communication_planning': True, 'feedback_management': True }) # Engage stakeholders stakeholder_result = stakeholder_engine.engage_stakeholders( stakeholder_data=stakeholder_information, community_data=community_characteristics, stakeholder_config=stakeholder_config )
 ```
  ### 3. Public Consultation Engine **Purpose**: Conduct public consultation and gather feedback.
-```
 ```python
  from geo_infer_civ.consultation import PublicConsultationEngine # Initialize public consultation engine consultation_engine = PublicConsultationEngine() # Define public consultation parameters consultation_config = consultation_engine.configure_public_consultation({ 'consultation_methods': True, 'feedback_collection': True, 'response_analysis': True, 'transparency_tools': True, 'reporting_systems': True }) # Conduct public consultation consultation_result = consultation_engine.conduct_public_consultation( policy_data=policy_proposals, community_data=community_information, consultation_config=consultation_config )
 ```

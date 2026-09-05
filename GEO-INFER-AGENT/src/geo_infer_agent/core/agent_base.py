@@ -241,7 +241,10 @@ class BaseAgent(ABC):
         self.stop_time: Optional[datetime] = None
         self.last_perception: Dict[str, Any] = {}
         self.last_action: Dict[str, Any] = {}
-
+        # Exception raised inside run(), if any.  run() logs and stores crash
+        # details here so callers can distinguish a crash from a clean stop
+        # without changing run()'s fire-and-forget contract.
+        self.last_error: Optional[BaseException] = None
         # Initialize communication channels
         self.message_queue: asyncio.Queue = asyncio.Queue()
 
@@ -356,6 +359,7 @@ class BaseAgent(ABC):
                 await asyncio.sleep(self.config.get("decision_frequency", 1))
 
         except Exception as e:
+            self.last_error = e
             logger.error(
                 f"Agent {self.agent_id} encountered an error: {str(e)}", exc_info=True
             )
@@ -399,7 +403,6 @@ class BaseAgent(ABC):
 
         Subclasses must implement this to set up agent-specific resources.
         """
-        raise RuntimeError("Agent subclasses must define initialize()")
 
     @abstractmethod
     async def perceive(self) -> Dict[str, Any]:
@@ -409,7 +412,6 @@ class BaseAgent(ABC):
         Returns:
             Dictionary with perception data
         """
-        raise RuntimeError("Agent subclasses must define perceive()")
 
     @abstractmethod
     def update_beliefs(self, perception: Dict[str, Any]) -> None:
@@ -419,7 +421,6 @@ class BaseAgent(ABC):
         Args:
             perception: Data from the perceive method
         """
-        raise RuntimeError("Agent subclasses must define decide()")
 
     @abstractmethod
     async def decide(self) -> Optional[Dict[str, Any]]:
@@ -429,7 +430,6 @@ class BaseAgent(ABC):
         Returns:
             Action to execute or None
         """
-        raise RuntimeError("Agent subclasses must define act()")
 
     @abstractmethod
     async def act(self, action: Dict[str, Any]) -> Dict[str, Any]:
@@ -442,7 +442,6 @@ class BaseAgent(ABC):
         Returns:
             Result of the action
         """
-        raise RuntimeError("Agent subclasses must define learn()")
 
     @abstractmethod
     async def shutdown(self) -> None:
@@ -451,19 +450,58 @@ class BaseAgent(ABC):
 
         Subclasses must implement this to release agent-specific resources.
         """
-        raise RuntimeError("Agent subclasses must define communicate()")
 
     async def send_message(self, to_agent_id: str, content: Dict[str, Any]) -> bool:
         """
-        Send a message to another agent.
+        Send a message to another registered agent.
+
+        The default transport is the in-process :class:`AgentRegistry`: the
+        message is placed directly on the recipient's queue via
+        :meth:`receive_message`.  There is deliberately no "log-only" success
+        path — if the recipient is not registered, this method returns False
+        instead of pretending the message was delivered.  Subclasses may
+        override this method to integrate an external transport (message
+        broker, pub/sub, HTTP, ...).
 
         Args:
-            to_agent_id: Recipient agent ID
+            to_agent_id: Recipient agent ID (must be registered)
             content: Message content
 
         Returns:
-            True if message was sent, False otherwise
+            True if the message was delivered to the recipient's queue,
+            False if no agent with ``to_agent_id`` is registered
         """
+        # Imported lazily: agent_registry imports this module at module level,
+        # so a top-level import here would be circular.
+        #
+        # Registry identity note: the registry is a singleton, but tests (and
+        # hot-reload scenarios) may have re-created it, leaving the module's
+        # ``agent_registry`` global and ``AgentRegistry._instance`` pointing
+        # at different objects.  The sender lives in whichever registry
+        # registered it, so both are consulted before giving up.
+        from geo_infer_agent.core.agent_registry import AgentRegistry, agent_registry
+
+        candidate_registries = [agent_registry]
+        current = AgentRegistry()
+        if current is not agent_registry:
+            candidate_registries.append(current)
+
+        recipient = None
+        for registry in candidate_registries:
+            try:
+                recipient = registry.get_agent(to_agent_id)
+                break
+            except KeyError:
+                continue
+
+        if recipient is None:
+            logger.warning(
+                "Agent %s cannot send message: recipient %s is not registered",
+                self.agent_id,
+                to_agent_id,
+            )
+            return False
+
         message = {
             "from": self.agent_id,
             "to": to_agent_id,
@@ -471,20 +509,9 @@ class BaseAgent(ABC):
             "timestamp": datetime.now().isoformat(),
             "message_id": str(uuid.uuid4()),
         }
-
         logger.debug(f"Agent {self.agent_id} sending message to {to_agent_id}")
-
-        # Default implementation logs the outbound message.  Subclasses
-        # override this method to integrate a real transport (MessageBroker,
-        # pub/sub, HTTP, etc.) based on the deployment's communication mechanism.
-        try:
-            logger.info(
-                f"Outbound message from {self.agent_id} → {to_agent_id}: {content}"
-            )
-            return True
-        except Exception as e:
-            logger.error(f"Failed to send message to {to_agent_id}: {str(e)}")
-            return False
+        await recipient.receive_message(message)
+        return True
 
     async def receive_message(self, message: Dict[str, Any]) -> None:
         """
@@ -650,28 +677,3 @@ class ExampleAgent(BaseAgent):
         logger.info(f"Example agent {self.agent_id} shutting down")
 
 
-if __name__ == "__main__":
-    # Example usage
-
-    async def run_agent_example() -> None:
-        # Create agent
-        agent = ExampleAgent(config={"decision_frequency": 1, "memory_capacity": 100})
-
-        # Run in background task
-        task = asyncio.create_task(agent.run())
-
-        # Let it run for a bit
-        await asyncio.sleep(5)
-
-        # Stop agent
-        agent.stop()
-
-        # Wait for agent to finish
-        await task
-
-        # Save state
-        filepath = agent.save_state()
-        print(f"Agent state saved to {filepath}")
-
-    # Run example
-    asyncio.run(run_agent_example())

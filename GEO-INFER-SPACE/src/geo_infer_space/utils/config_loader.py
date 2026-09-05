@@ -10,11 +10,9 @@ parameters for different GEO-INFER modules.
 
 import logging
 import yaml
-import json
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Union
+from typing import Dict, Any, Optional
 from dataclasses import dataclass
-import os
 
 logger = logging.getLogger(__name__)
 

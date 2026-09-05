@@ -2,7 +2,7 @@ import requests
 import json
 
 # Assume the FastAPI application is running at this base URL
-BASE_URL = "http://localhost:8000/health" # Assuming main app mounts health router at /health
+BASE_URL = "http://localhost:8000/api/v1"  # The CLI server (geo-infer-health serve) mounts the API here
 ACCESSIBILITY_URL = f"{BASE_URL}/accessibility"
 
 def print_response(response):

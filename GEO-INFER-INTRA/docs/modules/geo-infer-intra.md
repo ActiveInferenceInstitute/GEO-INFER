@@ -22,17 +22,14 @@ python from geo_infer_intra import KnowledgeManager # Create knowledge manager k
 python from geo_infer_intra.integration import DocumentationIntegrationEngine # Create documentation integration engine doc_engine = DocumentationIntegrationEngine( integration_parameters={ 'cross_module_integration': True, 'documentation_standardization': True, 'knowledge_linking': True } ) # Integrate documentation doc_engine.integrate_documentation( module_docs=module_documentation, integration_config=integration_settings )
 ```
  ## 📚 Core Features ### 1. Knowledge Management Engine **Purpose**: Manage and organize knowledge across geospatial domains.
-```
 ```python
  from geo_infer_intra.management import KnowledgeManagementEngine # Initialize knowledge management engine management_engine = KnowledgeManagementEngine() # Define knowledge management parameters management_config = management_engine.configure_knowledge_management({ 'knowledge_organization': True, 'information_structure': True, 'knowledge_validation': True, 'access_control': True, 'knowledge_evolution': True }) # Manage knowledge management_result = management_engine.manage_knowledge( knowledge_data=knowledge_information, structure_data=knowledge_structures, management_config=management_config )
 ```
  ### 2. Information Synthesis Engine **Purpose**: Synthesize information from multiple sources and domains.
-```
 ```python
  from geo_infer_intra.synthesis import InformationSynthesisEngine # Initialize information synthesis engine synthesis_engine = InformationSynthesisEngine() # Define information synthesis parameters synthesis_config = synthesis_engine.configure_information_synthesis({ 'multi_source_integration': True, 'domain_synthesis': True, 'knowledge_organization': True, 'information_validation': True, 'synthesis_optimization': True }) # Synthesize information synthesis_result = synthesis_engine.synthesize_information( information_data=multiple_sources, domain_data=domain_information, synthesis_config=synthesis_config )
 ```
  ### 3. Cross-Domain Integration Engine **Purpose**: Integrate knowledge across different domains and disciplines.
-```
 ```python
  from geo_infer_intra.integration import CrossDomainIntegrationEngine # Initialize cross-domain integration engine integration_engine = CrossDomainIntegrationEngine() # Define cross-domain integration parameters integration_config = integration_engine.configure_cross_domain_integration({ 'domain_mapping': True, 'knowledge_translation': True, 'concept_alignment': True, 'integration_validation': True, 'cross_domain_synthesis': True }) # Integrate across domains integration_result = integration_engine.integrate_cross_domains( domain_data=multiple_domains, knowledge_data=domain_knowledge, integration_config=integration_config )
 ```

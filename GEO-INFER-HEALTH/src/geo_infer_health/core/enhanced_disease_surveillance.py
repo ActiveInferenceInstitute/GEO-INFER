@@ -266,13 +266,15 @@ class ActiveInferenceDiseaseAnalyzer(DiseaseHotspotAnalyzer):
         """
         from geo_infer_health.utils.logging import PerformanceLogger
 
+        # Input validation happens before any error-swallowing try block so
+        # invalid arguments surface to the caller.
+        if time_window_days is not None and (
+            not isinstance(time_window_days, int) or time_window_days < 0
+        ):
+            raise ValueError("time_window_days must be a non-negative integer")
+
         with PerformanceLogger("active_inference_analysis", log_threshold=1.0):
             try:
-                # Input validation
-                if time_window_days is not None and (
-                    not isinstance(time_window_days, int) or time_window_days < 0
-                ):
-                    raise ValueError("time_window_days must be a non-negative integer")
 
                 # Filter reports by time window if specified
                 analysis_reports = self.reports

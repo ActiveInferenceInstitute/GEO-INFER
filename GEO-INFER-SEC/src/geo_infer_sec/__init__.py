@@ -57,7 +57,6 @@ class SecurityFramework:
         self.config: Dict[str, Any] = config or {}
         self.audit_log: List[Dict[str, Any]] = []
         from .core.cognitive_security import CognitiveSecurityManager
-        from .utils.security_utils import SecurityUtils
 
         self.cognitive = CognitiveSecurityManager()
         self.security_utils = SecurityUtils()

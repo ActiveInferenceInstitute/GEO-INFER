@@ -192,7 +192,7 @@ class StreamManager:
     def create_stream(self, request: StreamRequest, creator_id: str) -> StreamResponse:
         """Create a new data stream."""
         # Validate request
-        if not validate_stream_config(request.__dict__):
+        if not validate_stream_config(request.model_dump()):
             raise ValueError("Invalid stream configuration")
 
         # Check stream limit
@@ -342,7 +342,15 @@ class StreamManager:
                 time.sleep(1.0)
 
     def _deliver_stream_data(self, stream_id: str, stream: DataStream) -> None:
-        """Deliver data from a stream to subscribers."""
+        """Drain a stream's in-memory buffer and account for delivery.
+
+        This is an in-memory buffer simulation: data points are pulled from
+        the stream's queue and counted in metrics, but are not pushed to
+        subscriber transports. Wire this method to a live transport (e.g.
+        the WebSocket manager in ``api.websocket_api``) to distribute data
+        externally; the streaming protocols in this module are likewise
+        registration stubs, not network clients.
+        """
         try:
             # Get data points from buffer
             data_points = stream.get_data_points(count=10)  # Batch delivery
@@ -350,11 +358,6 @@ class StreamManager:
             if not data_points:
                 return
 
-            # Get subscribers
-            subscribers = self.stream_subscribers.get(stream_id, set())
-
-            # In a real implementation, would deliver to actual subscribers
-            # For now, just update metrics
             self.metrics.data_points_delivered += len(data_points)
 
         except Exception as e:
@@ -544,9 +547,15 @@ class GeospatialDataStream:
     def _update_aggregations(
         self, location_key: str, data_point: Dict[str, Any]
     ) -> None:
-        """Update spatial aggregations."""
-        # Simple aggregation - in production would be more sophisticated
+        """Update spatial aggregations.
+
+        Non-numeric data payloads cannot be aggregated numerically and are
+        skipped rather than raising ``TypeError`` in the hot ingest path.
+        """
         data_value = data_point.get("data", 0)
+
+        if isinstance(data_value, bool) or not isinstance(data_value, (int, float)):
+            return
 
         if location_key not in self.spatial_aggregations:
             self.spatial_aggregations[location_key] = {
@@ -592,6 +601,11 @@ class GeospatialDataStream:
             if agg["count"] > 10:  # Only consider locations with sufficient data
                 avg_value = agg["avg"]
                 current_value = self.spatial_data[location_key].get("data", 0)
+
+                if isinstance(current_value, bool) or not isinstance(
+                    current_value, (int, float)
+                ):
+                    continue
 
                 # Simple anomaly detection (values > 2 standard deviations)
                 if abs(current_value - avg_value) > (

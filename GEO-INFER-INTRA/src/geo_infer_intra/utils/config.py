@@ -1,11 +1,11 @@
 """Configuration utility functions for GEO-INFER-INTRA."""
 
-import os
+import importlib.resources
 import yaml
 import json
 import jsonschema
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 
 def load_config(config_path: Union[str, Path]) -> Dict[str, Any]:
@@ -39,29 +39,30 @@ def load_config(config_path: Union[str, Path]) -> Dict[str, Any]:
         raise ValueError(f"Unsupported configuration file format: {suffix}")
 
 
+_MISSING = object()
+
+
 def get_schema_path() -> Path:
     """
     Get the path to the JSON schema file for configuration validation.
 
+    The schema ships as package data inside ``geo_infer_intra.data``, so the
+    path resolves identically for monorepo checkouts and installed (including
+    non-editable) packages. If the package is only importable as a zip
+    archive (no real filesystem path), the schema is extracted to a
+    temporary/cache location and that path is returned.
+
     Returns:
         Path to the JSON schema file.
+
+    Raises:
+        FileNotFoundError: If the packaged schema cannot be located.
     """
-    # First try the package directory
-    package_dir = Path(__file__).parent.parent.parent.parent
-    schema_path = package_dir / "config" / "schema.json"
-    
-    if schema_path.exists():
-        return schema_path
-    
-    # Fallback to the installed package location
-    import geo_infer_intra
-    package_location = Path(geo_infer_intra.__file__).parent.parent
-    schema_path = package_location / "config" / "schema.json"
-    
-    if schema_path.exists():
-        return schema_path
-    
-    raise FileNotFoundError("JSON schema file not found")
+    anchor = importlib.resources.files("geo_infer_intra.data") / "schema.json"
+    with importlib.resources.as_file(anchor) as schema_path:
+        if schema_path.is_file():
+            return schema_path
+    raise FileNotFoundError("JSON schema file not found in geo_infer_intra.data")
 
 
 def validate_config(config: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
@@ -87,7 +88,11 @@ def validate_config(config: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
         return False, str(e)
 
 
-def get_config_value(config: Dict[str, Any], key_path: str, default: Any = None) -> Any:
+def get_config_value(
+    config: Dict[str, Any],
+    key_path: str,
+    default: Any = _MISSING,
+) -> Any:
     """
     Get a value from a nested configuration dictionary using dot notation.
 
@@ -109,7 +114,7 @@ def get_config_value(config: Dict[str, Any], key_path: str, default: Any = None)
         if isinstance(value, dict) and key in value:
             value = value[key]
         else:
-            if default is not None:
+            if default is not _MISSING:
                 return default
             raise KeyError(f"Key not found: {key_path}")
     

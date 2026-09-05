@@ -12,18 +12,14 @@ This module provides sophisticated Git functionality including:
 - Advanced branch management and workflows
 """
 
-import os
 import re
-import subprocess
-import logging
-from typing import Dict, List, Any, Optional, Tuple, Set, Union
+from typing import Dict, List, Any, Optional, Union
 from pathlib import Path
 from dataclasses import dataclass, field
 import git
-import json
 
-from ..utils.error_handler import GitOperationError, ErrorCategory, ErrorSeverity
-from ..utils.logging_utils import get_logger, LogContext
+from ..utils.error_handler import GitOperationError
+from ..utils.logging_utils import get_logger
 
 logger = get_logger(__name__)
 
@@ -361,7 +357,7 @@ class CherryPickManager:
 
         try:
             # Get the commit object
-            commit = self.repo.commit(commit_sha)
+            self.repo.commit(commit_sha)
 
             # Perform cherry-pick
             self.repo.git.cherry_pick(commit_sha, strategy=strategy)
@@ -868,7 +864,7 @@ def create_advanced_git_operations(repo_path: Union[str, Path]) -> AdvancedGitOp
         GitOperationError: If repository is not valid or accessible
     """
     try:
-        repo = git.Repo(repo_path)
+        git.Repo(repo_path)
 
         # Verify it's a valid Git repository
         if not (Path(repo_path) / '.git').exists():

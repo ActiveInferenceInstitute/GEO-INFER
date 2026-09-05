@@ -1,10 +1,9 @@
 """Talent Acquisition and Management specific data models."""
-from typing import Optional, List, Dict, Any
+from typing import Optional, List
 from datetime import datetime, date
 from pydantic import BaseModel, Field
 from enum import Enum
 
-from .hr_models import Employee # For hiring manager, interviewers
 
 class JobRequisitionStatus(str, Enum):
     OPEN = "open"

@@ -5,7 +5,7 @@ including BFAST-style breakpoint detection and magnitude-based thresholding.
 """
 
 import logging
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional
 
 import numpy as np
 import xarray as xr
@@ -193,27 +193,26 @@ class DeforestationDetector:
                 "forest_fraction": 0.0,
                 "edge_density": 0.0,
                 "core_fraction": 0.0,
+                "edge_pixel_count": 0,
+                "core_pixel_count": 0,
                 "fragmentation_index": 1.0,
             }
 
-        edge_count = 0
-        rows, cols = data.shape[-2], data.shape[-1]
-        flat = data.reshape(-1, rows, cols) if data.ndim > 2 else data[np.newaxis, :, :]
+        # An edge pixel is a forest pixel with at least one in-bounds
+        # 4-neighbor that is non-forest; core pixels have only forest
+        # neighbors. Vectorized via shifted-array comparisons.
+        forest = data > 0
+        rows, cols = forest.shape[-2], forest.shape[-1]
+        layers = forest.reshape(-1, rows, cols) if forest.ndim > 2 else forest[np.newaxis, :, :]
 
-        for layer in flat:
-            for i in range(rows):
-                for j in range(cols):
-                    if layer[i, j] > 0:
-                        neighbors = 0
-                        forest_neighbors = 0
-                        for di, dj in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-                            ni, nj = i + di, j + dj
-                            if 0 <= ni < rows and 0 <= nj < cols:
-                                neighbors += 1
-                                if layer[ni, nj] > 0:
-                                    forest_neighbors += 1
-                        if neighbors > 0 and forest_neighbors < neighbors:
-                            edge_count += 1
+        edge_count = 0
+        for layer in layers:
+            core = layer.copy()
+            core[1:, :] &= layer[:-1, :]   # up neighbor must be forest
+            core[:-1, :] &= layer[1:, :]   # down neighbor must be forest
+            core[:, 1:] &= layer[:, :-1]   # left neighbor must be forest
+            core[:, :-1] &= layer[:, 1:]   # right neighbor must be forest
+            edge_count += int(np.sum(layer & ~core))
 
         forest_fraction = forest_pixels / total_pixels
         edge_density = edge_count / forest_pixels if forest_pixels > 0 else 0.0

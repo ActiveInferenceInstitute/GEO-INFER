@@ -1,13 +1,6 @@
 ---
 name: geo-infer-emergency
-description: Emergency management and disaster response. Use when planning search and rescue, optimizing emergency resource deployment, modeling disaster scenarios, coordinating evacuation routes, or managing multi-agency response logistics.
-prerequisites:
-  required:
-    - geo-infer-space
-    - geo-infer-data
-  recommended:
-    - geo-infer-risk
-    - geo-infer-transport
+description: Emergency management and disaster response. Use when planning search and rescue, optimizing emergency resource deployment, coordinating evacuation routes, building a common operating picture, or managing multi-agency response logistics.
 difficulty: intermediate
 estimated_time: 45min
 examples_dir: ../GEO-INFER-EXAMPLES/examples/
@@ -19,41 +12,71 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 
 ### Core Capabilities
 
-- **Search and rescue**: SAR area prioritization, probability mapping, detection models
-- **Resource deployment**: Facility location, logistics optimization, capacity planning
-- **Disaster modeling**: Impact assessment, scenario simulation, cascading failures
-- **Evacuation**: Route planning, shelter capacity, population flow analysis
-- **Coordination**: Multi-agency response, resource allocation, real-time tracking
+- **Incident coordination**: ICS command structure, mutual aid requests, situation reports (`EmergencyCoordinator`)
+- **Resource deployment**: travel-time-based allocation optimization, dynamic redeployment, staging management, resource tracking (`ResourceDeployer`)
+- **Evacuation planning**: Dijkstra route optimization over a NetworkX road network, phasing, contraflow, shelter management, clearance-time estimation (`EvacuationPlanner`)
+- **Situational awareness**: common operating picture layers, sensor integration, threat assessment, data fusion, dashboards (`SituationalAwareness`)
+- **Search and rescue**: mission planning, probability-of-detection, search-pattern generation (parallel, expanding square, sector, grid), team coordination, Bayesian probability updates (`SearchAndRescue`)
 
 ### Key Imports
 
 ```python
-from geo_infer_emergency.core.sar import SearchAndRescue
-from geo_infer_emergency.core.resource_deployment import ResourceOptimizer
-from geo_infer_emergency.core.disaster import DisasterModel
-from geo_infer_emergency.core.evacuation import EvacuationPlanner
+from geo_infer_emergency import (
+    EmergencyCoordinator,
+    ResourceDeployer,
+    EvacuationPlanner,
+    SituationalAwareness,
+    SearchAndRescue,
+)
+from geo_infer_emergency.core.geo import haversine_distance_km
 ```
 
 ## Examples
 
 ```python
-from geo_infer_emergency.core.sar import SearchAndRescue
+from geo_infer_emergency import SearchAndRescue, EvacuationPlanner
 
 sar = SearchAndRescue()
-priority_map = sar.compute_priority(
-    last_known_position=(45.5, -122.6),
-    terrain_data=terrain_raster,
-    time_elapsed_hours=6
+mission = sar.plan_mission(
+    subject={"id": "subject_1", "type": "hiker", "name": "Missing Hiker"},
+    last_known_point={"lat": 45.5, "lon": -122.6},
+    search_radius=5.0,
 )
-search_cells = sar.plan_search_pattern(priority_map, n_teams=4)
+pattern = sar.generate_pattern(
+    area={"center": {"lat": 45.5, "lon": -122.6}, "radius_km": 3.0},
+    pattern_type="expanding_square",
+)
+print(pattern["waypoints"][0], pattern["estimated_distance_km"])
+
+evac = EvacuationPlanner()
+estimates = evac.estimate_clearance_time(
+    evacuation_plan={"zone": {"population": 10000}, "routes": []},
+    scenarios=["best_case", "expected", "worst_case"],
+)
+print(estimates["expected"]["clearance_hours"])
+```
+
+Verified smoke checks for the snippets above:
+
+```bash
+uv run --no-sync python -c "from geo_infer_emergency import EmergencyCoordinator, ResourceDeployer, EvacuationPlanner, SituationalAwareness, SearchAndRescue"
+uv run --no-sync python -c "from geo_infer_emergency.core.geo import haversine_distance_km; print(round(haversine_distance_km({'lat': 45.5, 'lon': -122.6}, {'lat': 45.6, 'lon': -122.6}), 3))"
+uv run --no-sync python examples/multi_hazard_assessment.py
 ```
 
 ## Guidelines
 
-- Resource deployment optimization in development (Alpha)
+- Resource-deployment optimization is heuristic (nearest-resource under a
+  response-time constraint), not a true mixed-integer solver, despite the
+  `optimization_algorithm` label.
+- `EvacuationPlanner.optimize_routes` requires every origin/destination to be
+  a node of the `road_network` NetworkX graph passed at construction.
+- `estimate_clearance_time` returns a scenario-keyed dict
+  (`{"best_case": {...}, "expected": {...}, ...}`), not a wrapped report.
+- `generate_sitrep`'s report-format parameter is `report_format` (not `format`).
 
 ### Integrations
 
-- Integrates with TRANSPORT for evacuation route optimization
-- Integrates with COMMS for emergency notification broadcasting
-- Test: `uv run python -m pytest GEO-INFER-EMERGENCY/tests/ -v`
+- Cross-module integration (TRANSPORT, COMMS, RISK, SPACE) is aspirational —
+  no `geo_infer_*` imports exist in this module yet.
+- Test: `uv run --no-sync python -m pytest GEO-INFER-EMERGENCY/tests -q`

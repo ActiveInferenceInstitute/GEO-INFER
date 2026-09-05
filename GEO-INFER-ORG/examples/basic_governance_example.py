@@ -1,116 +1,94 @@
-"""
-Basic governance example using GEO-INFER-ORG.
+"""Basic governance example using GEO-INFER-ORG.
 
-This example demonstrates:
-- Governance framework setup
-- Community management
-- Stakeholder engagement
-- Multi-level governance coordination
+Demonstrates the real public API:
+- Building an organizational structure with OrganizationModel / OrgUnit
+- Running a ranked-choice (IRV) vote with VotingEngine
+- Scoring consensus ratings with ConsensusModel
 """
 
-import sys
-import os
-
-# Add src directory to path
-project_root = os.path.dirname(os.path.dirname(__file__))
-src_path = os.path.join(project_root, 'src')
-if src_path not in sys.path:
-    sys.path.insert(0, src_path)
-
-try:
-    from geo_infer_org.core.governance import GovernanceFramework
-    from geo_infer_org.core.community import CommunityManager
-    from geo_infer_org.core.stakeholders import StakeholderEngagement
-    IMPORTS_AVAILABLE = True
-except ImportError as e:
-    print(f"⚠️  Some imports not available: {e}")
-    IMPORTS_AVAILABLE = False
+from geo_infer_org import (
+    OrganizationModel,
+    OrgUnit,
+    VotingEngine,
+    ConsensusModel,
+    VotingMethod,
+    Proposal,
+    Vote,
+)
 
 
-def main():
-    """Run basic governance example."""
-    print("=" * 60)
+def build_organization() -> OrganizationModel:
+    """Create a small two-level org structure."""
+    model = OrganizationModel()
+    model.add_unit(OrgUnit(unit_id="hq", name="Regional Authority"))
+    model.add_unit(OrgUnit(unit_id="planning", name="Planning", parent_id="hq"))
+    model.add_unit(OrgUnit(unit_id="emergency", name="Emergency Response", parent_id="hq"))
+    return model
+
+
+def run_ranked_choice_vote() -> None:
+    """Run an IRV vote among three options and print the outcome."""
+    engine = VotingEngine()
+    engine.create_proposal(Proposal(
+        proposal_id="site-plan",
+        title="Site plan",
+        description="Choose the expansion site",
+        proposer_id="hq",
+        options=["site_a", "site_b", "site_c"],
+        voting_method=VotingMethod.RANKED_CHOICE,
+    ))
+    ballots = {
+        "voter-1": ["site_a", "site_b", "site_c"],
+        "voter-2": ["site_b", "site_a", "site_c"],
+        "voter-3": ["site_a", "site_c", "site_b"],
+        "voter-4": ["site_c", "site_b", "site_a"],
+    }
+    for voter_id, rank in ballots.items():
+        engine.cast_vote("site-plan", Vote(voter_id, rank[0], rank=rank))
+
+    result = engine.tally("site-plan")
+    for i, round_counts in enumerate(result.rounds or [], start=1):
+        print(f"Round {i}: {round_counts}")
+    print(f"IRV winner: {result.winner}")
+
+
+def run_consensus_rounds() -> None:
+    """Drive two consensus rounds and check convergence."""
+    consensus = ConsensusModel(convergence_threshold=0.5)
+    consensus.set_options(["option_alpha", "option_beta"])
+
+    round1 = {
+        "p1": {"option_alpha": 7.0, "option_beta": 5.0},
+        "p2": {"option_alpha": 6.5, "option_beta": 5.5},
+    }
+    for participant, ratings in round1.items():
+        consensus.submit_rating(participant, ratings)
+    previous = consensus.compute_consensus()["option_scores"]
+    print(f"Round 1 scores: {previous}")
+
+    round2 = {
+        "p1": {"option_alpha": 7.2, "option_beta": 5.1},
+        "p2": {"option_alpha": 6.7, "option_beta": 5.4},
+    }
+    for participant, ratings in round2.items():
+        consensus.submit_rating(participant, ratings)
+    current = consensus.compute_consensus()
+    print(f"Round 2 scores: {current['option_scores']}")
+    print(f"Consensus level: {current['consensus_level']}")
+    print(f"Converged: {consensus.check_convergence(previous)}")
+
+
+def main() -> None:
+    """Run the basic governance example."""
     print("GEO-INFER-ORG: Basic Governance Example")
-    print("=" * 60)
-    
-    if not IMPORTS_AVAILABLE:
-        print("\n⚠️  Some required modules are not available.")
-        print("   This example requires full GEO-INFER-ORG installation.")
-        print("\n   GEO-INFER-ORG provides:")
-        print("   • Multi-level governance frameworks")
-        print("   • Community management")
-        print("   • Stakeholder engagement")
-        print("   • Institutional design")
-        print("   • Collaborative governance")
-        return
-    
-    # Step 1: Governance framework
-    print("\n🏛️  Step 1: Governance framework setup...")
-    try:
-        framework = GovernanceFramework()
-        print(f"   ✅ Governance framework initialized")
-        print(f"   Framework capabilities:")
-        print(f"      • Multi-level coordination")
-        print(f"      • Institutional design")
-        print(f"      • Decision-making processes")
-        print(f"      • Policy implementation")
-    except Exception as e:
-        print(f"   ⚠️  Governance framework: {e}")
-    
-    # Step 2: Community management
-    print("\n👥 Step 2: Community management...")
-    try:
-        manager = CommunityManager()
-        print(f"   ✅ Community manager initialized")
-        print(f"   Management capabilities:")
-        print(f"      • Community organization")
-        print(f"      • Participation tracking")
-        print(f"      • Resource allocation")
-        print(f"      • Conflict resolution")
-    except Exception as e:
-        print(f"   ⚠️  Community management: {e}")
-    
-    # Step 3: Stakeholder engagement
-    print("\n🤝 Step 3: Stakeholder engagement...")
-    try:
-        engagement = StakeholderEngagement()
-        print(f"   ✅ Stakeholder engagement initialized")
-        print(f"   Engagement capabilities:")
-        print(f"      • Stakeholder identification")
-        print(f"      • Interest mapping")
-        print(f"      • Communication channels")
-        print(f"      • Consensus building")
-    except Exception as e:
-        print(f"   ⚠️  Stakeholder engagement: {e}")
-    
-    # Step 4: Integration
-    print("\n🔗 Step 4: Integration capabilities...")
-    try:
-        print(f"   ✅ GEO-INFER-ORG integrates with:")
-        print(f"      • PEP: People management")
-        print(f"      • COMMS: Communication systems")
-        print(f"      • CIV: Civic engagement")
-        print(f"      • NORMS: Normative frameworks")
-        print(f"      • REQ: Requirements management")
-    except Exception as e:
-        print(f"   ⚠️  Integration info: {e}")
-    
-    # Summary
-    print("\n" + "=" * 60)
-    print("✅ Governance example complete!")
-    print("=" * 60)
-    print("\nKey capabilities demonstrated:")
-    print("  • Governance framework setup")
-    print("  • Community management")
-    print("  • Stakeholder engagement")
-    print("  • Multi-level coordination")
-    print("\nNext steps:")
-    print("  • Integrate with PEP for people management")
-    print("  • Connect with COMMS for communication")
-    print("  • Use with CIV for civic engagement")
-    print("  • Combine with NORMS for normative governance")
+    print("-" * 40)
+
+    model = build_organization()
+    print(f"Units: {sorted(model.to_dict()['units'].keys())}")
+
+    run_ranked_choice_vote()
+    run_consensus_rounds()
 
 
 if __name__ == "__main__":
     main()
-

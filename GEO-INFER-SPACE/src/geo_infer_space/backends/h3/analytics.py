@@ -13,13 +13,8 @@ from .core import H3Grid, H3Cell
 
 logger = logging.getLogger(__name__)
 
-try:
-    import numpy as np
+import numpy as np
 
-    NUMPY_AVAILABLE = True
-except ImportError:
-    NUMPY_AVAILABLE = False
-    logger.warning("numpy not available. Some analytics will be limited.")
 
 MIN_H3_VERSION = (4, 5, 0)
 try:
@@ -157,55 +152,30 @@ class H3SpatialAnalyzer:
         Returns:
             Moran's I statistic
         """
-        if NUMPY_AVAILABLE:
-            values_array = np.array(values)
-            n = len(values)
-            mean_val = np.mean(values_array)
+        values_array = np.array(values)
+        n = len(values)
+        mean_val = np.mean(values_array)
 
-            # Calculate numerator and denominator
-            numerator: float = 0
-            denominator = np.sum((values_array - mean_val) ** 2)
-            total_weights = 0
+        # Calculate numerator and denominator
+        numerator: float = 0
+        denominator = np.sum((values_array - mean_val) ** 2)
+        total_weights = 0
 
-            cell_index_map = {cell.index: i for i, cell in enumerate(valid_cells)}
+        cell_index_map = {cell.index: i for i, cell in enumerate(valid_cells)}
 
-            for i, cell in enumerate(valid_cells):
-                neighbors = weights_matrix.get(cell.index, [])
-                for neighbor_idx in neighbors:
-                    if neighbor_idx in cell_index_map:
-                        j = cell_index_map[neighbor_idx]
-                        numerator += (values[i] - mean_val) * (values[j] - mean_val)
-                        total_weights += 1
+        for i, cell in enumerate(valid_cells):
+            neighbors = weights_matrix.get(cell.index, [])
+            for neighbor_idx in neighbors:
+                if neighbor_idx in cell_index_map:
+                    j = cell_index_map[neighbor_idx]
+                    numerator += (values[i] - mean_val) * (values[j] - mean_val)
+                    total_weights += 1
 
-            if total_weights == 0 or denominator == 0:
-                return 0.0
+        if total_weights == 0 or denominator == 0:
+            return 0.0
 
-            morans_i = (n / total_weights) * (numerator / denominator)
-            return cast(float, morans_i)
-        else:
-            # Fallback calculation without numpy
-            n = len(values)
-            mean_val = sum(values) / n
-
-            numerator = 0
-            denominator = sum((v - mean_val) ** 2 for v in values)
-            total_weights = 0
-
-            cell_index_map = {cell.index: i for i, cell in enumerate(valid_cells)}
-
-            for i, cell in enumerate(valid_cells):
-                neighbors = weights_matrix.get(cell.index, [])
-                for neighbor_idx in neighbors:
-                    if neighbor_idx in cell_index_map:
-                        j = cell_index_map[neighbor_idx]
-                        numerator += (values[i] - mean_val) * (values[j] - mean_val)
-                        total_weights += 1
-
-            if total_weights == 0 or denominator == 0:
-                return 0.0
-
-            morans_i = (n / total_weights) * (numerator / denominator)
-            return morans_i
+        morans_i = (n / total_weights) * (numerator / denominator)
+        return cast(float, morans_i)
 
     def _interpret_morans_i(self, morans_i: float) -> str:
         """
@@ -290,30 +260,24 @@ class H3SpatialAnalyzer:
         hotspots = []
         coldspots = []
 
-        if NUMPY_AVAILABLE:
-            values = np.array([d["value"] for d in valid_data])
-            mean_val = np.mean(values)
-            std_val = np.std(values)
-        else:
-            values = [  # type: ignore[assignment]
-                d["value"] for d in valid_data
-            ]
-            mean_val = sum(values) / len(values)
-            std_val = math.sqrt(sum((v - mean_val) ** 2 for v in values) / len(values))
+        values = np.array([d["value"] for d in valid_data])
+        mean_val = np.mean(values)
+        std_val = np.std(values)
 
         # Calculate Gi* for each cell
         for i, data in enumerate(valid_data):
             cell = data["cell"]
 
-            # Get neighbors including self
+            # Get neighbors including self. h3-py 4.x raises ValueError for
+            # malformed indices and h3.H3BaseException subclasses for library
+            # errors (there is no h3.CellError in this version).
             try:
-                try:
-                    import h3
-
-                    neighbors = h3.grid_disk(cell.index, 1)
-                except Exception:
-                    neighbors = [cell.index]  # Fallback
-            except Exception:
+                neighbors = h3.grid_disk(cell.index, 1)
+            except (ImportError, ValueError, h3.H3BaseException) as e:
+                logger.warning(
+                    f"grid_disk failed for {cell.index}; using self-only neighborhood "
+                    f"in Getis-Ord Gi*: {e}"
+                )
                 neighbors = [cell.index]
 
             # Calculate local sum and count
@@ -384,27 +348,24 @@ class H3SpatialAnalyzer:
         coldspots = []
         outliers = []
 
-        if NUMPY_AVAILABLE:
-            values = np.array([d["value"] for d in valid_data])
-            mean_val = np.mean(values)
-        else:
-            values = [  # type: ignore[assignment]
-                d["value"] for d in valid_data
-            ]
-            mean_val = sum(values) / len(values)
-
+        values = np.array([d["value"] for d in valid_data])
+        mean_val = np.mean(values)
         # Calculate local Moran's I for each cell
         for i, data in enumerate(valid_data):
             cell = data["cell"]
             cell_value = data["value"]
 
-            # Get neighbors
+            # Get neighbors. h3-py 4.x raises ValueError for malformed indices
+            # and h3.H3BaseException subclasses for library errors (there is no
+            # h3.CellError in this version).
             try:
-                import h3
-
                 neighbors = h3.grid_disk(cell.index, 1)
                 neighbors = [n for n in neighbors if n != cell.index]  # Exclude self
-            except Exception:
+            except (ImportError, ValueError, h3.H3BaseException) as e:
+                logger.warning(
+                    f"grid_disk failed for {cell.index}; using empty neighborhood in "
+                    f"Local Moran's I; results may be degraded: {e}"
+                )
                 neighbors = []
 
             # Calculate local Moran's I
@@ -416,10 +377,7 @@ class H3SpatialAnalyzer:
                         break
 
             if neighbor_values:
-                if NUMPY_AVAILABLE:
-                    neighbor_mean = np.mean(neighbor_values)
-                else:
-                    neighbor_mean = sum(neighbor_values) / len(neighbor_values)
+                neighbor_mean = np.mean(neighbor_values)
 
                 local_i = (cell_value - mean_val) * (neighbor_mean - mean_val)
 
@@ -513,15 +471,6 @@ class H3ClusterAnalyzer:
     https://towardsdatascience.com/exploring-location-data-using-a-hexagon-grid-3509b68b04a2
     """
 
-    def __init__(self, grid: H3Grid) -> None:
-        """
-        Initialize cluster analyzer for an H3Grid.
-
-        Args:
-            grid: H3Grid instance to analyze
-        """
-        self.grid = grid
-
     def density_based_clustering(
         self,
         value_column: str,
@@ -566,11 +515,7 @@ class H3ClusterAnalyzer:
 
         # Auto-calculate minimum density if not provided
         if min_density is None:
-            if NUMPY_AVAILABLE:
-                min_density = cast(float, np.percentile(values, 75))
-            else:
-                sorted_values = sorted(values)
-                min_density = sorted_values[int(0.75 * len(sorted_values))]
+            min_density = cast(float, np.percentile(values, 75))
 
         # Perform clustering
         clusters = self._h3_dbscan(valid_cells, values, min_density, eps_rings)
@@ -1033,15 +978,6 @@ class H3DensityAnalyzer:
     https://gis.utah.gov/blog/2022-10-26-using-h3-hexes/
     """
 
-    def __init__(self, grid: H3Grid) -> None:
-        """
-        Initialize density analyzer for an H3Grid.
-
-        Args:
-            grid: H3Grid instance to analyze
-        """
-        self.grid = grid
-
     def calculate_kernel_density(
         self,
         point_column: Optional[str] = None,
@@ -1110,25 +1046,13 @@ class H3DensityAnalyzer:
         # Calculate statistics
         densities = [r["density"] for r in density_results]
 
-        if NUMPY_AVAILABLE:
-            stats = {
-                "mean_density": float(np.mean(densities)),
-                "std_density": float(np.std(densities)),
-                "min_density": float(np.min(densities)),
-                "max_density": float(np.max(densities)),
-                "median_density": float(np.median(densities)),
-            }
-        else:
-            stats = {
-                "mean_density": sum(densities) / len(densities),
-                "std_density": math.sqrt(
-                    sum((d - sum(densities) / len(densities)) ** 2 for d in densities)
-                    / len(densities)
-                ),
-                "min_density": min(densities),
-                "max_density": max(densities),
-                "median_density": sorted(densities)[len(densities) // 2],
-            }
+        stats = {
+            "mean_density": float(np.mean(densities)),
+            "std_density": float(np.std(densities)),
+            "min_density": float(np.min(densities)),
+            "max_density": float(np.max(densities)),
+            "median_density": float(np.median(densities)),
+        }
 
         return {
             "density_surface": density_results,
@@ -1278,21 +1202,10 @@ class H3DensityAnalyzer:
             return {"error": "Insufficient data for pattern analysis"}
 
         # Calculate thresholds
-        if NUMPY_AVAILABLE:
-            q25 = np.percentile(values, 25)
-            q75 = np.percentile(values, 75)
-            mean_val = np.mean(values)
-            std_val = np.std(values)
-        else:
-            sorted_values = sorted(values)
-            q25 = sorted_values[len(sorted_values) // 4]  # type: ignore[assignment]
-            q75 = sorted_values[  # type: ignore[assignment]
-                3 * len(sorted_values) // 4
-            ]
-            mean_val = sum(values) / len(values)  # type: ignore[assignment]
-            std_val = math.sqrt(  # type: ignore[assignment]
-                sum((v - mean_val) ** 2 for v in values) / len(values)
-            )
+        q25 = np.percentile(values, 25)
+        q75 = np.percentile(values, 75)
+        mean_val = np.mean(values)
+        std_val = np.std(values)
 
         # Identify patterns
         high_density_clusters = []
@@ -1357,15 +1270,9 @@ class H3DensityAnalyzer:
         Returns:
             Percentile rank (0-100)
         """
-        if NUMPY_AVAILABLE:
-            from scipy import stats
+        from scipy import stats
 
-            return cast(float, stats.percentileofscore(values, value))
-        else:
-            # Simple percentile calculation
-            sorted_values = sorted(values)
-            rank = sum(1 for v in sorted_values if v <= value)
-            return (rank / len(sorted_values)) * 100
+        return cast(float, stats.percentileofscore(values, value))
 
     def _calculate_local_gradient(
         self, cell_index: str, valid_data: List[Dict]
@@ -1390,14 +1297,18 @@ class H3DensityAnalyzer:
         if cell_value is None:
             return 0.0
 
-        # Get neighbors
+        # Get neighbors. h3-py 4.x raises ValueError for malformed indices and
+        # h3.H3BaseException subclasses for library errors (there is no
+        # h3.CellError in this version).
         try:
             if H3_AVAILABLE:
-                import h3
-
                 neighbors = h3.grid_disk(cell_index, 1)
                 neighbors = [n for n in neighbors if n != cell_index]
-        except Exception:
+        except (ImportError, ValueError, h3.H3BaseException) as e:
+            logger.warning(
+                f"grid_disk failed for {cell_index}; using empty neighborhood in "
+                f"spatial lag (local gradient); results may be degraded: {e}"
+            )
             neighbors = []
 
         # Calculate average neighbor value
@@ -1485,15 +1396,6 @@ class H3NetworkAnalyzer:
     and network-based relationships within H3 hexagonal grids.
     Based on methods from Uber's H3 usage for ride-sharing analytics.
     """
-
-    def __init__(self, grid: H3Grid) -> None:
-        """
-        Initialize network analyzer for an H3Grid.
-
-        Args:
-            grid: H3Grid instance to analyze
-        """
-        self.grid = grid
 
     def analyze_flow_patterns(
         self,
@@ -1604,23 +1506,12 @@ class H3NetworkAnalyzer:
 
         # Calculate flow statistics
         volumes = list(od_matrix.values())
-        if NUMPY_AVAILABLE:
-            flow_stats = {
-                "mean_volume": float(np.mean(volumes)),
-                "std_volume": float(np.std(volumes)),
-                "max_volume": float(np.max(volumes)),
-                "min_volume": float(np.min(volumes)),
-            }
-        else:
-            mean_vol = sum(volumes) / len(volumes)
-            flow_stats = {
-                "mean_volume": mean_vol,
-                "std_volume": math.sqrt(
-                    sum((v - mean_vol) ** 2 for v in volumes) / len(volumes)
-                ),
-                "max_volume": max(volumes),
-                "min_volume": min(volumes),
-            }
+        flow_stats = {
+            "mean_volume": float(np.mean(volumes)),
+            "std_volume": float(np.std(volumes)),
+            "max_volume": float(np.max(volumes)),
+            "min_volume": float(np.min(volumes)),
+        }
 
         return {
             "top_flows": top_flows,
@@ -1977,15 +1868,6 @@ class H3TemporalAnalyzer:
     https://towardsdatascience.com/exploring-location-data-using-a-hexagon-grid-3509b68b04a2
     """
 
-    def __init__(self, grid: H3Grid) -> None:
-        """
-        Initialize temporal analyzer for an H3Grid.
-
-        Args:
-            grid: H3Grid instance to analyze
-        """
-        self.grid = grid
-
     def analyze_temporal_patterns(
         self,
         timestamp_column: str,
@@ -2139,23 +2021,12 @@ class H3TemporalAnalyzer:
         # Calculate averages
         for key in aggregated:
             values = aggregated[key]
-            if NUMPY_AVAILABLE:
-                aggregated[key] = {
-                    "mean": float(np.mean(values)),
-                    "sum": float(np.sum(values)),
-                    "count": len(values),
-                    "std": float(np.std(values)),
-                }
-            else:
-                mean_val = sum(values) / len(values)
-                aggregated[key] = {
-                    "mean": mean_val,
-                    "sum": sum(values),
-                    "count": len(values),
-                    "std": math.sqrt(
-                        sum((v - mean_val) ** 2 for v in values) / len(values)
-                    ),
-                }
+            aggregated[key] = {
+                "mean": float(np.mean(values)),
+                "sum": float(np.sum(values)),
+                "count": len(values),
+                "std": float(np.std(values)),
+            }
 
         return aggregated
 
@@ -2195,25 +2066,11 @@ class H3TemporalAnalyzer:
 
         # Calculate temporal variability
         all_means = [stats["mean"] for stats in aggregated_data.values()]
-        if NUMPY_AVAILABLE:
-            variability = (
-                float(np.std(all_means)) / float(np.mean(all_means))
-                if np.mean(all_means) > 0
-                else 0
-            )
-        else:
-            mean_of_means = sum(all_means) / len(all_means)
-            variability = (
-                (
-                    math.sqrt(
-                        sum((m - mean_of_means) ** 2 for m in all_means)
-                        / len(all_means)
-                    )
-                    / mean_of_means
-                )
-                if mean_of_means > 0
-                else 0
-            )
+        variability = (
+            float(np.std(all_means)) / float(np.mean(all_means))
+            if np.mean(all_means) > 0
+            else 0
+        )
 
         # Identify patterns
         pattern_type = self._identify_pattern_type(aggregated_data, resolution)
@@ -2286,14 +2143,9 @@ class H3TemporalAnalyzer:
 
         values = [stats["mean"] for stats in aggregated_data.values()]
 
-        if NUMPY_AVAILABLE:
-            max_val = np.max(values)
-            min_val = np.min(values)
-            mean_val = np.mean(values)
-        else:
-            max_val = max(values)
-            min_val = min(values)
-            mean_val = sum(values) / len(values)
+        max_val = np.max(values)
+        min_val = np.min(values)
+        mean_val = np.mean(values)
 
         # Simple pattern classification
         if (max_val - min_val) / mean_val < 0.2:  # Low variability
@@ -2363,27 +2215,14 @@ class H3TemporalAnalyzer:
             total_count += stats["count"]
             total_sum += stats["sum"]
 
-        if NUMPY_AVAILABLE:
-            return {
-                "overall_mean": float(np.mean(all_values)),
-                "overall_std": float(np.std(all_values)),
-                "overall_min": float(np.min(all_values)),
-                "overall_max": float(np.max(all_values)),
-                "total_observations": total_count,
-                "total_value": total_sum,
-            }
-        else:
-            mean_val = sum(all_values) / len(all_values)
-            return {
-                "overall_mean": mean_val,
-                "overall_std": math.sqrt(
-                    sum((v - mean_val) ** 2 for v in all_values) / len(all_values)
-                ),
-                "overall_min": min(all_values),
-                "overall_max": max(all_values),
-                "total_observations": total_count,
-                "total_value": total_sum,
-            }
+        return {
+            "overall_mean": float(np.mean(all_values)),
+            "overall_std": float(np.std(all_values)),
+            "overall_min": float(np.min(all_values)),
+            "overall_max": float(np.max(all_values)),
+            "total_observations": total_count,
+            "total_value": total_sum,
+        }
 
     def detect_temporal_anomalies(
         self,
@@ -2476,12 +2315,8 @@ class H3TemporalAnalyzer:
         """
         values = [d["value"] for d in temporal_data]
 
-        if NUMPY_AVAILABLE:
-            mean_val = np.mean(values)
-            std_val = np.std(values)
-        else:
-            mean_val = sum(values) / len(values)
-            std_val = math.sqrt(sum((v - mean_val) ** 2 for v in values) / len(values))
+        mean_val = np.mean(values)
+        std_val = np.std(values)
 
         anomalies = []
 
@@ -2519,14 +2354,8 @@ class H3TemporalAnalyzer:
         """
         values = [d["value"] for d in temporal_data]
 
-        if NUMPY_AVAILABLE:
-            q1 = np.percentile(values, 25)
-            q3 = np.percentile(values, 75)
-        else:
-            sorted_values = sorted(values)
-            n = len(sorted_values)
-            q1 = sorted_values[n // 4]
-            q3 = sorted_values[3 * n // 4]
+        q1 = np.percentile(values, 25)
+        q3 = np.percentile(values, 75)
 
         iqr = q3 - q1
         lower_bound = q1 - multiplier * iqr
@@ -2676,11 +2505,7 @@ class H3TemporalAnalyzer:
         # Calculate statistics
         mean_value = sum(all_values) / len(all_values)
 
-        if NUMPY_AVAILABLE:
-            std_value = np.std(all_values)
-        else:
-            variance = sum((v - mean_value) ** 2 for v in all_values) / len(all_values)
-            std_value = math.sqrt(variance)
+        std_value = np.std(all_values)
 
         # Define anomaly thresholds
         upper_threshold = mean_value + threshold_std * std_value

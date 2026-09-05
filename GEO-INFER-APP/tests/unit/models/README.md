@@ -20,10 +20,7 @@ Models workspace within `GEO-INFER-APP`.
 
 ## Dependencies
 
-- `fastapi>=0.100.0`
-- `uvicorn>=0.15.0`
-- `pydantic>=2.0.0`
-- `jsonschema>=4.0.0`
+- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
 
 
 ## Validation

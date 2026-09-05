@@ -3,10 +3,16 @@ Main application entry point for GEO-INFER-OPS.
 
 This module initializes the FastAPI application, sets up logging,
 and configures all routes and middleware.
+
+Config loader note: the app entrypoint uses the dict-based
+``geo_infer_ops.utils.config.load_config`` because app-level settings
+(``service``, ``development`` in config/local.yaml) are not part of the
+pydantic domain schema. The pydantic ``geo_infer_ops.core.config.load_config``
+remains the loader for domain components (orchestrator, cache, security).
 """
 
 import uvicorn
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import make_asgi_app
 from typing import Any, Dict, Tuple
@@ -34,7 +40,9 @@ def create_app() -> Tuple[FastAPI, Dict[str, Any]]:
         config = {
             "service": {"host": "0.0.0.0", "port": 8000},
             "security": {"cors_origins": []},
-            "monitoring": {"enabled": True, "metrics_path": "/metrics"}
+            "monitoring": {"enabled": True, "metrics_path": "/metrics"},
+            "logging": {"level": "INFO", "format": "json", "file": None},
+            "development": {"hot_reload": False},
         }
 
     # Create FastAPI app

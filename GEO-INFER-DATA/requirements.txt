@@ -1,95 +1,45 @@
-# Core dependencies for GEO-INFER-DATA
-# Install with: uv pip install -r requirements.txt
-
-# Data processing and analysis
-geopandas>=0.13.0
-pandas>=2.0.0
-numpy>=1.24.0
-shapely>=2.0.0
-rasterio>=1.3.0
-fiona>=1.9.0
-pyproj>=3.5.0
-
-# Scientific computing
-scipy>=1.10.0
-scikit-learn>=1.3.0
-
-# Data formats and serialization
-pyyaml>=6.0.0
-openpyxl>=3.1.0
-xlrd>=2.0.1
-
-# Web and API
-fastapi>=0.100.0
-uvicorn[standard]>=0.23.0
-requests>=2.31.0
-httpx>=0.24.0
-
-# Database connectors
-psycopg2-binary>=2.9.0
-redis>=4.5.0
-sqlalchemy>=2.0.0
-
-# Object storage
-minio>=7.1.0
-boto3>=1.28.0
-
-# Time series processing
-# timescale-db>=0.1.0  # Optional - for TimescaleDB integration
-
-# Spatial indexing (optional but recommended)
-h3>=4.5.0,<5
-rtree>=1.0.0
-fiona>=1.9.0
-rasterio>=1.3.0
-
-# Data validation and quality
-pydantic>=2.0.0
-great-expectations>=0.17.0
-
-# Compression and optimization
-lz4>=4.3.0
-zstandard>=0.21.0
-
-# Logging and monitoring
-structlog>=23.1.0
-
-# Async processing
+# GEO-INFER-DATA runtime dependencies.
+# This file mirrors [project.dependencies] in pyproject.toml (the canonical
+# source) plus the optional extras.  Keep both in sync.
+#
+# Runtime dependencies
+aiohttp>=3.8.0
 aiomqtt>=2.4.0
-aiofiles>=23.1.0
-
-# Development and testing
+boto3>=1.28.0
+fastapi>=0.100.0
+geopandas>=0.13.0
+h3>=4.5.0,<5
+minio>=7.1.0
+numpy>=1.24.0
+pandas>=2.0.0
+psutil>=5.9.0
+psycopg2-binary>=2.9.0
+pydantic>=2.0.0
+pyproj>=3.5.0
+pyyaml>=6.0.0
+rasterio>=1.3.0
+redis>=4.5.0
+requests>=2.31.0
+rtree>=1.0.0
+shapely>=2.0.0
+sqlalchemy>=2.0.0
+urllib3>=1.26.0
+uvicorn[standard]>=0.23.0
+#
+# Optional: [project.optional-dependencies] integrations
+#   duckdb  — optional DuckDB spatial backend (utils/duckdb_spatial)
+#   pymongo — MongoDBConnector (connectors/database.py)
+#   xarray  — optional raster/array ingestion paths
+duckdb>=0.9.0
+pymongo>=4.5.0
+xarray>=2023.1.0
+#
+# Optional: [project.optional-dependencies] dev (tests / lint / docs)
 pytest>=7.4.0
 pytest-asyncio>=0.21.0
 pytest-cov>=4.1.0
 pytest-mock>=3.11.0
-
-# Type hints and validation
-typing-extensions>=4.7.0
+httpx>=0.24.0
+pyarrow>=14.0.0
 mypy>=1.5.0
-
-# Configuration management
-python-dotenv>=1.0.0
-
-# Documentation
-mkdocs>=1.5.0
-mkdocs-material>=9.1.0
-
-# Optional: Machine learning integration
-# torch>=2.0.0
-# tensorflow>=2.13.0
-
-# Optional: Big data processing
-# apache-airflow>=2.7.0
-# pyspark>=3.4.0
-
-# Optional: Cloud integration
-# azure-storage-blob>=12.17.0
-# google-cloud-storage>=2.10.0
-
-# Optional: Real-time processing
-# kafka-python>=2.0.2
-# confluent-kafka>=2.2.0
-
-# Added from comprehensive review
-aiohttp>=3.8.0
+black>=21.9.0

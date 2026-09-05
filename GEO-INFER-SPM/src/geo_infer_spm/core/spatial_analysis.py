@@ -29,7 +29,7 @@ from scipy.optimize import minimize
 from ..models.data_models import SPMData, SPMResult
 
 
-from ..utils.rng import resolve_rng, SeedLike
+from ..utils.rng import resolve_rng
 
 
 class SpatialAnalyzer:

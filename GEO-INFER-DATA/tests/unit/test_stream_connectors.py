@@ -3,7 +3,11 @@ Tests for stream connectors in geo_infer_data.connectors.stream.
 """
 
 import asyncio
+
+import aiohttp
+import aiomqtt
 import pytest
+from aiohttp import web
 
 from geo_infer_data.connectors.stream import (
     StreamConnector,
@@ -13,8 +17,16 @@ from geo_infer_data.connectors.stream import (
 )
 
 
-def _run(coro):
-    return asyncio.get_event_loop().run_until_complete(coro)
+def _collect(gen, n=None):
+    """Drain an async generator with asyncio.run."""
+    async def _run_all():
+        out = []
+        async for record in gen:
+            out.append(record)
+            if n is not None and len(out) >= n:
+                break
+        return out
+    return asyncio.run(_run_all())
 
 
 # ---------------------------------------------------------------------------
@@ -23,23 +35,23 @@ def _run(coro):
 
 
 class TestStreamConnectorBase:
-    def test_connect_raises_not_implemented(self):
+    def test_connect_raises(self):
         connector = StreamConnector()
         with pytest.raises(RuntimeError):
-            _run(connector.connect())
+            asyncio.run(connector.connect())
 
-    def test_stream_data_raises_not_implemented(self):
+    def test_stream_data_raises(self):
         connector = StreamConnector()
         with pytest.raises(RuntimeError):
-            _run(connector.stream_data())
+            asyncio.run(connector.stream_data())
 
     def test_disconnect_does_not_raise(self):
         connector = StreamConnector()
-        _run(connector.disconnect())
+        asyncio.run(connector.disconnect())
 
 
 # ---------------------------------------------------------------------------
-# MQTTConnector
+# MQTTConnector (aiomqtt)
 # ---------------------------------------------------------------------------
 
 
@@ -51,96 +63,106 @@ class TestMQTTConnector:
         assert connector.client_id == "geo_infer_data"
 
     def test_init_custom(self):
-        config = {"host": "broker.example.com", "port": 8883, "client_id": "custom"}
-        connector = MQTTConnector(config)
+        connector = MQTTConnector(
+            {"host": "broker.example.com", "port": 8883, "client_id": "custom"}
+        )
         assert connector.host == "broker.example.com"
         assert connector.port == 8883
         assert connector.client_id == "custom"
 
-    def test_connect(self):
-        connector = MQTTConnector({})
-        assert _run(connector.connect()) is True
+    def test_message_payload_decoding(self):
+        from geo_infer_data.connectors.stream import _decode_payload
 
-    def test_stream_data_yields_messages(self):
-        connector = MQTTConnector({})
-
-        async def collect_messages():
-            messages = []
-            async for msg in connector.stream_data(topic="sensors/temperature"):
-                messages.append(msg)
-                if len(messages) >= 3:
-                    break
-            return messages
-
-        messages = _run(collect_messages())
-        assert len(messages) >= 3
-        assert all("topic" in m for m in messages)
-        assert all("data" in m for m in messages)
-        assert messages[0]["topic"] == "sensors/temperature"
+        assert _decode_payload(b'{"temp": 21}') == {"temp": 21}
+        assert _decode_payload(b"plain text") == "plain text"
+        assert _decode_payload(42) == 42
 
 
 # ---------------------------------------------------------------------------
-# KafkaConnector
+# KafkaConnector: explicit placeholder
 # ---------------------------------------------------------------------------
 
 
 class TestKafkaConnector:
     def test_init(self):
-        config = {"bootstrap_servers": ["kafka:9092"], "group_id": "test-group"}
-        connector = KafkaConnector(config)
+        connector = KafkaConnector(
+            {"bootstrap_servers": ["kafka:9092"], "group_id": "test-group"}
+        )
         assert connector.bootstrap_servers == ["kafka:9092"]
         assert connector.group_id == "test-group"
 
-    def test_connect(self):
+    def test_operations_raise_clear_error(self):
         connector = KafkaConnector({})
-        assert _run(connector.connect()) is True
-
-    def test_stream_data_yields_messages(self):
-        connector = KafkaConnector({})
-
-        async def collect_messages():
-            messages = []
-            async for msg in connector.stream_data(topic="geo-events"):
-                messages.append(msg)
-                if len(messages) >= 3:
-                    break
-            return messages
-
-        messages = _run(collect_messages())
-        assert len(messages) >= 3
-        assert all("partition" in m for m in messages)
-        assert all("offset" in m for m in messages)
+        with pytest.raises(RuntimeError, match="Kafka client library"):
+            asyncio.run(connector.connect())
+        gen = connector.stream_data(topic="geo-events")
+        with pytest.raises(RuntimeError, match="Kafka client library"):
+            _collect(gen)
+        asyncio.run(connector.disconnect())
 
 
 # ---------------------------------------------------------------------------
-# WebSocketConnector
+# WebSocketConnector (aiohttp)
 # ---------------------------------------------------------------------------
+
+
+async def _start_echo_server(n_messages):
+    """Start an aiohttp server that pushes n_messages then closes the socket."""
+
+    async def push(request):
+        ws = web.WebSocketResponse()
+        await ws.prepare(request)
+        for i in range(n_messages):
+            await ws.send_str(f'{{"seq": {i}}}')
+        await ws.close()
+        return ws
+
+    app = web.Application()
+    app.router.add_get("/ws", push)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "127.0.0.1", 0)
+    await site.start()
+    port = runner.addresses[0][1]
+    return runner, port
 
 
 class TestWebSocketConnector:
     def test_init(self):
-        config = {"url": "ws://example.com:8080", "reconnect_interval": 10}
-        connector = WebSocketConnector(config)
+        connector = WebSocketConnector(
+            {"url": "ws://example.com:8080", "reconnect_interval": 10}
+        )
         assert connector.url == "ws://example.com:8080"
         assert connector.reconnect_interval == 10
 
-    def test_connect(self):
+    def test_connect_refused_raises(self):
+        connector = WebSocketConnector({"url": "ws://127.0.0.1:1/ws"})
+        with pytest.raises(aiohttp.ClientError):
+            asyncio.run(connector.connect())
+
+    def test_stream_data_requires_connection(self):
         connector = WebSocketConnector({})
-        assert _run(connector.connect()) is True
+        with pytest.raises(RuntimeError, match="connect"):
+            _collect(connector.stream_data())
 
-    def test_stream_data_yields_messages(self):
-        connector = WebSocketConnector({})
+    def test_receives_real_server_messages(self):
+        async def main():
+            runner, port = await _start_echo_server(n_messages=3)
+            try:
+                connector = WebSocketConnector({"url": f"ws://127.0.0.1:{port}/ws"})
+                assert await connector.connect() is True
 
-        async def collect_messages():
-            messages = []
-            async for msg in connector.stream_data():
-                messages.append(msg)
-                if len(messages) >= 3:
-                    break
-            return messages
+                messages = []
+                async for record in connector.stream_data():
+                    messages.append(record)
+                    if len(messages) >= 3:
+                        break
 
-        messages = _run(collect_messages())
-        assert len(messages) >= 3
-        assert all("type" in m for m in messages)
-        assert all("data" in m for m in messages)
-        assert all("latitude" in m["data"] for m in messages)
+                assert all(r["type"] == "text" for r in messages)
+                assert [r["data"]["seq"] for r in messages] == [0, 1, 2]
+
+                await connector.disconnect()
+            finally:
+                await runner.cleanup()
+
+        asyncio.run(main())

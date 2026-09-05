@@ -10,12 +10,9 @@ Implements comprehensive producer theory models including:
 """
 
 import numpy as np
-import pandas as pd
 from typing import Dict, List, Optional, Tuple, Callable, Any
 from dataclasses import dataclass
-from scipy.optimize import minimize, minimize_scalar
-from scipy.stats import multivariate_normal
-import logging
+from scipy.optimize import minimize
 
 
 @dataclass
@@ -210,7 +207,6 @@ class TechnicalEfficiency:
             Array of efficiency scores
         """
         n_firms, n_inputs = inputs.shape
-        n_outputs = outputs.shape[1]
 
         efficiency_scores = np.zeros(n_firms)
 
@@ -222,7 +218,6 @@ class TechnicalEfficiency:
 
     def _solve_dea_lp(self, target_firm: int, inputs: np.ndarray, outputs: np.ndarray) -> float:
         """Solve DEA linear programming problem for a single firm"""
-        n_firms = inputs.shape[0]
 
         # DEA model (simplified - would use proper LP solver in practice)
         # This is a conceptual implementation

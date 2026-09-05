@@ -1,12 +1,9 @@
 """Unit tests for geospatial utilities."""
 
 import pytest
-import sys
 from pathlib import Path
 
-# Add the tests directory to the path to find local test utilities.
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from intra_utils.geospatial import (
+from geo_infer_intra.utils.geospatial_utils import (
     create_point,
     create_polygon,
     create_feature,

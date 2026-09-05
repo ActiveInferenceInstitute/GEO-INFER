@@ -14,12 +14,10 @@ mermaid graph TD A[Geographic Coordinate System] --> B[Components] B --> C[Prime
 mermaid graph LR A[Earth] --- B[Latitude] A --- C[Longitude] B --- D[Parallel lines] B --- E[North-South] B --- F[-90° to +90°] C --- G[Meridian lines] C --- H[East-West] C --- I[-180° to +180°]
 ```
  - **Latitude**: Measures the angle north or south of the equator - Ranges from -90° (South Pole) to +90° (North Pole) - Lines of constant latitude are called parallels - **Longitude**: Measures the angle east or west of the Prime Meridian - Ranges from -180° to +180° - Lines of constant longitude are called meridians ### Projected Coordinate Systems (PCS) Projected coordinate systems transform the curved surface of the Earth onto a flat plane, allowing for measurements in linear units (e.g., meters).
-```
 ```mermaid
  graph TD A[Projected Coordinate System] --> B[Components] B --> C[Geographic Coordinate System] B --> D[Map Projection] B --> E[Linear Units] B --> F[Projection Parameters] D --> G[Conformal] D --> H[Equal Area] D --> I[Equidistant] D --> J[True Direction]
 ```
  #### Map Projection Properties Every map projection distorts at least one of these properties: - **Shape (Conformal)**: Preserves local angles and shapes - **Area (Equal-area)**: Preserves the proportional areas of features - **Distance (Equidistant)**: Preserves distances from one or two points - **Direction (Azimuthal)**: Preserves directions from a central point #### Common Map Projections
-```
 ```mermaid
  graph TD A[Map Projections] --> B[Cylindrical] A --> C[Conic] A --> D[Azimuthal/Planar] B --> E[Mercator] B --> F[Transverse Mercator] B --> G[Universal Transverse Mercator UTM] C --> H[Lambert Conformal Conic] C --> I[Albers Equal Area] D --> J[Stereographic] D --> K[Orthographic]
 ```

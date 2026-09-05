@@ -5,14 +5,14 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "geo-infer-req"
 version = "0.2.0"
-description = "Requirements engineering using P3IF framework for geospatial systems, user stories, and specification management"
+description = "Requirements analysis, dependency resolution, traceability, and validation for geospatial projects"
 readme = "README.md"
 license = {text = "CC BY-NC-SA 4.0"}
 requires-python = ">=3.11"
 authors = [
     {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"}
 ]
-keywords = ["geospatial", "active inference", "geoinformatics", "requirements, engineering, specifications, user-stories, p3if, governance"]
+keywords = ["geospatial", "active inference", "geoinformatics", "requirements, engineering, specifications, governance"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -25,9 +25,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Information Analysis",
 ]
 
-dependencies = [
-    "pydantic>=2.0.0"
-]
+dependencies = []
 
 [project.optional-dependencies]
 dev = [

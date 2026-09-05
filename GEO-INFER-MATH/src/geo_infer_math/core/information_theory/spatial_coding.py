@@ -6,7 +6,7 @@ tools for efficient spatial data representation.
 """
 
 import numpy as np
-from typing import Union, Optional, Tuple, Dict, Any
+from typing import Union, Tuple, Dict, Any
 import logging
 import zlib
 import gzip
@@ -170,8 +170,6 @@ def spatial_compression(
             quantized = np.round((values - value_min) / value_range * (n_levels - 1))
             quantized = quantized.astype(np.int32)
             
-            # Dequantize for reconstruction
-            reconstructed = quantized.astype(np.float64) / (n_levels - 1) * value_range + value_min
             
             metadata['n_levels'] = n_levels
             metadata['value_range'] = (value_min, value_max)
@@ -206,7 +204,7 @@ def spatial_compression(
                         grid[idx] = values[k]
                 
                 # Apply DCT
-                from scipy.fft import dctn, idctn
+                from scipy.fft import dctn
                 dct_coeffs = dctn(grid, norm='ortho')
                 
                 # Keep only top coefficients

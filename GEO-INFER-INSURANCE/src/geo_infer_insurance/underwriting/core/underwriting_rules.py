@@ -256,7 +256,7 @@ class UnderwritingRulesEngine:
             config: Rules engine configuration
         """
         self.config = config or {}
-        self.logger = logging.getLogger("geo_infer_risk.underwriting.rules_engine")
+        self.logger = logging.getLogger("geo_infer_insurance.underwriting.rules_engine")
 
         # Rule storage and management
         self.rules: Dict[str, UnderwritingRule] = {}
@@ -739,7 +739,7 @@ class RuleEvaluator:
     """Advanced rule evaluation with complex logic support."""
 
     def __init__(self) -> None:
-        self.logger = logging.getLogger("geo_infer_risk.underwriting.rule_evaluator")
+        self.logger = logging.getLogger("geo_infer_insurance.underwriting.rule_evaluator")
 
     def evaluate_complex_rule(self, rule_expression: str, data: Dict[str, Any]) -> bool:
         """

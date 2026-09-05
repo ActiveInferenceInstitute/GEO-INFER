@@ -1,6 +1,5 @@
 from fastapi import APIRouter, HTTPException, Body, Query
 from typing import List, Optional, Dict, Any
-from datetime import datetime
 
 from geo_infer_health.models import DiseaseReport, Location, PopulationData
 from geo_infer_health.core.disease_surveillance import DiseaseHotspotAnalyzer
@@ -16,6 +15,12 @@ router = APIRouter(
 # Global in-memory stores are NOT suitable for production.
 _DISEASE_REPORTS_DB: List[DiseaseReport] = []
 _POPULATION_DATA_DB: List[PopulationData] = [] 
+
+
+def reset_stores() -> None:
+    """Clear the in-memory stores (for tests and demo resets)."""
+    _DISEASE_REPORTS_DB.clear()
+    _POPULATION_DATA_DB.clear()
 
 @router.post("/reports/", response_model=DiseaseReport, status_code=201)
 async def submit_disease_report(report: DiseaseReport = Body(...)) -> DiseaseReport:

@@ -236,7 +236,6 @@ class CoordinateTransformer:
 
         # Calculate easting
         dlon = lon_rad - lon0_rad
-        A0 = 1 - e2 / 4 - 3 * e4 / 64 - 5 * e6 / 256 - 175 * e8 / 16384
         A2 = 3 / 8 * (e2 + e4 / 4 + 15 * e6 / 128 - 455 * e8 / 4096)
         A4 = 15 / 256 * (e4 + 3 * e6 / 4 - 77 * e8 / 128)
         A6 = 35 / 3072 * (e6 - 41 * e8 / 32)
@@ -258,17 +257,6 @@ class CoordinateTransformer:
         )
 
         # Calculate northing
-        B0 = A0
-        B2 = -1 / 2 * (e2 - e4 / 4 + 81 * e6 / 64 - 625 * e8 / 256)
-        B4 = -1 / 48 * (5 * e4 - 27 * e6 / 4 + 269 * e8 / 64)
-        B6 = 1 / 720 * (61 * e6 - 662 * e8 / 8)
-        B8 = 1 / 40320 * (1385 * e8)
-
-        sin_dlon = sin(dlon)
-        sin_2dlon = sin(2 * dlon)
-        sin_4dlon = sin(4 * dlon)
-        sin_6dlon = sin(6 * dlon)
-        sin_8dlon = sin(8 * dlon)
 
         northing = k0 * (
             M
@@ -314,7 +302,6 @@ class CoordinateTransformer:
         M6 = 35 / 3072 * (e6 - 41 * e8 / 32)
         M8 = -315 / 131072 * e8
 
-        sin_lat = sin(lat_rad)
         sin_2lat = sin(2 * lat_rad)
         sin_4lat = sin(4 * lat_rad)
         sin_6lat = sin(6 * lat_rad)

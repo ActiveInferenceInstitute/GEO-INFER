@@ -140,3 +140,23 @@ class TestSpatialReasoningEngine:
         result = engine._validate_reasoning_chain(conclusions, 'chain_1')
         assert result['valid'] is True
         assert abs(result['confidence'] - 0.9) < 1e-6
+
+    def test_region_id_deterministic_across_processes(self) -> None:
+        """Regression: region ids must be stable, not salted per process."""
+        engine = SpatialReasoningEngine()
+        geom = {'type': 'Point', 'coordinates': [1.0, 2.0]}
+        first = engine._region_id(geom)
+        second = SpatialReasoningEngine()._region_id(geom)
+        assert first == second
+        assert first.startswith('region_')
+        # Different geometry content yields a different region id.
+        assert first != engine._region_id({'type': 'Point', 'coordinates': [2.0, 1.0]})
+
+    def test_inferred_relation_uses_deterministic_regions(self) -> None:
+        engine = SpatialReasoningEngine()
+        geom1 = {'type': 'Point', 'coordinates': [0.0, 0.0]}
+        geom2 = {'type': 'Point', 'coordinates': [1.0, 1.0]}
+        relation = engine._infer_spatial_relation(geom1, geom2)
+        assert relation is not None
+        assert relation.source_region == SpatialReasoningEngine()._region_id(geom1)
+        assert relation.target_region == SpatialReasoningEngine()._region_id(geom2)

@@ -11,6 +11,7 @@ import os
 import time
 import json
 import logging
+import re
 import subprocess
 from pathlib import Path
 from typing import Dict, List, Any, Optional
@@ -75,29 +76,31 @@ class IntegrationExampleRunner:
             'COG', 'ART', 'GIT', 'PEP', 'REQ', 'TEST', 'INTRA', 'ANT', 'SPM'
         ]
         
-        # Example configurations
+        # Example configurations. `modules` lists only GEO-INFER modules whose
+        # public APIs the example actually imports; the remaining integration
+        # examples are self-contained synthetic simulations.
         self.example_configs = {
             'basic_integration_demo': {
-                'modules': ['DATA', 'SPACE', 'TIME', 'API'],
+                'modules': ['SPACE', 'TIME', 'MATH'],
                 'pattern': 'linear_pipeline',
                 'complexity': 2,
                 'expected_duration': 5
             },
             'disease_surveillance_pipeline': {
-                'modules': ['DATA', 'SPACE', 'TIME', 'HEALTH', 'AI', 'RISK', 'API', 'APP'],
-                'pattern': 'feedback_loop',
+                'modules': [],
+                'pattern': 'simulation_based',
                 'complexity': 5,
                 'expected_duration': 10
             },
             'precision_farming_system': {
-                'modules': ['IOT', 'DATA', 'SPACE', 'AG', 'AI', 'SIM', 'API'],
-                'pattern': 'iot_driven',
+                'modules': [],
+                'pattern': 'simulation_based',
                 'complexity': 4,
                 'expected_duration': 8
             },
             'spatial_microbiome_soil_climate': {
-                'modules': ['DATA', 'SPACE', 'TIME', 'BIO', 'ECON', 'RISK', 'API'],
-                'pattern': 'multi_domain',
+                'modules': [],
+                'pattern': 'simulation_based',
                 'complexity': 4,
                 'expected_duration': 12
             }
@@ -237,52 +240,42 @@ class IntegrationExampleRunner:
         return result
     
     def _parse_output_summary(self, stdout: str, example_name: str) -> Dict[str, Any]:
-        """Parse key metrics from example output."""
-        summary = {}
-        
-        try:
-            lines = stdout.split('\n')
-            
-            # Parse based on example type
-            if example_name == 'basic_integration_demo':
-                for line in lines:
-                    if 'Locations:' in line:
-                        summary['locations_processed'] = int(line.split(':')[1].strip())
-                    elif 'Clusters:' in line:
-                        summary['clusters_identified'] = int(line.split(':')[1].strip())
-                    elif 'Execution Time:' in line:
-                        summary['execution_time'] = float(line.split(':')[1].strip().split()[0])
-            
-            elif example_name == 'disease_surveillance_pipeline':
-                for line in lines:
-                    if 'Total Cases Processed:' in line:
-                        summary['cases_processed'] = int(line.split(':')[1].strip())
-                    elif 'Disease Clusters Identified:' in line:
-                        summary['clusters_identified'] = int(line.split(':')[1].strip())
-                    elif 'Potential Outbreaks:' in line:
-                        summary['outbreaks_detected'] = int(line.split(':')[1].strip())
-            
-            elif example_name == 'precision_farming_system':
-                for line in lines:
-                    if 'Farm Area:' in line:
-                        summary['farm_area_hectares'] = int(line.split(':')[1].strip().split()[0])
-                    elif 'Active Sensors:' in line:
-                        summary['sensors_active'] = int(line.split(':')[1].strip())
-                    elif 'Predicted yield:' in line:
-                        summary['predicted_yield'] = float(line.split(':')[1].strip().split()[0])
-            
-            elif example_name == 'spatial_microbiome_soil_climate':
-                for line in lines:
-                    if 'Weather Stations:' in line:
-                        summary['weather_stations'] = int(line.split(':')[1].strip())
-                    elif 'Soil Samples:' in line:
-                        summary['soil_samples'] = int(line.split(':')[1].strip())
-                    elif 'Climate Zones:' in line:
-                        summary['climate_zones'] = int(line.split(':')[1].strip())
-        
-        except Exception as e:
-            self.logger.warning(f"Could not parse output summary for {example_name}: {e}")
-        
+        """Parse the structured JSON status/result envelope printed by examples.
+
+        Examples that follow the repository convention end their stdout with a
+        JSON object such as ``{"status": "ok", ...}`` (see
+        examples/getting_started/basic_integration_demo). The last such object
+        in the output is decoded; its ``status`` field and scalar top-level
+        entries form the summary.
+        """
+        decoder = json.JSONDecoder()
+        candidates: List[Dict[str, Any]] = []
+        trailing_blank: List[Dict[str, Any]] = []
+        for match in re.finditer(r"\{", stdout):
+            try:
+                candidate, end = decoder.raw_decode(stdout[match.start():])
+            except ValueError:
+                continue
+            if isinstance(candidate, dict):
+                candidates.append(candidate)
+                if not stdout[match.start() + end:].strip():
+                    trailing_blank.append(candidate)
+        # Prefer an envelope that runs to the end of the output (the printed
+        # JSON envelope is the final statement); fall back to the last decoded
+        # JSON object when trailing prose follows it.
+        envelope = trailing_blank[-1] if trailing_blank else (candidates[-1] if candidates else None)
+        if envelope is None:
+            self.logger.warning(f"No JSON envelope found in output of {example_name}")
+            return {}
+
+        summary: Dict[str, Any] = {}
+        if "status" in envelope:
+            summary["status"] = envelope["status"]
+        for key, value in envelope.items():
+            if key == "status":
+                continue
+            if isinstance(value, (int, float, str, bool)) or value is None:
+                summary[key] = value
         return summary
     
     def run_all_examples(self) -> AssessmentReport:

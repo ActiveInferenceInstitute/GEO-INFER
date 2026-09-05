@@ -7,7 +7,6 @@ water resource balance tracking.
 """
 
 from typing import Dict, List, Optional, Any
-import numpy as np
 import pandas as pd
 import logging
 

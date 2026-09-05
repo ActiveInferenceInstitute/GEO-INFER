@@ -18,8 +18,11 @@ if src_path not in sys.path:
 # Define constants for test data
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "data", "geospatial")
 
-# Create the test data directory if it doesn't exist
-os.makedirs(TEST_DATA_DIR, exist_ok=True)
+
+@pytest.fixture(scope="session", autouse=True)
+def _test_data_dir():
+    """Ensure the test data directory exists (avoids import-time side effects)."""
+    os.makedirs(TEST_DATA_DIR, exist_ok=True)
 
 
 @pytest.fixture

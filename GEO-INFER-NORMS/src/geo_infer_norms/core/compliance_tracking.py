@@ -6,14 +6,10 @@ across geographic areas and jurisdictions.
 """
 
 import geopandas as gpd
-from typing import Dict, List, Optional, Set, Tuple, Union, Any
-import pandas as pd
-import numpy as np
-from shapely.geometry import Point, Polygon, MultiPolygon
+from typing import Dict, List, Optional, Tuple, Any
 import logging
 import matplotlib.pyplot as plt
 import datetime
-from dataclasses import dataclass
 import uuid
 
 from geo_infer_norms.models.compliance_status import ComplianceStatus, ComplianceMetric
@@ -276,6 +272,18 @@ class ComplianceTracker:
         # Evaluate each metric
         metric_results: List[Dict[str, Any]] = []
         for metric in applicable_metrics:
+            # A missing primary field is treated as missing data: no verdict is possible.
+            if metric.primary_field not in evaluation_data:
+                logger.warning(f"Missing primary field for metric: {metric.name}")
+                metric_results.append({
+                    "metric_id": metric.id,
+                    "name": metric.name,
+                    "is_compliant": False,
+                    "compliance_level": 0.0,
+                    "notes": f"Missing primary field: {metric.primary_field}"
+                })
+                continue
+
             # Check if required data is available
             if not all(field in evaluation_data for field in metric.required_fields):
                 logger.warning(f"Missing required data for metric: {metric.name}")

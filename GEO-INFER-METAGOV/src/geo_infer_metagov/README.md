@@ -7,7 +7,6 @@ Geo Infer Metagov workspace within `GEO-INFER-METAGOV`.
 - `api/`
 - `core/`
 - `integrations/`
-- `models/`
 - `utils/`
 - `__init__.py`
 
@@ -25,9 +24,7 @@ Geo Infer Metagov workspace within `GEO-INFER-METAGOV`.
 
 ## Dependencies
 
-- `numpy>=1.20`
-- `pyyaml>=6.0`
-- `typing_extensions>=4.0`
+- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
 
 
 ## Validation

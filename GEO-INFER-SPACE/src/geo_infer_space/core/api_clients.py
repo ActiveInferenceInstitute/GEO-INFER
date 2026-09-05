@@ -7,11 +7,9 @@ from various geospatial data sources.
 """
 import logging
 import requests
-import json
 import geopandas as gpd
 from pathlib import Path
-from typing import Dict, Any, Optional, List, cast
-from datetime import datetime
+from typing import Dict, Any, Optional, cast
 
 logger = logging.getLogger(__name__)
 

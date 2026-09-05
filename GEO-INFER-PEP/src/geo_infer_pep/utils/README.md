@@ -5,10 +5,11 @@ Utils workspace within `GEO-INFER-PEP`.
 ## Contents
 
 - `__init__.py`
+- `uploads.py`
 
 ## Public Interface
 
-- No public Python symbols are defined directly in this directory.
+- `uploads.py:save_upload_file_tmp` (function)
 
 ## Module Metadata
 

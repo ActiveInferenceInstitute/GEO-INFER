@@ -4,8 +4,6 @@ import numpy as np
 import pytest
 import xarray as xr
 
-import sys
-sys.path.insert(0, "GEO-INFER-FOREST/src")
 
 from geo_infer_forest.core.canopy_analysis import CanopyAnalyzer
 

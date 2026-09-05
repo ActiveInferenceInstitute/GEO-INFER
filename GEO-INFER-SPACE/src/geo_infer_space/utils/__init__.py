@@ -19,8 +19,9 @@ from .h3_utils import (
     get_resolution,
     is_valid_cell,
     are_neighbor_cells,
+    haversine_distance,
     cell_to_latlngjson,
-    geojson_to_h3,
+    geojson_to_h3 as geojson_to_h3,
 )
 from ..backends.h3.operations import grid_ring
 
@@ -38,7 +39,7 @@ __all__ = [
     'get_resolution',
     'is_valid_cell',
     'are_neighbor_cells',
+    'haversine_distance',
     'cell_to_latlngjson',
-    'geojson_to_h3',
     'grid_ring',
 ]

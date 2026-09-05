@@ -5,10 +5,13 @@ Provides org structure graph construction, role hierarchy analysis,
 and resource allocation optimization.
 """
 
-import math
 from typing import Dict, List, Optional, Tuple, Set, Any
 from dataclasses import dataclass, field
 from enum import Enum
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 
 class OrgStructureType(Enum):
@@ -116,6 +119,7 @@ class OrganizationModel:
         if unit.parent_id:
             self._adjacency.setdefault(unit.parent_id, [])
             self._adjacency[unit.parent_id].append(unit.unit_id)
+        logger.info("Unit added: %s (parent=%s)", unit.unit_id, unit.parent_id)
 
     def add_role(self, role: Role) -> None:
         """
@@ -321,30 +325,35 @@ class OrganizationModel:
 
         if strategy == "equal":
             per_unit = total_budget / len(self._units)
-            return {uid: round(per_unit, 2) for uid in self._units}
-
+            result = {uid: round(per_unit, 2) for uid in self._units}
         elif strategy == "proportional":
             total_members = sum(u.member_count for u in self._units.values())
             if total_members == 0:
                 per_unit = total_budget / len(self._units)
-                return {uid: round(per_unit, 2) for uid in self._units}
-            return {
-                uid: round(total_budget * u.member_count / total_members, 2)
-                for uid, u in self._units.items()
-            }
-
+                result = {uid: round(per_unit, 2) for uid in self._units}
+            else:
+                result = {
+                    uid: round(total_budget * u.member_count / total_members, 2)
+                    for uid, u in self._units.items()
+                }
         elif strategy == "weighted":
             total_weight = sum(u.budget for u in self._units.values())
             if total_weight == 0:
                 per_unit = total_budget / len(self._units)
-                return {uid: round(per_unit, 2) for uid in self._units}
-            return {
-                uid: round(total_budget * u.budget / total_weight, 2)
-                for uid, u in self._units.items()
-            }
-
+                result = {uid: round(per_unit, 2) for uid in self._units}
+            else:
+                result = {
+                    uid: round(total_budget * u.budget / total_weight, 2)
+                    for uid, u in self._units.items()
+                }
         else:
             raise ValueError(f"Unknown allocation strategy: {strategy}")
+
+        logger.info(
+            "Budget allocated: strategy=%s total=%.2f units=%d",
+            strategy, total_budget, len(result),
+        )
+        return result
 
     def to_dict(self) -> Dict[str, Any]:
         """

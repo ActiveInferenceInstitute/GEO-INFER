@@ -5,7 +5,7 @@ This module provides the main theorem prover interface supporting
 multiple backends (Z3, Isabelle, Lean) for spatial mathematics.
 """
 
-from typing import Optional, List, Any, Dict, Union, Callable
+from typing import Optional, List, Any
 import logging
 from dataclasses import dataclass
 from enum import Enum

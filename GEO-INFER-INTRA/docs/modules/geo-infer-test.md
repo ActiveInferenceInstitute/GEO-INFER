@@ -25,17 +25,14 @@ python from geo_infer_test import TestFramework # Create test framework test_fra
 python from geo_infer_test.integration import IntegrationTester # Create integration tester integration_tester = IntegrationTester( testing_parameters={ 'module_integration': True, 'data_flow_testing': True, 'api_testing': True } ) # Test integrations integration_result = integration_tester.test_integrations( module_data=module_configurations, data_flow_data=data_flow_patterns, api_data=api_endpoints )
 ```
  ## 📚 Core Features ### 1. Unit Testing Engine **Purpose**: Conduct unit testing and code validation.
-```
 ```python
  from geo_infer_test.unit import UnitTestingEngine # Initialize unit testing engine unit_engine = UnitTestingEngine() # Define unit testing parameters unit_config = unit_engine.configure_unit_testing({ 'code_validation': True, 'function_testing': True, 'class_testing': True, 'module_testing': True, 'test_coverage': True }) # Conduct unit testing unit_result = unit_engine.conduct_unit_testing( code_data=source_code, test_data=test_cases, unit_config=unit_config )
 ```
  ### 2. Integration Testing Engine **Purpose**: Conduct integration testing and system validation.
-```
 ```python
  from geo_infer_test.integration import IntegrationTestingEngine # Initialize integration testing engine integration_engine = IntegrationTestingEngine() # Define integration testing parameters integration_config = integration_engine.configure_integration_testing({ 'system_integration': True, 'module_validation': True, 'interface_testing': True, 'data_flow_validation': True, 'integration_optimization': True }) # Conduct integration testing integration_result = integration_engine.conduct_integration_testing( system_data=system_information, module_data=module_components, integration_config=integration_config )
 ```
  ### 3. Performance Testing Engine **Purpose**: Conduct performance testing and optimization validation.
-```
 ```python
  from geo_infer_test.performance import PerformanceTestingEngine # Initialize performance testing engine performance_engine = PerformanceTestingEngine() # Define performance testing parameters performance_config = performance_engine.configure_performance_testing({ 'load_testing': True, 'stress_testing': True, 'scalability_testing': True, 'performance_optimization': True, 'benchmark_validation': True }) # Conduct performance testing performance_result = performance_engine.conduct_performance_testing( performance_data=performance_requirements, load_data=load_scenarios, performance_config=performance_config )
 ```

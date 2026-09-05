@@ -242,19 +242,19 @@ def test_job_requisition_model():
 
 
 # Importer Tests
-def test_csv_talent_importer(dummy_talent_csv_files, capsys):
+def test_csv_talent_importer(dummy_talent_csv_files, caplog):
     """Behavior-focused test: test_csv_talent_importer."""
     importer = CSVTalentImporter(
         candidate_file_path=str(dummy_talent_csv_files["candidates"]),
         requisition_file_path=str(dummy_talent_csv_files["requisitions"]),
     )
 
-    candidates = importer.import_candidates()
-    requisitions = importer.import_requisitions()
+    with caplog.at_level("WARNING", logger="geo_infer_pep.talent.importer"):
+        candidates = importer.import_candidates()
+        requisitions = importer.import_requisitions()
 
-    captured = capsys.readouterr()
-    assert "Warn: Bad applied_at for cand cand_csv_3" in captured.out
-    assert "Warn: Bad opened_at for req req_csv_3" in captured.out
+    assert any("Bad applied_at for cand cand_csv_3" in r.getMessage() for r in caplog.records)
+    assert any("Bad opened_at for req req_csv_3" in r.getMessage() for r in caplog.records)
 
     # Expect 2 valid candidates, 1 with default applied_at due to bad date format
     assert len(candidates) == 3
@@ -286,20 +286,40 @@ def test_csv_talent_importer(dummy_talent_csv_files, capsys):
     assert req_bad_date_obj.opened_at == date.today()
 
 
-# Transformer Tests (simulated)
+# Transformer Tests
 def test_clean_candidate_data(sample_candidate_data_list):
-    """Behavior-focused test: test_clean_candidate_data."""
-    cleaned = clean_candidate_data(sample_candidate_data_list)  # Pass-through
-    assert len(cleaned) == 3
-    if cleaned[0].skills:  # Check skills exist and are lowercased
-        assert all(s == s.lower() for s in cleaned[0].skills)
+    """clean_candidate_data lowercases skills, strips duplicates, and cleans phones."""
+    messy = Candidate(
+        candidate_id="cand_dirty",
+        first_name="BRUCE",
+        last_name="WAYNE",
+        email="bruce.wayne@example.com",
+        status=CandidateStatus.APPLIED,
+        applied_at=datetime(2023, 2, 1, 10, 0, 0),
+        updated_at=datetime(2023, 2, 1, 10, 0, 0),
+        skills=["Python", "python ", "SQL", ""],
+        phone_number="555-123-4567",
+    )
+
+    cleaned = clean_candidate_data([messy])
+
+    assert len(cleaned) == 1
+    assert all(s == s.lower() for s in cleaned[0].skills)
+    assert "python" in cleaned[0].skills
+    assert "" not in cleaned[0].skills
+    assert cleaned[0].phone_number == "5551234567" if cleaned[0].phone_number else True
+
+    # Fixture candidates pass through with skills lowercased and deduplicated
+    fixture_cleaned = clean_candidate_data(sample_candidate_data_list)
+    assert len(fixture_cleaned) == 3
+    assert all(s == s.lower() for s in fixture_cleaned[0].skills)
 
 
 def test_enrich_candidate_data(sample_candidate_data_list, sample_job_requisition_list):
     """Behavior-focused test: test_enrich_candidate_data."""
     enriched = enrich_candidate_data(
         sample_candidate_data_list, sample_job_requisition_list
-    )  # Pass-through
+    )
     assert len(enriched) == 3
 
 

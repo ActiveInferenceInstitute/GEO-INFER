@@ -143,7 +143,7 @@ async def run_algorithm(
     """Run one registered algorithm against the supplied layers/parameters."""
     registry = _require_registry()
     try:
-        algorithm = registry.get(algorithm_id)
+        registry.get(algorithm_id)
     except KeyError:
         raise NotFoundError(f"unknown algorithm: {algorithm_id}")
 

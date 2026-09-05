@@ -9,7 +9,7 @@ References:
 """
 
 import numpy as np
-from typing import Optional, Dict, Any, Tuple
+from typing import Dict, Any
 import logging
 
 logger = logging.getLogger(__name__)

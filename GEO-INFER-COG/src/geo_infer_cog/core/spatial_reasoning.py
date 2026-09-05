@@ -20,15 +20,16 @@ Mathematical Foundations:
 - Constraint satisfaction problems for spatial optimization
 """
 
+import hashlib
 import itertools
+import json
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple, Any, Union, Set
+from typing import Dict, List, Optional, Tuple, Any
 
 import numpy as np
 
-from ..models.user_profiles import UserCognitiveProfile
 from ..utils.rng import resolve_rng
 
 # Module-level monotonic counter backing reasoning chain IDs.
@@ -329,7 +330,14 @@ class SpatialReasoningEngine:
     def _extract_spatial_premises(self,
                                 spatial_data: Dict[str, Any],
                                 perception_result: Dict[str, Any]) -> List[SpatialRelation]:
-        """Extract spatial premises from input data."""
+        """Extract spatial premises from input data.
+
+        Geometric premises use RCC-8 relation types. Co-attended regions
+        additionally produce auxiliary premises with relation_type
+        ``'attention_connected'``; these are non-topological annotations and
+        are not part of the RCC-8 knowledge base — downstream composition
+        treats them as unknown relations by design.
+        """
         premises = []
 
         # Extract from spatial data geometries
@@ -359,6 +367,17 @@ class SpatialReasoningEngine:
 
         return premises
 
+    def _region_id(self, geom: Dict[str, Any]) -> str:
+        """Derive a deterministic region id from geometry content.
+
+        Uses a stable SHA-256 digest of the canonical JSON serialization so
+        persisted reasoning results are reproducible across processes (the
+        builtin ``hash`` of ``str`` is salted per process).
+        """
+        canonical = json.dumps(geom, sort_keys=True, default=str)
+        digest = hashlib.sha256(canonical.encode('utf-8')).hexdigest()
+        return f"region_{int(digest[:8], 16) % 10000}"
+
     def _infer_spatial_relation(self, geom1: Dict[str, Any], geom2: Dict[str, Any]) -> Optional[SpatialRelation]:
         """Infer spatial relation between two geometries."""
         # Simple relation inference based on bounding boxes
@@ -372,8 +391,8 @@ class SpatialReasoningEngine:
         relation_type = self._determine_topological_relation(bbox1, bbox2)
 
         return SpatialRelation(
-            source_region=f"region_{hash(str(geom1)) % 10000}",
-            target_region=f"region_{hash(str(geom2)) % 10000}",
+            source_region=self._region_id(geom1),
+            target_region=self._region_id(geom2),
             relation_type=relation_type,
             confidence=0.8  # Base confidence for geometric inference
         )
@@ -435,11 +454,6 @@ class SpatialReasoningEngine:
         overlap_y = max(0, min(y1_max, y2_max) - max(y1_min, y2_min))
 
         if overlap_x > 0 and overlap_y > 0:
-            # Calculate overlap ratio
-            area1 = (x1_max - x1_min) * (y1_max - y1_min)
-            area2 = (x2_max - x2_min) * (y2_max - y2_min)
-            overlap_area = overlap_x * overlap_y
-            overlap_ratio = overlap_area / min(area1, area2)
 
             return 'partially_overlapping'
 

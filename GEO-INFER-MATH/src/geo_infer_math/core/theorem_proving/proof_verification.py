@@ -5,11 +5,9 @@ This module provides proof verification capabilities for
 spatial mathematics theorems.
 """
 
-import numpy as np
-from typing import Union, Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any
 import logging
 
-from geo_infer_math.core.theorem_proving.prover import ProofResult, ProofStatus
 
 logger = logging.getLogger(__name__)
 

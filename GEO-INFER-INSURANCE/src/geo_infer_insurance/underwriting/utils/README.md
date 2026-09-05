@@ -1,9 +1,10 @@
-# GEO-INFER-RISK/src/geo_infer_risk/underwriting/utils
+# GEO-INFER-INSURANCE/src/geo_infer_insurance/underwriting/utils
 
-Utils workspace within `GEO-INFER-RISK`.
+Utils workspace within `GEO-INFER-INSURANCE`.
 
 ## Contents
 
+- `__init__.py`
 - `compliance.py`
 - `data_integration.py`
 - `reporting.py`
@@ -34,23 +35,22 @@ Utils workspace within `GEO-INFER-RISK`.
 
 ## Module Metadata
 
-- Module: `GEO-INFER-RISK`
-- Package: `geo_infer_risk`
-- Version: `0.2.0`
-- Install: `uv pip install -e ./GEO-INFER-RISK`
-- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module RISK`
+- Module: `GEO-INFER-INSURANCE`
+- Package: `geo_infer_insurance`
+- Version: `0.1.0`
+- Install: `uv pip install -e ./GEO-INFER-INSURANCE`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module INSURANCE`
 
 ## Dependencies
 
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
-- `scipy>=1.7.0`
 
 
 ## Validation
 
 ```bash
-uv run python GEO-INFER-TEST/run_unified_tests.py --module RISK
+uv run python GEO-INFER-TEST/run_unified_tests.py --module INSURANCE
 ```
 
 

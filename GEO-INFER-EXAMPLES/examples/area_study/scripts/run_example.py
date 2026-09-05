@@ -21,6 +21,7 @@ import logging
 from pathlib import Path
 from datetime import datetime, timedelta
 import numpy as np
+import zlib
 
 def setup_logging():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -633,29 +634,45 @@ class ComprehensiveAreaStudy:
         """Generate H3 grid for area (simplified)."""
         return [f'h3_cell_{i}' for i in range(100)]  # 100 H3 cells
 
+    def _cell_rng(self, cell: str) -> "np.random.Generator":
+        """Deterministic per-cell RNG so every run of the study is identical."""
+        return np.random.default_rng(zlib.crc32(cell.encode("utf-8")))
+
     def _extract_technical_cell_data(self, cell, technical):
-        """Extract technical data for H3 cell."""
+        """Extract technical data for an H3 cell (deterministic simulation)."""
+        rng = self._cell_rng(cell)
         return {
-            'connectivity_score': np.random.uniform(0.3, 0.95),
-            'infrastructure_quality': np.random.uniform(0.4, 0.9),
-            'iot_sensor_density': np.random.randint(1, 10)
+            'connectivity_score': float(rng.uniform(0.3, 0.95)),
+            'infrastructure_quality': float(rng.uniform(0.4, 0.9)),
+            'iot_sensor_density': int(rng.integers(1, 10))
         }
 
     def _extract_social_cell_data(self, cell, social):
-        """Extract social data for H3 cell."""
+        """Extract social data for an H3 cell (deterministic simulation)."""
+        rng = self._cell_rng(cell)
         return {
-            'community_cohesion': np.random.uniform(0.2, 0.9),
-            'social_vulnerability': np.random.uniform(0.1, 0.8),
-            'organizational_density': np.random.randint(0, 5)
+            'community_cohesion': float(rng.uniform(0.2, 0.9)),
+            'social_vulnerability': float(rng.uniform(0.1, 0.8)),
+            'organizational_density': int(rng.integers(0, 5))
         }
 
     def _extract_environmental_cell_data(self, cell, environmental):
-        """Extract environmental data for H3 cell."""
+        """Extract environmental data for an H3 cell (deterministic simulation)."""
+        rng = self._cell_rng(cell)
         return {
-            'air_quality_index': np.random.uniform(30, 90),
-            'green_space_coverage': np.random.uniform(0.05, 0.4),
-            'noise_level': np.random.uniform(45, 85)
+            'air_quality_index': float(rng.uniform(30, 90)),
+            'green_space_coverage': float(rng.uniform(0.05, 0.4)),
+            'noise_level': float(rng.uniform(45, 85))
         }
+
+    @staticmethod
+    def _per_cell_metrics(spatial_data, domain, key):
+        """Collect one numeric metric across all cells, ignoring missing data."""
+        return [
+            float(cell[domain][key])
+            for cell in spatial_data
+            if domain in cell and key in cell[domain]
+        ]
 
     def _analyze_cross_domain_correlations(self, technical, social, environmental):
         """Analyze correlations between domains."""
@@ -665,75 +682,168 @@ class ComprehensiveAreaStudy:
             'community_green_space': 0.52
         }
 
-    # Additional helper methods would be implemented here...
     def _analyze_neighborhood_scale(self, spatial_data):
-        return {'scale': 'neighborhood', 'analysis_complete': True}
+        return {'scale': 'neighborhood', 'cells_analyzed': len(spatial_data)}
 
     def _analyze_district_scale(self, spatial_data):
-        return {'scale': 'district', 'analysis_complete': True}
+        return {'scale': 'district', 'cells_analyzed': len(spatial_data)}
 
     def _analyze_area_scale(self, spatial_data):
-        return {'scale': 'area', 'analysis_complete': True}
+        return {'scale': 'area', 'cells_analyzed': len(spatial_data)}
 
     def _identify_technical_hotspots(self, spatial_data):
-        return ['low_connectivity_zone_3', 'infrastructure_deficit_zone_7']
+        """Cells in the lowest quartile of connectivity score."""
+        scores = self._per_cell_metrics(spatial_data, 'technical_metrics', 'connectivity_score')
+        if not scores:
+            return []
+        cutoff = float(np.quantile(scores, 0.25))
+        return [
+            cell['h3_index'] for cell in spatial_data
+            if cell['technical_metrics']['connectivity_score'] <= cutoff
+        ]
 
     def _identify_social_hotspots(self, spatial_data):
-        return ['high_vulnerability_zone_2', 'low_engagement_zone_5']
+        """Cells in the highest quartile of social vulnerability."""
+        values = self._per_cell_metrics(spatial_data, 'social_metrics', 'social_vulnerability')
+        if not values:
+            return []
+        cutoff = float(np.quantile(values, 0.75))
+        return [
+            cell['h3_index'] for cell in spatial_data
+            if cell['social_metrics']['social_vulnerability'] >= cutoff
+        ]
 
     def _identify_environmental_hotspots(self, spatial_data):
-        return ['poor_air_quality_zone_1', 'heat_island_zone_4']
+        """Cells in the highest quartile of air quality index (worst air)."""
+        values = self._per_cell_metrics(spatial_data, 'environmental_metrics', 'air_quality_index')
+        if not values:
+            return []
+        cutoff = float(np.quantile(values, 0.75))
+        return [
+            cell['h3_index'] for cell in spatial_data
+            if cell['environmental_metrics']['air_quality_index'] >= cutoff
+        ]
 
     def _analyze_connectivity_access(self, spatial_data):
-        return {'average_access_score': 0.68, 'coverage_percentage': 0.82}
+        scores = self._per_cell_metrics(spatial_data, 'technical_metrics', 'connectivity_score')
+        if not scores:
+            return {'average_access_score': 0.0, 'coverage_percentage': 0.0}
+        coverage = float(np.mean(np.array(scores) >= 0.5))
+        return {'average_access_score': round(float(np.mean(scores)), 3),
+                'coverage_percentage': round(coverage, 3)}
 
     def _analyze_green_space_access(self, spatial_data):
-        return {'average_access_score': 0.54, 'coverage_percentage': 0.18}
+        values = self._per_cell_metrics(spatial_data, 'environmental_metrics', 'green_space_coverage')
+        if not values:
+            return {'average_access_score': 0.0, 'coverage_percentage': 0.0}
+        return {'average_access_score': round(float(np.mean(values)), 3),
+                'coverage_percentage': round(float(np.mean(values)), 3)}
 
     def _analyze_service_access(self, spatial_data):
-        return {'healthcare_access': 0.73, 'education_access': 0.81}
+        density = self._per_cell_metrics(spatial_data, 'social_metrics', 'organizational_density')
+        if not density:
+            return {'healthcare_access': 0.0, 'education_access': 0.0}
+        mean_density = float(np.mean(density))
+        # Organizational density (0-5 per cell) is used as the service proxy.
+        access = round(mean_density / 5.0, 3)
+        return {'healthcare_access': access, 'education_access': access}
 
     def _assess_spatial_equity(self, spatial_data):
-        return {'equity_score': 0.62, 'disparity_index': 0.28}
+        scores = self._per_cell_metrics(spatial_data, 'technical_metrics', 'connectivity_score')
+        if not scores:
+            return {'equity_score': 0.0, 'disparity_index': 1.0}
+        arr = np.array(scores)
+        disparity = float((arr.max() - arr.min()) / max(float(arr.mean()), 1e-9))
+        disparity = min(disparity, 1.0)
+        return {'equity_score': round(1.0 - disparity, 3),
+                'disparity_index': round(disparity, 3)}
 
     def _analyze_digital_divide_impact(self, spatial_analysis):
-        return {'divide_severity': 0.34, 'affected_population': 0.23}
+        accessibility = spatial_analysis.get('accessibility', {}).get('connectivity_access', {})
+        coverage = float(accessibility.get('coverage_percentage', 0.0))
+        return {'divide_severity': round(1.0 - coverage, 3),
+                'affected_population': round(1.0 - coverage, 3)}
 
     def _analyze_infrastructure_equity(self, spatial_analysis):
-        return {'equity_score': 0.58, 'improvement_potential': 0.25}
+        equity = float(spatial_analysis.get('equity_metrics', {}).get('equity_score', 0.0))
+        return {'equity_score': equity,
+                'improvement_potential': round(1.0 - equity, 3)}
 
     def _analyze_connectivity_engagement(self, spatial_analysis):
-        return {'engagement_correlation': 0.41, 'participation_rate': 0.67}
+        accessibility = spatial_analysis.get('accessibility', {}).get('connectivity_access', {})
+        score = float(accessibility.get('average_access_score', 0.0))
+        cohesion_access = float(
+            spatial_analysis.get('accessibility', {}).get('service_accessibility', {}).get('healthcare_access', 0.0)
+        )
+        return {'engagement_correlation': round((score + cohesion_access) / 2.0, 3),
+                'participation_rate': round(score, 3)}
 
     def _analyze_community_stewardship(self, spatial_analysis):
-        return {'stewardship_score': 0.72, 'environmental_awareness': 0.68}
+        green = float(
+            spatial_analysis.get('accessibility', {}).get('green_space_access', {}).get('average_access_score', 0.0)
+        )
+        return {'stewardship_score': round(0.5 + green / 2.0, 3),
+                'environmental_awareness': round(0.5 + green / 2.0, 3)}
 
     def _analyze_environmental_justice(self, spatial_analysis):
-        return {'justice_score': 0.55, 'vulnerable_groups': 0.32}
+        equity = spatial_analysis.get('equity_metrics', {})
+        return {'justice_score': float(equity.get('equity_score', 0.0)),
+                'vulnerable_groups': float(equity.get('disparity_index', 1.0))}
 
     def _analyze_green_space_cohesion(self, spatial_analysis):
-        return {'cohesion_correlation': 0.38, 'social_benefits': 0.45}
+        green = float(
+            spatial_analysis.get('accessibility', {}).get('green_space_access', {}).get('average_access_score', 0.0)
+        )
+        service = float(
+            spatial_analysis.get('accessibility', {}).get('service_accessibility', {}).get('healthcare_access', 0.0)
+        )
+        return {'cohesion_correlation': round((green + service) / 2.0, 3),
+                'social_benefits': round(green, 3)}
 
     def _analyze_smart_sustainability(self, spatial_analysis):
-        return {'sustainability_score': 0.64, 'efficiency_gains': 0.28}
+        equity = float(spatial_analysis.get('equity_metrics', {}).get('equity_score', 0.0))
+        return {'sustainability_score': round(equity, 3),
+                'efficiency_gains': round(max(0.0, equity - 0.5), 3)}
 
     def _analyze_iot_monitoring_impact(self, spatial_analysis):
-        return {'monitoring_effectiveness': 0.76, 'data_quality': 0.82}
+        accessibility = spatial_analysis.get('accessibility', {}).get('connectivity_access', {})
+        score = float(accessibility.get('average_access_score', 0.0))
+        return {'monitoring_effectiveness': round(score, 3),
+                'data_quality': round(min(1.0, score + 0.1), 3)}
 
     def _analyze_infrastructure_resilience(self, spatial_analysis):
-        return {'resilience_score': 0.58, 'vulnerability_reduction': 0.31}
+        equity = float(spatial_analysis.get('equity_metrics', {}).get('equity_score', 0.0))
+        return {'resilience_score': round(equity, 3),
+                'vulnerability_reduction': round(max(0.0, equity - 0.4), 3)}
 
     def _calculate_composite_resilience(self, tech_social, social_env, tech_env):
-        return 0.67
+        def _numeric_leaves(node, out):
+            if isinstance(node, dict):
+                for value in node.values():
+                    _numeric_leaves(value, out)
+            elif isinstance(node, (int, float)) and not isinstance(node, bool):
+                out.append(float(node))
+            return out
+        leaves = _numeric_leaves(tech_social, []) + _numeric_leaves(social_env, []) + _numeric_leaves(tech_env, [])
+        return round(float(np.mean(leaves)), 3) if leaves else 0.0
 
     def _calculate_sustainability_index(self, spatial_analysis):
-        return 0.71
+        return float(spatial_analysis.get('equity_metrics', {}).get('equity_score', 0.0))
 
     def _calculate_quality_of_life(self, spatial_analysis):
-        return 0.73
+        accessibility = spatial_analysis.get('accessibility', {})
+        scores = [
+            float(block.get('average_access_score', 0.0))
+            for block in accessibility.values()
+            if isinstance(block, dict) and 'average_access_score' in block
+        ]
+        return round(float(np.mean(scores)), 3) if scores else 0.0
 
     def _estimate_resource_needs(self, recommendations):
-        return {'estimated_cost': 1250000, 'timeline_months': 24}
+        # Planning heuristic: each recommendation is budgeted and scheduled
+        # proportionally to how many actions the study produced.
+        count = max(1, len(recommendations))
+        return {'estimated_cost': 50000 * count, 'timeline_months': 4 * count}
 
 def main():
     """Main function to run the area study."""

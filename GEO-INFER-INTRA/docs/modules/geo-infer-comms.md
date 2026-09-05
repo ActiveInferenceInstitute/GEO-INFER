@@ -25,17 +25,14 @@ python from geo_infer_comms import CommunicationFramework # Create communication
 python from geo_infer_comms.messaging import MessagingSystemEngine # Create messaging system engine messaging_engine = MessagingSystemEngine( messaging_parameters={ 'real_time_messaging': True, 'notification_systems': True, 'message_routing': True, 'security_protocols': True, 'delivery_tracking': True } ) # Deploy messaging system messaging_result = messaging_engine.deploy_messaging_system( user_data=user_information, network_data=communication_networks, message_data=message_requirements, spatial_data=geographic_boundaries )
 ```
  ## 📚 Core Features ### 1. Data Communication Engine **Purpose**: Enable secure and efficient data communication.
-```
 ```python
  from geo_infer_comms.data import DataCommunicationEngine # Initialize data communication engine data_comms_engine = DataCommunicationEngine() # Define data communication parameters data_comms_config = data_comms_engine.configure_data_communication({ 'protocol_selection': True, 'encryption_methods': True, 'compression_algorithms': True, 'error_correction': True, 'bandwidth_optimization': True }) # Establish data communication data_comms_result = data_comms_engine.establish_data_communication( network_data=communication_networks, data_requirements=data_specifications, data_comms_config=data_comms_config )
 ```
  ### 2. Messaging System Engine **Purpose**: Provide messaging and notification capabilities.
-```
 ```python
  from geo_infer_comms.messaging import MessagingSystemEngine # Initialize messaging system engine messaging_engine = MessagingSystemEngine() # Define messaging system parameters messaging_config = messaging_engine.configure_messaging_system({ 'real_time_messaging': True, 'notification_systems': True, 'message_routing': True, 'security_protocols': True, 'delivery_tracking': True }) # Deploy messaging system messaging_result = messaging_engine.deploy_messaging_system( user_data=user_information, network_data=communication_networks, messaging_config=messaging_config )
 ```
  ### 3. Information Sharing Engine **Purpose**: Facilitate collaborative information sharing.
-```
 ```python
  from geo_infer_comms.sharing import InformationSharingEngine # Initialize information sharing engine sharing_engine = InformationSharingEngine() # Define information sharing parameters sharing_config = sharing_engine.configure_information_sharing({ 'access_control': True, 'version_management': True, 'collaborative_editing': True, 'metadata_management': True, 'search_capabilities': True }) # Enable information sharing sharing_result = sharing_engine.enable_information_sharing( data_repositories=information_repositories, user_permissions=access_controls, sharing_config=sharing_config )
 ```

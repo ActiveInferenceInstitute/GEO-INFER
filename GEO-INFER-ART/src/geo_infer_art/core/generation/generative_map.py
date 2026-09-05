@@ -3,6 +3,7 @@ GenerativeMap module for creating generative art from geospatial data.
 """
 
 import hashlib
+import logging
 import os
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -13,6 +14,9 @@ from matplotlib.figure import Figure
 from PIL import Image
 
 from geo_infer_art.core.aesthetics import ColorPalette
+from geo_infer_art.utils.animation import save_animation_with_fallback
+
+logger = logging.getLogger(__name__)
 
 
 class GenerativeMap:
@@ -680,22 +684,7 @@ class GenerativeMap:
             frames[0], animate, frames=num_frames, interval=1000 / fps, blit=False
         )
 
-        # Save animation
-        directory = os.path.dirname(output_path)
-        if directory and not os.path.exists(directory):
-            os.makedirs(directory)
-
-        if output_path.lower().endswith(".gif"):
-            anim.save(output_path, writer="pillow", fps=fps)
-        else:
-            try:
-                anim.save(output_path, writer="ffmpeg", fps=fps)
-            except Exception:
-                gif_path = output_path.rsplit(".", 1)[0] + ".gif"
-                anim.save(gif_path, writer="pillow", fps=fps)
-                output_path = gif_path
-
-        return output_path
+        return save_animation_with_fallback(anim, output_path, fps)
 
     def apply_texture(self, texture_type: str = "noise", **kwargs: Any) -> "GenerativeMap":
         """

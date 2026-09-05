@@ -21,7 +21,6 @@ GeoJSON rings, valid H3 indices, and deterministic feature ordering. Keep
 Matplotlib styling local to a call and create output parent directories before
 writing artifacts.
 
-```
 ```bash
 uv run pytest GEO-INFER-SPACE/tests/unit/test_h3_operations_runtime.py -q --no-cov
 uv run python GEO-INFER-TEST/validate_h3_active_inference_contract.py

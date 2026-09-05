@@ -9,7 +9,7 @@ This module provides:
 - Intention scheduling for execution prioritization
 """
 
-from typing import Dict, Any, List, Optional, Set, Callable, Union, Tuple
+from typing import Dict, Any, List, Optional, Tuple
 import datetime
 import logging
 from dataclasses import dataclass, field

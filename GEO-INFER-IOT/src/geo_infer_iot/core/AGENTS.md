@@ -21,10 +21,12 @@
 
 ## Local Contents
 
+- `inference.py`
 - `ingestion.py`
 - `quality_control.py`
 - `registry.py`
 - `spatial_fusion.py`
+- `systems.py`
 
 ## Validation
 

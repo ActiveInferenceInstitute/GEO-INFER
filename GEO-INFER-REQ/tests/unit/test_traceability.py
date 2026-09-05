@@ -89,3 +89,20 @@ class TestTraceabilityManager:
     def test_bidirectional_vs_unidirectional(self, manager):
         report = manager.analyze_coverage()
         assert report.bidirectional_links + report.unidirectional_links == 5
+
+
+class TestVerifyLink:
+    """verify_link marks existing links verified and reports misses."""
+
+    def test_verify_existing_link(self, manager):
+        before = len(manager.get_unverified_links())
+        assert manager.verify_link("R002", "api.py") is True
+        after = manager.get_unverified_links()
+        assert len(after) == before - 1
+        assert all(
+            not (link.req_id == "R002" and link.artifact_id == "api.py")
+            for link in after
+        )
+
+    def test_verify_missing_link_returns_false(self, manager):
+        assert manager.verify_link("R001", "no_such_artifact.py") is False

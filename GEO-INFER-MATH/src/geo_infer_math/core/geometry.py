@@ -7,7 +7,7 @@ intersections, and other geometric properties.
 """
 
 import numpy as np
-from typing import Union, List, Tuple, Dict, Optional, Any, Callable, cast
+from typing import List, Tuple, Optional, cast
 from dataclasses import dataclass
 
 # Constants for Earth calculations

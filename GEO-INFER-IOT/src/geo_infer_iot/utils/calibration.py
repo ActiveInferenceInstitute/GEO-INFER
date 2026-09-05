@@ -6,16 +6,15 @@ and calibration management for IoT sensor networks.
 """
 
 import logging
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta
 import numpy as np
-import pandas as pd
 from dataclasses import dataclass
 
 # Optional imports for enhanced functionality
 try:
     from scipy import stats
-    from scipy.optimize import curve_fit
+    from scipy.optimize import curve_fit as curve_fit
     HAS_SCIPY = True
 except ImportError:
     HAS_SCIPY = False

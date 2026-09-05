@@ -5,8 +5,7 @@ This module provides a library of spatial mathematics theorems
 including geometric, statistical, and topological theorems.
 """
 
-import numpy as np
-from typing import Union, Optional, List, Dict, Any, Tuple
+from typing import Optional, List, Dict, Any
 import logging
 from dataclasses import dataclass, field
 from enum import Enum

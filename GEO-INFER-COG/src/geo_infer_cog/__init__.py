@@ -48,8 +48,7 @@ from .utils.helpers import load_cognitive_profile, save_cognitive_model
 
 # Configuration and models
 from .models.cognitive_models import CognitiveMap, SpatialKnowledgeGraph
-from .models.user_profiles import UserCognitiveProfile
-
+from .models.user_profiles import UserCognitiveProfile, ProfileManager
 __all__ = [
     # Core components
     "CognitiveProcessingEngine",
@@ -69,6 +68,7 @@ __all__ = [
     "CognitiveMap",
     "SpatialKnowledgeGraph",
     "UserCognitiveProfile",
+    "ProfileManager",
     # Version info
     "__version__",
     "__author__",

@@ -1,13 +1,10 @@
 """Unit tests for module discovery utilities."""
 
 import pytest
-import sys
 import tempfile
 from pathlib import Path
 
-# Add the tests directory to the path to find local test utilities.
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from intra_utils import find_modules_by_name, collect_test_modules
+from geo_infer_intra.utils.module_discovery import find_modules_by_name, collect_test_modules
 
 
 @pytest.mark.unit

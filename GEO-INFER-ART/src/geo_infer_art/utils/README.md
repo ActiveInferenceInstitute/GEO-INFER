@@ -5,10 +5,12 @@ Utils workspace within `GEO-INFER-ART`.
 ## Contents
 
 - `__init__.py`
+- `animation.py`
 - `validators.py`
 
 ## Public Interface
 
+- `animation.py:save_animation_with_fallback` (function)
 - `validators.py:validate_file_path` (function)
 - `validators.py:validate_geospatial_data` (function)
 - `validators.py:validate_coordinates` (function)
@@ -30,18 +32,12 @@ Utils workspace within `GEO-INFER-ART`.
 
 ## Dependencies
 
-- `bokeh>=2.4.0`
-- `cartopy>=0.20.0`
-- `colour>=0.1.5`
-- `folium>=0.12.0`
 - `geopandas>=0.10.0`
-- `imageio>=2.9.0`
-- `imageio-ffmpeg>=0.4.0`
-- `kaleido>=0.2.0`
 - `matplotlib>=3.4.0`
 - `numpy>=1.21.0`
-- `opencv-python>=4.5.0`
 - `pillow>=8.3.0`
+- `rasterio>=1.2.0`
+- `scipy>=1.7.0`
 
 
 ## Validation

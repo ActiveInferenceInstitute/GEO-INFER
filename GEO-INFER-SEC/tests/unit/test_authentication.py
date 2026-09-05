@@ -2,10 +2,13 @@
 Unit tests for authentication functionality.
 """
 
+import base64
+
 import pytest
 from datetime import datetime, timedelta
 
 from geo_infer_sec.core.authentication import (
+    generate_totp,
     AuthenticationManager,
     UserCredentials,
     TokenInfo,
@@ -125,3 +128,53 @@ class TestAuthenticationManager:
 
 
 
+
+
+class TestMultiFactorAuthentication:
+    """Real TOTP-based MFA behavior."""
+
+    SECRET = base64.b32encode(b"0123456789abcdef").decode()
+
+    @pytest.fixture
+    def mfa_manager(self) -> AuthenticationManager:
+        manager = AuthenticationManager(secret_key="test_secret_key")
+        manager.register_user(username="mfauser", password="test_password_123")
+        assert manager.enable_mfa("mfauser", self.SECRET)
+        return manager
+
+    def test_authentication_denied_without_mfa_code(
+        self, mfa_manager: AuthenticationManager
+    ) -> None:
+        """A user with MFA enabled can never authenticate by password alone."""
+        assert mfa_manager.authenticate("mfauser", "test_password_123") is None
+
+    def test_authentication_denied_with_wrong_mfa_code(
+        self, mfa_manager: AuthenticationManager
+    ) -> None:
+        assert (
+            mfa_manager.authenticate("mfauser", "test_password_123", mfa_code="000000")
+            is None
+        )
+
+    def test_authentication_succeeds_with_valid_totp(
+        self, mfa_manager: AuthenticationManager
+    ) -> None:
+        code = generate_totp(self.SECRET)
+        token_info = mfa_manager.authenticate(
+            "mfauser", "test_password_123", mfa_code=code
+        )
+        assert token_info is not None
+        assert token_info.token
+
+    def test_password_login_unaffected_after_disable_mfa(
+        self, mfa_manager: AuthenticationManager
+    ) -> None:
+        assert mfa_manager.disable_mfa("mfauser") is True
+        token_info = mfa_manager.authenticate("mfauser", "test_password_123")
+        assert token_info is not None
+
+    def test_enable_mfa_rejects_non_base32_secret(self) -> None:
+        manager = AuthenticationManager(secret_key="test_secret_key")
+        manager.register_user(username="badmfa", password="test_password_123")
+        with pytest.raises(ValueError, match="base32"):
+            manager.enable_mfa("badmfa", "not-valid-base32!!!")

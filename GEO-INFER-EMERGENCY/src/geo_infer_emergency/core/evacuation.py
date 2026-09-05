@@ -552,11 +552,10 @@ class EvacuationPlanner:
             "expected": 1.0,
             "worst_case": 1.5
         }
-        
         for scenario in scenarios:
             multiplier = scenario_multipliers.get(scenario, 1.0)
             clearance_hours = base_clearance * multiplier
-            
+
             estimates[scenario] = {
                 "clearance_hours": round(clearance_hours, 1),
                 "vehicles": int(vehicles),
@@ -564,14 +563,7 @@ class EvacuationPlanner:
                 "loading_time_hours": 1.0 * multiplier,
                 "travel_time_hours": (clearance_hours - 1.0 * multiplier) if clearance_hours > 1 else 0.5
             }
-        
-        result = {
-            "traffic_model": traffic_model,
-            "population": population,
-            "estimates": estimates,
-            "timestamp": datetime.now().isoformat()
-        }
-        
+
         logger.info(f"Estimated clearance time: {estimates.get('expected', {}).get('clearance_hours', 0)} hours")
         return estimates
 

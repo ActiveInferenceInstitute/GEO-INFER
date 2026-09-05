@@ -8,6 +8,9 @@ Examples workspace within `GEO-INFER-ORG`.
 
 ## Public Interface
 
+- `basic_governance_example.py:build_organization` (function)
+- `basic_governance_example.py:run_ranked_choice_vote` (function)
+- `basic_governance_example.py:run_consensus_rounds` (function)
 - `basic_governance_example.py:main` (function)
 
 ## Module Metadata
@@ -20,7 +23,7 @@ Examples workspace within `GEO-INFER-ORG`.
 
 ## Dependencies
 
-- `pandas>=1.3.0`
+- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
 
 
 ## Validation

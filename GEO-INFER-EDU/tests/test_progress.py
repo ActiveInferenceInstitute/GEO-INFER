@@ -383,3 +383,44 @@ class TestPrivacyCompliance:
     def test_export_unknown_learner_raises(self, tracked):
         with pytest.raises(ValueError, match="Learner not found"):
             tracked.export_progress("nobody")
+
+
+class TestCompetencyOrdering:
+    """Competency levels are ordered; later low scores must not downgrade records."""
+
+    def test_low_score_assessment_does_not_downgrade(self):
+        tracker = ProgressTracker()
+        tracker.track_progress(
+            learner_id="student_1",
+            activity_log=[],
+            assessments=[
+                {"competency": "spatial_analysis", "score": 0.7, "id": "a1"},
+                {"competency": "spatial_analysis", "score": 0.2, "id": "a2"},
+            ],
+        )
+        record = tracker._learner_data["student_1"].competencies["spatial_analysis"]
+        assert record.level is CompetencyLevel.DEVELOPING
+
+    def test_higher_score_assessment_upgrades(self):
+        tracker = ProgressTracker()
+        tracker.track_progress(
+            learner_id="student_2",
+            activity_log=[],
+            assessments=[
+                {"competency": "spatial_analysis", "score": 0.5, "id": "a1"},
+                {"competency": "spatial_analysis", "score": 0.92, "id": "a2"},
+            ],
+        )
+        record = tracker._learner_data["student_2"].competencies["spatial_analysis"]
+        assert record.level is CompetencyLevel.EXEMPLARY
+
+    def test_export_serializes_competency_levels(self):
+        """export_progress must return valid JSON even with competency records."""
+        tracker = ProgressTracker(privacy_compliance="none")
+        tracker.track_progress(
+            learner_id="student_3",
+            activity_log=[],
+            assessments=[{"competency": "spatial_analysis", "score": 0.91}],
+        )
+        export = json.loads(tracker.export_progress("student_3"))
+        assert export["competencies"]["spatial_analysis"]["level"] == "exemplary"

@@ -1,6 +1,6 @@
 ---
 name: geo-infer-sim
-description: Agent-based simulation for geospatial environments. Use when building spatial simulations, modeling agent interactions in geographic space, running Monte Carlo spatial experiments, or comparing spatial planning scenarios.
+description: Agent-based and multi-paradigm simulation for geospatial workflows. Use when building agent-based models, cellular automata, or system-dynamics simulations, or running and comparing spatial planning scenarios.
 prerequisites:
   required:
     - geo-infer-space
@@ -19,42 +19,70 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 
 ### Core Capabilities
 
-- **Agent-based modeling**: Spatial agents on grids, networks, and continuous space
-- **Environment simulation**: Geographic environment state management, land use dynamics
-- **Monte Carlo**: Stochastic spatial experiments with ensemble statistics
-- **Scenario analysis**: What-if spatial scenario comparison and sensitivity analysis
-- **Visualization**: Simulation playback, spatial animation, time-step rendering
+- **Simulation engine**: `SimulationEngine` with a validated `SimulationConfig`, explicit state machine (INITIALIZED/RUNNING/PAUSED/COMPLETED/FAILED/CANCELLED), pause/resume/cancel, metrics, state history, and JSON checkpoints that restore both configuration and the exact RNG stream
+- **Paradigms**: agent-based models (`AgentBasedModel`, `Agent`), system dynamics (`SystemDynamicsModel`), cellular automata (`CellularAutomata`)
+- **Mesa bridge** (optional): `MesaModelBridge` wraps any `mesa.Model` with snapshot/metric collection; install with the `mesa` extra — everything else works without it
+- **Scenario analysis**: `ScenarioManager` for scenario storage, comparison, and sequential or parallel batch execution with per-scenario error reporting
+- **Module simulations**: `ModuleSimulations` runs toy numeric engine smoke-test models named after GEO-INFER modules
 
 ### Key Imports
 
 ```python
-from geo_infer_sim.core.simulation import SpatialSimulation
-from geo_infer_sim.core.environment import GeoEnvironment
-from geo_infer_sim.core.scenario import ScenarioManager
-from geo_infer_sim.core.monte_carlo import MonteCarloRunner
+from geo_infer_sim import (
+    SimulationEngine, SimulationConfig, AgentBasedModel, Agent,
+    SystemDynamicsModel, CellularAutomata, ScenarioManager,
+    ModuleSimulations, ModuleSimulationConfig,
+)
+from geo_infer_sim.core.mesa_bridge import MesaModelBridge
+from geo_infer_sim.scenarios.scenario_manager import Scenario
 ```
 
-## Examples
+### Examples
+
+Run a deterministic engine simulation:
 
 ```python
-from geo_infer_sim.core.simulation import SpatialSimulation
+from geo_infer_sim import SimulationEngine, SimulationConfig
 
-sim = SpatialSimulation(
-    grid_size=(100, 100),
-    n_agents=50,
-    time_steps=200
+engine = SimulationEngine(SimulationConfig(time_step=1.0, max_time=10.0, random_seed=42))
+engine.initialize({"population": 100})
+engine.run(lambda t, state: {"population": state["population"] + 1})
+engine.record_metric("population", 101.0)
+stats = engine.get_metric_statistics("population")
+```
+
+Run and compare scenarios:
+
+```python
+from geo_infer_sim import ScenarioManager
+
+manager = ScenarioManager()
+baseline = manager.create_scenario(
+    name="baseline", initial_conditions={"population": 100}, parameters={"seed": 1}
 )
-sim.add_rule("diffusion", rate=0.1)
-results = sim.run()
-final_state = results.get_snapshot(t=200)
+policy = manager.create_scenario(
+    name="policy", initial_conditions={"population": 100}, parameters={"seed": 1}
+)
+
+def my_simulation_func(scenario):
+    engine = SimulationEngine(SimulationConfig(max_time=5.0, random_seed=scenario.parameters["seed"]))
+    engine.initialize(scenario.initial_conditions)
+    engine.run(lambda t, state: {"population": state["population"] * 1.01})
+    return engine.get_state()
+
+results = manager.run_scenarios(
+    [baseline.scenario_id, policy.scenario_id], my_simulation_func, parallel=False
+)
 ```
 
 ## Guidelines
 
-- Mesa integration (complete; MesaModelBridge wraps `mesa.Model` with 20 tests)
+- Deterministic-by-default: pass `random_seed` to `SimulationConfig`; use `np.random.default_rng(seed)` for your own stochastic functions rather than global NumPy seeding
+- Mesa is optional (`pip install geo-infer-sim[mesa]`); `MesaModelBridge` raises a clear ImportError on construction without it
+- ABM `spatial_bounds` is advisory metadata — agent positions are not clamped; `AgentBasedModel(neighbor_radius=...)` controls step() neighbor search
+- Test: `uv run python -m pytest GEO-INFER-SIM/tests/ -v`
 
 ### Integrations
 
-- Integrates with AGENT for Active Inference agent behavior
-- Integrates with ANT for swarm simulation
+- None: this module has no runtime imports of other GEO-INFER modules.
 - Test: `uv run python -m pytest GEO-INFER-SIM/tests/ -v`

@@ -44,7 +44,7 @@ class UnderwritingReporter:
             underwriting_engine: Underwriting engine instance for data access
         """
         self.underwriting_engine = underwriting_engine
-        self.logger = logging.getLogger("geo_infer_risk.underwriting.reporting")
+        self.logger = logging.getLogger("geo_infer_insurance.underwriting.reporting")
 
         # Report templates and configurations
         self.report_templates = self._load_report_templates()

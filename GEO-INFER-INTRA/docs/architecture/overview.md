@@ -7,7 +7,7 @@ contracts. Detailed component documentation lives in the
 
 ## System Architecture
 
-GEO-INFER is a uv-managed Python 3.11+ monorepo of 44 modules. Each module is
+GEO-INFER is a uv-managed Python 3.11+ monorepo of 45 modules. Each module is
 a `GEO-INFER-*` directory owning an importable package under `src/`, tests
 under `tests/`, examples, and generated `README.md`/`AGENTS.md` signposts.
 

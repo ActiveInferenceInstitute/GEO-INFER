@@ -15,14 +15,79 @@ import logging
 import yaml
 import asyncio
 import json
-from typing import Dict, List, Optional, Any, cast
-from pathlib import Path
 import importlib
-
-from geo_infer_agent.core.agent_base import BaseAgent
+from typing import Dict, Any, cast
 
 # Configure logger
 logger = logging.getLogger("geo_infer_agent.cli")
+
+
+# Embedded configuration templates for ``create-config``.  Keys mirror the
+# config values each agent class actually reads (see the corresponding
+# module's __init__/config handling).  Kept in sync with load_agent_class().
+CONFIG_TEMPLATES: Dict[str, Dict[str, Any]] = {
+    "default": {
+        "agent_type": "default",
+        "memory_capacity": 1000,
+        "decision_frequency": 5,
+        "max_runtime": 86400,
+    },
+    "data_collector": {
+        "agent_type": "data_collector",
+        "storage_path": "data",
+        "collection_interval": 300,
+        "max_retries": 3,
+        "timeout": 30,
+        "region": "POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))",
+        "data_sources": [],
+    },
+    "bdi": {
+        "agent_type": "bdi",
+        "memory_capacity": 1000,
+        "deliberation_interval": 5,
+        "commitment_strategy": "single_minded",
+        "initial_beliefs": {},
+        "initial_desires": [],
+        "plans": [],
+    },
+    "active_inference": {
+        "agent_type": "active_inference",
+        "memory_capacity": 1000,
+        "planning_horizon": 3,
+        "state_dimensions": 10,
+        "observation_dimensions": 10,
+        "control_dimensions": 5,
+    },
+    "reinforcement_learning": {
+        "agent_type": "reinforcement_learning",
+        "memory_capacity": 1000,
+        "state_size": 100,
+        "action_size": 5,
+        "buffer_capacity": 10000,
+    },
+    "rule_based": {
+        "agent_type": "rule_based",
+        "memory_capacity": 1000,
+        "rules": [],
+        "initial_facts": {},
+    },
+    "hybrid": {
+        "agent_type": "hybrid",
+        "memory_capacity": 1000,
+    },
+}
+
+
+# Agent types map 1:1 onto the registry's real agent_types entries.
+AGENT_MODULES: Dict[str, str] = {
+    "default": "geo_infer_agent.core.agent_base.ExampleAgent",
+    "data_collector": "geo_infer_agent.agents.data_collector.DataCollectorAgent",
+    "bdi": "geo_infer_agent.models.bdi.BDIAgent",
+    "active_inference": "geo_infer_agent.models.active_inference.ActiveInferenceAgent",
+    "reinforcement_learning": "geo_infer_agent.models.rl.RLAgent",
+    "rule_based": "geo_infer_agent.models.rule_based.RuleBasedAgent",
+    "hybrid": "geo_infer_agent.models.hybrid.HybridAgent",
+}
 
 def setup_logging(verbose: bool = False) -> None:
     """
@@ -39,10 +104,6 @@ def setup_logging(verbose: bool = False) -> None:
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
-    
-    # Reduce verbosity of some modules
-    logging.getLogger('urllib3').setLevel(logging.WARNING)
-    logging.getLogger('matplotlib').setLevel(logging.WARNING)
 
 def load_config(config_path: str) -> Dict[str, Any]:
     """
@@ -77,34 +138,22 @@ def load_config(config_path: str) -> Dict[str, Any]:
 def load_agent_class(agent_type: str) -> type:
     """
     Dynamically load agent class based on type.
-    
+
     Args:
         agent_type: Type of agent to load
-        
+
     Returns:
         Agent class
     """
-    # Map of agent types to module paths
-    agent_modules = {
-        "default": "geo_infer_agent.core.agent_base.ExampleAgent",
-        "data_collector": "geo_infer_agent.agents.data_collector.DataCollectorAgent",
-        "analyzer": "geo_infer_agent.agents.analyzer.AnalyzerAgent",
-        "monitor": "geo_infer_agent.agents.monitor.MonitorAgent",
-        "decision": "geo_infer_agent.agents.decision.DecisionAgent",
-        "coordinator": "geo_infer_agent.agents.coordinator.CoordinatorAgent",
-        "learner": "geo_infer_agent.agents.learner.LearnerAgent",
-        # Add more agent types as needed
-    }
-    
-    if agent_type not in agent_modules:
+    if agent_type not in AGENT_MODULES:
         logger.error(f"Unknown agent type: {agent_type}")
-        logger.info(f"Available agent types: {', '.join(agent_modules.keys())}")
+        logger.info(f"Available agent types: {', '.join(AGENT_MODULES)}")
         sys.exit(1)
-    
+
     try:
         # Split module path and class name
-        module_path, class_name = agent_modules[agent_type].rsplit(".", 1)
-        
+        module_path, class_name = AGENT_MODULES[agent_type].rsplit(".", 1)
+
         # Import module
         module = importlib.import_module(module_path)
         
@@ -174,14 +223,15 @@ def list_agents_command(args: argparse.Namespace) -> None:
         args: Command-line arguments
     """
     # List of available agent types and descriptions
+    # Must stay in sync with load_agent_class()'s agent_modules mapping.
     agents = {
         "default": "Basic example agent for testing",
-        "data_collector": "Collects data from various sources",
-        "analyzer": "Analyzes data using various models",
-        "monitor": "Monitors areas for changes or events",
-        "decision": "Makes decisions based on analysis",
-        "coordinator": "Coordinates multiple other agents",
-        "learner": "Learns from environment and other agents",
+        "data_collector": "Collects data from configured sources",
+        "bdi": "Belief-Desire-Intention cognitive architecture",
+        "active_inference": "Free-energy-minimising agent (matrix model)",
+        "reinforcement_learning": "Q-learning agent with replay buffer",
+        "rule_based": "Decision-tree agents for simple spatial tasks",
+        "hybrid": "Combines rule-based and learning architectures",
     }
     
     print("Available Agent Types:\n")
@@ -199,35 +249,32 @@ def create_config_command(args: argparse.Namespace) -> None:
     """
     # Define the output path
     output_path = args.output or "agent_config.yaml"
-    
+
     # Check if file already exists
     if os.path.exists(output_path) and not args.force:
         logger.error(f"File already exists: {output_path}. Use --force to overwrite.")
         sys.exit(1)
-    
+
     # Determine which agent type to create config for
     agent_type = args.type or "default"
-    
-    # Load template configs
-    template_path = os.path.join(os.path.dirname(__file__), "config", "templates", f"{agent_type}.yaml")
-    if not os.path.exists(template_path):
-        # Fallback to example config
-        template_path = os.path.join(os.path.dirname(__file__), "config", "example.yaml")
-        
+    if agent_type not in CONFIG_TEMPLATES:
+        logger.error(
+            "Unknown agent type: %s. Valid types: %s",
+            agent_type,
+            ", ".join(sorted(CONFIG_TEMPLATES)),
+        )
+        sys.exit(1)
+
+    # Templates are embedded in code so they ship with the installed package
+    # (packaging YAML data files alongside the wheel proved fragile).
+    template = dict(CONFIG_TEMPLATES[agent_type])
+
     try:
-        with open(template_path, 'r') as f:
-            config = yaml.safe_load(f)
-            
-        # Customize config
-        if agent_type != "default":
-            config["agent_type"] = agent_type
-            
-        # Write config to file
         with open(output_path, 'w') as f:
-            yaml.dump(config, f, default_flow_style=False, sort_keys=False)
-            
+            yaml.dump(template, f, default_flow_style=False, sort_keys=False)
+
         logger.info(f"Created configuration template at {output_path}")
-        
+
     except Exception as e:
         logger.error(f"Failed to create configuration file: {str(e)}")
         sys.exit(1)
@@ -254,7 +301,7 @@ def main() -> None:
     run_parser.add_argument('--save-state', help='Path to save state after execution')
     
     # List command
-    list_parser = subparsers.add_parser('list', help='List available agent types')
+    subparsers.add_parser('list', help='List available agent types')
     
     # Create-config command
     config_parser = subparsers.add_parser('create-config', help='Create a configuration template')

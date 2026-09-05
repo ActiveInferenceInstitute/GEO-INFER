@@ -9,29 +9,24 @@ import logging
 import uuid
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Union, Tuple, Set, Callable
+from typing import Dict, List, Any, Optional, Set, Callable
 from enum import Enum
-from collections import defaultdict, deque
+from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
-try:
-    import numpy as np
-    NUMPY_AVAILABLE = True
-except ImportError:
-    NUMPY_AVAILABLE = False
-    logger.warning("NumPy not available. Some pattern detection features will be limited.")
+import numpy as np  # hard dependency (numpy<2.0 pinned); no fallback path
 
 try:
-    from scipy import signal, stats
-    from scipy.spatial import distance
+    from scipy import signal as signal, stats
+    from scipy.spatial import distance as distance
     SCIPY_AVAILABLE = True
 except ImportError:
     SCIPY_AVAILABLE = False
     logger.warning("SciPy not available. Advanced pattern detection will be limited.")
 
 try:
-    from sklearn.cluster import DBSCAN, KMeans
+    from sklearn.cluster import DBSCAN, KMeans as KMeans
     from sklearn.preprocessing import StandardScaler
     SKLEARN_AVAILABLE = True
 except ImportError:
@@ -354,7 +349,7 @@ class H3PatternDetector:
                 values.append(cell.state_variables[value_field])
                 cell_indices.append(cell.index)
         
-        if not values or not NUMPY_AVAILABLE:
+        if not values:
             return patterns
         
         values_array = np.array(values)
@@ -590,7 +585,6 @@ class H3PatternDetector:
             
             # Calculate cluster properties
             cluster_features = features_scaled[cluster_indices]
-            cluster_center = np.mean(cluster_features, axis=0)
             cluster_spread = np.std(cluster_features)
             
             pattern = Pattern(

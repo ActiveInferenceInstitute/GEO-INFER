@@ -23,6 +23,8 @@ from .core.civic_engagement import (
     MeetingType,
     PublicComment,
     CommentCategory,
+    AttendanceTrend as AttendanceTrend,
+    CommentAnalysis as CommentAnalysis,
 )
 from .core.policy_analysis import (
     CostBenefitAnalyzer,
@@ -30,6 +32,8 @@ from .core.policy_analysis import (
     EquityAnalyzer,
     CostBenefitItem,
     StakeholderImpact,
+    CostBenefitResult,
+    EquityScore,
     ImpactLevel,
     PolicyDomain,
 )
@@ -54,4 +58,6 @@ __all__ = [
     "StakeholderImpact",
     "ImpactLevel",
     "PolicyDomain",
+    "CostBenefitResult",
+    "EquityScore",
 ]

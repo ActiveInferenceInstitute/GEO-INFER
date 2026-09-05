@@ -13,20 +13,16 @@ This module provides comprehensive repository analysis capabilities including:
 - Documentation quality analysis
 """
 
-import os
 import re
 import ast
 import json
-import subprocess
-from typing import Dict, List, Any, Optional, Tuple, Set, Union
+from typing import Dict, List, Any, Union
 from pathlib import Path
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-import hashlib
-import base64
 
 from ..utils.logging_utils import get_logger
-from ..utils.error_handler import ValidationError, ErrorCategory
+from ..utils.error_handler import ValidationError
 
 logger = get_logger(__name__)
 
@@ -188,6 +184,7 @@ class CodeAnalyzer:
                                 function_count += 1
 
                         except Exception:
+                            logger.debug("Skipping unreadable file during analysis", exc_info=True)
                             continue
 
                 if function_count > 0:
@@ -223,6 +220,7 @@ class CodeAnalyzer:
                     total_complexity += complexity
 
                 except Exception:
+                    logger.debug("Skipping unreadable file during analysis", exc_info=True)
                     continue
 
         return total_complexity / max(1, len(list(self.repo_path.rglob('*.py'))))
@@ -253,6 +251,7 @@ class CodeAnalyzer:
                         continue
 
                 except Exception:
+                    logger.debug("Skipping unreadable file during analysis", exc_info=True)
                     continue
 
         if function_count > 0:
@@ -511,6 +510,7 @@ class GeospatialAnalyzer:
                             break
 
                 except Exception:
+                    logger.debug("Skipping unreadable file during analysis", exc_info=True)
                     continue
 
     def _detect_mapping_apis(self) -> None:
@@ -534,6 +534,7 @@ class GeospatialAnalyzer:
                             break
 
                 except Exception:
+                    logger.debug("Skipping unreadable file during analysis", exc_info=True)
                     continue
 
     def _detect_coordinate_systems(self) -> None:
@@ -566,6 +567,7 @@ class GeospatialAnalyzer:
                             break
 
                 except Exception:
+                    logger.debug("Skipping unreadable file during analysis", exc_info=True)
                     continue
 
     def _detect_spatial_analysis(self) -> None:
@@ -590,6 +592,7 @@ class GeospatialAnalyzer:
                             break
 
                 except Exception:
+                    logger.debug("Skipping unreadable file during analysis", exc_info=True)
                     continue
 
 class SecurityAnalyzer:
@@ -687,6 +690,7 @@ class SecurityAnalyzer:
                                     self.analysis.secrets_detected.append(secret_value)
 
                 except Exception:
+                    logger.debug("Skipping unreadable file during analysis", exc_info=True)
                     continue
 
     def _detect_insecure_patterns(self) -> None:
@@ -716,6 +720,7 @@ class SecurityAnalyzer:
                                     self.analysis.insecure_patterns.append(match)
 
                 except Exception:
+                    logger.debug("Skipping unreadable file during analysis", exc_info=True)
                     continue
 
     def _calculate_security_score(self) -> None:

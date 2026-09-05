@@ -7,257 +7,16 @@ Belief-Desire-Intention cognitive architecture for geospatial agents.
 
 import asyncio
 import logging
+import re
 from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional, cast
 
 from geo_infer_agent.core.agent_base import BaseAgent, AgentState
+from geo_infer_agent.models.bdi.belief import Belief
+from geo_infer_agent.models.bdi.desire import Desire
+from geo_infer_agent.models.bdi.plan import Plan
 
 logger = logging.getLogger("geo_infer_agent.models.bdi")
-
-
-# ---------------------------------------------------------------------------
-# Lightweight BDI data types used internally by BDIState / BDIAgent.
-# These are intentionally kept simple (plain classes, not dataclasses) so that
-# BDIState can work without the richer bdi/belief.py / desire.py / plan.py
-# dataclasses.  Serialization via to_dict / from_dict bridges both worlds.
-# ---------------------------------------------------------------------------
-
-class Belief:
-    """
-    A belief maintained by the agent about the world.
-
-    Attributes:
-        name: Unique identifier for the belief.
-        value: Current value of the belief.
-        confidence: Confidence level in [0, 1].
-        timestamp: When the belief was last updated.
-        metadata: Arbitrary additional information.
-        history: Previous values of this belief.
-    """
-
-    def __init__(
-        self,
-        name: str,
-        value: Any,
-        confidence: float = 1.0,
-        timestamp: Optional[datetime] = None,
-        metadata: Optional[Dict[str, Any]] = None,
-    ) -> None:
-        self.name = name
-        self.value = value
-        self.confidence = max(0.0, min(1.0, confidence))
-        self.timestamp = timestamp or datetime.now()
-        self.metadata: Dict[str, Any] = metadata or {}
-        self.history: List[Dict[str, Any]] = []
-
-    def update(
-        self,
-        value: Any,
-        confidence: Optional[float] = None,
-        metadata: Optional[Dict[str, Any]] = None,
-    ) -> None:
-        """Update this belief, storing the previous state in history."""
-        self.history.append(
-            {
-                "value": self.value,
-                "confidence": self.confidence,
-                "timestamp": self.timestamp,
-                "metadata": self.metadata.copy(),
-            }
-        )
-        self.value = value
-        if confidence is not None:
-            self.confidence = max(0.0, min(1.0, confidence))
-        if metadata:
-            self.metadata.update(metadata)
-        self.timestamp = datetime.now()
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "name": self.name,
-            "value": self.value,
-            "confidence": self.confidence,
-            "timestamp": self.timestamp.isoformat(),
-            "metadata": self.metadata,
-            "history_length": len(self.history),
-        }
-
-    @staticmethod
-    def from_dict(data: Dict[str, Any]) -> "Belief":
-        return Belief(
-            name=data["name"],
-            value=data["value"],
-            confidence=data.get("confidence", 1.0),
-            timestamp=datetime.fromisoformat(data["timestamp"]) if data.get("timestamp") else None,
-            metadata=data.get("metadata", {}),
-        )
-
-
-class Desire:
-    """
-    A goal the agent wants to achieve.
-
-    Attributes:
-        name: Unique identifier for the desire.
-        description: Human-readable goal description.
-        priority: Priority in [0, 1] (higher = more important).
-        deadline: Optional deadline for achieving this desire.
-        conditions: Belief values that must hold for the desire to be satisfied.
-        achieved: Whether the desire has been achieved.
-        achieved_at: When the desire was achieved.
-    """
-
-    def __init__(
-        self,
-        name: str,
-        description: str,
-        priority: float = 0.5,
-        deadline: Optional[datetime] = None,
-        conditions: Optional[Dict[str, Any]] = None,
-    ) -> None:
-        self.name = name
-        self.description = description
-        self.priority = max(0.0, min(1.0, priority))
-        self.deadline = deadline
-        self.conditions: Dict[str, Any] = conditions or {}
-        self.created_at = datetime.now()
-        self.achieved = False
-        self.achieved_at: Optional[datetime] = None
-
-    def set_achieved(self, achieved: bool = True) -> None:
-        """Mark the desire as achieved or not."""
-        self.achieved = achieved
-        self.achieved_at = datetime.now() if achieved else None
-
-    def is_expired(self) -> bool:
-        """Return True if the desire has a past deadline."""
-        if not self.deadline:
-            return False
-        return datetime.now() > self.deadline
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "name": self.name,
-            "description": self.description,
-            "priority": self.priority,
-            "deadline": self.deadline.isoformat() if self.deadline else None,
-            "conditions": self.conditions,
-            "created_at": self.created_at.isoformat(),
-            "achieved": self.achieved,
-            "achieved_at": self.achieved_at.isoformat() if self.achieved_at else None,
-        }
-
-    @staticmethod
-    def from_dict(data: Dict[str, Any]) -> "Desire":
-        desire = Desire(
-            name=data["name"],
-            description=data["description"],
-            priority=data.get("priority", 0.5),
-            deadline=datetime.fromisoformat(data["deadline"]) if data.get("deadline") else None,
-            conditions=data.get("conditions", {}),
-        )
-        if data.get("created_at"):
-            desire.created_at = datetime.fromisoformat(data["created_at"])
-        desire.achieved = data.get("achieved", False)
-        if data.get("achieved_at"):
-            desire.achieved_at = datetime.fromisoformat(data["achieved_at"])
-        return desire
-
-
-class Plan:
-    """
-    A sequence of actions designed to satisfy a desire.
-
-    Attributes:
-        name: Unique identifier for the plan.
-        desire_name: Name of the desire this plan targets.
-        actions: Ordered list of action dictionaries.
-        context_conditions: Belief values that must hold for this plan to apply.
-        current_action_index: Index of the next action to execute.
-        complete: Whether the plan has been fully executed.
-        successful: Whether the plan completed successfully.
-        execution_record: Log of executed actions and their results.
-    """
-
-    def __init__(
-        self,
-        name: str,
-        desire_name: str,
-        actions: List[Dict[str, Any]],
-        context_conditions: Optional[Dict[str, Any]] = None,
-    ) -> None:
-        self.name = name
-        self.desire_name = desire_name
-        self.actions = actions
-        self.context_conditions: Dict[str, Any] = context_conditions or {}
-        self.created_at = datetime.now()
-        self.current_action_index = 0
-        self.complete = False
-        self.successful = False
-        self.execution_record: List[Dict[str, Any]] = []
-
-    def next_action(self) -> Optional[Dict[str, Any]]:
-        """Return the next action to execute, or None if complete."""
-        if self.complete or self.current_action_index >= len(self.actions):
-            return None
-        return self.actions[self.current_action_index]
-
-    def record_action_result(
-        self, action_index: int, result: Dict[str, Any], success: bool
-    ) -> None:
-        """Record the result of an executed action."""
-        self.execution_record.append(
-            {
-                "action_index": action_index,
-                "action": self.actions[action_index] if action_index < len(self.actions) else None,
-                "result": result,
-                "success": success,
-                "timestamp": datetime.now().isoformat(),
-            }
-        )
-
-    def advance(self) -> bool:
-        """Advance to the next action. Returns False when the plan is complete."""
-        self.current_action_index += 1
-        if self.current_action_index >= len(self.actions):
-            self.complete = True
-            return False
-        return True
-
-    def mark_complete(self, successful: bool) -> None:
-        """Mark the plan as complete."""
-        self.complete = True
-        self.successful = successful
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "name": self.name,
-            "desire_name": self.desire_name,
-            "actions": self.actions,
-            "context_conditions": self.context_conditions,
-            "created_at": self.created_at.isoformat(),
-            "current_action_index": self.current_action_index,
-            "complete": self.complete,
-            "successful": self.successful,
-            "execution_record": self.execution_record,
-        }
-
-    @staticmethod
-    def from_dict(data: Dict[str, Any]) -> "Plan":
-        plan = Plan(
-            name=data["name"],
-            desire_name=data["desire_name"],
-            actions=data["actions"],
-            context_conditions=data.get("context_conditions", {}),
-        )
-        if data.get("created_at"):
-            plan.created_at = datetime.fromisoformat(data["created_at"])
-        plan.current_action_index = data.get("current_action_index", 0)
-        plan.complete = data.get("complete", False)
-        plan.successful = data.get("successful", False)
-        plan.execution_record = data.get("execution_record", [])
-        return plan
-
 
 # ---------------------------------------------------------------------------
 # BDIState
@@ -768,12 +527,48 @@ class BDIAgent(BaseAgent):
                 plan = Plan(
                     name=plan_name,
                     desire_name=desire_name,
-                    actions=template["actions"],
+                    actions=self._resolve_placeholders(template["actions"]),
                     context_conditions=template.get("context_conditions", {}),
                 )
                 self.state.add_intention(plan)
                 return plan
         return None
+
+    def _resolve_placeholders(self, value: Any) -> Any:
+        """
+        Resolve ``$CONFIG:<key>`` placeholders in plan-template values.
+
+        Plan templates loaded from config may reference agent configuration
+        values with the ``$CONFIG:<key>`` syntax (e.g. a wait duration of
+        ``$CONFIG:collection_interval``).  Strings that consist exactly of
+        one ``$CONFIG:`` token are replaced by the configured value itself (so
+        numeric config values stay numeric); nested dicts and lists are
+        resolved recursively.
+
+        Args:
+            value: A plan-template value (action dict, list, or scalar)
+
+        Returns:
+            The value with placeholders resolved
+
+        Raises:
+            ValueError: If a ``$CONFIG:`` reference names a missing config key
+        """
+        if isinstance(value, str):
+            match = re.fullmatch(r"\$CONFIG:([A-Za-z_][A-Za-z0-9_]*)", value)
+            if match:
+                key = match.group(1)
+                if key not in self.config:
+                    raise ValueError(
+                        f"Plan template references unknown config key {key!r}"
+                    )
+                return self.config[key]
+            return value
+        if isinstance(value, dict):
+            return {k: self._resolve_placeholders(v) for k, v in value.items()}
+        if isinstance(value, list):
+            return [self._resolve_placeholders(item) for item in value]
+        return value
 
     def _check_context_conditions(self, conditions: Dict[str, Any]) -> bool:
         """Return True if every condition matches the corresponding belief value."""

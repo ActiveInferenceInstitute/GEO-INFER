@@ -9,7 +9,6 @@ and event handling.
 
 import asyncio
 import logging
-from typing import List
 from datetime import datetime, timezone
 
 # Import the main communication system
@@ -18,6 +17,7 @@ from geo_infer_comms import (
     GeospatialPoint, GeospatialBounds, GeospatialMetadata,
     MessageType, MessagePriority, NotificationType, ChannelType
 )
+from geo_infer_comms.core.notifications import AlertRule
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -148,18 +148,18 @@ async def main():
 
         # Example 8: Create an alert rule
         logger.info("\n=== Example 8: Creating Alert Rules ===")
-        alert_rule = system.alert_system.create_alert_rule({
-            "name": "High Temperature Alert",
-            "description": "Alert when temperature exceeds threshold",
-            "conditions": {
+        alert_rule = system.alert_system.create_alert_rule(AlertRule(
+            name="High Temperature Alert",
+            description="Alert when temperature exceeds threshold",
+            conditions={
                 "temperature": {"min": 35.0}
             },
-            "alert_title": "High Temperature Warning",
-            "alert_content": "Temperature has exceeded safe threshold",
-            "recipients": ["admin@geo-infer.org"],
-            "priority": MessagePriority.HIGH,
-            "delivery_methods": ["email", "sms"]
-        })
+            alert_title="High Temperature Warning",
+            alert_content="Temperature has exceeded safe threshold",
+            recipients=["admin@geo-infer.org"],
+            priority=MessagePriority.HIGH,
+            delivery_methods=["email", "sms"]
+        ))
         logger.info(f"Alert rule created: {alert_rule}")
 
         # Example 9: Trigger an alert
@@ -167,9 +167,11 @@ async def main():
         alert_response = system.alert_system.trigger_alert(
             rule_id=alert_rule,
             trigger_data={"temperature": 38.5, "sensor_id": "temp_001"},
-            geospatial_context={
-                "location": {"latitude": 37.7749, "longitude": -122.4194}
-            }
+            geospatial_context=GeospatialMetadata(
+                location=GeospatialPoint(longitude=-122.4194, latitude=37.7749),
+                accuracy=10.0,
+                source="GPS"
+            )
         )
         if alert_response:
             logger.info(f"Alert triggered: {alert_response.alert_id}")
@@ -181,12 +183,21 @@ async def main():
         logger.info(f"Uptime: {health['uptime_seconds']:.1f} seconds")
 
         # Example 11: Get comprehensive metrics
-        logger.info("\n=== Example 11: System Metrics ===")
         metrics = system.get_comprehensive_metrics()
-        logger.info(f"Messages sent: {metrics['message_metrics']['messages_sent']}")
-        logger.info(f"Notifications created: {metrics['notification_metrics']['notifications_created']}")
-        logger.info(f"Channels created: {metrics['channel_metrics']['channels_created']}")
-        logger.info(f"Events published: {metrics['event_metrics']['events_published']}")
+        logger.info(
+            f"Messages sent: {metrics['message_metrics']['metrics']['messages_sent']}"
+        )
+        logger.info(
+            f"Notifications created: "
+            f"{metrics['notification_metrics']['metrics']['notifications_created']}"
+        )
+        logger.info(
+            f"Channels created: "
+            f"{metrics['channel_metrics']['metrics']['channels_created']}"
+        )
+        logger.info(
+            f"Events published: {metrics['event_metrics']['metrics']['events_published']}"
+        )
 
         # Brief pause to allow processing
         await asyncio.sleep(2.0)

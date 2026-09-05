@@ -7,44 +7,31 @@ Integration example: GEO-INFER-GIT with GEO-INFER-DATA
 This example demonstrates how GEO-INFER-GIT can be used to automatically
 clone and manage geospatial datasets and data processing repositories
 for integration with the GEO-INFER-DATA module.
+
+Requires network access to the GitHub API. Set GITHUB_TOKEN to raise rate
+limits (optional).
 """
 
 import os
-import sys
 import logging
 from pathlib import Path
 
-# Add the src directory to the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
-
-from geo_infer_git.core.multi_platform_api import MultiPlatformAPI
+from geo_infer_git.core.github_api import GitHubAPI
 from geo_infer_git.core.repo_cloner import RepoCloner
 from geo_infer_git.utils.config_loader import CloneConfig
-from geo_infer_git.utils.logging_utils import setup_logging
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def setup_geospatial_data_integration():
+
+def setup_geospatial_data_integration() -> tuple[GitHubAPI, RepoCloner]:
     """
     Set up integration between GEO-INFER-GIT and GEO-INFER-DATA for
     automated geospatial dataset acquisition and management.
     """
-
-    # Configuration for geospatial data repositories
-    platform_configs = {
-        'github': {
-            'token': os.environ.get('GITHUB_TOKEN'),
-            'api_url': 'https://api.github.com',
-            'wait_on_rate_limit': True,
-            'max_retries': 3,
-            'retry_delay': 1.0
-        }
-    }
-
-    # Initialize multi-platform API client
-    api_client = MultiPlatformAPI(platform_configs)
+    # GitHub API client (uses GITHUB_TOKEN from the environment when set)
+    api_client = GitHubAPI()
 
     # Configuration for cloning operations
     clone_config = CloneConfig(
@@ -60,7 +47,8 @@ def setup_geospatial_data_integration():
 
     return api_client, cloner
 
-def discover_geospatial_datasets(api_client, cloner):
+
+def discover_geospatial_datasets(api_client: GitHubAPI, cloner: RepoCloner) -> dict[str, bool]:
     """
     Discover and clone geospatial datasets from various sources.
 
@@ -68,11 +56,10 @@ def discover_geospatial_datasets(api_client, cloner):
     clone repositories containing geospatial datasets for use with
     GEO-INFER-DATA.
     """
-
     logger.info("Discovering geospatial datasets...")
 
-    # Search for geospatial data repositories on GitHub
-    search_results = api_client.get_user_repositories('github', 'USGS', max_repos=50)
+    # List geospatial data repositories published by an organization
+    search_results = api_client.get_organization_repositories('USGS', max_repos=50)
 
     # Filter for repositories likely to contain geospatial data
     geospatial_repos = api_client.filter_repositories(
@@ -87,7 +74,7 @@ def discover_geospatial_datasets(api_client, cloner):
 
     # Clone selected repositories
     logger.info("Cloning geospatial datasets...")
-    repositories_to_clone = []
+    repositories_to_clone: list[tuple[str, str, str]] = []
 
     for repo in geospatial_repos[:10]:  # Clone top 10
         repositories_to_clone.append((
@@ -107,14 +94,14 @@ def discover_geospatial_datasets(api_client, cloner):
 
     return clone_results
 
-def integrate_with_data_module(clone_results):
+
+def integrate_with_data_module(clone_results: dict[str, bool]) -> dict[str, object]:
     """
     Demonstrate integration with GEO-INFER-DATA module.
 
     This shows how cloned geospatial datasets can be integrated
     with data processing workflows in GEO-INFER-DATA.
     """
-
     logger.info("Integrating with GEO-INFER-DATA workflows...")
 
     datasets_dir = Path('./geospatial_datasets')
@@ -145,14 +132,14 @@ def integrate_with_data_module(clone_results):
 
     return integration_report
 
-def cleanup_and_maintenance(cloner):
+
+def cleanup_and_maintenance(cloner: RepoCloner) -> dict[str, object]:
     """
     Demonstrate maintenance operations for cloned datasets.
 
     Shows how to manage, update, and clean up cloned repositories
     over time.
     """
-
     logger.info("Performing maintenance operations...")
 
     # Get current clone statistics
@@ -173,11 +160,11 @@ def cleanup_and_maintenance(cloner):
         'repository_count': stats.get('total', 0)
     }
 
-def main():
+
+def main() -> dict[str, object] | None:
     """
     Main integration example demonstrating GEO-INFER-GIT with GEO-INFER-DATA.
     """
-
     logger.info("Starting GEO-INFER-GIT and GEO-INFER-DATA integration example")
 
     try:
@@ -213,8 +200,8 @@ def main():
         if 'cloner' in locals():
             cloner.close()
         if 'api_client' in locals():
-            # Close API clients if they have close methods
-            pass
+            api_client.close()
+
 
 if __name__ == "__main__":
     main()

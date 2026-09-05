@@ -65,18 +65,29 @@ class ClimateClassifier:
         p_winter_total = float(np.sum(p_winter))
 
         p_driest_month = float(np.min(p))
-        p_wettest_month = float(np.max(p))
 
-        dry_threshold = 2.0 * t_ann + 28.0
-        if p_winter_total > 0 and p_summer_total / p_winter_total >= 0.7:
-            dry_threshold = 2.0 * t_ann + 28.0
-        elif p_summer_total > 0 and p_winter_total / p_summer_total >= 0.7:
-            dry_threshold = 2.0 * t_ann
+        # Koppen (B) dryness threshold in mm: 20 * T_ann (2 * T_ann in cm),
+        # adjusted for precipitation seasonality because winter
+        # precipitation is more effective (less evaporative demand):
+        #   - >= 70% of annual precipitation in the winter (cooler) half:
+        #     threshold = 20 * T_ann
+        #   - >= 70% in the summer (warmer) half:
+        #     threshold = 20 * T_ann + 280
+        #   - otherwise: threshold = 20 * T_ann + 140
+        if p_ann > 0:
+            summer_share = p_summer_total / p_ann
+            winter_share = p_winter_total / p_ann
         else:
-            dry_threshold = 2.0 * t_ann + 14.0
+            summer_share = 0.0
+            winter_share = 0.0
+        if winter_share >= 0.7:
+            dry_threshold = 20.0 * t_ann
+        elif summer_share >= 0.7:
+            dry_threshold = 20.0 * t_ann + 280.0
+        else:
+            dry_threshold = 20.0 * t_ann + 140.0
 
         n_warm = int(np.sum(t >= 10))
-        n_cold = int(np.sum(t < 0))
 
         if t_min >= 18:
             code, desc = self._classify_tropical(t, p, p_driest_month)

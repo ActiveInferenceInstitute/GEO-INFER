@@ -37,17 +37,14 @@ The module follows a layered architecture:
 python from geo_infer_health.core.enhanced_disease_surveillance import ActiveInferenceDiseaseAnalyzer from geo_infer_health.models import DiseaseReport, Location # Create disease surveillance analyzer analyzer = ActiveInferenceDiseaseAnalyzer( reports=disease_reports, population_data=population_data ) # Perform Active Inference analysis results = analyzer.analyze_with_active_inference(time_window_days=7) # Access probabilistic results print(f"Disease Activity Belief: {results['belief_states']['disease_activity']:.3f}") print(f"Risk Level: {results['risk_assessment']['risk_level']}") print(f"Hotspots: {len(results['enhanced_hotspots'])}")
 ```
  #### Healthcare Accessibility Multi-modal accessibility analysis with equity considerations:
-```
 ```python
  from geo_infer_health.core.healthcare_accessibility import HealthcareAccessibilityAnalyzer from geo_infer_health.models import HealthFacility # Create accessibility analyzer analyzer = HealthcareAccessibilityAnalyzer( facilities=healthcare_facilities, population_data=population_data ) # Find nearest facility with service filtering nearest = analyzer.get_nearest_facility( loc=target_location, required_services=["Emergency"] ) # Calculate facility-to-population ratios ratios = analyzer.calculate_facility_to_population_ratio( area_id="study_area" )
 ```
  #### Environmental Health Risk Assessment Multi-pollutant exposure modeling with temporal analysis:
-```
 ```python
  from geo_infer_health.core.environmental_health import EnvironmentalHealthAnalyzer from geo_infer_health.models import EnvironmentalData # Create environmental analyzer analyzer = EnvironmentalHealthAnalyzer(environmental_readings=readings) # Calculate average exposure exposure = analyzer.calculate_average_exposure( target_locations=target_locations, radius_km=2.0, parameter_name="PM2.5", time_window_days=7 ) # Get readings near location with time filtering nearby_readings = analyzer.get_environmental_readings_near_location( center_loc=location, radius_km=5.0, parameter_name="PM2.5", start_time=datetime.now() - timedelta(hours=24) )
 ```
  ## 📚 Core Features ### 1. Active Inference Disease Surveillance Engine **Purpose**: disease surveillance using probabilistic reasoning and belief updating.
-```
 ```python
  from geo_infer_health.core.enhanced_disease_surveillance import ActiveInferenceDiseaseAnalyzer # Initialize Active Inference analyzer analyzer = ActiveInferenceDiseaseAnalyzer( reports=disease_reports, population_data=population_data ) # Configure Active Inference parameters analyzer.precision_parameter = 1.0 analyzer.learning_rate = 0.01 analyzer.free_energy_threshold = 0.1 # Perform analysis results = analyzer.analyze_with_active_inference(time_window_days=14) # Access probabilistic outputs beliefs = results['belief_states'] print(f"Disease activity belief: {beliefs['disease_activity']:.3f}") print(f"Transmission belief: {beliefs['transmission_rate']:.3f}") print(f"Spatial clustering belief: {beliefs['spatial_clustering']:.3f}")
 ```

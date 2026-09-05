@@ -24,12 +24,11 @@
 - `integration/`
 - `unit/`
 - `conftest.py`
-- `test_renewable_resources.py`
 
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-ENERGY/tests
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ENERGY
 ```
 
 

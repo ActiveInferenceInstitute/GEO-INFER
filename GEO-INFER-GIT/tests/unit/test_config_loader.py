@@ -266,7 +266,7 @@ class TestConvenienceFunctions:
             config = load_clone_config('/tmp/test')
 
             mock_loader_class.assert_called_once()
-            mock_loader.load_clone_config.assert_called_once_with('/tmp/test')
+            mock_loader.load_clone_config.assert_called_once_with()
             assert isinstance(config, CloneConfig)
 
     def test_load_target_repos_config_function(self):
@@ -278,7 +278,7 @@ class TestConvenienceFunctions:
             repos = load_target_repos_config('/tmp/test')
 
             mock_loader_class.assert_called_once()
-            mock_loader.load_target_repos_config.assert_called_once_with('/tmp/test')
+            mock_loader.load_target_repos_config.assert_called_once_with()
             assert repos == []
 
     def test_load_target_users_config_function(self):
@@ -290,7 +290,7 @@ class TestConvenienceFunctions:
             users = load_target_users_config('/tmp/test')
 
             mock_loader_class.assert_called_once()
-            mock_loader.load_target_users_config.assert_called_once_with('/tmp/test')
+            mock_loader.load_target_users_config.assert_called_once_with()
             assert users == []
 
 

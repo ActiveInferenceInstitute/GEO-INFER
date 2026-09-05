@@ -9,7 +9,7 @@ import logging
 import math
 from datetime import datetime
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Set, Tuple, TYPE_CHECKING, Union
+from typing import Any, Dict, List, Optional, Set, Tuple, TYPE_CHECKING
 from enum import Enum
 from collections import defaultdict
 
@@ -18,16 +18,11 @@ logger = logging.getLogger(__name__)
 if TYPE_CHECKING:
     from ..core.nested_grid import NestedH3Grid, NestedSystem
 
-try:
-    import numpy as np
-    NUMPY_AVAILABLE = True
-except ImportError:
-    NUMPY_AVAILABLE = False
-    logger.warning("NumPy not available. Some boundary detection features will be limited.")
+import numpy as np  # hard dependency (numpy<2.0 pinned); no fallback path
 
 try:
-    from scipy import ndimage
-    from scipy.spatial import ConvexHull
+    from scipy import ndimage as ndimage
+    from scipy.spatial import ConvexHull as ConvexHull
     SCIPY_AVAILABLE = True
 except ImportError:
     SCIPY_AVAILABLE = False
@@ -322,10 +317,6 @@ class BoundaryDetector:
                                        self.detection_methods['gradient_detection']['gradient_threshold'])
         value_field = kwargs.get('value_field', 'value')
         
-        if not NUMPY_AVAILABLE:
-            logger.warning("NumPy required for gradient detection")
-            return []
-        
         boundary_cells = []
         
         # Calculate gradients for cells with the specified value field
@@ -361,8 +352,6 @@ class BoundaryDetector:
         self, system: "NestedSystem", **kwargs: Any
     ) -> List[BoundarySegment]:
         """Detect boundaries based on clustering analysis."""
-        min_cluster_size = kwargs.get('min_cluster_size', 
-                                     self.detection_methods['clustering']['min_cluster_size'])
         value_field = kwargs.get('value_field', 'cluster_id')
         
         boundary_cells = []
@@ -438,10 +427,6 @@ class BoundaryDetector:
         """Detect boundaries using statistical methods."""
         value_field = kwargs.get('value_field', 'value')
         z_threshold = kwargs.get('z_threshold', 2.0)
-        
-        if not NUMPY_AVAILABLE:
-            logger.warning("NumPy required for statistical boundary detection")
-            return []
         
         # Collect values
         values = []

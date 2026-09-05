@@ -659,10 +659,6 @@ class PolicyAPI:
 
             policy = self._policies[assessment_request.policy_id]
 
-            # Convert geometry model to shapely geometry
-            spatial_extent = self._geometry_from_model(
-                assessment_request.spatial_extent
-            )
 
             # This would be a real impact assessment in a production implementation
             # For now, generate a deterministic response
@@ -743,7 +739,6 @@ class PolicyAPI:
 
             # This would query a database of assessments in a real implementation
             # For now, return a deterministic response
-            policy = self._policies[policy_id]
 
             # Deterministic assessment history
             assessments = [

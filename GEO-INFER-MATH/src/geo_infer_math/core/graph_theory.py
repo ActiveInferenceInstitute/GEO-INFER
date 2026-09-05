@@ -6,7 +6,7 @@ for analyzing spatial networks and connectivity in geospatial data.
 """
 
 import numpy as np
-from typing import Union, List, Tuple, Dict, Optional, Any, Callable, Set, cast
+from typing import List, Tuple, Dict, Optional, Any, Set
 from dataclasses import dataclass, field
 from collections import defaultdict, deque
 import logging

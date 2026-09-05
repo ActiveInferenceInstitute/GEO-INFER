@@ -14,12 +14,7 @@ Geo Infer Iot workspace within `GEO-INFER-IOT`.
 
 ## Public Interface
 
-- `__init__.py:IoTSystem` (class)
-- `__init__.py:BayesianSpatialInference` (class)
-- `__init__.py:GlobalMonitoringSystem` (class)
-- `__init__.py:MultiModalFusion` (class)
-- `__init__.py:AdaptiveSampling` (class)
-- `__init__.py:PredictiveMaintenance` (class)
+- No public Python symbols are defined directly in this directory.
 
 ## Module Metadata
 
@@ -31,18 +26,18 @@ Geo Infer Iot workspace within `GEO-INFER-IOT`.
 
 ## Dependencies
 
-- `aiocoap>=0.4.3`
 - `aiomqtt>=2.4.0`
-- `confluent-kafka>=1.8.0`
 - `fastapi>=0.100.0`
 - `folium>=0.12.0`
-- `geopandas>=0.10.0`
+- `geo-infer-bayes`
+- `geo-infer-space`
 - `h3>=4.5.0,<5`
-- `influxdb-client>=1.24.0`
 - `matplotlib>=3.5.0`
+- `networkx>=2.6`
 - `numpy>=1.20.0`
 - `paho-mqtt>=1.6.0`
 - `pandas>=1.3.0`
+- `pydantic>=2.0.0`
 
 
 ## Validation

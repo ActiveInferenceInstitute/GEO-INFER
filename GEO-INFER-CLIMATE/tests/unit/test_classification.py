@@ -3,9 +3,6 @@
 import numpy as np
 import pytest
 
-import sys
-sys.path.insert(0, "GEO-INFER-CLIMATE/src")
-
 from geo_infer_climate.core.classification import ClimateClassifier
 
 
@@ -66,7 +63,25 @@ class TestKoppenGeiger:
         assert "annual_precip_mm" in result
 
     def test_mediterranean_dry_summer(self, classifier):
+        # Strongly winter-dominant precipitation (>= 70% in the cooler
+        # half) keeps this profile above the low winter-wet aridity
+        # threshold, so it must classify as Cs, not B.
         temps = np.array([10, 11, 14, 17, 21, 26, 30, 29, 25, 20, 15, 11], dtype=float)
-        precip = np.array([80, 70, 50, 30, 15, 5, 2, 5, 20, 50, 70, 80], dtype=float)
+        precip = np.array([95, 85, 60, 30, 15, 5, 2, 5, 20, 55, 75, 90], dtype=float)
         result = classifier.koppen_geiger_classify(temps, precip)
-        assert result["main_group"] == "C" or result["code"].startswith("Cs")
+        assert result["main_group"] == "C"
+        assert result["code"].startswith("Cs")
+
+    def test_summer_wet_raises_aridity_threshold(self, classifier):
+        # Same annual total regime, opposite seasonality: summer-dominant
+        # precipitation raises the aridity threshold (+280 mm) enough to
+        # make the site arid, while winter-dominant precipitation (low
+        # threshold) keeps it humid.
+        temps = np.array([5, 5, 8, 12, 17, 22, 28, 27, 22, 15, 9, 6], dtype=float)
+        assert 11.0 <= float(np.mean(temps)) <= 25.0
+        summer_heavy = np.array([10, 10, 10, 30, 60, 80, 90, 80, 60, 30, 20, 20], dtype=float)
+        result_summer = classifier.koppen_geiger_classify(temps, summer_heavy)
+        assert result_summer["main_group"] == "B"
+        winter_heavy = np.array([120, 110, 70, 20, 10, 5, 5, 5, 10, 30, 55, 60], dtype=float)
+        result_winter = classifier.koppen_geiger_classify(temps, winter_heavy)
+        assert result_winter["main_group"] != "B"

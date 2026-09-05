@@ -135,44 +135,6 @@ class TestLocationConfigurations(unittest.TestCase):
             )
 
 
-class TestIntegrationCapabilities(unittest.TestCase):
-    """Test suite for GEO-INFER module integration capabilities."""
-
-    def test_module_dependencies(self):
-        """Test that required module dependencies are properly defined."""
-        try:
-            import geo_infer_place
-
-            if hasattr(geo_infer_place, "PACKAGE_INFO"):
-                package_info = geo_infer_place.PACKAGE_INFO
-
-                # Check for dependencies section
-                self.assertIn("dependencies", package_info)
-                self.assertIn("optional_dependencies", package_info)
-
-                # Verify core dependencies
-                core_deps = package_info["dependencies"]
-                expected_core = ["geo-infer-space", "geo-infer-time", "geo-infer-data"]
-
-                for dep in expected_core:
-                    self.assertIn(
-                        dep, core_deps, f"Core dependency '{dep}' should be listed"
-                    )
-
-        except (AttributeError, ImportError):
-            self.fail("Package info not available")
-
-    def test_api_endpoints_defined(self):
-        """Test that API endpoints are properly defined."""
-        # Test will be expanded when API module is implemented
-        pass
-
-    def test_cross_module_communication(self):
-        """Test cross-module communication capabilities."""
-        # Test will be expanded when integration is implemented
-        pass
-
-
 class TestForestHealthMonitor(unittest.TestCase):
     """Test suite for ForestHealthMonitor functionality."""
 

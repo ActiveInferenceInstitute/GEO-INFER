@@ -164,3 +164,46 @@ class TestSpatialDecisionSupport:
         assert status['system_type'] == 'spatial_decision_support'
         assert status['decision_framework'] == 'prospect_theory'
         assert status['status'] == 'active'
+
+    def test_analyze_decision_returns_result(self) -> None:
+        """Regression: analyze_decision must return the analysis dict, not None."""
+        support = SpatialDecisionSupport()
+        profile = _make_profile()
+        result = support.analyze_decision(
+            decision_problem={'description': 'site selection'},
+            spatial_alternatives=[
+                {
+                    'id': 'a1',
+                    'description': 'Site A',
+                    'spatial_context': {},
+                    'cognitive_factors': {'complexity_level': 0.4},
+                    'uncertainty_measures': {},
+                    'expected_outcomes': {},
+                    'risk_assessment': {'overall_risk': 0.3},
+                }
+            ],
+            decision_criteria=['accessibility'],
+            stakeholder_profiles=[profile],
+        )
+        assert isinstance(result, dict)
+        assert result['decision_problem'] == {'description': 'site selection'}
+        assert len(result['alternatives']) == 1
+        assert isinstance(result['recommendations'], list)
+        assert result['decision_framework'] == 'prospect_theory'
+
+    def test_analyze_decision_dispatches_declared_strategies(self) -> None:
+        """Every DecisionStrategy value with an implementation is dispatched."""
+        support = SpatialDecisionSupport()
+        profile = _make_profile()
+        kwargs = dict(
+            decision_problem={'description': 'x'},
+            spatial_alternatives=[{'id': 'a1', 'description': 'Site A', 'spatial_context': {}}],
+            decision_criteria=['cost'],
+            stakeholder_profiles=[profile],
+        )
+        for framework in ('prospect_theory', 'cognitive_weighted',
+                          'bayesian_decision', 'multi_criteria'):
+            support.decision_framework = framework
+            result = support.analyze_decision(**kwargs)
+            assert isinstance(result, dict)
+            assert result['decision_framework'] == framework

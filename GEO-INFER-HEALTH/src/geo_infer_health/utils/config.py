@@ -11,9 +11,11 @@ from pathlib import Path
 from typing import Dict, Any, Optional, Union, cast
 from functools import lru_cache
 
+import logging
 import yaml
 from pydantic import BaseModel, ValidationError, Field
-from loguru import logger
+
+logger = logging.getLogger(__name__)
 
 
 class HealthConfig(BaseModel):
@@ -206,7 +208,6 @@ def resolve_environment_variables(config: Dict[str, Any]) -> Dict[str, Any]:
 
     def resolve_value(value: Any) -> Any:
         if isinstance(value, str):
-            import re
 
             # Pattern to match ${VAR_NAME} or ${VAR_NAME:default}
             pattern = r"\$\{([^:}]+)(?::([^}]*))?\}"

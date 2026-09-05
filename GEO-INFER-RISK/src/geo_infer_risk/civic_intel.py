@@ -1,10 +1,11 @@
 """Crescent City civic-intelligence ingestion for hazard risk analysis.
 
 The parser in this module consumes the frozen ``crescent-city-geo-intel/v1``
-contract emitted by the sibling ``crescent-city-intel`` project.  The package
-ships a reviewed copy of that gold contract for deterministic offline use and
-also accepts an injected mapping or explicit local JSON path.  It performs no
-discovery, network access, or live-data fallback.
+contract emitted by the sibling ``crescent-city-intel`` project.  The
+canonical reviewed copy of that gold contract ships with GEO-INFER-BAYES and
+is resolved here through a guarded shared import (this module keeps working
+with an injected mapping or explicit local JSON path when the sibling is
+absent).  It performs no discovery, network access, or live-data fallback.
 """
 
 from __future__ import annotations
@@ -14,13 +15,29 @@ import math
 import os
 from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import Final, TypeAlias, TypedDict
+from typing import TypeAlias, TypedDict
 
+# Shared civic-intel ingestion core: the canonical contract loader and schema
+# constant live in GEO-INFER-BAYES, so every consumer resolves the SAME
+# objects and reads the ONE reviewed crescent-city-geo-intel.json copy.
+# The import is guarded: when the sibling is absent this module still imports
+# and its module-specific hazard-weight surface keeps working (cross-module
+# identity tests pin object identity when the sibling IS importable).
+try:
+    from geo_infer_bayes.civic_intel import (
+        CRESCENT_CITY_INTEL_SCHEMA,
+        load_crescent_city_contract,
+    )
+except ImportError:  # pragma: no cover - sibling-absent degradation path
+    CRESCENT_CITY_INTEL_SCHEMA = "crescent-city-geo-intel/v1"
 
-CRESCENT_CITY_GEO_INTEL_SCHEMA = "crescent-city-geo-intel/v1"
-_BUNDLED_SEED_PATH: Final[Path] = Path(__file__).with_name(
-    "crescent-city-geo-intel.json"
-)
+    def load_crescent_city_contract():
+        raise ImportError(
+            "load_crescent_city_contract requires geo-infer-bayes; the canonical"
+            " crescent-city-geo-intel.json copy ships with geo-infer-bayes"
+        )
+
+CRESCENT_CITY_GEO_INTEL_SCHEMA = CRESCENT_CITY_INTEL_SCHEMA
 
 
 class CrescentCityBounds(TypedDict):
@@ -310,10 +327,17 @@ def load_crescent_city_hazard(
 
     if isinstance(seed, Mapping):
         return parse_crescent_city_hazard(seed)
-    if seed is not None and not isinstance(seed, (str, os.PathLike)):
+    if seed is None:
+        # The reviewed package seed is the canonical bundled contract copy
+        # owned by GEO-INFER-BAYES; RISK no longer ships its own duplicate.
+        contract = load_crescent_city_contract()
+        if contract is None:
+            return _empty_hazard_intel()
+        return parse_crescent_city_hazard(contract)
+    if not isinstance(seed, (str, os.PathLike)):
         raise TypeError("seed must be a mapping, local JSON path, or None")
 
-    path = _BUNDLED_SEED_PATH if seed is None else Path(seed)
+    path = Path(seed)
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:

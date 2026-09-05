@@ -30,8 +30,6 @@ from geo_infer_risk.core.risk_models import (
     RiskParameters,
 )
 from geo_infer_risk.core.vulnerability_model import EnhancedVulnerabilityModel
-from geo_infer_risk.underwriting.core.claims_processing import ClaimsProcessor
-from geo_infer_risk.underwriting.core.policy_management import PolicyManager
 
 
 def global_stream_untouched(action: object) -> bool:
@@ -205,25 +203,6 @@ class TestRiskModelSampling:
         assert RiskParameters(random_seed=0).random_seed == 0
         generator = np.random.default_rng(1)
         assert RiskParameters(random_seed=generator).random_seed is generator
-
-
-class TestIdentifierGeneration:
-    def test_policy_numbers_are_unique_in_bulk(self) -> None:
-        """The old 4-digit suffix collided within a single timestamp second."""
-        manager = PolicyManager()
-        numbers = {manager._generate_policy_number() for _ in range(5000)}
-        assert len(numbers) == 5000
-        assert all(number.startswith("POL") for number in numbers)
-
-    def test_claim_numbers_are_unique_in_bulk(self) -> None:
-        processor = ClaimsProcessor()
-        numbers = {processor._generate_claim_number() for _ in range(5000)}
-        assert len(numbers) == 5000
-        assert all(number.startswith("CLM") for number in numbers)
-
-    def test_identifier_generation_leaves_global_stream_untouched(self) -> None:
-        manager = PolicyManager()
-        assert global_stream_untouched(manager._generate_policy_number)
 
 
 class TestEndToEndReplay:

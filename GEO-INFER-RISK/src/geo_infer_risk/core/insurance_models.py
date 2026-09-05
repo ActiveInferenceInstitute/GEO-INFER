@@ -372,7 +372,6 @@ class LiabilityInsuranceModel(InsuranceModel):
         if total_claims == 0:
             return 0.9  # No claims discount
 
-        avg_loss = total_losses / total_claims
 
         # Experience modifier based on loss ratio
         expected_loss_ratio = 0.6
@@ -510,7 +509,6 @@ class CatastropheInsuranceModel(InsuranceModel):
         """Earthquake catastrophe model."""
         # Simplified earthquake model
         lat = location.get("lat", 0)
-        lon = location.get("lon", 0)
 
         # Earthquake risk by location (simplified)
         if abs(lat) < 30:  # Tropical/subtropical regions

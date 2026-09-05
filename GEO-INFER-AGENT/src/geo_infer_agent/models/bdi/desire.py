@@ -8,7 +8,7 @@ Desires represent goals that the agent wants to achieve. This module provides:
 - Geospatial desires with location-specific goals
 """
 
-from typing import Dict, Any, List, Optional, Set, Callable, Union, Tuple
+from typing import Dict, Any, List, Optional, Tuple
 import datetime
 import logging
 from dataclasses import dataclass, field

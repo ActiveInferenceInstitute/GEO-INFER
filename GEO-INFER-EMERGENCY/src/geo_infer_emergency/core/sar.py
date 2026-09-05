@@ -6,10 +6,11 @@ search pattern generation, and team coordination.
 """
 
 import logging
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
+from .geo import haversine_distance_km
 import math
 
 logger = logging.getLogger(__name__)
@@ -93,7 +94,7 @@ class SearchAndRescue:
     def __init__(
         self,
         terrain_data: Optional[Dict[str, Any]] = None,
-        statisical_data: Optional[Dict[str, Any]] = None,
+        statistical_data: Optional[Dict[str, Any]] = None,
         team_capabilities: Optional[List[str]] = None
     ):
         """
@@ -101,11 +102,11 @@ class SearchAndRescue:
         
         Args:
             terrain_data: Terrain information
-            statisical_data: Lost person statistics
+            statistical_data: Lost person statistics
             team_capabilities: Available team capabilities
         """
         self.terrain_data = terrain_data
-        self.statistical_data = statisical_data
+        self.statistical_data = statistical_data
         self.team_capabilities = team_capabilities or ["ground", "k9", "aerial"]
         self._subjects: Dict[str, SearchSubject] = {}
         self._teams: Dict[str, SearchTeam] = {}
@@ -419,24 +420,11 @@ class SearchAndRescue:
         """Calculate total distance of pattern."""
         if len(waypoints) < 2:
             return 0
-        
-        total = 0.0
-        for i in range(1, len(waypoints)):
-            p1 = waypoints[i - 1]
-            p2 = waypoints[i]
-            
-            # Haversine distance
-            lat1, lon1 = math.radians(p1.get("lat", 0)), math.radians(p1.get("lon", 0))
-            lat2, lon2 = math.radians(p2.get("lat", 0)), math.radians(p2.get("lon", 0))
-            
-            dlat = lat2 - lat1
-            dlon = lon2 - lon1
-            
-            a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon/2)**2
-            c = 2 * math.asin(math.sqrt(a))
-            
-            total += 6371 * c  # Earth radius in km
-        
+
+        total = sum(
+            haversine_distance_km(waypoints[i - 1], waypoints[i])
+            for i in range(1, len(waypoints))
+        )
         return round(total, 2)
     
     def coordinate_teams(

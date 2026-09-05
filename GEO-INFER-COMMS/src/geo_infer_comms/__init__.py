@@ -77,7 +77,6 @@ from geo_infer_comms.models.message import (
     ParticipantStatus,
     MessageMetadata,  # noqa: F401
     EventSubscriptionRequest,
-    validate_geospatial_bounds,  # noqa: F401
 )
 
 # Spatial models
@@ -345,13 +344,20 @@ def get_communication_system(
 
 
 def configure_system(config: Dict[str, Any]) -> None:
-    """Configure the global communication system."""
+    """Configure the global communication system.
+
+    Must be called before the global system instance exists: component
+    limits are applied only at construction time, so a later call has no
+    effect beyond recording the values in ``config``. Use
+    ``get_communication_system(config)`` to create the instance with the
+    desired settings.
+    """
     global _global_system
 
     if _global_system is None:
         _global_system = GeospatialCommunicationSystem(config)
     else:
-        # Update existing system configuration
+        # Re-configuration after construction does not rebuild components.
         _global_system.config.update(config)
 
 

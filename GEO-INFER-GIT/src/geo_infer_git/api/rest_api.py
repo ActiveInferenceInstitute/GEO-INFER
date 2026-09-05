@@ -36,7 +36,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -172,85 +172,6 @@ class MergeResponse(BaseModel):
     conflicts: List[str]
 
 
-class CommitRequest(BaseModel):
-    """Request model for commit operations."""
-
-    message: str = Field(..., description="Commit message")
-    description: Optional[str] = Field(None, description="Commit description")
-    branch: Optional[str] = Field(None, description="Branch to commit to")
-    author: Optional[Dict[str, str]] = Field(None, description="Commit author info")
-    changes: List[Dict[str, Any]] = Field(..., description="File changes")
-
-
-class CommitResponse(BaseModel):
-    """Response model for commit information."""
-
-    sha: str
-    message: str
-    author: Dict[str, str]
-    committer: Dict[str, str]
-    timestamp: datetime
-    tree_sha: str
-    parent_shas: List[str]
-    files_changed: int
-    insertions: int
-    deletions: int
-    repository_id: str
-    url: str
-
-
-class WorkflowRequest(BaseModel):
-    """Request model for workflow operations."""
-
-    name: str = Field(..., description="Workflow name")
-    description: Optional[str] = Field(None, description="Workflow description")
-    type: str = Field(..., description="Workflow type")
-    repository_id: str = Field(..., description="Repository ID")
-    trigger: Dict[str, Any] = Field(..., description="Workflow trigger configuration")
-    definition: Dict[str, Any] = Field(..., description="Workflow definition")
-    enabled: bool = Field(True, description="Whether workflow is enabled")
-
-
-class WorkflowResponse(BaseModel):
-    """Response model for workflow information."""
-
-    id: str
-    name: str
-    description: Optional[str]
-    type: str
-    repository_id: str
-    status: str
-    trigger: Dict[str, Any]
-    definition: Dict[str, Any]
-    enabled: bool
-    created_at: datetime
-    updated_at: datetime
-
-
-class IntegrationRequest(BaseModel):
-    """Request model for platform integration."""
-
-    name: str = Field(..., description="Integration name")
-    platform: str = Field(..., description="Platform type")
-    endpoint: str = Field(..., description="Platform API endpoint")
-    credentials: Dict[str, Any] = Field(..., description="Authentication credentials")
-    configuration: Optional[Dict[str, Any]] = Field(
-        None, description="Integration configuration"
-    )
-
-
-class IntegrationResponse(BaseModel):
-    """Response model for integration information."""
-
-    id: str
-    name: str
-    platform: str
-    endpoint: str
-    status: str
-    last_sync: Optional[datetime]
-    repository_count: int
-    created_at: datetime
-
 
 class HealthResponse(BaseModel):
     """Response model for health checks."""
@@ -320,7 +241,15 @@ async def list_repositories(
     language: Optional[str] = None,
     manager: RepoManager = Depends(get_repo_manager),
 ) -> Dict[str, Any]:
-    """List managed repositories with optional filtering."""
+    """List managed repositories with optional filtering.
+
+    Note: status semantics are filesystem-derived — ``active`` means the
+    directory exists and contains a ``.git`` folder, ``error`` the opposite.
+    There is no persistent status tracking; repository records are
+    process-local in-memory state and are lost on restart.
+    ``platform``/``organization``/``language`` filters are accepted but not
+    applied to filesystem-backed repository discovery.
+    """
     try:
         # Get all repositories
         all_repos = manager._get_all_repo_paths()

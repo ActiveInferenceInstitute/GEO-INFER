@@ -7,7 +7,7 @@ seasonal-aware, and gap-aware interpolation strategies.
 """
 
 import logging
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any
 
 import pandas as pd
 import numpy as np

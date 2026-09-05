@@ -1,7 +1,7 @@
 """Institutional design and analysis using IAD framework and Ostrom's principles."""
 
-from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional
+from dataclasses import dataclass
+from typing import List, Dict, Any
 from enum import Enum
 import logging
 

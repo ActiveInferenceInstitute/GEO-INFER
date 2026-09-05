@@ -6,7 +6,7 @@ in the context of legal and regulatory frameworks.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any, Set
+from typing import Dict, List, Optional, Any
 import datetime
 from shapely.geometry import Point, Polygon, MultiPolygon
 import uuid

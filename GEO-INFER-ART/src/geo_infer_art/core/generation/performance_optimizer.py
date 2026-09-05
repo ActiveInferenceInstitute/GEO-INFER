@@ -6,14 +6,11 @@ import logging
 import os
 import time
 import functools
-import threading
-from typing import Dict, List, Optional, Callable, Any, Union, cast
+from typing import Dict, List, Optional, Callable, Any, cast
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import numpy as np
-import matplotlib.pyplot as plt
 
-from geo_infer_art.utils.validators import validate_resolution
 
 logger = logging.getLogger(__name__)
 
@@ -85,8 +82,8 @@ class PerformanceOptimizer:
                 json.dump(metadata, f, indent=2)
 
         except Exception:
-            # Ignore cache save errors
-            pass
+            # Cache metadata persistence is best-effort; keep serving from memory.
+            logger.warning("Failed to save cache metadata to %s", metadata_file)
 
     def _cleanup_cache(self) -> None:
         """Clean up old cache entries to maintain size limits."""
@@ -255,7 +252,7 @@ class PerformanceOptimizer:
                         progress_callback(index + 1, len(parameter_sets))
 
                 except Exception as e:
-                    print(f"Error in parallel execution {index}: {str(e)}")
+                    logger.error("Error in parallel execution %d: %s", index, e)
                     results[index] = None
 
         return results
@@ -290,7 +287,7 @@ class PerformanceOptimizer:
                 end_time = time.time()
                 times.append(end_time - start_time)
             except Exception as e:
-                print(f"Benchmark iteration failed: {str(e)}")
+                logger.warning("Benchmark iteration failed: %s", e)
                 continue
 
         if not times:

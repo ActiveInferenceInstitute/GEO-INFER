@@ -1,0 +1,6 @@
+# Generated HTML dashboard outputs (~35 files committed from earlier runs)
+test_output/
+reports/
+__pycache__/
+*.pyc
+.pytest_cache/

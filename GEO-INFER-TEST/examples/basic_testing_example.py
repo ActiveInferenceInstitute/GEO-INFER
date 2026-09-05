@@ -9,21 +9,18 @@ This example shows how to:
 4. Monitor module health and performance
 """
 
-import sys
 import time
 from pathlib import Path
 
-# Add the GEO-INFER-TEST module to the path
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+import numpy as np
 
-try:
-    from geo_infer_test import GeoInferTestRunner, TestConfiguration
-    from geo_infer_test.core import LogIntegration, LoggingTestReporter
-    from geo_infer_test.utils import TestHelpers
-except ImportError as e:
-    print(f"Error importing GEO-INFER-TEST modules: {e}")
-    print("Please ensure GEO-INFER-TEST is properly installed")
-    sys.exit(1)
+from geo_infer_test import GeoInferTestRunner, TestConfiguration
+from geo_infer_test.core import (
+    LogAnalyzer,
+    LogIntegration,
+    LoggingTestReporter,
+    TestLogger,
+)
 
 
 def main():
@@ -61,8 +58,10 @@ def main():
     
     # 3. Initialize test runner
     print("\n3. Initializing test runner...")
+    # Constructor injection: the runner uses the supplied integration
+    # instead of building its own.
+    config.log_integration = log_integration
     runner = GeoInferTestRunner(config)
-    runner.log_integration = log_integration
     
     # 4. Discover available tests
     print("\n4. Discovering tests...")
@@ -81,7 +80,7 @@ def main():
         time.sleep(0.5)  # Simulate test work
         
         # Log some performance metrics
-        test_logger = log_integration.TestLogger(log_integration)
+        test_logger = TestLogger(log_integration)
         test_logger.log_performance_metrics("demo_001", {
             'execution_time': 0.5,
             'memory_usage_mb': 125.3,
@@ -94,8 +93,9 @@ def main():
     print("\n6. Running simulated tests...")
     start_time = time.time()
     
-    # Simulate test execution with LOG integration
-    test_results = []
+    # Simulate test execution with LOG integration. A seeded RNG keeps the
+    # demo deterministic (salted ``hash(str)`` differs on every run).
+    rng = np.random.default_rng(42)
     
     for module in ['SPACE', 'TIME']:
         for test_type in ['unit']:
@@ -103,14 +103,14 @@ def main():
             
             with log_integration.test_context(test_id, module, f"{test_type}_test"):
                 # Simulate test execution
-                execution_time = 0.1 + (hash(test_id) % 1000) / 10000
+                execution_time = 0.1 + rng.uniform(0, 0.1)
                 time.sleep(execution_time)
                 
-                # Simulate occasional failures
-                success = hash(test_id) % 10 != 0  # 90% success rate
+                # Simulate occasional failures (90% success rate)
+                success = rng.random() < 0.9
                 
                 if not success:
-                    raise Exception("Simulated test failure")
+                    raise RuntimeError("Simulated test failure")
                 
                 print(f"   ✅ {test_id} passed ({execution_time:.3f}s)")
     
@@ -127,8 +127,6 @@ def main():
     
     # 8. Analyze test patterns
     print("\n8. Analyzing test patterns...")
-    from geo_infer_test.core.log_integration import LogAnalyzer
-    
     analyzer = LogAnalyzer(log_integration)
     analysis = analyzer.analyze_test_patterns()
     
@@ -199,8 +197,8 @@ def demo_health_monitoring():
     modules = ['SPACE', 'TIME', 'AI', 'DATA', 'API']
     
     for module in modules:
-        # Simulate health check
-        response_time = 0.05 + (hash(module) % 100) / 1000
+        # Simulate health check (deterministic from the module name)
+        response_time = 0.05 + (int.from_bytes(module.encode(), "little") % 100) / 1000
         is_healthy = response_time < 0.1
         
         status = "✅ Healthy" if is_healthy else "⚠️  Slow"

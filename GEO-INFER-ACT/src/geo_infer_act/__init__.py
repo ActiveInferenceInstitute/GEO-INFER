@@ -39,7 +39,18 @@ from .core.civic_intel import (
 from .core.variational_inference import VariationalInference
 from .core.dynamic_causal_model import DynamicCausalModel
 from .core.spatial_agent import SpatialActiveInferenceAgent
-from .models.climate import ClimateModel
+from .core.markov_decision_process import MarkovDecisionProcess
+from .models import (
+    BaseActiveInferenceModel,
+    CategoricalModel,
+    ClimateModel,
+    ContinuousPOMDPActiveInference,
+    EcologicalModel,
+    GaussianModel,
+    MultiAgentModel,
+    ResourceModel,
+    UrbanModel,
+)
 from .utils.integration import IntegrationUtils
 
 __all__ = [
@@ -71,4 +82,13 @@ __all__ = [
     "SpatialActiveInferenceAgent",
     "ClimateModel",
     "IntegrationUtils",
+    "MarkovDecisionProcess",
+    "BaseActiveInferenceModel",
+    "CategoricalModel",
+    "GaussianModel",
+    "EcologicalModel",
+    "UrbanModel",
+    "ResourceModel",
+    "MultiAgentModel",
+    "ContinuousPOMDPActiveInference",
 ]

@@ -9,7 +9,7 @@ This gallery covers every example shipped in the `GEO-INFER-EXAMPLES` module, or
 | [Beginner Examples](#beginner-30-minutes) | Getting started, basic integration |
 | [Intermediate Examples](#intermediate-30-90-minutes) | Domain integrations, multi-module workflows |
 | [Advanced Examples](#advanced-90-minutes) | Full pipelines, orchestrators, dashboards |
-| [Module Orchestrators](#module-orchestrators) | Per-module orchestrator scripts for all 44 modules |
+| [Module Orchestrators](#module-orchestrators) | Per-module orchestrator scripts for all 45 modules |
 | [Examples by Module](#examples-by-module) | Cross-reference table of modules to examples |
 | [Contributing Examples](#contributing-examples) | How to add a new example |
 ---
@@ -147,7 +147,7 @@ uv run python GEO-INFER-EXAMPLES/examples/area_study/scripts/run_example.py
 ```
 ---
 ## Module Orchestrators
-Each of the 44 GEO-INFER modules has a dedicated orchestrator example under `examples/module_orchestrators/<MODULE>/`. These demonstrate the standalone capabilities of each module through a standardized script interface.
+Each of the 45 GEO-INFER modules has a dedicated orchestrator example under `examples/module_orchestrators/<MODULE>/`. These demonstrate the standalone capabilities of each module through a standardized script interface.
 ### Running an Orchestrator ```
 ```bash
 # General pattern
@@ -174,6 +174,7 @@ uv run python GEO-INFER-EXAMPLES/examples/module_orchestrators/<MODULE>/scripts/
 | ECON | `module_orchestrators/ECON/` | Economics |
 | GIT | `module_orchestrators/GIT/` | Version Control |
 | HEALTH | `module_orchestrators/HEALTH/` | Health Analytics |
+| INSURANCE | `module_orchestrators/INSURANCE/` | Insurance Operations |
 | INTRA | `module_orchestrators/INTRA/` | Internal Documentation |
 | IOT | `module_orchestrators/IOT/` | IoT Sensors |
 | LOG | `module_orchestrators/LOG/` | Logistics |
@@ -207,6 +208,7 @@ Cross-reference of which examples use each module.
 | BAYES | Health Surveillance, Climate Microbiome |
 | RISK | IoT Radiation, Area Study |
 | CLIMATE | Climate Microbiome |
+| INSURANCE | Insurance Operations Orchestrator (`examples/module_orchestrators/INSURANCE/`) |
 | BIO | Climate Microbiome, Area Study |
 | PLACE | Area Study |
 | PEP | Area Study |

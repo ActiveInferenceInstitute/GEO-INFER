@@ -27,8 +27,11 @@
 - `test_audit_logging.py`
 - `test_authentication.py`
 - `test_authorization.py`
+- `test_digital_indicators.py`
 - `test_encryption.py`
+- `test_geospatial_utils.py`
 - `test_input_validation.py`
+- `test_security_api.py`
 - `test_token_lifecycle.py`
 
 ## Validation

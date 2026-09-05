@@ -2,10 +2,10 @@
 Utility functions for working with GeoJSON data.
 """
 import math
-from typing import Any, Dict, List, Optional, Tuple, Union, cast
+from typing import Dict, List, Optional, Tuple, Union, cast
 
 from geo_infer_api.models.geojson import (
-    Feature, FeatureCollection, GeoJSONType, Polygon, PolygonFeature
+    GeoJSONType, Polygon, PolygonFeature
 )
 
 
@@ -94,25 +94,29 @@ def polygon_contains_point(polygon: Union[Polygon, Dict], point: Tuple[float, fl
     n = len(exterior_ring)
     inside = False
 
-    p1x, p1y = exterior_ring[0]
-    for i in range(1, n):
-        p2x, p2y = exterior_ring[i]
-        if y > min(p1y, p2y) and y <= max(p1y, p2y) and x <= max(p1x, p2x):
-            if p1y != p2y:
-                xinters = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
-            if p1x == p2x or x <= xinters:
+    x, y = point
+    n = len(exterior_ring)
+    inside = False
+    j = n - 1
+    for i in range(n):
+        p1x, p1y = exterior_ring[i]
+        p2x, p2y = exterior_ring[j]
+        # Standard PNPOLY half-open test; horizontal edges never toggle.
+        if (p1y > y) != (p2y > y):
+            xinters = (p2x - p1x) * (y - p1y) / (p2y - p1y) + p1x
+            if x < xinters:
                 inside = not inside
-        p1x, p1y = p2x, p2y
+        j = i
 
     return inside
 
 
-def simplify_polygon(polygon: Polygon, tolerance: float = 0.01) -> Polygon:
+def simplify_polygon(polygon: Union[Polygon, Dict], tolerance: float = 0.01) -> Polygon:
     """
     Simplify a polygon using the Ramer-Douglas-Peucker algorithm.
 
     Args:
-        polygon: A GeoJSON Polygon object
+        polygon: A GeoJSON Polygon object or dict
         tolerance: The simplification tolerance
 
     Returns:
@@ -150,9 +154,9 @@ def simplify_polygon(polygon: Polygon, tolerance: float = 0.01) -> Polygon:
         slope = (y2 - y1) / (x2 - x1)
         intercept = y1 - slope * x1
         return float(abs(slope * x - y + intercept) / ((slope ** 2 + 1) ** 0.5))
-
+    rings = polygon.coordinates if isinstance(polygon, Polygon) else polygon["coordinates"]
     simplified_rings = []
-    for ring in polygon.coordinates:
+    for ring in rings:
         simplified_ring = rdp(ring[:-1], tolerance)
 
         if len(simplified_ring) < 3:

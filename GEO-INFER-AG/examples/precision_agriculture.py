@@ -1,226 +1,100 @@
-#!/usr/bin/env python3
 """
 GEO-INFER-AG Example: Precision Agriculture Analysis
 
-This example demonstrates precision agriculture workflows including
-soil analysis, crop yield prediction, and sustainable farming practices.
+Demonstrates the model layer of GEO-INFER-AG on a small synthetic farm:
+- Soil health scoring (SoilHealthModel, index-based)
+- Crop water requirements (WaterUsageModel, FAO-56 reference-ET approach)
+- Carbon sequestration (CarbonSequestrationModel, IPCC Tier 1)
 """
 
 import numpy as np
+import pandas as pd
+import geopandas as gpd
+from shapely.geometry import Polygon
 
-from geo_infer_ag import (
-    SoilAnalyzer,
-    CropYieldPredictor,
-    SustainabilityAnalyzer,
-    SeasonalAnalyzer,
-    IrrigationOptimizer
-)
+from geo_infer_ag.models.carbon_sequestration import CarbonSequestrationModel
+from geo_infer_ag.models.soil_health import SoilHealthModel
+from geo_infer_ag.models.water_usage import WaterUsageModel
 
 
-def main():
+def make_farm_data():
+    """Create synthetic field, soil, and weather data for two fields."""
+    fields = gpd.GeoDataFrame(
+        {
+            "field_id": ["F1", "F2"],
+            "crop_type": ["corn", "wheat"],
+            "area_ha": [12.0, 10.5],
+        },
+        geometry=[
+            Polygon([(0, 0), (0, 300), (400, 300), (400, 0)]),
+            Polygon([(0, -300), (0, 0), (350, 0), (350, -300)]),
+        ],
+        crs="EPSG:32610",
+    )
+
+    soil_data = pd.DataFrame(
+        {
+            "field_id": ["F1", "F2"],
+            "organic_matter": [3.2, 2.1],      # %
+            "ph": [6.5, 5.9],
+            "bulk_density": [1.2, 1.5],        # g/cm3
+            "clay": [28.0, 18.0],              # %
+        }
+    )
+
+    dates = pd.date_range("2024-06-01", periods=30, freq="D")
+    rng = np.random.default_rng(7)
+    weather_data = pd.DataFrame(
+        {
+            "temperature": 22 + 4 * np.sin(2 * np.pi * np.arange(30) / 30) + rng.normal(0, 1, 30),
+            "solar_radiation": np.clip(22 + rng.normal(0, 3, 30), 5, 35),  # MJ/m2/day
+            "humidity": np.clip(65 + rng.normal(0, 8, 30), 20, 100),       # %
+            "wind_speed": np.clip(2.0 + rng.normal(0, 0.6, 30), 0.2, 8),   # m/s
+            "precipitation": np.clip(rng.exponential(1.5, 30), 0, 20),     # mm/day
+        },
+        index=dates,
+    )
+    return fields, soil_data, weather_data
+
+
+def main() -> None:
+    """Run the precision agriculture example."""
     print("=" * 60)
     print("GEO-INFER-AG: Precision Agriculture Analysis")
     print("=" * 60)
-    
-    # 1. Define Farm Data
-    print("\n1. Setting Up Farm Analysis...")
-    
-    farm = {
-        'name': 'Green Valley Farm',
-        'location': {'lat': 38.5, 'lon': -121.5},
-        'area_hectares': 500,
-        'fields': 12,
-        'primary_crop': 'wheat',
-        'secondary_crops': ['corn', 'soybeans']
-    }
-    
-    print(f"   Farm: {farm['name']}")
-    print(f"   Area: {farm['area_hectares']} hectares")
-    print(f"   Fields: {farm['fields']}")
-    
-    # 2. Soil Analysis
-    print("\n2. Performing Soil Analysis...")
-    
-    soil_analyzer = SoilAnalyzer(
-        analysis_methods=['spectral', 'chemical'],
-        depth_intervals=[0, 30, 60, 100]  # cm
-    )
-    
-    # Sample soil data for multiple fields
-    soil_samples = [
-        {
-            'field_id': f'F{i+1}',
-            'ph': np.random.uniform(6.0, 7.5),
-            'nitrogen_ppm': np.random.uniform(20, 80),
-            'phosphorus_ppm': np.random.uniform(15, 50),
-            'potassium_ppm': np.random.uniform(100, 300),
-            'organic_matter_pct': np.random.uniform(2, 6),
-            'moisture_pct': np.random.uniform(15, 35)
-        }
-        for i in range(farm['fields'])
-    ]
-    
-    # Analyze each field
-    soil_analysis = soil_analyzer.analyze_batch(soil_samples)
-    
-    print("   Field Soil Health Summary:")
-    for i, analysis in enumerate(soil_analysis[:3]):
-        print(f"   - Field {i+1}: pH={analysis['ph']:.1f}, "
-              f"N={analysis['nitrogen_ppm']:.0f}ppm, "
-              f"Health Score={analysis.get('health_score', 75):.0f}/100")
-    
-    # Overall soil health
-    avg_health = np.mean([a.get('health_score', 75) for a in soil_analysis])
-    print(f"   Average soil health: {avg_health:.1f}/100")
-    
-    # 3. Crop Yield Prediction
-    print("\n3. Predicting Crop Yields...")
-    
-    predictor = CropYieldPredictor(
-        model_type='ensemble',
-        climate_integration=True
-    )
-    
-    # Weather forecast for growing season
-    weather_forecast = {
-        'avg_temperature': 22.5,
-        'total_precipitation_mm': 450,
-        'growing_degree_days': 2800,
-        'frost_risk': 0.1
-    }
-    
-    yield_predictions = predictor.predict(
-        crop='wheat',
-        soil_data=soil_analysis,
-        weather=weather_forecast,
-        management_practices={
-            'fertilization': 'optimal',
-            'pest_control': 'integrated',
-            'irrigation': 'scheduled'
-        }
-    )
-    
-    print(f"   Predicted yield: {yield_predictions['yield_tonnes_per_ha']:.2f} t/ha")
-    print(f"   Confidence interval: ±{yield_predictions['uncertainty_tonnes']:.2f} t/ha")
-    print(f"   Total expected: {yield_predictions['total_tonnes']:.0f} tonnes")
-    print(f"   Yield factors:")
-    for factor, impact in yield_predictions.get('factor_impacts', {}).items():
-        print(f"   - {factor}: {impact:+.1f}%")
-    
-    # 4. Seasonal Analysis
-    print("\n4. Analyzing Seasonal Patterns...")
-    
-    seasonal = SeasonalAnalyzer(
-        crop_type='wheat',
-        climate_zone='mediterranean'
-    )
-    
-    phenology = seasonal.analyze_phenology(
-        planting_date='2024-10-15',
-        weather_data=weather_forecast,
-        soil_conditions={'moisture': 'adequate', 'temperature': 'optimal'}
-    )
-    
-    print("   Phenological Stages:")
-    for stage, date in phenology.get('stages', {}).items():
-        print(f"   - {stage.replace('_', ' ').title()}: {date}")
-    
-    print(f"   Growing season length: {phenology.get('season_length_days', 0)} days")
-    
-    # 5. Sustainability Assessment
-    print("\n5. Assessing Sustainability...")
-    
-    sustainability = SustainabilityAnalyzer(
-        assessment_framework='global_gap',
-        metrics=['carbon', 'water', 'biodiversity', 'soil']
-    )
-    
-    sustainability_report = sustainability.assess(
-        farm_data=farm,
-        practices={
-            'cover_crops': True,
-            'crop_rotation': '3_year',
-            'tillage': 'reduced',
-            'pesticide_use': 'minimal',
-            'organic_amendments': True,
-            'renewable_energy': 0.3  # 30% renewable
-        },
-        inputs={
-            'fertilizer_kg_per_ha': 120,
-            'pesticide_applications': 2,
-            'diesel_liters_per_ha': 50,
-            'electricity_kwh_per_ha': 100
-        }
-    )
-    
-    print(f"   Overall sustainability score: {sustainability_report['overall_score']:.0f}/100")
-    print("   Category scores:")
-    for category, score in sustainability_report.get('category_scores', {}).items():
-        print(f"   - {category.title()}: {score:.0f}/100")
-    
-    print(f"\n   Carbon footprint: {sustainability_report.get('carbon_footprint_kg_co2_per_ha', 0):.0f} kg CO2/ha")
-    print(f"   Water efficiency: {sustainability_report.get('water_efficiency', 0):.1%}")
-    
-    # 6. Irrigation Optimization
-    print("\n6. Optimizing Irrigation...")
-    
-    irrigation = IrrigationOptimizer(
-        method='deficit_irrigation',
-        sensor_integration=True
-    )
-    
-    irrigation_schedule = irrigation.optimize(
-        crop='wheat',
-        growth_stage='grain_fill',
-        soil_moisture_pct=22,
-        forecast_precipitation_mm=5,
-        evapotranspiration_mm_day=5.5,
-        water_availability='adequate'
-    )
-    
-    print(f"   Recommended irrigation: {irrigation_schedule['recommended_mm']:.0f} mm")
-    print(f"   Timing: {irrigation_schedule['timing']}")
-    print(f"   Water savings vs. standard: {irrigation_schedule['savings_pct']:.1f}%")
-    print(f"   Efficiency rating: {irrigation_schedule['efficiency']}")
-    
-    # 7. Generate Recommendations
-    print("\n7. Management Recommendations...")
-    
-    recommendations = []
-    
-    # Soil-based recommendations
-    if avg_health < 70:
-        recommendations.append("Increase organic matter through cover cropping")
-    
-    # Yield optimization
-    if yield_predictions['yield_tonnes_per_ha'] < 4.5:
-        recommendations.append("Consider optimizing fertilizer timing for higher yields")
-    
-    # Sustainability improvements
-    if sustainability_report['overall_score'] < 80:
-        recommendations.append("Transition to reduced tillage for improved carbon sequestration")
-    
-    # Default recommendations
-    recommendations.extend([
-        "Monitor soil moisture sensors for precision irrigation",
-        "Implement variable rate fertilization based on soil maps",
-        "Consider beneficial insect habitat strips for pest control"
-    ])
-    
-    print("   Key Recommendations:")
-    for i, rec in enumerate(recommendations[:5], 1):
-        print(f"   {i}. {rec}")
-    
-    print("\n" + "=" * 60)
-    print("Precision Agriculture Analysis Complete!")
-    print("=" * 60)
-    
-    # Summary
-    print("\nFarm Summary:")
-    print(f"  - Predicted yield: {yield_predictions['yield_tonnes_per_ha']:.2f} t/ha")
-    print(f"  - Soil health: {avg_health:.0f}/100")
-    print(f"  - Sustainability: {sustainability_report['overall_score']:.0f}/100")
-    print(f"  - Water savings potential: {irrigation_schedule['savings_pct']:.0f}%")
+
+    fields, soil_data, weather_data = make_farm_data()
+
+    # Soil health: weighted index of soil indicators
+    print("\n[1] Soil health (index-based model)")
+    soil_model = SoilHealthModel(model_type="index_based")
+    soil_result = soil_model.predict({"field_data": fields, "soil_data": soil_data})
+    for indicator, scores in soil_result["indicator_scores"].items():
+        values = np.atleast_1d(np.asarray(scores, dtype=float))
+        print(f"  {indicator:24s} mean score {values.mean():5.2f} / 10")
+    overall = soil_result["summary"]["mean_soil_health_index"]
+    print(f"  Overall soil health: {overall:.2f} / 10")
+
+    # Water usage: FAO-56 style reference-ET approach
+    print("\n[2] Crop water requirement (reference-ET model)")
+    water_model = WaterUsageModel(crop_type="corn", model_type="reference_et")
+    water_result = water_model.predict({"field_data": fields, "weather_data": weather_data})
+    print(f"  Seasonal water requirement:      "
+          f"{water_result['summary']['mean_water_requirement_mm']:.0f} mm/ha")
+    print(f"  Seasonal irrigation requirement: "
+          f"{water_result['summary']['mean_irrigation_requirement_mm']:.0f} mm/ha")
+    print(f"  Total irrigation volume:         "
+          f"{water_result['summary']['total_irrigation_requirement_m3']:.0f} m3")
+
+    # Carbon sequestration: IPCC Tier 1 defaults
+    print("\n[3] Carbon sequestration (Tier 1 model)")
+    carbon_model = CarbonSequestrationModel(model_type="tier1", time_horizon=20)
+    carbon_result = carbon_model.predict({"field_data": fields})
+    for key in ("total_soil_carbon_annual", "total_biomass_carbon_annual",
+                "total_annual_sequestration", "total_co2e_sequestration"):
+        print(f"  {key}: {carbon_result['summary'][key]:.2f} t/yr")
+
+    print("\nExample complete.")
 
 
 if __name__ == "__main__":

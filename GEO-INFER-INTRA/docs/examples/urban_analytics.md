@@ -33,7 +33,6 @@ Population density is the foundation of urban risk analysis. This section create
 
 ### Creating the Analysis Grid
 
-```
 ```python
 import numpy as np
 import pandas as pd
@@ -96,7 +95,6 @@ print(f"Mean cell area: {area_m2:.0f} m^2 ({area_m2 / 10000:.2f} ha)")
 
 Dasymetric mapping distributes coarse census population counts to fine H3 cells using land use as an ancillary variable. Built-up areas receive more population; parks and water receive less.
 
-```
 ```python
 def generate_census_tracts(
     city_grid: gpd.GeoDataFrame,
@@ -219,7 +217,6 @@ print(f"Max density: {pop_grid['pop_density_km2'].max():.0f} people/km^2")
 
 ### Choropleth Visualization
 
-```
 ```python
 import matplotlib.pyplot as plt
 
@@ -246,7 +243,6 @@ Exposure quantifies how much is at risk. This section loads infrastructure layer
 
 ### Generating Infrastructure Data
 
-```
 ```python
 def generate_infrastructure_layers(
     city_grid: gpd.GeoDataFrame,
@@ -306,7 +302,6 @@ print(f"Critical infrastructure nodes: {infra['utilities']['has_critical_infra']
 
 ### Computing Exposure Scores
 
-```
 ```python
 from geo_infer_risk.core.exposure_model import ExposureModel
 
@@ -372,7 +367,6 @@ Risk is the product of hazard, exposure, and vulnerability. This section combine
 
 ### Generating Hazard Layers
 
-```
 ```python
 def generate_hazard_layers(
     city_grid: gpd.GeoDataFrame,
@@ -427,7 +421,6 @@ for name, arr in hazards.items():
 
 ### Composite Risk Computation
 
-```
 ```python
 from geo_infer_risk.core.risk_engine import RiskEngine
 
@@ -492,7 +485,6 @@ print(f"High-risk cells (top 10%): {len(high_risk)} "
 
 ### Risk Map Visualization
 
-```
 ```python
 fig, axes = plt.subplots(2, 2, figsize=(14, 14))
 
@@ -520,7 +512,6 @@ Civic participation data reveals which communities are organized and can advocat
 
 ### Generating Civic Participation Data
 
-```
 ```python
 def generate_civic_data(
     city_grid: gpd.GeoDataFrame,
@@ -594,7 +585,6 @@ print(f"Mean civic engagement index: {civic_grid['civic_engagement_index'].mean(
 
 ### Identifying Underserved High-Risk Areas
 
-```
 ```python
 def identify_underserved_zones(
     risk_civic_grid: gpd.GeoDataFrame,
@@ -640,7 +630,6 @@ print(f"Population in these zones: {underserved['population'].sum():.0f}")
 
 ### Civic-Risk Overlay Visualization
 
-```
 ```python
 fig, axes = plt.subplots(1, 3, figsize=(18, 6))
 
@@ -680,7 +669,6 @@ plt.savefig("civic_risk_overlay.png", dpi=150)
 
 ## Full Pipeline Integration
 
-```
 ```python
 from typing import Dict, Any
 

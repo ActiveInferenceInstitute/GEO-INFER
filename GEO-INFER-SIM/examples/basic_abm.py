@@ -14,15 +14,14 @@ def main() -> None:
     print("GEO-INFER-SIM: Basic Agent-Based Model Example")
     print("=" * 50)
 
-    # Create ABM
+    # Create agents with a dedicated Generator (deterministic, no global
+    # NumPy seeding — see the module's isolated-Generator RNG pattern).
+    rng = np.random.default_rng(42)
     abm = AgentBasedModel()
-
-    # Create agents
-    np.random.seed(42)
     for i in range(10):
         agent = Agent(
             agent_id=f"agent_{i}",
-            position=np.random.randn(2) * 10,  # Random positions
+            position=rng.normal(0.0, 10.0, size=2),  # Random positions
             properties={"type": "mobile", "energy": 100.0},
         )
         abm.add_agent(agent)

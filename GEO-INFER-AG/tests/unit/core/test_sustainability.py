@@ -351,3 +351,49 @@ class TestSustainabilityAssessment:
         # Test with invalid metric type
         with pytest.raises(ValueError):
             sa.plot_sustainability_metrics(metric_type='invalid_metric') 
+    def test_assess_carbon_sequestration_without_crop_column(self, sample_field_data):
+        """Carbon assessment must not raise KeyError when crop column is absent."""
+        fields = sample_field_data.drop(columns=["crop_type"])
+        sa = SustainabilityAssessment(field_data=fields)
+
+        metrics = sa.assess_carbon_sequestration()
+
+        # Default carbon rate (1.0) applied to all fields
+        assert "carbon_rate" in metrics["field_data"].columns
+        assert (metrics["field_data"]["carbon_rate"] == 1.0).all()
+        assert metrics["total_carbon_sequestration"] > 0
+        # By-crop breakdown is only meaningful when the column exists
+        assert "carbon_sequestration_by_crop" not in metrics
+
+    def test_assess_water_usage_without_crop_column(self, sample_field_data):
+        """Water assessment must not raise KeyError when crop column is absent."""
+        fields = sample_field_data.drop(columns=["crop_type"])
+        sa = SustainabilityAssessment(field_data=fields)
+
+        metrics = sa.assess_water_usage()
+
+        # Default water requirement (500 mm) applied to all fields
+        assert (metrics["field_data"]["water_requirement_mm"] == 500).all()
+        assert metrics["total_water_requirement"] > 0
+        assert "water_requirement_by_crop" not in metrics
+
+    def test_biodiversity_distance_to_protected_areas_is_metric(
+        self, sample_field_data
+    ):
+        """Distances to protected areas must be meters, not degrees."""
+        # Protected area 1 degree east of the first field (~111 km at the equator)
+        from shapely.geometry import box
+
+        protected_areas = gpd.GeoDataFrame(
+            {"name": ["reserve_1"]},
+            geometry=[box(45.0, 0.0, 46.0, 1.0)],
+            crs="EPSG:4326",
+        )
+        sa = SustainabilityAssessment(field_data=sample_field_data)
+
+        metrics = sa.assess_biodiversity(protected_areas=protected_areas)
+
+        # Nearest field corner is (40, 10); distance to the reserve is on the
+        # order of 1,000 km. A value near 10 would indicate degrees were used.
+        min_distance = metrics["min_distance_to_protected_m"]
+        assert min_distance > 100000.0

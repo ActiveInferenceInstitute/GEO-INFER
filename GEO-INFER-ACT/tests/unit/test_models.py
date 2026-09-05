@@ -1,12 +1,25 @@
 import unittest
 import numpy as np
-from geo_infer_act.models.base import ActiveInferenceModel, CategoricalModel, GaussianModel
+from geo_infer_act.models.base import (
+    BaseActiveInferenceModel,
+    CategoricalModel,
+    GaussianModel,
+)
 from geo_infer_act.models.urban import UrbanModel
 from geo_infer_act.models.climate import ClimateModel
 from geo_infer_act.models.ecological import EcologicalModel
 from geo_infer_act.models.multi_agent import MultiAgentModel
 from geo_infer_act.models.resource import ResourceModel
 # Add imports for other models like EcologicalModel, etc.
+
+class TestBaseModelContract(unittest.TestCase):
+    """Tests for the abstract base model contract."""
+
+    def test_base_step_returns_config(self):
+        """Base step returns the configuration copy (concrete subclasses override)."""
+        base = BaseActiveInferenceModel({"purpose": "test"})
+        self.assertEqual(base.step(), {"purpose": "test"})
+
 
 class TestCategoricalModel(unittest.TestCase):
     """Tests for CategoricalModel."""

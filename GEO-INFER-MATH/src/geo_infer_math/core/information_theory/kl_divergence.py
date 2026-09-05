@@ -6,7 +6,7 @@ divergence measures for comparing spatial distributions.
 """
 
 import numpy as np
-from typing import Union, Optional, Tuple, Dict, Any
+from typing import Union, Optional, Tuple, Any
 import logging
 
 logger = logging.getLogger(__name__)

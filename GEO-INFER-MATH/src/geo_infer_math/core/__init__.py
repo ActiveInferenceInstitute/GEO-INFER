@@ -14,15 +14,15 @@ from geo_infer_math.core.geometry import *
 # Import newly implemented modules
 try:
     from geo_infer_math.core.numerical_methods import (
-        InterpolationResult,
-        OptimizationResult,
-        ODEsolution,
-        SpatialOptimizer,
-        ODESolver,
-        PDEsolver,
-        numerical_integration,
-        find_root,
-        minimize_scalar_function,
+        InterpolationResult as InterpolationResult,
+        OptimizationResult as OptimizationResult,
+        ODEsolution as ODEsolution,
+        SpatialOptimizer as SpatialOptimizer,
+        ODESolver as ODESolver,
+        PDEsolver as PDEsolver,
+        numerical_integration as numerical_integration,
+        find_root as find_root,
+        minimize_scalar_function as minimize_scalar_function,
     )
     _numerical_methods_available = True
 except ImportError:
@@ -66,17 +66,17 @@ except ImportError:
 
 try:
     from geo_infer_math.core.information_theory import (
-        shannon_entropy,
-        renyi_entropy,
-        tsallis_entropy,
-        spatial_entropy as info_spatial_entropy,
-        mutual_information,
-        kl_divergence,
-        conditional_entropy,
-        joint_entropy,
-        EntropyCalculator,
-        MutualInformationCalculator,
-        KLDivergenceCalculator,
+        shannon_entropy as shannon_entropy,
+        renyi_entropy as renyi_entropy,
+        tsallis_entropy as tsallis_entropy,
+        spatial_entropy as info_spatial_entropy,  # noqa: F401 -- legacy renamed re-export; redundant alias would shadow spatial_statistics.spatial_entropy
+        mutual_information as mutual_information,
+        kl_divergence as kl_divergence,
+        conditional_entropy as conditional_entropy,
+        joint_entropy as joint_entropy,
+        EntropyCalculator as EntropyCalculator,
+        MutualInformationCalculator as MutualInformationCalculator,
+        KLDivergenceCalculator as KLDivergenceCalculator,
     )
     _information_theory_available = True
 except ImportError:

@@ -6,6 +6,9 @@ Utils workspace within `GEO-INFER-INTRA`.
 
 - `__init__.py`
 - `config.py`
+- `geospatial_utils.py`
+- `module_discovery.py`
+- `time_series_utils.py`
 - `visual_preview.py`
 
 ## Public Interface
@@ -17,6 +20,19 @@ Utils workspace within `GEO-INFER-INTRA`.
 - `config.py:merge_configs` (function)
 - `config.py:get_default_config_path` (function)
 - `config.py:load_default_config` (function)
+- `geospatial_utils.py:create_point` (function)
+- `geospatial_utils.py:create_bbox` (function)
+- `geospatial_utils.py:create_polygon` (function)
+- `geospatial_utils.py:create_feature` (function)
+- `geospatial_utils.py:create_feature_collection` (function)
+- `geospatial_utils.py:is_valid_geojson` (function)
+- `geospatial_utils.py:load_geojson_file` (function)
+- `geospatial_utils.py:save_geojson_file` (function)
+- `geospatial_utils.py:haversine_distance` (function)
+- `geospatial_utils.py:create_sample_h3_data` (function)
+- `module_discovery.py:collect_test_modules` (function)
+- `module_discovery.py:import_module_by_path` (function)
+- `module_discovery.py:find_modules_by_name` (function)
 
 ## Module Metadata
 
@@ -28,18 +44,10 @@ Utils workspace within `GEO-INFER-INTRA`.
 
 ## Dependencies
 
-- `fastapi>=0.100.0`
 - `h3>=4.5.0,<5`
-- `pydantic>=2.0.0`
-- `sqlalchemy>=2.0.0`
-- `elasticsearch>=8.0.0`
-- `rdflib>=6.0.0`
-- `mkdocs>=1.4.0`
-- `celery>=5.2.0`
-- `pyyaml>=6.0`
 - `jsonschema>=4.0.0`
-- `typer>=0.7.0`
-- `rich>=12.0.0`
+- `Pillow>=10.0`
+- `pyyaml>=6.0`
 
 
 ## Validation

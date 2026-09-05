@@ -9,6 +9,8 @@ Unit workspace within `GEO-INFER-METAGOV`.
 - `test_adaptation.py`
 - `test_advanced_analysis.py`
 - `test_all_modules.py`
+- `test_api.py`
+- `test_entity_object_support.py`
 - `test_institutional.py`
 - `test_metagov_core_units.py`
 - `test_multi_level.py`
@@ -29,9 +31,7 @@ Unit workspace within `GEO-INFER-METAGOV`.
 
 ## Dependencies
 
-- `numpy>=1.20`
-- `pyyaml>=6.0`
-- `typing_extensions>=4.0`
+- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
 
 
 ## Validation

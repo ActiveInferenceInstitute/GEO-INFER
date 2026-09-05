@@ -1,0 +1,46 @@
+{
+  "accessibility": {
+    "has_png_metadata": true,
+    "has_static_fallback": true,
+    "has_svg_viewbox": true,
+    "has_title": true
+  },
+  "artifacts": [
+    {
+      "bytes": 6787,
+      "name": "geo-infer-insurance_preview.html",
+      "sha256": "0a7cebf2a737b9f9aed0f53dae8448566b8bb6b784431e5b18ad016fb52ecb05",
+      "type": "text/html"
+    },
+    {
+      "bytes": 2753,
+      "name": "geo-infer-insurance_preview.svg",
+      "sha256": "8a1f6d5d491e2dc1f8c19a98709920ebda6f5eb7f62060ad0d70a9d5b6699010",
+      "type": "image/svg+xml"
+    },
+    {
+      "bytes": 7118,
+      "name": "geo-infer-insurance_preview.png",
+      "sha256": "a96174c95fdfe9d8d4f47b63d68a6ee51a9fb78339934eff16634098729f63ee",
+      "type": "image/png"
+    }
+  ],
+  "category": "Applications",
+  "external_resources": [
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+    "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+    "https://tile.openstreetmap.org/"
+  ],
+  "input_sha256": "64326e74d9266e39054b80ca5018e462c7d7851512c7d43955aaf6385e545bf9",
+  "module_id": "GEO-INFER-INSURANCE",
+  "name": "Insurance Operations",
+  "provenance": {
+    "crs": "EPSG:4326",
+    "data_kind": "illustrative",
+    "geometry_source": "h3.cell_to_boundary",
+    "h3_version": "4.5.0",
+    "label": "Illustrative module overview; geometry computed with H3, no measured values.",
+    "resolution": 7
+  },
+  "schema_version": "geo-infer-intra-visual-preview/v2"
+}

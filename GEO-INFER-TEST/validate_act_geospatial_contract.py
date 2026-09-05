@@ -111,13 +111,16 @@ DOCSTRING_TARGETS = [
     ("geo_infer_act.core.spatial_agent", "SpatialActiveInferenceAgent.step"),
     ("geo_infer_act.models.multi_agent", "MultiAgentModel.enable_h3_spatial"),
     ("geo_infer_act.models.multi_agent", "MultiAgentModel.simulate_h3_lattice"),
-    ("geo_infer_act.utils.geospatial_ai", "EnvironmentalActiveInferenceEngine"),
     (
-        "geo_infer_act.utils.geospatial_ai",
+        "geo_infer_ai.models.predictive.geospatial_ai",
+        "EnvironmentalActiveInferenceEngine",
+    ),
+    (
+        "geo_infer_ai.models.predictive.geospatial_ai",
         "EnvironmentalActiveInferenceEngine.compute_spatial_priors",
     ),
-    ("geo_infer_act.utils.geospatial_ai", "H3SpatialGraph"),
-    ("geo_infer_act.utils.geospatial_ai", "LevelSpatialGraph"),
+    ("geo_infer_ai.models.predictive.geospatial_ai", "H3SpatialGraph"),
+    ("geo_infer_ai.models.predictive.geospatial_ai", "LevelSpatialGraph"),
     ("geo_infer_act.utils.spatial_diagnostics", "SpatialDiagnostics"),
     ("geo_infer_act.runners.scenarios", "_run_h3_scenario"),
     ("geo_infer_act.runners.scenarios", "_plot_h3_cell_metric_map"),
@@ -143,8 +146,7 @@ def validate_docstrings() -> None:
             fail(f"Missing docstring: {module_name}.{dotted_name}")
 
     for path in [
-        ACT_SRC / "geo_infer_act" / "utils" / "geospatial_ai.py",
-        ACT_SRC / "geo_infer_act" / "runners" / "scenarios.py",
+        REPO_ROOT / "GEO-INFER-AI" / "src" / "geo_infer_ai" / "models" / "predictive" / "geospatial_ai.py",
     ]:
         tree = ast.parse(path.read_text(), filename=str(path))
         for node in ast.walk(tree):

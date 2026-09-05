@@ -6,7 +6,7 @@ Provides explicit, isolated NumPy Generator instances for reproducible workflows
 
 from __future__ import annotations
 
-from typing import Optional, Union, Any
+from typing import Union
 import numpy as np
 
 SeedLike = Union[

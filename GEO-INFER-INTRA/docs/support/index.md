@@ -48,7 +48,6 @@ explicit. See the [H3 guide](../geospatial/data_formats/h3/index.md).
 
 Run:
 
-```
 ```bash
 uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check
 git diff --check

@@ -4,6 +4,7 @@ Unit workspace within `GEO-INFER-ART`.
 
 ## Contents
 
+- `test_cli.py`
 - `test_color_palette.py`
 - `test_cultural_map.py`
 - `test_generative_map.py`
@@ -26,18 +27,12 @@ Unit workspace within `GEO-INFER-ART`.
 
 ## Dependencies
 
-- `bokeh>=2.4.0`
-- `cartopy>=0.20.0`
-- `colour>=0.1.5`
-- `folium>=0.12.0`
 - `geopandas>=0.10.0`
-- `imageio>=2.9.0`
-- `imageio-ffmpeg>=0.4.0`
-- `kaleido>=0.2.0`
 - `matplotlib>=3.4.0`
 - `numpy>=1.21.0`
-- `opencv-python>=4.5.0`
 - `pillow>=8.3.0`
+- `rasterio>=1.2.0`
+- `scipy>=1.7.0`
 
 
 ## Validation

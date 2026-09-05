@@ -56,7 +56,6 @@ result = dgdf.groupby("h3_cell").agg({"area_sqm": "sum", "value": "mean"}).compu
 
 Ray provides distributed computing with lower overhead than Dask for certain workloads, particularly when running many independent tasks (hyperparameter tuning, Monte Carlo simulations).
 
-```
 ```python
 import ray
 import numpy as np
@@ -94,7 +93,6 @@ combined_samples = np.concatenate(all_chains, axis=0)
 
 H3 hexagonal grids provide a natural partitioning scheme for parallel spatial processing. The hierarchical structure means you can partition at a coarse resolution and process at a finer one.
 
-```
 ```python
 import h3
 
@@ -118,7 +116,6 @@ print(f"{len(partitions)} partitions, ~{sum(len(v) for v in partitions.values())
 
 Distribute partitions across Dask workers:
 
-```
 ```python
 import dask
 
@@ -145,7 +142,6 @@ all_results = dask.compute(*delayed_results)
 
 For read-heavy workloads (which most spatial analysis pipelines are), use PostgreSQL streaming replication to distribute reads.
 
-```
 ```python
 from sqlalchemy import create_engine
 
@@ -178,7 +174,6 @@ def get_write_engine():
 
 PgBouncer sits between the application and PostgreSQL, multiplexing many application connections onto fewer database connections.
 
-```
 ```ini
 # pgbouncer.ini
 [databases]
@@ -197,7 +192,6 @@ reserve_pool_size = 5
 
 PostGIS spatial queries scale with proper indexing:
 
-```
 ```sql
 -- GiST index for geometry columns
 CREATE INDEX idx_parcels_geom ON parcels USING GIST (geom);
@@ -217,7 +211,6 @@ CLUSTER parcels USING idx_parcels_geom;
 
 Spatial queries that hit PostGIS or compute H3 aggregations can be cached in Redis to avoid repeated computation.
 
-```
 ```python
 import redis
 import json
@@ -247,7 +240,6 @@ def cached_spatial_query(query: str, params: dict, engine) -> dict:
 
 For tile-based caching (common in web map applications), cache at the tile coordinate level:
 
-```
 ```python
 def tile_cache_key(layer: str, z: int, x: int, y: int) -> str:
     return f"tile:{layer}:{z}:{x}:{y}"
@@ -257,7 +249,6 @@ def tile_cache_key(layer: str, z: int, x: int, y: int) -> str:
 
 Satellite imagery and high-resolution DEMs can exceed available RAM. Use windowed reading and chunked processing.
 
-```
 ```python
 import rasterio
 import numpy as np
@@ -295,7 +286,6 @@ def process_raster_in_chunks(
 
 For Cloud-Optimized GeoTIFFs (COGs), use HTTP range requests to read only the needed tiles:
 
-```
 ```python
 with rasterio.open("https://storage.example.com/cog/landcover.tif") as src:
     # Only fetches the tiles covering this window
@@ -309,7 +299,6 @@ with rasterio.open("https://storage.example.com/cog/landcover.tif") as src:
 
 ### Deployment Manifest
 
-```
 ```yaml
 # k8s/geo-infer-api.yaml
 apiVersion: apps/v1
@@ -363,7 +352,6 @@ spec:
 
 ### Horizontal Pod Autoscaler
 
-```
 ```yaml
 # k8s/hpa.yaml
 apiVersion: autoscaling/v2
@@ -395,7 +383,6 @@ spec:
 
 ### Worker Deployment for Batch Processing
 
-```
 ```yaml
 # k8s/geo-infer-worker.yaml
 apiVersion: apps/v1
@@ -429,7 +416,6 @@ spec:
 
 ### NGINX Configuration
 
-```
 ```nginx
 upstream geo_infer_api {
     least_conn;
@@ -462,7 +448,6 @@ server {
 
 For Kubernetes, use an Ingress controller instead:
 
-```
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -535,7 +520,6 @@ Track these metrics to identify bottlenecks before they cause outages.
 
 Use Prometheus for metrics collection and Grafana for dashboards:
 
-```
 ```python
 from prometheus_client import Counter, Histogram, start_http_server
 

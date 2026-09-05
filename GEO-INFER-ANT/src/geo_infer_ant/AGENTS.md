@@ -23,10 +23,8 @@
 
 - `algorithms/`
 - `analysis/`
-- `api/`
 - `applications/`
 - `core/`
-- `models/`
 - `utils/`
 - `__init__.py`
 

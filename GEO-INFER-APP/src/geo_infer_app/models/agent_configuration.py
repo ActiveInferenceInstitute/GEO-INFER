@@ -6,10 +6,9 @@ This module includes schema definitions, validation, and UI components
 for configuring different types of agents.
 """
 
-from typing import Dict, List, Any, Optional, Union, Set
-import json
+from typing import Dict, List, Any, Optional
 import logging
-import jsonschema
+import math
 from enum import Enum
 from dataclasses import dataclass, field
 from .agent_interface import AgentType
@@ -148,7 +147,12 @@ class AgentConfiguration:
                 errors.append(f"Field {field_name} must be an object")
             elif field.field_type == ConfigFieldType.ARRAY and not isinstance(field_value, list):
                 errors.append(f"Field {field_name} must be an array")
-                
+            elif field.field_type == ConfigFieldType.GEOLOCATION and not AgentConfiguration._validate_geolocation(field_value):
+                errors.append(
+                    f"Field {field_name} must be a geolocation object with numeric "
+                    f"'lat' in [-90, 90] and 'lng' in [-180, 180]"
+                )
+
             # Select/multiselect validation
             if field.field_type in (ConfigFieldType.SELECT, ConfigFieldType.MULTISELECT) and field.options:
                 valid_values = {opt["value"] for opt in field.options}
@@ -162,12 +166,15 @@ class AgentConfiguration:
                         for value in field_value:
                             if value not in valid_values:
                                 errors.append(f"Invalid value in {field_name}: {value}")
-            
+
             # Custom validation rules
             if field.validation:
-                if "min" in field.validation and field_value < field.validation["min"]:
+                # min/max only apply to numeric values; comparing a non-number
+                # against min/max would raise TypeError instead of validating.
+                is_number = isinstance(field_value, (int, float)) and not isinstance(field_value, bool)
+                if "min" in field.validation and is_number and field_value < field.validation["min"]:
                     errors.append(f"Field {field_name} must be at least {field.validation['min']}")
-                if "max" in field.validation and field_value > field.validation["max"]:
+                if "max" in field.validation and is_number and field_value > field.validation["max"]:
                     errors.append(f"Field {field_name} must be at most {field.validation['max']}")
                 if "pattern" in field.validation and isinstance(field_value, str):
                     import re
@@ -175,6 +182,31 @@ class AgentConfiguration:
                         errors.append(f"Field {field_name} does not match required pattern")
         
         return errors
+
+    @staticmethod
+    def _validate_geolocation(value: Any) -> bool:
+        """
+        Validate a geolocation value: {"lat": <number>, "lng": <number>}
+        with lat in [-90, 90] and lng in [-180, 180].
+
+        Args:
+            value: Candidate geolocation value
+
+        Returns:
+            True if value is a well-formed, in-bounds geolocation
+        """
+        if not isinstance(value, dict):
+            return False
+        lat = value.get("lat")
+        lng = value.get("lng")
+        if not isinstance(lat, (int, float)) or isinstance(lat, bool):
+            return False
+        if not isinstance(lng, (int, float)) or isinstance(lng, bool):
+            return False
+        if not (math.isfinite(lat) and math.isfinite(lng)):
+            return False
+        return -90 <= lat <= 90 and -180 <= lng <= 180
+
     
     @classmethod
     def get_default_config(cls, agent_type: AgentType) -> Dict[str, Any]:

@@ -116,3 +116,37 @@ class TestRequirementsAnalyzer:
         ))
         report = a.check_completeness()
         assert len(report.orphaned_requirements) > 0
+
+
+class TestCycleDetection:
+    """Cycle detection reports well-formed closed loops."""
+
+    def test_two_node_cycle_reconstruction(self):
+        a = RequirementsAnalyzer()
+        a.add_requirement(Requirement(
+            "A", "Req A", "Requirement A depends on requirement B",
+            RequirementType.FUNCTIONAL, dependencies=["B"],
+        ))
+        a.add_requirement(Requirement(
+            "B", "Req B", "Requirement B depends back on requirement A",
+            RequirementType.FUNCTIONAL, dependencies=["A"],
+        ))
+        graph = a.build_dependency_graph()
+        assert len(graph.cycles) == 1
+        cycle = graph.cycles[0]
+        # Well-formed: closed loop covering exactly the cycle nodes.
+        assert cycle[0] == cycle[-1]
+        assert set(cycle[:-1]) == {"A", "B"}
+
+    def test_three_node_cycle_reconstruction(self):
+        a = RequirementsAnalyzer()
+        a.add_requirements([
+            Requirement("A", "RA", "Requirement A depends on B", RequirementType.FUNCTIONAL, dependencies=["B"]),
+            Requirement("B", "RB", "Requirement B depends on C", RequirementType.FUNCTIONAL, dependencies=["C"]),
+            Requirement("C", "RC", "Requirement C depends back on A", RequirementType.FUNCTIONAL, dependencies=["A"]),
+        ])
+        graph = a.build_dependency_graph()
+        assert len(graph.cycles) == 1
+        cycle = graph.cycles[0]
+        assert cycle[0] == cycle[-1]
+        assert set(cycle[:-1]) == {"A", "B", "C"}

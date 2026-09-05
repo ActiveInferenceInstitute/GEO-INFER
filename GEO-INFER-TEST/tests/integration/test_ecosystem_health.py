@@ -172,15 +172,15 @@ class TestEcosystemStatistics:
     """Verify ecosystem-level test statistics."""
 
     def test_total_module_count(self):
-        """There should be 44 GEO-INFER modules."""
+        """There should be 45 GEO-INFER modules."""
         module_dirs = [
             d
             for d in REPO_ROOT.iterdir()
             if d.is_dir() and d.name.startswith("GEO-INFER-")
         ]
         assert (
-            len(module_dirs) >= 44
-        ), f"Expected >=44 modules, found {len(module_dirs)}"
+            len(module_dirs) >= 45
+        ), f"Expected >=45 modules, found {len(module_dirs)}"
 
     def test_total_test_file_count(self):
         """There should be 200+ test files across the ecosystem."""

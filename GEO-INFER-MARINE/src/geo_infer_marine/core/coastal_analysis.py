@@ -5,8 +5,7 @@ Handles coastal vulnerability assessment and coastal zone management.
 """
 
 import logging
-from typing import Dict, Optional
-import numpy as np
+from typing import Any, Dict, Optional, Sequence
 import xarray as xr
 
 logger = logging.getLogger(__name__)
@@ -56,7 +55,7 @@ class CoastalAnalyzer:
     def analyze_coastal_erosion(
         self,
         shoreline_data: xr.DataArray,
-        time_periods: list
+        time_periods: Sequence[Any],
     ) -> xr.Dataset:
         """
         Analyze coastal erosion over time.

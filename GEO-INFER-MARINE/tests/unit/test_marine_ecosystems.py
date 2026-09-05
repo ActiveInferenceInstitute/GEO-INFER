@@ -4,8 +4,6 @@ import numpy as np
 import pytest
 import xarray as xr
 
-import sys
-sys.path.insert(0, "GEO-INFER-MARINE/src")
 
 from geo_infer_marine.core.marine_ecosystems import (
     MarineEcosystemModeler,
@@ -92,3 +90,95 @@ class TestBlueCarbon:
         healthy = modeler.estimate_blue_carbon(habitats, condition="healthy")
         degraded = modeler.estimate_blue_carbon(habitats, condition="degraded")
         assert healthy["total_annual_storage_tonnes"] > degraded["total_annual_storage_tonnes"]
+
+
+class TestBiodiversityEdgeCases:
+    def test_single_species(self, modeler):
+        result = modeler.calculate_biodiversity_indices({"sp1": 100})
+        assert result["species_richness"] == 1
+        assert result["total_abundance"] == 100
+        assert result["simpson_diversity"] == pytest.approx(0.0)
+
+    def test_species_density(self, modeler):
+        counts = {"sp1": 10, "sp2": 20, "sp3": 30, "sp4": 40}
+        result = modeler.calculate_biodiversity_indices(counts, area_km2=2.0)
+        assert result["species_density"] == pytest.approx(2.0)
+
+
+class TestFisheriesStock:
+    def test_model_stock(self, modeler):
+        quality = xr.DataArray([1.0, 0.5], dims="site")
+        result = modeler.model_fisheries_stock(habitat_quality=quality)
+        assert float(result["stock_abundance"][0]) == pytest.approx(100.0)
+        assert float(result["stock_abundance"][1]) == pytest.approx(50.0)
+
+    def test_stock_with_fishing_pressure(self, modeler):
+        quality = xr.DataArray([1.0], dims="site")
+        pressure = xr.DataArray([60.0], dims="site")
+        result = modeler.model_fisheries_stock(
+            habitat_quality=quality, fishing_pressure=pressure
+        )
+        assert float(result["stock_abundance"][0]) == pytest.approx(40.0)
+
+
+class TestMarineProtectedAreas:
+    def test_create_mpa(self, modeler):
+        boundary = [
+            (-118.5, 33.5),
+            (-118.0, 33.5),
+            (-118.0, 34.0),
+            (-118.5, 34.0),
+        ]
+        mpa = modeler.create_marine_protected_area(
+            mpa_id="MPA_001",
+            name="Test Marine Reserve",
+            boundary=boundary,
+            protection_level="full",
+        )
+        assert mpa["id"] == "MPA_001"
+        assert mpa["protection_level"] == "full"
+        assert mpa["area_km2"] > 0
+
+    def test_assess_mpa_effectiveness(self, modeler):
+        boundary = [(-118.5, 33.5), (-118.0, 33.5), (-118.0, 34.0), (-118.5, 34.0)]
+        modeler.create_marine_protected_area(
+            mpa_id="MPA_001", name="Test MPA", boundary=boundary
+        )
+        result = modeler.assess_mpa_effectiveness(
+            mpa_id="MPA_001",
+            species_counts_inside={"sp1": 100, "sp2": 80, "sp3": 60},
+            species_counts_outside={"sp1": 50, "sp2": 40, "sp3": 30},
+            time_since_establishment_years=5.0,
+        )
+        assert result["abundance_ratio"] == pytest.approx(2.0)
+        assert result["richness_ratio"] == pytest.approx(1.0)
+        assert "effectiveness_score" in result
+
+    def test_mpa_not_found(self, modeler):
+        with pytest.raises(ValueError, match="not found"):
+            modeler.assess_mpa_effectiveness(
+                mpa_id="UNKNOWN",
+                species_counts_inside={"sp1": 10},
+                species_counts_outside={"sp1": 5},
+            )
+
+
+class TestClimateImpact:
+    def test_impact_structure(self, modeler):
+        result = modeler.assess_climate_change_impact(
+            temperature_change=2.0,
+            sea_level_rise_cm=50,
+            ph_change=-0.2,
+            time_horizon_years=50,
+        )
+        assert "coral_reef_impacts" in result
+        assert 0 <= result["overall_vulnerability"] <= 1
+
+    def test_severity_ordering(self, modeler):
+        mild = modeler.assess_climate_change_impact(
+            temperature_change=0.5, sea_level_rise_cm=10, ph_change=-0.05
+        )
+        severe = modeler.assess_climate_change_impact(
+            temperature_change=3.0, sea_level_rise_cm=100, ph_change=-0.4
+        )
+        assert severe["overall_vulnerability"] > mild["overall_vulnerability"]

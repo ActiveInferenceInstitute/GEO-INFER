@@ -20,11 +20,11 @@ Example:
     >>> import geo_infer_spm as gispm
     >>> # Load geospatial data
     >>> data = gispm.load_data("temperature_data.tif")
-    >>> # Create design matrix
-    >>> design = gispm.design_matrix(factors=[("season", ["winter", "spring"])])
+    >>> # Create design matrix (factors maps factor name to its levels)
+    >>> design = gispm.create_design_matrix(data, factors={"season": ["winter", "spring"]})
     >>> # Fit GLM and compute SPM
     >>> model = gispm.fit_glm(data, design)
-    >>> contrast = gispm.contrast(model, "spring > winter")
+    >>> contrast = gispm.contrast(model, "season_winter > 0")
     >>> spm_map = gispm.compute_spm(model, contrast, correction="RFT")
 """
 
@@ -61,11 +61,8 @@ from .models.data_models import SPMData, SPMResult, ContrastResult
 from .utils.data_io import load_data, save_spm
 from .utils.helpers import create_design_matrix, generate_synthetic_data
 
-# Visualization (may have optional dependencies)
-try:
-    from .utils.visualization import visualize_spm, create_statistical_map
-except ImportError:
-    visualize_spm = create_statistical_map = None
+# Visualization (re-exported from the visualization subpackage)
+from .visualization import create_statistical_map  # noqa: F401
 
 # Advanced modeling methods
 from .core.advanced import (
@@ -119,7 +116,6 @@ __all__ = [
     "save_spm",
     "create_design_matrix",
     "generate_synthetic_data",
-    "visualize_spm",
     "create_statistical_map",
     # API
     "SPMAPI",

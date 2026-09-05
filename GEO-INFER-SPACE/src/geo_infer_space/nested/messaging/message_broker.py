@@ -7,11 +7,10 @@ across boundaries and hierarchies in nested geospatial systems.
 
 import logging
 import uuid
-import asyncio
 from types import TracebackType
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Union, Callable, Set, Tuple, Type
+from typing import Dict, List, Any, Optional, Callable, Set, Tuple, Type
 from enum import Enum
 from collections import defaultdict, deque
 from concurrent.futures import ThreadPoolExecutor

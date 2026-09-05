@@ -23,10 +23,8 @@ from geo_infer_time.core.statistics import TemporalStatistics
 from geo_infer_time.core.visualization import TemporalVisualization
 from geo_infer_time.models.timeseries import TimeSeries
 
-try:
-    from geo_infer_time.core.advanced_forecasting import AdvancedForecastingEngine
-except ImportError:
-    AdvancedForecastingEngine = None  # type: ignore[assignment,misc]
+from geo_infer_time.core.advanced_forecasting import AdvancedForecastingEngine
+from geo_infer_time import db, io, utils
 
 __all__ = [
     "TemporalAnalyzer",
@@ -42,4 +40,7 @@ __all__ = [
     "TemporalVisualization",
     "TimeSeries",
     "AdvancedForecastingEngine",
+    "db",
+    "io",
+    "utils",
 ]

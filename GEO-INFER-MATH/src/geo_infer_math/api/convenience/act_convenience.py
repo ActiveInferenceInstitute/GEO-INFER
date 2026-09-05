@@ -6,7 +6,7 @@ including free energy calculations and variational inference helpers.
 """
 
 import numpy as np
-from typing import Union, Optional, List, Tuple, Dict, Any, Callable, cast
+from typing import Optional, Tuple, Dict, Any, Callable, cast
 import logging
 
 logger = logging.getLogger(__name__)

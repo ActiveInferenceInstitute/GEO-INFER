@@ -4,8 +4,6 @@ import numpy as np
 import pytest
 import xarray as xr
 
-import sys
-sys.path.insert(0, "GEO-INFER-MARINE/src")
 
 from geo_infer_marine.core.coastal_analysis import CoastalAnalyzer
 

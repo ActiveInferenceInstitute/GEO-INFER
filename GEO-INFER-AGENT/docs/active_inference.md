@@ -1,5 +1,21 @@
 # Active Inference for Agents
 
+> **Two implementations, one canonical export.** This module ships two
+> Active Inference implementations under the same class name
+> `ActiveInferenceAgent`:
+>
+> 1. `geo_infer_agent.models.active_inference.ActiveInferenceAgent` — numpy
+>    matrix model. **This is the canonical implementation** and the one
+>    exported from the package root (`from geo_infer_agent import
+>    ActiveInferenceAgent`). It is config-dict-driven and dependency-light.
+> 2. `geo_infer_agent.core.active_inference.ActiveInferenceAgent` — torch
+>    neural generative model (`GenerativeModel` with encode/plan/update).
+>    It is NOT exported from the package root; import it explicitly from
+>    `geo_infer_agent.core.active_inference` when you need the deep-learning
+>    variant.
+>
+> The two share only the name and are not interchangeable.
+
 ## Introduction
 
 This document describes how Active Inference is implemented in the GEO-INFER agent framework, enabling autonomous agents that perceive, act, and learn in geospatial environments.

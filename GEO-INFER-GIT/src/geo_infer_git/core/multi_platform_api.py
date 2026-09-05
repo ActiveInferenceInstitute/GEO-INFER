@@ -11,14 +11,13 @@ Git platforms including GitHub, GitLab, Bitbucket, and local repositories.
 import os
 import time
 import logging
-from typing import Dict, List, Any, Optional, Union, Protocol, cast
+from typing import Dict, List, Any, Optional, Protocol, cast
 from dataclasses import dataclass
 from pathlib import Path
 import requests
-from urllib.parse import urlparse
 
-from .github_api import GitHubAPI, GitHubRepository
-from ..utils.error_handler import NetworkError, AuthenticationError, PermissionError
+from .github_api import GitHubAPI
+from ..utils.error_handler import NetworkError
 
 logger = logging.getLogger(__name__)
 

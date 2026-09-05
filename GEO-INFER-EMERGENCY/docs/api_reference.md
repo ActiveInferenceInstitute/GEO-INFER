@@ -328,21 +328,6 @@ class Resource:
     assigned_incident: Optional[str] = None
 ```
 
-### ResourceRequest (dataclass)
-
-```python
-@dataclass
-class ResourceRequest:
-    request_id: str
-    incident_id: str
-    resource_types: List[str]
-    quantity: int
-    priority: int = 1                # 1 = highest
-    location: Dict[str, float] = field(default_factory=dict)
-    requested_at: datetime = field(default_factory=datetime.now)
-    fulfilled: bool = False
-```
-
 ### ResourceDeployer
 
 Optimize deployment and allocation of emergency resources.

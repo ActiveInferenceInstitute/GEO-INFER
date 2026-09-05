@@ -13,6 +13,11 @@ router = APIRouter(
 # In-memory store backing the demo API
 _ENV_READINGS_DB: List[EnvironmentalData] = []
 
+
+def reset_stores() -> None:
+    """Clear the in-memory store (for tests and demo resets)."""
+    _ENV_READINGS_DB.clear()
+
 @router.post("/readings/", response_model=EnvironmentalData, status_code=201)
 async def submit_environmental_reading(reading: EnvironmentalData = Body(...)) -> EnvironmentalData:
     """Submit a new environmental data reading."""

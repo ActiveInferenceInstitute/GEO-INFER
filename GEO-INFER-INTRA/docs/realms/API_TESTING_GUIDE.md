@@ -13,7 +13,6 @@ bash # Install dependencies uv pip install -r requirements.txt # Ensure you have
 bash # Run all tests with default parameters python test_realms_api.py # Run with custom schema file python test_realms_api.py --schema /path/to/realm_schema.json # Quick test mode (fewer test cases) python test_realms_api.py --quick
 ```
  ### Options
-```
 ```bash
  # Custom search terms python test_realms_api.py --search-terms "Forest" "Ocean" "Park" # Custom realm IDs to test python test_realms_api.py --realm-ids 2188 6472 8155 # Custom timeout python test_realms_api.py --timeout 60 # Combined options python test_realms_api.py --quick --search-terms "Avana" --realm-ids 2188
 ```

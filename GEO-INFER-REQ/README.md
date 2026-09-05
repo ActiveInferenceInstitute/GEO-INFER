@@ -1,6 +1,6 @@
 # GEO-INFER-REQ
 
-Requirements engineering using P3IF framework for geospatial systems, user stories, and specification management.
+Requirements analysis, dependency resolution, traceability, and validation for geospatial projects.
 
 ## Contents
 
@@ -27,7 +27,7 @@ Requirements engineering using P3IF framework for geospatial systems, user stori
 
 ## Dependencies
 
-- `pydantic>=2.0.0`
+- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
 
 
 ## Validation

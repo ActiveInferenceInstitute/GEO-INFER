@@ -1,6 +1,7 @@
 """
 Health check endpoints for the GEO-INFER-API.
 """
+import logging
 import os
 import time
 from typing import Any, Dict
@@ -9,6 +10,8 @@ from fastapi import APIRouter, Depends
 
 from geo_infer_api.core.config import get_settings, Settings
 
+
+logger = logging.getLogger(__name__)
 # Record process start time for uptime tracking
 _START_TIME: float = time.time()
 
@@ -34,6 +37,7 @@ def _get_memory_mb() -> float:
             return usage / (1024 * 1024)
         return usage / 1024
     except Exception:
+        logger.debug("memory usage unavailable", exc_info=True)
         return -1.0
 
 

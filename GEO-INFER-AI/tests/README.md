@@ -24,9 +24,8 @@ Tests workspace within `GEO-INFER-AI`.
 
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
-- `torch>=1.9.0`
-- `tensorflow>=2.6.0`
 - `scikit-learn>=1.0.0`
+- `h3>=4.5.0,<5`
 
 
 ## Strict Test Inventory

@@ -1,193 +1,141 @@
 #!/usr/bin/env python3
 """
-GEO-INFER-TRANSPORT Example: Multi-Modal Transportation Analysis
+GEO-INFER-TRANSPORT Example: Network, Routing, and Traffic Analysis
 
-This example demonstrates comprehensive transportation network analysis
-including routing, traffic analysis, accessibility, and transit optimization.
+Demonstrates the real public API end to end: building a transport
+network from edges, routing, origin-destination matrices, alternative
+routes, traffic flow/congestion/forecast analysis, accessibility
+isochrones, and transit coverage/scenario evaluation.
 """
 
 from geo_infer_transport import (
-    TransportNetwork,
+    AccessibilityAnalyzer,
     RoutingEngine,
     TrafficAnalyzer,
-    AccessibilityAnalyzer,
-    TransitOptimizer
+    TransportNetwork,
+    TransitOptimizer,
 )
 
 
-def main():
-    print("=" * 60)
-    print("GEO-INFER-TRANSPORT: Multi-Modal Transport Analysis")
-    print("=" * 60)
-    
-    # 1. Build Transport Network
-    print("\n1. Building Transport Network...")
-    network = TransportNetwork(
-        modes=['road', 'transit', 'bicycle', 'pedestrian'],
-        data_format='osm'
-    )
-    
-    # Add nodes and edges
-    nodes = [
-        {'id': 'A', 'lat': 34.05, 'lon': -118.25, 'type': 'intersection'},
-        {'id': 'B', 'lat': 34.06, 'lon': -118.24, 'type': 'intersection'},
-        {'id': 'C', 'lat': 34.07, 'lon': -118.23, 'type': 'transit_stop'},
-        {'id': 'D', 'lat': 34.05, 'lon': -118.22, 'type': 'intersection'},
-        {'id': 'E', 'lat': 34.04, 'lon': -118.23, 'type': 'transit_stop'},
-    ]
-    
-    edges = [
-        {'from': 'A', 'to': 'B', 'mode': 'road', 'distance_km': 1.5, 'speed_limit': 50},
-        {'from': 'B', 'to': 'C', 'mode': 'road', 'distance_km': 1.2, 'speed_limit': 40},
-        {'from': 'C', 'to': 'D', 'mode': 'road', 'distance_km': 1.0, 'speed_limit': 40},
-        {'from': 'A', 'to': 'E', 'mode': 'road', 'distance_km': 1.3, 'speed_limit': 50},
-        {'from': 'E', 'to': 'D', 'mode': 'road', 'distance_km': 1.1, 'speed_limit': 40},
-        {'from': 'C', 'to': 'E', 'mode': 'transit', 'distance_km': 2.0, 'speed_limit': 30},
-    ]
-    
-    for node in nodes:
-        network.add_node(**node)
-    for edge in edges:
-        network.add_edge(**edge)
-    
-    stats = network.get_network_statistics()
-    print(f"   Network: {stats['node_count']} nodes, {stats['edge_count']} edges")
-    print(f"   Modes: {', '.join(stats.get('modes', ['road']))}")
-    
-    # 2. Route Optimization
-    print("\n2. Computing Optimal Routes...")
-    router = RoutingEngine(
-        algorithms=['dijkstra', 'astar', 'contraction_hierarchies'],
-        default_algorithm='astar'
-    )
-    
-    route = router.find_route(
-        network=network,
-        origin='A',
-        destination='D',
-        mode='road',
-        optimization='time'
-    )
-    
-    print(f"   Route: {' -> '.join(route['path'])}")
-    print(f"   Distance: {route['total_distance_km']:.2f} km")
-    print(f"   Time: {route['total_time_minutes']:.1f} minutes")
-    
-    # Multi-modal routing
-    multimodal_route = router.find_multimodal_route(
-        network=network,
-        origin='A',
-        destination='D',
-        allowed_modes=['road', 'transit'],
-        max_transfers=2
-    )
-    
-    print(f"   Multi-modal route: {len(multimodal_route['segments'])} segments")
-    
-    # 3. Traffic Analysis
-    print("\n3. Analyzing Traffic Patterns...")
-    traffic = TrafficAnalyzer(
-        models=['bpr', 'gravity', 'four_step'],
-        time_periods=['am_peak', 'pm_peak', 'off_peak']
-    )
-    
-    # Generate OD matrix
-    od_matrix = traffic.generate_od_matrix(
-        zones=['zone_1', 'zone_2', 'zone_3'],
-        trip_generation={'zone_1': 1000, 'zone_2': 1500, 'zone_3': 800},
-        attraction={'zone_1': 500, 'zone_2': 1200, 'zone_3': 1600}
-    )
-    
-    print(f"   OD Matrix: {od_matrix.get('zones', 0)}x{od_matrix.get('zones', 0)}")
-    print(f"   Total trips: {od_matrix.get('total_trips', 0):,}")
-    
-    # Congestion analysis
-    congestion = traffic.analyze_congestion(
-        network=network,
-        demand=od_matrix,
-        time_period='am_peak'
-    )
-    
-    print(f"   Congested links: {congestion.get('congested_links', 0)}")
-    print(f"   V/C ratio > 0.8: {congestion.get('vc_above_threshold', 0)} links")
-    
-    # 4. Accessibility Analysis
-    print("\n4. Computing Accessibility Metrics...")
-    accessibility = AccessibilityAnalyzer(
-        metrics=['cumulative', 'gravity', 'time_threshold'],
-        modes=['car', 'transit', 'walk']
-    )
-    
-    # Generate isochrones
-    isochrones = accessibility.calculate_isochrones(
-        network=network,
-        origin='A',
-        time_thresholds=[10, 20, 30],  # minutes
-        mode='road'
-    )
-    
-    print(f"   Isochrones computed for {len(isochrones)} time thresholds")
-    for iso in isochrones:
-        print(f"   - {iso['time_minutes']}min: {iso['reachable_nodes']} nodes")
-    
-    # Equity analysis
-    equity = accessibility.analyze_equity(
-        network=network,
-        population_data=[
-            {'zone': 'zone_1', 'population': 10000, 'income_median': 50000},
-            {'zone': 'zone_2', 'population': 15000, 'income_median': 35000},
-            {'zone': 'zone_3', 'population': 8000, 'income_median': 75000},
+def build_sample_network() -> TransportNetwork:
+    """Build a small road network with coordinates."""
+    network = TransportNetwork(network_type="road", modes=["car"])
+    network.build_from_edges(
+        nodes=[
+            {"id": "n1", "location": {"lat": 34.050, "lon": -118.250}},
+            {"id": "n2", "location": {"lat": 34.052, "lon": -118.247}},
+            {"id": "n3", "location": {"lat": 34.055, "lon": -118.243}},
+            {"id": "n4", "location": {"lat": 34.058, "lon": -118.240}},
+            {"id": "n5", "location": {"lat": 34.060, "lon": -118.245}},
         ],
-        opportunity_locations=[
-            {'type': 'employment', 'location': 'B', 'jobs': 5000},
-            {'type': 'healthcare', 'location': 'C', 'capacity': 200},
-        ]
-    )
-    
-    print(f"   Gini coefficient: {equity.get('gini', 0):.3f}")
-    print(f"   Equity score: {equity.get('equity_score', 0):.2f}")
-    
-    # 5. Transit Optimization
-    print("\n5. Optimizing Transit Network...")
-    transit = TransitOptimizer(
-        optimization_objectives=['coverage', 'ridership', 'efficiency'],
-        constraints={'budget': 10000000, 'fleet_size': 50}
-    )
-    
-    # Optimize frequency
-    frequency_opt = transit.optimize_frequency(
-        routes=[
-            {'id': 'route_1', 'stops': ['A', 'C', 'E'], 'demand': 500},
-            {'id': 'route_2', 'stops': ['B', 'C', 'D'], 'demand': 800},
+        edges=[
+            {"id": "e1", "from": "n1", "to": "n2", "length_m": 300, "speed_limit": 50},
+            {"id": "e2", "from": "n2", "to": "n3", "length_m": 450, "speed_limit": 50},
+            {"id": "e3", "from": "n3", "to": "n4", "length_m": 400, "speed_limit": 40},
+            {"id": "e4", "from": "n1", "to": "n5", "length_m": 250, "speed_limit": 50},
+            {"id": "e5", "from": "n5", "to": "n3", "length_m": 350, "speed_limit": 50},
         ],
-        available_vehicles=20,
-        service_hours=16
     )
-    
-    print(f"   Routes optimized: {len(frequency_opt.get('routes', []))}")
-    for route_opt in frequency_opt.get('routes', []):
-        print(f"   - {route_opt['id']}: {route_opt['frequency_min']} min headway")
-    
-    # Coverage analysis
-    coverage = transit.calculate_coverage(
-        network=network,
-        transit_stops=['C', 'E'],
-        walk_distance_meters=400
+    return network
+
+
+def routing_example(network: TransportNetwork) -> None:
+    """Route, build an OD matrix, and find alternative routes."""
+    router = RoutingEngine(network=network, algorithm="dijkstra")
+
+    route = router.route({"node_id": "n1"}, {"node_id": "n4"})
+    print("--- Routing ---")
+    print(f"Path: {' -> '.join(route.path)}")
+    print(f"Distance: {route.total_distance_m:.0f} m, time: {route.total_time_s:.0f} s")
+    print(f"Route source: {route.route_source}")
+
+    matrix = router.calculate_matrix(
+        origins=[{"id": "n1", "node_id": "n1"}, {"id": "n5", "node_id": "n5"}],
+        destinations=[{"id": "n4", "node_id": "n4"}],
+        metric="time",
     )
-    
-    print(f"   Population covered: {coverage.get('population_covered_pct', 0):.1f}%")
-    print(f"   Area covered: {coverage.get('area_covered_km2', 0):.2f} km²")
-    
-    print("\n" + "=" * 60)
-    print("Transport Analysis Complete!")
+    print(f"OD matrix: {matrix['matrix']}")
+
+    alternatives = router.find_alternatives({"node_id": "n1"}, {"node_id": "n3"}, count=3)
+    print(f"Alternatives found: {len(alternatives)} (including primary)")
+
+
+def traffic_example(network: TransportNetwork) -> None:
+    """Analyze flow, model congestion, and forecast traffic."""
+    analyzer = TrafficAnalyzer(model_type="bpr", time_resolution="15min")
+
+    flow = analyzer.analyze_flow(
+        segment={"id": "e2", "capacity": 1800, "speed_limit": 50},
+        counts=[
+            {"count": 700, "speed_kmh": 42},
+            {"count": 750, "speed_kmh": 38},
+            {"count": 690, "speed_kmh": 44},
+        ],
+    )
+    print("\n--- Traffic Flow ---")
+    print(f"Volume: {flow.volume} veh/h, LOS: {flow.level_of_service}")
+
+    congestion = analyzer.model_congestion(
+        network_flows={"e1": 1200, "e2": 2100, "e3": 900},
+        capacity_data={"e1": 2000, "e2": 2000, "e3": 2000},
+    )
+    print(f"Congested segments: {congestion['summary']['congested_segments']}")
+
+    forecast = analyzer.forecast_traffic(
+        [{"volume": 1000}, {"volume": 1100}, {"volume": 1200}, {"volume": 1150}],
+        forecast_horizon="1h",
+    )
+    print(f"Forecast points (1h / 15min steps): {len(forecast['forecasts'])}")
+
+
+def transit_example() -> None:
+    """Evaluate transit coverage and a service-change scenario."""
+    optimizer = TransitOptimizer()
+
+    coverage = optimizer.analyze_coverage(
+        stops=[{"id": "s1", "location": {"lat": 34.050, "lon": -118.250}}],
+        population_zones=[
+            {
+                "id": "z1",
+                "centroid": {"lat": 34.050, "lon": -118.250},
+                "population": 4000,
+                "demographics": {"low_income": 0.4, "other": 0.6},
+            },
+            {
+                "id": "z2",
+                "centroid": {"lat": 34.100, "lon": -118.300},
+                "population": 2000,
+                "demographic_group": "low_income",
+            },
+        ],
+        walk_radius_m=400,
+    )
+    print("\n--- Transit Coverage ---")
+    print(f"Coverage rate: {coverage['coverage_rate']:.1%}")
+    if "equity_analysis" in coverage:
+        print(f"Group coverage: {coverage['equity_analysis']['group_coverage']}")
+
+    scenario = optimizer.evaluate_scenario(
+        base_network={},
+        proposed_changes=[
+            {"type": "add_route", "expected_ridership": 1200},
+            {"type": "increase_frequency"},
+        ],
+    )
+    print(f"Scenario impacts: {scenario['impacts']['ridership_change']} new riders")
+    print(f"Recommendation: {scenario['recommendation']}")
+
+
+def main() -> None:
+    """Run the multimodal transportation analysis example."""
     print("=" * 60)
-    
-    # Summary
-    print("\nKey Findings:")
-    print(f"  - Network: {stats['node_count']} nodes, {stats['edge_count']} edges")
-    print(f"  - Best route A→D: {route['total_time_minutes']:.1f} min")
-    print(f"  - Transit coverage: {coverage.get('population_covered_pct', 0):.1f}%")
-    print(f"  - Accessibility equity: {equity.get('equity_score', 0):.2f}")
+    print("GEO-INFER-TRANSPORT: Network & Traffic Analysis Example")
+    print("=" * 60)
+    network = build_sample_network()
+    routing_example(network)
+    traffic_example(network)
+    transit_example()
+    print("\nExample complete.")
 
 
 if __name__ == "__main__":

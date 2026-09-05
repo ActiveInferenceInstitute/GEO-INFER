@@ -10,14 +10,12 @@ progress tracking, and error handling.
 """
 
 import os
-import subprocess
 import logging
 import shutil
 import threading
-from typing import Dict, Any, List, Optional, Tuple, Callable, cast
+from typing import Dict, Any, List, Optional, Tuple, cast
 from concurrent.futures import ThreadPoolExecutor, as_completed, Executor
 import time
-import psutil
 from pathlib import Path
 import git
 
@@ -308,7 +306,12 @@ class RepoCloner:
 
     def cleanup_failed_clones(self) -> int:
         """
-        Clean up any partially cloned repositories.
+        Clean up partially cloned repositories left by failed clone attempts.
+
+        Only ``owner/repo``-shaped directories (exactly two levels under the
+        output directory, matching where :meth:`clone_repository` places
+        clones) that lack a ``.git`` folder are removed. Any other files or
+        directories in the output directory are left untouched.
 
         Returns:
             Number of directories cleaned up
@@ -316,17 +319,22 @@ class RepoCloner:
         cleaned_count = 0
 
         try:
-            for item in self.output_dir.rglob('*'):
-                if item.is_dir():
-                    git_dir = item / '.git'
-                    if item.parent != self.output_dir and not git_dir.exists():
-                        # Non-git directory, might be a failed clone
+            for owner_dir in self.output_dir.iterdir():
+                if not owner_dir.is_dir() or owner_dir.name.startswith('.'):
+                    continue
+                for repo_dir in owner_dir.iterdir():
+                    if not repo_dir.is_dir():
+                        continue
+                    git_dir = repo_dir / '.git'
+                    if not git_dir.exists():
+                        # owner/repo-shaped directory without .git: a failed
+                        # or interrupted clone attempt, safe to remove.
                         try:
-                            shutil.rmtree(item)
+                            shutil.rmtree(repo_dir)
                             cleaned_count += 1
-                            logger.info(f"Cleaned up failed clone: {item}")
+                            logger.info(f"Cleaned up failed clone: {repo_dir}")
                         except Exception as e:
-                            logger.warning(f"Error cleaning up {item}: {e}")
+                            logger.warning(f"Error cleaning up {repo_dir}: {e}")
 
         except Exception as e:
             logger.error(f"Error during cleanup: {e}")

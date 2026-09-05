@@ -2,7 +2,7 @@
 
 import logging
 from typing import Dict, List, Any, Optional
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from enum import Enum
 from datetime import datetime
 
@@ -30,19 +30,6 @@ class APIResponse:
             self.timestamp = datetime.now().isoformat()
 
 
-@dataclass
-class APIError:
-    """Standard API error format."""
-    status: str = "error"
-    code: int = 400
-    error_type: str = "BadRequest"
-    message: str = ""
-    details: Optional[Dict[str, Any]] = None
-    timestamp: Optional[str] = None
-    
-    def __post_init__(self) -> None:
-        if self.timestamp is None:
-            self.timestamp = datetime.now().isoformat()
 
 
 class GovernanceAPI:

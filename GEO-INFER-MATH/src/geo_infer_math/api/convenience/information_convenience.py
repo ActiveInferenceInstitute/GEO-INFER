@@ -6,13 +6,10 @@ on spatial data.
 """
 
 import numpy as np
-from typing import Union, Optional, List, Tuple, Dict, Any
+from typing import Optional, Any
 import logging
 
 from geo_infer_math.core.information_theory import (
-    shannon_entropy,
-    mutual_information,
-    kl_divergence,
     EntropyCalculator,
     MutualInformationCalculator,
     KLDivergenceCalculator,

@@ -2,6 +2,7 @@
 Configuration settings for the GEO-INFER-API.
 """
 import os
+import json
 from functools import lru_cache
 from typing import List, Optional, Union
 
@@ -45,8 +46,9 @@ class Settings(BaseSettings):
 
     # Security settings
     secret_key: str
-    algorithm: str = "HS256"
-    access_token_expire_minutes: int = 30
+    # NOTE: JWT/auth settings (algorithm, token expiry) are intentionally
+    # absent — no auth middleware exists yet. Add them together with the code
+    # that consumes them.
 
     # Database settings
     database_url: Optional[str] = None
@@ -58,12 +60,13 @@ class Settings(BaseSettings):
     @field_validator("cors_origins", mode="before")
     @classmethod
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
-        """Parse CORS origins from string or list."""
-        if isinstance(v, str) and not v.startswith("["):
+        """Parse CORS origins from a JSON array string, comma list, or list."""
+        if isinstance(v, str):
+            v = v.strip()
+            if v.startswith("["):
+                return json.loads(v)
             return [i.strip() for i in v.split(",")]
-        elif isinstance(v, (list, str)):
-            return v  # type: ignore[return-value]
-        raise ValueError(v)
+        return list(v)
 
 
 @lru_cache()

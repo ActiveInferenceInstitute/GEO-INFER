@@ -6,7 +6,7 @@ operations for improved performance on large geospatial datasets.
 """
 
 import numpy as np
-from typing import List, Dict, Any, Optional, cast, Optional, Tuple, Callable, Union, cast
+from typing import List, Dict, Any, Optional, cast
 import logging
 import warnings
 
@@ -36,7 +36,7 @@ class GPUAccelerator:
             # Check for CuPy (NVIDIA GPU support)
             try:
                 import importlib
-                cp = importlib.import_module("cupy")
+                importlib.import_module("cupy")  # import for availability probe
 
                 self.cupy_available = True
                 logger.debug("CuPy (NVIDIA GPU) backend available")

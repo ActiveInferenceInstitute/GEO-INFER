@@ -1,6 +1,6 @@
 """Adaptive governance systems with learning and evolution."""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List, Dict, Any
 import logging
 
@@ -194,7 +194,6 @@ class AdaptiveGovernanceSystem:
             }
         
         # Analyze performance to identify adaptation priorities
-        performance_scores = performance_results.get('performance_scores', {})
         performance_gaps = performance_results.get('performance_gaps', {})
         
         # Calculate adaptation urgency

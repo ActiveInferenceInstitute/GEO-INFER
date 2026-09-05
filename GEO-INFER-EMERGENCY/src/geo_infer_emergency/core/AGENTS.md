@@ -25,6 +25,7 @@
 - `awareness.py`
 - `coordinator.py`
 - `evacuation.py`
+- `geo.py`
 - `resources.py`
 - `sar.py`
 

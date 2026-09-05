@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
+import geo_infer_ai
+from geo_infer_ai.models import IDWInterpolator, OrdinaryKriging, SpatialPredictor
 from geo_infer_ai.models.predictive.spatial_predictor import SpatialPredictor
 
 
@@ -102,3 +104,14 @@ class TestSpatialPredictor:
         with pytest.raises((ValueError, NotFittedError)):
             predictor.predict(X)
 
+
+
+def test_interpolators_exported_publicly() -> None:
+    """IDWInterpolator and OrdinaryKriging are part of the public surface."""
+    assert geo_infer_ai.IDWInterpolator is IDWInterpolator
+    assert geo_infer_ai.OrdinaryKriging is OrdinaryKriging
+    assert geo_infer_ai.models.IDWInterpolator is IDWInterpolator
+    assert geo_infer_ai.models.OrdinaryKriging is OrdinaryKriging
+    assert set(
+        ["IDWInterpolator", "OrdinaryKriging", "SpatialPredictor"]
+    ).issubset(set(geo_infer_ai.models.__all__))

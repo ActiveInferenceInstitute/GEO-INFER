@@ -21,9 +21,8 @@
 
 ## Local Contents
 
-- `api/`
 - `core/`
-- `models/`
+- `data/`
 - `utils/`
 - `__init__.py`
 

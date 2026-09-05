@@ -299,7 +299,7 @@ class ScenarioManager:
                         results[scenario_id] = result
                         self.save_scenario_result(scenario_id, result)
                     except Exception as e:
-                        logger.error(f"Scenario {scenario_id} failed: {e}")
+                        logger.exception(f"Scenario {scenario_id} failed")
                         results[scenario_id] = {"error": str(e)}
         else:
             # Sequential execution
@@ -313,7 +313,7 @@ class ScenarioManager:
                     results[scenario_id] = result
                     self.save_scenario_result(scenario_id, result)
                 except Exception as e:
-                    logger.error(f"Scenario {scenario_id} failed: {e}")
+                    logger.exception(f"Scenario {scenario_id} failed")
                     results[scenario_id] = {"error": str(e)}
 
         return results

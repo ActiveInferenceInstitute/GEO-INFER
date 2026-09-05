@@ -19,6 +19,7 @@ Core workspace within `GEO-INFER-SPACE`.
 - `spatial_indexing.py`
 - `spatial_methods.py`
 - `spatial_processor.py`
+- `state_space.py`
 - `statistics.py`
 - `unified_backend.py`
 - `visualization_engine.py`

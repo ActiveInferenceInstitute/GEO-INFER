@@ -512,27 +512,3 @@ def message_request_to_response(
     )
 
 
-def validate_geospatial_bounds(bounds: Any) -> bool:
-    """Validate geospatial bounds for channels and filters."""
-    if not isinstance(bounds, dict):
-        return False
-
-    # Basic validation for GeoJSON-like structures
-    if "type" not in bounds:
-        return False
-
-    valid_types = [
-        "Point",
-        "LineString",
-        "Polygon",
-        "MultiPoint",
-        "MultiLineString",
-        "MultiPolygon",
-    ]
-    if bounds["type"] not in valid_types:
-        return False
-
-    if "coordinates" not in bounds:
-        return False
-
-    return True

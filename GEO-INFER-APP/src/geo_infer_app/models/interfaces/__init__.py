@@ -1,9 +1,14 @@
 """
 Agent Interface Implementations
 
-This package provides concrete implementations of the AgentInterface for 
+This package provides concrete implementations of the AgentInterface for
 different agent types. Each implementation connects to the corresponding
 agent implementation in GEO-INFER-AGENT.
+
+Importing this package explicitly registers every bundled interface with
+``AgentFactory`` (currently only the BDI interface ships with APP).
 """
 
-__all__ = ["bdi_interface", "active_inference_interface", "rl_interface", "rule_based_interface", "hybrid_interface"] 
+from geo_infer_app.models.interfaces import bdi_interface  # noqa: F401  (registers BDIAgentInterface)
+
+__all__ = ["bdi_interface"]

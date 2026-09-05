@@ -7,14 +7,8 @@ including Active Inference-based disease surveillance, advanced geospatial analy
 and integrated health analytics.
 """
 
-import sys
-from pathlib import Path
 from datetime import datetime, timezone, timedelta
 import numpy as np
-import pandas as pd
-
-# Add the src directory to the path
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from geo_infer_health.core.enhanced_disease_surveillance import ActiveInferenceDiseaseAnalyzer
 from geo_infer_health.core.healthcare_accessibility import HealthcareAccessibilityAnalyzer

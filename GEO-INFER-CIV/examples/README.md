@@ -8,6 +8,10 @@ Examples workspace within `GEO-INFER-CIV`.
 
 ## Public Interface
 
+- `basic_civic_engagement.py:attendance_example` (function)
+- `basic_civic_engagement.py:participation_example` (function)
+- `basic_civic_engagement.py:comments_example` (function)
+- `basic_civic_engagement.py:cost_benefit_example` (function)
 - `basic_civic_engagement.py:main` (function)
 
 ## Module Metadata
@@ -20,9 +24,7 @@ Examples workspace within `GEO-INFER-CIV`.
 
 ## Dependencies
 
-- `geopandas>=0.10.0`
-- `numpy>=1.20.0`
-- `pandas>=1.3.0`
+- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
 
 
 ## Validation

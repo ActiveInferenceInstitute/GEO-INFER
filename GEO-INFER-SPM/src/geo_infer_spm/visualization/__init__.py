@@ -6,24 +6,8 @@ parametric maps, diagnostic plots, and interactive visualizations
 of SPM analysis results.
 """
 
-from .maps import (
-    create_statistical_map,
-    plot_spm_results,
-    _plot_beta_coefficients,
-    _plot_residuals,
-    _plot_model_diagnostics,
-)
-from .diagnostics import (
-    plot_model_diagnostics,
-    plot_contrast_results,
-    _plot_qq_residuals,
-    _plot_residuals_vs_fitted,
-    _plot_scale_location,
-    _plot_residual_histogram,
-    _plot_cooks_distance,
-    _plot_leverage,
-    _compute_diagnostic_stats,
-)
+from .maps import create_statistical_map, plot_spm_results
+from .diagnostics import plot_model_diagnostics, plot_contrast_results
 from .interactive import (
     create_interactive_map,
     create_dashboard,
@@ -31,7 +15,6 @@ from .interactive import (
 )
 
 __all__ = [
-    # Main visualization functions
     "create_statistical_map",
     "plot_spm_results",
     "plot_model_diagnostics",
@@ -39,15 +22,4 @@ __all__ = [
     "create_interactive_map",
     "create_dashboard",
     "create_time_series_explorer",
-    # Internal helper functions (for advanced users)
-    "_plot_beta_coefficients",
-    "_plot_residuals",
-    "_plot_model_diagnostics",
-    "_plot_qq_residuals",
-    "_plot_residuals_vs_fitted",
-    "_plot_scale_location",
-    "_plot_residual_histogram",
-    "_plot_cooks_distance",
-    "_plot_leverage",
-    "_compute_diagnostic_stats",
 ]

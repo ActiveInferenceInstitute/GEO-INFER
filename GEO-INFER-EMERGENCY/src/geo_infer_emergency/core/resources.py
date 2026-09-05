@@ -6,11 +6,11 @@ real-time tracking for emergency resources.
 """
 
 import logging
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-import heapq
+from .geo import haversine_distance_km
 
 logger = logging.getLogger(__name__)
 
@@ -52,19 +52,6 @@ class Resource:
     assigned_incident: Optional[str] = None
 
 
-@dataclass
-class ResourceRequest:
-    """A request for emergency resources."""
-    request_id: str
-    incident_id: str
-    resource_types: List[str]
-    quantity: int
-    priority: int = 1  # 1 = highest
-    location: Dict[str, float] = field(default_factory=dict)
-    requested_at: datetime = field(default_factory=datetime.now)
-    fulfilled: bool = False
-
-
 class ResourceDeployer:
     """
     Optimize deployment and allocation of emergency resources.
@@ -91,8 +78,6 @@ class ResourceDeployer:
         self.optimization_algorithm = optimization_algorithm
         self.real_time_updates = real_time_updates
         self._resources: Dict[str, Resource] = {}
-        self._requests: Dict[str, ResourceRequest] = {}
-        self._request_queue: List[Tuple[int, str]] = []  # Priority queue
         logger.info(f"Initialized ResourceDeployer with {optimization_algorithm} optimization")
     
     def register_resource(self, resource: Resource) -> None:
@@ -201,29 +186,13 @@ class ResourceDeployer:
         to_loc: Dict[str, float]
     ) -> float:
         """Estimate travel time between two locations."""
-        # Simple Haversine-based estimate
-        import math
-        
-        lat1 = from_loc.get("lat", 0) * math.pi / 180
-        lat2 = to_loc.get("lat", 0) * math.pi / 180
-        lon1 = from_loc.get("lon", 0) * math.pi / 180
-        lon2 = to_loc.get("lon", 0) * math.pi / 180
-        
-        dlat = lat2 - lat1
-        dlon = lon2 - lon1
-        
-        a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon/2)**2
-        c = 2 * math.asin(math.sqrt(a))
-        
-        # Earth radius in km
-        r = 6371
-        distance = c * r
-        
+        distance_km = haversine_distance_km(from_loc, to_loc)
+
         # Assume 40 km/h average speed for emergency response
         speed = 40
-        travel_time_hours = distance / speed
+        travel_time_hours = distance_km / speed
         travel_time_minutes = travel_time_hours * 60
-        
+
         return travel_time_minutes
     
     def dynamic_redeploy(

@@ -7,6 +7,7 @@ Unit workspace within `GEO-INFER-WATER`.
 - `test_flood_drought.py`
 - `test_hydrology.py`
 - `test_water_balance.py`
+- `test_water_infrastructure.py`
 - `test_water_quality.py`
 - `test_watershed_delineation.py`
 
@@ -25,11 +26,8 @@ Unit workspace within `GEO-INFER-WATER`.
 ## Dependencies
 
 - `numpy>=1.20.0`
-- `pandas>=1.3.0`
 - `scipy>=1.7.0`
-- `matplotlib>=3.4.0`
 - `xarray>=0.19.0`
-- `pyyaml>=6.0`
 
 
 ## Validation

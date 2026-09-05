@@ -5,7 +5,7 @@ Gaussian process surrogate model for black-box optimisation.
 """
 
 import numpy as np
-from typing import Optional, Dict, Any, Callable, List, Tuple, cast
+from typing import Optional, Dict, Any, Callable, Tuple, cast
 import logging
 
 logger = logging.getLogger(__name__)
@@ -66,7 +66,6 @@ class BayesianOptimization:
         if bounds is None:
             raise ValueError("Bounds must be provided.")
         bounds = np.asarray(bounds, dtype=np.float64)
-        d = bounds.shape[0]
 
         # Phase 1: random initialisation
         X = self._random_points(bounds, self.n_initial)

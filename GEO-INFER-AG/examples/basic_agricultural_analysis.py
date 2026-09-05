@@ -2,181 +2,109 @@
 Basic agricultural analysis example using GEO-INFER-AG.
 
 This example demonstrates:
-- Field boundary management
-- Crop yield modeling
-- Seasonal analysis
-- Agricultural sustainability assessment
+- Field boundary management (FieldBoundaryManager)
+- Crop yield modeling (CropYieldModel: fit + predict)
+- Seasonal analysis (SeasonalAnalysis: growing season + trends)
+- Sustainability assessment (SustainabilityAssessment)
 """
 
-import sys
-import os
 import numpy as np
 import pandas as pd
-from datetime import datetime, timedelta
+import geopandas as gpd
+from shapely.geometry import Polygon
 
-# Add src directory to path
-project_root = os.path.dirname(os.path.dirname(__file__))
-src_path = os.path.join(project_root, 'src')
-if src_path not in sys.path:
-    sys.path.insert(0, src_path)
-
-try:
-    import geopandas as gpd
-    from shapely.geometry import Polygon, Point
-    from geo_infer_ag.core.field_boundary import FieldBoundaryManager
-    from geo_infer_ag.core.agricultural_analysis import AgriculturalAnalysis
-    from geo_infer_ag.models.crop_yield import CropYieldModel
-    from geo_infer_ag.core.seasonal_analysis import SeasonalAnalyzer
-    IMPORTS_AVAILABLE = True
-except ImportError as e:
-    print(f"⚠️  Some imports not available: {e}")
-    IMPORTS_AVAILABLE = False
+from geo_infer_ag.core.field_boundary import FieldBoundaryManager
+from geo_infer_ag.core.seasonal_analysis import SeasonalAnalysis
+from geo_infer_ag.core.sustainability import SustainabilityAssessment
+from geo_infer_ag.models.crop_yield import CropYieldModel
 
 
-def create_sample_field():
-    """Create a sample agricultural field."""
-    # Create a rectangular field
-    field_geometry = Polygon([
-        (-122.4, 37.7),
-        (-122.3, 37.7),
-        (-122.3, 37.8),
-        (-122.4, 37.8),
-        (-122.4, 37.7)
-    ])
-    
-    field_data = {
-        'field_id': 'field_001',
-        'name': 'Sample Field',
-        'crop_type': 'corn',
-        'area_ha': 10.0,
-        'geometry': [field_geometry]
-    }
-    
-    return gpd.GeoDataFrame(field_data, crs='EPSG:4326')
-
-
-def generate_crop_data(n_days=120):
-    """Generate sample crop growth data."""
-    dates = pd.date_range(
-        start=datetime(2024, 4, 1),
-        end=datetime(2024, 4, 1) + timedelta(days=n_days),
-        freq='D'
+def make_field_gdf() -> gpd.GeoDataFrame:
+    """Create a small synthetic field dataset in a projected (metric) CRS."""
+    return gpd.GeoDataFrame(
+        {
+            "field_id": ["field_001", "field_002"],
+            "name": ["North Field", "South Field"],
+            "crop_type": ["corn", "soybean"],
+            "ph": [6.5, 6.2],
+            "nitrogen_kg_ha": [160.0, 60.0],
+            "precip_mm": [520.0, 480.0],
+        },
+        geometry=[
+            Polygon([(0, 0), (0, 300), (400, 300), (400, 0)]),      # 12 ha
+            Polygon([(0, -300), (0, 0), (350, 0), (350, -300)]),    # 10.5 ha
+        ],
+        crs="EPSG:32610",  # UTM zone 10N, meters
     )
-    
-    # Simulate crop growth with NDVI-like pattern
-    days = np.arange(n_days)
-    ndvi = 0.2 + 0.6 * np.sin(np.pi * days / 90) ** 2
-    ndvi += np.random.normal(0, 0.05, n_days)
-    ndvi = np.clip(ndvi, 0.1, 0.9)
-    
-    # Simulate yield-related metrics
-    data = {
-        'date': dates,
-        'ndvi': ndvi,
-        'biomass_kg_ha': ndvi * 8000 + np.random.normal(0, 500, n_days),
-        'soil_moisture': 0.3 + 0.2 * np.sin(2 * np.pi * days / 7) + np.random.normal(0, 0.05, n_days),
-        'temperature': 20 + 5 * np.sin(2 * np.pi * days / 365) + np.random.normal(0, 2, n_days),
-        'precipitation': np.random.exponential(2, n_days)
-    }
-    
-    df = pd.DataFrame(data)
-    df.set_index('date', inplace=True)
-    return df
 
 
-def main():
-    """Run basic agricultural analysis example."""
+def make_ndvi_series() -> pd.Series:
+    """Create a daily NDVI time series with a clear growing season."""
+    dates = pd.date_range("2024-04-01", periods=180, freq="D")
+    days = np.arange(len(dates))
+    ndvi = 0.15 + 0.65 * np.sin(np.pi * days / 150) ** 2
+    ndvi += np.random.default_rng(42).normal(0, 0.02, len(dates))
+    return pd.Series(np.clip(ndvi, 0.05, 0.95), index=dates, name="ndvi")
+
+
+def main() -> None:
+    """Run the basic agricultural analysis example."""
     print("=" * 60)
     print("GEO-INFER-AG: Basic Agricultural Analysis Example")
     print("=" * 60)
-    
-    if not IMPORTS_AVAILABLE:
-        print("\n⚠️  Some required modules are not available.")
-        print("   This example requires full GEO-INFER-AG installation.")
-        return
-    
+
     # Step 1: Field boundary management
-    print("\n🌾 Step 1: Field boundary management...")
-    try:
-        field = create_sample_field()
-        print(f"   ✅ Created field: {field['name'].iloc[0]}")
-        print(f"   Field ID: {field['field_id'].iloc[0]}")
-        print(f"   Area: {field['area_ha'].iloc[0]} hectares")
-        print(f"   Crop type: {field['crop_type'].iloc[0]}")
-    except Exception as e:
-        print(f"   ⚠️  Field creation: {e}")
-        field = None
-    
-    # Step 2: Crop yield modeling
-    print("\n📈 Step 2: Crop yield modeling...")
-    try:
-        crop_model = CropYieldModel(crop_type="corn")
-        print(f"   ✅ Created crop yield model for: {crop_model.crop_type}")
-        
-        # Generate sample data
-        crop_data = generate_crop_data(n_days=120)
-        print(f"   ✅ Generated {len(crop_data)} days of crop data")
-        
-        # Simple yield estimation (if model supports it)
-        if hasattr(crop_model, 'estimate_yield'):
-            try:
-                estimated_yield = crop_model.estimate_yield(crop_data)
-                print(f"   ✅ Estimated yield: {estimated_yield:.2f} kg/ha")
-            except Exception as e:
-                print(f"   ℹ️  Yield estimation: {e}")
-    except Exception as e:
-        print(f"   ⚠️  Crop modeling: {e}")
-    
+    print("\n[Step 1] Field boundary management")
+    fields = make_field_gdf()
+    manager = FieldBoundaryManager(fields=fields, crs="EPSG:32610")
+    print(manager.fields[["field_id", "name", "crop_type", "area_ha"]].to_string(index=False))
+
+    north = manager.get_field("field_001")
+    print(f"Retrieved '{north['name']}' ({north['area_ha']:.2f} ha of {north['crop_type']})")
+
+    # Step 2: Crop yield modeling (fit on historical fields, predict on new)
+    print("\n[Step 2] Crop yield modeling (corn)")
+    historical = pd.DataFrame(
+        {
+            "ph": [6.1, 6.4, 6.8, 7.0, 6.3, 6.6],
+            "nitrogen_kg_ha": [120.0, 150.0, 170.0, 180.0, 140.0, 165.0],
+            "precip_mm": [450.0, 500.0, 540.0, 560.0, 480.0, 530.0],
+            "yield": [9.0, 10.2, 11.4, 11.8, 9.8, 11.0],  # t/ha
+        }
+    )
+    crop_model = CropYieldModel(crop_type="corn", model_type="machine_learning")
+    crop_model.fit({"field_data": historical}, target_column="yield")
+
+    targets = fields[fields["crop_type"] == "corn"].drop(columns="geometry")
+    prediction = crop_model.predict({"field_data": targets})
+    print(f"Predicted yield for {len(targets)} corn field(s):")
+    print(f"  mean {prediction['summary']['mean_yield']:.2f} t/ha "
+          f"(range {prediction['summary']['min_yield']:.2f}-{prediction['summary']['max_yield']:.2f})")
+
     # Step 3: Seasonal analysis
-    print("\n📅 Step 3: Seasonal analysis...")
-    try:
-        seasonal_analyzer = SeasonalAnalyzer()
-        crop_data = generate_crop_data(n_days=365)
-        
-        # Analyze growing season
-        if hasattr(seasonal_analyzer, 'analyze_growing_season'):
-            try:
-                season_result = seasonal_analyzer.analyze_growing_season(crop_data)
-                print(f"   ✅ Growing season analysis complete")
-                print(f"   Season start: {season_result.get('start_date', 'N/A')}")
-                print(f"   Season end: {season_result.get('end_date', 'N/A')}")
-            except Exception as e:
-                print(f"   ℹ️  Growing season analysis: {e}")
-    except Exception as e:
-        print(f"   ⚠️  Seasonal analysis: {e}")
-    
-    # Step 4: Agricultural analysis
-    print("\n🔬 Step 4: Comprehensive agricultural analysis...")
-    try:
-        if field is not None:
-            analyzer = AgriculturalAnalysis()
-            print(f"   ✅ Agricultural analysis engine initialized")
-            
-            # Display available methods
-            print(f"   Available analysis capabilities:")
-            print(f"     • Field boundary management")
-            print(f"     • Crop yield prediction")
-            print(f"     • Seasonal pattern analysis")
-            print(f"     • Sustainability assessment")
-    except Exception as e:
-        print(f"   ⚠️  Agricultural analysis: {e}")
-    
-    # Summary
-    print("\n" + "=" * 60)
-    print("✅ Agricultural analysis example complete!")
-    print("=" * 60)
-    print("\nKey capabilities demonstrated:")
-    print("  • Field boundary management")
-    print("  • Crop yield modeling")
-    print("  • Seasonal analysis")
-    print("  • Agricultural data processing")
-    print("\nNext steps:")
-    print("  • Integrate with SPACE for spatial field analysis")
-    print("  • Connect with TIME for temporal crop monitoring")
-    print("  • Use with IOT for real-time sensor data")
-    print("  • Combine with AI for predictive analytics")
+    print("\n[Step 3] Seasonal analysis")
+    seasonal = SeasonalAnalysis(time_series_data=pd.DataFrame({"ndvi": make_ndvi_series()}))
+    season = seasonal.detect_growing_season(variable="ndvi", method="threshold", threshold=0.3)
+    detected = season["seasons"][0]
+    print(f"Growing season: {detected['start_date'].date()} to {detected['end_date'].date()} "
+          f"({detected['length_days']} days, peak NDVI {detected['peak_value']:.2f})")
+
+    trends = seasonal.analyze_temporal_trends(variable="ndvi", period="monthly")
+    print(f"Monthly NDVI mean: {trends['statistics']['mean']:.2f} "
+          f"(trend slope {trends['trend_analysis']['slope']:.4f}/month)")
+
+    # Step 4: Sustainability assessment
+    print("\n[Step 4] Sustainability assessment")
+    assessment = SustainabilityAssessment(field_data=manager.fields)
+    carbon = assessment.assess_carbon_sequestration()
+    water = assessment.assess_water_usage()
+    print(f"Total carbon sequestration: {carbon['total_carbon_sequestration']:.1f} t C/yr "
+          f"({carbon['mean_carbon_sequestration_per_ha']:.2f} t/ha mean)")
+    print(f"Total water requirement:    {water['total_water_requirement']:.0f} m3/yr "
+          f"({water['mean_water_requirement_per_ha']:.0f} m3/ha mean)")
+
+    print("\nExample complete.")
 
 
 if __name__ == "__main__":
     main()
-

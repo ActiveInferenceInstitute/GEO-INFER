@@ -1,13 +1,13 @@
-# GEO-INFER-ANT Requirements
-aiomqtt>=2.4.0
-geopandas>=0.10.0
-h3>=4.5.0,<5
+# GEO-INFER-ANT runtime requirements (mirror of pyproject [project.dependencies])
 jsonschema>=4.0.0
-matplotlib>=3.5.0
 networkx>=2.8
 numpy>=1.21.0
 pyyaml>=6.0
 scikit-learn>=1.1.0
 scipy>=1.7.0
 
-# Added from comprehensive review
+# Optional integrations (see pyproject [project.optional-dependencies].integrations)
+# geo-infer-act / geo-infer-agent / geo-infer-space are resolved from the uv workspace.
+
+# Test-only (see pyproject [project.optional-dependencies].dev)
+h3>=4.5.0,<5

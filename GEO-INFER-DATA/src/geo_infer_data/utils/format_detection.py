@@ -6,7 +6,7 @@ geospatial data formats including vector, raster, and tabular data.
 """
 
 import logging
-from typing import Dict, List, Optional, Union, Any
+from typing import Dict, List, Union, Any
 from pathlib import Path
 import json
 import zipfile
@@ -15,7 +15,6 @@ import geopandas as gpd
 import pandas as pd
 import rasterio
 import numpy as np
-from shapely.geometry import Point, Polygon, LineString
 
 from ..models.schemas import DataFormat
 
@@ -228,7 +227,7 @@ class FormatDetector:
     def _detect_geotiff(self, file_path: Path) -> bool:
         """Detect GeoTIFF format."""
         try:
-            with rasterio.open(file_path) as src:
+            with rasterio.open(file_path):
                 return True
         except Exception:
             return False

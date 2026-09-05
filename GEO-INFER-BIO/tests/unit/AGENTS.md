@@ -22,7 +22,9 @@
 ## Local Contents
 
 - `test_climate.py`
+- `test_graphql_api.py`
 - `test_microbiome.py`
+- `test_rest_api.py`
 - `test_sequence_analysis.py`
 - `test_soil.py`
 - `test_validation.py`

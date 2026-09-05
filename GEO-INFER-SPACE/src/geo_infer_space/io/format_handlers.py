@@ -11,7 +11,6 @@ while exposing a uniform interface through the FormatHandler ABC.
 
 import json
 import logging
-import os
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union

@@ -253,54 +253,31 @@ async def geo_agent_example():
     # Run for a short time to demonstrate
     await asyncio.sleep(2)
     
-    # Update a location and trigger a recommendation
+    # Update the BDI agent's config (supported command: "update")
     await manager.send_command(
         bdi_agent_id,
-        command_type="update_belief",
+        command_type="update",
         parameters={
-            "name": "current_location",
-            "value": {"lat": 40.7308, "lng": -73.9973},
-            "confidence": 1.0
+            "config": {
+                "current_location": {"lat": 40.7308, "lng": -73.9973},
+            }
         }
     )
-    
-    # Trigger the rule-based agent
+
+    # Update the rule-based agent's config (supported command: "update")
     await manager.send_command(
         rule_agent_id,
-        command_type="update_fact",
+        command_type="update",
         parameters={
-            "key": "proximity",
-            "value": 50
+            "config": {"proximity_threshold": 50}
         }
     )
-    
-    # Query the rule-based agent facts
-    result = await manager.send_command(
-        rule_agent_id,
-        command_type="query_facts",
-        parameters={}
-    )
-    
-    print(f"\nRule-based agent facts: {json.dumps(result['result']['facts'], indent=2)}")
-    
-    # Update the hybrid agent context
-    await manager.send_command(
-        hybrid_agent_id,
-        command_type="update_context",
-        parameters={
-            "key": "alert_level",
-            "value": 2
-        }
-    )
-    
-    # Query the active sub-agents
-    result = await manager.send_command(
-        hybrid_agent_id,
-        command_type="query_agents",
-        parameters={"query_type": "active"}
-    )
-    
-    print(f"\nActive sub-agents in hybrid agent: {json.dumps(result['result']['active_agents'], indent=2)}")
+
+    # Query each agent's current state (supported command: "query")
+    for agent_id in (bdi_agent_id, rl_agent_id, rule_agent_id, hybrid_agent_id):
+        result = await manager.send_command(agent_id, command_type="query")
+        info = result["result"]
+        print(f"\nAgent {info['type']} state: status={info['status']}, config keys: {info['config_keys']}")
     
     # Wait a bit longer
     await asyncio.sleep(2)
@@ -409,44 +386,39 @@ async def map_exploration_example():
         print(f"\nExploration cycle {i+1}")
         print(f"Map explored: {explored}%")
         
-        # Send an update to the agent
+        # Send a config update to the agent (supported command: "update")
         await manager.send_command(
             agent_id,
-            command_type="update_context",
+            command_type="update",
             parameters={
-                "key": "explored_percentage",
-                "value": explored
+                "config": {"explored_percentage": explored}
             }
         )
-        
+
         # Simulate a feature detection if we're at 60%
         if explored == 60.0:
             await manager.send_command(
                 agent_id,
-                command_type="update_context",
+                command_type="update",
                 parameters={
-                    "key": "detected_feature",
-                    "value": {
-                        "type": "water_body",
-                        "location": {"lat": 40.75, "lng": -74.0},
-                        "confidence": 0.85
+                    "config": {
+                        "detected_feature": {
+                            "type": "water_body",
+                            "location": {"lat": 40.75, "lng": -74.0},
+                            "confidence": 0.85
+                        }
                     }
                 }
             )
-            
+
             print("Detected a water body feature!")
-        
-        await asyncio.sleep(1)
     
-    # Query the final state
-    result = await manager.send_command(
-        agent_id,
-        command_type="query_agents",
-        parameters={"query_type": "performance"}
-    )
-    
-    if result and "result" in result:
-        print(f"\nAgent performance: {json.dumps(result['result']['performance']['overall'], indent=2)}")
+    # Query the final state (supported command: "query")
+    result = await manager.send_command(agent_id, command_type="query")
+
+    if result and result.get("status") == "success":
+        info = result["result"]
+        print(f"\nAgent performance: status={info['status']}, config keys: {info['config_keys']}")
     
     # Stop agent
     await manager.stop_agent(agent_id)

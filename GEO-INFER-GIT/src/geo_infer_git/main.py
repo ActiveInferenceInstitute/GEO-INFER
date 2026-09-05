@@ -7,11 +7,9 @@ target repositories and users.
 """
 
 import os
-import sys
 import argparse
 import logging
-from typing import Dict, Any, List, Optional, cast
-import yaml
+from typing import Dict, Any
 
 # Import the required modules
 from .utils.config_loader import (
@@ -34,17 +32,17 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument('--output-dir', type=str,
                         help='Directory to store cloned repositories')
     
-    parser.add_argument('--clone-repos', action='store_true', default=True,
-                        help='Clone repositories from target_repos.yaml')
+    parser.add_argument('--clone-repos', action=argparse.BooleanOptionalAction, default=True,
+                        help='Clone repositories from target_repos.yaml (use --no-clone-repos to disable)')
     
-    parser.add_argument('--clone-users', action='store_true', default=True,
-                        help='Clone repositories from users in target_users.yaml')
+    parser.add_argument('--clone-users', action=argparse.BooleanOptionalAction, default=True,
+                        help='Clone repositories from users in target_users.yaml (use --no-clone-users to disable)')
     
     parser.add_argument('--github-token', type=str,
                         help='GitHub API token for authentication')
     
-    parser.add_argument('--parallel', action='store_true', default=True,
-                        help='Clone repositories in parallel')
+    parser.add_argument('--parallel', action=argparse.BooleanOptionalAction, default=True,
+                        help='Clone repositories in parallel (use --no-parallel to disable)')
     
     parser.add_argument('--max-workers', type=int, default=4,
                         help='Maximum number of parallel workers')
@@ -52,31 +50,55 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument('--verbose', action='store_true',
                         help='Enable verbose logging')
     
-    parser.add_argument('--generate-report', action='store_true', default=True,
-                        help='Generate a report after cloning')
+    parser.add_argument('--generate-report', action=argparse.BooleanOptionalAction, default=True,
+                        help='Generate a report after cloning (use --no-generate-report to disable)')
     
     return parser.parse_args()
 
 def create_gitignore_entry(output_dir: str) -> None:
-    """Add output directory to .gitignore if not already present."""
-    gitignore_path = os.path.abspath(os.path.join(output_dir, '..', '..', '.gitignore'))
-    
+    """Add output directory to the containing repository's .gitignore.
+
+    Walks up from the output directory to find an enclosing git working
+    tree. When the output directory is not inside any repository, nothing
+    is written.
+    """
+    search_dir = os.path.abspath(output_dir)
+    repo_root = None
+    while True:
+        parent = os.path.dirname(search_dir)
+        if os.path.isdir(os.path.join(search_dir, '.git')):
+            repo_root = search_dir
+            break
+        if parent == search_dir:
+            break
+        search_dir = parent
+
+    if repo_root is None:
+        logger.debug(
+            f"Output directory {output_dir} is not inside a git repository; "
+            "skipping .gitignore update"
+        )
+        return
+
+    gitignore_path = os.path.join(repo_root, '.gitignore')
+    relative_entry = os.path.relpath(os.path.abspath(output_dir), repo_root)
+
     # Create .gitignore if it doesn't exist
     if not os.path.exists(gitignore_path):
         with open(gitignore_path, 'w') as f:
-            f.write(f"{output_dir}\n")
-        logger.info(f"Created .gitignore with entry for {output_dir}")
+            f.write(f"{relative_entry}\n")
+        logger.info(f"Created .gitignore with entry for {relative_entry}")
         return
-    
+
     # Check if entry already exists
     with open(gitignore_path, 'r') as f:
         content = f.read()
-    
+
     # Add entry if not found
-    if output_dir not in content:
+    if relative_entry not in content:
         with open(gitignore_path, 'a') as f:
-            f.write(f"\n# GEO-INFER-GIT cloned repositories\n{output_dir}\n")
-        logger.info(f"Added {output_dir} to .gitignore")
+            f.write(f"\n# GEO-INFER-GIT cloned repositories\n{relative_entry}\n")
+        logger.info(f"Added {relative_entry} to .gitignore")
 
 def generate_report(results: Dict[str, Any], output_dir: str, format: str = 'markdown') -> str:
     """Generate a report of cloning results."""
@@ -146,33 +168,33 @@ def main() -> None:
     
     # Load configuration
     config_dir = args.config_dir
-    clone_config = cast(Dict[str, Any], load_clone_config(config_dir))
-    
+    clone_config = load_clone_config(config_dir)
+
     # Override configuration with command line arguments
     if args.output_dir:
-        clone_config["general"]["output_dir"] = args.output_dir
-    
+        clone_config.output_dir = args.output_dir
+
     if args.github_token:
-        clone_config["github"]["token"] = args.github_token
-    
-    clone_config["concurrency"]["enabled"] = args.parallel
+        clone_config.github_token = args.github_token
+
+    clone_config.concurrency_enabled = args.parallel
     if args.max_workers:
-        clone_config["concurrency"]["max_workers"] = args.max_workers
-    
+        clone_config.max_workers = args.max_workers
+
     # Initialize GitHub API client
     github_api = GitHubAPI(
-        token=clone_config["github"]["token"],
-        api_url=clone_config["github"]["api_url"],
-        wait_on_rate_limit=clone_config["github"]["wait_on_rate_limit"],
-        max_retries=clone_config["github"]["max_retries"],
-        retry_delay=clone_config["github"]["retry_delay"]
+        token=clone_config.github_token,
+        api_url=clone_config.github_api_url,
+        wait_on_rate_limit=clone_config.github_wait_on_rate_limit,
+        max_retries=clone_config.github_max_retries,
+        retry_delay=clone_config.github_retry_delay
     )
-    
+
     # Initialize repository cloner
-    repo_cloner = RepoCloner(cast(Any, clone_config))
-    
+    repo_cloner = RepoCloner(clone_config)
+
     # Add cloned repositories directory to .gitignore
-    create_gitignore_entry(clone_config["general"]["output_dir"])
+    create_gitignore_entry(clone_config.output_dir)
     
     # Collect results for report
     results: Dict[str, Any] = {
@@ -185,16 +207,13 @@ def main() -> None:
     try:
         # Clone specific repositories
         if args.clone_repos:
-            target_repos = cast(
-                List[Dict[str, Any]], load_target_repos_config(config_dir)
-            )
+            target_repos = load_target_repos_config(config_dir)
             logger.info(f"Cloning {len(target_repos)} target repositories")
             
             for repo_info in target_repos:
-                owner = repo_info.get("owner")
-                repo = repo_info.get("repo")
-                branch = repo_info.get("branch")
-                
+                owner = repo_info.owner
+                repo = repo_info.repo
+                branch = repo_info.branch
                 if not owner or not repo:
                     logger.warning(f"Skipping invalid repository configuration: {repo_info}")
                     continue
@@ -219,22 +238,19 @@ def main() -> None:
                         'error': str(e)
                     })
         
-        # Clone user repositories
         if args.clone_users:
-            target_users = cast(
-                List[Dict[str, Any]], load_target_users_config(config_dir)
-            )
+            target_users = load_target_users_config(config_dir)
             logger.info(f"Cloning repositories for {len(target_users)} users")
-            
+
             for user_info in target_users:
-                username = user_info.get("username")
+                username = user_info.username
                 if not username:
                     logger.warning(f"Skipping user with no username: {user_info}")
                     continue
-                
-                include_repos = user_info.get("include_repos", [])
-                exclude_repos = user_info.get("exclude_repos", [])
-                max_repos = user_info.get("max_repos", 10)
+
+                include_repos = user_info.include_repos
+                exclude_repos = user_info.exclude_repos
+                max_repos = user_info.max_repos
                 
                 try:
                     user_repos = github_api.get_user_repositories(
@@ -258,7 +274,7 @@ def main() -> None:
                     for repo in user_repos:
                         repo_name = getattr(repo, "name", "")
                         repo_path = os.path.join(
-                            clone_config["general"]["output_dir"],
+                            clone_config.output_dir,
                             username,
                             repo_name,
                         )
@@ -285,11 +301,11 @@ def main() -> None:
         # Generate report
         if args.generate_report:
             report_file = generate_report(
-                results, 
-                clone_config["general"]["output_dir"],
-                clone_config["logging"]["report_format"]
+                results,
+                clone_config.output_dir,
+                clone_config.report_format
             )
-            print(f"Cloning report generated: {report_file}")
+            logger.info(f"Cloning report generated: {report_file}")
         
         # Print summary
         success_rate = (results['success_repos'] / results['total_repos'] * 100) if results['total_repos'] > 0 else 0

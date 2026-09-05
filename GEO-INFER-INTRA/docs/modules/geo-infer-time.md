@@ -615,7 +615,6 @@ delta=1e-5
 - **[GEO-INFER-AI](../modules/geo-infer-ai.md)** - AI and machine learning capabilities
 ---
 **Ready to get started?** Check out the **[Temporal Analysis Basics Tutorial](../getting_started/index.md)** or explore **[Climate Change Analysis Examples](../examples_gallery.md)**!
-```
 
 ## 🗺️ Interactive Spatial Preview
 

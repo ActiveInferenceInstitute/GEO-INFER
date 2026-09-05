@@ -196,7 +196,9 @@ class TestGeoInferTestRunner:
         )
 
     def test_runner_discovers_nested_test_files(self, tmp_path, monkeypatch):
-        monkeypatch.chdir(tmp_path)
+        # Discovery is anchored to the repo root, not the CWD; point the
+        # runner at tmp_path for the duration of the test.
+        monkeypatch.setattr("geo_infer_test.core.test_runner._REPO_ROOT", tmp_path)
         test_file = tmp_path / "GEO-INFER-SAMPLE" / "tests" / "unit" / "nested" / "test_nested.py"
         test_file.parent.mkdir(parents=True)
         test_file.write_text("def test_nested():\n    assert True\n")

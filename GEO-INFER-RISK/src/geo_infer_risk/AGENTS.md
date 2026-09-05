@@ -22,11 +22,9 @@
 ## Local Contents
 
 - `core/`
-- `underwriting/`
 - `utils/`
 - `__init__.py`
 - `civic_intel.py`
-- `crescent-city-geo-intel.json`
 
 ## Validation
 

@@ -27,7 +27,10 @@ classifiers = [
 
 dependencies = [
     "fastapi>=0.100.0",
-    "pydantic>=2.0.0"
+    "pydantic>=2.0.0",
+    "uvicorn>=0.23.0",
+    "websockets>=12.0",
+    "requests>=2.31.0",
 ]
 
 [project.optional-dependencies]
@@ -88,7 +91,7 @@ line_length = 88
 known_first_party = ["geo_infer_comms"]
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -104,19 +107,7 @@ strict_equality = true
 
 [[tool.mypy.overrides]]
 module = [
-    "numpy.*",
-    "pandas.*",
-    "geopandas.*",
-    "h3.*",
-    "folium.*",
-    "plotly.*",
-    "matplotlib.*",
-    "scipy.*",
-    "sklearn.*",
-    "tensorflow.*",
-    "torch.*",
-    "pymc.*",
-    "arviz.*",
+    "shapely.*",
 ]
 ignore_missing_imports = true
 

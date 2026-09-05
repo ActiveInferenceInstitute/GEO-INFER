@@ -236,56 +236,40 @@ def setup_structured_logging(
     service_name: str = "geo-infer-health",
     version: str = "1.0.0",
     environment: str = "development",
+    file_path: Optional[str] = None,
+    level: str = "INFO",
 ) -> None:
     """
-    Setup structured logging for production use.
+    Setup JSON structured logging for production use.
+
+    Replaces loguru's default handler with a serialized (JSON) sink on
+    stdout and attaches service metadata to every record via
+    ``logger.bind``. File logging is opt-in: pass ``file_path`` to also
+    write rotating JSON logs to disk (the parent directory is created).
 
     Args:
         service_name: Name of the service
         version: Service version
         environment: Deployment environment
+        file_path: Optional path for a rotating JSON log file
+        level: Minimum console log level
     """
-    # Configure JSON format for structured logging
-    json_format = (
-        '{{"timestamp": "{time:YYYY-MM-DDTHH:mm:ssZ}", '
-        '"level": "{level}", '
-        '"service": "' + service_name + '", '
-        '"version": "' + version + '", '
-        '"environment": "' + environment + '", '
-        '"logger": "{name}", '
-        '"function": "{function}", '
-        '"line": {line}, '
-        '"message": "{message}"'
-        "{extra_fields}"
-        "}}"
-    )
-
-    # Remove existing handlers
+    context = {
+        "service": service_name,
+        "version": version,
+        "environment": environment,
+    }
+    logger.configure(extra=context)
     logger.remove()
+    logger.add(sys.stdout, level=level, serialize=True)
 
-    # Add JSON console handler
-    logger.add(
-        sys.stdout,
-        format=json_format,
-        level="INFO",
-        serialize=False,  # We'll handle JSON manually
-    )
-
-    # Add file handler with rotation
-    log_file = f"logs/{service_name}_{environment}.log"
-    Path("logs").mkdir(exist_ok=True)
-
-    logger.add(
-        log_file,
-        format=json_format,
-        level="DEBUG",
-        rotation="1 day",
-        retention="30 days",
-        encoding="utf-8",
-        serialize=False,
-    )
-
-    logger.info(
-        "Structured logging configured",
-        extra={"service": service_name, "version": version, "environment": environment},
-    )
+    if file_path:
+        Path(file_path).parent.mkdir(parents=True, exist_ok=True)
+        logger.add(
+            file_path,
+            level="DEBUG",
+            rotation="1 day",
+            retention="30 days",
+            encoding="utf-8",
+            serialize=True,
+        )

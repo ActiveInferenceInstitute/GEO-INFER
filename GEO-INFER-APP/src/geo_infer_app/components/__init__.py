@@ -1,11 +1,9 @@
 """
 GEO-INFER-APP UI Components
 
-This package provides reusable UI components for GEO-INFER-APP:
-- Map components for geospatial visualization
-- Dashboard components for data visualization
-- Form components for data input
-- Agent components for managing geospatial agents
+This package provides reusable UI components for GEO-INFER-APP.
+Currently the only component family is ``agent`` (agent widgets and
+configuration forms); map and dashboard components are roadmap items.
 """
 
-__all__ = ["map", "dashboard", "form", "agent"] 
+__all__ = ["agent"]

@@ -18,50 +18,69 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 
 ### Core Capabilities
 
-- **MQTT ingestion**: Real paho-mqtt connection lifecycle management
-- **Streaming**: Async sensor data pipelines
-- **Quality control**: Spatial validation, outlier detection, data completeness
-- **Device management**: Sensor registry, health monitoring
-- **Protocol support**: MQTT, HTTP webhooks, WebSocket
+- **Ingestion**: `IoTDataIngestion` — dict/SensorMeasurement ingestion, H3 spatial indexing, MQTT (paho-mqtt thread bridge + aiomqtt async), Bayesian spatial inference via GEO-INFER-BAYES
+- **Registry**: `SensorRegistry` — sensor/network registration (`SensorMetadata`, `SensorNetworkRecord`) with H3 spatial queries
+- **Streaming**: `StreamingAPI` — FastAPI WebSocket `/ws/sensor-stream` with async broadcasts; `SensorAPI` — REST for sensors/measurements/networks
+- **Quality control**: `QualityController` — range validation, temporal consistency, outlier detection (IsolationForest with real z-score fallback), spatial consistency
+- **Bayesian inference**: `BayesianSpatialInference` (in `geo_infer_iot.core.inference`) — Gaussian-process spatial posteriors over an H3 grid
+- **Radiation monitoring**: `RadiationMonitoringSystem` — end-to-end radiation ingestion, anomaly detection, and spatial inference
 
 ### Key Imports
 
 ```python
-from geo_infer_iot.core.ingestion import MQTTIngestionEngine
-from geo_infer_iot.core.quality_control import SpatialQualityChecker
-from geo_infer_iot.core.device_management import DeviceRegistry
+from geo_infer_iot import (
+    IoTDataIngestion,
+    SensorRegistry,
+    QualityController,
+    IoTSystem,
+    RadiationMonitoringSystem,
+)
+from geo_infer_iot.core.inference import BayesianSpatialInference
 ```
 
 ## Examples
 
 ```python
-from geo_infer_iot.core.ingestion import MQTTIngestionEngine
+from geo_infer_iot import SensorRegistry, IoTDataIngestion
 
-engine = MQTTIngestionEngine(broker="mqtt.example.com", port=1883)
-engine.subscribe("sensors/temperature/#")
+registry = SensorRegistry()
+ingestion = IoTDataIngestion(registry, {"mqtt": {"host": "localhost", "port": 1883}})
 
-@engine.on_message
-def handle_temperature(topic, payload):
-    lat, lng = payload["location"]
-    temp = payload["value"]
-    print(f"Sensor at ({lat}, {lng}): {temp}°C")
+measurement = {
+    "sensor_id": "temp_001",
+    "variable": "temperature",
+    "value": 21.5,
+    "unit": "celsius",
+    "latitude": 47.6062,
+    "longitude": -122.3321,
+}
 
-engine.start()
+import asyncio
+asyncio.run(ingestion.ingest_measurement(measurement))
+print(ingestion.get_measurement_statistics())
 ```
 
 ```python
-from geo_infer_iot.core.quality_control import SpatialQualityChecker
+from geo_infer_iot import QualityController
 
-checker = SpatialQualityChecker(bounds=(-90, -180, 90, 180))
-clean_data = checker.validate(raw_readings)
-print(f"Passed: {len(clean_data.valid)}, Rejected: {len(clean_data.outliers)}")
+checker = QualityController({
+    "variable_ranges": {"temperature": (-40.0, 60.0)},
+    "temporal_consistency": {"max_change_rate": 0.1},
+})
+result = checker.validate_measurement({
+    "sensor_id": "temp_001",
+    "variable": "temperature",
+    "value": 21.5,
+    "timestamp": "2026-01-01T00:00:00+00:00",
+})
+print(f"Passed: {result.passed}, score: {result.quality_score:.2f}, issues: {result.issues}")
 ```
 
 ## Guidelines
 
-- MQTT handlers use real paho-mqtt (not placeholders)
-- Spatial validation includes real geometry checks
-- Optional deps load via `try/except` with lightweight fallback adapters for graceful degradation
+- MQTT handlers use real paho-mqtt (thread bridge) or aiomqtt (async); broker connection happens in `start_stream_processing` inside a running event loop
+- geo_infer_space and geo_infer_bayes are required workspace dependencies — they import unconditionally and fail loudly on a broken install
+- Quality-control config nests under documented keys (e.g. `temporal_consistency.max_change_rate`); a flat `max_change_rate` is a legacy fallback
 - Test: `uv run python -m pytest GEO-INFER-IOT/tests/ -v`
 
 ### Integrations
@@ -69,5 +88,6 @@ print(f"Passed: {len(clean_data.valid)}, Rejected: {len(clean_data.outliers)}")
 - **DATA** → Sensor data feeds into ETL pipelines
 - **TIME** → Time-series analysis of sensor streams
 - **SPACE** → Spatial indexing of sensor locations
-- **OPS** → Monitoring sensor health and uptime
+- **OPS** → Monitoring sensor health and uptime (`PredictiveMaintenance`)
 - **COMMS** → Alert broadcasting on sensor thresholds
+

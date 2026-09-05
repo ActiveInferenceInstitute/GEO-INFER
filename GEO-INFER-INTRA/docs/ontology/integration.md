@@ -563,4 +563,3 @@ diagnostics.generate_report(report, "integration-diagnostic-report.html")
 - [Custom Rules Development](custom_rules.md)
 - [Knowledge Base Integration](integration.md)
 - [External Systems Integration](../integration/index.md)
-```

@@ -2,10 +2,8 @@
 Carbon sequestration modeling for agricultural lands.
 """
 
-from typing import Dict, List, Optional, Union, Any, Tuple
+from typing import Dict, List, Optional, Union, Any
 import numpy as np
-import pandas as pd
-import geopandas as gpd
 from datetime import datetime
 from sklearn.ensemble import RandomForestRegressor
 

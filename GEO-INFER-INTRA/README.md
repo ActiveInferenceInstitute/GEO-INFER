@@ -1,6 +1,6 @@
 # GEO-INFER-INTRA
 
-Comprehensive project documentation, workflow management, and ontology systems for the GEO-INFER ecosystem.
+Reproducible documentation previews and configuration utilities for the GEO-INFER ecosystem.
 
 ## Contents
 
@@ -34,18 +34,10 @@ Comprehensive project documentation, workflow management, and ontology systems f
 
 ## Dependencies
 
-- `fastapi>=0.100.0`
 - `h3>=4.5.0,<5`
-- `pydantic>=2.0.0`
-- `sqlalchemy>=2.0.0`
-- `elasticsearch>=8.0.0`
-- `rdflib>=6.0.0`
-- `mkdocs>=1.4.0`
-- `celery>=5.2.0`
-- `pyyaml>=6.0`
 - `jsonschema>=4.0.0`
-- `typer>=0.7.0`
-- `rich>=12.0.0`
+- `Pillow>=10.0`
+- `pyyaml>=6.0`
 
 
 ## Validation

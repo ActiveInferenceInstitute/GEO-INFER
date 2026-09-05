@@ -36,9 +36,13 @@ class SensorMetadata:
                 self.latitude, self.longitude, self.h3_resolution
             )
 
-@dataclass 
-class SensorNetwork:
-    """Represents a sensor network with spatial bounds."""
+@dataclass
+class SensorNetworkRecord:
+    """Registry record for a sensor network with spatial bounds.
+
+    Renamed from ``SensorNetwork`` to avoid clashing with the validated
+    ``geo_infer_iot.models.sensor.SensorNetwork`` pydantic model.
+    """
     network_id: str
     name: str
     protocol: str
@@ -60,17 +64,17 @@ class SensorRegistry:
     
     def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         self.config = config or {}
-        self.networks: Dict[str, SensorNetwork] = {}
+        self.networks: Dict[str, SensorNetworkRecord] = {}
         self.sensors: Dict[str, SensorMetadata] = {}
         self.h3_spatial_index: Dict[str, Set[str]] = {}  # h3_index -> sensor_ids
         
         logger.info("Sensor Registry initialized")
     
-    def register_network(self, **kwargs: Any) -> SensorNetwork:
+    def register_network(self, **kwargs: Any) -> SensorNetworkRecord:
         """Register a new sensor network."""
         network_id = kwargs.get('network_id') or str(uuid.uuid4())
         
-        network = SensorNetwork(
+        network = SensorNetworkRecord(
             network_id=network_id,
             name=kwargs['name'],
             protocol=kwargs['protocol'],

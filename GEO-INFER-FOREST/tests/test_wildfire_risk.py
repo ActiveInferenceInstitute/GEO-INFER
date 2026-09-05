@@ -386,3 +386,13 @@ class TestAnisotropicSpread:
         )
         assert "spread_probability" in result
         assert "potential_spread" in result
+
+    def test_isotropic_equals_potential_spread(self, analyzer, field):
+        """Without wind, directional_spread equals potential_spread in every direction."""
+        ignition, fuel = field
+        result = analyzer.predict_fire_spread(ignition, fuel)
+        for direction in np.arange(0.0, 360.0, 45.0):
+            np.testing.assert_allclose(
+                result["directional_spread"].sel(direction=direction).values,
+                result["potential_spread"].values,
+            )

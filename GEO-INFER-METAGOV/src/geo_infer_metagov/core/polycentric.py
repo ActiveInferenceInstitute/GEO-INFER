@@ -1,6 +1,6 @@
 """Polycentric governance systems with multiple overlapping authorities."""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List, Dict, Any
 import logging
 

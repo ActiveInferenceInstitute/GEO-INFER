@@ -31,17 +31,14 @@ python # Agent utility function U(a, s) = Σ P(s'|s, a) * R(s, a, s') * V(s') # 
 python # Nash equilibrium condition π_i*(s) = argmax_a Σ P(s'|s, a) * R_i(s, a, s') * V_i(s') # Where: # π_i*(s) = optimal policy for agent i in state s # R_i(s, a, s') = reward for agent i # V_i(s') = value function for agent i
 ```
  #### Spatial Agent Coordination Spatial coordination uses spatial game theory:
-```
 ```python
  # Spatial coordination utility U_coord(a_i, a_j, d_ij) = U_individual(a_i) + α * f(d_ij) * U_cooperation(a_i, a_j) # Where: # d_ij = spatial distance between agents i and j # α = coordination strength parameter # f(d_ij) = spatial decay function
 ```
  ### Key Concepts #### Agent Architecture The module provides a framework for creating agents with capabilities:
-```
 ```python
  from geo_infer_agent import IntelligentAgent # Create agent agent = IntelligentAgent( agent_id="environmental_monitor_001", capabilities=['spatial_analysis', 'decision_making', 'learning', 'communication'], spatial_context=spatial_bounds, decision_framework='active_inference', learning_algorithm='reinforcement_learning', communication_protocol='secure_broadcast' ) # Define agent behavior agent.set_behavior_rules({ 'exploration_radius': 1000, 'decision_frequency': 'real_time', 'learning_rate': 0.1, 'collaboration_threshold': 0.8, 'uncertainty_quantification': True, 'adaptive_strategy': 'meta_learning' })
 ```
  #### Multi-Agent Coordination Enable agents to work together in complex spatial environments with coordination:
-```
 ```python
  from geo_infer_agent import MultiAgentSystem # Create multi-agent system mas = MultiAgentSystem( environment=spatial_environment, coordination_strategy='hierarchical_emergent', communication_protocol='secure_spatial_broadcast', agent_population=100, spatial_distribution='uniform', learning_enabled=True, security_enabled=True )
 ```

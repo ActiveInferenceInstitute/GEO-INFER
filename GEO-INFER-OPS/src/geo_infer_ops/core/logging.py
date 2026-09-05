@@ -7,7 +7,7 @@ configure the process once via
 ``geo_infer_ops.utils.shared_logging.configure_logging``.
 """
 
-from typing import Any, cast
+from typing import cast
 
 import structlog
 

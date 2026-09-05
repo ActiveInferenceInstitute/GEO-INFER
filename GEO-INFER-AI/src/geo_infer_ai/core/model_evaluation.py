@@ -5,8 +5,10 @@ Provides geospatial-specific evaluation metrics and validation methods.
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
+
 import numpy as np
+from sklearn.cluster import KMeans
 from sklearn.metrics import (
     accuracy_score,
     precision_score,
@@ -25,7 +27,7 @@ class GeospatialModelEvaluator:
     Evaluate geospatial AI models with spatial-specific metrics.
     """
     
-    def __init__(self, config: Optional[Dict] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         """Initialize model evaluator."""
         self.config = config or {}
     
@@ -33,7 +35,7 @@ class GeospatialModelEvaluator:
         self,
         y_true: np.ndarray,
         y_pred: np.ndarray,
-        labels: Optional[List] = None
+        labels: Optional[List[Any]] = None,
     ) -> Dict[str, float]:
         """
         Evaluate classification model.
@@ -87,32 +89,38 @@ class GeospatialModelEvaluator:
         buffer_distance: float = 100.0
     ) -> Dict[str, float]:
         """
-        Evaluate spatial accuracy (location-based metrics).
-        
+        Evaluate prediction accuracy as a value-error-within-tolerance metric.
+
+        The errors analyzed here are ``|y_true - y_pred|`` in the units of the
+        target values, not geographic distances: ``buffer_distance`` is a
+        tolerance on the prediction error (in target-value units), and the
+        returned ``within_buffer_percentage`` is the share of predictions
+        whose error stays within that tolerance. ``coordinates`` is accepted
+        for API compatibility with other spatial evaluators but does not
+        affect this value-based metric; no distance calculation in map units
+        is performed.
+
         Args:
             y_true: True values
             y_pred: Predicted values
-            coordinates: Spatial coordinates
-            buffer_distance: Buffer distance for spatial matching (meters)
-            
+            coordinates: Spatial coordinates (unused; accepted for API
+                compatibility)
+            buffer_distance: Tolerance on the absolute prediction error, in
+                the same units as the target values (not meters)
+
         Returns:
-            Spatial accuracy metrics
+            Error statistics in target-value units plus the
+            ``within_buffer_percentage`` tolerance score
         """
-        # Simplified spatial accuracy calculation
-        # In practice, would use actual distance calculations
-        
-        # Calculate prediction errors
         errors = np.abs(y_true - y_pred)
-        
-        # Spatial error statistics
+
         spatial_metrics = {
             'mean_spatial_error': float(np.mean(errors)),
             'median_spatial_error': float(np.median(errors)),
             'max_spatial_error': float(np.max(errors)),
             'spatial_error_std': float(np.std(errors))
         }
-        
-        # Percentage within buffer
+
         within_buffer = np.sum(errors <= buffer_distance) / len(errors) * 100
         spatial_metrics['within_buffer_percentage'] = float(within_buffer)
         
@@ -122,7 +130,7 @@ class GeospatialModelEvaluator:
         self,
         y_true: np.ndarray,
         y_pred: np.ndarray,
-        labels: Optional[List] = None,
+        labels: Optional[List[Any]] = None,
         normalize: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
@@ -268,41 +276,56 @@ class GeospatialModelEvaluator:
         n_splits: int = 5
     ) -> Dict[str, Any]:
         """
-        Perform spatial cross-validation.
-        
+        Perform spatial block cross-validation.
+
+        The sample locations are partitioned into ``n_splits`` contiguous
+        spatial blocks with K-means on ``coordinates``. Each fold trains on
+        all blocks except one and evaluates on the held-out block, so that
+        spatially autocorrelated neighbors never appear on both sides of a
+        split. This is the standard defense against spatial leakage that
+        shuffled K-fold cannot provide.
+
         Args:
-            model: Model to evaluate
+            model: Model to evaluate (scikit-learn compatible)
             X: Feature matrix
             y: Target values
-            coordinates: Spatial coordinates
-            n_splits: Number of spatial folds
-            
+            coordinates: Spatial coordinates (n_samples, 2)
+            n_splits: Number of spatial blocks (and folds)
+
         Returns:
-            Cross-validation results
+            Dictionary with per-fold scores and their mean/std
+
+        Raises:
+            ValueError: If ``n_splits`` is below 2 or exceeds the sample count
         """
-        # Simplified spatial CV - would implement proper spatial blocking
-        from sklearn.model_selection import KFold
-        
-        kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
-        scores = []
-        
-        for train_idx, test_idx in kf.split(X):
-            X_train, X_test = X[train_idx], X[test_idx]
-            y_train, y_test = y[train_idx], y[test_idx]
-            
-            model.fit(X_train, y_train)
-            y_pred = model.predict(X_test)
-            
+        if n_splits < 2:
+            raise ValueError("n_splits must be at least 2")
+        if n_splits > len(y):
+            raise ValueError("n_splits cannot exceed the number of samples")
+
+        coordinates = np.asarray(coordinates, dtype=float)
+        blocks = KMeans(n_clusters=n_splits, n_init=10, random_state=42).fit_predict(
+            coordinates
+        )
+
+        scores: List[float] = []
+        for block in np.unique(blocks):
+            test_idx = np.where(blocks == block)[0]
+            train_idx = np.where(blocks != block)[0]
+
+            model.fit(X[train_idx], y[train_idx])
+            y_pred = model.predict(X[test_idx])
+
             if len(np.unique(y)) > 10:  # Regression
-                score = r2_score(y_test, y_pred)
+                score = r2_score(y[test_idx], y_pred)
             else:  # Classification
-                score = accuracy_score(y_test, y_pred)
-            
-            scores.append(score)
-        
+                score = accuracy_score(y[test_idx], y_pred)
+
+            scores.append(float(score))
+
         return {
             'mean_score': float(np.mean(scores)),
             'std_score': float(np.std(scores)),
-            'scores': [float(s) for s in scores]
+            'scores': scores,
         }
 

@@ -11,17 +11,14 @@ mermaid graph TD A[Scale] --> B[Map Scale] A --> C[Analysis Scale] A --> D[Pheno
 mermaid graph TD A[Map Scale Categories] --> B[Large Scale] A --> C[Medium Scale] A --> D[Small Scale] B --> E["1:100 - 1:24,000"] B --> F["Detailed/Local"] C --> G["1:24,000 - 1:250,000"] C --> H["Regional"] D --> I["1:250,000 and smaller"] D --> J["Global/Continental"]
 ```
  1. **Large Scale Maps** (smaller denominator) - Show smaller areas in greater detail - Examples: 1:1,200 (site plans), 1:24,000 (USGS topographic quadrangles) - Used for: Property mapping, urban planning, facility management 2. **Medium Scale Maps** - Balance between detail and coverage - Examples: 1:50,000, 1:100,000 (regional maps) - Used for: County planning, transportation networks 3. **Small Scale Maps** (larger denominator) - Show larger areas with less detail - Examples: 1:1,000,000 (national maps), 1:50,000,000 (world maps) - Used for: National/global patterns, thematic mapping ### The Scale Paradox In cartography, there's a terminological paradox: - "Large scale" maps show small areas with high detail - "Small scale" maps show large areas with low detail This can be explained by thinking of the representative fraction: 1/10,000 is mathematically larger than 1/1,000,000. ### Analysis Scale vs. Cartographic Scale
-```
 ```mermaid
  graph TD A[Scale Concepts] --> B[Cartographic Scale] A --> C[Analysis Scale] B --> D[Visualization Focus] B --> E[Display Properties] C --> F[Process Focus] C --> G[Phenomenon Extent]
 ```
  1. **Cartographic Scale**: Related to visualization - Concerns how features are displayed on maps - Affects symbol sizes, line weights, text placement - Guides map generalization decisions 2. **Analysis Scale**: Related to geographic phenomena - The spatial extent at which processes operate - Determines appropriate methods and data - Example: Watershed analysis at local vs. regional scales ## Resolution Concepts Resolution refers to the level of detail or granularity in geospatial data. It's the minimum size at which features or changes can be detected.
-```
 ```mermaid
  graph TD A[Resolution] --> B[Spatial Resolution] A --> C[Temporal Resolution] A --> D[Spectral Resolution] A --> E[Radiometric Resolution] A --> F[Thematic Resolution] B --> G[Raster Cell Size] B --> H[Vector Detail] C --> I[Observation Frequency] D --> J[Number of Bands] D --> K[Band Width] E --> L[Bit Depth] F --> M[Classification Detail]
 ```
  ### Spatial Resolution Spatial resolution refers to the smallest discernible detail in an image or the minimum size of features that can be represented in a dataset. #### Raster Spatial Resolution
-```
 ```mermaid
  graph TD A[Raster Resolution] --> B[Cell Size] A --> C[Ground Sample Distance] A --> D[Pixel Size] B --> E[Higher Resolution] B --> F[Lower Resolution] E --> G[Smaller Cells] E --> H[More Detail] E --> I[Larger File Size] F --> J[Larger Cells] F --> K[Less Detail] F --> L[Smaller File Size]
 ```

@@ -198,3 +198,22 @@ class TestOrchestratorRetryAndDependencySemantics:
         )
         with pytest.raises(ValueError, match="Invalid task dependencies"):
             asyncio.run(orchestrator.execute_workflow())
+
+    def test_workflow_counters_count_each_task_once(
+        self, orchestrator: Orchestrator
+    ) -> None:
+        """Completed tasks are counted once even across multiple scheduling waves."""
+
+        def first() -> str:
+            return "first"
+
+        def second() -> str:
+            return "second"
+
+        first_id = orchestrator.add_task(name="first", func=first)
+        orchestrator.add_task(name="second", func=second, dependencies=[first_id])
+
+        result = asyncio.run(orchestrator.execute_workflow())
+
+        assert result["completed_tasks"] == 2
+        assert result["failed_tasks"] == 0

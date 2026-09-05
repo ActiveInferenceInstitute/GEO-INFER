@@ -7,7 +7,7 @@ All seeded workflows in GEO-INFER-MATH should obtain their RNG via
 
 from __future__ import annotations
 
-from typing import Any, Optional, Union
+from typing import Union
 import numpy as np
 
 SeedLike = Union[

@@ -9,7 +9,6 @@ import logging
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
 import math
 
 logger = logging.getLogger(__name__)
@@ -105,6 +104,11 @@ class AccessibilityAnalyzer:
                     )
                     reachable = list(lengths.keys())
                 except (nx.NetworkXError, KeyError):
+                    logger.warning(
+                        "Origin %r not routable in network; isochrone degenerates "
+                        "to the origin node only",
+                        origin_id,
+                    )
                     reachable = [origin_id]
             else:
                 # Estimate reachable area without network

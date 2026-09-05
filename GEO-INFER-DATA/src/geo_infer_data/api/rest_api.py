@@ -6,7 +6,6 @@ and processing operations.
 """
 
 import logging
-import inspect
 from typing import Dict, List, Optional, Any, cast
 from datetime import datetime, timezone
 from pathlib import Path
@@ -19,10 +18,10 @@ from ..models.schemas import (
     Dataset,
     DatasetMetadata,
     DatasetSummary,
-    DataQualityReport,
     HealthStatus,
 )
 from ..core.ingestion import MultiSourceDataIngestion
+from geo_infer_data import __version__
 from ..core.storage import AdaptiveDataStorage
 from ..core.validation import DataQualityManager
 from ..core.pipeline import IntelligentETLPipeline
@@ -30,13 +29,6 @@ from .service import DataService
 
 
 logger = logging.getLogger(__name__)
-
-
-async def _maybe_await(value: Any) -> Any:
-    """Return sync values and await coroutine-like service results."""
-    if inspect.isawaitable(value):
-        return await value
-    return value
 
 
 class DataAPI:
@@ -92,7 +84,7 @@ class DataAPI:
         self.app = FastAPI(
             title="GEO-INFER-DATA API",
             description="Comprehensive Data Management and Storage for Geospatial Systems",
-            version="1.0.0",
+            version=__version__,
         )
 
         if self.enable_cors:
@@ -116,7 +108,7 @@ class DataAPI:
             """Root endpoint."""
             return {
                 "name": "GEO-INFER-DATA API",
-                "version": "1.0.0",
+                "version": __version__,
                 "status": "running",
                 "timestamp": datetime.now(timezone.utc).isoformat(),
             }
@@ -182,7 +174,7 @@ class DataAPI:
         @self.app.get("/datasets/{dataset_id}/data")
         async def get_dataset_data(
             dataset_id: str = PathParam(...),
-            format: str = Query("geojson", enum=["geojson", "geotiff", "csv"]),
+            format: str = Query("geojson", enum=["geojson", "csv"]),
             bbox: Optional[List[float]] = Query(None),
         ) -> Dict[str, Any]:
             """Get dataset data."""
@@ -312,130 +304,3 @@ class DataAPI:
         # Implementation for graceful shutdown
 
 
-class DatasetAPI:
-    """
-    Dataset-specific API operations.
-
-    This class provides dataset management operations including
-    CRUD operations, metadata management, and access control.
-
-    Examples:
-        >>> dataset_api = DatasetAPI(storage_service, quality_service)
-        >>>
-        >>> # Create dataset
-        >>> dataset = await dataset_api.create_dataset(metadata, data)
-        >>>
-        >>> # Update dataset
-        >>> await dataset_api.update_dataset(dataset_id, updates)
-        >>>
-        >>> # Delete dataset
-        >>> await dataset_api.delete_dataset(dataset_id)
-    """
-
-    def __init__(
-        self, storage_service: AdaptiveDataStorage, quality_service: DataQualityManager
-    ):
-        self.storage_service = storage_service
-        self.quality_service = quality_service
-        self.datasets: Dict[str, Dataset] = {}
-
-        logger.info("Initialized DatasetAPI")
-
-    async def create_dataset(self, metadata: DatasetMetadata, data: Any) -> str:
-        """
-        Create a new dataset.
-
-        Args:
-            metadata: Dataset metadata
-            data: Dataset data
-
-        Returns:
-            Dataset ID
-        """
-        logger.info(f"Creating dataset: {metadata.title}")
-
-        # Validate data
-        quality_report = await self.quality_service.validator.validate_data(
-            data, metadata
-        )
-
-        if quality_report.overall_score < 0.5:  # Very low quality
-            raise ValueError(f"Data quality too low: {quality_report.overall_score}")
-
-        # Store data
-        dataset_id = await self.storage_service.store_geospatial_data(data, metadata)
-
-        self.datasets[dataset_id] = Dataset(
-            id=dataset_id,
-            title=metadata.title,
-            description=metadata.description,
-            type=cast(Any, "vector"),
-            format=cast(Any, "geojson"),
-            metadata=metadata,
-        )
-        self.quality_service.register_dataset(dataset_id, data, metadata)
-
-        logger.info(f"Dataset created successfully: {dataset_id}")
-        return dataset_id
-
-    async def get_dataset(self, dataset_id: str) -> Optional[Dataset]:
-        """
-        Get dataset information.
-
-        Args:
-            dataset_id: Dataset identifier
-
-        Returns:
-            Dataset information
-        """
-        return self.datasets.get(dataset_id)
-
-    async def update_dataset(self, dataset_id: str, updates: Dict[str, Any]) -> bool:
-        """
-        Update dataset information.
-
-        Args:
-            dataset_id: Dataset identifier
-            updates: Updates to apply
-
-        Returns:
-            True if successful
-        """
-        logger.info(f"Updating dataset {dataset_id}: {updates}")
-
-        dataset = self.datasets.get(dataset_id)
-        if dataset is None:
-            return False
-        for field, value in updates.items():
-            if hasattr(dataset, field):
-                setattr(dataset, field, value)
-        return True
-
-    async def delete_dataset(self, dataset_id: str) -> bool:
-        """
-        Delete a dataset.
-
-        Args:
-            dataset_id: Dataset identifier
-
-        Returns:
-            True if successful
-        """
-        logger.info(f"Deleting dataset: {dataset_id}")
-
-        return self.datasets.pop(dataset_id, None) is not None
-
-    async def get_dataset_quality(self, dataset_id: str) -> DataQualityReport:
-        """
-        Get dataset quality report.
-
-        Args:
-            dataset_id: Dataset identifier
-
-        Returns:
-            Quality report
-        """
-        return cast(
-            DataQualityReport,
-            await _maybe_await(self.quality_service.validate_dataset(dataset_id)),
-        )

@@ -112,7 +112,7 @@ class TestCoverageAnalysis:
         assert 0 <= result["coverage_rate"] <= 1
         assert result["covered_population"] <= result["total_population"]
 
-    def test_coverage_with_equity_analysis(self) -> None:
+    def test_coverage_without_demographics_omits_equity(self) -> None:
         optimizer = TransitOptimizer()
         result = optimizer.analyze_coverage(
             stops=[{"id": "s1", "location": {"lat": 34.0, "lon": -118.0}}],
@@ -121,7 +121,48 @@ class TestCoverageAnalysis:
             ],
             equity_focus=True,
         )
-        assert "equity_analysis" in result
+        assert "equity_analysis" not in result
+
+    def test_coverage_equity_computed_from_zone_demographics(self) -> None:
+        optimizer = TransitOptimizer()
+        result = optimizer.analyze_coverage(
+            stops=[{"id": "s1", "location": {"lat": 34.0, "lon": -118.0}}],
+            population_zones=[
+                {
+                    "id": "z1",
+                    "centroid": {"lat": 34.0, "lon": -118.0},
+                    "population": 1000,
+                    "demographics": {"low_income": 0.5, "other": 0.5},
+                },
+                {
+                    "id": "z2",
+                    "centroid": {"lat": 34.5, "lon": -118.5},
+                    "population": 1000,
+                    "demographic_group": "low_income",
+                },
+            ],
+            equity_focus=True,
+        )
+        equity = result["equity_analysis"]
+        # low_income: 500 covered in z1 + 1000 uncovered in z2
+        assert equity["group_coverage"]["low_income"] == pytest.approx(500 / 1500, abs=1e-3)
+        assert equity["group_coverage"]["other"] == 1.0
+
+    def test_multi_change_scenario_accumulates_impacts(self) -> None:
+        optimizer = TransitOptimizer()
+        result = optimizer.evaluate_scenario(
+            base_network={},
+            proposed_changes=[
+                {"type": "add_route", "expected_ridership": 1000},
+                {"type": "increase_frequency"},
+                {"type": "extend_route"},
+            ],
+        )
+        impacts = result["impacts"]
+        assert impacts["ridership_change"] == 1000 + 500 + 300
+        assert impacts["cost_annual"] == 500000 + 100000 + 200000
+        assert impacts["coverage_change_pct"] == pytest.approx(2.5 + 0 + 1.5)
+        assert len(impacts["changes"]) == 3
 
 
 class TestNetworkDesign:

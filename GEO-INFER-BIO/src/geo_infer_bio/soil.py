@@ -2,13 +2,12 @@
 GEO-INFER-BIO Soil Data Processing Module
 
 This module provides soil data processing capabilities for biological spatial analysis,
-designed to work with real-world soil datasets like ISRIC SoilGrids, USDA Soil Survey,
-and other pedological data sources relevant to biological research.
+designed to work with real-world soil datasets like ISRIC SoilGrids and other
+pedological data sources relevant to biological research.
 
 Key Features:
-- ISRIC SoilGrids global soil property data
-- USDA soil survey data integration
-- Soil property spatial interpolation
+- ISRIC SoilGrids global soil property data (REST query endpoint)
+- Custom soil dataset loading from CSV/TSV files
 - Multi-depth soil profile processing
 - Integration with biological sampling coordinates
 - Soil health and quality indicators
@@ -22,21 +21,6 @@ from typing import Dict, List, Tuple, Optional, Any
 import requests
 from urllib.parse import urljoin
 
-# Geospatial and raster processing
-try:
-    import rasterio
-    import rasterio.mask
-    import rasterio.sample
-    import geopandas as gpd
-    from shapely.geometry import Point, box
-
-    HAS_RASTER_DEPS = True
-except ImportError:
-    HAS_RASTER_DEPS = False
-    logging.warning(
-        "Raster processing dependencies not available. Install with: uv pip install rasterio geopandas"
-    )
-
 logger = logging.getLogger(__name__)
 
 
@@ -46,8 +30,7 @@ class SoilDataIntegrator:
 
     Supports multiple soil data sources:
     - ISRIC SoilGrids global soil properties
-    - USDA Soil Survey data
-    - Custom soil datasets
+    - Custom soil datasets (CSV/TSV)
     """
 
     def __init__(self, cache_dir: Optional[str] = None):

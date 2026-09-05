@@ -4,8 +4,13 @@ from typing import Dict, Any
 
 
 @dataclass
-class TestResult:
-    """Test result with detailed information."""
+class TestOutcome:
+    """Test outcome with detailed information.
+
+    Renamed from ``TestResult``: the canonical ``TestResult`` in
+    ``core.test_runner`` is the runner's execution record; this dataclass is
+    the outcome shape used by model-level reporting.
+    """
 
     test_name: str
     passed: bool

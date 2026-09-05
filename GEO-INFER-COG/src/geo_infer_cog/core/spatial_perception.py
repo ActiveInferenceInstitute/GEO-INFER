@@ -23,9 +23,9 @@ Mathematical Foundations:
 import itertools
 import logging
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple, Any, Union
+from typing import Dict, List, Optional, Tuple, Any
 
 import numpy as np
 
@@ -574,7 +574,14 @@ class SpatialPerceptionModel:
         return user_insights
 
     def update_model(self, training_data: Dict[str, Any], learning_rate: float = 0.01) -> Dict[str, Any]:
-        """Update perception model based on training data."""
+        """Update perception model based on training data.
+
+        Currently applies only ``perception_feedback.saliency_accuracy``
+        (adjusting the saliency threshold). Other keys in ``training_data``
+        are accepted for forward compatibility but not yet acted upon;
+        ``parameters_updated`` in the result reports exactly which
+        parameters changed.
+        """
         update_results: Dict[str, Any] = {
             'parameters_updated': [],
             'performance_improvement': 0.0,

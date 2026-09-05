@@ -15,6 +15,7 @@ Integrations workspace within `GEO-INFER-METAGOV`.
 - `normative.py:NormativeGovernanceIntegration` (class)
 - `organizational.py:OrganizationalGovernanceIntegration` (class)
 - `security.py:SecurityGovernanceIntegration` (class)
+- `spatial.py:bounds_to_polygon` (function)
 - `spatial.py:SpatialGovernanceIntegration` (class)
 
 ## Module Metadata
@@ -27,9 +28,7 @@ Integrations workspace within `GEO-INFER-METAGOV`.
 
 ## Dependencies
 
-- `numpy>=1.20`
-- `pyyaml>=6.0`
-- `typing_extensions>=4.0`
+- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
 
 
 ## Validation

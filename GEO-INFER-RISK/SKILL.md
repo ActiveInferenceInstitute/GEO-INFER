@@ -1,6 +1,6 @@
 ---
 name: geo-infer-risk
-description: Geospatial risk modeling including catastrophe models, exposure analysis, and underwriting. Use when assessing spatial risk, building catastrophe models, analyzing exposure/hazard/vulnerability, or computing portfolio risk metrics.
+description: Geospatial risk modeling including catastrophe models and exposure analysis. Use when assessing spatial risk, building catastrophe models, analyzing exposure/hazard/vulnerability, or computing portfolio risk metrics.
 prerequisites:
   required:
     - geo-infer-space
@@ -21,10 +21,11 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 
 - **Catastrophe models**: Spatial correlation and directed multi-hazard interactions
 - **Risk engine**: Moran's I, Geary C, Monte Carlo loss calculation
-- **Exposure modeling**: Multi-source data loading (DB, file, stream, API)
+- **Exposure modeling**: `file://` loading of CSV/JSON/Parquet; other source
+  schemes (e.g. `api://`) require a configured data connector and are
+  explicitly rejected rather than silently faked
 - **Hazard modeling**: Spatial hazard assessment and mapping
 - **Vulnerability**: Bayesian uncertainty quantification
-- **Underwriting**: Rule-based fraud detection, env var API keys
 
 ### Key Imports
 

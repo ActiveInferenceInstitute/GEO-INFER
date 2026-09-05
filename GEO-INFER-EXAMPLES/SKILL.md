@@ -57,19 +57,33 @@ for workflow_id in orchestrator.list_workflows():
 ```python
 # Domain workflow: Agricultural risk assessment
 from geo_infer_ag.models.soil_health import SoilHealthModel
-from geo_infer_risk.core.risk_engine import RiskEngine
+from geo_infer_risk.core.risk_engine import EnhancedRiskEngine
 from geo_infer_space.backends.h3 import H3Backend
 
-# 1. Tessellate farm boundary
-cells = H3Backend().tessellate(farm_polygon, resolution=9)
+farm_polygon = {
+    "type": "Polygon",
+    "coordinates": [[[0.0, 0.0], [0.01, 0.0], [0.01, 0.01], [0.0, 0.01], [0.0, 0.0]]],
+}
 
-# 2. Assess soil health per cell
+# 1. Tessellate the farm boundary into H3 cells (real SPACE API)
+cells = H3Backend().polygon_to_cells(farm_polygon, resolution=9)
+
+# 2. Assess soil health per cell. SoilHealthModel.predict expects a dict with
+#    pandas "field_data" and "soil_data" frames (organic_matter, ph,
+#    bulk_density columns) and returns per-indicator scores.
 soil = SoilHealthModel()
-health_scores = {cell: soil.assess(cell) for cell in cells}
+# predictions = soil.predict({"field_data": field_df, "soil_data": soil_df})
 
-# 3. Compute risk
-risk = RiskEngine()
-risk_map = risk.assess(hazard=drought_index, exposure=health_scores)
+# 3. Compute risk with the real RISK engine
+risk = EnhancedRiskEngine()
+# risk_results = risk.run_enhanced_analysis(...)
+```
+
+```python
+# Import surface of this package
+from geo_infer_examples import ModuleOrchestrator, ExecutionStrategy, ModuleStatus
+from geo_infer_examples.core import ModuleOrchestrator as CoreOrchestrator
+from geo_infer_examples.models import WorkflowDefinition, GEO_INFER_MODULES
 ```
 
 ## Guidelines

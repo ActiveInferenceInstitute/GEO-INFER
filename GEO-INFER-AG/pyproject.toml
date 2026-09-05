@@ -12,7 +12,17 @@ requires-python = ">=3.11"
 authors = [
     {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"}
 ]
-keywords = ["geospatial", "active inference", "geoinformatics", "agriculture, precision-farming, crop-monitoring, yield-prediction, farming-optimization, agricultural-intelligence"]
+keywords = [
+    "geospatial",
+    "active inference",
+    "geoinformatics",
+    "agriculture",
+    "precision-farming",
+    "crop-monitoring",
+    "yield-prediction",
+    "farming-optimization",
+    "agricultural-intelligence",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -31,10 +41,18 @@ dependencies = [
     "geopandas>=0.10.0",
     "shapely>=1.8.0",
     "scikit-learn>=1.0.0",
-    "rasterio>=1.2.0"
+    "rasterio>=1.2.0",
+    "pyproj>=3.0.0",
+    "matplotlib>=3.3.0",
+    "scipy>=1.6.0",
+    "xarray>=0.18.0",
+    "joblib>=1.0.0",
 ]
 
 [project.optional-dependencies]
+integrations = [
+    "requests>=2.25.0",
+]
 dev = [
     "pytest>=6.2.0",
     "pytest-cov>=2.12.0",

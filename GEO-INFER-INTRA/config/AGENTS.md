@@ -22,7 +22,6 @@
 ## Local Contents
 
 - `example.yaml`
-- `schema.json`
 
 ## Validation
 

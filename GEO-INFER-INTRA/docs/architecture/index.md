@@ -1,6 +1,6 @@
 # GEO-INFER Architecture
 
-GEO-INFER is a 44-module Python workspace. Modules are independently owned
+GEO-INFER is a 45-module Python workspace. Modules are independently owned
 packages connected through explicit imports, shared data conventions, and
 contract validators. The categories below describe responsibility; they are not
 an assertion that every module has a strict one-way dependency.
@@ -36,7 +36,6 @@ flowchart TB
 
 ## Canonical data flow
 
-```
 ```text
 source data
   -> DATA ingestion/validation

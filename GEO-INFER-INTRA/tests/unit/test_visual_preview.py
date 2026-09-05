@@ -23,8 +23,8 @@ from geo_infer_intra.core.documentation.visual_preview import (
 class TestVisualPreviewContract:
     """Test suite verifying reproducible spatial widget preview cards."""
 
-    def test_all_44_modules_registered(self) -> None:
-        """Verify all 44 GEO-INFER modules are configured in the profile registry."""
+    def test_all_45_modules_registered(self) -> None:
+        """Verify all 45 GEO-INFER modules are configured in the profile registry."""
         expected_modules = {
             "ACT",
             "AG",
@@ -49,6 +49,7 @@ class TestVisualPreviewContract:
             "FOREST",
             "GIT",
             "HEALTH",
+            "INSURANCE",
             "INTRA",
             "IOT",
             "LOG",
@@ -72,7 +73,7 @@ class TestVisualPreviewContract:
             "WATER",
         }
         assert set(MODULE_PROFILES.keys()) == expected_modules
-        assert len(MODULE_PROFILES) == 44
+        assert len(MODULE_PROFILES) == 45
 
     def test_module_profiles_have_valid_spatial_attributes(self) -> None:
         """Ensure each module profile defines valid coordinates, colors, and features."""
@@ -165,10 +166,10 @@ class TestVisualPreviewContract:
             render_png_card("INVALID_MODULE", tmp_path / "fail.png")
 
     def test_generate_all_module_previews(self, tmp_path: Path) -> None:
-        """Verify batch emission produces bundles for all 44 modules deterministically."""
+        """Verify batch emission produces bundles for all 45 modules deterministically."""
         all_bundles = generate_all_module_previews(tmp_path / "first")
         repeated = generate_all_module_previews(tmp_path / "second")
-        assert len(all_bundles) == 44
+        assert len(all_bundles) == 45
         for mod_id, bundle in all_bundles.items():
             assert bundle.module_id == mod_id
             assert bundle.html_path.exists()

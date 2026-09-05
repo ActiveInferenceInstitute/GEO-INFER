@@ -11,16 +11,16 @@ from geo_infer_comms.core.messaging import (
 )
 from geo_infer_comms.core.notifications import (
     NotificationManager, AlertSystem, EmergencyAlertSystem,
-    NotificationMetrics, AlertRule, AlertResponse, NotificationFormatter
+    NotificationMetrics as NotificationMetrics, AlertRule, AlertResponse, NotificationFormatter
 )
 from geo_infer_comms.core.channels import (
     ChannelManager, ChannelPermissionManager, ChannelMessageFilter,
-    ChannelAnalytics, ChannelMetrics
+    ChannelAnalytics as ChannelAnalytics, ChannelMetrics as ChannelMetrics
 )
 from geo_infer_comms.core.events import (
     EventManager, EventScheduler, EventFilter, EventWebhookManager,
-    EventMetrics, EventProcessor, DataUpdateProcessor, SystemAlertProcessor,
-    UserActionProcessor, SensorTriggerProcessor, GeospatialChangeProcessor
+    EventMetrics as EventMetrics, EventProcessor as EventProcessor, DataUpdateProcessor as DataUpdateProcessor, SystemAlertProcessor as SystemAlertProcessor,
+    UserActionProcessor as UserActionProcessor, SensorTriggerProcessor as SensorTriggerProcessor, GeospatialChangeProcessor as GeospatialChangeProcessor
 )
 
 __all__ = [

@@ -13,11 +13,9 @@ from geo_infer_ops.core.testing import setup_testing
 from geo_infer_ops.core.orchestrator import Orchestrator, Task, TaskStatus
 from geo_infer_ops.health.checks import HealthChecker, HealthStatus, HealthCheck
 
-# Optional dependency: kubernetes (used by DeploymentManager)
-try:
-    from geo_infer_ops.core.deployment import DeploymentManager
-except ImportError:
-    DeploymentManager = None  # type: ignore[misc,assignment]
+# kubernetes is a declared runtime dependency, so this import is unconditional;
+# DeploymentManager is always available.
+from geo_infer_ops.core.deployment import DeploymentManager
 
 __all__ = [
     "setup_monitoring",

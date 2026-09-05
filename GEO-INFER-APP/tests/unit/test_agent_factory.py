@@ -21,6 +21,18 @@ class TestAgentFactory:
         with pytest.raises(ValueError):
             AgentFactory.create_interface(AgentType.HYBRID)
 
+    def test_unknown_type_error_is_specific(self):
+        with pytest.raises(ValueError, match="reinforcement_learning"):
+            AgentFactory.create_interface(AgentType.RL)
+
+    def test_interfaces_package_import_registers_bdi(self):
+        # Importing the interfaces package (not just the module) must register
+        # the bundled interfaces with the factory.
+        import importlib
+        import geo_infer_app.models.interfaces as interfaces_pkg
+        importlib.reload(interfaces_pkg)
+        assert "bdi" in AgentFactory.get_available_agent_types()
+
     def test_register_invalid_class_raises(self):
         class NotAnInterface:
             pass

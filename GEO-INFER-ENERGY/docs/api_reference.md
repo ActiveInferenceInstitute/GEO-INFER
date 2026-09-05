@@ -235,6 +235,26 @@ Identify peak demand periods from a time series.
 
 Carbon emissions tracking and intensity mapping for energy systems.
 
+### Constructor
+
+```python
+CarbonFootprintAnalyzer(config: Optional[Dict] = None)
+```
+
+### Methods
+
+#### `calculate_emissions(energy_generation: xr.DataArray, fuel_type: str = 'natural_gas') -> xr.DataArray`
+
+CO2 emissions (kg) from generation (MWh) using per-fuel emission factors; unknown fuels default to 350 kg CO2/MWh.
+
+#### `calculate_carbon_intensity(total_emissions: xr.DataArray, total_energy: xr.DataArray) -> xr.DataArray`
+
+Carbon intensity (kg CO2/MWh) = emissions / energy.
+
+#### `assess_renewable_impact(renewable_energy: xr.DataArray, total_energy: xr.DataArray, baseline_emissions: xr.DataArray) -> xr.Dataset`
+
+Keys: `renewable_fraction`, `emissions_avoided`, `remaining_emissions`, `emission_reduction_pct`.
+
 ---
 
 ## EnergyInfrastructurePlanner
@@ -243,7 +263,22 @@ Carbon emissions tracking and intensity mapping for energy systems.
 
 Transmission and generation infrastructure expansion planning.
 
----
+### Constructor
+
+```python
+EnergyInfrastructurePlanner(config: Optional[Dict] = None)
+```
+
+### Methods
+
+#### `optimize_facility_siting(resource_potential: xr.DataArray, demand_centers: xr.DataArray, constraints: Optional[xr.DataArray] = None, max_distance: float = 50.0) -> xr.Dataset`
+
+Weighted suitability (60% resource, 40% demand density); `demand_centers` is normalized by its own maximum into `demand_density` (a demand-density proximity proxy, not a geographic distance). Keys: `suitability`, `optimal_sites` (top 10% by quantile), `resource_suitability`, `demand_density`.
+
+#### `assess_infrastructure_capacity(current_capacity: xr.DataArray, projected_demand: xr.DataArray, years: int = 10) -> xr.Dataset`
+
+Keys: `current_capacity`, `required_capacity`, `capacity_gap`, `annual_growth_needed`.
+
 
 ## Enums and Data Classes
 

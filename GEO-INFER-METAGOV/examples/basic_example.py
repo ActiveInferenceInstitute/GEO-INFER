@@ -5,9 +5,6 @@ This example demonstrates how to use GEO-INFER-METAGOV to design a
 multi-level governance structure for managing a shared watershed resource.
 """
 
-import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../src'))
 
 from geo_infer_metagov.core.multi_level import MultiLevelGovernanceFramework
 from geo_infer_metagov.core.stakeholder import StakeholderGovernanceCoordinator
@@ -24,7 +21,7 @@ def main():
     # 1. Create multi-level governance framework
     print("\n1. Creating Multi-Level Governance Framework...")
     mlg_framework = MultiLevelGovernanceFramework(
-        governance_levels=['local', 'watershed', 'state'],
+        governance_levels=['local', 'watershed', 'regional'],
         coordination_mechanisms=['vertical_alignment', 'horizontal_integration'],
         domain_coverage=['water_quality', 'allocation', 'flood_management']
     )

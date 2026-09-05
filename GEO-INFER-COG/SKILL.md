@@ -1,11 +1,8 @@
 ---
 name: geo-infer-cog
-description: Cognitive modeling for geospatial agents including attention, memory, and trust. Use when implementing spatial attention mechanisms, working memory for geographic contexts, or trust dynamics in multi-agent geospatial systems.
+description: Human-centered geospatial cognitive modeling — spatial perception and attention, qualitative spatial reasoning, spatial memory, spatial language processing, cognitive maps, and human-centered decision support. Use when modeling how users perceive, reason about, remember, or decide about geographic space, or when building cognitively optimized geospatial interfaces.
 prerequisites:
-  required:
-    - geo-infer-act
   recommended:
-    - geo-infer-bayes
     - geo-infer-space
 difficulty: advanced
 estimated_time: 60min
@@ -18,35 +15,69 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 
 ### Core Capabilities
 
-- **Spatial attention**: Selective attention to geographic regions
-- **Working memory**: Context-dependent spatial memory buffers
-- **Trust dynamics**: Agent trust modeling in collaborative environments
-- **Cognitive load**: Resource allocation for spatial reasoning
-- **Mental models**: Internal representations of spatial environments
+- **Cognitive processing pipeline**: perception → working memory → reasoning → memory consolidation → decision output
+- **Spatial attention**: saliency-driven `AttentionModel` inside the perception stack
+- **Qualitative spatial reasoning**: RCC-8 style relation inference over geometries
+- **Spatial memory**: working / long-term / episodic memory with consolidation
+- **Spatial language**: entity and relation extraction from geographic text
+- **Cognitive maps**: landmark/route-based maps with cognitively distorted navigation paths
+- **Decision support**: prospect-theory, cognitive-weighted, Bayesian, and multi-criteria frameworks
 
 ### Key Imports
 
 ```python
-from geo_infer_cog.core.attention import SpatialAttention
-from geo_infer_cog.core.memory import WorkingMemory
-from geo_infer_cog.core.trust import TrustModel
+from geo_infer_cog import (
+    CognitiveProcessingEngine,
+    SpatialPerceptionModel,
+    SpatialReasoningEngine,
+    SpatialMemoryModel,
+    SpatialLanguageProcessor,
+    SpatialDecisionSupport,
+    CognitiveMap,
+    SpatialKnowledgeGraph,
+    UserCognitiveProfile,
+    ProfileManager,
+)
 ```
 
 ## Examples
 
 ```python
-from geo_infer_cog.core.attention import SpatialAttention
+from geo_infer_cog import CognitiveProcessingEngine
 
-attention = SpatialAttention(resolution=7)
-salience_map = attention.compute(observations, priors)
-focus_region = attention.select_focus(salience_map)
+engine = CognitiveProcessingEngine()  # deterministic by default (fixed-seed RNG)
+result = engine.process_spatial_input(
+    spatial_data={
+        "type": "Feature",
+        "geometry": {"type": "Point", "coordinates": [-122.4, 37.8]},
+        "properties": {"name": "observation point"},
+    },
+    context={"task": "wayfinding"},
+)
+print(result["decision_result"]["decisions"])
+```
+
+```python
+from geo_infer_cog import CognitiveMap
+
+cmap = CognitiveMap("city_map", spatial_bounds={"bbox": [-123, 37, -122, 38]})
+cmap.add_landmark("pier", {"type": "Point", "coordinates": [0.0, 0.0]},
+                  {"name": "Pier"}, saliency=0.9)
+cmap.add_route("pier_to_museum", "pier", "museum", segments=[], properties={})
+path = cmap.get_navigation_path("pier", "museum")
 ```
 
 ## Guidelines
 
-- Currently Alpha status — attention and memory models in development
+- Currently Alpha status; APIs may change between minor versions.
+- All engines are deterministic by default: pass `rng=None` and results are reproducible for a fixed seed.
+- Passive library logging via the `geo_infer_cog.*` loggers; no prints in library code.
+- The REST API (`geo_infer_cog.api.rest_api`) requires the optional `api` extra (`flask`, `flask-cors`).
+
+### Test
+
+`uv run python -m pytest GEO-INFER-COG/tests/ -v`
 
 ### Integrations
 
-- Integrates with ACT for Active Inference-based cognitive architectures
-- Test: `uv run python -m pytest GEO-INFER-COG/tests/ -v`
+None: this module has no runtime imports of other GEO-INFER modules.

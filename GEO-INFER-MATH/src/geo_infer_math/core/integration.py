@@ -348,7 +348,6 @@ class ModuleIntegrator:
             },
         }
 
-        source_reqs = module_requirements.get(source_module, {})
         target_reqs = module_requirements.get(target_module, {})
 
         # Check if data has required fields

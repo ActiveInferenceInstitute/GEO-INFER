@@ -6,18 +6,14 @@ GraphQL endpoints, and various web services that provide geospatial data.
 """
 
 import logging
-from typing import Dict, List, Optional, Union, Any, cast
-import asyncio
-import json
-from datetime import datetime, timedelta
+from typing import Dict, List, Optional, Any, cast
+from datetime import datetime
 import time
 
-import aiohttp
 import requests
 from requests.adapters import HTTPAdapter  # type: ignore[import-untyped]
 from urllib3.util.retry import Retry
 
-from ..models.schemas import DatasetMetadata, SpatialExtent, TemporalExtent, DataLineage
 from ..utils.identifiers import validate_sql_identifier
 
 

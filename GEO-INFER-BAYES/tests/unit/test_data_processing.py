@@ -127,6 +127,14 @@ class TestValidateSpatialData:
         result = validate_spatial_data(coords, values)
         assert result["is_valid"] is False
 
+    def test_invalid_lon_range_is_error(self) -> None:
+        """Out-of-range longitude must be an error, symmetric with latitude."""
+        coords = np.array([[40.0, -200.0]])
+        values = np.array([1.0])
+        result = validate_spatial_data(coords, values)
+        assert result["is_valid"] is False
+        assert any("Longitude" in e for e in result["errors"])
+
     def test_duplicate_coordinates_warning(self) -> None:
         coords = np.array([[40.0, -74.0], [40.0, -74.0]])
         values = np.array([1.0, 2.0])

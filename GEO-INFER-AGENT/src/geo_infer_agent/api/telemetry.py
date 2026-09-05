@@ -13,9 +13,8 @@ import time
 import json
 import asyncio
 import logging
-import threading
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional, Set, Union, Callable, cast
+from datetime import datetime
+from typing import Dict, List, Any, Optional, Callable, cast
 from collections import defaultdict, deque
 
 logger = logging.getLogger("geo_infer_agent.api.telemetry")

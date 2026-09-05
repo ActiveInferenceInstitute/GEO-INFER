@@ -47,12 +47,22 @@ class TestSpatialIndexer:
         indexer = SpatialIndexer()
         assert indexer.indexes == {}
 
-    def test_create_quadtree_index(self):
+    def test_unknown_quadtree_strategy_rejected(self):
         indexer = SpatialIndexer()
         gdf = _make_gdf()
-        index_id = indexer.create_spatial_index(gdf, strategy="quadtree")
-        assert index_id in indexer.indexes
-        assert indexer.indexes[index_id]["type"] == "quadtree"
+        with pytest.raises(ValueError, match="Unknown indexing strategy"):
+            indexer.create_spatial_index(gdf, strategy="quadtree")
+
+    def test_query_by_bounds_rtree_filters(self):
+        indexer = SpatialIndexer()
+        gdf = gpd.GeoDataFrame(
+            {"id": list(range(6))},
+            geometry=[Point(-122.5 + 0.1 * i, 37.5 + 0.1 * i) for i in range(6)],
+            crs="EPSG:4326",
+        )
+        index_id = indexer.create_spatial_index(gdf, strategy="rtree")
+        result = indexer.query_by_bounds(index_id, bbox=[-122.6, 37.4, -122.2, 37.8])
+        assert sorted(result["id"]) == [0, 1, 2, 3]
 
     def test_create_rtree_index_fallback(self):
         indexer = SpatialIndexer()
@@ -110,12 +120,12 @@ class TestSpatialIndexer:
         with pytest.raises(ValueError, match="Unknown indexing strategy"):
             indexer.create_spatial_index(gdf, strategy="unknown")
 
-    def test_query_by_bounds_quadtree(self):
+    def test_query_by_bounds_rtree_miss_returns_empty(self):
         indexer = SpatialIndexer()
         gdf = _make_gdf(20)
-        index_id = indexer.create_spatial_index(gdf, strategy="quadtree")
-        result = indexer.query_by_bounds(index_id, bbox=[-123.0, 37.0, -122.0, 38.0])
-        assert isinstance(result, gpd.GeoDataFrame)
+        index_id = indexer.create_spatial_index(gdf, strategy="rtree")
+        result = indexer.query_by_bounds(index_id, bbox=[10.0, 10.0, 11.0, 11.0])
+        assert len(result) == 0
 
     def test_query_by_bounds_missing_index_raises(self):
         indexer = SpatialIndexer()

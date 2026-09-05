@@ -34,7 +34,11 @@ class StreamingAPI:
     - Streaming data export capabilities
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self,
+        config: Optional[Dict[str, Any]] = None,
+        ingestion: Optional[IoTDataIngestion] = None,
+    ) -> None:
         self.config = config or {}
         self.app = FastAPI(title="GEO-INFER-IOT Streaming API", version="1.0.0")
 
@@ -43,10 +47,13 @@ class StreamingAPI:
         self.sensor_subscriptions: Dict[str, Set[WebSocket]] = {}
         self.spatial_subscriptions: Dict[str, Set[WebSocket]] = {}
 
-        # Initialize ingestion if available
-        self.ingestion: Optional[Any] = None
-        if HAS_INGESTION:
-            self.ingestion = IoTDataIngestion(None, config)
+        # Share the caller's ingestion instance when one is provided so
+        # measurements submitted through the SensorAPI reach stream
+        # subscribers; otherwise own a private instance.
+        if ingestion is not None:
+            self.ingestion: Optional[IoTDataIngestion] = ingestion
+        elif HAS_INGESTION:
+            self.ingestion = IoTDataIngestion(None, self.config)
         else:
             self.ingestion = None
 
@@ -153,15 +160,10 @@ class StreamingAPI:
                     "type": "spatial_predictions",
                     "format": "json",
                     "real_time": True,
-                    "websocket_endpoint": "/ws/spatial-stream",
-                    "description": "Real-time spatial inference results",
-                },
-                "anomaly_alert_stream": {
-                    "type": "anomaly_alerts",
-                    "format": "json",
-                    "real_time": True,
-                    "websocket_endpoint": "/ws/anomaly-stream",
-                    "description": "Real-time anomaly detection alerts",
+                    "description": (
+                        "Spatial inference results delivered over the sensor "
+                        "stream WebSocket by broadcast_spatial_inference"
+                    ),
                 },
             }
 
@@ -187,29 +189,25 @@ class StreamingAPI:
                 "timestamp": datetime.now().isoformat(),
             }
 
-    def broadcast_measurement(self, measurement: Dict) -> None:
-        """Broadcast a new measurement to subscribed clients."""
-        # This would be called when new measurements are ingested
+    async def broadcast_measurement(self, measurement: Dict) -> None:
+        """Broadcast a new measurement to subscribed clients.
+
+        Sends directly on each subscribed WebSocket; subscribers whose send
+        fails are removed from all subscription sets.
+        """
         sensor_id = measurement.get("sensor_id")
         h3_index = measurement.get("h3_index")
 
-        # Send to sensor-specific subscribers
         if sensor_id in self.sensor_subscriptions:
             message = {
                 "type": "sensor_measurement",
                 "data": measurement,
                 "timestamp": datetime.now().isoformat(),
             }
+            await self._send_to_all(
+                self.sensor_subscriptions[sensor_id], message
+            )
 
-            # Send to all subscribers for this sensor
-            for websocket in list(self.sensor_subscriptions[sensor_id]):
-                try:
-                    asyncio.create_task(websocket.send_text(json.dumps(message)))
-                except Exception:
-                    # Remove disconnected clients
-                    self.sensor_subscriptions[sensor_id].discard(websocket)
-
-        # Send to spatial subscribers
         if h3_index in self.spatial_subscriptions:
             message = {
                 "type": "spatial_measurement",
@@ -217,33 +215,36 @@ class StreamingAPI:
                 "h3_index": h3_index,
                 "timestamp": datetime.now().isoformat(),
             }
+            await self._send_to_all(
+                self.spatial_subscriptions[h3_index], message
+            )
 
-            for websocket in list(self.spatial_subscriptions[h3_index]):
-                try:
-                    asyncio.create_task(websocket.send_text(json.dumps(message)))
-                except Exception:
-                    # Remove disconnected clients
-                    self.spatial_subscriptions[h3_index].discard(websocket)
-
-    def broadcast_spatial_inference(self, inference_result: Dict) -> None:
-        """Broadcast spatial inference results to subscribed clients."""
+    async def broadcast_spatial_inference(self, inference_result: Dict) -> None:
+        """Broadcast spatial inference results to all connected clients."""
         message = {
             "type": "spatial_inference",
             "data": inference_result,
             "timestamp": datetime.now().isoformat(),
         }
+        await self._send_to_all(self.active_connections, message)
 
-        # Send to all active connections
-        disconnected = set()
-        for websocket in self.active_connections:
+    async def _send_to_all(self, connections: Set[WebSocket], message: Dict) -> None:
+        """Send a message to every connection, dropping the disconnected."""
+        payload = json.dumps(message)
+        disconnected: Set[WebSocket] = set()
+        for websocket in list(connections):
             try:
-                asyncio.create_task(websocket.send_text(json.dumps(message)))
+                await websocket.send_text(payload)
             except Exception:
                 disconnected.add(websocket)
 
-        # Remove disconnected clients
         for websocket in disconnected:
+            connections.discard(websocket)
             self.active_connections.discard(websocket)
+            for subs in self.sensor_subscriptions.values():
+                subs.discard(websocket)
+            for subs in self.spatial_subscriptions.values():
+                subs.discard(websocket)
 
     def get_app(self) -> FastAPI:
         """Get the FastAPI application instance."""

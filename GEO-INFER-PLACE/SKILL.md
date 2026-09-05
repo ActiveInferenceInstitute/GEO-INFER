@@ -1,14 +1,12 @@
 ---
 name: geo-infer-place
-description: Place-based analysis with H3 hexagonal indexing. Use when performing place identification, catchment area analysis, county/region geometry loading, or H3-based place-shedding and geographic boundary operations.
+description: Place-based analysis with H3 hexagonal indexing. Use when running location-specific analyses (forest health, coastal resilience, fire risk, seismic hazard) for Del Norte County or Cascadia, using the PlaceInterface unified API, H3 v4 operations, or California data clients (NOAA, USGS, CAL FIRE, CDEC).
 prerequisites:
   required:
     - geo-infer-space
-    - geo-infer-data
   recommended:
-    - geo-infer-bio
-    - geo-infer-econ
-    - geo-infer-transport
+    - geo-infer-data
+    - geo-infer-time
 difficulty: intermediate
 estimated_time: 45min
 examples_dir: ../GEO-INFER-EXAMPLES/examples/
@@ -20,56 +18,67 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 
 ### Core Capabilities
 
-- **Place identification**: Named place resolution and geocoding
-- **Catchment analysis**: Service area and accessibility modeling
-- **H3 place-shedding**: Hexagonal tessellation of administrative boundaries
-- **Boundary operations**: County/region geometry loading and manipulation
-- **Unified backend**: Multi-source geographic data integration
+- **Unified place interface**: `PlaceInterface` orchestrates location-specific analyzers, data integration, temporal analysis, and dashboards for a supported location
+- **Del Norte County analyzers**: forest health, coastal resilience, fire risk, seismic hazard
+- **Cascadia agricultural H3 backend**: `CascadianAgriculturalH3Backend` for agricultural land analysis in the Cascadia bioregion (separate application under `locations/cascadia/`)
+- **H3 v4 operations**: wrapped v4 API (`latlng_to_cell`, `grid_disk`, `cell_area`, ...)
+- **California data clients**: `CaliforniaAPIManager` with NOAA, USGS, CAL FIRE, CDEC clients (retry + caching)
 
 ### Key Imports
 
 ```python
-from geo_infer_place.core.unified_backend import UnifiedPlaceBackend
-from geo_infer_place.core.catchment import CatchmentAnalyzer
-from geo_infer_place.core.geocoding import PlaceGeocoder
+from geo_infer_place import PlaceInterface, create_place_interface, get_supported_locations
+from geo_infer_place.locations.del_norte_county.forest_health_monitor import ForestHealthMonitor
+from geo_infer_place.core import CascadianAgriculturalH3Backend
+from geo_infer_place.utils.h3_operations import latlng_to_cell, grid_disk, cell_area
+from geo_infer_place.core.api_clients import CaliforniaAPIManager, NOAAClient
 ```
 
 ## Examples
 
-```
+Unified interface (recommended entry point):
+
 ```python
-from geo_infer_place.core.unified_backend import UnifiedPlaceBackend
+from geo_infer_place import create_place_interface
 
-backend = UnifiedPlaceBackend()
-place = backend.resolve("Portland, OR")
-print(f"Resolved: {place.name}, Center: ({place.lat}, {place.lng})")
-boundary = backend.get_boundary(place.id)
-print(f"Boundary: {boundary.area_km2:.1f} km²")
+pi = create_place_interface("del_norte")
+status = pi.status()
+print(status["location_name"], status["available_analyzers"])
+
+results = pi.run_full_analysis()   # runs all analyzers for the location
 ```
 
-```
+Location analyzer through the interface (constructing analyzers directly
+requires config/integrator/processor arguments; the interface wires them):
+
 ```python
-from geo_infer_place.core.catchment import CatchmentAnalyzer
+from geo_infer_place import create_place_interface
 
-analyzer = CatchmentAnalyzer(mode="drive_time")
-catchment = analyzer.compute(
-    facility_location=(45.5, -122.6),
-    max_time_minutes=15
-)
-print(f"15-min catchment: {catchment.area_km2:.1f} km²")
-print(f"Population covered: {catchment.population:,}")
+pi = create_place_interface("del_norte")
+monitor = pi.get_analyzer("forest_health")   # ForestHealthMonitor instance
+print(monitor.get_monitoring_status())
+```
+
+H3 v4 operations:
+
+```python
+from geo_infer_place.utils.h3_operations import latlng_to_cell, grid_disk, cell_area
+
+cell = latlng_to_cell(41.75, -124.2, 8)   # Del Norte County
+neighbors = grid_disk(cell, 1)
+print(f"cell {cell}, area {cell_area(cell):.2f} km2, {len(neighbors)} neighbors")
 ```
 
 ## Guidelines
 
-- Uses H3 v4 API exclusively
-- Fallback synthetic geometries are used when county data is unavailable
+- Uses H3 v4 API exclusively (`latlng_to_cell`/`cell_to_latlng`, `[lat, lng]` ordering)
+- Supported locations: `del_norte`, `cascadia` (`get_supported_locations()`)
+- `locations/cascadia/` is a standalone application (own entry point, `cascadia_main.py`) — `run_full_analysis` does not drive it; run its `cascadia_main.py` directly
 - Test: `uv run python -m pytest GEO-INFER-PLACE/tests/ -v`
 
 ### Integrations
 
-- **SPACE** → H3 tessellation of place boundaries
-- **DATA** → Boundary geometry data sources
-- **CIV** → Community place identification
-- **HEALTH** → Health district boundary resolution
-- **TRANSPORT** → Accessible catchment areas
+- **SPACE** → H3 tessellation and spatial processing (`unified_backend` builds on `geo_infer_space`)
+- **DATA** → data quality management via `PlaceDataManager` (optional, `full` extra)
+- **TIME** → temporal trend detection via `PlaceTemporalAnalyzer` (optional, `full` extra)
+- **CIV/HEALTH/TRANSPORT** → not implemented; no geo-infer-place code imports these modules

@@ -30,6 +30,7 @@
 - `tests/`
 - `demo_all_methods.py`
 - `verify_installation.py`
+- `.gitignore`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`

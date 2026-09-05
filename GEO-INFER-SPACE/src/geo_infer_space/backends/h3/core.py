@@ -14,31 +14,14 @@ from typing import (
     Optional,
     Set,
     Tuple,
-    Union,
     cast,
 )
 from dataclasses import dataclass, field
 from datetime import datetime
 import json
-import math
 
-try:
-    import numpy as np
-
-    NUMPY_AVAILABLE = True
-except ImportError:
-    NUMPY_AVAILABLE = False
-    logger = logging.getLogger(__name__)
-    logger.warning("numpy not available. Some functionality will be limited.")
-
-try:
-    import pandas as pd
-
-    PANDAS_AVAILABLE = True
-except ImportError:
-    PANDAS_AVAILABLE = False
-    logger = logging.getLogger(__name__)
-    logger.warning("pandas not available. DataFrame export will be limited.")
+import numpy as np
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -573,32 +556,13 @@ class H3Grid:
 
     def to_dataframe(
         self,
-    ) -> Union["pd.DataFrame", List[Dict[str, Any]]]:
+    ) -> "pd.DataFrame":
         """
         Convert grid to pandas DataFrame.
 
         Returns:
-            DataFrame with cell information or dict if pandas not available
+            DataFrame with cell information
         """
-        if not PANDAS_AVAILABLE:
-            logger.warning(
-                "pandas not available. Returning list of dictionaries instead."
-            )
-            data: List[Dict[str, Any]] = []
-            for cell in self.cells:
-                row: Dict[str, Any] = {
-                    "h3_index": cell.index,
-                    "resolution": cell.resolution,
-                    "latitude": cell.latitude,
-                    "longitude": cell.longitude,
-                    "area_km2": cell.area_km2,
-                    "created_at": cell.created_at.isoformat(),
-                }
-                # Add custom properties
-                row.update(cell.properties)
-                data.append(row)
-            return data
-
         data = []
         for cell in self.cells:
             row = {
@@ -754,22 +718,13 @@ class H3Analytics:
             lng_diff = bounds[3] - bounds[1]  # max_lng - min_lng
 
             # Rough conversion to km² (not accurate for large areas)
-            if NUMPY_AVAILABLE:
-                reference_area_km2 = (
-                    lat_diff
-                    * lng_diff
-                    * 111.32
-                    * 111.32
-                    * np.cos(np.radians((bounds[0] + bounds[2]) / 2))
-                )
-            else:
-                reference_area_km2 = (
-                    lat_diff
-                    * lng_diff
-                    * 111.32
-                    * 111.32
-                    * math.cos(math.radians((bounds[0] + bounds[2]) / 2))
-                )
+            reference_area_km2 = (
+                lat_diff
+                * lng_diff
+                * 111.32
+                * 111.32
+                * np.cos(np.radians((bounds[0] + bounds[2]) / 2))
+            )
 
         total_cell_area = self.grid.total_area()
 
@@ -836,29 +791,15 @@ class H3Analytics:
 
         for cell in self.grid.cells:
             # Simple Euclidean distance (not geodesic)
-            if NUMPY_AVAILABLE:
-                dist = np.sqrt(
-                    (cell.latitude - center_lat) ** 2
-                    + (cell.longitude - center_lng) ** 2
-                )
-            else:
-                dist = math.sqrt(
-                    (cell.latitude - center_lat) ** 2
-                    + (cell.longitude - center_lng) ** 2
-                )
+            dist = np.sqrt(
+                (cell.latitude - center_lat) ** 2
+                + (cell.longitude - center_lng) ** 2
+            )
             distances.append(dist)
 
         # Calculate spatial spread metrics
-        if NUMPY_AVAILABLE:
-            mean_dist = np.mean(distances)
-            std_dist = np.std(distances)
-        else:
-            mean_dist = sum(distances) / len(distances) if distances else 0
-            if distances:
-                variance = sum((d - mean_dist) ** 2 for d in distances) / len(distances)
-                std_dist = math.sqrt(variance)
-            else:
-                std_dist = 0
+        mean_dist = np.mean(distances)
+        std_dist = np.std(distances)
 
         return {
             "center_coordinates": (center_lat, center_lng),

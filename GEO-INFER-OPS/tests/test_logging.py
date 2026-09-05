@@ -61,7 +61,6 @@ def test_module_loggers_do_not_add_handlers() -> None:
     modules = [
         "geo_infer_ops",
         "geo_infer_ops.core",
-        "geo_infer_ops.core.backup.logging",
         "geo_infer_ops.utils.logger",
         "geo_infer_ops.utils.shared_logging",
     ]

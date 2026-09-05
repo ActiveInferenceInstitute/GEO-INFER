@@ -24,8 +24,11 @@
 - `test_classification.py`
 - `test_climate_data.py`
 - `test_climate_indices.py`
+- `test_downscaling.py`
 - `test_extreme_events.py`
+- `test_impact_assessment.py`
 - `test_precipitation_analysis.py`
+- `test_projections.py`
 - `test_temperature_trends.py`
 
 ## Validation

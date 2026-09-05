@@ -7,12 +7,9 @@ authentication, validation, and geospatial context handling.
 """
 
 from __future__ import annotations
-import asyncio
-import json
 import logging
 from typing import Dict, List, Optional, Any
 from datetime import datetime, timezone
-from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Depends, status, BackgroundTasks
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -33,14 +30,8 @@ from geo_infer_comms import (
     BroadcastRequest,
     BroadcastResponse,
     GeospatialPoint,
-    GeospatialBounds,
-    GeospatialMetadata,
-    MessageType,
-    MessagePriority,
-    NotificationType,
     ChannelType,
     validate_coordinates,
-    validate_user_id,
     validate_message_content,
 )
 
@@ -128,11 +119,7 @@ class CommunicationAPI:
         ) -> MessageResponse:
             """Send a new message."""
             try:
-                user_id = (
-                    self._validate_credentials(credentials)
-                    if self.enable_auth
-                    else "system"
-                )
+                self._validate_credentials(credentials) if self.enable_auth else None
 
                 # Validate message content
                 if not validate_message_content(request.content):
@@ -171,11 +158,7 @@ class CommunicationAPI:
         ) -> List[MessageResponse]:
             """Get messages with optional filtering."""
             try:
-                user_id = (
-                    self._validate_credentials(credentials)
-                    if self.enable_auth
-                    else None
-                )
+                self._validate_credentials(credentials) if self.enable_auth else None
 
                 messages = self.system.message_broker.get_messages(
                     sender_id=sender_id, channel_id=channel_id, limit=limit
@@ -200,11 +183,7 @@ class CommunicationAPI:
         ) -> MessageResponse:
             """Get a specific message by ID."""
             try:
-                user_id = (
-                    self._validate_credentials(credentials)
-                    if self.enable_auth
-                    else None
-                )
+                self._validate_credentials(credentials) if self.enable_auth else None
 
                 message = self.system.message_broker.get_message(message_id)
                 if not message:
@@ -233,11 +212,7 @@ class CommunicationAPI:
         ) -> ChannelResponse:
             """Create a new communication channel."""
             try:
-                user_id = (
-                    self._validate_credentials(credentials)
-                    if self.enable_auth
-                    else "system"
-                )
+                self._validate_credentials(credentials) if self.enable_auth else None
 
                 channel = self.system.create_channel(
                     name=request.name,
@@ -268,11 +243,7 @@ class CommunicationAPI:
         ) -> List[ChannelResponse]:
             """Get channels with optional filtering."""
             try:
-                user_id = (
-                    self._validate_credentials(credentials)
-                    if self.enable_auth
-                    else None
-                )
+                self._validate_credentials(credentials) if self.enable_auth else None
 
                 channels = self.system.channel_manager.get_channels(
                     channel_type=channel_type, limit=limit
@@ -297,11 +268,7 @@ class CommunicationAPI:
         ) -> ChannelResponse:
             """Get a specific channel by ID."""
             try:
-                user_id = (
-                    self._validate_credentials(credentials)
-                    if self.enable_auth
-                    else None
-                )
+                self._validate_credentials(credentials) if self.enable_auth else None
 
                 channel = self.system.channel_manager.get_channel(channel_id)
                 if not channel:
@@ -331,11 +298,7 @@ class CommunicationAPI:
         ) -> NotificationResponse:
             """Create a new notification."""
             try:
-                user_id = (
-                    self._validate_credentials(credentials)
-                    if self.enable_auth
-                    else "system"
-                )
+                self._validate_credentials(credentials) if self.enable_auth else None
 
                 notification = self.system.create_notification(
                     title=request.title,
@@ -369,11 +332,7 @@ class CommunicationAPI:
         ) -> List[NotificationResponse]:
             """Get notifications with optional filtering."""
             try:
-                user_id = (
-                    self._validate_credentials(credentials)
-                    if self.enable_auth
-                    else None
-                )
+                self._validate_credentials(credentials) if self.enable_auth else None
 
                 # Convert status string to enum if provided
                 notification_status = None
@@ -413,11 +372,7 @@ class CommunicationAPI:
         ) -> EventPublishResponse:
             """Publish a new event."""
             try:
-                user_id = (
-                    self._validate_credentials(credentials)
-                    if self.enable_auth
-                    else "system"
-                )
+                self._validate_credentials(credentials) if self.enable_auth else None
 
                 event = self.system.publish_event(
                     event_type=request.event_type,
@@ -450,11 +405,7 @@ class CommunicationAPI:
         ) -> List[EventPublishResponse]:
             """Get events with optional filtering."""
             try:
-                user_id = (
-                    self._validate_credentials(credentials)
-                    if self.enable_auth
-                    else None
-                )
+                self._validate_credentials(credentials) if self.enable_auth else None
 
                 events = self.system.event_manager.get_events(
                     event_type=event_type, source=source, limit=limit
@@ -594,11 +545,7 @@ class CommunicationAPI:
         ) -> Dict[str, Any]:
             """Get comprehensive system metrics."""
             try:
-                user_id = (
-                    self._validate_credentials(credentials)
-                    if self.enable_auth
-                    else None
-                )
+                self._validate_credentials(credentials) if self.enable_auth else None
 
                 metrics = self.system.get_comprehensive_metrics()
 
@@ -619,7 +566,13 @@ class CommunicationAPI:
     def _validate_credentials(
         self, credentials: Optional[HTTPAuthorizationCredentials]
     ) -> str:
-        """Validate authentication credentials via JWT or HMAC-SHA256 fallback."""
+        """Validate authentication credentials.
+
+        With ``COMMS_JWT_SECRET`` set and PyJWT installed, the token is
+        decoded as an HS256 JWT and invalid tokens are rejected with 401.
+        Only when JWT validation is unavailable (PyJWT missing or no secret
+        configured) does a deterministic hash fallback derive the user ID.
+        """
         if not credentials:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -633,19 +586,34 @@ class CommunicationAPI:
                 detail="Invalid authentication token",
             )
 
-        # Attempt real JWT decode if PyJWT is available
+        # Attempt real JWT decode when PyJWT is available and a secret is
+        # configured. A token that fails validation is rejected outright;
+        # the hash fallback only applies when JWT validation is not
+        # configured (PyJWT missing or no COMMS_JWT_SECRET set).
         try:
             import jwt as pyjwt
-            import os
+        except ImportError:
+            pyjwt = None  # type: ignore[assignment]
 
-            secret = os.environ.get("COMMS_JWT_SECRET", "")
-            if secret:
+        import os
+
+        secret = os.environ.get("COMMS_JWT_SECRET", "")
+        if pyjwt is not None and secret:
+            try:
                 payload = pyjwt.decode(token, secret, algorithms=["HS256"])
-                user_id = payload.get("sub", payload.get("user_id"))
-                if user_id:
-                    return str(user_id)
-        except Exception:
-            pass  # fall through to HMAC / hash-based extraction
+            except Exception as e:
+                self.logger.warning("Rejected invalid JWT token: %s", e)
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid authentication token",
+                ) from e
+            user_id = payload.get("sub", payload.get("user_id"))
+            if not user_id:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid authentication token",
+                )
+            return str(user_id)
 
         # Fallback: derive a deterministic user identifier from the token
         import hashlib

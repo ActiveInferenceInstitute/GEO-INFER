@@ -223,7 +223,7 @@ async def get_polygon_feature(
 )
 async def create_polygon_feature_endpoint(feature: PolygonFeature) -> PolygonFeature:
     """Create a new polygon feature."""
-    if not feature.id:
+    if feature.id is None:
         raise ValidationError("Feature must have an ID", field="id")
 
     if feature.id in POLYGON_FEATURES:

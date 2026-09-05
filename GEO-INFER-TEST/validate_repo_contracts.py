@@ -26,7 +26,7 @@ from pathlib import Path
 from import_probe import run_import_probe
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-EXPECTED_MODULE_COUNT = 44
+EXPECTED_MODULE_COUNT = 45
 SIGNPOST_FILES = ("README.md", "AGENTS.md", "SKILL.md")
 MIN_TEST_FILES_PER_MODULE = 4
 CANONICAL_UV_SYNC_COMMAND = "uv sync --all-packages --all-extras"

@@ -2,6 +2,7 @@
 Variational Inference implementation for Bayesian inference.
 """
 
+import logging
 import numpy as np
 import xarray as xr
 import copy
@@ -9,6 +10,7 @@ from typing import Dict, Any, Optional, Union, List, Tuple
 from tqdm import tqdm
 from ..utils.rng import SeedLike, resolve_rng
 
+logger = logging.getLogger(__name__)
 
 class VariationalInference:
     """
@@ -152,7 +154,7 @@ class VariationalInference:
                 and abs(elbo_history[-1] - elbo_history[-100]) < self.convergence_tol
             ):
                 if progress_bar:
-                    print(f"Converged after {i} iterations")
+                    logger.info("Converged after %d iterations", i)
                 self.converged_at = i
                 break
 

@@ -21,9 +21,11 @@
 
 ## Local Contents
 
+- `test_api_state.py`
 - `test_core.py`
 - `test_delivery.py`
 - `test_geo_utils.py`
+- `test_observability.py`
 - `test_optimization.py`
 - `test_supply_chain.py`
 - `test_transport.py`

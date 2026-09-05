@@ -22,7 +22,6 @@ from geo_infer_act.core.active_inference import (
 )
 from geo_infer_act.core.types import (
     ActiveInferenceStepResult,
-    H3GridInferenceResult,
     NestedH3GridInferenceResult,
 )
 from geo_infer_act.core.generative_model import GenerativeModel

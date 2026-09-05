@@ -6,7 +6,7 @@ both spatial and temporal dependencies in geospatial data.
 """
 
 import numpy as np
-from typing import Dict, Optional, Tuple, Union, Any, List, cast
+from typing import Dict, Optional, Tuple, Union, Any, cast
 from dataclasses import dataclass
 import logging
 

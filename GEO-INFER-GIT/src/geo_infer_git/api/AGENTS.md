@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `__init__.py`
 - `rest_api.py`
 
 ## Validation

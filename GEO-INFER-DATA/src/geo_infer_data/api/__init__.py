@@ -7,7 +7,6 @@ for accessing and managing geospatial data.
 Classes:
     DataAPI: REST API server for data access
     DataService: Core data service functionality
-    DatasetAPI: Dataset management API endpoints
 
 Examples:
     >>> from geo_infer_data.api import DataAPI
@@ -20,12 +19,10 @@ Examples:
     >>> service = DataService()
     >>> datasets = service.list_datasets()
 """
-
-from .rest_api import DataAPI, DatasetAPI
+from .rest_api import DataAPI
 from .service import DataService
 
 __all__ = [
     "DataAPI",
-    "DatasetAPI",
     "DataService",
 ]

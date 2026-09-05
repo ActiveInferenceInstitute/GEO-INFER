@@ -2,7 +2,7 @@
 Spatial and temporal indexing utilities for GEO-INFER-DATA.
 
 This module provides indexing utilities for efficient spatial and temporal
-queries including H3, quadtree, and R-tree indexing strategies.
+queries including H3 and R-tree indexing strategies.
 """
 
 import logging
@@ -46,7 +46,7 @@ class SpatialIndexer:
     Spatial indexing for efficient geospatial queries.
 
     This class provides spatial indexing capabilities using various
-    strategies including H3, quadtree, and R-tree indexing.
+    strategies including H3 and R-tree indexing.
 
     Examples:
         >>> indexer = SpatialIndexer()
@@ -71,7 +71,7 @@ class SpatialIndexer:
 
         Args:
             data: GeoDataFrame to index
-            strategy: Indexing strategy ('h3', 'quadtree', 'rtree')
+            strategy: Indexing strategy ('h3', 'rtree')
 
         Returns:
             Index identifier
@@ -82,8 +82,6 @@ class SpatialIndexer:
 
         if strategy == "h3":
             self.indexes[index_id] = self._create_h3_index(data)
-        elif strategy == "quadtree":
-            self.indexes[index_id] = self._create_quadtree_index(data)
         elif strategy == "rtree":
             self.indexes[index_id] = self._create_rtree_index(data)
         else:
@@ -152,10 +150,6 @@ class SpatialIndexer:
             "data": data,
         }
 
-    def _create_quadtree_index(self, data: gpd.GeoDataFrame) -> Dict[str, Any]:
-        """Create quadtree spatial index."""
-        # Synthetic quadtree implementation
-        return {"type": "quadtree", "bounds": data.total_bounds, "data": data}
 
     def _create_rtree_index(self, data: gpd.GeoDataFrame) -> Dict[str, Any]:
         """Create R-tree spatial index."""
@@ -197,15 +191,13 @@ class SpatialIndexer:
 
         if index_type == "h3":
             return self._query_h3_bounds(index_data, bbox)
-        elif index_type == "quadtree":
-            return self._query_quadtree_bounds(index_data, bbox)
         elif index_type == "rtree":
             return self._query_rtree_bounds(index_data, bbox)
+        elif index_type == "local_rtree":
+            # rtree not installed: fall back to a direct bounding-box filter
+            return self._query_bbox_filter(index_data["data"], bbox)
         else:
-            # Fallback to spatial query
-            return index_data["data"][
-                index_data["data"].geometry.within(Polygon.from_bounds(*bbox))
-            ]
+            raise ValueError(f"Unsupported spatial index type: {index_type}")
 
     def _query_h3_bounds(
         self, index_data: Dict[str, Any], bbox: List[float]
@@ -238,19 +230,25 @@ class SpatialIndexer:
         else:
             return gpd.GeoDataFrame()
 
-    def _query_quadtree_bounds(
-        self, index_data: Dict[str, Any], bbox: List[float]
-    ) -> gpd.GeoDataFrame:
-        """Query quadtree index by bounds."""
-        # Deterministic local implementation
-        return index_data["data"]
-
     def _query_rtree_bounds(
         self, index_data: Dict[str, Any], bbox: List[float]
     ) -> gpd.GeoDataFrame:
-        """Query R-tree index by bounds."""
-        # Deterministic local implementation
-        return index_data["data"]
+        """Query R-tree index by bounds.
+
+        Uses the stored R-tree's ``intersection`` to find candidate rows whose
+        geometry bounding boxes intersect the query bbox.
+        """
+        rtree_index = index_data["index"]
+        candidate_ids = sorted(rtree_index.intersection(tuple(bbox)))
+        if not candidate_ids:
+            return gpd.GeoDataFrame()
+        return index_data["data"].loc[candidate_ids]
+
+    @staticmethod
+    def _query_bbox_filter(data: gpd.GeoDataFrame, bbox: List[float]) -> gpd.GeoDataFrame:
+        """Filter a GeoDataFrame to geometries within the given bounding box."""
+        return data[data.geometry.within(Polygon.from_bounds(*bbox))]
+
 
     def latlng_to_cell(self, lat: float, lng: float, resolution: int = 9) -> str:
         """

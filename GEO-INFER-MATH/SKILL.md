@@ -18,9 +18,9 @@ Foundation module with zero internal dependencies. Provides mathematical primiti
 ### Core Capabilities
 
 - **Spatial statistics**: Moran's I, Geary's C, Getis-Ord G*, LISA, semivariograms
-- **Topology**: Voronoi tessellation, Delaunay triangulation, spatial indexing
+- **Interpolation**: IDW, kriging, RBF spatial interpolation
 - **Graph theory**: Network analysis, shortest paths, centrality measures
-- **Kernel density**: Gaussian, Epanechnikov, adaptive bandwidth KDE
+- **Kernel density**: Gaussian KDE (scipy) for distribution comparison and divergence measures
 - **Distance metrics**: Haversine, Vincenty, geodesic on WGS84 ellipsoid
 
 ### Key Imports
@@ -70,9 +70,9 @@ from geo_infer_math.core.spatial_statistics import (
 # Moran's I spatial autocorrelation
 values = np.random.randn(100)
 weights = np.random.rand(100, 100)
-moran = MoranI(values, weights)
-result = moran.compute()
-print(f"Moran's I: {result.statistic}, p-value: {result.p_value}")
+moran = MoranI(weights)
+result = moran.compute(values)
+print(f"Moran's I: {result['I']}, p-value: {result['p_value']}")
 
 # Getis-Ord G* hot-spot statistic
 g_stat = getis_ord_g(values, weights)
@@ -96,7 +96,7 @@ print(stats)
 
 - All distance calculations default to WGS84 ellipsoid
 - Weight matrices should be row-standardized for spatial statistics
-- This module has no external geo-dependencies — pure numpy/scipy
+- Core deps are numpy/scipy/pandas/psutil/scikit-learn/sympy (see pyproject.toml); no external geo-dependencies (no GDAL/h3/shapely required). Optional: z3-solver for theorem proving, matplotlib for examples (`examples` extra).
 - Test: `uv run python -m pytest GEO-INFER-MATH/tests/ -v`
 
 ### Integrations

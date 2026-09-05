@@ -7,8 +7,7 @@ and feedback loops for aggregate system behavior.
 
 import logging
 from typing import Dict, List, Optional, Any, Callable
-from dataclasses import dataclass, field
-import numpy as np
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 

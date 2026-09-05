@@ -31,17 +31,14 @@ python from geo_infer_place import LocationAnalyzer # Create location analyzer l
 python from geo_infer_place.modeling import PlaceModeler # Create place modeler place_modeler = PlaceModeler( modeling_parameters={ 'place_characteristics': True, 'context_modeling': True, 'relationship_analysis': True } ) # Model places place_result = place_modeler.model_places( place_data=place_information, context_data=spatial_context, relationship_data=spatial_relationships )
 ```
  ## 📚 Core Features ### 1. Regional Analysis Engine **Purpose**: Perform analysis of specific geographic regions.
-```
 ```python
  from geo_infer_place.regional import RegionalAnalysisEngine # Initialize regional analysis engine regional_engine = RegionalAnalysisEngine() # Define analysis parameters analysis_params = regional_engine.define_parameters({ 'spatial_scope': 'county_level', 'temporal_scope': 'historical_current_future', 'data_sources': ['census', 'environmental', 'infrastructure', 'economic'], 'analysis_depth': 'comprehensive' }) # Perform regional analysis regional_analysis = regional_engine.analyze_region( region_id='cascadia_region', region_boundaries=cascadia_boundaries, analysis_parameters=analysis_params, output_formats=['geojson', 'h3_grid', 'statistical_summary'] ) # Generate regional insights regional_insights = regional_engine.generate_insights( analysis_results=regional_analysis, insight_types=['trends', 'patterns', 'anomalies', 'opportunities'] )
 ```
  ### 2. Territorial Assessment **Purpose**: Assess territorial characteristics and capabilities.
-```
 ```python
  from geo_infer_place.territorial import TerritorialAssessmentEngine # Initialize territorial assessment engine territorial_engine = TerritorialAssessmentEngine() # Define assessment criteria assessment_criteria = territorial_engine.define_criteria({ 'environmental_capacity': { 'natural_resources': True, 'ecosystem_health': True, 'climate_resilience': True }, 'infrastructure_capacity': { 'transportation': True, 'utilities': True, 'communications': True }, 'human_capacity': { 'demographics': True, 'education': True, 'healthcare': True }, 'economic_capacity': { 'economic_diversity': True, 'employment': True, 'business_environment': True } }) # Perform territorial assessment territorial_assessment = territorial_engine.assess_territory( territory_boundaries=territory_boundaries, assessment_criteria=assessment_criteria, assessment_method='comprehensive_scoring' ) # Generate capacity analysis capacity_analysis = territorial_engine.analyze_capacity( assessment_results=territorial_assessment, capacity_dimensions=['current', 'potential', 'constraints'] )
 ```
  ### 3. Location Intelligence **Purpose**: Provide insights for location-based decision making.
-```
 ```python
  from geo_infer_place.intelligence import LocationIntelligenceEngine # Initialize location intelligence engine intelligence_engine = LocationIntelligenceEngine() # Define intelligence parameters intelligence_params = intelligence_engine.define_parameters({ 'spatial_intelligence': True, 'temporal_intelligence': True, 'predictive_intelligence': True, 'comparative_intelligence': True }) # Generate location intelligence location_intelligence = intelligence_engine.generate_intelligence( location_data=location_dataset, intelligence_parameters=intelligence_params, analysis_depth='deep' ) # Create location profiles location_profiles = intelligence_engine.create_location_profiles( intelligence_results=location_intelligence, profile_types=['comprehensive', 'specialized', 'comparative'] )
 ```

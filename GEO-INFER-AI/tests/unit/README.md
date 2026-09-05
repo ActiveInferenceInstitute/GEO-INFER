@@ -8,6 +8,7 @@ Unit workspace within `GEO-INFER-AI`.
 - `test_explainability.py`
 - `test_explainability_determinism.py`
 - `test_feature_engineering.py`
+- `test_geospatial_ai.py`
 - `test_idw_interpolation.py`
 - `test_image_classifier.py`
 - `test_kriging.py`
@@ -32,9 +33,8 @@ Unit workspace within `GEO-INFER-AI`.
 
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
-- `torch>=1.9.0`
-- `tensorflow>=2.6.0`
 - `scikit-learn>=1.0.0`
+- `h3>=4.5.0,<5`
 
 
 ## Validation

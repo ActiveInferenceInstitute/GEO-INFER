@@ -33,7 +33,6 @@ Temperature anomalies are departures from a climatological baseline. The standar
 
 ### Loading Historical Temperature Data
 
-```
 ```python
 import numpy as np
 import pandas as pd
@@ -115,7 +114,6 @@ print(f"Spatial extent: lat [{temp_ds.lat.values[0]:.1f}, {temp_ds.lat.values[-1
 
 ### Computing the Baseline Climatology
 
-```
 ```python
 def compute_climatology(
     ds: xr.Dataset,
@@ -156,7 +154,6 @@ print(f"January mean range: {clim.climatology.sel(month=1).values.min():.1f} to 
 
 ### Bayesian Anomaly Detection
 
-```
 ```python
 from geo_infer_climate.core.climate_analyzer import ClimateAnalyzer
 
@@ -207,7 +204,6 @@ print(f"Anomalous observations: {total_anomalous:.0f} / {total_cells:.0f} "
 
 ### Visualizing Anomaly Maps
 
-```
 ```python
 import matplotlib.pyplot as plt
 
@@ -248,7 +244,6 @@ The Mann-Kendall test detects monotonic trends without assuming a specific distr
 
 ### Grid-Wide Trend Analysis
 
-```
 ```python
 from scipy.stats import kendalltau
 from typing import Dict, Any
@@ -346,7 +341,6 @@ print(f"Grid cells with significant trend: {pct_significant:.1f}%")
 
 ### Significance Mapping
 
-```
 ```python
 fig, axes = plt.subplots(1, 2, figsize=(16, 6))
 
@@ -374,7 +368,6 @@ Statistical downscaling transfers information from coarse-resolution climate mod
 
 ### Setting Up the Downscaling Grid
 
-```
 ```python
 import h3
 import geopandas as gpd
@@ -441,7 +434,6 @@ print(f"Downscaling ratio: {len(fine_coords) / max(len(coarse_coords), 1):.0f}x"
 
 ### Gaussian Process Downscaling
 
-```
 ```python
 from geo_infer_bayes.core.gaussian_process import GaussianProcess
 
@@ -514,7 +506,6 @@ print(f"Mean prediction uncertainty: {fine_std.mean():.2f} C")
 
 ### Downscaling Visualization
 
-```
 ```python
 fig, axes = plt.subplots(1, 3, figsize=(18, 5))
 
@@ -560,7 +551,6 @@ Concatenating multiple data periods enables change point detection and projectio
 
 ### Change Point Detection
 
-```
 ```python
 def detect_change_points(
     annual_series: np.ndarray,
@@ -627,7 +617,6 @@ print(f"Change points detected at years: {[years[cp] for cp in change_points]}")
 
 ### Projection with Uncertainty Bands
 
-```
 ```python
 def project_with_uncertainty(
     annual_series: np.ndarray,
@@ -694,7 +683,6 @@ print(f"  90% range: [{projection['lower_5'][-1]:.2f}, {projection['upper_95'][-
 
 ### Visualization of Projections
 
-```
 ```python
 fig, ax = plt.subplots(figsize=(14, 6))
 

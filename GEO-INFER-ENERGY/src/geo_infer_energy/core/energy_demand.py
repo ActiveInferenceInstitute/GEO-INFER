@@ -1,11 +1,9 @@
 """Energy demand forecasting module."""
 
 import logging
-from typing import Dict, Optional, List
+from typing import Dict, Optional
 import numpy as np
-import pandas as pd
 import xarray as xr
-from sklearn.linear_model import LinearRegression
 
 logger = logging.getLogger(__name__)
 
@@ -40,20 +38,41 @@ class EnergyDemandForecaster:
         time_numeric = np.arange(len(historical_demand.time))
         trend = np.polyfit(time_numeric, historical_demand.values.flatten(), 1)[0]
         
-        # Base forecast from trend
-        last_value = historical_demand.isel(time=-1)
+        # Optional per-period temperature adjustment: use the temperature
+        # series (not a single scalar) so each forecast year gets its own
+        # heating/cooling adjustment. Baseline 20 degC; 1% demand shift per
+        # degree of anomaly.
+        if temperature is not None:
+            tvals = np.asarray(temperature.values, dtype=float).flatten()
+            n = len(tvals)
+            if n >= forecast_years:
+                edges = np.linspace(0, n, forecast_years + 1, dtype=int)
+                period_means = np.array(
+                    [tvals[edges[i]:edges[i + 1]].mean() for i in range(forecast_years)]
+                )
+            else:
+                period_means = np.resize(tvals, forecast_years)
+
+        # Population growth rate derived from the passed population data
+        # (CAGR over the observed period) instead of a hard-coded assumption.
+        annual_pop_growth: Optional[float] = None
+        if population is not None:
+            pvals = np.asarray(population.values, dtype=float).flatten()
+            pvals = pvals[pvals > 0]
+            if len(pvals) > 1:
+                annual_pop_growth = float(
+                    (pvals[-1] / pvals[0]) ** (1.0 / (len(pvals) - 1)) - 1.0
+                )
+
         forecast_values = []
-        
+        last_value = historical_demand.isel(time=-1)
         for year in range(1, forecast_years + 1):
             forecasted = last_value + trend * year
             if temperature is not None:
-                # Adjust for temperature (simplified)
-                temp_factor = 1 + (temperature.mean() - 20) / 100  # 1% per degree from 20°C
+                temp_factor = 1 + (period_means[year - 1] - 20) / 100
                 forecasted = forecasted * temp_factor
-            if population is not None:
-                # Adjust for population growth
-                pop_growth = 1.02  # 2% annual growth assumption
-                forecasted = forecasted * (pop_growth ** year)
+            if annual_pop_growth is not None:
+                forecasted = forecasted * ((1 + annual_pop_growth) ** year)
             forecast_values.append(forecasted)
         
         return xr.Dataset({

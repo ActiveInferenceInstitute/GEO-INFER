@@ -5,12 +5,12 @@ This module provides API endpoints for interacting with zoning regulations,
 land use classifications, and zoning district analysis.
 """
 
-from typing import Dict, List, Optional, Union, Any
+from typing import Dict, List, Optional, Any
 import datetime
-from fastapi import APIRouter, HTTPException, Query, Path, Body, Depends
+from fastapi import APIRouter, HTTPException, Query, Path
 from pydantic import BaseModel, Field
 import geopandas as gpd
-from shapely.geometry import Point, Polygon, MultiPolygon, shape
+from shapely.geometry import Point, shape
 import json
 from shapely.geometry.base import BaseGeometry
 

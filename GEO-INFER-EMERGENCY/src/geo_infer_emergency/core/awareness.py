@@ -339,16 +339,22 @@ class SituationalAwareness:
         
         # Fuse each field
         total_confidence = 0.0
+        fused_field_count = 0
         for field in all_fields:
             values: List[float] = []
             weights: List[float] = []
-            
+
             for source in sources:
                 if field in source.get("data", {}):
                     value = source["data"][field]
                     if isinstance(value, (int, float)):
                         values.append(float(value))
-                        confidence = float(source.get("confidence", 0.5)) if confidence_weighting else 1.0
+                        # Source confidence clamped to [0, 1]; equal weights
+                        # when confidence weighting is disabled.
+                        confidence = (
+                            min(1.0, max(0.0, float(source.get("confidence", 0.5))))
+                            if confidence_weighting else 1.0
+                        )
                         weights.append(confidence)
             
             if values and weights:
@@ -357,9 +363,15 @@ class SituationalAwareness:
                 if total_weight > 0:
                     fused_value = sum(v * w for v, w in zip(values, weights)) / total_weight
                     fused_data_out[field] = round(float(fused_value), 2)
-                    total_confidence += total_weight / len(weights)
+                    # Confidence of a fused field = mean confidence of the
+                    # sources that contributed to it.
+                    total_confidence += sum(weights) / len(weights)
+                    fused_field_count += 1
         
-        fused["confidence"] = round(total_confidence / len(all_fields), 2) if all_fields else 0
+        fused["confidence"] = (
+            round(min(1.0, total_confidence / fused_field_count), 2)
+            if fused_field_count else 0
+        )
         
         logger.debug(f"Fused data from {len(sources)} sources")
         return fused

@@ -13,7 +13,7 @@ from typing import Optional, Union
 
 import numpy as np
 
-__all__ = ["SeedLike", "resolve_rng"]
+__all__ = ["SeedLike", "resolve_rng", "resolve_optional_rng"]
 
 SeedLike = Union[
     None,

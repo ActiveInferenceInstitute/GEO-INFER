@@ -220,6 +220,7 @@ class Orchestrator:
         start_time = datetime.now(timezone.utc).replace(tzinfo=None)
         completed_tasks = 0
         failed_tasks = 0
+        counted_tasks: set[str] = set()
 
         # Execute tasks until all are completed or failed
         while True:
@@ -261,13 +262,17 @@ class Orchestrator:
                 *[self._execute_task(task) for task in tasks_to_execute]
             )
 
-            # Update counters
+            # Update counters idempotently: each task is counted at most once,
+            # regardless of how many loop iterations observe its final status.
             for task in self.tasks.values():
-                if task.status == TaskStatus.COMPLETED and task.end_time:
-                    if task.end_time >= start_time:
-                        completed_tasks += 1
+                if task.task_id in counted_tasks:
+                    continue
+                if task.status == TaskStatus.COMPLETED:
+                    completed_tasks += 1
+                    counted_tasks.add(task.task_id)
                 elif task.status == TaskStatus.FAILED:
                     failed_tasks += 1
+                    counted_tasks.add(task.task_id)
 
         end_time = datetime.now(timezone.utc).replace(tzinfo=None)
         duration = (end_time - start_time).total_seconds()

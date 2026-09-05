@@ -2,11 +2,10 @@
 Policy Analysis Engine - Framework for economic policy impact assessment.
 """
 
-from typing import Dict, Any, List, Optional, Tuple, Union, Callable
+from typing import Dict, Any, List, Optional, Tuple, Union
 import numpy as np
 import pandas as pd
-import geopandas as gpd
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 import logging
 from datetime import datetime
@@ -263,7 +262,6 @@ class PolicyAnalysisEngine:
         
         # Environmental policy parameters
         carbon_tax = params.get('carbon_tax', 0)
-        emission_standards = params.get('emission_standards', {})
         green_subsidies = params.get('green_subsidies', 0)
         
         baseline_gdp = self.baseline_data.get('gdp', {})

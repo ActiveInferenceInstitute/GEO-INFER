@@ -4,7 +4,7 @@
 """
 Tests for the DataCollectorAgent: data collection, source monitoring, processing.
 
-Note: DataCollectorAgent depends on BDIAgent, shapely, pandas, and requests.
+Note: DataCollectorAgent depends on BDIAgent, pandas, and requests.
 These tests focus on the initialization and config handling that can be tested
 without external dependencies making network calls.
 """
@@ -21,7 +21,7 @@ from geo_infer_agent.models import BDIAgent, BDIState
 class TestDataCollectorConfig(unittest.TestCase):
     """Tests for data collector configuration and belief initialization.
 
-    Since DataCollectorAgent has heavy external deps (requests, shapely, pandas),
+    Since DataCollectorAgent has external deps (requests, pandas),
     we test the foundational BDI patterns it relies on directly.
     """
 

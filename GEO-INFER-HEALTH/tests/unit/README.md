@@ -5,8 +5,10 @@ Unit workspace within `GEO-INFER-HEALTH`.
 ## Contents
 
 - `test_advanced_geospatial.py`
+- `test_api_routers.py`
 - `test_config.py`
 - `test_disease_surveillance.py`
+- `test_enhanced_disease_surveillance.py`
 - `test_environmental_health.py`
 - `test_geospatial_utils.py`
 - `test_healthcare_accessibility.py`
@@ -30,14 +32,9 @@ Unit workspace within `GEO-INFER-HEALTH`.
 - `uvicorn>=0.24.0`
 - `pydantic>=2.5.0`
 - `pydantic-settings>=2.1.0`
+- `pyyaml>=6.0.0`
+- `loguru>=0.7.0`
 - `geopandas>=0.14.0`
-- `shapely>=2.0.0`
-- `pyproj>=3.6.0`
-- `rasterio>=1.3.0`
-- `fiona>=1.9.0`
-- `numpy>=1.24.0`
-- `scipy>=1.11.0`
-- `pandas>=2.1.0`
 
 
 ## Validation

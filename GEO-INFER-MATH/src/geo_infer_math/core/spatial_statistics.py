@@ -6,7 +6,7 @@ autocorrelation, and distributions in geospatial data.
 """
 
 import numpy as np
-from typing import Union, List, Tuple, Dict, Optional, Any, Callable, cast
+from typing import List, Tuple, Dict, Optional, Any, cast
 from dataclasses import dataclass
 from math import erfc, sqrt
 
@@ -26,7 +26,6 @@ def _generate_weights(
     Returns:
         Spatial weights matrix (n x n), row-standardized
     """
-    n = coords.shape[0]
 
     # Vectorized distance calculation for better performance
     coords_i = coords[:, np.newaxis, :]  # Shape: (n, 1, 2)
@@ -59,7 +58,6 @@ def _cliff_ord_terms(weights_matrix: np.ndarray) -> Tuple[float, float, float]:
     S2 = sum over locations of (row sum_i + column sum_i)^2.
     """
     W = np.asarray(weights_matrix, dtype=np.float64)
-    n = W.shape[0]
     W_offdiag = W.copy()
     np.fill_diagonal(W_offdiag, 0.0)
     s0 = float(np.sum(W_offdiag))

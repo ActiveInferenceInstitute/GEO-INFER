@@ -5,7 +5,7 @@ and canopy gap detection for forest monitoring applications.
 """
 
 import logging
-from typing import Any, Dict, Optional, Tuple, cast
+from typing import Dict, Optional, cast
 
 import numpy as np
 import xarray as xr

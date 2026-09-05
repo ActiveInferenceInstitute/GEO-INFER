@@ -26,6 +26,17 @@ class TestAgentAPIClient:
         assert str(parsed) == agent_id
 
     @pytest.mark.asyncio
+    async def test_create_agent_normalizes_rl_alias(self, api_client):
+        agent_id = await api_client.create_agent("rl", {"name": "Test"})
+        status = await api_client.get_agent_status(agent_id)
+        assert status["type"] == "reinforcement_learning"
+
+    @pytest.mark.asyncio
+    async def test_create_agent_rejects_unknown_type(self, api_client):
+        with pytest.raises(ValueError, match="Unknown agent type"):
+            await api_client.create_agent("telepathic", {"name": "Test"})
+
+    @pytest.mark.asyncio
     async def test_start_agent(self, api_client):
         agent_id = await api_client.create_agent("bdi", {"name": "Test"})
         result = await api_client.start_agent(agent_id)

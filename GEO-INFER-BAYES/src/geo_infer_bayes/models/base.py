@@ -276,9 +276,19 @@ class BayesianModel(ABC):
                         levels=5,
                     )
             else:
-                # Non-square grid, use scatter plot
+                # Non-square grid, use scatter plot; show the symmetric
+                # uncertainty band when available.
                 scatter = ax.scatter(grid[:, 0], grid[:, 1], c=mean, cmap="viridis")
                 fig.colorbar(scatter, ax=ax, label="Mean prediction")
+                if uncertainty:
+                    ax.errorbar(
+                        grid[:, 0],
+                        grid[:, 1],
+                        yerr=1.96 * std,
+                        fmt="none",
+                        ecolor="white",
+                        alpha=0.5,
+                    )
         else:
             # 1D data or higher dimensions - just do a scatter plot
             scatter = ax.scatter(range(len(mean)), mean, c=mean, cmap="viridis")

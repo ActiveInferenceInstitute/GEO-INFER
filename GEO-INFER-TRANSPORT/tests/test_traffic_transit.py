@@ -83,6 +83,16 @@ class TestTrafficAnalyzer:
         forecast = analyzer.forecast_traffic(historical, forecast_horizon="1h")
         
         assert len(forecast["forecasts"]) == 4  # 4 x 15min intervals
+
+    def test_forecast_horizon_parsing(self, analyzer):
+        """Horizon strings convert to time_resolution-sized steps; bad ones raise."""
+        assert len(analyzer.forecast_traffic([], forecast_horizon="30m")["forecasts"]) == 2
+        assert len(analyzer.forecast_traffic([], forecast_horizon="90m")["forecasts"]) == 6
+        assert len(analyzer.forecast_traffic([], forecast_horizon="1d")["forecasts"]) == 96
+        with pytest.raises(ValueError):
+            analyzer.forecast_traffic([], forecast_horizon="fortnight")
+        with pytest.raises(ValueError):
+            analyzer.forecast_traffic([], forecast_horizon="5m")  # < one 15min interval
     
     def test_simulate_traffic(self, analyzer):
         """Test traffic simulation."""

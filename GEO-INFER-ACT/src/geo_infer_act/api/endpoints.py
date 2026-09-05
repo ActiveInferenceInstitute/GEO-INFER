@@ -1,7 +1,7 @@
 """
 API endpoints for GEO-INFER-ACT.
 """
-from typing import Dict, Any
+from typing import Dict
 
 
 def create_endpoints() -> Dict[str, str]:

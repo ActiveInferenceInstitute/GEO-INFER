@@ -9,6 +9,7 @@ Unit workspace within `GEO-INFER-GIT`.
 - `test_error_recovery_strategies.py`
 - `test_github_api.py`
 - `test_intelligent_cache_prefetch.py`
+- `test_main.py`
 - `test_repo_analyzer.py`
 - `test_repo_cloner.py`
 - `test_repo_manager.py`
@@ -37,10 +38,8 @@ Unit workspace within `GEO-INFER-GIT`.
 - `fastapi>=0.104.0`
 - `uvicorn[standard]>=0.24.0`
 - `pydantic>=2.5.0`
-- `pytest>=7.3.1`
-- `black>=23.3.0`
-- `flake8>=6.0.0`
-- `mypy>=1.3.0`
+- `colorlog>=6.7.0`
+- `tqdm>=4.65.0`
 
 
 ## Validation

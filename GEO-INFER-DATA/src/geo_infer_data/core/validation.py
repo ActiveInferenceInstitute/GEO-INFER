@@ -22,6 +22,13 @@ from ..models.schemas import (
     DataQualityReport,
     DatasetMetadata,
 )
+from ..utils.validation import (
+    count_future_dates,
+    has_mixed_types,
+    scan_geometry_validity,
+    wgs84_bounds_issues,
+)
+
 
 
 logger = logging.getLogger(__name__)
@@ -119,12 +126,10 @@ class GeospatialValidator:
         total = max(len(data), 1)
         invalid_geometries = 0
         invalid_coordinates = 0
-        for geom in data.geometry:
-            if geom is None or not geom.is_valid:
+        for _idx, reason, geom in scan_geometry_validity(data.geometry.items()):
+            if reason in ("null", "invalid"):
                 invalid_geometries += 1
-                continue
-            min_lon, min_lat, max_lon, max_lat = geom.bounds
-            if min_lon < -180 or max_lon > 180 or min_lat < -90 or max_lat > 90:
+            elif reason == "ok" and wgs84_bounds_issues(geom.bounds):
                 invalid_coordinates += 1
 
         if invalid_geometries:
@@ -226,9 +231,9 @@ class GeospatialValidator:
             series = data[col].dropna()
             if series.empty:
                 continue
-            future_mask = series > _now_for_series(series)
-            if future_mask.any():
-                ratio = future_mask.sum() / len(series)
+            future_count = count_future_dates(series)
+            if future_count:
+                ratio = future_count / len(series)
                 issues.append(
                     {
                         "type": "future_dates",
@@ -438,10 +443,13 @@ class GeospatialValidator:
             # Check coordinate accuracy if geospatial
             if isinstance(data, gpd.GeoDataFrame) and "geometry" in data.columns:
                 # Check for invalid coordinates
-                invalid_coords = 0
-                for geom in data.geometry:
-                    if geom is None or not geom.is_valid:
-                        invalid_coords += 1
+                invalid_coords = sum(
+                    1
+                    for _idx, reason, _geom in scan_geometry_validity(
+                        data.geometry.items()
+                    )
+                    if reason != "ok"
+                )
 
                 if invalid_coords > 0:
                     invalid_percent = invalid_coords / len(data)
@@ -474,8 +482,7 @@ class GeospatialValidator:
             for col in data.columns:
                 if col == "geometry":
                     continue
-                unique_types = data[col].dropna().apply(type).unique()
-                if len(unique_types) > 1:
+                if has_mixed_types(data[col]):
                     issues.append(
                         {
                             "type": "mixed_data_types",
@@ -612,9 +619,9 @@ class GeospatialValidator:
             for col in datetime_cols:
                 if col in data.columns:
                     # Check for future dates (might be data entry errors)
-                    future_dates = data[col] > _now_for_series(data[col])
-                    if future_dates.any():
-                        future_percent = future_dates.sum() / len(data)
+                    future_count = count_future_dates(data[col])
+                    if future_count:
+                        future_percent = future_count / len(data)
                         issues.append(
                             {
                                 "type": "future_dates",

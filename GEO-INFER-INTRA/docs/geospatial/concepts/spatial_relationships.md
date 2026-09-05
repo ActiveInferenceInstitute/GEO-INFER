@@ -11,17 +11,14 @@ mermaid graph TD A[Spatial Relationships] --> B[Topological] A --> C[Metric] A -
 mermaid graph TD A[DE-9IM] --> B[Matrix] B --> C["Interior ∩ Interior"] B --> D["Interior ∩ Boundary"] B --> E["Interior ∩ Exterior"] B --> F["Boundary ∩ Interior"] B --> G["Boundary ∩ Boundary"] B --> H["Boundary ∩ Exterior"] B --> I["Exterior ∩ Interior"] B --> J["Exterior ∩ Boundary"] B --> K["Exterior ∩ Exterior"]
 ```
  The DE-9IM matrix encodes the dimensionality of the intersection between: - Interiors of the two geometries - Boundaries of the two geometries - Exteriors of the two geometries ### Common Topological Relationships
-```
 ```mermaid
  graph TD A[Topological Relationships] --> B[Equals] A --> C[Disjoint] A --> D[Intersects] A --> E[Touches] A --> F[Contains] A --> G[Within] A --> H[Overlaps] A --> I[Crosses] A --> J[Covers] A --> K[CoveredBy]
 ```
  #### Equals Two geometries that represent the same spatial extent.
-```
 ```mermaid
  graph LR A((A)) --- B((B)) style A fill:#FFD700,stroke:#000 style B fill:none,stroke:#FF0000,stroke-width:2
 ```
  Example: Two different representations of the same country boundary. #### Disjoint Two geometries that have no points in common.
-```
 ```mermaid
  graph LR A((A)) --- B[" "] --- C((B)) style A fill:#FFD700,stroke:#000 style C fill:#FF0000,stroke:#000 style B fill:white,stroke:none
 ```

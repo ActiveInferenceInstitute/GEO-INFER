@@ -6,207 +6,13 @@ operations. It serves as the main entry point for the PEP system and coordinates
 different modules and data flows.
 """
 
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any, Optional
 from datetime import datetime
 import logging
 
 from ..models.hr_models import Employee, EmploymentStatus
-from ..models.crm_models import Customer
-from ..models.talent_models import Candidate, JobRequisition
-from ..methods import (
-    import_hr_data_from_csv,
-    import_crm_data_from_csv,
-    import_talent_data_from_csv,
-    generate_comprehensive_hr_dashboard,
-    generate_comprehensive_crm_dashboard,
-    generate_comprehensive_talent_dashboard,
-    process_employee_onboarding_workflow,
-    get_all_employees,
-    get_all_candidates,
-)
-
+from .data_store import PEPDataManager, pep_data_manager  # noqa: F401 (re-export)
 logger = logging.getLogger(__name__)
-
-
-class PEPDataManager:
-    """
-    Central data manager for PEP operations.
-
-    Handles data storage, retrieval, and basic operations for all PEP data types.
-    In a production system, this would interface with a database.
-    """
-
-    def __init__(self) -> None:
-        self._employees: List[Employee] = []
-        self._customers: List[Customer] = []
-        self._candidates: List[Candidate] = []
-        self._requisitions: List[JobRequisition] = []
-        self._last_updated = datetime.now()
-
-    def add_employees(self, employees: List[Employee]) -> int:
-        """Add employees to the data store."""
-        self._employees.extend(employees)
-        self._last_updated = datetime.now()
-        logger.info(f"Added {len(employees)} employees to data store")
-        return len(employees)
-
-    def add_customers(self, customers: List[Customer]) -> int:
-        """Add customers to the data store."""
-        self._customers.extend(customers)
-        self._last_updated = datetime.now()
-        logger.info(f"Added {len(customers)} customers to data store")
-        return len(customers)
-
-    def add_candidates(self, candidates: List[Candidate]) -> int:
-        """Add candidates to the data store."""
-        self._candidates.extend(candidates)
-        self._last_updated = datetime.now()
-        logger.info(f"Added {len(candidates)} candidates to data store")
-        return len(candidates)
-
-    def add_requisitions(self, requisitions: List[JobRequisition]) -> int:
-        """Add job requisitions to the data store."""
-        self._requisitions.extend(requisitions)
-        self._last_updated = datetime.now()
-        logger.info(f"Added {len(requisitions)} requisitions to data store")
-        return len(requisitions)
-
-    def get_employees(self, filters: Optional[Dict[str, Any]] = None) -> List[Employee]:
-        """Get employees with optional filtering."""
-        employees = self._employees.copy()
-
-        if filters:
-            for key, value in filters.items():
-                if hasattr(Employee, key):
-                    employees = [emp for emp in employees if getattr(emp, key) == value]
-                elif key in ["department", "status", "gender"]:  # Common filter fields
-                    if key == "department":
-                        employees = [
-                            emp for emp in employees if emp.department == value
-                        ]
-                    elif key == "status":
-                        employees = [
-                            emp
-                            for emp in employees
-                            if emp.employment_status.value == value
-                        ]
-                    elif key == "gender" and value:
-                        employees = [
-                            emp
-                            for emp in employees
-                            if emp.gender and emp.gender.value == value
-                        ]
-
-        return employees
-
-    def get_customers(self, filters: Optional[Dict[str, Any]] = None) -> List[Customer]:
-        """Get customers with optional filtering."""
-        customers = self._customers.copy()
-
-        if filters:
-            for key, value in filters.items():
-                if hasattr(Customer, key):
-                    customers = [
-                        cust for cust in customers if getattr(cust, key) == value
-                    ]
-                elif key in ["status", "company"]:  # Common filter fields
-                    if key == "status":
-                        customers = [cust for cust in customers if cust.status == value]
-                    elif key == "company":
-                        customers = [
-                            cust for cust in customers if cust.company == value
-                        ]
-
-        return customers
-
-    def get_candidates(
-        self, filters: Optional[Dict[str, Any]] = None
-    ) -> List[Candidate]:
-        """Get candidates with optional filtering."""
-        candidates = self._candidates.copy()
-
-        if filters:
-            for key, value in filters.items():
-                if hasattr(Candidate, key):
-                    candidates = [
-                        cand for cand in candidates if getattr(cand, key) == value
-                    ]
-                elif key == "status":
-                    candidates = [
-                        cand for cand in candidates if cand.status.value == value
-                    ]
-
-        return candidates
-
-    def get_requisitions(
-        self, filters: Optional[Dict[str, Any]] = None
-    ) -> List[JobRequisition]:
-        """Get job requisitions with optional filtering."""
-        requisitions = self._requisitions.copy()
-
-        if filters:
-            for key, value in filters.items():
-                if hasattr(JobRequisition, key):
-                    requisitions = [
-                        req for req in requisitions if getattr(req, key) == value
-                    ]
-                elif key == "status":
-                    requisitions = [
-                        req for req in requisitions if req.status.value == value
-                    ]
-
-        return requisitions
-
-    def get_data_summary(self) -> Dict[str, Any]:
-        """Get a summary of all data in the store."""
-        return {
-            "employees": {
-                "total": len(self._employees),
-                "active": len(
-                    [
-                        e
-                        for e in self._employees
-                        if e.employment_status == EmploymentStatus.ACTIVE
-                    ]
-                ),
-                "departments": len(set(e.department for e in self._employees)),
-            },
-            "customers": {
-                "total": len(self._customers),
-                "active": len([c for c in self._customers if c.status == "active"]),
-                "companies": len(set(c.company for c in self._customers if c.company)),
-            },
-            "candidates": {
-                "total": len(self._candidates),
-                "offer_accepted": len(
-                    [c for c in self._candidates if c.status.value == "offer_accepted"]
-                ),
-                "requisitions": len(
-                    set(
-                        c.job_requisition_id
-                        for c in self._candidates
-                        if c.job_requisition_id
-                    )
-                ),
-            },
-            "requisitions": {
-                "total": len(self._requisitions),
-                "open": len(
-                    [r for r in self._requisitions if r.status.value == "open"]
-                ),
-            },
-            "last_updated": self._last_updated.isoformat(),
-        }
-
-    def clear_all_data(self) -> bool:
-        """Clear all data from the store."""
-        self._employees.clear()
-        self._customers.clear()
-        self._candidates.clear()
-        self._requisitions.clear()
-        self._last_updated = datetime.now()
-        logger.info("Cleared all data from PEP data store")
-        return True
 
 
 class PEPEngine:
@@ -215,10 +21,15 @@ class PEPEngine:
 
     Provides high-level operations and orchestrates complex workflows across
     all PEP modules (HR, CRM, Talent).
+
+    By default the engine operates on the process-wide shared store
+    (``core.data_store.pep_data_manager``) so it sees the same data as the
+    ``geo_infer_pep.methods`` layer and the FastAPI endpoints. Pass an explicit
+    ``data_manager`` to isolate the engine (e.g. in tests).
     """
 
     def __init__(self, data_manager: Optional[PEPDataManager] = None):
-        self.data_manager = data_manager or PEPDataManager()
+        self.data_manager = data_manager if data_manager is not None else pep_data_manager
         self._initialized = False
 
         logger.info("PEP Engine initialized")
@@ -240,12 +51,15 @@ class PEPEngine:
     def import_hr_data(self, file_path: str) -> Dict[str, Any]:
         """Import HR data from CSV file."""
         try:
+            from ..methods import import_hr_data_from_csv
+
+            # import_hr_data_from_csv already stores records in the shared
+            # in-memory store; do not add them again to avoid duplicates.
             employees = import_hr_data_from_csv(file_path)
-            count = self.data_manager.add_employees(employees)
 
             return {
                 "success": True,
-                "records_imported": count,
+                "records_imported": len(employees),
                 "data_type": "employees",
                 "file_path": file_path,
             }
@@ -256,12 +70,15 @@ class PEPEngine:
     def import_crm_data(self, file_path: str) -> Dict[str, Any]:
         """Import CRM data from CSV file."""
         try:
+            from ..methods import import_crm_data_from_csv
+
+            # import_crm_data_from_csv already stores records in the shared
+            # in-memory store; do not add them again to avoid duplicates.
             customers = import_crm_data_from_csv(file_path)
-            count = self.data_manager.add_customers(customers)
 
             return {
                 "success": True,
-                "records_imported": count,
+                "records_imported": len(customers),
                 "data_type": "customers",
                 "file_path": file_path,
             }
@@ -274,16 +91,13 @@ class PEPEngine:
     ) -> Dict[str, Any]:
         """Import talent data from CSV files."""
         try:
+            from ..methods import import_talent_data_from_csv
+
             result = import_talent_data_from_csv(candidates_file, requisitions_file)
 
             if result.get("processed_successfully"):
-                # Update data manager with imported data
-                candidates = get_all_candidates()
-                self.data_manager.add_candidates(candidates)
-
-                # Note: Requisitions would need to be added to data manager as well
-                # This would require modifying the import function to return them
-
+                # Imported candidates and requisitions are already stored in
+                # the shared in-memory store by the methods layer.
                 return {
                     "success": True,
                     "candidates_imported": result.get("candidates", 0),
@@ -306,12 +120,12 @@ class PEPEngine:
     ) -> Dict[str, Any]:
         """Process employee onboarding workflow."""
         try:
+            from ..methods import process_employee_onboarding_workflow
+
             success = process_employee_onboarding_workflow(employee_data)
 
-            # Update data manager with new employee
-            employees = get_all_employees()
-            self.data_manager._employees = employees  # Direct update for now
-
+            # The workflow already stores the new employee in the shared
+            # in-memory store; no direct data-manager mutation needed.
             return {
                 "success": success,
                 "workflow": "onboarding",
@@ -326,6 +140,8 @@ class PEPEngine:
     def generate_hr_dashboard(self) -> Dict[str, Any]:
         """Generate comprehensive HR dashboard."""
         try:
+            from ..methods import generate_comprehensive_hr_dashboard
+
             dashboard = generate_comprehensive_hr_dashboard()
             return {"success": True, "dashboard_type": "hr", "data": dashboard}
         except Exception as e:
@@ -335,6 +151,8 @@ class PEPEngine:
     def generate_crm_dashboard(self) -> Dict[str, Any]:
         """Generate comprehensive CRM dashboard."""
         try:
+            from ..methods import generate_comprehensive_crm_dashboard
+
             dashboard = generate_comprehensive_crm_dashboard()
             return {"success": True, "dashboard_type": "crm", "data": dashboard}
         except Exception as e:
@@ -344,6 +162,8 @@ class PEPEngine:
     def generate_talent_dashboard(self) -> Dict[str, Any]:
         """Generate comprehensive talent dashboard."""
         try:
+            from ..methods import generate_comprehensive_talent_dashboard
+
             dashboard = generate_comprehensive_talent_dashboard()
             return {"success": True, "dashboard_type": "talent", "data": dashboard}
         except Exception as e:
@@ -415,7 +235,7 @@ class PEPEngine:
 
         # Check module availability
         try:
-            import pandas as pd
+            import pandas as pd  # noqa: F401
 
             health_status["checks"]["dependencies"] = {
                 "status": "healthy",
@@ -454,7 +274,12 @@ class PEPEngine:
         return health_status
 
     def shutdown(self) -> bool:
-        """Shutdown the PEP engine gracefully."""
+        """Shutdown the PEP engine gracefully.
+
+        Clears the engine's data store. With the default shared store this
+        wipes every employee, customer, candidate, and requisition record
+        visible to the methods and API layers.
+        """
         try:
             logger.info("Shutting down PEP Engine")
             self.data_manager.clear_all_data()

@@ -94,7 +94,7 @@ horizon=30,
 method='prophet',
 include_uncertainty=True
 )
-``` ```
+```
 ```python
 # Tutorial 3: Active Inference Basics
 from geo_infer_act import ActiveInferenceModel
@@ -581,7 +581,7 @@ metadata={'crs': 'EPSG:4326'}
 ```bash
 cd GEO-INFER-EXAMPLES
 uv run python examples/basic/01_spatial_analysis.py
-``` ```
+```
 
 ## 🗺️ Interactive Spatial Preview
 

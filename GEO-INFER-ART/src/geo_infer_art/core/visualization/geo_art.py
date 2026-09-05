@@ -2,6 +2,7 @@
 GeoArt module for artistic visualization of geospatial data.
 """
 
+import logging
 import os
 import threading
 import time
@@ -15,7 +16,10 @@ from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 
 from geo_infer_art.core.aesthetics import ColorPalette
+from geo_infer_art.utils.animation import save_animation_with_fallback
 from geo_infer_art.utils.validators import validate_file_path, validate_geospatial_data
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from geo_infer_art.core.visualization.map_styling import MapStyle
@@ -368,25 +372,7 @@ class GeoArt:
             frames[0], animate, frames=num_frames, interval=1000 / fps, blit=False
         )
 
-        # Save animation
-        directory = os.path.dirname(output_path)
-        if directory and not os.path.exists(directory):
-            os.makedirs(directory)
-
-        # Save as GIF or video
-        if output_path.lower().endswith(".gif"):
-            anim.save(output_path, writer="pillow", fps=fps)
-        else:
-            # Try to save as video (requires additional dependencies)
-            try:
-                anim.save(output_path, writer="ffmpeg", fps=fps)
-            except Exception:
-                # Fallback to GIF
-                gif_path = output_path.rsplit(".", 1)[0] + ".gif"
-                anim.save(gif_path, writer="pillow", fps=fps)
-                output_path = gif_path
-
-        return output_path
+        return save_animation_with_fallback(anim, output_path, fps)
 
     def add_interactive_elements(self, interactive_type: str = "zoom") -> "GeoArt":
         """
@@ -1114,7 +1100,7 @@ class RealtimeVisualization:
                 time.sleep(self.update_interval)
 
             except Exception as e:
-                print(f"Error in real-time update: {str(e)}")
+                logger.error("Error in real-time update: %s", e)
                 break
 
         self.is_running = False

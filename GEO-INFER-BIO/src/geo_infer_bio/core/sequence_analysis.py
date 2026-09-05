@@ -49,16 +49,21 @@ class SequenceAnalyzer:
         gap_extend: float = -0.5,
     ) -> MultipleSeqAlignment:
         """
-        Align multiple sequences using pairwise alignment.
+        Perform a pairwise alignment of the first two sequence records.
+
+        Note: despite returning a MultipleSeqAlignment container, this performs a
+        two-sequence pairwise alignment (not a progressive multiple-sequence
+        alignment). Records beyond the first two are ignored.
 
         Args:
-            sequences: List of sequence records
+            sequences: List of sequence records (exactly the first two are used)
             algorithm: Alignment algorithm ("global" or "local")
             gap_open: Gap opening penalty
             gap_extend: Gap extension penalty
 
         Returns:
-            Multiple sequence alignment
+            Pairwise alignment of the first two records, wrapped in a
+            MultipleSeqAlignment for compatibility with downstream BIO tools
         """
         if len(sequences) < 2:
             raise ValueError("at least two sequences are required for alignment")

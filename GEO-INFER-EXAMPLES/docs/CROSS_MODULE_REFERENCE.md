@@ -176,6 +176,7 @@ This reference guide provides the **mapping** of all cross-module integrations, 
  A → B → C → D → E
 ```
  **Use Cases**: Sequential processing, data transformation chains **Examples**: Health surveillance, environmental monitoring **Modules**: DATA → SPACE → TIME → AI → DOMAIN ### **2. Parallel Processing Pattern** ```
+```
  B A → [ C ] → E D
 ```
  **Use Cases**: Independent analyses that merge **Examples**: Multi-sensor fusion, parallel modeling **Modules**: DATA → [SPACE, TIME, IOT] → AI ### **3. Fan-Out Pattern**

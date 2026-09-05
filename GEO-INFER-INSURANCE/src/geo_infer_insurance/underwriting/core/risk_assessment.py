@@ -128,7 +128,7 @@ class RiskAssessmentEngine:
             config: Risk assessment configuration. If None, uses defaults.
         """
         self.config = config or RiskAssessmentConfig()
-        self.logger = logging.getLogger("geo_infer_risk.underwriting.risk_assessment")
+        self.logger = logging.getLogger("geo_infer_insurance.underwriting.risk_assessment")
 
         # Initialize external interfaces
         self.risk_engine = None
@@ -471,8 +471,6 @@ class RiskAssessmentEngine:
         self, application_data: Dict[str, Any], risk_results: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Analyze sensitivity of risk results to input parameters."""
-        property_info = application_data.get("property", {})
-        base_value = property_info.get("value", 200000)
 
         sensitivity_analysis = {
             "value_sensitivity": 0.8,  # Risk increases with property value

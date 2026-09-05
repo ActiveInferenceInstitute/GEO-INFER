@@ -82,8 +82,7 @@ GEO-INFER-MARINE/
       ocean_currents.py         # OceanCurrentModeler
       water_quality.py          # MarineWaterQuality
       coral_reef.py             # CoralReefAssessor
-    api/                        # REST API endpoints
-    utils/                      # Shared utilities
+    utils/                      # Shared utilities (biodiversity metrics)
   tests/
     unit/
     integration/
@@ -92,8 +91,8 @@ GEO-INFER-MARINE/
 
 ## Dependencies
 
-Core dependencies include `numpy`, `xarray`, and `pandas`. Optional dependencies include `netCDF4` for file I/O, `geopandas` for vector operations, and `scipy` for spatial interpolation.
+Core dependencies: `numpy`, `xarray`, and `netCDF4` (for NetCDF file I/O).
 
 ## Version
 
-Current version: `0.1.0`
+Current version: `0.2.0`

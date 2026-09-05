@@ -5,10 +5,13 @@ Provides decision protocols, voting mechanisms,
 and consensus models for organizational governance.
 """
 
+import logging
 import math
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from enum import Enum
+
+logger = logging.getLogger(__name__)
 
 
 class VotingMethod(Enum):
@@ -95,6 +98,7 @@ class VotingEngine:
         if len(proposal.options) < 2:
             raise ValueError("Proposal must have at least 2 options")
         self._proposals[proposal.proposal_id] = proposal
+        logger.info("Proposal created: %s (method=%s)", proposal.proposal_id, proposal.voting_method.value)
 
     def cast_vote(self, proposal_id: str, vote: Vote) -> None:
         """
@@ -124,6 +128,7 @@ class VotingEngine:
                 raise ValueError(f"Invalid choice: {vote.choice}")
 
         proposal.votes.append(vote)
+        logger.debug("Vote cast on %s by %s", proposal_id, vote.voter_id)
 
     def tally(self, proposal_id: str) -> VotingResult:
         """
@@ -165,21 +170,20 @@ class VotingEngine:
             raise ValueError(f"Unknown voting method: {method}")
 
     def _tally_simple_majority(self, proposal: Proposal, quorum_met: bool) -> VotingResult:
+        """Tally a simple-majority vote.
+
+        Semantics: plurality wins. The option with the most votes is the
+        winner (no strict >50% requirement); ties resolve deterministically
+        by the declared option order via ``max``. If quorum is not met,
+        there are no votes, or the top option has zero votes, there is
+        no winner.
+        """
         counts: Dict[str, float] = {opt: 0 for opt in proposal.options}
         for vote in proposal.votes:
             if vote.choice in counts:
                 counts[vote.choice] += 1
 
         total = len(proposal.votes)
-        winner = max(counts, key=lambda k: counts[k]) if total > 0 and quorum_met else None
-
-        if winner and counts[winner] <= total / 2.0:
-            # Need strict majority? No -- simple majority means plurality
-            # Actually simple majority = more than 50%
-            if counts[winner] <= total / 2.0:
-                winner = None  # No majority
-
-        # For simple majority, plurality wins (most votes)
         winner = max(counts, key=lambda k: counts[k]) if total > 0 and quorum_met else None
         if winner and counts[winner] == 0:
             winner = None
@@ -262,7 +266,7 @@ class VotingEngine:
         rounds: List[Dict[str, float]] = []
         total = len(ballots)
 
-        while active_candidates:
+        while len(active_candidates) > 1:
             round_counts: Dict[str, float] = {c: 0 for c in active_candidates}
             for ballot in ballots:
                 for choice in ballot:
@@ -272,35 +276,43 @@ class VotingEngine:
 
             rounds.append(dict(round_counts))
 
-            # Check for majority
-            for candidate, count in round_counts.items():
-                if count > total / 2.0:
-                    return VotingResult(
-                        proposal_id=proposal.proposal_id,
-                        winner=candidate,
-                        vote_counts=round_counts,
-                        total_votes=total,
-                        quorum_met=quorum_met,
-                        method=VotingMethod.RANKED_CHOICE,
-                        rounds=rounds,
-                    )
+            # Majority check: a candidate with strictly more than half of
+            # all ballots wins immediately.
+            best = max(round_counts, key=lambda k: round_counts[k])
+            if round_counts[best] > total / 2.0:
+                logger.debug("IRV winner %s in round %d", best, len(rounds))
+                return VotingResult(
+                    proposal_id=proposal.proposal_id,
+                    winner=best,
+                    vote_counts=round_counts,
+                    total_votes=total,
+                    quorum_met=quorum_met,
+                    method=VotingMethod.RANKED_CHOICE,
+                    rounds=rounds,
+                )
 
-            # Eliminate lowest candidate
+            # Standard IRV eliminates exactly ONE candidate per round: the
+            # lowest-scoring candidate, with a deterministic tie-break
+            # (lexicographically first candidate id among the tied).
             min_count = min(round_counts.values())
-            eliminated = [c for c, cnt in round_counts.items() if cnt == min_count]
-            for c in eliminated:
-                active_candidates.discard(c)
+            tied = sorted(c for c, cnt in round_counts.items() if cnt == min_count)
+            eliminated = tied[0]
+            active_candidates.discard(eliminated)
+            logger.debug(
+                "IRV round %d: eliminated %s (tied: %s)", len(rounds), eliminated, tied
+            )
 
-            if not active_candidates:
-                break
-
-        last_round = rounds[-1] if rounds else {}
-        winner = max(last_round, key=lambda k: last_round[k]) if last_round else None
+        # One candidate remains after the eliminations. Because zero-vote
+        # candidates are always strict-minimum and eliminated first, the
+        # survivor carries the transferred active votes; the old behavior
+        # of re-scanning the last round (which could resurrect an
+        # already-eliminated candidate) is gone.
+        winner = next(iter(active_candidates)) if active_candidates else None
 
         return VotingResult(
             proposal_id=proposal.proposal_id,
             winner=winner,
-            vote_counts=last_round,
+            vote_counts=rounds[-1] if rounds else {},
             total_votes=total,
             quorum_met=quorum_met,
             method=VotingMethod.RANKED_CHOICE,
@@ -352,12 +364,16 @@ class VotingEngine:
         )
 
 
+
 class ConsensusModel:
     """
     Models consensus-building processes for organizational decisions.
 
-    Implements iterative consensus scoring where participants rate
-    options and the process converges toward agreement.
+    Participants rate options round by round (the caller drives the
+    rounds: collect ratings via :meth:`submit_rating`, score them with
+    :meth:`compute_consensus`, and use :meth:`check_convergence` against
+    the previous round's scores to decide when agreement has stabilized
+    within ``convergence_threshold``). This class does not loop on its own.
     """
 
     def __init__(self, convergence_threshold: float = 0.05) -> None:

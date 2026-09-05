@@ -18,9 +18,11 @@ try:
     HAS_GEO_SPACE = True
 except ImportError:
     HAS_GEO_SPACE = False
-    logging.warning("GEO-INFER-SPACE not available, using basic spatial operations")
 
 logger = logging.getLogger(__name__)
+
+if not HAS_GEO_SPACE:
+    logger.warning("GEO-INFER-SPACE not available, using basic spatial operations")
 
 
 class SpatialDataFusion:

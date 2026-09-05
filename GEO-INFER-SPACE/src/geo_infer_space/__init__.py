@@ -22,19 +22,36 @@ from .core.analytics import SpatialAnalyticsInterface
 from .core.dispatcher import get_backend_dispatcher, configure_backends
 from .core.interfaces import UnsupportedSpatialOperationError
 
+import logging
+import warnings
+
+logger = logging.getLogger(__name__)
+
 # Import additional components with error handling
 PlaceAnalyzer: Any
 try:
     from .place_analyzer import PlaceAnalyzer as _PlaceAnalyzer
     PlaceAnalyzer = _PlaceAnalyzer
-except ImportError:
+except ImportError as e:
+    warnings.warn(
+        f"geo_infer_space: PlaceAnalyzer unavailable ({e}); related APIs disabled",
+        ImportWarning,
+        stacklevel=2,
+    )
+    logger.warning(f"geo_infer_space: PlaceAnalyzer unavailable ({e}); related APIs disabled")
     PlaceAnalyzer = None
 
 SpatialUtils: Any
 try:
     from .spatial_utils import SpatialUtils as _SpatialUtils
     SpatialUtils = _SpatialUtils
-except ImportError:
+except ImportError as e:
+    warnings.warn(
+        f"geo_infer_space: SpatialUtils unavailable ({e}); related APIs disabled",
+        ImportWarning,
+        stacklevel=2,
+    )
+    logger.warning(f"geo_infer_space: SpatialUtils unavailable ({e}); related APIs disabled")
     SpatialUtils = None
 
 # Import the GIS submodule facade
@@ -42,7 +59,13 @@ GISManager: Any
 try:
     from .gis import GISManager as _GISManager
     GISManager = _GISManager
-except ImportError:
+except ImportError as e:
+    warnings.warn(
+        f"geo_infer_space: GISManager unavailable ({e}); related APIs disabled",
+        ImportWarning,
+        stacklevel=2,
+    )
+    logger.warning(f"geo_infer_space: GISManager unavailable ({e}); related APIs disabled")
     GISManager = None
 
 # Make core functionality easily accessible

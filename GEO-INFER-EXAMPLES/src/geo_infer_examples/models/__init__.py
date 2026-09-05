@@ -68,7 +68,3 @@ __all__ = [
     'save_workflow_to_file',
     'GEO_INFER_MODULES'
 ]
-
-__version__ = "1.0.0"
-__author__ = "GEO-INFER Team"
-__email__ = "info@geo-infer.org" 

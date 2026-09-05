@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `basic_temporal_analysis.py`
+- `demo_all_methods.py`
 
 ## Validation
 

@@ -10,26 +10,10 @@ Examples workspace within `GEO-INFER-NORMS`.
 
 ## Public Interface
 
-- `minimal_zoning_example.py:generate_color_palette` (function)
-- `minimal_zoning_example.py:create_custom_colormap` (function)
-- `minimal_zoning_example.py:get_current_timestamp` (function)
-- `minimal_zoning_example.py:format_dict_for_display` (function)
-- `minimal_zoning_example.py:save_plot` (function)
-- `minimal_zoning_example.py:calculate_area` (function)
-- `minimal_zoning_example.py:wrap_labels` (function)
-- `minimal_zoning_example.py:ZoningCode` (class)
-- `minimal_zoning_example.py:ZoningDistrict` (class)
-- `minimal_zoning_example.py:LandUseType` (class)
-- `minimal_zoning_example.py:Parcel` (class)
-- `minimal_zoning_example.py:EnvironmentalAssessment` (class)
-- `minimal_zoning_example.py:ZoningAnalyzer` (class)
-- `minimal_zoning_example.py:LandUseClassifier` (class)
-- `minimal_zoning_example.py:create_sample_data` (function)
+- `minimal_zoning_example.py:build_analyzer` (function)
 - `minimal_zoning_example.py:main` (function)
-- `zoning_analysis_example.py:generate_color_palette` (function)
-- `zoning_analysis_example.py:create_custom_colormap` (function)
-- `zoning_analysis_example.py:get_current_timestamp` (function)
-- `zoning_analysis_example.py:format_dict_for_display` (function)
+- `zoning_analysis_example.py:build_analyzer` (function)
+- `zoning_analysis_example.py:main` (function)
 
 ## Module Metadata
 
@@ -41,12 +25,14 @@ Examples workspace within `GEO-INFER-NORMS`.
 
 ## Dependencies
 
-- `geopandas>=0.10.0`
-- `matplotlib>=3.4.0`
-- `networkx>=2.6.0`
-- `numpy>=1.20.0`
-- `pandas>=1.3.0`
-- `shapely>=1.8.0`
+- `fastapi>=0.95.0,<1`
+- `geopandas>=0.13.0,<2`
+- `matplotlib>=3.7.0,<4`
+- `networkx>=2.6.0,<4`
+- `numpy>=1.24.0,<3`
+- `pandas>=2.0.0,<3`
+- `pydantic>=2.0.0,<3`
+- `shapely>=2.0.0,<3`
 
 
 ## Validation

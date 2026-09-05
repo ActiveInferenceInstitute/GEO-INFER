@@ -7,9 +7,8 @@ Temporal analysis, time series processing, forecasting, and spatio-temporal data
 - `docs/`
 - `examples/`
 - `src/`
-- `test_output/`
 - `tests/`
-- `demo_all_methods.py`
+- `.gitignore`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`
@@ -17,9 +16,7 @@ Temporal analysis, time series processing, forecasting, and spatio-temporal data
 
 ## Public Interface
 
-- `demo_all_methods.py:success` (function)
-- `demo_all_methods.py:info` (function)
-- `demo_all_methods.py:section` (function)
+- No public Python symbols are defined directly in this directory.
 
 ## Module Metadata
 

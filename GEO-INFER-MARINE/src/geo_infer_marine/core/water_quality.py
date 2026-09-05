@@ -5,7 +5,7 @@ indices, turbidity scoring, and composite marine water quality index.
 """
 
 import logging
-from typing import Dict, Optional, Tuple, cast
+from typing import Dict, Optional, cast
 
 import numpy as np
 import xarray as xr

@@ -5,10 +5,10 @@ Provides dependency graph construction, requirement priority scoring,
 and completeness checking for software and system requirements.
 """
 
-import re
-from typing import Dict, List, Optional, Tuple, Set, Any
+from typing import Dict, List, Optional, Tuple, Set
 from dataclasses import dataclass, field
 from enum import Enum
+from geo_infer_req.core.validation import find_dependency_cycles
 
 
 class RequirementType(Enum):
@@ -74,7 +74,6 @@ class CompletenessReport:
     completeness_score: float
     missing_descriptions: List[str]
     missing_acceptance_criteria: List[str]
-    missing_priorities: List[str]
     orphaned_requirements: List[str]
     coverage_by_type: Dict[str, float]
 
@@ -164,8 +163,8 @@ class RequirementsAnalyzer:
                 if in_degree[neighbor] == 0:
                     queue.append(neighbor)
 
-        # Detect cycles (nodes not in topological order)
-        cycles = self._detect_cycles(adjacency, nodes)
+        # Detect cycles via the canonical detector (core.validation)
+        cycles = find_dependency_cycles(adjacency)
 
         # Critical path (longest path in DAG)
         critical_path, depth = self._compute_critical_path(adjacency, topo_order)
@@ -261,7 +260,6 @@ class RequirementsAnalyzer:
         """
         missing_desc: List[str] = []
         missing_criteria: List[str] = []
-        missing_priorities: List[str] = []
         orphaned: List[str] = []
 
         all_ids = set(self._requirements.keys())
@@ -313,7 +311,6 @@ class RequirementsAnalyzer:
             completeness_score=round(completeness, 4),
             missing_descriptions=missing_desc,
             missing_acceptance_criteria=missing_criteria,
-            missing_priorities=missing_priorities,
             orphaned_requirements=orphaned,
             coverage_by_type=coverage_by_type,
         )
@@ -341,40 +338,6 @@ class RequirementsAnalyzer:
             List of matching requirements.
         """
         return [r for r in self._requirements.values() if r.status == status]
-
-    def _detect_cycles(
-        self, adjacency: Dict[str, List[str]], nodes: List[str]
-    ) -> List[List[str]]:
-        """Detect cycles using DFS-based cycle detection."""
-        WHITE, GRAY, BLACK = 0, 1, 2
-        color: Dict[str, int] = {n: WHITE for n in nodes}
-        parent: Dict[str, Optional[str]] = {n: None for n in nodes}
-        cycles: List[List[str]] = []
-
-        def dfs(node: str) -> None:
-            color[node] = GRAY
-            for neighbor in adjacency.get(node, []):
-                if neighbor not in color:
-                    continue
-                if color[neighbor] == GRAY:
-                    # Found a cycle, reconstruct it
-                    cycle = [neighbor, node]
-                    curr: Optional[str] = node
-                    while curr and parent.get(curr) and parent[curr] != neighbor:
-                        curr = parent[curr]
-                        if curr:
-                            cycle.append(curr)
-                    cycles.append(cycle)
-                elif color[neighbor] == WHITE:
-                    parent[neighbor] = node
-                    dfs(neighbor)
-            color[node] = BLACK
-
-        for node in nodes:
-            if color[node] == WHITE:
-                dfs(node)
-
-        return cycles
 
     def _compute_critical_path(
         self, adjacency: Dict[str, List[str]], topo_order: List[str]

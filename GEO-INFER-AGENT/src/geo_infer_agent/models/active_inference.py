@@ -658,7 +658,10 @@ class ActiveInferenceAgent(BaseAgent):
                         if idx < self.state.model.observation_dimensions:
                             obs_vector[idx] = value
                     except (IndexError, ValueError):
-                        pass
+                        logger.debug(
+                            "Ignoring observation key %r: not a valid sensor index",
+                            key,
+                        )
 
         # Update state with the processed observation
         self.state.update_with_observation(obs_vector)
@@ -929,7 +932,10 @@ class ActiveInferenceAgent(BaseAgent):
                         if idx < len(obs):
                             obs[idx] = value
                     except (IndexError, ValueError):
-                        pass
+                        logger.debug(
+                            "Ignoring sensor key %r: not a valid sensor index",
+                            key,
+                        )
 
             # Update the state
             agent.state.update_with_observation(obs)

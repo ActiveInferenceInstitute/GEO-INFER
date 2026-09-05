@@ -5,11 +5,15 @@ Examples workspace within `GEO-INFER-TIME`.
 ## Contents
 
 - `basic_temporal_analysis.py`
+- `demo_all_methods.py`
 
 ## Public Interface
 
 - `basic_temporal_analysis.py:generate_sample_timeseries` (function)
 - `basic_temporal_analysis.py:main` (function)
+- `demo_all_methods.py:success` (function)
+- `demo_all_methods.py:info` (function)
+- `demo_all_methods.py:section` (function)
 
 ## Module Metadata
 

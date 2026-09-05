@@ -650,21 +650,15 @@ class MultiSourceDataIngestion:
         connector = self.connectors[source_name]
 
         try:
-            # Detect format if automatic
+            # Detect format if automatic; work on a copy so the caller's
+            # payload dict is never mutated as a side effect.
             if self.config.format_detection == "automatic":
                 detected_format = self.format_detector.detect_format(source_data)
                 if isinstance(source_data, dict):
-                    source_data["format"] = detected_format
+                    source_data = {**source_data, "format": detected_format}
 
             # Fetch data
             data = await connector.fetch_data(source_data)
-
-            if (
-                isinstance(data, dict)
-                and set(data.keys()) == {"invalid"}
-                and data.get("invalid") == "data_format"
-            ):
-                raise ValueError("Malformed data payload")
 
             # Validate data
             if self.config.validation_enabled:

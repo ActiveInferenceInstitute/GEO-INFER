@@ -55,8 +55,14 @@ class TestDataValidator:
 
     def test_validate_motif_rna(self) -> None:
         validator = DataValidator()
-        # DataValidator treats RNA with the same charset as DNA (A, T, C, G)
-        assert validator.validate_motif("ATC", "RNA") is True
+        assert validator.validate_motif("AUC", "RNA") is True
+        # T is not part of the RNA alphabet (A/U/C/G)
+        assert validator.validate_motif("ATC", "RNA") is False
+
+    def test_validate_sequence_rna_charset(self) -> None:
+        validator = DataValidator()
+        assert validator.validate_sequence("AUCG", "RNA") is True
+        assert validator.validate_sequence("ATCG", "RNA") is False
 
     def test_validate_motif_invalid(self) -> None:
         validator = DataValidator()

@@ -17,7 +17,7 @@ Key Features:
 
 import numpy as np
 import logging
-from typing import Dict, List, Any, Optional, Type, cast
+from typing import Dict, List, Any, Optional, cast
 from datetime import datetime
 from dataclasses import dataclass, field
 from collections import defaultdict
@@ -38,7 +38,6 @@ except ImportError as e:
     SpatialAnalyticsInterface = None
 
 from geo_infer_ant.core.agent_base import SwarmAgent
-from geo_infer_ant.core.population import AgentPopulation
 from geo_infer_ant.core.stigmergy import PheromoneSystem
 from geo_infer_ant.core.digital_stigmergy import DigitalStigmergy
 from geo_infer_ant.algorithms.aco import AntColonyOptimization

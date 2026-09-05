@@ -6,7 +6,7 @@ This module provides RBAC (Role-Based Access Control) and ABAC
 """
 
 import logging
-from typing import Dict, List, Optional, Set, Any
+from typing import Dict, List, Optional, Any
 from enum import Enum
 
 from .access_control import GeospatialAccessManager, Role, SpatialPermission
@@ -42,7 +42,6 @@ class AuthorizationManager:
                        Must be set via environment variable or configuration.
         """
         import os
-        import secrets
         
         if secret_key is None:
             secret_key = os.getenv("GEO_INFER_SEC_SECRET_KEY")

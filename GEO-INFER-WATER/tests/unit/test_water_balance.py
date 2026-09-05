@@ -3,8 +3,6 @@
 import numpy as np
 import pytest
 
-import sys
-sys.path.insert(0, "GEO-INFER-WATER/src")
 
 from geo_infer_water.core.water_balance import WaterBalanceModeler
 

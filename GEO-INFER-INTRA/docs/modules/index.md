@@ -1,6 +1,6 @@
 # Module Catalog
 
-GEO-INFER contains 44 independently packaged modules. Every module has a
+GEO-INFER contains 45 independently packaged modules. Every module has a
 package directory, `pyproject.toml`, tests, generated `README.md` and
 `AGENTS.md` signposts, and a `SKILL.md` describing current agent-facing usage.
 
@@ -42,7 +42,7 @@ hub; the module-local README is the source-backed operational reference.
 
 ## Domain modules
 
-AG, BIO, CLIMATE, CIV, ECON, EDU, EMERGENCY, ENERGY, FOREST, HEALTH, LOG,
+AG, BIO, CLIMATE, CIV, ECON, EDU, EMERGENCY, ENERGY, FOREST, HEALTH, INSURANCE, LOG,
 MARINE, PEP, RISK, TRANSPORT, and WATER provide domain-oriented workflows.
 Their operational references are available in the root module directories and
 their conceptual pages below.
@@ -53,7 +53,7 @@ their conceptual pages below.
 | [ENERGY](geo-infer-energy.md) | [CLIMATE](geo-infer-climate.md) | [EDU](geo-infer-edu.md) |
 | [FOREST](geo-infer-forest.md) | [MARINE](geo-infer-marine.md) | [EMERGENCY](geo-infer-emergency.md) |
 | [WATER](geo-infer-water.md) | [RISK](geo-infer-risk.md) | [HEALTH](geo-infer-health.md) |
-|  |  | [LOG](geo-infer-log.md) · [PEP](geo-infer-pep.md) · [TRANSPORT](geo-infer-transport.md) · [ECON](geo-infer-econ.md) |
+|  | [INSURANCE](geo-infer-insurance.md) | [LOG](geo-infer-log.md) · [PEP](geo-infer-pep.md) · [TRANSPORT](geo-infer-transport.md) · [ECON](geo-infer-econ.md) |
 
 ## Governance and tooling
 

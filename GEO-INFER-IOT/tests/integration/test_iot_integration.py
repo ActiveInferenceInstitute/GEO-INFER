@@ -229,8 +229,8 @@ class TestCrossModuleIntegration(unittest.TestCase):
 
         # Mock BAYES components
         mock_gp = Mock()
-        mock_gp.fit_async = AsyncMock(return_value={"success": True})
-        mock_gp.predict_async = AsyncMock(return_value=([0.1, 0.2], [0.01, 0.02]))
+        mock_gp.fit = Mock(return_value=mock_gp)
+        mock_gp.predict = Mock(return_value=([0.1, 0.2], [0.01, 0.02]))
 
         with patch(
             "geo_infer_iot.core.ingestion.GaussianProcess", return_value=mock_gp

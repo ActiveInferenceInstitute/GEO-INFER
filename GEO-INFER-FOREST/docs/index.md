@@ -79,8 +79,6 @@ GEO-INFER-FOREST/
       wildfire_risk.py         # WildfireRiskAnalyzer
       forest_health.py         # ForestHealthMonitor
       fire_risk.py             # FireRiskAssessor
-    api/                       # REST API endpoints
-    utils/                     # Shared utilities
   tests/
     unit/
     integration/
@@ -89,8 +87,4 @@ GEO-INFER-FOREST/
 
 ## Dependencies
 
-Core dependencies include `numpy`, `xarray`, and `scipy` (for statistical tests in change detection). Optional dependencies include `geopandas` for vector-based stand polygons and `rasterio` for raster I/O.
-
-## Version
-
-Current version: `0.1.0`
+Core dependencies are `numpy`, `xarray`, and `scipy` (for statistical tests in change detection). Optional extras: `vector` (`geopandas` + `shapely`) for vector-based stand polygons, `test` for the test suite. Current version: `0.2.0`.

@@ -304,6 +304,7 @@ class SimulationEngine:
                 "output_interval": self.config.output_interval,
                 "random_seed": self.config.random_seed,
             },
+            "rng_state": self.rng.bit_generator.state,
         }
 
         with open(filepath, "w") as f:
@@ -328,6 +329,27 @@ class SimulationEngine:
         self.state_history = checkpoint["state_history"]
         self.metrics = checkpoint["metrics"]
         self.events = checkpoint["events"]
+
+        # Restore the embedded configuration and the exact RNG stream state so
+        # a resumed run is bit-reproducible from the checkpoint.
+        saved_config = checkpoint.get("config")
+        if saved_config is not None:
+            self.config = SimulationConfig(
+                time_step=saved_config["time_step"],
+                max_time=saved_config["max_time"],
+                output_interval=saved_config["output_interval"],
+                random_seed=saved_config["random_seed"],
+            )
+
+        rng_state = checkpoint.get("rng_state")
+        if rng_state is not None:
+            self.rng.bit_generator.state = rng_state
+        else:
+            # Legacy checkpoint without an RNG snapshot: fall back to seeding
+            # from the saved random_seed (deterministic, but restarts stream).
+            self.rng = np.random.default_rng(
+                self.config.random_seed if saved_config else None
+            )
 
         logger.info(f"Checkpoint loaded from {filepath}")
 

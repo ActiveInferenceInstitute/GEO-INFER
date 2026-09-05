@@ -26,11 +26,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "aiomqtt>=2.4.0",
-    "geopandas>=0.10.0",
-    "h3>=4.5.0,<5",
     "jsonschema>=4.0.0",
-    "matplotlib>=3.5.0",
     "networkx>=2.8",
     "numpy>=1.21.0",
     "pyyaml>=6.0",
@@ -39,13 +35,19 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+integrations = [
+    "geo-infer-act",
+    "geo-infer-agent",
+    "geo-infer-space",
+]
 dev = [
+    "h3>=4.5.0,<5",
     "pytest>=6.2.0",
     "pytest-cov>=2.12.0",
     "pytest-asyncio>=0.20.0",
     "black>=21.9.0",
-        "mypy>=0.910",
-    ]
+    "mypy>=0.910",
+]
 docs = [
     "sphinx>=4.2.0",
     "sphinx-rtd-theme>=1.0.0",
@@ -58,8 +60,6 @@ Homepage = "https://github.com/ActiveInferenceInstitute/GEO-INFER"
 Documentation = "https://geo-infer.readthedocs.io/"
 Repository = "https://github.com/ActiveInferenceInstitute/GEO-INFER"
 "Bug Tracker" = "https://github.com/ActiveInferenceInstitute/GEO-INFER/issues"
-
-[project.scripts]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -146,3 +146,8 @@ exclude_lines = [
     "class .*\\bProtocol\\):",
     "@(abc\\.)?abstractmethod",
 ]
+
+[tool.uv.sources]
+geo-infer-act = { workspace = true }
+geo-infer-agent = { workspace = true }
+geo-infer-space = { workspace = true }

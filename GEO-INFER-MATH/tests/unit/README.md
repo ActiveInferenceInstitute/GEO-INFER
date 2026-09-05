@@ -10,6 +10,7 @@ Unit workspace within `GEO-INFER-MATH`.
 - `test_convenience_api.py`
 - `test_free_energy.py`
 - `test_geometry.py`
+- `test_gpu_acceleration.py`
 - `test_graph_theory.py`
 - `test_information_theory.py`
 - `test_integration_convenience.py`

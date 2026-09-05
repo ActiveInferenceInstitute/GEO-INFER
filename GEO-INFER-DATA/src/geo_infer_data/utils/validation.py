@@ -6,7 +6,7 @@ including format validation, schema validation, and data integrity checks.
 """
 
 import logging
-from typing import Dict, Union, Any
+from typing import Any, Dict, List, Sequence, Tuple, Union
 
 import geopandas as gpd
 import pandas as pd
@@ -23,6 +23,53 @@ def _now_for_series(series: pd.Series) -> pd.Timestamp:
     if isinstance(series.dtype, pd.DatetimeTZDtype):
         return pd.Timestamp.now(tz=series.dt.tz)
     return pd.Timestamp.now()
+
+
+def scan_geometry_validity(geometries: Any) -> List[Tuple[Any, str, Any]]:
+    """Scan geometry values for validity.
+
+    Shared primitive used by both :class:`GeospatialValidator` implementations
+    (utils and core). Accepts any iterable of ``(index, geometry)`` pairs, e.g.
+    ``GeoDataFrame.geometry.items()``.
+
+    Returns:
+        List of ``(index, reason, geometry)`` tuples, one per input geometry,
+        where reason is ``"null"``, ``"invalid"``, or ``"ok"``.
+    """
+    issues: List[Tuple[Any, str, Any]] = []
+    for idx, geom in geometries:
+        if geom is None:
+            issues.append((idx, "null", geom))
+        elif not geom.is_valid:
+            issues.append((idx, "invalid", geom))
+        else:
+            issues.append((idx, "ok", geom))
+    return issues
+
+def wgs84_bounds_issues(bounds: Sequence[float]) -> List[str]:
+    """Return the WGS84 bound-check types violated by ``[lon, lat, lon, lat]`` bounds."""
+    min_lon, min_lat, max_lon, max_lat = bounds[:4]
+    issues: List[str] = []
+    if not (-180 <= min_lon <= 180) or not (-180 <= max_lon <= 180):
+        issues.append("invalid_longitude_bounds")
+    if not (-90 <= min_lat <= 90) or not (-90 <= max_lat <= 90):
+        issues.append("invalid_latitude_bounds")
+    return issues
+
+
+def count_out_of_range(values: Any, low: float, high: float) -> int:
+    """Count entries of a numeric series outside ``[low, high]``."""
+    return int(sum(1 for value in values.dropna() if not (low <= value <= high)))
+
+
+def count_future_dates(series: pd.Series) -> int:
+    """Count timestamps strictly later than now (timezone-aware safe)."""
+    return int((series > _now_for_series(series)).sum())
+
+
+def has_mixed_types(series: pd.Series) -> bool:
+    """Return True when a column contains more than one Python value type."""
+    return len(series.dropna().apply(type).unique()) > 1
 
 
 class GeospatialValidator:
@@ -106,12 +153,14 @@ class GeospatialValidator:
         penalty = 0.0
 
         if isinstance(data, gpd.GeoDataFrame) and "geometry" in data.columns:
-            invalid_count = 0
             total_count = len(data)
-
-            for idx, geom in data.geometry.items():
-                if geom is None:
-                    invalid_count += 1
+            scanned = scan_geometry_validity(data.geometry.items())
+            problem_count = 0
+            for idx, reason, geom in scanned:
+                if reason == "ok":
+                    continue
+                problem_count += 1
+                if reason == "null":
                     issues.append(
                         {
                             "type": "null_geometry",
@@ -119,8 +168,7 @@ class GeospatialValidator:
                             "severity": "high",
                         }
                     )
-                elif not geom.is_valid:
-                    invalid_count += 1
+                else:
                     issues.append(
                         {
                             "type": "invalid_geometry",
@@ -129,8 +177,8 @@ class GeospatialValidator:
                         }
                     )
 
-            if invalid_count > 0:
-                invalid_percent = invalid_count / total_count
+            if problem_count:
+                invalid_percent = problem_count / total_count
                 penalty = min(0.5, invalid_percent * 2)  # Up to 50% penalty
 
         return {"valid": penalty < 0.1, "issues": issues, "penalty": penalty}
@@ -146,12 +194,7 @@ class GeospatialValidator:
             lon_cols = [col for col in data.columns if "lon" in col.lower()]
 
             for lat_col in lat_cols:
-                invalid_coords = 0
-                for value in data[lat_col].dropna():
-                    if not (-90 <= value <= 90):
-                        invalid_coords += 1
-
-                if invalid_coords > 0:
+                if count_out_of_range(data[lat_col], -90, 90) > 0:
                     issues.append(
                         {
                             "type": "invalid_latitude",
@@ -162,12 +205,7 @@ class GeospatialValidator:
                     penalty += 0.2
 
             for lon_col in lon_cols:
-                invalid_coords = 0
-                for value in data[lon_col].dropna():
-                    if not (-180 <= value <= 180):
-                        invalid_coords += 1
-
-                if invalid_coords > 0:
+                if count_out_of_range(data[lon_col], -180, 180) > 0:
                     issues.append(
                         {
                             "type": "invalid_longitude",
@@ -182,23 +220,15 @@ class GeospatialValidator:
             if not data.empty:
                 bounds = data.total_bounds
                 if len(bounds) == 4:
-                    min_lon, min_lat, max_lon, max_lat = bounds
-
-                    if not (-180 <= min_lon <= 180) or not (-180 <= max_lon <= 180):
+                    for issue_type in wgs84_bounds_issues(bounds):
                         issues.append(
                             {
-                                "type": "invalid_longitude_bounds",
-                                "message": "Invalid longitude bounds in geometry",
-                                "severity": "high",
-                            }
-                        )
-                        penalty += 0.2
-
-                    if not (-90 <= min_lat <= 90) or not (-90 <= max_lat <= 90):
-                        issues.append(
-                            {
-                                "type": "invalid_latitude_bounds",
-                                "message": "Invalid latitude bounds in geometry",
+                                "type": issue_type,
+                                "message": (
+                                    "Invalid longitude bounds in geometry"
+                                    if issue_type == "invalid_longitude_bounds"
+                                    else "Invalid latitude bounds in geometry"
+                                ),
                                 "severity": "high",
                             }
                         )
@@ -225,18 +255,15 @@ class GeospatialValidator:
 
             # Check for data types
             for col in data.columns:
-                if data[col].dtype == "object":
-                    # Check for mixed types
-                    unique_types = data[col].dropna().apply(type).unique()
-                    if len(unique_types) > 1:
-                        issues.append(
-                            {
-                                "type": "mixed_types",
-                                "message": f"Mixed data types in column {col}",
-                                "severity": "low",
-                            }
-                        )
-                        penalty += 0.1
+                if data[col].dtype == "object" and has_mixed_types(data[col]):
+                    issues.append(
+                        {
+                            "type": "mixed_types",
+                            "message": f"Mixed data types in column {col}",
+                            "severity": "low",
+                        }
+                    )
+                    penalty += 0.1
 
         return {"valid": penalty < 0.1, "issues": issues, "penalty": penalty}
 
@@ -258,9 +285,8 @@ class GeospatialValidator:
 
             for col in datetime_cols:
                 # Check for future dates
-                future_dates = data[col] > _now_for_series(data[col])
-                if future_dates.any():
-                    future_count = future_dates.sum()
+                future_count = count_future_dates(data[col])
+                if future_count:
                     issues.append(
                         {
                             "type": "future_dates",
@@ -346,12 +372,14 @@ class GeospatialValidator:
                     {"type": "missing_geometry", "message": "No geometry column found"}
                 ],
             )
-
         # Check geometry validity
-        invalid_count = 0
-        for idx, geom in geodataframe.geometry.items():
-            if geom is None:
-                invalid_count += 1
+        scanned = scan_geometry_validity(geodataframe.geometry.items())
+        problem_count = 0
+        for idx, reason, _geom in scanned:
+            if reason == "ok":
+                continue
+            problem_count += 1
+            if reason == "null":
                 issues.append(
                     {
                         "type": "null_geometry",
@@ -359,8 +387,7 @@ class GeospatialValidator:
                         "severity": "high",
                     }
                 )
-            elif not geom.is_valid:
-                invalid_count += 1
+            else:
                 issues.append(
                     {
                         "type": "invalid_geometry",
@@ -369,10 +396,9 @@ class GeospatialValidator:
                     }
                 )
 
-        if invalid_count > 0:
-            invalid_percent = invalid_count / len(geodataframe)
+        if problem_count:
+            invalid_percent = problem_count / len(geodataframe)
             score -= min(0.8, invalid_percent * 2)
-
         # Check geometry types
         geom_types = geodataframe.geometry.type.unique()
         if len(geom_types) > 5:  # Too many geometry types
@@ -413,23 +439,13 @@ class GeospatialValidator:
             try:
                 bounds = data.total_bounds
                 if len(bounds) == 4:
-                    min_lon, min_lat, max_lon, max_lat = bounds
-
-                    if not (-180 <= min_lon <= 180) or not (-180 <= max_lon <= 180):
+                    for issue_type in wgs84_bounds_issues(bounds):
                         issues.append(
                             {
-                                "type": "invalid_longitude_bounds",
-                                "message": "Invalid longitude bounds",
-                                "severity": "high",
-                            }
-                        )
-                        score -= 0.3
-
-                    if not (-90 <= min_lat <= 90) or not (-90 <= max_lat <= 90):
-                        issues.append(
-                            {
-                                "type": "invalid_latitude_bounds",
-                                "message": "Invalid latitude bounds",
+                                "type": issue_type,
+                                "message": "Invalid "
+                                + ("longitude" if issue_type == "invalid_longitude_bounds" else "latitude")
+                                + " bounds",
                                 "severity": "high",
                             }
                         )
@@ -451,10 +467,7 @@ class GeospatialValidator:
             lon_cols = [col for col in data.columns if "lon" in col.lower()]
 
             for lat_col in lat_cols:
-                invalid_count = 0
-                for value in data[lat_col].dropna():
-                    if not (-90 <= value <= 90):
-                        invalid_count += 1
+                invalid_count = count_out_of_range(data[lat_col], -90, 90)
 
                 if invalid_count > 0:
                     invalid_percent = invalid_count / len(data)
@@ -468,10 +481,7 @@ class GeospatialValidator:
                     score -= 0.3
 
             for lon_col in lon_cols:
-                invalid_count = 0
-                for value in data[lon_col].dropna():
-                    if not (-180 <= value <= 180):
-                        invalid_count += 1
+                invalid_count = count_out_of_range(data[lon_col], -180, 180)
 
                 if invalid_count > 0:
                     invalid_percent = invalid_count / len(data)
@@ -515,9 +525,8 @@ class GeospatialValidator:
 
             for col in datetime_cols:
                 # Check for future dates
-                future_dates = data[col] > _now_for_series(data[col])
-                if future_dates.any():
-                    future_count = future_dates.sum()
+                future_count = count_future_dates(data[col])
+                if future_count:
                     future_percent = future_count / len(data)
 
                     issues.append(

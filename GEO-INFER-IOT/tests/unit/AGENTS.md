@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `test_data_ingestion.py`
+- `test_fixwave_regressions.py`
 - `test_ingestion.py`
 - `test_performance_monitor.py`
 - `test_quality_control.py`

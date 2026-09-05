@@ -1,14 +1,18 @@
 """CRM Data Importers."""
 
+import logging
 import csv
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 from ..models.crm_models import (
+
     Customer,
     Address,
     InteractionLog,
 )  # Adjusted import path
+
+logger = logging.getLogger(__name__)
 
 
 class BaseCRMImporter(ABC):
@@ -38,7 +42,7 @@ class BaseCRMImporter(ABC):
         self.connect(**kwargs)
         raw_data = self.fetch_data(last_sync_date=last_sync_date)
         transformed_data = self.transform_data(raw_data)
-        print(
+        logger.info(
             f"Successfully imported and transformed {len(transformed_data)} customer records."
         )
         return transformed_data
@@ -50,7 +54,7 @@ class CSVCRMImporter(BaseCRMImporter):
     def __init__(self, file_path: str):
         self.file_path = file_path
         self.connection: Optional[str] = None
-        print(f"CSV CRM Importer initialized for file: {self.file_path}")
+        logger.info(f"CSV CRM Importer initialized for file: {self.file_path}")
 
     def connect(self, **kwargs: Any) -> None:
         """Open and validate access to the CSV file."""
@@ -59,12 +63,12 @@ class CSVCRMImporter(BaseCRMImporter):
             with open(self.file_path, "r", encoding="utf-8") as f:
                 f.read(0)
             self.connection = "connected"
-            print(f"Successfully connected to CSV file: {self.file_path}")
+            logger.info(f"Successfully connected to CSV file: {self.file_path}")
         except FileNotFoundError:
-            print(f"Error: CSV file not found at {self.file_path}")
+            logger.error(f"Error: CSV file not found at {self.file_path}")
             raise
         except Exception as e:
-            print(f"Error connecting to CSV file {self.file_path}: {e}")
+            logger.error(f"Error connecting to CSV file {self.file_path}: {e}")
             raise
 
     def fetch_data(
@@ -87,14 +91,19 @@ class CSVCRMImporter(BaseCRMImporter):
                             if record_date <= last_sync_date:
                                 continue
                         except ValueError:
-                            # Handle cases where date format is incorrect or missing
-                            print(f"Warning: Could not parse date for row: {row}")
-                            pass  # Or skip if strict
+                            # Row cannot be date-filtered reliably, so it is
+                            # skipped: incremental syncs must not append rows
+                            # whose recency is unknown.
+                            logger.warning(
+                                "Skipping row with unparseable updated_at during incremental fetch: %s",
+                                row.get("id", row),
+                            )
+                            continue
                     records.append(dict(row))
-            print(f"Fetched {len(records)} records from {self.file_path}")
+            logger.info(f"Fetched {len(records)} records from {self.file_path}")
             return records
         except Exception as e:
-            print(f"Error fetching data from CSV file {self.file_path}: {e}")
+            logger.error(f"Error fetching data from CSV file {self.file_path}: {e}")
             return []
 
     def transform_data(self, raw_data: List[Dict[str, Any]]) -> List[Customer]:
@@ -152,35 +161,6 @@ class CSVCRMImporter(BaseCRMImporter):
                 customers.append(Customer(**customer_data))
             except Exception as e:
                 # Log the error and problematic record, then continue if possible
-                print(f"Error transforming record: {record}. Error: {e}")
+                logger.error(f"Error transforming record: {record}. Error: {e}")
                 # Optionally, add to an error list or re-raise if critical
         return customers
-
-
-# Example of how to use the CSV Importer:
-# if __name__ == '__main__':
-#     # Create an example CSV for testing
-#     example_csv_path = 'crm_example_data.csv'
-#     with open(example_csv_path, 'w', newline='') as f:
-#         writer = csv.writer(f)
-#         writer.writerow(['id', 'first_name', 'last_name', 'email', 'phone', 'company_name', 'title',
-#                          'address_street', 'address_city', 'address_state', 'address_postal_code', 'address_country',
-#                          'created_at', 'updated_at', 'lead_source', 'status', 'tags', 'notes', 'notes_detail'])
-#         writer.writerow(['1', 'John', 'Doe', 'john.doe@example.com', '555-1234', 'Acme Corp', 'Developer',
-#                          '123 Main St', 'Anytown', 'CA', '90210', 'USA',
-#                          datetime.now().isoformat(), datetime.now().isoformat(), 'Website', 'active', 'vip,developer', 'Initial contact', 'Met at conference'])
-#         writer.writerow(['2', 'Jane', 'Smith', 'jane.smith@example.com', '555-5678', 'Beta Inc', 'Manager',
-#                          '456 Oak Ave', 'Otherville', 'NY', '10001', 'USA',
-#                          datetime(2023,1,15).isoformat(), datetime.now().isoformat(), 'Referral', 'lead', 'manager,high-priority', 'Followed up', 'Interested in Product X'])
-
-#     importer = CSVCRMImporter(file_path=example_csv_path)
-#     try:
-#         imported_customers = importer.import_customers()
-#         for cust in imported_customers:
-#             print(cust.model_dump_json(indent=2))
-#     except Exception as e:
-#         print(f"An error occurred during import: {e}")
-
-#     # Clean up dummy file
-#     import os
-#     os.remove(example_csv_path)

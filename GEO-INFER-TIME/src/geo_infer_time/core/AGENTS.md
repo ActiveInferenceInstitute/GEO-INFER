@@ -26,6 +26,7 @@
 - `analysis.py`
 - `event_detection.py`
 - `forecasting.py`
+- `inference_schedule.py`
 - `interpolation.py`
 - `statistics.py`
 - `stream_ingest.py`

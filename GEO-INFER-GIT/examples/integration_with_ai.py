@@ -7,44 +7,31 @@ Integration example: GEO-INFER-GIT with GEO-INFER-AI
 This example demonstrates how GEO-INFER-GIT can be used to automatically
 clone and manage AI/ML repositories containing geospatial models,
 algorithms, and research code for integration with the GEO-INFER-AI module.
+
+Requires network access to the GitHub API. Set GITHUB_TOKEN to raise rate
+limits (optional).
 """
 
 import os
-import sys
 import logging
 from pathlib import Path
 
-# Add the src directory to the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
-
-from geo_infer_git.core.multi_platform_api import MultiPlatformAPI
+from geo_infer_git.core.github_api import GitHubAPI, GitHubRepository
 from geo_infer_git.core.repo_cloner import RepoCloner
 from geo_infer_git.utils.config_loader import CloneConfig
-from geo_infer_git.utils.logging_utils import setup_logging
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def setup_ai_research_integration():
+
+def setup_ai_research_integration() -> tuple[GitHubAPI, RepoCloner]:
     """
     Set up integration between GEO-INFER-GIT and GEO-INFER-AI for
-    automated acquisition of AI research repositories and models.
+    automated AI/ML research repository acquisition and management.
     """
-
-    # Configuration for AI research repositories
-    platform_configs = {
-        'github': {
-            'token': os.environ.get('GITHUB_TOKEN'),
-            'api_url': 'https://api.github.com',
-            'wait_on_rate_limit': True,
-            'max_retries': 3,
-            'retry_delay': 1.0
-        }
-    }
-
-    # Initialize multi-platform API client
-    api_client = MultiPlatformAPI(platform_configs)
+    # GitHub API client (uses GITHUB_TOKEN from the environment when set)
+    api_client = GitHubAPI()
 
     # Configuration for cloning operations
     clone_config = CloneConfig(
@@ -60,7 +47,10 @@ def setup_ai_research_integration():
 
     return api_client, cloner
 
-def discover_ai_research_repositories(api_client, cloner):
+
+def discover_ai_research_repositories(
+    api_client: GitHubAPI, cloner: RepoCloner
+) -> tuple[dict[str, bool], list[GitHubRepository]]:
     """
     Discover and clone AI research repositories containing geospatial models.
 
@@ -68,7 +58,6 @@ def discover_ai_research_repositories(api_client, cloner):
     clone repositories with AI/ML models and algorithms for geospatial
     analysis, suitable for integration with GEO-INFER-AI.
     """
-
     logger.info("Discovering AI research repositories...")
 
     # Search for AI/geospatial repositories
@@ -80,7 +69,7 @@ def discover_ai_research_repositories(api_client, cloner):
         'geographic data science'
     ]
 
-    ai_repositories = []
+    ai_repositories: list[GitHubRepository] = []
 
     for query in search_queries:
         # Search GitHub for relevant repositories
@@ -103,8 +92,8 @@ def discover_ai_research_repositories(api_client, cloner):
         ai_repositories.extend(filtered_results)
 
     # Remove duplicates based on full_name
-    seen = set()
-    unique_repositories = []
+    seen: set[str] = set()
+    unique_repositories: list[GitHubRepository] = []
     for repo in ai_repositories:
         if repo.full_name not in seen:
             seen.add(repo.full_name)
@@ -114,7 +103,7 @@ def discover_ai_research_repositories(api_client, cloner):
 
     # Clone selected repositories
     logger.info("Cloning AI research repositories...")
-    repositories_to_clone = []
+    repositories_to_clone: list[tuple[str, str, str]] = []
 
     for repo in unique_repositories[:15]:  # Clone top 15
         repositories_to_clone.append((
@@ -134,7 +123,8 @@ def discover_ai_research_repositories(api_client, cloner):
 
     return clone_results, unique_repositories
 
-def analyze_model_compatibility(repositories):
+
+def analyze_model_compatibility(repositories: list[GitHubRepository]) -> dict[str, object]:
     """
     Analyze cloned repositories for model compatibility with GEO-INFER-AI.
 
@@ -145,7 +135,7 @@ def analyze_model_compatibility(repositories):
     logger.info("Analyzing model compatibility...")
 
     models_dir = Path('./ai_research_models')
-    compatibility_report = {
+    compatibility_report: dict[str, object] = {
         'tensorflow_models': [],
         'pytorch_models': [],
         'scikit_learn_models': [],
@@ -212,7 +202,8 @@ def analyze_model_compatibility(repositories):
 
     return compatibility_report
 
-def integrate_with_ai_module(clone_results, compatibility_report):
+
+def integrate_with_ai_module(clone_results: dict[str, bool], compatibility_report: dict[str, object]) -> dict[str, object]:
     """
     Demonstrate integration with GEO-INFER-AI module.
 
@@ -269,7 +260,8 @@ def integrate_with_ai_module(clone_results, compatibility_report):
 
     return integration_report
 
-def create_model_catalog(compatibility_report):
+
+def create_model_catalog(compatibility_report: dict[str, object]) -> dict[str, object]:
     """
     Create a catalog of available AI models for GEO-INFER-AI integration.
 
@@ -279,7 +271,7 @@ def create_model_catalog(compatibility_report):
 
     logger.info("Creating AI model catalog...")
 
-    catalog = {
+    catalog: dict[str, object] = {
         'metadata': {
             'created_at': str(Path('./ai_research_models').stat().st_ctime) if Path('./ai_research_models').exists() else '',
             'total_models': sum(len(models) for models in compatibility_report.values() if isinstance(models, list)),
@@ -317,7 +309,8 @@ def create_model_catalog(compatibility_report):
 
     return catalog
 
-def main():
+
+def main() -> dict[str, object] | None:
     """
     Main integration example demonstrating GEO-INFER-GIT with GEO-INFER-AI.
     """
@@ -360,6 +353,8 @@ def main():
         # Clean up resources
         if 'cloner' in locals():
             cloner.close()
+        if 'api_client' in locals():
+            api_client.close()
 
 if __name__ == "__main__":
     main()

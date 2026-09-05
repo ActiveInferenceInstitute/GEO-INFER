@@ -1,9 +1,16 @@
 """
 Module-specific simulation methods for GEO-INFER-SIM.
 
-This module provides comprehensive simulation methods that are exactly named
-after each GEO-INFER module, enabling simulation of module-specific behaviors
-and workflows within the simulation framework.
+This module provides simulation methods named after each GEO-INFER module,
+enabling simulation of module-specific behaviors and workflows within the
+simulation framework.
+
+NOTE — toy models: each ``simulate_<module>`` method runs a small, purely
+numeric synthetic model (dimensionless populations, synthetic trails, etc.).
+They exercise the simulation engine and produce structured results, but do NOT
+reproduce the real dynamics or behavioral parity of the target GEO-INFER
+modules. Treat these as engine smoke-tests and template code, not domain
+simulations.
 """
 
 import logging

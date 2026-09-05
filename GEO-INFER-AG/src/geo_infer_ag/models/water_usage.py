@@ -2,10 +2,9 @@
 Agricultural water usage modeling functionality.
 """
 
-from typing import Dict, List, Optional, Union, Any, Tuple
+from typing import Dict, List, Optional, Union, Any
 import numpy as np
 import pandas as pd
-import geopandas as gpd
 from datetime import datetime
 from sklearn.ensemble import RandomForestRegressor
 
@@ -121,7 +120,6 @@ class WaterUsageModel(AgricultureModel):
             
         # Combine field and weather data for training
         field_data = training_data["field_data"]
-        weather_data = training_data["weather_data"]
         
         # This is a simplification - in a real model, you would need to properly join
         # and align the field data with weather data, potentially using time series

@@ -6,7 +6,7 @@ designed for spatial machine learning models.
 """
 
 import numpy as np
-from typing import Union, Optional, List, Tuple, Dict, Any, Callable
+from typing import Optional, Dict, Callable
 import logging
 
 logger = logging.getLogger(__name__)

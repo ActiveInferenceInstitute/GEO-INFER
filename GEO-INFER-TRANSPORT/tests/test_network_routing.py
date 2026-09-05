@@ -50,7 +50,21 @@ class TestTransportNetwork:
         
         assert result["nodes_created"] == 4
         assert result["edges_created"] == 4
-    
+
+    def test_build_from_edges_applies_attributes(self, network, sample_edges):
+        """Selected extra edge attributes land on the graph edges."""
+        edges = [dict(e, surface="asphalt") for e in sample_edges]
+        network.build_from_edges(edges, attributes=["surface"])
+        data = network.graph.get_edge_data("n1", "n2")
+        assert data["surface"] == "asphalt"
+
+    def test_build_from_edges_without_attributes(self, network, sample_edges):
+        """No extra attributes are added when attributes is omitted."""
+        edges = [dict(e, surface="asphalt") for e in sample_edges]
+        network.build_from_edges(edges)
+        data = network.graph.get_edge_data("n1", "n2")
+        assert "surface" not in data
+
     def test_analyze_connectivity_components(self, network, sample_edges):
         """Test connectivity analysis using components method."""
         network.build_from_edges(sample_edges)

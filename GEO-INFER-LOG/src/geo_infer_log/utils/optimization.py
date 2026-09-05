@@ -6,7 +6,7 @@ problems like TSP and VRP.
 """
 
 import numpy as np
-from typing import List, Dict, Tuple, Optional, Any, cast
+from typing import List, Dict, Tuple, Optional, cast
 
 try:
     from ortools.constraint_solver import routing_enums_pb2

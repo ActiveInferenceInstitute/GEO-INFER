@@ -192,6 +192,41 @@ class SecurityConfig(BaseModel):
     )
 
 
+class RedisConfig(BaseModel):
+    """Redis connection settings used by :class:`~geo_infer_ops.core.cache.CacheManager`."""
+
+    host: str = Field(default="localhost", description="Redis host")
+    port: int = Field(default=6379, description="Redis port")
+    db: int = Field(default=0, description="Redis database index")
+    password: Optional[str] = Field(default=None, description="Redis password")
+
+    @field_validator("port")
+    @classmethod
+    def validate_port(cls, v: int) -> int:
+        """Validate port range."""
+        if not 1 <= v <= 65535:
+            raise ValueError("Port must be between 1 and 65535")
+        return v
+
+    @field_validator("db")
+    @classmethod
+    def validate_db(cls, v: int) -> int:
+        """Validate database index."""
+        if v < 0:
+            raise ValueError("Database index must be non-negative")
+        return v
+
+
+class CacheConfig(BaseModel):
+    """Caching configuration."""
+
+    enabled: bool = Field(default=True, description="Enable caching")
+    type: str = Field(default="redis", description="Cache backend type")
+    redis: RedisConfig = Field(
+        default_factory=RedisConfig, description="Redis connection settings"
+    )
+
+
 class Config(BaseModel):
     """Main configuration."""
 
@@ -218,6 +253,9 @@ class Config(BaseModel):
     )
     security: SecurityConfig = Field(
         default_factory=SecurityConfig, description="Security configuration"
+    )
+    cache: CacheConfig = Field(
+        default_factory=CacheConfig, description="Cache configuration"
     )
 
     @field_validator("environment")

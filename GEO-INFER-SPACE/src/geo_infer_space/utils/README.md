@@ -29,6 +29,7 @@ Utils workspace within `GEO-INFER-SPACE`.
 - `h3_utils.py:get_resolution` (function)
 - `h3_utils.py:is_valid_cell` (function)
 - `h3_utils.py:are_neighbor_cells` (function)
+- `h3_utils.py:haversine_distance` (function)
 
 ## Module Metadata
 

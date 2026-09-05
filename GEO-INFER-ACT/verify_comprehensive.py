@@ -509,7 +509,7 @@ def audit_spatial_agent(output_dir: Path) -> dict[str, Any]:
 
 
 def audit_domain_models(output_dir: Path) -> dict[str, Any]:
-    from geo_infer_act.models.base import ActiveInferenceModel as BaseModel
+    from geo_infer_act.models.base import BaseActiveInferenceModel
     from geo_infer_act.models.base import CategoricalModel, GaussianModel
     from geo_infer_act.models.climate import ClimateModel
     from geo_infer_act.models.ecological import EcologicalModel
@@ -518,9 +518,12 @@ def audit_domain_models(output_dir: Path) -> dict[str, Any]:
     from geo_infer_act.models.urban import UrbanModel
     from geo_infer_act.runners.h3 import setup_san_francisco_boundary
 
-    base_model = BaseModel({"purpose": "audit"})
-    base_step = base_model.step()
-    base_reset = base_model.reset()
+    base_model = BaseActiveInferenceModel({"purpose": "audit"})
+    try:
+        base_model.step()
+        raise AssertionError("BaseActiveInferenceModel.step() must be abstract")
+    except NotImplementedError:
+        pass
 
     categorical = CategoricalModel(state_dim=3, obs_dim=3)
     categorical.set_preferences(np.array([0.6, 0.3, 0.1]))
@@ -561,7 +564,6 @@ def audit_domain_models(output_dir: Path) -> dict[str, Any]:
     )
     multi_h3_coordination = multi.coordinate_agents()
     multi_h3_message = multi.get_agent_messages(0)
-
     for label, value in {
         "categorical_free_energy": categorical_fe,
         "resource_free_energy": resource_step[0]["free_energy"],
@@ -569,9 +571,6 @@ def audit_domain_models(output_dir: Path) -> dict[str, Any]:
         _assert_finite(value, label)
 
     payload = {
-        "base_step": base_step,
-        "base_reset": base_reset,
-        "categorical_beliefs": categorical_beliefs,
         "categorical_step": categorical_step,
         "categorical_free_energy": categorical_fe,
         "categorical_reset": categorical_reset,

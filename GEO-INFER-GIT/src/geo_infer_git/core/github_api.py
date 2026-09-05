@@ -11,7 +11,7 @@ for repository discovery, metadata retrieval, and rate limit management.
 import os
 import time
 import logging
-from typing import Dict, List, Any, Optional, Tuple, cast
+from typing import Dict, List, Any, Optional, cast
 from dataclasses import dataclass
 import requests
 from requests.adapters import HTTPAdapter  # type: ignore[import-untyped]

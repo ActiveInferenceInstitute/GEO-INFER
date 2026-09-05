@@ -13,11 +13,8 @@ import numpy as np
 import pandas as pd
 from typing import Dict, List, Optional, Tuple, Callable, Any, cast
 from dataclasses import dataclass
-from abc import ABC, abstractmethod
 import geopandas as gpd
 from scipy.optimize import minimize, minimize_scalar
-from scipy.stats import multivariate_normal
-from sklearn.preprocessing import StandardScaler
 
 
 @dataclass
@@ -156,104 +153,232 @@ class DemandFunctions:
         
         return cast(np.ndarray, (alpha * expenditure) / prices)
     
-    def estimate_demand_system(self, data: pd.DataFrame, 
+    def estimate_demand_system(self, data: pd.DataFrame,
                              method: str = "ols") -> Dict[str, Any]:
         """
         Estimate demand system from consumer data
-        
+
         Args:
             data: DataFrame with columns for quantities, prices, income, demographics
-            method: Estimation method ('ols', 'sls', 'aids')
-            
+            method: Estimation method ('ols', 'sur', 'aids')
+
         Returns:
             Dictionary with estimated parameters and diagnostics
         """
         if method == "aids":
             return self._estimate_aids_system(data)
-        elif method == "sls":
-            return self._estimate_sls_system(data)
+        elif method == "sur":
+            return self._estimate_sur_system(data)
         else:
             return self._estimate_ols_system(data)
     
     def _estimate_aids_system(self, data: pd.DataFrame) -> Dict[str, Any]:
-        """Estimate Almost Ideal Demand System (AIDS)"""
-        # Implementation of AIDS estimation
-        # w_i = α_i + ∑γ_ij*ln(p_j) + β_i*ln(m/P)
-        
-        results = {
+        """Estimate Almost Ideal Demand System (AIDS).
+
+        The AIDS share equation for good i is
+
+            w_i = alpha_i + sum_j gamma_ij * ln(p_j) + beta_i * ln(m / P)
+
+        where P is the Stone price index, ln(P) = sum_j w_j * ln(p_j),
+        computed with observed (approximate) shares. Each share equation is
+        estimated by OLS; the adding-up restriction sum_i alpha_i = 1 and
+        the symmetry restrictions on gamma are not imposed.
+
+        Expenditure and uncompensated price elasticities follow the standard
+        AIDS approximations:
+
+            e_i    = 1 + beta_i / w_i
+            eps_ij = -delta_ij + gamma_ij / w_i - beta_i * w_j / w_i
+
+        Args:
+            data: DataFrame with `quantity_good_<k>` and `price_<k>` columns
+                plus an `income` column, one row per observation.
+
+        Returns:
+            Dict with per-good parameters, elasticities, and diagnostics.
+        """
+        goods = [
+            col.replace("quantity_", "")
+            for col in data.columns
+            if col.startswith("quantity_good_")
+        ]
+        if len(goods) < 2 or "income" not in data.columns:
+            return {"method": "AIDS", "status": "insufficient_data"}
+
+        quantities = data[[f"quantity_{g}" for g in goods]].to_numpy(dtype=float)
+        prices = data[[f"price_{g}" for g in goods]].to_numpy(dtype=float)
+
+        expenditure = quantities * prices
+        total_expenditure = np.sum(expenditure, axis=1)
+        if not np.all(total_expenditure > 0):
+            raise ValueError("Total expenditure must be positive in every row")
+        shares = expenditure / total_expenditure[:, None]
+        mean_shares = np.mean(shares, axis=0)
+
+        # Stone price index using approximate shares
+        log_prices = np.log(prices)
+        log_price_index = np.sum(shares * log_prices, axis=1)
+        log_real_expenditure = (
+            np.log(total_expenditure) - log_price_index
+        )
+
+        X = np.column_stack(
+            [np.ones(len(data)), log_prices, log_real_expenditure]
+        )
+
+        k = len(goods)
+        parameters: Dict[str, Dict[str, Any]] = {}
+        elasticities: Dict[str, Dict[str, Any]] = {}
+        diagnostics: Dict[str, Any] = {}
+
+        for i, good in enumerate(goods):
+            w = shares[:, i]
+            coef, _, _, _ = np.linalg.lstsq(X, w, rcond=None)
+            residuals = w - X @ coef
+            tss = float(np.sum((w - np.mean(w)) ** 2))
+            r_squared = 1 - np.sum(residuals**2) / tss if tss > 0 else 0.0
+
+            alpha_i = float(coef[0])
+            gamma_i = coef[1 : k + 1].astype(float)
+            beta_i = float(coef[k + 1])
+            mean_share = float(mean_shares[i])
+
+            parameters[good] = {
+                "alpha": alpha_i,
+                "gamma": gamma_i,
+                "beta": beta_i,
+                "mean_budget_share": mean_share,
+            }
+            if mean_share > 0:
+                eps = (
+                    -np.eye(k)
+                    + gamma_i / mean_share
+                    - np.outer(np.full(k, beta_i), mean_shares) / mean_share
+                )
+                elasticities[good] = {
+                    "expenditure": 1.0 + beta_i / mean_share,
+                    "uncompensated_price": eps.tolist(),
+                }
+            else:
+                elasticities[good] = {
+                    "expenditure": float("nan"),
+                    "uncompensated_price": np.full((k, k), float("nan")).tolist(),
+                }
+            diagnostics[good] = {"r_squared": float(r_squared)}
+
+        return {
             "method": "AIDS",
-            "parameters": {},
-            "elasticities": {},
-            "diagnostics": {}
+            "goods": goods,
+            "parameters": parameters,
+            "elasticities": elasticities,
+            "diagnostics": diagnostics,
         }
-        
-        # Baseline for full AIDS implementation
-        # This would involve system estimation with cross-equation restrictions
-        
-        return results
-    
+
     def _estimate_ols_system(self, data: pd.DataFrame) -> Dict[str, Any]:
         """Simple OLS estimation of demand functions"""
         from sklearn.linear_model import LinearRegression
-        
+
         results = {}
-        
+
         # Estimate each demand equation separately
         for good in ['good_1', 'good_2']:  # Example goods
             if f'quantity_{good}' in data.columns:
                 X = data[['income', f'price_{good}']].values
                 y = data[f'quantity_{good}'].values
-                
+
                 model = LinearRegression()
                 model.fit(X, y)
-                
+
                 results[good] = {
                     'coefficients': model.coef_,
                     'intercept': model.intercept_,
                     'r_squared': model.score(X, y)
                 }
-        
+
         return results
-    
-    def _estimate_sls_system(self, data: pd.DataFrame) -> Dict[str, Any]:
-        """Seemingly Unrelated Regression (SUR) estimation"""
-        # Simplified SUR implementation for demand system
-        # In practice, would use proper SUR estimation
 
-        # Extract data for multiple goods
-        goods = []
-        for col in data.columns:
-            if col.startswith('quantity_good_'):
-                goods.append(col.replace('quantity_', ''))
+    def _estimate_sur_system(self, data: pd.DataFrame) -> Dict[str, Any]:
+        """Seemingly Unrelated Regression (Zellner two-step GLS).
 
-        if len(goods) < 2:
-            return {"method": "SLS", "status": "insufficient_goods"}
+        Step 1 estimates each equation by OLS to recover the residual
+        covariance matrix Sigma; step 2 re-estimates the stacked system by
+        GLS, beta = (X' (Sigma^-1 (x) I) X)^-1 X' (Sigma^-1 (x) I) y.
+        With identical regressors in every equation the GLS estimator
+        collapses to equation-by-equation OLS, so equations here use
+        per-good regressors (own price + income) to make the SUR step
+        informative.
+        """
+        goods = [
+            col.replace("quantity_", "")
+            for col in data.columns
+            if col.startswith("quantity_good_")
+        ]
+        if len(goods) < 2 or "income" not in data.columns:
+            return {"method": "SUR", "status": "insufficient_goods"}
 
-        # Create system of equations
-        system_results = {}
+        y_list = [data[f"quantity_{g}"].to_numpy(dtype=float) for g in goods]
+        X_list = [
+            data[["income", f"price_{g}"]].to_numpy(dtype=float) for g in goods
+        ]
+        n = len(data)
+        k = len(goods)
 
+        # First step: equation-by-equation OLS
+        betas: List[np.ndarray] = []
+        residuals: List[np.ndarray] = []
+        for y_i, X_i in zip(y_list, X_list):
+            b = np.linalg.lstsq(X_i, y_i, rcond=None)[0]
+            betas.append(b)
+            residuals.append(y_i - X_i @ b)
+
+        # Residual covariance matrix Sigma (with small-sample dof correction)
+        dof = max(n - X_list[0].shape[1], 1)
+        sigma = (
+            np.column_stack(residuals).T @ np.column_stack(residuals) / dof
+        )
+        sigma_inv = np.linalg.inv(sigma)
+
+        # Second step: stacked GLS with Omega = Sigma^-1 (x) I and a
+        # block-diagonal regressor matrix (one block per equation)
+        y_stack = np.concatenate(y_list)
+        X_full = np.zeros((k * n, sum(X_i.shape[1] for X_i in X_list)))
+        omega_inv = np.zeros((k * n, k * n))
+        col_offset = 0
+        for i, X_i in enumerate(X_list):
+            X_full[i * n : (i + 1) * n, col_offset : col_offset + X_i.shape[1]] = X_i
+            col_offset += X_i.shape[1]
+        for i in range(k):
+            for j in range(k):
+                omega_inv[
+                    i * n : (i + 1) * n, j * n : (j + 1) * n
+                ] = sigma_inv[i, j] * np.eye(n)
+        gls_betas = (
+            np.linalg.inv(X_full.T @ omega_inv @ X_full)
+            @ X_full.T
+            @ omega_inv
+            @ y_stack
+        )
+
+        system_results: Dict[str, Dict[str, Any]] = {}
+        col_offset = 0
         for i, good in enumerate(goods):
-            # Dependent variable
-            y = data[f'quantity_{good}'].values
-
-            # Independent variables (prices of all goods + income)
-            X_cols = [f'price_{g}' for g in goods] + ['income']
-            X = data[X_cols].values
-
-            # Simple OLS for each equation
-            beta = np.linalg.lstsq(X, y, rcond=None)[0]
-            residuals = y - X @ beta
-
+            k_i = X_list[i].shape[1]
+            b = gls_betas[col_offset : col_offset + k_i]
+            col_offset += k_i
+            resid_i = y_list[i] - X_list[i] @ b
+            tss = np.sum((y_list[i] - np.mean(y_list[i])) ** 2)
+            r_squared = 1 - np.sum(resid_i**2) / tss if tss > 0 else 0.0
             system_results[good] = {
-                'coefficients': beta,
-                'residuals': residuals,
-                'r_squared': 1 - np.sum(residuals**2) / np.sum((y - np.mean(y))**2)
+                "coefficients": b,
+                "residuals": resid_i,
+                "r_squared": float(r_squared),
             }
 
         return {
-            "method": "SLS",
+            "method": "SUR",
             "system_results": system_results,
-            "goods_analyzed": goods
+            "goods_analyzed": goods,
+            "residual_covariance": sigma,
         }
 
 

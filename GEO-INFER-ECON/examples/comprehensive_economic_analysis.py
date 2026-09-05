@@ -16,33 +16,6 @@ import geopandas as gpd
 from datetime import datetime
 from typing import Dict, List, Any
 
-# Assuming the modules are implemented as designed
-try:
-    from geo_infer_econ.microeconomics import (
-        ConsumerProfile, ConsumerChoiceModels, UtilityFunctions
-    )
-    from geo_infer_econ.macroeconomics import (
-        SolowGrowthModel, RegionProfile, SpatialGrowthModels
-    )
-    from geo_infer_econ.bioregional import (
-        BioregionalAsset, BioregionalMarketDesign, EcosystemServicesMarkets
-    )
-except ImportError:
-    print("Note: This is a demonstration example. Actual modules would need to be implemented.")
-    
-    # Create placeholder classes for demonstration
-    class ConsumerProfile:
-        def __init__(self, **kwargs):
-            self.__dict__.update(kwargs)
-    
-    class RegionProfile:
-        def __init__(self, **kwargs):
-            self.__dict__.update(kwargs)
-            
-    class BioregionalAsset:
-        def __init__(self, **kwargs):
-            self.__dict__.update(kwargs)
-
 
 def create_sample_bioregion():
     """Create a sample bioregional economy for analysis"""

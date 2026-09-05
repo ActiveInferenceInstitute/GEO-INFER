@@ -51,10 +51,9 @@ import numpy as np
 
 _ENV_CONTRACT_PATH = "CRESCENT_CITY_INTEL_CONTRACT_PATH"
 
-# The sibling-contract seeds ship bundled (and byte-identical) in three module
-# checkouts.  Prefer the first that exists, honouring an env override first.
+# The sibling-contract seeds ship bundled (and byte-identical) in the BAYES and
+# PLACE module checkouts.  Prefer the first that exists, honouring an env override first.
 _BUNDLED_SEED_RELATIVES = (
-    "GEO-INFER-RISK/src/geo_infer_risk/crescent-city-geo-intel.json",
     "GEO-INFER-BAYES/src/geo_infer_bayes/crescent-city-geo-intel.json",
     "GEO-INFER-PLACE/src/geo_infer_place/locations/del_norte_county/data/crescent-city-geo-intel.json",
 )
@@ -162,7 +161,7 @@ def bundled_contract_path() -> Path:
             return candidate
     raise FileNotFoundError(
         "no bundled crescent-city-geo-intel seed found under the GEO-INFER "
-        "checkout; expected one of the RISK/BAYES/PLACE copies."
+        "checkout; expected one of the BAYES/PLACE copies."
     )
 
 

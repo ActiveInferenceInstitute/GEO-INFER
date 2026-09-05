@@ -37,9 +37,9 @@ from .boundaries.detector import BoundaryDetector, BoundarySegment, BoundaryType
 
 # Message passing
 try:
-    from .messaging.message_broker import H3MessageBroker, Message, MessageType
-    from .messaging.routing import MessageRouter, RoutingStrategy
-    from .messaging.protocols import MessageProtocol, ProtocolType
+    from .messaging.message_broker import H3MessageBroker as H3MessageBroker, Message as Message, MessageType as MessageType
+    from .messaging.routing import MessageRouter as MessageRouter, RoutingStrategy as RoutingStrategy
+    from .messaging.protocols import MessageProtocol as MessageProtocol, ProtocolType as ProtocolType
     MESSAGING_AVAILABLE = True
 except ImportError as e:
     logger.warning(f"Messaging components not fully available: {e}")
@@ -47,9 +47,9 @@ except ImportError as e:
 
 # Operations
 try:
-    from .operations.lumping import H3LumpingEngine, LumpingStrategy
-    from .operations.splitting import H3SplittingEngine, SplittingStrategy
-    from .operations.aggregation import H3AggregationEngine, AggregationFunction
+    from .operations.lumping import H3LumpingEngine as H3LumpingEngine, LumpingStrategy as LumpingStrategy
+    from .operations.splitting import H3SplittingEngine as H3SplittingEngine, SplittingStrategy as SplittingStrategy
+    from .operations.aggregation import H3AggregationEngine as H3AggregationEngine, AggregationFunction as AggregationFunction
     OPERATIONS_AVAILABLE = True
 except ImportError as e:
     logger.warning(f"Operations components not fully available: {e}")
@@ -57,10 +57,10 @@ except ImportError as e:
 
 # Analytics
 try:
-    from .analytics.flow_analysis import H3FlowAnalyzer, FlowType, FlowPattern
-    from .analytics.hierarchy_metrics import H3HierarchyAnalyzer, HierarchyMetric
-    from .analytics.pattern_detection import H3PatternDetector, PatternType
-    from .analytics.performance_metrics import H3PerformanceAnalyzer, PerformanceMetric
+    from .analytics.flow_analysis import H3FlowAnalyzer as H3FlowAnalyzer, FlowType as FlowType, FlowPattern as FlowPattern
+    from .analytics.hierarchy_metrics import H3HierarchyAnalyzer as H3HierarchyAnalyzer, HierarchyMetric as HierarchyMetric
+    from .analytics.pattern_detection import H3PatternDetector as H3PatternDetector, PatternType as PatternType
+    from .analytics.performance_metrics import H3PerformanceAnalyzer as H3PerformanceAnalyzer, PerformanceMetric as PerformanceMetric
     ANALYTICS_AVAILABLE = True
 except ImportError as e:
     logger.warning(f"Analytics components not fully available: {e}")

@@ -1,8 +1,11 @@
 """CRM Data Transformers."""
 
+import logging
 from typing import List, Optional
 import pandas as pd
 from ..models.crm_models import Customer
+
+logger = logging.getLogger(__name__)
 
 
 def clean_customer_data(customers: List[Customer]) -> List[Customer]:
@@ -101,11 +104,11 @@ def clean_customer_data(customers: List[Customer]) -> List[Customer]:
             cleaned_customers.append(cust_copy)
 
         except Exception as e:
-            print(f"Error cleaning customer {cust.customer_id}: {str(e)}")
+            logger.error(f"Error cleaning customer {cust.customer_id}: {str(e)}")
             # Add the original if cleaning fails
             cleaned_customers.append(cust)
 
-    print(f"Successfully cleaned {len(cleaned_customers)} customer records")
+    logger.info(f"Successfully cleaned {len(cleaned_customers)} customer records")
     return cleaned_customers
 
 
@@ -276,11 +279,11 @@ def enrich_customer_data(
             enriched_customers.append(cust_copy)
 
         except Exception as e:
-            print(f"Error enriching customer {cust.customer_id}: {str(e)}")
+            logger.error(f"Error enriching customer {cust.customer_id}: {str(e)}")
             # Add the original if enrichment fails
             enriched_customers.append(cust)
 
-    print(f"Successfully enriched {len(enriched_customers)} customer records")
+    logger.info(f"Successfully enriched {len(enriched_customers)} customer records")
     return enriched_customers
 
 
@@ -303,23 +306,5 @@ def convert_customers_to_dataframe(customers: List[Customer]) -> pd.DataFrame:
     #     address_df = address_df.add_prefix('address.')
     #     df = pd.concat([df.drop(columns=['address']), address_df], axis=1)
 
-    print(f"Converted {len(df)} customer records to DataFrame.")
+    logger.info(f"Converted {len(df)} customer records to DataFrame.")
     return df
-
-
-# Example usage (conceptual)
-# if __name__ == '__main__':
-#     from .importer import CSVCRMImporter
-#     # Assume crm_example_data.csv exists from importer.py example
-#     importer = CSVCRMImporter(file_path='crm_example_data.csv')
-#     raw_customers = importer.import_customers()
-#
-#     cleaned = clean_customer_data(raw_customers)
-#     enriched = enrich_customer_data(cleaned)
-#
-#     customer_df = convert_customers_to_dataframe(enriched)
-#     if not customer_df.empty:
-#         print("\nCustomer DataFrame head:")
-#         print(customer_df.head())
-#         print("\nCustomer DataFrame info:")
-#         customer_df.info()

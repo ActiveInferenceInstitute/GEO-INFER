@@ -5,9 +5,7 @@ import sys
 import datetime
 from pathlib import Path
 
-# Add the tests directory to the path to find local test utilities.
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from intra_utils.time_series import (
+from geo_infer_intra.utils.time_series_utils import (
     create_iso8601_timestamp,
     create_timestamp_range,
     create_daily_timestamps,

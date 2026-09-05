@@ -182,13 +182,8 @@ class ClimateModel(ActiveInferenceModel):
         # Factor 0: Temperature
         B_temp = np.zeros((3, 3, 3))
 
-        # Action 0: Do Nothing -> Temp likely increases
-        B_temp[:, :, 0] = [
-            [0.8, 0.0, 0.0],  # Normal -> Normal
-            [0.2, 0.8, 0.0],  # Normal -> High, High -> High
-            [0.0, 0.2, 1.0],  # High -> Crit
-        ]
-        # Wait, shape is (next, curr). Columns sum to 1.
+        # Action 0: Do Nothing -> Temp likely increases.
+        # Shape is (next, curr). Columns sum to 1.
         # Col 0 (from Normal):
         B_temp[:, 0, 0] = [0.7, 0.3, 0.0]  # 30% chance to heat up
         B_temp[:, 1, 0] = [0.0, 0.7, 0.3]  # 30% chance to heat up
@@ -210,9 +205,9 @@ class ClimateModel(ActiveInferenceModel):
 
         B[0] = B_temp
 
-        # Factor 1: CO2
+        # Factor 1: CO2.
         B_co2 = np.zeros((3, 3, 3))
-        # Similar logic...
+        # Same column-stochastic (next, curr) layout as the temperature factor.
         # Action 0 Do nothing
         B_co2[:, 0, 0] = [0.6, 0.4, 0.0]
         B_co2[:, 1, 0] = [0.0, 0.6, 0.4]
@@ -223,8 +218,11 @@ class ClimateModel(ActiveInferenceModel):
         B_co2[:, 1, 1] = [0.1, 0.7, 0.1]
         B_co2[:, 2, 1] = [0.0, 0.1, 0.9]
 
-        # Action 2 GeoEng (Might not affect CO2 directly as much as Temp if it's solar radiation management, but let's say it does)
-        B_co2[:, :, 2] = B_co2[:, :, 1]  # Same as Reduce
+        # Action 2 GeoEng: modeled as solar-radiation management, which cools
+        # the temperature factor but does not change CO2 directly. The CO2
+        # transition under GeoEngineering therefore equals the Reduce
+        # Emissions transition.
+        B_co2[:, :, 2] = B_co2[:, :, 1]
 
         B[1] = B_co2
 

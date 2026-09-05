@@ -11,10 +11,8 @@ Implements comprehensive market structure analysis including:
 
 import numpy as np
 import pandas as pd
-from typing import cast, Dict, List, Optional, Tuple, Any
+from typing import cast, Dict, List, Optional, Any
 from dataclasses import dataclass
-import logging
-from scipy.spatial.distance import pdist, squareform
 
 
 @dataclass

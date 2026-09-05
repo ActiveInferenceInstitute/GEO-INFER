@@ -21,7 +21,7 @@ Verify the installation:
 ```python
 import geo_infer_marine
 print(geo_infer_marine.__version__)
-# 0.1.0
+# 0.2.0
 ```
 
 ## Core Concepts

@@ -1,185 +1,90 @@
 #!/usr/bin/env python3
 """
-GEO-INFER-TRANSPORT Example: Traffic Simulation and Demand Modeling
+GEO-INFER-TRANSPORT Example: Traffic Simulation and Forecasting
 
-This example demonstrates traffic simulation with demand modeling,
-signal optimization, and congestion analysis.
+Demonstrates traffic simulation (BPR delay), congestion modeling,
+incident detection, and EWMA forecasting using the real TrafficAnalyzer
+API. Runs entirely offline on synthetic data.
 """
 
-from geo_infer_transport import (
-    TrafficSimulator,
-    DemandModel,
-    SignalOptimizer,
-    EmissionsCalculator,
-    ModeChoiceModel
-)
+from geo_infer_transport import TrafficAnalyzer, TransportNetwork
 
 
-def main():
+def main() -> None:
+    """Run the traffic simulation example."""
     print("=" * 60)
-    print("GEO-INFER-TRANSPORT: Traffic Simulation & Demand Modeling")
+    print("GEO-INFER-TRANSPORT: Traffic Simulation Example")
     print("=" * 60)
-    
-    # 1. Define Transportation Zones
-    print("\n1. Setting Up Transportation Analysis Zones...")
-    
-    taz_data = [
-        {'id': 'TAZ_001', 'name': 'Downtown', 'population': 50000, 'employment': 80000},
-        {'id': 'TAZ_002', 'name': 'Suburban East', 'population': 75000, 'employment': 25000},
-        {'id': 'TAZ_003', 'name': 'Industrial North', 'population': 20000, 'employment': 45000},
-        {'id': 'TAZ_004', 'name': 'Residential South', 'population': 100000, 'employment': 15000},
-        {'id': 'TAZ_005', 'name': 'Commercial West', 'population': 40000, 'employment': 35000},
-    ]
-    
-    print(f"   TAZs defined: {len(taz_data)}")
-    total_pop = sum(t['population'] for t in taz_data)
-    total_emp = sum(t['employment'] for t in taz_data)
-    print(f"   Total population: {total_pop:,}")
-    print(f"   Total employment: {total_emp:,}")
-    
-    # 2. Trip Generation
-    print("\n2. Running Four-Step Demand Model...")
-    demand = DemandModel(
-        model_type='four_step',
-        trip_purposes=['home_work', 'home_other', 'non_home_based']
+
+    network = TransportNetwork(network_type="road", modes=["car"])
+    network.build_from_edges(
+        [
+            {"id": "e1", "from": "A", "to": "B", "length_m": 500, "speed_limit": 50},
+            {"id": "e2", "from": "B", "to": "C", "length_m": 700, "speed_limit": 40},
+            {"id": "e3", "from": "A", "to": "C", "length_m": 1100, "speed_limit": 60},
+        ]
     )
-    
-    # Trip generation
-    trip_generation = demand.generate_trips(
-        zones=taz_data,
-        generation_rates={
-            'home_work': 0.8,  # trips per employee
-            'home_other': 1.2,  # trips per person
-            'non_home_based': 0.3  # trips per employee
-        }
+
+    analyzer = TrafficAnalyzer(model_type="bpr", time_resolution="15min")
+
+    # 1. Simulate one hour of traffic released from an OD demand matrix
+    demand = {"matrix": [[0, 900], [600, 0]]}
+    simulation = analyzer.simulate_traffic(
+        network=network,
+        demand_matrix=demand,
+        simulation_hours=1,
+        time_step_seconds=60,
     )
-    
-    print(f"   Total trips generated: {trip_generation.get('total_trips', 0):,}")
-    print(f"   Productions: {trip_generation.get('total_productions', 0):,}")
-    print(f"   Attractions: {trip_generation.get('total_attractions', 0):,}")
-    
-    # Trip distribution
-    od_matrix = demand.distribute_trips(
-        trip_generation=trip_generation,
-        impedance_function='gravity',
-        friction_factor=2.0
+    print("\n--- Simulation (1h @ 60s steps) ---")
+    print(f"Total trips: {simulation['statistics']['total_trips']}")
+    print(f"Completed trips: {simulation['statistics']['completed_trips']}")
+    final_step = simulation["results"][-1]
+    print(
+        f"Final state: {final_step['vehicles_in_network']} vehicles in network, "
+        f"congestion={final_step['congestion_level']}"
     )
-    
-    print(f"   OD pairs: {od_matrix.get('od_pairs', 0)}")
-    
-    # 3. Mode Choice Modeling
-    print("\n3. Running Mode Choice Model...")
-    mode_choice = ModeChoiceModel(
-        modes=['car', 'transit', 'bicycle', 'walk'],
-        model_type='multinomial_logit'
+
+    # 2. Congestion modeling with the BPR function
+    congestion = analyzer.model_congestion(
+        network_flows={"e1": 1500, "e2": 2200, "e3": 800},
+        capacity_data={"e1": 2000, "e2": 2000, "e3": 2000},
+        algorithm="bpr",
     )
-    
-    mode_split = mode_choice.calculate_mode_split(
-        od_matrix=od_matrix,
-        utility_parameters={
-            'car': {'time_coef': -0.02, 'cost_coef': -0.05, 'constant': 0},
-            'transit': {'time_coef': -0.03, 'cost_coef': -0.03, 'constant': -0.5},
-            'bicycle': {'time_coef': -0.04, 'cost_coef': 0, 'constant': -1.0},
-            'walk': {'time_coef': -0.05, 'cost_coef': 0, 'constant': -1.5}
-        }
+    print("\n--- BPR Congestion ---")
+    for seg in congestion["segments"]:
+        print(
+            f"  {seg['segment_id']}: v/c={seg['vc_ratio']:.2f}, "
+            f"delay={seg['delay_factor']:.2f}, condition={seg['condition']}"
+        )
+
+    # 3. Incident detection against a historical baseline
+    incidents = analyzer.detect_incidents(
+        current_data={"e1": {"speed": 22}, "e2": {"speed": 38}},
+        historical_baseline={"e1": {"speed": 48}, "e2": {"speed": 40}},
     )
-    
-    print("   Mode split:")
-    for mode, share in mode_split.get('shares', {}).items():
-        print(f"   - {mode.title()}: {share*100:.1f}%")
-    
-    # 4. Traffic Assignment
-    print("\n4. Running Traffic Assignment...")
-    simulator = TrafficSimulator(
-        assignment_method='user_equilibrium',
-        time_periods=['am_peak', 'pm_peak', 'off_peak']
-    )
-    
-    assignment = simulator.assign_traffic(
-        od_matrix=od_matrix,
-        mode_split=mode_split,
-        network_capacity={
-            'arterial_lanes': 4,
-            'collector_lanes': 2,
-            'local_lanes': 1
-        },
-        vdf_parameters={
-            'alpha': 0.15,
-            'beta': 4.0
-        }
-    )
-    
-    print(f"   Vehicles assigned: {assignment.get('total_vehicles', 0):,}")
-    print(f"   VHT (Vehicle Hours Traveled): {assignment.get('vht', 0):,.0f}")
-    print(f"   VMT (Vehicle Miles Traveled): {assignment.get('vmt', 0):,.0f}")
-    
-    # 5. Congestion Analysis
-    print("\n5. Analyzing Congestion...")
-    congestion = simulator.analyze_congestion(
-        assignment=assignment,
-        vc_threshold=0.8
-    )
-    
-    print(f"   Congested links: {congestion.get('congested_links', 0)}")
-    print(f"   Average V/C ratio: {congestion.get('avg_vc_ratio', 0):.2f}")
-    print(f"   Total delay (hours): {congestion.get('total_delay_hours', 0):,.0f}")
-    print(f"   Congestion cost: ${congestion.get('congestion_cost', 0):,.0f}")
-    
-    # 6. Signal Optimization
-    print("\n6. Optimizing Traffic Signals...")
-    signal_opt = SignalOptimizer(
-        optimization_method='genetic_algorithm',
-        objectives=['delay_minimization', 'throughput_maximization']
-    )
-    
-    signal_plan = signal_opt.optimize(
-        intersections=[
-            {'id': 'INT_001', 'phases': 4, 'current_cycle': 90},
-            {'id': 'INT_002', 'phases': 3, 'current_cycle': 80},
-            {'id': 'INT_003', 'phases': 4, 'current_cycle': 100},
+    print("\n--- Incidents ---")
+    for inc in incidents:
+        print(f"  {inc['segment_id']}: {inc['severity']} (deviation {inc['deviation']:.0%})")
+
+    # 4. EWMA forecast with confidence intervals
+    forecast = analyzer.forecast_traffic(
+        historical_data=[
+            {"volume": 800}, {"volume": 850}, {"volume": 900},
+            {"volume": 950}, {"volume": 1000}, {"volume": 1080},
         ],
-        traffic_data=assignment,
-        coordination_enabled=True
+        forecast_horizon="1h",
     )
-    
-    print(f"   Intersections optimized: {signal_plan.get('intersections_optimized', 0)}")
-    print(f"   Delay reduction: {signal_plan.get('delay_reduction_pct', 0):.1f}%")
-    print(f"   Throughput improvement: {signal_plan.get('throughput_improvement_pct', 0):.1f}%")
-    
-    # 7. Emissions Calculation
-    print("\n7. Calculating Emissions...")
-    emissions = EmissionsCalculator(
-        emission_model='moves',
-        pollutants=['CO2', 'NOx', 'PM2.5', 'CO']
-    )
-    
-    emission_results = emissions.calculate(
-        assignment=assignment,
-        fleet_composition={
-            'passenger_car': 0.75,
-            'light_truck': 0.15,
-            'heavy_truck': 0.08,
-            'bus': 0.02
-        },
-        average_speed_mph=25
-    )
-    
-    print("   Daily emissions:")
-    for pollutant, value in emission_results.get('daily_emissions', {}).items():
-        unit = 'tons' if pollutant == 'CO2' else 'kg'
-        print(f"   - {pollutant}: {value:,.1f} {unit}")
-    
-    print("\n" + "=" * 60)
-    print("Traffic Simulation Complete!")
-    print("=" * 60)
-    
-    # Summary
-    print("\nKey Performance Indicators:")
-    print(f"  - Total daily trips: {trip_generation.get('total_trips', 0):,}")
-    print(f"  - Car mode share: {mode_split.get('shares', {}).get('car', 0)*100:.1f}%")
-    print(f"  - Average V/C ratio: {congestion.get('avg_vc_ratio', 0):.2f}")
-    print(f"  - Total daily CO2: {emission_results.get('daily_emissions', {}).get('CO2', 0):,.0f} tons")
+    print("\n--- Forecast (EWMA, 1h horizon) ---")
+    for point in forecast["forecasts"][:4]:
+        print(
+            f"  +{point['time_offset_minutes']:>3}min: "
+            f"{point['predicted_volume']} veh "
+            f"[{point['confidence_lower']}, {point['confidence_upper']}]"
+        )
+
+    print("\nExample complete.")
 
 
 if __name__ == "__main__":
     main()
+

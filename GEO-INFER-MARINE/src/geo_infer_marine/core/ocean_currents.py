@@ -5,7 +5,7 @@ pressure-gradient-driven ocean currents.
 """
 
 import logging
-from typing import Dict, Optional, Tuple, cast
+from typing import Dict, Optional, cast
 
 import numpy as np
 import xarray as xr
@@ -44,9 +44,29 @@ class OceanCurrentModeler:
             to avoid division by zero near equator.
         """
         f = 2.0 * EARTH_ROTATION_RATE * np.sin(np.radians(latitude_deg))
+        # Same rule as _equator_safe_coriolis: |f| >= 1e-5, sign preserved.
         if abs(f) < 1e-5:
-            f = np.sign(f) * 1e-5 if f != 0 else 1e-5
+            f = -1e-5 if f < 0 else 1e-5
         return float(f)
+
+    @staticmethod
+    def _equator_safe_coriolis(latitude: xr.DataArray) -> xr.DataArray:
+        """Compute the Coriolis parameter with an equator guard.
+
+        Single implementation of the guard used by every division by
+        ``f``: values with |f| < 1e-5 s^-1 are clamped to that
+        magnitude while preserving their sign (exact zero becomes
+        positive).
+
+        Args:
+            latitude: Latitude values (degrees).
+
+        Returns:
+            Guarded Coriolis parameter (s^-1).
+        """
+        f = 2.0 * EARTH_ROTATION_RATE * np.sin(np.radians(latitude))
+        magnitude = xr.where(np.abs(f) < 1e-5, 1e-5, np.abs(f))
+        return cast(xr.DataArray, xr.where(f < 0, -magnitude, magnitude))
 
     def calculate_ekman_transport(
         self,
@@ -69,8 +89,7 @@ class OceanCurrentModeler:
         Returns:
             Dataset with Ekman transport components (kg/m/s).
         """
-        f = 2.0 * EARTH_ROTATION_RATE * np.sin(np.radians(latitude))
-        f = xr.where(np.abs(f) < 1e-5, np.sign(f) * 1e-5 + (f == 0) * 1e-5, f)
+        f = self._equator_safe_coriolis(latitude)
 
         transport_x = wind_stress_y / f
         transport_y = -wind_stress_x / f
@@ -109,8 +128,7 @@ class OceanCurrentModeler:
         Returns:
             Ekman pumping velocity (m/s).
         """
-        f = 2.0 * EARTH_ROTATION_RATE * np.sin(np.radians(latitude))
-        f = xr.where(np.abs(f) < 1e-5, np.sign(f) * 1e-5 + (f == 0) * 1e-5, f)
+        f = self._equator_safe_coriolis(latitude)
 
         dtau_y_dx = wind_stress_y.diff("lon") / dx if "lon" in wind_stress_y.dims else xr.zeros_like(wind_stress_y)
         dtau_x_dy = wind_stress_x.diff("lat") / dy if "lat" in wind_stress_x.dims else xr.zeros_like(wind_stress_x)
@@ -149,8 +167,7 @@ class OceanCurrentModeler:
         Returns:
             Dataset with geostrophic velocity components (m/s).
         """
-        f = 2.0 * EARTH_ROTATION_RATE * np.sin(np.radians(latitude))
-        f = xr.where(np.abs(f) < 1e-5, np.sign(f) * 1e-5 + (f == 0) * 1e-5, f)
+        f = self._equator_safe_coriolis(latitude)
 
         if "lat" in sea_surface_height.dims:
             dssh_dy = sea_surface_height.diff("lat") / dy

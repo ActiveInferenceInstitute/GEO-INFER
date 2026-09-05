@@ -28,10 +28,8 @@ Docs workspace within `GEO-INFER-GIT`.
 - `fastapi>=0.104.0`
 - `uvicorn[standard]>=0.24.0`
 - `pydantic>=2.5.0`
-- `pytest>=7.3.1`
-- `black>=23.3.0`
-- `flake8>=6.0.0`
-- `mypy>=1.3.0`
+- `colorlog>=6.7.0`
+- `tqdm>=4.65.0`
 
 
 ## Validation

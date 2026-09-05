@@ -5,8 +5,7 @@ This module provides convenience methods for integrating across
 different GEO-INFER modules.
 """
 
-import numpy as np
-from typing import Union, Optional, List, Tuple, Dict, Any
+from typing import Dict, Any
 import logging
 
 logger = logging.getLogger(__name__)

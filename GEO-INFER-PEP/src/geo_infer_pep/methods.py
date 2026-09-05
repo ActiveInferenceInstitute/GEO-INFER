@@ -1,18 +1,24 @@
 """
 Central methods for orchestrating GEO-INFER-PEP functionalities.
 
-This module will contain high-level functions that combine various
+This module contains high-level functions that combine various
 operations from the submodules (crm, hr, talent, reporting, etc.)
 to perform complex tasks.
+
+All data flows through the process-wide shared in-memory store
+(``core.data_store.pep_data_manager``), which the FastAPI layer also uses.
+Library code logs via :mod:`logging` and never prints directly.
 """
 
 from typing import Dict, Any, List, Optional
+from datetime import datetime
 import logging
 
 # Import actual module implementations and data models
 from .models.hr_models import Employee, EmploymentStatus
 from .models.talent_models import Candidate, CandidateStatus
 from .models.crm_models import Customer
+from .core.data_store import pep_data_manager
 from .reporting import (
     get_hr_quarterly_metrics,
     get_crm_quarterly_metrics,
@@ -41,11 +47,29 @@ from .reporting.talent_reports import (
     calculate_time_to_hire,
 )
 
-# Global storage for demonstration (in production, use a database)
-_employees_db: List[Employee] = []
-_candidates_db: List[Candidate] = []
-_customers_db: List[Customer] = []
+# The shared store backs every accessor below. The names ``_employees_db``,
+# ``_candidates_db`` and ``_customers_db`` are the same list objects held by
+# ``pep_data_manager``, so methods-layer and API-layer mutations stay in sync.
+_employees_db = pep_data_manager.employees
+_candidates_db = pep_data_manager.candidates
+_customers_db = pep_data_manager.customers
+
 logger = logging.getLogger(__name__)
+
+__all__ = [
+    "process_employee_onboarding_workflow",
+    "generate_quarterly_people_report",
+    "import_hr_data_from_csv",
+    "import_crm_data_from_csv",
+    "import_talent_data_from_csv",
+    "generate_comprehensive_hr_dashboard",
+    "generate_comprehensive_crm_dashboard",
+    "generate_comprehensive_talent_dashboard",
+    "get_all_employees",
+    "get_all_candidates",
+    "get_all_customers",
+    "clear_all_data",
+]
 
 
 def _normalize_quarter_label(quarter: str) -> str:
@@ -93,17 +117,20 @@ def process_employee_onboarding_workflow(employee_data: dict) -> bool:
     if not candidate_id:
         raise ValueError("candidate_id is required for onboarding workflow")
 
-    print(f"Starting onboarding workflow for candidate {candidate_id}")
+    logger.info("Starting onboarding workflow for candidate %s", candidate_id)
 
     # Find candidate in database
     candidate = _get_candidate_by_id(candidate_id)
     if not candidate:
-        print(f"Onboarding Aborted: Candidate {candidate_id} not found.")
+        logger.error("Onboarding Aborted: Candidate %s not found.", candidate_id)
         return False
 
     if candidate.status != CandidateStatus.OFFER_ACCEPTED:
-        print(
-            f"Onboarding Aborted: Candidate {candidate_id} status is {candidate.status}, expected {CandidateStatus.OFFER_ACCEPTED}"
+        logger.error(
+            "Onboarding Aborted: Candidate %s status is %s, expected %s",
+            candidate_id,
+            candidate.status,
+            CandidateStatus.OFFER_ACCEPTED,
         )
         return False
 
@@ -167,13 +194,16 @@ def process_employee_onboarding_workflow(employee_data: dict) -> bool:
                 employee_id,
             )
 
-        print(
-            f"Onboarding workflow for {candidate.first_name} {candidate.last_name} (employee ID: {employee_id}) completed successfully."
+        logger.info(
+            "Onboarding workflow for %s %s (employee ID: %s) completed successfully.",
+            candidate.first_name,
+            candidate.last_name,
+            employee_id,
         )
         return True
 
     except Exception as e:
-        print(f"Onboarding Failed: Error during employee creation - {str(e)}")
+        logger.error("Onboarding Failed: Error during employee creation - %s", e)
         return False
 
 
@@ -186,7 +216,7 @@ def generate_quarterly_people_report(quarter: str, year: int) -> str:
     - Compiles into a single report.
     """
     quarter_label = _normalize_quarter_label(quarter)
-    print(f"Generating quarterly people report for {quarter_label} {year}...")
+    logger.info("Generating quarterly people report for %s %s...", quarter_label, year)
 
     hr_metrics = get_hr_quarterly_metrics(quarter_label, year, _employees_db)
     crm_metrics = get_crm_quarterly_metrics(quarter_label, year, _customers_db)
@@ -198,7 +228,7 @@ def generate_quarterly_people_report(quarter: str, year: int) -> str:
         talent_metrics=talent_metrics,
     )
 
-    print(f"Quarterly people report generated at {report_path}.")
+    logger.info("Quarterly people report generated at %s.", report_path)
     return report_path
 
 
@@ -211,33 +241,32 @@ def import_hr_data_from_csv(file_path: str) -> List[Employee]:
 
     Returns:
         List of processed Employee objects
+
+    Raises:
+        Exception: any importer/transformer failure is logged and re-raised.
     """
-    print(f"Starting HR data import from {file_path}")
+    logger.info("Starting HR data import from %s", file_path)
 
-    try:
-        # Import raw data
-        importer = CSVHRImporter(file_path)
-        employees = importer.import_employees()
+    # Import raw data
+    importer = CSVHRImporter(file_path)
+    employees = importer.import_employees()
 
-        if not employees:
-            print(f"No employee data found in {file_path}")
-            return []
-
-        # Clean and enrich data
-        cleaned_employees = clean_employee_data(employees)
-        enriched_employees = enrich_employee_data(cleaned_employees)
-
-        # Store in database
-        _employees_db.extend(enriched_employees)
-
-        print(
-            f"Successfully imported and processed {len(enriched_employees)} employee records"
-        )
-        return enriched_employees
-
-    except Exception as e:
-        print(f"Error importing HR data: {str(e)}")
+    if not employees:
+        logger.warning("No employee data found in %s", file_path)
         return []
+
+    # Clean and enrich data
+    cleaned_employees = clean_employee_data(employees)
+    enriched_employees = enrich_employee_data(cleaned_employees)
+
+    # Store in database
+    _employees_db.extend(enriched_employees)
+
+    logger.info(
+        "Successfully imported and processed %d employee records",
+        len(enriched_employees),
+    )
+    return enriched_employees
 
 
 def import_crm_data_from_csv(file_path: str) -> List[Customer]:
@@ -249,33 +278,32 @@ def import_crm_data_from_csv(file_path: str) -> List[Customer]:
 
     Returns:
         List of processed Customer objects
+
+    Raises:
+        Exception: any importer/transformer failure is logged and re-raised.
     """
-    print(f"Starting CRM data import from {file_path}")
+    logger.info("Starting CRM data import from %s", file_path)
 
-    try:
-        # Import raw data
-        importer = CSVCRMImporter(file_path)
-        customers = importer.import_customers()
+    # Import raw data
+    importer = CSVCRMImporter(file_path)
+    customers = importer.import_customers()
 
-        if not customers:
-            print(f"No customer data found in {file_path}")
-            return []
-
-        # Clean and enrich data
-        cleaned_customers = clean_customer_data(customers)
-        enriched_customers = enrich_customer_data(cleaned_customers)
-
-        # Store in database
-        _customers_db.extend(enriched_customers)
-
-        print(
-            f"Successfully imported and processed {len(enriched_customers)} customer records"
-        )
-        return enriched_customers
-
-    except Exception as e:
-        print(f"Error importing CRM data: {str(e)}")
+    if not customers:
+        logger.warning("No customer data found in %s", file_path)
         return []
+
+    # Clean and enrich data
+    cleaned_customers = clean_customer_data(customers)
+    enriched_customers = enrich_customer_data(cleaned_customers)
+
+    # Store in database
+    _customers_db.extend(enriched_customers)
+
+    logger.info(
+        "Successfully imported and processed %d customer records",
+        len(enriched_customers),
+    )
+    return enriched_customers
 
 
 def import_talent_data_from_csv(
@@ -290,45 +318,45 @@ def import_talent_data_from_csv(
 
     Returns:
         Dictionary with processed candidates and requisitions
-    """
-    print(f"Starting talent data import from {candidates_file} and {requisitions_file}")
 
-    try:
-        # Import talent data
-        importer = CSVTalentImporter(candidates_file, requisitions_file)
-        candidates, requisitions = (
-            importer.import_candidates(),
-            importer.import_requisitions(),
+    Raises:
+        Exception: any importer/transformer failure is logged and re-raised.
+    """
+    logger.info(
+        "Starting talent data import from %s and %s", candidates_file, requisitions_file
+    )
+
+    # Import talent data
+    importer = CSVTalentImporter(candidates_file, requisitions_file)
+    candidates = importer.import_candidates()
+    requisitions = importer.import_requisitions()
+
+    if candidates:
+        # Clean and enrich candidate data
+        cleaned_candidates = clean_candidate_data(candidates)
+        enriched_candidates = enrich_candidate_data(cleaned_candidates, requisitions)
+
+        # Store in database
+        _candidates_db.extend(enriched_candidates)
+
+        logger.info(
+            "Successfully imported and processed %d candidate records",
+            len(enriched_candidates),
         )
 
-        if candidates:
-            # Clean and enrich candidate data
-            cleaned_candidates = clean_candidate_data(candidates)
-            enriched_candidates = enrich_candidate_data(
-                cleaned_candidates, requisitions
-            )
+    if requisitions:
+        # Store requisitions so dashboards and enrichment can use them.
+        pep_data_manager.add_requisitions(requisitions)
+        logger.info(
+            "Successfully imported and processed %d requisition records",
+            len(requisitions),
+        )
 
-            # Store in database
-            _candidates_db.extend(enriched_candidates)
-
-            print(
-                f"Successfully imported and processed {len(enriched_candidates)} candidate records"
-            )
-
-        if requisitions:
-            print(
-                f"Successfully imported and processed {len(requisitions)} requisition records"
-            )
-
-        return {
-            "candidates": len(_candidates_db),
-            "requisitions": len(requisitions),
-            "processed_successfully": True,
-        }
-
-    except Exception as e:
-        print(f"Error importing talent data: {str(e)}")
-        return {"error": str(e), "processed_successfully": False}
+    return {
+        "candidates": len(_candidates_db),
+        "requisitions": len(requisitions),
+        "processed_successfully": True,
+    }
 
 
 def generate_comprehensive_hr_dashboard() -> Dict[str, Any]:
@@ -341,7 +369,7 @@ def generate_comprehensive_hr_dashboard() -> Dict[str, Any]:
     if not _employees_db:
         return {"message": "No employee data available for dashboard"}
 
-    print("Generating comprehensive HR dashboard...")
+    logger.info("Generating comprehensive HR dashboard...")
 
     try:
         # Generate various HR reports
@@ -372,15 +400,15 @@ def generate_comprehensive_hr_dashboard() -> Dict[str, Any]:
             "headcount_by_department": dept_breakdown,
             "headcount_report": headcount_report,
             "diversity_report": diversity_report,
-            "generated_at": "2024-12-19",  # Would use datetime.now() in production
+            "generated_at": datetime.now().isoformat(),
             "data_freshness": f"Based on {len(_employees_db)} employee records",
         }
 
-        print("HR dashboard generated successfully")
+        logger.info("HR dashboard generated successfully")
         return dashboard_data
 
     except Exception as e:
-        print(f"Error generating HR dashboard: {str(e)}")
+        logger.error("Error generating HR dashboard: %s", e)
         return {"error": str(e), "message": "Failed to generate dashboard"}
 
 
@@ -394,7 +422,7 @@ def generate_comprehensive_crm_dashboard() -> Dict[str, Any]:
     if not _customers_db:
         return {"message": "No customer data available for dashboard"}
 
-    print("Generating comprehensive CRM dashboard...")
+    logger.info("Generating comprehensive CRM dashboard...")
 
     try:
         # Generate CRM reports
@@ -417,15 +445,15 @@ def generate_comprehensive_crm_dashboard() -> Dict[str, Any]:
             "status_breakdown": status_breakdown,
             "segmentation_report": segmentation_report,
             "conversion_report": conversion_report,
-            "generated_at": "2024-12-19",  # Would use datetime.now() in production
+            "generated_at": datetime.now().isoformat(),
             "data_freshness": f"Based on {len(_customers_db)} customer records",
         }
 
-        print("CRM dashboard generated successfully")
+        logger.info("CRM dashboard generated successfully")
         return dashboard_data
 
     except Exception as e:
-        print(f"Error generating CRM dashboard: {str(e)}")
+        logger.error("Error generating CRM dashboard: %s", e)
         return {"error": str(e), "message": "Failed to generate dashboard"}
 
 
@@ -439,13 +467,13 @@ def generate_comprehensive_talent_dashboard() -> Dict[str, Any]:
     if not _candidates_db:
         return {"message": "No candidate data available for dashboard"}
 
-    print("Generating comprehensive talent dashboard...")
+    logger.info("Generating comprehensive talent dashboard...")
 
     try:
-        # Generate talent reports
+        # Generate talent reports (requisitions come from the shared store)
         pipeline_report = generate_candidate_pipeline_report(
-            _candidates_db, []
-        )  # Empty requisitions list for now
+            _candidates_db, list(pep_data_manager.requisitions)
+        )
         time_to_hire_report = calculate_time_to_hire(_candidates_db)
 
         # Calculate additional metrics
@@ -463,38 +491,40 @@ def generate_comprehensive_talent_dashboard() -> Dict[str, Any]:
             "status_breakdown": status_breakdown,
             "pipeline_report": pipeline_report,
             "time_to_hire_report": time_to_hire_report,
-            "generated_at": "2024-12-19",  # Would use datetime.now() in production
+            "generated_at": datetime.now().isoformat(),
             "data_freshness": f"Based on {len(_candidates_db)} candidate records",
         }
 
-        print("Talent dashboard generated successfully")
+        logger.info("Talent dashboard generated successfully")
         return dashboard_data
 
     except Exception as e:
-        print(f"Error generating talent dashboard: {str(e)}")
+        logger.error("Error generating talent dashboard: %s", e)
         return {"error": str(e), "message": "Failed to generate dashboard"}
 
 
 def get_all_employees() -> List[Employee]:
-    """Get all employees from the database."""
-    return _employees_db.copy()
+    """Get all employees from the shared in-memory store."""
+    return list(_employees_db)
 
 
 def get_all_candidates() -> List[Candidate]:
-    """Get all candidates from the database."""
-    return _candidates_db.copy()
+    """Get all candidates from the shared in-memory store."""
+    return list(_candidates_db)
 
 
 def get_all_customers() -> List[Customer]:
-    """Get all customers from the database."""
-    return _customers_db.copy()
+    """Get all customers from the shared in-memory store."""
+    return list(_customers_db)
 
 
 def clear_all_data() -> bool:
-    """Clear all data from the in-memory database (for testing purposes)."""
-    global _employees_db, _candidates_db, _customers_db
-    _employees_db = []
-    _candidates_db = []
-    _customers_db = []
-    print("All data cleared from database")
+    """Clear all data from the shared in-memory store.
+
+    Destructive: removes every employee, customer, candidate, and requisition
+    record visible to both the methods layer and the FastAPI layer.
+    Intended for tests and controlled resets.
+    """
+    logger.warning("clear_all_data(): deleting all in-memory PEP records")
+    pep_data_manager.clear_all_data()
     return True

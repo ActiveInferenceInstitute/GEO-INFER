@@ -7,7 +7,6 @@ Utils workspace within `GEO-INFER-ACT`.
 - `__init__.py`
 - `analysis.py`
 - `config.py`
-- `geospatial_ai.py`
 - `h3_adapter.py`
 - `integration.py`
 - `math.py`
@@ -28,16 +27,16 @@ Utils workspace within `GEO-INFER-ACT`.
 - `config.py:save_config` (function)
 - `config.py:merge_configs` (function)
 - `config.py:get_config_value` (function)
-- `geospatial_ai.py:H3SpatialGraph` (class)
-- `geospatial_ai.py:LevelSpatialGraph` (class)
-- `geospatial_ai.py:EnvironmentalState` (class)
-- `geospatial_ai.py:ResourceAllocation` (class)
-- `geospatial_ai.py:SpatialPrediction` (class)
-- `geospatial_ai.py:EnvironmentalActiveInferenceEngine` (class)
-- `geospatial_ai.py:MultiScaleHierarchicalAnalyzer` (class)
-- `geospatial_ai.py:analyze_multi_scale_patterns` (function)
 - `h3_adapter.py:H3Adapter` (class)
 - `h3_adapter.py:get_h3_adapter` (function)
+- `h3_adapter.py:get_nested_h3_grid_class` (function)
+- `h3_adapter.py:normalize_belief_vector` (function)
+- `h3_adapter.py:edge_count_from_graph` (function)
+- `integration.py:initialize_logger` (function)
+- `integration.py:ModernToolsIntegration` (class)
+- `integration.py:integrate_rxinfer` (function)
+- `integration.py:integrate_bayeux` (function)
+- `integration.py:integrate_pymdp` (function)
 
 ## Module Metadata
 
@@ -50,17 +49,16 @@ Utils workspace within `GEO-INFER-ACT`.
 ## Dependencies
 
 - `matplotlib>=3.4.0`
-- `networkx>=2.6.0`
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
-- `pyro-ppl>=1.7.0`
 - `pyyaml>=6.0`
-- `scipy>=1.7.0`
-- `torch>=1.9.0`
-- `arviz>=0.11.0`
-- `bayeux-ml>=0.0.1`
+- `requests>=2.25.0`
+- `geo-infer-ai>=0.2.0`
+- `seaborn>=0.11.0`
+- `inferactively-pymdp==1.0.3`
 - `h3>=4.5.0,<5`
-- `imageio>=2.9.0`
+- `geo-infer-bayes>=0.2.0`
+- `scipy>=1.7.0`
 
 
 ## Validation

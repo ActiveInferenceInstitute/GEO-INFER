@@ -12,6 +12,7 @@ This module provides sophisticated hazard modeling capabilities with:
 """
 
 import logging
+import math
 from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime, timedelta
 import json
@@ -325,6 +326,21 @@ class EnhancedHazardModel:
         if "magnitude" in self.historical_data.columns:
             magnitudes = self.historical_data["magnitude"].values
 
+            # Annualize from the actual record length, mirroring
+            # EnhancedEarthquakeModel: count events per year of coverage.
+            if "timestamp" in self.historical_data.columns:
+                years = (
+                    self.historical_data["timestamp"].max().year
+                    - self.historical_data["timestamp"].min().year
+                    + 1
+                )
+            else:
+                self.logger.warning(
+                    "Historical data has no timestamp column; annual_rate "
+                    "assumes a 50-year record and is likely mis-scaled"
+                )
+                years = 50
+
             # Fit Gutenberg-Richter parameters
             self.model_parameters = {
                 "mean_magnitude": np.mean(magnitudes),
@@ -332,7 +348,7 @@ class EnhancedHazardModel:
                 "min_magnitude": np.min(magnitudes),
                 "max_magnitude": np.max(magnitudes),
                 "b_value": self._estimate_b_value(magnitudes),
-                "annual_rate": len(magnitudes) / 50.0,  # Assuming 50 years of data
+                "annual_rate": len(magnitudes) / max(1, years),
             }
 
     def _fit_flood_parameters(self) -> None:
@@ -728,15 +744,20 @@ class EnhancedHazardModel:
     ) -> List[Dict[str, Any]]:
         """Apply spatial correlation to generated events using proximity-based clustering.
 
-        Events that occur within a threshold distance of each other (cluster radius)
-        receive a positive intensity boost reflecting hazard co-location effects
-        (e.g. earthquake aftershock clusters, storm train sequences).
+        Events that occur within a threshold distance of each other (cluster
+        radius) receive a positive intensity boost reflecting hazard
+        co-location effects (e.g. earthquake aftershock clusters, storm train
+        sequences).
 
-        Uses a simplified distance matrix approach:
-        - cluster_radius: configured in ``params`` (default 100 km)
+        Distances use an equirectangular approximation: north-south
+        separation is scaled by ~111 km/degree, east-west separation
+        additionally by cos(latitude), so the configured ``cluster_radius_km``
+        is honoured at any latitude (a raw ``lat, lon*111`` degree proxy
+        over-counts neighbours away from the equator).
+
+        Configuration (via ``params``):
+        - cluster_radius: ``spatial_cluster_radius_km`` (default 100 km)
         - intensity_boost_per_neighbour: 5% (capped at 20%)
-
-        Falls back to returning events unchanged if scipy is unavailable.
         """
         if not self.spatial_interface:
             return events
@@ -758,9 +779,13 @@ class EnhancedHazardModel:
                 (e["location"]["latitude"], e["location"]["longitude"]) for e in events
             ]
 
-            # Haversine-inspired degree-based proxy: 1 degree ≈ 111 km
+            # Equirectangular approximation: 1 degree latitude ~ 111 km;
+            # 1 degree longitude ~ 111 km * cos(latitude).
             km_per_degree = 111.0
-            coords_km = [(lat, lon * km_per_degree) for lat, lon in coords]
+            coords_km = [
+                (lat, lon * km_per_degree * math.cos(math.radians(lat)))
+                for lat, lon in coords
+            ]
 
             for i, event in enumerate(events):
                 neighbours = 0
@@ -781,10 +806,6 @@ class EnhancedHazardModel:
             self.logger.info(
                 f"Spatial correlation applied to {len(events)} events (radius={cluster_radius_km} km)"
             )
-            return events
-
-        except ImportError:
-            self.logger.warning("scipy not available — spatial correlation skipped")
             return events
         except Exception as e:
             self.logger.warning(f"Failed to apply spatial correlation: {e}")
@@ -974,12 +995,22 @@ class EnhancedHazardModel:
     def _apply_site_effects(
         self, latitude: float, longitude: float, intensity: float
     ) -> float:
-        """Apply local site effects to hazard intensity."""
-        # Baseline for site effects
-        # In practice, this would use soil conditions, topography, etc.
+        """Apply local site effects to hazard intensity.
 
-        # Simple example: add some random variation to simulate site effects
-        site_variation = self.rng.normal(1.0, 0.1)
+        Site response is drawn from a Gaussian variation whose seed is
+        derived deterministically from the site's coordinates, so the same
+        location always receives the same site factor for a given model
+        (replayable runs, unlike a shared-stream RNG draw whose position in
+        the stream depends on call order). The variation models unresolved
+        soil/topography amplification; in practice this would be replaced by
+        a site-condition lookup.
+        """
+        coord_bytes = np.asarray(
+            [float(latitude), float(longitude)], dtype=np.float64
+        ).tobytes()
+        site_seed = int.from_bytes(coord_bytes, "little") % (2**32)
+        site_rng = np.random.default_rng(site_seed)
+        site_variation = float(site_rng.normal(1.0, 0.1))
         return intensity * site_variation
 
     def get_return_period_map(

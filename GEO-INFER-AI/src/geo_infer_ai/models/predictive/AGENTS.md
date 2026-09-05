@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `__init__.py`
+- `geospatial_ai.py`
 - `spatial_predictor.py`
 
 ## Validation

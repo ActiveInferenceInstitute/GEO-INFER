@@ -1,7 +1,7 @@
 """
 ProceduralArt module for creating procedural and algorithmic art from geospatial data.
 """
-
+import logging
 import os
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -12,6 +12,7 @@ from PIL import Image
 
 from geo_infer_art.core.aesthetics import ColorPalette
 
+logger = logging.getLogger(__name__)
 
 class ProceduralArt:
     """
@@ -257,35 +258,15 @@ class ProceduralArt:
         if "seed" in self.params:
             np.random.seed(self.params["seed"])
 
-        # Call the appropriate generation method
-        if self.algorithm == "l_system":
-            self._generate_l_system()
-        elif self.algorithm == "cellular_automata":
-            self._generate_cellular_automata()
-        elif self.algorithm == "reaction_diffusion":
-            self._generate_reaction_diffusion()
-        elif self.algorithm == "noise_field":
-            self._generate_noise_field()
-        elif self.algorithm == "voronoi":
-            self._generate_voronoi()
-        elif self.algorithm == "fractal_tree":
-            self._generate_fractal_tree()
-        elif self.algorithm == "mandelbrot":
-            self._generate_mandelbrot()
-        elif self.algorithm == "julia_set":
-            self._generate_julia_set()
-        elif self.algorithm == "perlin_noise":
-            self._generate_perlin_noise()
-        elif self.algorithm == "simplex_noise":
-            self._generate_simplex_noise()
-        elif self.algorithm == "wave_function_collapse":
-            self._generate_wave_function_collapse()
-        elif self.algorithm == "marching_squares":
-            self._generate_marching_squares()
-        elif self.algorithm == "space_colonization":
-            self._generate_space_colonization()
-        else:
-            raise ValueError(f"Unsupported algorithm: {self.algorithm}")
+        # Dispatch on the algorithm name; every entry in ALGORITHMS maps to a
+        # "_generate_<algorithm>" method on this class.
+        generator = getattr(self, f"_generate_{self.algorithm}", None)
+        if generator is None or not callable(generator):
+            raise ValueError(
+                f"Unsupported algorithm: {self.algorithm}. Supported algorithms: "
+                f"{', '.join(self.ALGORITHMS)}"
+            )
+        generator()
 
         return self
 
@@ -295,7 +276,6 @@ class ProceduralArt:
         """
         # Get parameters with defaults
         width, height = self.resolution
-        self.params.get("noise_type", "perlin")
         octaves = self.params.get("octaves", 6)
         persistence = self.params.get("persistence", 0.5)
         lacunarity = self.params.get("lacunarity", 2.0)
@@ -306,7 +286,6 @@ class ProceduralArt:
         y_influence = self.params.get("y_influence", 1.0)
 
         # Create the noise field
-        np.zeros((height, width, 3), dtype=np.uint8)
 
         # Simplified Perlin-like noise for demonstration
         # In production code, you'd use a proper noise library
@@ -1613,7 +1592,7 @@ class ProceduralArt:
             np.sqrt((x - center_x) ** 2 + (y - center_y) ** 2)
             for x, y in structure_points
         ]
-        max_dist = max(distances) if distances else 1
+        max_dist = max(distances, default=0.0) or 1.0
         color_indices = [
             int((dist / max_dist) * (len(palette.colors) - 1)) for dist in distances
         ]
@@ -1877,7 +1856,8 @@ class ProceduralArt:
         iterations = self.params.get("iterations", 5)
 
         # Get color palette
-        palette = ColorPalette.get_palette("winter")
+        palette_name = self.params.get("color_palette", "ocean")
+        palette = ColorPalette.get_palette(palette_name)
 
         # Create a figure
         fig, ax = plt.subplots(

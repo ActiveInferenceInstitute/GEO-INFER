@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `__init__.py`
+- `aggregate_models.py`
 - `growth_models.py`
 
 ## Validation

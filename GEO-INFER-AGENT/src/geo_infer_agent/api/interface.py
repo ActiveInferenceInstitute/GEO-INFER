@@ -9,12 +9,9 @@ agent implementation details and provides a clean interface for
 external systems to interact with the GEO-INFER-AGENT system.
 """
 
-import os
-import json
 import logging
 import asyncio
-from typing import Dict, List, Any, Optional, Union, Tuple
-from datetime import datetime
+from typing import Dict, List, Any, Optional
 
 from geo_infer_agent.api.agent_endpoints import agent_registry
 from geo_infer_agent.api.messaging import messaging_service, Message

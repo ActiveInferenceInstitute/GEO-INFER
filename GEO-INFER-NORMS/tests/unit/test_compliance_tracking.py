@@ -135,6 +135,27 @@ class TestComplianceTracker:
         status = tracker.evaluate_compliance(entity, reg, {"has_permit": True})
         assert status.is_compliant is True
 
+    def test_evaluate_compliance_missing_primary_field_is_non_compliant_with_note(self):
+        """A missing primary_field must not silently evaluate as 0/False."""
+        reg = _make_regulation("reg-1")
+        entity = _make_entity("ent-1")
+        metric = ComplianceMetric.create(
+            name="test_metric",
+            description="Threshold metric with explicit required_fields",
+            regulation_id="reg-1",
+            evaluation_type="threshold",
+            primary_field="pm25",
+            threshold_value=35,
+            comparison="less_than",
+            required_fields=["station_id"],
+        )
+        tracker = ComplianceTracker(name="test", compliance_metrics=[metric])
+        status = tracker.evaluate_compliance(entity, reg, {"station_id": "s-1"})
+        assert status.is_compliant is False
+        assert status.compliance_level == 0.0
+        assert status.metric_results is not None
+        assert "pm25" in status.metric_results[0]["notes"]
+
 
 class TestComplianceReport:
     def test_generate_summary_report(self):

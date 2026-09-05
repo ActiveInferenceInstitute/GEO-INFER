@@ -10,12 +10,12 @@ from typing import Dict, Any, Optional, Tuple, List
 import numpy as np
 import logging
 
-from geo_infer_act.models.base import ActiveInferenceModel
+from geo_infer_act.models.base import BaseActiveInferenceModel
 
 logger = logging.getLogger(__name__)
 
 
-class ResourceModel(ActiveInferenceModel):
+class ResourceModel(BaseActiveInferenceModel):
     """Resource allocation modeling using active inference.
 
     Simulates resource dynamics across spatial locations with:

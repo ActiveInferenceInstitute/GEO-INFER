@@ -4,8 +4,6 @@ import numpy as np
 import pytest
 import xarray as xr
 
-import sys
-sys.path.insert(0, "GEO-INFER-WATER/src")
 
 from geo_infer_water.core.hydrology import HydrologicalModeler
 
@@ -34,6 +32,20 @@ class TestRainfallRunoff:
         result_dry = modeler.rainfall_runoff_model(precip, soil_moisture=soil_dry)
         result_wet = modeler.rainfall_runoff_model(precip, soil_moisture=soil_wet)
         assert float(result_wet["runoff"].mean()) > float(result_dry["runoff"].mean())
+
+    def test_mass_conserved_with_soil_moisture(self, modeler):
+        # Runoff + infiltration must equal precipitation for every
+        # saturation level (mass conservation).
+        precip = xr.DataArray(np.full((5, 5), 100.0), dims=("y", "x"))
+        for saturation in (0.0, 0.25, 0.5, 0.75, 1.0):
+            soil = xr.DataArray(np.full((5, 5), saturation), dims=("y", "x"))
+            result = modeler.rainfall_runoff_model(precip, soil_moisture=soil, infiltration_rate=0.6)
+            total = result["runoff"] + result["infiltration"]
+            np.testing.assert_allclose(total.values, 100.0, atol=1e-10)
+        # Saturated soil must not let runoff exceed precipitation.
+        soil_wet = xr.DataArray(np.full((5, 5), 1.0), dims=("y", "x"))
+        result_wet = modeler.rainfall_runoff_model(precip, soil_moisture=soil_wet, infiltration_rate=0.6)
+        assert float(result_wet["runoff"].max()) <= 100.0 + 1e-10
 
 
 class TestGroundwaterRecharge:

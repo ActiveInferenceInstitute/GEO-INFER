@@ -6,22 +6,9 @@ including interactive maps, static plots, animations, and analytical visualizati
 """
 
 import logging
-import json
-import tempfile
-from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple, Union
+from typing import List, Dict, Any, Optional, Tuple
 
-try:
-    import numpy as np
-    NUMPY_AVAILABLE = True
-except ImportError:
-    NUMPY_AVAILABLE = False
-
-try:
-    import pandas as pd
-    PANDAS_AVAILABLE = True
-except ImportError:
-    PANDAS_AVAILABLE = False
+import numpy as np
 
 try:
     import matplotlib.pyplot as plt
@@ -32,7 +19,7 @@ except ImportError:
     MATPLOTLIB_AVAILABLE = False
 
 try:
-    import seaborn as sns
+    import seaborn as seaborn
     SEABORN_AVAILABLE = True
 except ImportError:
     SEABORN_AVAILABLE = False
@@ -49,7 +36,7 @@ except ImportError:
 
 try:
     import plotly.graph_objects as go
-    import plotly.express as px
+    import plotly.express as px  # noqa: F401  # availability probe; binding intentionally unused
     from plotly.subplots import make_subplots
     PLOTLY_AVAILABLE = True
 except ImportError:
@@ -57,7 +44,7 @@ except ImportError:
     logger.warning("plotly not available. Install with 'uv pip install plotly'")
 
 from .core import H3Grid, H3Cell, H3Analytics
-from .operations import cell_to_boundary, cells_to_geojson
+from .operations import cell_to_boundary
 
 
 class H3MapVisualizer:

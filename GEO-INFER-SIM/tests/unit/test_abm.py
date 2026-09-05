@@ -84,3 +84,26 @@ class TestAgentBasedModel:
         assert abm.time == 1.0
 
 
+def test_step_neighbor_radius_is_configurable(monkeypatch) -> None:
+    """step() must use the constructor's neighbor_radius, not a hardcoded 10.0."""
+    def make_agents():
+        return (
+            Agent(agent_id="close", position=np.array([1.0, 0.0])),
+            Agent(agent_id="far", position=np.array([100.0, 0.0])),
+        )
+
+    observed = {}
+    original = AgentBasedModel.find_neighbors
+
+    def spy(self, agent, radius, max_neighbors=None):
+        observed["radius"] = radius
+        return original(self, agent, radius, max_neighbors)
+
+    close, far = make_agents()
+    abm = AgentBasedModel(neighbor_radius=25.0)
+    abm.add_agent(close)
+    abm.add_agent(far)
+    monkeypatch.setattr(AgentBasedModel, "find_neighbors", spy)
+    abm.step(time_step=1.0)
+
+    assert observed["radius"] == 25.0

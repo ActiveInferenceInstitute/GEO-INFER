@@ -22,12 +22,8 @@ Integration workspace within `GEO-INFER-FOREST`.
 ## Dependencies
 
 - `numpy>=1.20.0`
-- `pandas>=1.3.0`
 - `scipy>=1.7.0`
-- `matplotlib>=3.4.0`
 - `xarray>=0.19.0`
-- `pyyaml>=6.0`
-- `scikit-learn>=1.0.0`
 
 
 ## Validation

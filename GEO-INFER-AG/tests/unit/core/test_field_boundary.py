@@ -226,29 +226,40 @@ class TestFieldBoundaryManager:
         """Test retrieving neighboring fields."""
         fbm = FieldBoundaryManager()
         
-        # Add some fields
+        # Geometry is in EPSG:4326; buffer_distance is interpreted as meters,
+        # so use field separations that are meaningful at metric scale.
+        # 0.001 deg longitude ~ 111 m at the equator.
         fbm.add_field(
-            geometry=Polygon([(0, 0), (0, 10), (10, 10), (10, 0)]),
+            geometry=Polygon([(0.0, 0.0), (0.01, 0.0), (0.01, 0.01), (0.0, 0.01)]),
             field_id="field_1"
         )
         fbm.add_field(
-            geometry=Polygon([(11, 0), (11, 10), (21, 10), (21, 0)]),
-            field_id="field_2"  # Close to field_1
+            geometry=Polygon([(0.011, 0.0), (0.021, 0.0), (0.021, 0.01), (0.011, 0.01)]),
+            field_id="field_2"  # ~111 m from field_1
         )
         fbm.add_field(
-            geometry=Polygon([(40, 0), (40, 10), (50, 10), (50, 0)]),
-            field_id="field_3"  # Far from field_1
+            geometry=Polygon([(0.5, 0.0), (0.51, 0.0), (0.51, 0.01), (0.5, 0.01)]),
+            field_id="field_3"  # ~54 km from field_1
         )
-        
-        # Test retrieving neighboring fields
+
+        # Tiny buffer: no neighbors within 2 m
         neighbors = fbm.get_neighboring_fields(field_id="field_1", buffer_distance=2.0)
+        assert len(neighbors) == 0
+
+        # Buffer covering the ~111 m gap reaches only field_2
+        neighbors = fbm.get_neighboring_fields(field_id="field_1", buffer_distance=200.0)
         assert len(neighbors) == 1
         assert neighbors["field_id"].iloc[0] == "field_2"
-        
-        # Test with larger buffer
-        neighbors = fbm.get_neighboring_fields(field_id="field_1", buffer_distance=50.0)
+
+        # Very large buffer reaches field_3 as well
+        neighbors = fbm.get_neighboring_fields(
+            field_id="field_1", buffer_distance=100000.0
+        )
         assert len(neighbors) == 2
         assert set(neighbors["field_id"].tolist()) == {"field_2", "field_3"}
+
+        # Neighbors are returned in the manager's CRS
+        assert str(neighbors.crs) == "EPSG:4326"
         
         # Test nonexistent field
         with pytest.raises(ValueError):
@@ -378,3 +389,31 @@ class TestFieldBoundaryManager:
         # Check that area was calculated
         assert fbm.fields["area_ha"].iloc[0] is not None
         assert fbm.fields["area_ha"].iloc[0] > 0 
+
+    def test_area_ha_uses_equal_area_projection(self):
+        """Identical 1-degree fields must scale with cos(latitude) of true area.
+
+        Web Mercator (EPSG:3857) stretches x and y by 1/cos(lat), so a
+        1-degree cell gets the SAME projected area at any latitude. True
+        ground area of a 1x1 degree cell at 60N is ~cos(60) = 0.5 of the
+        equatorial cell.
+        """
+        fbm = FieldBoundaryManager()
+
+        fbm.add_field(
+            geometry=Polygon([(0, 0), (1, 0), (1, 1), (0, 1)]),
+            field_id="equator",
+        )
+        fbm.add_field(
+            geometry=Polygon([(0, 60), (1, 60), (1, 61), (0, 61)]),
+            field_id="high_latitude",
+        )
+
+        area_equator = fbm.get_field("equator")["area_ha"]
+        area_high = fbm.get_field("high_latitude")["area_ha"]
+
+        # A 1x1 degree cell at 60N has ~cos(60) = 0.5 of the equatorial
+        # cell area; Web Mercator would yield a ratio of exactly 1.0.
+        assert area_high < area_equator
+        ratio = area_high / area_equator
+        assert 0.45 < ratio < 0.55, f"unexpected area ratio: {ratio}"

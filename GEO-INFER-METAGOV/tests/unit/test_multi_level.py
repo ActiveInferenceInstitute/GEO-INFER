@@ -1,10 +1,6 @@
 """Unit tests for multi-level governance framework."""
 
 import pytest
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../src'))
 
 from geo_infer_metagov.core.multi_level import (
     MultiLevelGovernanceFramework,
@@ -26,6 +22,15 @@ class TestMultiLevelGovernanceFramework:
             coordination_mechanisms=['vertical_alignment', 'horizontal_integration'],
             domain_coverage=['environmental', 'civic', 'commercial']
         )
+
+    def test_unknown_governance_level_raises(self) -> None:
+        """Unknown level names must fail loudly instead of coercing to REGIONAL."""
+        with pytest.raises(ValueError, match="Unknown governance level 'state'"):
+            MultiLevelGovernanceFramework(governance_levels=['local', 'state'])
+
+    def test_level_names_case_insensitive(self) -> None:
+        framework = MultiLevelGovernanceFramework(governance_levels=['LOCAL', 'Regional'])
+        assert framework.governance_levels == [GovernanceLevel.LOCAL, GovernanceLevel.REGIONAL]
     
     @pytest.fixture
     def spatial_scope(self):

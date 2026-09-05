@@ -7,11 +7,13 @@ Unit workspace within `GEO-INFER-ECON`.
 - `test_behavioral_economics.py`
 - `test_bioregional_economics.py`
 - `test_consumer_theory.py`
+- `test_demand_systems_spatial.py`
 - `test_enhanced_capabilities.py`
 - `test_game_theory.py`
 - `test_growth_models.py`
 - `test_import_smoke.py`
 - `test_indicators.py`
+- `test_macroeconomics.py`
 - `test_market_structure.py`
 - `test_modeling_engine.py`
 - `test_policy_engine.py`
@@ -42,7 +44,6 @@ Unit workspace within `GEO-INFER-ECON`.
 - `seaborn>=0.12.0`
 - `networkx>=2.8.0`
 - `h3>=4.5.0,<5`
-- `pyyaml>=6.0`
 - `requests>=2.28.0`
 
 

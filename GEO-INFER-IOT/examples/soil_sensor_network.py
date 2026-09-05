@@ -31,16 +31,10 @@ import folium
 from folium.plugins import HeatMap, MarkerCluster
 import h3
 
-# GEO-INFER imports
-try:
-    from geo_infer_iot import IoTSystem, BayesianSpatialInference
-    from geo_infer_space.osc_geo.utils.h3_utils import cell_to_latlngjson, geojson_to_h3
-    from geo_infer_space.osc_geo.utils.visualization import OSCVisualizationEngine
-    from geo_infer_bayes import GaussianProcess, SpatialInference
-    HAS_GEO_INFER = True
-except ImportError as e:
-    logging.warning(f"GEO-INFER modules not available: {e}")
-    HAS_GEO_INFER = False
+# GEO-INFER imports. geo_infer_space/geo_infer_bayes are required workspace
+# dependencies of geo_infer_iot, so a plain import failing means the
+# installation is broken and the example must not pretend to work.
+from geo_infer_iot import IoTSystem, BayesianSpatialInference
 
 # Standard dependencies
 try:
@@ -75,12 +69,11 @@ class SoilSensorNetwork:
         self.measurements = []
         self.spatial_index = {}
         self.current_map = None
-        
-        # Initialize GEO-INFER components if available
-        if HAS_GEO_INFER:
-            self.iot_system = IoTSystem(config)
-            self.spatial_inference = None
-            self.visualization = OSCVisualizationEngine()
+        self._loop: Optional[asyncio.AbstractEventLoop] = None
+
+        # Initialize GEO-INFER components
+        self.iot_system = IoTSystem(config)
+        self.spatial_inference = None
         
         # Setup MQTT client
         self.mqtt_client = mqtt.Client()
@@ -137,7 +130,14 @@ class SoilSensorNetwork:
                 
             # Update spatial inference if enough data
             if len(self.measurements) >= 10:  # Minimum data threshold
-                asyncio.create_task(self._update_spatial_inference())
+                if self._loop is not None:
+                    asyncio.run_coroutine_threadsafe(
+                        self._update_spatial_inference(), self._loop
+                    )
+                else:
+                    logger.warning(
+                        "No event loop captured; skipping spatial inference update"
+                    )
                 
             logger.info(f"Processed measurement from sensor {sensor_id}")
             
@@ -158,18 +158,12 @@ class SoilSensorNetwork:
         
         self.sensors[sensor_id] = sensor_info
         
-        if HAS_GEO_INFER:
-            # Register with GEO-INFER-IOT system
-            self.iot_system.registry.register_sensor(sensor_info)
-            
+        # Register with GEO-INFER-IOT system
+        self.iot_system.registry.register_sensor(sensor_info)
         logger.info(f"Registered new sensor: {sensor_id}")
     
     async def _update_spatial_inference(self):
         """Update Bayesian spatial inference with new measurements."""
-        if not HAS_GEO_INFER:
-            logger.warning("GEO-INFER not available for spatial inference")
-            return
-            
         try:
             # Prepare data for Bayesian inference
             recent_data = self._get_recent_measurements(
@@ -194,16 +188,15 @@ class SoilSensorNetwork:
                 "noise_variance": self.config.get("inference", {}).get("noise_variance", 0.01),
                 "length_scale": self.config.get("inference", {}).get("length_scale", 1000)  # meters
             }
-            
-            # Perform Bayesian spatial inference
-            posterior = await self.spatial_inference.infer_spatial_distribution(
-                sensor_data=recent_data,
+            # Perform Bayesian spatial inference (synchronous GP backend)
+            posterior = self.spatial_inference.infer_spatial_distribution(
+                sensor_data=recent_data.to_dict("records"),
                 priors=priors,
                 update_interval="15min"
             )
-            
+
             # Generate updated spatial map
-            self.current_map = await self.spatial_inference.get_posterior_map(
+            self.current_map = self.spatial_inference.get_posterior_map(
                 confidence_intervals=[0.8, 0.95]
             )
             
@@ -270,9 +263,8 @@ class SoilSensorNetwork:
             
             sensor_cluster.add_to(m)
             
-            # Add H3 grid visualization if available
-            if HAS_GEO_INFER:
-                self._add_h3_grid_overlay(m)
+            # Add H3 grid visualization
+            self._add_h3_grid_overlay(m)
             
             # Add soil moisture heatmap
             self._add_soil_moisture_heatmap(m)
@@ -280,7 +272,6 @@ class SoilSensorNetwork:
             # Add layer control
             folium.LayerControl().add_to(m)
             
-            # Save map
             m.save(output_file)
             logger.info(f"Visualization saved to {output_file}")
             
@@ -381,12 +372,15 @@ class SoilSensorNetwork:
         broker_host = mqtt_config.get("broker_host", "localhost")
         broker_port = mqtt_config.get("broker_port", 1883)
         
+        # Capture the running loop so MQTT thread callbacks can schedule
+        # coroutines back onto it.
+        self._loop = asyncio.get_running_loop()
+
         try:
             self.mqtt_client.connect(broker_host, broker_port, 60)
             self.mqtt_client.loop_start()
-            
+
             logger.info(f"Connected to MQTT broker at {broker_host}:{broker_port}")
-            
             # Start periodic tasks
             while True:
                 await asyncio.sleep(60)  # Update every minute

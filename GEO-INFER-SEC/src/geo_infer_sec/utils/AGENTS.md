@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `__init__.py`
+- `geospatial_utils.py`
 - `security_utils.py`
 
 ## Validation

@@ -47,7 +47,7 @@ class Plan:
         current_action_index: Index of the current action being executed
         complete: Whether this plan has finished executing
         successful: Whether the plan succeeded (None if not complete)
-        action_results: Results from executed actions
+        execution_record: Log of executed actions and their results
     """
 
     name: str
@@ -66,7 +66,7 @@ class Plan:
     current_action_index: int = 0
     complete: bool = False
     successful: Optional[bool] = None
-    action_results: List[Dict[str, Any]] = field(default_factory=list)
+    execution_record: List[Dict[str, Any]] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         """Normalize goal/desire_name and context aliases."""
@@ -199,7 +199,7 @@ class Plan:
         self.current_action_index = 0
         self.complete = False
         self.successful = None
-        self.action_results = []
+        self.execution_record = []
         logger.debug(f"Reset plan: {self.name}")
 
     def next_action(self) -> Optional[Dict[str, Any]]:
@@ -213,9 +213,18 @@ class Plan:
             return None
         return self.actions[self.current_action_index]
 
-    def advance(self) -> None:
-        """Advance to the next action in the plan."""
+    def advance(self) -> bool:
+        """Advance to the next action in the plan.
+
+        Returns:
+            True while actions remain to execute, False once the plan is
+            complete (every action has been consumed).
+        """
         self.current_action_index += 1
+        if self.current_action_index >= len(self.actions):
+            self.complete = True
+            return False
+        return True
 
     def mark_complete(self, successful: bool) -> None:
         """
@@ -239,7 +248,7 @@ class Plan:
             result: Result dictionary from the action execution
             success: Whether the action succeeded
         """
-        self.action_results.append(
+        self.execution_record.append(
             {
                 "action_index": action_index,
                 "result": result,
@@ -271,7 +280,7 @@ class Plan:
             "current_action_index": self.current_action_index,
             "complete": self.complete,
             "successful": self.successful,
-            "action_results": self.action_results,
+            "execution_record": self.execution_record,
         }
 
     @classmethod
@@ -309,7 +318,7 @@ class Plan:
             "current_action_index",
             "complete",
             "successful",
-            "action_results",
+            "execution_record",
         }
         filtered = {k: v for k, v in d.items() if k in known_fields}
 

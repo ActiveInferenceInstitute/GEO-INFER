@@ -3,7 +3,7 @@ import json
 from datetime import datetime, timedelta, timezone
 
 # Assume the FastAPI application is running at this base URL
-BASE_URL = "http://localhost:8000/health" # Assuming main app mounts health router at /health
+BASE_URL = "http://localhost:8000/api/v1"  # The CLI server (geo-infer-health serve) mounts the API here
 ENVIRONMENT_URL = f"{BASE_URL}/environment"
 
 def print_response(response):

@@ -27,7 +27,7 @@ class ErrorHandlerMiddleware(BaseHTTPMiddleware):
                 status_code=e.status_code,
                 content=e.to_dict()
             )
-        except Exception as e:
+        except Exception:
             logger.exception("Unexpected error processing %s %s", request.method, request.url)
             return JSONResponse(
                 status_code=500,

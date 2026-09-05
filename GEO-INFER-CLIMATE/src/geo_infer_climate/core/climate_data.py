@@ -6,9 +6,8 @@ CMIP models, reanalysis data, and observational data.
 """
 
 import logging
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple
 import numpy as np
-import pandas as pd
 import xarray as xr
 
 logger = logging.getLogger(__name__)

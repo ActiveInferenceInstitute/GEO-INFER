@@ -54,7 +54,7 @@ def test_core_modules_import(module_name: str) -> None:
 def test_cross_module_references() -> None:
     """Key cross-module symbols can be imported from their modules."""
     checks: list[tuple[str, str]] = [
-        ("geo_infer_place", "PlaceAnalyzer"),
+        ("geo_infer_space", "PlaceAnalyzer"),
         ("geo_infer_space", "SpatialIndexingInterface"),
         ("geo_infer_iot", "IoTDataIngestion"),
         ("geo_infer_bayes", "GaussianProcess"),

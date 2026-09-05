@@ -71,3 +71,14 @@ class TestCivImports:
         assert ParticipationAnalyzer is not None
         assert AttendanceTracker is not None
         assert CostBenefitAnalyzer is not None
+
+    def test_import_result_dataclasses(self):
+        from geo_infer_civ import (
+            AttendanceTrend,
+            CommentAnalysis,
+            CostBenefitResult,
+            EquityScore,
+        )
+
+        for cls in (AttendanceTrend, CommentAnalysis, CostBenefitResult, EquityScore):
+            assert cls is not None

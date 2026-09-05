@@ -8,7 +8,6 @@ cooperative economics capabilities.
 
 from typing import Dict, List, Optional, Any
 import numpy as np
-import pandas as pd
 import logging
 from datetime import datetime, timezone
 

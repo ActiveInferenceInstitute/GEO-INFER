@@ -26,7 +26,7 @@ _available_apis = []
 _missing_optional_dependencies = {}
 
 try:
-    from geo_infer_math.api.spatial_analysis import SpatialAnalysisAPI
+    from geo_infer_math.api.spatial_analysis import SpatialAnalysisAPI as SpatialAnalysisAPI
 
     _available_apis.append("SpatialAnalysisAPI")
 except ImportError as exc:

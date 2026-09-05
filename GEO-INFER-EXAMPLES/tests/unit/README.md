@@ -6,6 +6,7 @@ Unit workspace within `GEO-INFER-EXAMPLES`.
 
 - `test_data_models.py`
 - `test_integration_models.py`
+- `test_module_orchestrator_public.py`
 - `test_workflow_definition.py`
 
 ## Public Interface
@@ -22,14 +23,7 @@ Unit workspace within `GEO-INFER-EXAMPLES`.
 
 ## Dependencies
 
-- `jupyterlab>=3.4.0`
-- `matplotlib>=3.5.0`
-- `pandas>=1.4.0`
 - `pyyaml>=6.0`
-- `h3>=4.5.0,<5`
-- `requests>=2.28.0`
-- `rich>=12.0.0`
-- `typer>=0.7.0`
 
 
 ## Validation

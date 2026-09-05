@@ -330,7 +330,7 @@ H3 library for hexagonal grid operations. The default backend. See also:
 
 **module**: A self-contained package within the GEO-INFER monorepo. Each module
 resides in a directory named `GEO-INFER-XXXX/`, contains its own `pyproject.toml`,
-`src/`, `tests/`, `README.md`, `SKILL.md`, and `AGENTS.md`. There are 44 modules.
+`src/`, `tests/`, `README.md`, `SKILL.md`, and `AGENTS.md`. There are 45 modules.
 
 **module orchestrator**: A component in GEO-INFER-EXAMPLES that chains operations
 across multiple modules in a pipeline. Defined in
@@ -374,7 +374,7 @@ to handle optional dependencies gracefully:
 *graceful degradation*.
 
 **unified test runner**: The script `GEO-INFER-TEST/run_unified_tests.py` that
-discovers and runs tests across all 44 modules. Supports filtering by module,
+discovers and runs tests across all 45 modules. Supports filtering by module,
 category, and pytest markers. See also: *conftest.py*.
 
 **uv**: The Python package manager used by GEO-INFER. Replaces pip/pip-tools for

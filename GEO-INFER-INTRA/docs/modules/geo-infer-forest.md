@@ -31,17 +31,14 @@ The module uses normalized difference indices:
  AGB = a * DBH^b * H^c
 ```
  Where: - `AGB` is above-ground biomass - `DBH` is diameter at breast height - `H` is tree height - `a, b, c` are species-specific coefficients ## Core Features ### 1. Forest Health Analysis **Purpose**: Monitor forest health and detect stress conditions.
-```
 ```python
  from geo_infer_forest import ForestHealthAnalyzer # Initialize forest health analyzer analyzer = ForestHealthAnalyzer( sensor_type='sentinel2', indices=['ndvi', 'evi', 'nbr', 'ndmi', 'chlorophyll'], baseline_period=('2015-01-01', '2020-12-31'), cloud_mask=True ) # Assess forest health status health_status = analyzer.assess( imagery=satellite_data, indices=['ndvi', 'evi', 'nbr'], baseline=reference_period, include_uncertainty=True ) # Detect forest stress stress_detection = analyzer.detect_stress( current_imagery=recent_images, baseline_imagery=reference_images, stress_types=['drought', 'pest', 'disease'], sensitivity=0.8 ) # Calculate vegetation phenology phenology = analyzer.calculate_phenology( time_series=ndvi_time_series, metrics=['green_up', 'peak', 'senescence', 'dormancy'], method='timesat' ) # Generate forest health maps health_map = analyzer.generate_health_map( region=forest_boundary, resolution=10, # meters classification=['healthy', 'stressed', 'declining', 'dead'] )
 ```
  ### 2. Deforestation Detection **Purpose**: Detect and monitor forest loss and degradation.
-```
 ```python
  from geo_infer_forest import DeforestationDetector # Initialize deforestation detector detector = DeforestationDetector( algorithm='bfast', temporal_resolution='monthly', minimum_mapping_unit=0.5, # hectares alert_system=True ) # Detect deforestation changes = detector.detect( current=recent_imagery, baseline=historical_imagery, method='bfast', confidence_threshold=0.9 ) # Near-real-time alerts alerts = detector.generate_alerts( monitoring_region=protected_areas, alert_frequency='weekly', notification_channels=['email', 'dashboard'], alert_threshold='high_confidence' ) # Map forest degradation degradation = detector.map_degradation( imagery_series=landsat_series, degradation_types=['selective_logging', 'fragmentation', 'fire_damage'], severity_classes=['low', 'moderate', 'severe'] ) # Calculate deforestation rates rates = detector.calculate_rates( change_maps=historical_changes, time_periods=['2010-2015', '2015-2020', '2020-2025'], aggregation_units=administrative_boundaries )
 ```
  ### 3. Biomass and Carbon Estimation **Purpose**: Estimate forest biomass and carbon stocks.
-```
 ```python
  from geo_infer_forest import BiomassEstimator # Initialize biomass estimator estimator = BiomassEstimator( method='lidar_sar_fusion', allometric_equations='default', uncertainty_quantification=True ) # Estimate above-ground biomass agb = estimator.estimate_biomass( lidar_data=als_point_cloud, sar_data=alos_palsar, optical_data=sentinel2, forest_type=forest_type_map, include_uncertainty=True ) # Calculate carbon stocks carbon = estimator.calculate_carbon( biomass=agb, carbon_fraction=0.47, pools=['above_ground', 'below_ground', 'dead_wood', 'litter', 'soil'] ) # Model carbon sequestration sequestration = estimator.model_sequestration( forest_age=stand_age_map, growth_curves=regional_growth_curves, management_scenarios=['business_as_usual', 'conservation', 'restoration'] ) # Generate carbon maps carbon_map = estimator.generate_carbon_map( region=forest_extent, resolution=30, output_format='geotiff' )
 ```

@@ -201,8 +201,9 @@ def test_certificate_validation(security_manager):
 
 
 def test_csr_validation(security_manager):
-    """Test CSR validation."""
-    # Generate CSR
+    """The CSR is clean PEM whose encoded subject carries CN/O/C."""
+    from cryptography import x509 as _x509
+
     csr = security_manager.generate_csr(
         common_name="test.example.com", organization="Test Org", country="US"
     )
@@ -210,6 +211,15 @@ def test_csr_validation(security_manager):
     # Validate CSR
     assert "BEGIN CERTIFICATE REQUEST" in csr
     assert "END CERTIFICATE REQUEST" in csr
-    assert "test.example.com" in csr
-    assert "Test Org" in csr
-    assert "US" in csr
+    # No trailing metadata comments appended to the PEM
+    assert csr.endswith("-----END CERTIFICATE REQUEST-----\n")
+    parsed = _x509.load_pem_x509_csr(csr.encode())
+    assert (
+        parsed.subject.get_attributes_for_oid(NameOID.COMMON_NAME)[0].value
+        == "test.example.com"
+    )
+    assert (
+        parsed.subject.get_attributes_for_oid(NameOID.ORGANIZATION_NAME)[0].value
+        == "Test Org"
+    )
+    assert parsed.subject.get_attributes_for_oid(NameOID.COUNTRY_NAME)[0].value == "US"

@@ -6,7 +6,7 @@ for transportation systems.
 """
 
 import logging
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from enum import Enum
 import networkx as nx
@@ -100,12 +100,15 @@ class TransportNetwork:
     ) -> Dict[str, Any]:
         """
         Build network from edge list.
-        
+
         Args:
             edges: List of edge definitions
             nodes: Optional node definitions
-            attributes: Edge attributes to include
-            
+            attributes: Extra edge attribute keys from the edge dicts to
+                carry onto the graph edges (e.g. ``["surface", "oneway"]``).
+                Base attributes (edge_id, length, speed_limit, travel_time,
+                road_class) are always included.
+
         Returns:
             Network build summary
         """
@@ -149,7 +152,8 @@ class TransportNetwork:
                 length=edge.length_m,
                 speed_limit=edge.speed_limit_kmh,
                 travel_time=travel_time_s,
-                road_class=edge.road_class.value
+                road_class=edge.road_class.value,
+                **{attr: edge_data[attr] for attr in (attributes or []) if attr in edge_data},
             )
             
             # If not one-way, add reverse edge
@@ -160,8 +164,8 @@ class TransportNetwork:
                     edge_id=f"{edge.edge_id}_rev",
                     length=edge.length_m,
                     speed_limit=edge.speed_limit_kmh,
-                    travel_time=travel_time_s,
-                    road_class=edge.road_class.value
+                    road_class=edge.road_class.value,
+                    **{attr: edge_data[attr] for attr in (attributes or []) if attr in edge_data},
                 )
             
             # Ensure nodes exist
@@ -363,21 +367,35 @@ class TransportNetwork:
         
         Args:
             nodes: Nodes to include
-            bbox: Bounding box (min_lat, max_lat, min_lon, max_lon)
-            
+            bbox: Bounding box with ``min_lat``/``max_lat``/``min_lon``/
+                ``max_lon`` keys. Only nodes that carry a location are
+                considered; nodes without coordinates (e.g. implicit
+                nodes created by ``build_from_edges`` without explicit
+                node definitions) cannot be spatially filtered and are
+                excluded with a warning.
+
         Returns:
             New TransportNetwork with subgraph
         """
         if nodes:
             subgraph = self._graph.subgraph(nodes).copy()
         elif bbox:
-            # Filter nodes by bbox
             filtered_nodes = []
+            unlocated = 0
             for node_id, node in self._nodes.items():
                 loc = node.location
+                if not loc:
+                    unlocated += 1
+                    continue
                 if (bbox.get('min_lat', -90) <= loc.get('lat', 0) <= bbox.get('max_lat', 90) and
                     bbox.get('min_lon', -180) <= loc.get('lon', 0) <= bbox.get('max_lon', 180)):
                     filtered_nodes.append(node_id)
+            if unlocated:
+                logger.warning(
+                    "get_subgraph(bbox=...) excluded %d node(s) without a location; "
+                    "provide node coordinates via build_from_edges(nodes=...) to include them",
+                    unlocated,
+                )
             subgraph = self._graph.subgraph(filtered_nodes).copy()
         else:
             subgraph = self._graph.copy()

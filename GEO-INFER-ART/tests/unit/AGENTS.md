@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `test_cli.py`
 - `test_color_palette.py`
 - `test_cultural_map.py`
 - `test_generative_map.py`

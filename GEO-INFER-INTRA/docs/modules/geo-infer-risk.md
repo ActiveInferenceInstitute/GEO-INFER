@@ -25,17 +25,14 @@ python from geo_infer_risk import RiskModeler # Create risk modeler risk_modeler
 python from geo_infer_risk.vulnerability import VulnerabilityAnalyzer # Create vulnerability analyzer vulnerability_analyzer = VulnerabilityAnalyzer( analysis_parameters={ 'exposure_assessment': True, 'vulnerability_mapping': True, 'resilience_analysis': True } ) # Analyze vulnerabilities vulnerability_result = vulnerability_analyzer.analyze_vulnerabilities( vulnerability_data=vulnerability_information, exposure_data=exposure_characteristics, resilience_data=resilience_factors )
 ```
  ## 📚 Core Features ### 1. Multi-Hazard Risk Modeling Engine **Purpose**: Model multiple hazards and their combined effects.
-```
 ```python
  from geo_infer_risk.hazards import MultiHazardRiskEngine # Initialize multi-hazard risk engine hazard_engine = MultiHazardRiskEngine() # Define hazard modeling parameters hazard_config = hazard_engine.configure_hazard_modeling({ 'natural_hazards': True, 'technological_hazards': True, 'climate_hazards': True, 'social_hazards': True, 'compound_hazards': True }) # Model multi-hazard risks hazard_result = hazard_engine.model_multi_hazard_risks( hazard_data=hazard_information, spatial_data=geographic_boundaries, temporal_data=time_series_data, hazard_config=hazard_config )
 ```
  ### 2. Vulnerability Assessment Engine **Purpose**: Assess vulnerability of populations and infrastructure.
-```
 ```python
  from geo_infer_risk.vulnerability import VulnerabilityAssessmentEngine # Initialize vulnerability assessment engine vulnerability_engine = VulnerabilityAssessmentEngine() # Define vulnerability assessment parameters vulnerability_config = vulnerability_engine.configure_vulnerability_assessment({ 'social_vulnerability': True, 'physical_vulnerability': True, 'economic_vulnerability': True, 'environmental_vulnerability': True, 'institutional_vulnerability': True }) # Assess vulnerability vulnerability_result = vulnerability_engine.assess_vulnerability( population_data=demographic_data, infrastructure_data=built_environment, economic_data=economic_indicators, vulnerability_config=vulnerability_config )
 ```
  ### 3. Risk Communication Engine **Purpose**: Communicate risk information effectively to stakeholders.
-```
 ```python
  from geo_infer_risk.communication import RiskCommunicationEngine # Initialize risk communication engine communication_engine = RiskCommunicationEngine() # Define communication parameters communication_config = communication_engine.configure_risk_communication({ 'stakeholder_analysis': True, 'message_development': True, 'channel_selection': True, 'effectiveness_evaluation': True, 'feedback_mechanisms': True }) # Communicate risk information communication_result = communication_engine.communicate_risk_information( risk_data=risk_assessment_results, stakeholder_data=stakeholder_information, communication_config=communication_config )
 ```
@@ -43,9 +40,9 @@ python from geo_infer_risk.vulnerability import VulnerabilityAnalyzer # Create v
 ```
 python from geo_infer_risk.scenarios import ScenarioAnalysisEngine # Initialize scenario analysis engine scenario_engine = ScenarioAnalysisEngine() # Define scenario analysis parameters scenario_config = scenario_engine.configure_scenario_analysis({ 'scenario_development': True, 'impact_modeling': True, 'probability_assessment': True, 'consequence_analysis': True, 'uncertainty_quantification': True }) # Analyze risk scenarios scenario_result = scenario_engine.analyze_risk_scenarios( scenario_data=scenario_definitions, risk_data=risk_models, scenario_config=scenario_config )
 ```
- ### 5. Insurance Modeling Engine **Purpose**: Model insurance pricing and exposure management.
+ ### 5. Insurance and Underwriting **Purpose**: Insurance pricing, underwriting decisions, claims, and exposure management. The underwriting subsystem moved out of GEO-INFER-RISK into the dedicated GEO-INFER-INSURANCE module; use its public surface `geo_infer_insurance`:
 ```
-python from geo_infer_risk.insurance import InsuranceModelingEngine # Initialize insurance modeling engine insurance_engine = InsuranceModelingEngine() # Define insurance modeling parameters insurance_config = insurance_engine.configure_insurance_modeling({ 'pricing_models': True, 'exposure_assessment': True, 'loss_estimation': True, 'reinsurance_analysis': True, 'capital_adequacy': True }) # Model insurance systems insurance_result = insurance_engine.model_insurance_systems( exposure_data=exposure_information, loss_data=historical_losses, insurance_config=insurance_config )
+python from geo_infer_insurance import (create_underwriting_system, underwrite_insurance_policy, process_insurance_claim) # Create the underwriting system underwriting_system = create_underwriting_system() # Underwrite a policy decision = underwrite_insurance_policy(application_data=insurance_application) # Process a claim claim_result = process_insurance_claim(claim_data=claim)
 ```
  ## 🔧 API Reference ### RiskFramework The core risk framework class.
 ```
@@ -67,9 +64,9 @@ python from geo_infer_risk import NaturalDisasterRiskFramework # Initialize natu
 ```
 python from geo_infer_risk.climate import ClimateRiskFramework # Initialize climate risk framework climate_risk = ClimateRiskFramework() # Define climate risk parameters climate_config = climate_risk.configure_climate_risk({ 'temperature_risks': 'detailed', 'precipitation_risks': 'comprehensive', 'sea_level_risks': 'spatial', 'extreme_weather': 'modeled', 'adaptation_assessment': True }) # Assess climate risks climate_result = climate_risk.assess_climate_risks( climate_system=climate_system, climate_config=climate_config, climate_data=climate_indicators )
 ```
- ### 3. Insurance Risk Modeling **Problem**: Model insurance risks and pricing for geospatial applications. **Solution**: Use insurance modeling framework.
+ ### 3. Insurance Risk Modeling **Problem**: Model insurance risks, underwriting decisions, and pricing for geospatial applications. **Solution**: Use the GEO-INFER-INSURANCE underwriting module (underwriting moved out of GEO-INFER-RISK).
 ```
-python from geo_infer_risk.insurance import InsuranceRiskFramework # Initialize insurance risk framework insurance_risk = InsuranceRiskFramework() # Define insurance risk parameters insurance_config = insurance_risk.configure_insurance_risk({ 'pricing_models': 'advanced', 'exposure_assessment': 'spatial', 'loss_estimation': 'probabilistic', 'reinsurance_analysis': True, 'capital_adequacy': True }) # Model insurance risks insurance_result = insurance_risk.model_insurance_risks( insurance_system=insurance_system, insurance_config=insurance_config, exposure_data=exposure_information )
+python from geo_infer_insurance import underwrite_insurance_policy, calculate_premium # Assess an insurance application decision = underwrite_insurance_policy(application_data=insurance_application) # Price a policy premium = calculate_premium(policy_data=policy)
 ```
  ## 🔗 Integration with Other Modules ### GEO-INFER-SPACE Integration
 ```

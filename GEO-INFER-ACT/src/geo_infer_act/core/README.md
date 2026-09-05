@@ -11,6 +11,7 @@ Core workspace within `GEO-INFER-ACT`.
 - `dynamic_causal_model.py`
 - `free_energy.py`
 - `generative_model.py`
+- `gnn_contract.py`
 - `markov_decision_process.py`
 - `policy_selection.py`
 - `spatial_agent.py`
@@ -34,11 +35,11 @@ Core workspace within `GEO-INFER-ACT`.
 - `generative_model.py:MarkovBlanket` (class)
 - `generative_model.py:HierarchicalLevel` (class)
 - `generative_model.py:GenerativeModel` (class)
+- `gnn_contract.py:GNNArtifact` (class)
+- `gnn_contract.py:run_gnn_inference` (function)
 - `markov_decision_process.py:MarkovDecisionProcess` (class)
 - `policy_selection.py:PolicySelector` (class)
 - `spatial_agent.py:SpatialActiveInferenceAgent` (class)
-- `types.py:FreeEnergyBreakdown` (class)
-- `types.py:PolicyEvaluation` (class)
 
 ## Module Metadata
 
@@ -51,17 +52,16 @@ Core workspace within `GEO-INFER-ACT`.
 ## Dependencies
 
 - `matplotlib>=3.4.0`
-- `networkx>=2.6.0`
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
-- `pyro-ppl>=1.7.0`
 - `pyyaml>=6.0`
-- `scipy>=1.7.0`
-- `torch>=1.9.0`
-- `arviz>=0.11.0`
-- `bayeux-ml>=0.0.1`
+- `requests>=2.25.0`
+- `geo-infer-ai>=0.2.0`
+- `seaborn>=0.11.0`
+- `inferactively-pymdp==1.0.3`
 - `h3>=4.5.0,<5`
-- `imageio>=2.9.0`
+- `geo-infer-bayes>=0.2.0`
+- `scipy>=1.7.0`
 
 
 ## Validation

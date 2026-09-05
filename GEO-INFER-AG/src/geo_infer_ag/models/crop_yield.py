@@ -2,10 +2,8 @@
 Crop yield modeling and prediction functionality.
 """
 
-from typing import Dict, List, Optional, Union, Any, Tuple
+from typing import Dict, List, Optional, Any
 import numpy as np
-import pandas as pd
-import geopandas as gpd
 from sklearn.ensemble import RandomForestRegressor
 from datetime import datetime
 

@@ -4,8 +4,6 @@ import numpy as np
 import pytest
 import xarray as xr
 
-import sys
-sys.path.insert(0, "GEO-INFER-CLIMATE/src")
 
 from geo_infer_climate.core.climate_indices import ClimateIndicesCalculator
 
@@ -56,6 +54,33 @@ class TestSPI:
         valid = spi.values[~np.isnan(spi.values)]
         assert float(np.std(valid)) > 0
 
+
+    def test_spi_gamma_time_axis_in_any_position(self, calculator):
+        # (lat, lon, time) input: gamma must be fit per grid cell, not once
+        # across all cells, and the time axis may be last.
+        np.random.seed(42)
+        n = 200
+        cell_a = np.random.exponential(5, n)    # dry cell
+        cell_b = np.random.exponential(80, n)   # wet cell
+        data = np.array([
+            [cell_a, cell_b],
+            [cell_b, cell_a],
+        ])  # (lat, lon, time)
+        precip = xr.DataArray(data, dims=["lat", "lon", "time"])
+        spi = calculator.calculate_spi(precip, timescale=1, distribution="gamma")
+        assert spi.shape == (2, 2, n)
+        # Each cell's SPI is standard-normal-scaled: mean near zero per cell.
+        means = spi.values.mean(axis=-1)
+        assert np.all(np.abs(means) < 0.5)
+        # Dry and wet cells cannot share one fit: their value ranges differ.
+        assert np.nanmax(np.abs(spi.values[0, 1])) > 1.0
+
+    def test_spi_gamma_finite_values(self, calculator):
+        np.random.seed(42)
+        precip = xr.DataArray(np.random.exponential(50, 120), dims=["time"])
+        spi = calculator.calculate_spi(precip, timescale=1, distribution="gamma")
+        assert np.isfinite(spi.values).all()
+        assert abs(float(spi.mean())) < 1.0
 
 class TestHeatIndex:
     def test_heat_index_temp_only(self, calculator):

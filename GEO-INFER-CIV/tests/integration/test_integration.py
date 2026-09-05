@@ -68,11 +68,17 @@ class TestParticipationAnalysis:
             > few.compute_engagement_score(TARGET_POPULATION).reach_ratio
         )
 
-    def test_participation_index_is_bounded(self, analyzer):
-        """The index stays a usable normalized number."""
+    def test_participation_index_is_relative_to_baseline(self, analyzer):
+        """The index is actual-rate / baseline-rate: 1.0 at baseline, >1 above."""
         index = analyzer.compute_participation_index(TARGET_POPULATION)
         assert isinstance(index, float)
-        assert 0.0 <= index <= 1.0
+        assert index > 0.0
+        # 6 unique participants over 100 residents = 0.06 actual rate.
+        assert index == pytest.approx(0.06 / 0.10)
+        # Turnout above the baseline must score above 1.0.
+        assert (
+            analyzer.compute_participation_index(TARGET_POPULATION, baseline_rate=0.05) > 1.0
+        )
 
     def test_representation_covers_every_group(self, analyzer):
         """Each demographic group in the population is reported on."""

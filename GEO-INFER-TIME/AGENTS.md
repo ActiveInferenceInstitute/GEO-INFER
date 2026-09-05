@@ -24,9 +24,8 @@
 - `docs/`
 - `examples/`
 - `src/`
-- `test_output/`
 - `tests/`
-- `demo_all_methods.py`
+- `.gitignore`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`

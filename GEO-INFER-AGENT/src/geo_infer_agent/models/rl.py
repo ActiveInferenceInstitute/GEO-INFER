@@ -10,6 +10,7 @@ This module implements RL-based agent architectures including:
 - Policy Gradient methods
 """
 
+import hashlib
 import os
 import logging
 import asyncio
@@ -336,8 +337,13 @@ class RLState(AgentState):
         """
         Convert state to index if needed.
 
+        Uses a stable hash (SHA-256 over the state's bytes/repr) so that the
+        same state always maps to the same index, both across sign changes of
+        individual entries and across interpreter runs with different
+        ``PYTHONHASHSEED`` values (required for reproducible saved Q-tables).
+
         Args:
-            state: State representation
+            state: State representation (int index, numpy array, or other)
 
         Returns:
             State index
@@ -346,15 +352,17 @@ class RLState(AgentState):
         if isinstance(state, int):
             return state
 
-        # If state is a numpy array, hash it to an index
-        # This is a simple approach; more sophisticated methods may be needed
+        # If state is a numpy array, hash its raw bytes.  ascontiguousarray
+        # normalizes layout/striding so equal arrays hash equal.
         if isinstance(state, np.ndarray):
-            # Simple hash function for small arrays
-            state_hash = sum([i * val for i, val in enumerate(state.flatten())])
-            return abs(int(state_hash)) % self.q_table.state_size
+            digest = hashlib.sha256(
+                np.ascontiguousarray(state).tobytes()
+            ).digest()
+            return int.from_bytes(digest, "big") % self.q_table.state_size
 
-        # Otherwise, convert to string and hash
-        return abs(hash(str(state))) % self.q_table.state_size
+        # Any other state type: stable hash of its repr
+        digest = hashlib.sha256(repr(state).encode("utf-8")).digest()
+        return int.from_bytes(digest, "big") % self.q_table.state_size
 
     def record_episode_reward(self, reward: float, episode_done: bool) -> None:
         """

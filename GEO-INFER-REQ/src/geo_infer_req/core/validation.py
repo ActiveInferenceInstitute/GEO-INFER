@@ -5,8 +5,7 @@ Provides consistency checking, conflict detection,
 and feasibility scoring for requirement specifications.
 """
 
-import re
-from typing import Dict, List, Optional, Tuple, Set, Any
+from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
 
@@ -79,6 +78,52 @@ class RequirementSpec:
     constraints: List[str] = field(default_factory=list)
     tags: List[str] = field(default_factory=list)
     resources_required: List[str] = field(default_factory=list)
+
+
+
+def find_dependency_cycles(adjacency: Dict[str, List[str]]) -> List[List[str]]:
+    """
+    Detect dependency cycles via DFS with an explicit path stack.
+
+    This is the canonical cycle detector for GEO-INFER-REQ; both
+    ``RequirementValidator.check_consistency`` and
+    ``RequirementsAnalyzer.build_dependency_graph`` report cycles through it.
+
+    Args:
+        adjacency: Mapping of node id to the ids it links to (edges may point
+            in either direction, e.g. node -> dependencies or
+            dependency -> dependents).
+
+    Returns:
+        A list of cycles, each a list of node ids closing back on itself.
+    """
+    WHITE, GRAY, BLACK = 0, 1, 2
+    color: Dict[str, int] = {rid: WHITE for rid in adjacency}
+    cycles: List[List[str]] = []
+    path: List[str] = []
+
+    def dfs(node: str) -> None:
+        color[node] = GRAY
+        path.append(node)
+
+        for neighbor in adjacency.get(node, []):
+            if neighbor not in color:
+                continue
+            if color[neighbor] == GRAY:
+                # Back-edge to a node on the current path: reconstruct the
+                # exact cycle from the stack.
+                cycle_start = path.index(neighbor)
+                cycles.append(path[cycle_start:] + [neighbor])
+            elif color[neighbor] == WHITE:
+                dfs(neighbor)
+
+        path.pop()
+        color[node] = BLACK
+
+    for rid in adjacency:
+        if color[rid] == WHITE:
+            dfs(rid)
+    return cycles
 
 
 class RequirementValidator:
@@ -197,6 +242,19 @@ class RequirementValidator:
                     req_ids=[rid],
                     description=f"Requirement {rid} has a very short description",
                     suggestion="Provide a more detailed description (at least 10 characters)",
+                ))
+
+        # Informational: untagged requirements are hard to categorize or
+        # cross-reference in coverage reports.
+        for rid, spec in self._specs.items():
+            if not spec.tags:
+                issue_counter += 1
+                info_items.append(ValidationIssue(
+                    issue_id=f"I{issue_counter:04d}",
+                    severity=ValidationSeverity.INFO,
+                    req_ids=[rid],
+                    description=f"Requirement {rid} has no tags for categorization",
+                    suggestion="Add tags to enable coverage grouping and duplicate checks",
                 ))
 
         total = len(errors) + len(warnings) + len(info_items)
@@ -372,32 +430,8 @@ class RequirementValidator:
 
     def _detect_dependency_cycles(self) -> List[List[str]]:
         """Detect circular dependencies in requirement specs."""
-        WHITE, GRAY, BLACK = 0, 1, 2
-        color: Dict[str, int] = {rid: WHITE for rid in self._specs}
-        cycles: List[List[str]] = []
-        path: List[str] = []
-
-        def dfs(node: str) -> None:
-            color[node] = GRAY
-            path.append(node)
-
-            spec = self._specs.get(node)
-            if spec:
-                for dep in spec.dependencies:
-                    if dep not in color:
-                        continue
-                    if color[dep] == GRAY:
-                        # Found cycle
-                        cycle_start = path.index(dep)
-                        cycles.append(path[cycle_start:] + [dep])
-                    elif color[dep] == WHITE:
-                        dfs(dep)
-
-            path.pop()
-            color[node] = BLACK
-
-        for rid in self._specs:
-            if color[rid] == WHITE:
-                dfs(rid)
-
-        return cycles
+        # Edges point from a requirement to the requirements it depends on.
+        adjacency: Dict[str, List[str]] = {
+            rid: list(spec.dependencies) for rid, spec in self._specs.items()
+        }
+        return find_dependency_cycles(adjacency)

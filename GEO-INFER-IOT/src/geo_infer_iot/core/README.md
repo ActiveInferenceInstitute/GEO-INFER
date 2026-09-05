@@ -4,13 +4,16 @@ Core workspace within `GEO-INFER-IOT`.
 
 ## Contents
 
+- `inference.py`
 - `ingestion.py`
 - `quality_control.py`
 - `registry.py`
 - `spatial_fusion.py`
+- `systems.py`
 
 ## Public Interface
 
+- `inference.py:BayesianSpatialInference` (class)
 - `ingestion.py:SpatialOperations` (class)
 - `ingestion.py:CoordinateTransform` (class)
 - `ingestion.py:OSCCatalog` (class)
@@ -18,13 +21,18 @@ Core workspace within `GEO-INFER-IOT`.
 - `ingestion.py:SpatialInferenceConfig` (class)
 - `ingestion.py:IoTDataIngestion` (class)
 - `ingestion.py:RadiationMonitoringSystem` (class)
-- `ingestion.py:GlobalMonitoringSystem` (class)
+- `ingestion.py:GlobalRadiationMonitor` (class)
 - `quality_control.py:QualityCheckResult` (class)
 - `quality_control.py:QualityController` (class)
 - `registry.py:SensorMetadata` (class)
-- `registry.py:SensorNetwork` (class)
+- `registry.py:SensorNetworkRecord` (class)
 - `registry.py:SensorRegistry` (class)
 - `spatial_fusion.py:SpatialDataFusion` (class)
+- `systems.py:IoTSystem` (class)
+- `systems.py:GlobalMonitoringSystem` (class)
+- `systems.py:MultiModalFusion` (class)
+- `systems.py:AdaptiveSampling` (class)
+- `systems.py:PredictiveMaintenance` (class)
 
 ## Module Metadata
 
@@ -36,18 +44,18 @@ Core workspace within `GEO-INFER-IOT`.
 
 ## Dependencies
 
-- `aiocoap>=0.4.3`
 - `aiomqtt>=2.4.0`
-- `confluent-kafka>=1.8.0`
 - `fastapi>=0.100.0`
 - `folium>=0.12.0`
-- `geopandas>=0.10.0`
+- `geo-infer-bayes`
+- `geo-infer-space`
 - `h3>=4.5.0,<5`
-- `influxdb-client>=1.24.0`
 - `matplotlib>=3.5.0`
+- `networkx>=2.6`
 - `numpy>=1.20.0`
 - `paho-mqtt>=1.6.0`
 - `pandas>=1.3.0`
+- `pydantic>=2.0.0`
 
 
 ## Validation

@@ -4,8 +4,6 @@ import numpy as np
 import pytest
 import xarray as xr
 
-import sys
-sys.path.insert(0, "GEO-INFER-WATER/src")
 
 from geo_infer_water.core.water_quality import (
     WaterQualityAssessor,
@@ -158,3 +156,80 @@ class TestPollutionPlume:
         )
         lon, _ = result["plume_center"]
         assert lon > -118.25
+
+
+class TestTrendAnalysis:
+    """Tests for WaterQualityAssessor.analyze_trends."""
+
+    def _make_samples(self, values, start="2024-01-01"):
+        from datetime import datetime, timedelta
+        base = datetime.fromisoformat(start)
+        return [
+            WaterSample(
+                sample_id=f"s{i:03d}",
+                location=(0.0, 0.0),
+                timestamp=(base + timedelta(days=30 * i)).isoformat(),
+                ph=v,
+                dissolved_oxygen=8.0,
+                turbidity=1.0,
+                temperature=18.0,
+            )
+            for i, v in enumerate(values)
+        ]
+
+    def test_increasing_trend_detected(self, assessor):
+        samples = self._make_samples([6.5, 7.0, 7.5, 8.0, 8.5, 9.0])
+        result = assessor.analyze_trends(samples, "ph")
+        assert result["trend_direction"] == "increasing"
+        assert result["trend_significant"] is True
+        assert result["trend_p_value"] < 0.05
+        assert result["trend_slope"] > 0
+
+    def test_stable_trend_not_significant(self, assessor):
+        # Constant values: no trend, not significant.
+        samples = self._make_samples([7.0] * 8)
+        result = assessor.analyze_trends(samples, "ph")
+        assert result["trend_direction"] == "stable"
+        assert result["trend_significant"] is False
+
+    def test_out_of_order_samples_sorted(self, assessor):
+        # Samples supplied in reverse chronological order must still
+        # produce an increasing trend (sorting by timestamp).
+        samples = self._make_samples([6.5, 7.0, 7.5, 8.0, 8.5, 9.0])
+        samples = list(reversed(samples))
+        result = assessor.analyze_trends(samples, "ph")
+        assert result["trend_direction"] == "increasing"
+        assert result["trend_significant"] is True
+
+    def test_insufficient_data(self, assessor):
+        samples = self._make_samples([7.0, 7.5])
+        result = assessor.analyze_trends(samples, "ph")
+        assert "error" in result
+
+    def test_empty_samples(self, assessor):
+        result = assessor.analyze_trends([], "ph")
+        assert "error" in result
+
+
+class TestPollutionSourceIdentification:
+    """Tests for identify_pollution_sources upstream tracing."""
+
+    def test_hotspots_without_flow_direction(self, assessor):
+        conc = xr.DataArray(np.array([[1.0, 1.0], [1.0, 10.0]]), dims=["y", "x"])
+        result = assessor.identify_pollution_sources(conc)
+        # Without flow direction, potential_sources == hotspots.
+        assert bool((result["potential_sources"] == result["pollution_hotspots"]).all())
+
+    def test_upstream_tracing_with_flow_direction(self, assessor):
+        # Two hotspots in a row; flow direction points east (code 1).
+        # The upstream (left) hotspot's downstream neighbour is also a
+        # hotspot, so it is NOT a source; the downstream (right) hotspot
+        # flows off-grid, so it IS a source.
+        conc = xr.DataArray(np.array([[10.0, 10.0, 1.0]]), dims=["y", "x"])
+        flow_dir = xr.DataArray(np.array([[1, 1, 1]]), dims=["y", "x"])
+        result = assessor.identify_pollution_sources(conc, flow_direction=flow_dir)
+        sources = result["potential_sources"].values
+        # Left cell (col 0): downstream neighbour (col 1) is a hotspot -> not a source.
+        assert sources[0, 0] == False
+        # Right cell (col 1): downstream neighbour (col 2) is NOT a hotspot -> source.
+        assert sources[0, 1] == True

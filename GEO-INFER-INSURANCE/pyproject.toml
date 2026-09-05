@@ -1,0 +1,83 @@
+[build-system]
+requires = ["setuptools>=77.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geo-infer-insurance"
+version = "0.1.0"
+description = "Underwriting, policy, claims, and pricing operations for geospatial insurance workflows within the GEO-INFER framework"
+readme = "README.md"
+license = "CC-BY-NC-SA-4.0"
+requires-python = ">=3.11"
+authors = [
+    {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"},
+]
+keywords = [
+    "geospatial",
+    "active inference",
+    "geoinformatics",
+    "insurance",
+    "underwriting",
+    "pricing",
+    "claims",
+    "policy",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+
+dependencies = [
+    "numpy>=1.20.0",
+    "pandas>=1.3.0",
+]
+
+[project.optional-dependencies]
+# Optional cross-module GEO-INFER integrations. Imports of these packages in
+# src/ are guarded with try/except and degrade gracefully; install this extra
+# to enable the risk-engine-backed assessment surfaces.
+integrations = [
+    "geo-infer-risk",
+    "geo-infer-space",
+]
+dev = [
+    "pytest>=6.2.0",
+    "pytest-cov>=2.12.0",
+    "pytest-asyncio>=0.20.0",
+    "pytest-timeout>=2.1.0",
+]
+docs = [
+    "sphinx>=4.2.0",
+    "sphinx-rtd-theme>=1.0.0",
+    "myst-parser>=0.15.0",
+]
+
+[tool.uv.sources]
+geo-infer-risk = { workspace = true }
+geo-infer-space = { workspace = true }
+
+[project.urls]
+Homepage = "https://github.com/ActiveInferenceInstitute/GEO-INFER"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["tests*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.yaml", "*.yml", "*.json", "*.md", "*.txt"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "unit: fast, isolated tests",
+    "integration: cross-module tests",
+]

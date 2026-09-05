@@ -12,6 +12,7 @@ package-wide :func:`geo_infer_bayes.utils.rng.resolve_rng` contract.
 
 from __future__ import annotations
 
+import importlib.resources
 import json
 import math
 from collections.abc import Mapping
@@ -33,13 +34,12 @@ __all__ = [
     "HazardCategoricalPrior",
     "HazardPriorEntry",
     "HazardPriorTable",
-    "build_hazard_categorical_prior",
-    "build_hazard_prior_table",
+    "load_crescent_city_contract",
     "load_crescent_city_intel",
 ]
 
 CRESCENT_CITY_INTEL_SCHEMA: Final[str] = "crescent-city-geo-intel/v1"
-_BUNDLED_INTEL_PATH: Final[Path] = Path(__file__).with_name("crescent-city-geo-intel.json")
+_BUNDLED_INTEL_RESOURCE: Final[str] = "crescent-city-geo-intel.json"
 
 # Neutral modeling defaults: one hazard tag does not receive more prior mass
 # than another without caller-supplied evidence.  These are policy-surface
@@ -328,20 +328,66 @@ def _parse_hazard_domain(value: object, index: int) -> _HazardDomain:
     }
 
 
-def _load_source(source: CivicIntelSource) -> Mapping[str, object] | None:
+def _bundled_intel_text() -> str | None:
+    """Return the bundled reviewed contract text, or ``None`` when absent."""
+    resource = importlib.resources.files("geo_infer_bayes").joinpath(
+        _BUNDLED_INTEL_RESOURCE
+    )
+    try:
+        return resource.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return None
+
+
+def _decode_contract_json(text: str, path_label: str) -> Mapping[str, object]:
+    """Decode one JSON object or raise a contract-facing ``ValueError``."""
+    try:
+        loaded = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"invalid Crescent City intel JSON at {path_label}: {exc}") from exc
+    return _require_mapping(loaded, "contract")
+
+
+def load_crescent_city_contract(
+    source: CivicIntelSource = None,
+) -> Mapping[str, object] | None:
+    """Resolve a raw ``crescent-city-geo-intel/v1`` contract source.
+
+    This is the shared ingestion core for the GEO-INFER civic-intel family:
+    ``geo_infer_act.core.civic_intel`` and ``geo_infer_risk.civic_intel``
+    delegate their file and bundled-resource reading here so the reviewed
+    contract is read from exactly one canonical copy.
+
+    Parameters
+    ----------
+    source:
+        An injected v1 mapping (passed through unchanged), an explicit JSON
+        path, or ``None`` to read the bundled reviewed contract via
+        :mod:`importlib.resources`. A missing file or absent resource yields
+        ``None``; existing but unreadable or malformed JSON fails closed with
+        :class:`ValueError`.
+    """
     if isinstance(source, Mapping):
         return source
 
-    path = _BUNDLED_INTEL_PATH if source is None else Path(source)
+    if source is None:
+        text = _bundled_intel_text()
+        if text is None:
+            return None
+        return _decode_contract_json(text, f"geo_infer_bayes/{_BUNDLED_INTEL_RESOURCE}")
+
+    path = Path(source)
     try:
-        raw_value = json.loads(path.read_text(encoding="utf-8"))
+        text = path.read_text(encoding="utf-8")
     except FileNotFoundError:
         return None
-    except json.JSONDecodeError as exc:
-        raise ValueError(f"invalid Crescent City intel JSON at {path}: {exc}") from exc
     except OSError as exc:
         raise ValueError(f"unable to read Crescent City intel JSON at {path}: {exc}") from exc
-    return _require_mapping(raw_value, "contract")
+    return _decode_contract_json(text, str(path))
+
+
+def _load_source(source: CivicIntelSource) -> Mapping[str, object] | None:
+    return load_crescent_city_contract(source)
 
 
 def load_crescent_city_intel(

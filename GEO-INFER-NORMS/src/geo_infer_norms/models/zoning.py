@@ -6,9 +6,9 @@ districts used in urban planning and land use regulation.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any, Set, Tuple
+from typing import Dict, List, Optional, Any
 import datetime
-from shapely.geometry import Polygon, MultiPolygon
+from shapely.geometry import Polygon
 import uuid
 
 

@@ -1,6 +1,6 @@
 """Tests for underwriting models."""
 
-from geo_infer_risk.underwriting.models.underwriting_models import (
+from geo_infer_insurance.underwriting.models.underwriting_models import (
     Decision,
     DecisionStatus,
     Guideline,

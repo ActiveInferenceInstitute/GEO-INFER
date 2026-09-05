@@ -27,6 +27,8 @@ Core workspace within `GEO-INFER-SEC`.
 - `audit.py:AuditEventSeverity` (class)
 - `audit.py:AuditEvent` (class)
 - `audit.py:AuditLogger` (class)
+- `authentication.py:generate_totp` (function)
+- `authentication.py:verify_totp` (function)
 - `authentication.py:UserCredentials` (class)
 - `authentication.py:TokenInfo` (class)
 - `authentication.py:AuthenticationManager` (class)
@@ -37,8 +39,6 @@ Core workspace within `GEO-INFER-SEC`.
 - `cognitive_security.py:LearningMode` (class)
 - `cognitive_security.py:BehaviorProfile` (class)
 - `cognitive_security.py:CognitiveThreat` (class)
-- `cognitive_security.py:ThreatHuntingResult` (class)
-- `cognitive_security.py:CognitiveSecurityManager` (class)
 
 ## Module Metadata
 
@@ -51,14 +51,14 @@ Core workspace within `GEO-INFER-SEC`.
 ## Dependencies
 
 - `cryptography>=36.0.0`
-- `pyjwt>=2.3.0`
+- `flask>=2.0`
 - `geopandas>=0.10.0`
-- `shapely>=1.8.0`
-- `pandas>=1.3.0`
-- `numpy>=1.20.0`
-- `pyyaml>=6.0`
 - `h3>=4.5.0,<5`
-- `pyproj>=3.0.0`
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `pyjwt>=2.3.0`
+- `pyyaml>=6.0`
+- `shapely>=1.8.0`
 
 
 ## Validation

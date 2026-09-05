@@ -226,12 +226,19 @@ class IoTDataIngestion:
             return False
 
     def _dict_to_measurement(self, data: Dict) -> SensorMeasurement:
-        """Convert dictionary to SensorMeasurement object."""
+        """Convert dictionary to SensorMeasurement object.
+
+        Naive timestamps are normalized to UTC here so every downstream
+        temporal comparison sees a consistent, tz-aware datetime.
+        """
+        raw_timestamp = datetime.fromisoformat(
+            data.get("timestamp", datetime.now().isoformat())
+        )
+        if raw_timestamp.tzinfo is None:
+            raw_timestamp = raw_timestamp.replace(tzinfo=timezone.utc)
         return SensorMeasurement(
             sensor_id=data["sensor_id"],
-            timestamp=datetime.fromisoformat(
-                data.get("timestamp", datetime.now().isoformat())
-            ),
+            timestamp=raw_timestamp,
             variable=data["variable"],
             value=float(data["value"]),
             unit=data.get("unit", ""),
@@ -393,14 +400,16 @@ class IoTDataIngestion:
             values = np.array(values_list)
 
             # Perform Bayesian inference
-            await model.fit_async(coords, values)
+            # geo_infer_bayes.GaussianProcess exposes synchronous fit/predict;
+            # call them directly so inference actually runs.
+            model.fit(coords, values)
 
             # Generate predictions on H3 grid
             prediction_grid = self._generate_h3_prediction_grid(
                 h3_indices_list, cfg.h3_resolution
             )
 
-            predictions = await model.predict_async(prediction_grid, return_std=True)
+            predictions = model.predict(prediction_grid, return_std=True)
 
             # Store results
             self._store_spatial_predictions(
@@ -417,7 +426,12 @@ class IoTDataIngestion:
     def _get_recent_measurements(
         self, variable: str, hours: float
     ) -> List[SensorMeasurement]:
-        """Get recent measurements for a specific variable."""
+        """Get recent measurements for a specific variable.
+
+        Timestamps are normalized to UTC at ingestion time, so naive
+        datetimes are not expected here; measurements constructed directly
+        with naive timestamps are still compared as UTC for consistency.
+        """
         cutoff_time = datetime.now(timezone.utc) - pd.Timedelta(hours=hours)
 
         recent = [
@@ -425,7 +439,12 @@ class IoTDataIngestion:
             for m in self.measurements
             if (
                 m.variable == variable
-                and m.timestamp.replace(tzinfo=timezone.utc) > cutoff_time
+                and (
+                    m.timestamp
+                    if m.timestamp.tzinfo is not None
+                    else m.timestamp.replace(tzinfo=timezone.utc)
+                )
+                > cutoff_time
             )
         ]
 
@@ -566,6 +585,10 @@ class IoTDataIngestion:
         if username:
             client.username_pw_set(username, password)
 
+        # Capture the ingestor's event loop up front: paho callbacks run in a
+        # worker thread where asyncio.get_event_loop() would not return this loop.
+        loop = asyncio.get_running_loop()
+
         def on_connect(
             mqttc: mqtt.Client, userdata: object, flags: dict, rc: int
         ) -> None:
@@ -584,7 +607,7 @@ class IoTDataIngestion:
                 payload = json.loads(msg.payload.decode("utf-8"))
                 asyncio.run_coroutine_threadsafe(
                     self.ingest_measurement(payload),
-                    asyncio.get_event_loop(),
+                    loop,
                 )
             except json.JSONDecodeError:
                 logger.warning("MQTT received non-JSON payload on topic %s", msg.topic)
@@ -599,7 +622,6 @@ class IoTDataIngestion:
         client.on_message = on_message
         client.on_disconnect = on_disconnect
 
-        loop = asyncio.get_event_loop()
         try:
             await loop.run_in_executor(
                 None,
@@ -1060,9 +1082,8 @@ class RadiationMonitoringSystem:
 
         return health_result
 
-
-class GlobalMonitoringSystem:
-    """Global-scale radiation monitoring system for demonstration."""
+class GlobalRadiationMonitor:
+    """Global-scale radiation monitoring orchestrator over RadiationMonitoringSystem."""
 
     def __init__(self, config: Dict[str, Any], logger: Optional[Any] = None):
         self.config = config

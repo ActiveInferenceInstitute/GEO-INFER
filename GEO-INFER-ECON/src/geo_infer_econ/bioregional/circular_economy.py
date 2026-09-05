@@ -247,7 +247,6 @@ class IndustrialEcologyModels:
             Dict with symbiosis opportunities, network metrics, savings.
         """
         facilities = data.get("facilities", [])
-        max_dist = float(data.get("proximity_km", 50))
 
         logger.info("Modeling industrial ecology: %d facilities", len(facilities))
 

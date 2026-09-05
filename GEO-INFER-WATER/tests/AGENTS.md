@@ -24,12 +24,11 @@
 - `integration/`
 - `unit/`
 - `conftest.py`
-- `test_water_quality.py`
 
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-WATER/tests
+uv run python GEO-INFER-TEST/run_unified_tests.py --module WATER
 ```
 
 

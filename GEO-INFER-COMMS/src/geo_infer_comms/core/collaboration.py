@@ -8,12 +8,10 @@ and geospatial context for multi-user collaborative work.
 
 from __future__ import annotations
 import asyncio
-import json
 import logging
-from typing import Dict, List, Optional, Callable, Any, Set, cast
+from typing import Dict, List, Optional, Any, Set, cast
 import threading
-import time
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from dataclasses import dataclass, field
 import uuid
 
@@ -82,7 +80,7 @@ class CollaborationManager:
             ValueError: If session request is invalid or limit reached
         """
         # Validate request
-        if not validate_collaboration_session(request.__dict__):
+        if not validate_collaboration_session(request.model_dump()):
             raise ValueError("Invalid collaboration session configuration")
 
         # Check session limit

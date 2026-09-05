@@ -295,3 +295,70 @@ class TestMethodIntegration:
         # Granger causality
         granger = analyzer.calculate_granger_causality(ts1, ts2, max_lag=3)
         assert 'summary' in granger
+
+
+class TestDecompose:
+    """Regression tests for TemporalAnalyzer.decompose period handling."""
+
+    def test_explicit_period_returns_components(self, analyzer):
+        """An explicit period yields trend/seasonal/residual components."""
+        dates = pd.date_range(start='2024-01-01', periods=120, freq='D')
+        values = 10 * np.sin(np.arange(120) * 2 * np.pi / 7) + 50
+        result = analyzer.decompose(TimeSeries(data=pd.Series(values, index=dates)), period=7)
+        assert sorted(result) == ['model', 'period', 'residual', 'seasonal', 'trend']
+        assert result['period'] == 7
+        assert result['trend'] and result['seasonal'] and result['residual']
+
+    def test_daily_frequency_infers_weekly_period(self, analyzer):
+        """Daily data infers a 7-sample weekly period."""
+        dates = pd.date_range(start='2024-01-01', periods=120, freq='D')
+        ts = TimeSeries(data=pd.Series(np.arange(120.), index=dates))
+        assert ts.frequency == 'D'
+        assert analyzer.decompose(ts)['period'] == 7
+
+    def test_hourly_frequency_infers_daily_period(self, analyzer):
+        """Hourly data infers a 24-sample daily period."""
+        dates = pd.date_range(start='2024-01-01', periods=120, freq='h')
+        ts = TimeSeries(data=pd.Series(np.arange(120.), index=dates))
+        assert analyzer.decompose(ts)['period'] == 24
+
+    def test_hourly_multiple_infers_pro_rated_period(self, analyzer):
+        """'2h' sampling infers a 12-sample daily period, not 24."""
+        dates = pd.date_range(start='2024-01-01', periods=120, freq='2h')
+        ts = TimeSeries(data=pd.Series(np.arange(120.), index=dates))
+        assert analyzer.decompose(ts)['period'] == 12
+
+    def test_sub_daily_sample_frequency_raises(self, analyzer):
+        """'15min' data cannot map to a sample count and must raise."""
+        dates = pd.date_range(start='2024-01-01', periods=300, freq='15min')
+        ts = TimeSeries(data=pd.Series(np.arange(300.), index=dates))
+        with pytest.raises(ValueError, match="pass period explicitly"):
+            analyzer.decompose(ts)
+
+    def test_quarterly_frequency_infers_quarterly_period(self, analyzer):
+        """'QE' data maps to a 4-sample period (no misfire on the embedded 'D')."""
+        dates = pd.date_range(start='2020-01-01', periods=40, freq='QE')
+        ts = TimeSeries(data=pd.Series(np.arange(40.), index=dates))
+        assert analyzer.decompose(ts)['period'] == 4
+
+    def test_missing_frequency_raises(self, analyzer):
+        """Irregular data without an inferable frequency must raise."""
+        dates = pd.DatetimeIndex(
+            ['2024-01-01 00:00', '2024-01-01 02:17', '2024-01-03 05:05',
+             '2024-01-09 11:00', '2024-01-10 23:30', '2024-01-21 08:12',
+             '2024-02-02 04:44', '2024-02-19 19:19']
+        )
+        ts = TimeSeries(data=pd.Series(np.arange(8.), index=dates))
+        assert ts.frequency is None
+        with pytest.raises(ValueError, match="pass period explicitly"):
+            analyzer.decompose(ts)
+
+    def test_period_too_large_raises(self, analyzer, sample_timeseries):
+        """A period exceeding half the series length must raise."""
+        with pytest.raises(ValueError, match="invalid for a series of length"):
+            analyzer.decompose(sample_timeseries, period=100)
+
+    def test_period_too_small_raises(self, analyzer, sample_timeseries):
+        """A period below 2 is invalid and must raise."""
+        with pytest.raises(ValueError, match="invalid for a series of length"):
+            analyzer.decompose(sample_timeseries, period=1)

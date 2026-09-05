@@ -1,6 +1,6 @@
 ---
 name: geo-infer-space
-description: H3 hexagonal spatial indexing and multi-backend spatial operations. Use when working with H3 cells, spatial indexing, coordinate systems, raster/vector operations, or any spatial backend dispatch (H3, SRAI, PostGIS).
+description: H3 hexagonal spatial indexing and multi-backend spatial operations. Use when working with H3 cells, spatial indexing, coordinate systems, raster/vector operations, or any spatial backend dispatch (H3, SRAI).
 prerequisites:
   required:
     - geo-infer-math
@@ -20,7 +20,7 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 - **H3 v4.5 indexing**: Cell operations, hierarchical resolution, grid-disk neighborhoods
 - **Nested H3 hierarchies**: Parent/child closure, same-resolution adjacency,
   and deterministic aggregation for ordered H3 resolutions
-- **Backend dispatch**: Interface pattern for H3, SRAI, PostGIS backends
+- **Backend dispatch**: Interface pattern for H3 and SRAI backends
 - **Coordinate systems**: CRS transformations, EPSG management
 - **Spatial operations**: Buffers, intersections, unions, containment
 - **Visualization**: Choropleth maps, heatmaps, spatial dashboards

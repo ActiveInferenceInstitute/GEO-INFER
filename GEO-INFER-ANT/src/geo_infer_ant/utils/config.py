@@ -301,7 +301,7 @@ def validate_config(config: Union[Dict[str, Any], AntModuleConfig]) -> bool:
     """
     # Convert dataclass to dict if needed
     if isinstance(config, AntModuleConfig):
-        config_dict = _config_to_dict(config)
+        config_dict = config_to_dict(config)
     else:
         config_dict = config
     if "swarm" not in config_dict and "agents" in config_dict:
@@ -503,7 +503,7 @@ def _dict_to_config(config_dict: Dict[str, Any]) -> AntModuleConfig:
     )
 
 
-def _config_to_dict(config: AntModuleConfig) -> Dict[str, Any]:
+def config_to_dict(config: AntModuleConfig) -> Dict[str, Any]:
     """Convert AntModuleConfig dataclass to dictionary."""
     return {
         "swarm": asdict(config.swarm),
@@ -527,7 +527,7 @@ def save_config(
         format: File format ('yaml' or 'json')
     """
     config_path = Path(config_path)
-    config_dict = _config_to_dict(config)
+    config_dict = config_to_dict(config)
 
     with open(config_path, "w") as f:
         if format.lower() == "yaml":
@@ -556,7 +556,7 @@ def update_config(config: AntModuleConfig, updates: Dict[str, Any]) -> AntModule
     Returns:
         Updated AntModuleConfig instance
     """
-    config_dict = _config_to_dict(config)
+    config_dict = config_to_dict(config)
 
     # Deep update
     for key, value in updates.items():

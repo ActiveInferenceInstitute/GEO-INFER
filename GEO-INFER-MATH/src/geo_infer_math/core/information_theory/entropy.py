@@ -7,10 +7,8 @@ entropy measures.
 """
 
 import numpy as np
-from typing import Union, Optional, Tuple, Dict, Any
+from typing import Union, Optional, Tuple, Any
 import logging
-from scipy import stats
-from scipy.spatial.distance import pdist, squareform
 
 logger = logging.getLogger(__name__)
 

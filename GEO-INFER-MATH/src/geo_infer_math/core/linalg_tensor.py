@@ -6,7 +6,7 @@ operations and multi-dimensional geospatial data (tensors) for spatial analysis.
 """
 
 import numpy as np
-from typing import Union, List, Tuple, Dict, Optional, Any, Callable, cast
+from typing import List, Tuple, Dict, Optional, Any, cast
 from dataclasses import dataclass, field
 import logging
 

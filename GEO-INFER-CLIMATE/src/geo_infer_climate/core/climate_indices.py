@@ -3,15 +3,15 @@ Climate indices calculation module.
 
 Implements calculation of various climate indices including:
 - Standardized Precipitation Index (SPI)
-- Palmer Drought Severity Index (PDSI)
+- Palmer-style drought index (first-order moisture anomaly)
 - Heat indices
 - Climate extremes indices
 """
 
 import logging
-from typing import Dict, List, Optional, Tuple, cast
+from typing import Dict, Optional, cast
+
 import numpy as np
-import pandas as pd
 import xarray as xr
 from scipy import stats
 
@@ -21,19 +21,20 @@ logger = logging.getLogger(__name__)
 class ClimateIndicesCalculator:
     """
     Calculate climate indices from climate data.
-    
-    Supports SPI, PDSI, heat indices, and climate extremes.
+
+    Supports SPI, a first-order Palmer-style drought index, heat indices,
+    and climate extremes.
     """
-    
+
     def __init__(self, config: Optional[Dict] = None):
         """
         Initialize climate indices calculator.
-        
+
         Args:
             config: Configuration dictionary
         """
         self.config = config or {}
-    
+
     def calculate_spi(
         self,
         precipitation: xr.DataArray,
@@ -42,12 +43,12 @@ class ClimateIndicesCalculator:
     ) -> xr.DataArray:
         """
         Calculate Standardized Precipitation Index (SPI).
-        
+
         Args:
-            precipitation: Precipitation data array
+            precipitation: Precipitation data array with a ``time`` dimension
             timescale: Accumulation timescale in months
             distribution: Distribution type ('gamma' or 'normal')
-            
+
         Returns:
             SPI values as DataArray
         """
@@ -56,47 +57,68 @@ class ClimateIndicesCalculator:
             precip_accum = precipitation.rolling(time=timescale, center=False).sum()
         else:
             precip_accum = precipitation
-        
+
         # Calculate SPI using gamma distribution
         if distribution == 'gamma':
             spi = self._spi_gamma(precip_accum)
         else:
             spi = self._spi_normal(precip_accum)
-        
+
         spi.name = f'SPI_{timescale}'
         return spi
-    
+
     def _spi_gamma(self, precip: xr.DataArray) -> xr.DataArray:
-        """Calculate SPI using gamma distribution."""
-        spi = precip.copy()
-        
-        # Fit gamma distribution and calculate SPI
-        for idx in np.ndindex(precip.shape[:-1]):  # All but time dimension
-            time_series = precip.values[idx]
-            valid_data = time_series[~np.isnan(time_series)]
-            
-            if len(valid_data) > 0:
-                # Fit gamma distribution
-                try:
-                    alpha, loc, beta = stats.gamma.fit(valid_data, floc=0)
-                    # Calculate CDF
-                    cdf = stats.gamma.cdf(time_series, alpha, loc=loc, scale=beta)
-                    # Convert to standard normal
-                    spi.values[idx] = stats.norm.ppf(cdf)
-                except Exception as e:
-                    logger.warning(f"Error fitting gamma distribution: {e}")
-                    spi.values[idx] = np.nan
-        
+        """Calculate SPI using the gamma distribution.
+
+        The gamma distribution is fit independently for every grid cell
+        (i.e. along the ``time`` dimension only) using
+        :func:`xarray.apply_ufunc`, so the time axis may appear in any
+        position and arbitrary leading dimensions (``lat``, ``lon``, ...)
+        are handled per cell.
+
+        Zero-precipitation values are handled with the standard Thom (1958)
+        mixed-distribution correction.
+        """
+
+        def _spi_gamma_1d(values: np.ndarray) -> np.ndarray:
+            valid = values[np.isfinite(values)]
+            if valid.size == 0:
+                return np.full(values.shape, np.nan)
+
+            try:
+                alpha, _, beta = stats.gamma.fit(valid, floc=0)
+            except Exception as exc:
+                logger.warning("Error fitting gamma distribution: %s", exc)
+                return np.full(values.shape, np.nan)
+
+            zero_prob = float(np.mean(valid <= 0.0))
+            with np.errstate(divide="ignore", invalid="ignore"):
+                cdf = stats.gamma.cdf(values, alpha, loc=0.0, scale=beta)
+                prob = zero_prob + (1.0 - zero_prob) * cdf
+                prob = np.clip(prob, 1e-9, 1.0 - 1e-9)
+                result = stats.norm.ppf(prob)
+            result[~np.isfinite(values)] = np.nan
+            return result
+
+        spi = xr.apply_ufunc(
+            _spi_gamma_1d,
+            precip,
+            input_core_dims=[["time"]],
+            output_core_dims=[["time"]],
+            vectorize=True,
+            dask="forbidden",
+            keep_attrs=True,
+        )
         return spi
-    
+
     def _spi_normal(self, precip: xr.DataArray) -> xr.DataArray:
         """Calculate SPI using normal distribution."""
         mean = precip.mean(dim='time')
         std = precip.std(dim='time')
-        
+
         spi = (precip - mean) / std
         return spi
-    
+
     def calculate_heat_index(
         self,
         temperature: xr.DataArray,
@@ -104,11 +126,11 @@ class ClimateIndicesCalculator:
     ) -> xr.DataArray:
         """
         Calculate heat index (apparent temperature).
-        
+
         Args:
             temperature: Temperature in Celsius
             humidity: Relative humidity (0-100) if available
-            
+
         Returns:
             Heat index values
         """
@@ -119,9 +141,9 @@ class ClimateIndicesCalculator:
             # Temperature-only index basis
             hi = temperature.copy()
             hi.name = 'heat_index'
-        
+
         return hi
-    
+
     def _heat_index_with_humidity(
         self,
         temp: xr.DataArray,
@@ -130,13 +152,13 @@ class ClimateIndicesCalculator:
         """Calculate heat index using temperature and humidity."""
         # Heat index formula (Rothfusz equation approximation)
         hi = temp.copy()
-        
+
         # Convert to Fahrenheit for calculation
         temp_f = temp * 9/5 + 32
-        
+
         # Heat index calculation
         hi_values = (
-            -42.379 + 
+            -42.379 +
             2.04901523 * temp_f +
             10.14333127 * rh -
             0.22475541 * temp_f * rh -
@@ -146,13 +168,13 @@ class ClimateIndicesCalculator:
             8.5282e-4 * temp_f * rh**2 -
             1.99e-6 * temp_f**2 * rh**2
         )
-        
+
         # Convert back to Celsius
         hi.values = (hi_values - 32) * 5/9
         hi.name = 'heat_index'
-        
+
         return hi
-    
+
     def calculate_extreme_indices(
         self,
         temperature: xr.DataArray,
@@ -160,11 +182,11 @@ class ClimateIndicesCalculator:
     ) -> xr.Dataset:
         """
         Calculate climate extreme indices.
-        
+
         Args:
             temperature: Temperature data
             precipitation: Optional precipitation data
-            
+
         Returns:
             Dataset with extreme indices
         """
@@ -196,7 +218,7 @@ class ClimateIndicesCalculator:
             indices['total_precip'] = precipitation.sum(dim='time')
 
         return xr.Dataset(indices)
-    
+
     def calculate_pdsi(
         self,
         precipitation: xr.DataArray,
@@ -204,46 +226,70 @@ class ClimateIndicesCalculator:
         awc: float = 100.0  # Available water capacity (mm)
     ) -> xr.DataArray:
         """
-        Calculate Palmer Drought Severity Index (PDSI).
-        
-        First-order PDSI-style water-balance calculation.
-        
+        Calculate a first-order Palmer-style drought severity index.
+
+        Note: this is NOT the full Palmer (1965) PDSI. The full system
+        requires a monthly water-balance bookkeeping model (soil recharge,
+        loss, and surplus coefficients derived from the local AWC) and
+        self-calibrating climatic constants. This implementation uses a
+        simplified moisture-anomaly proxy: Thornthwaite potential
+        evapotranspiration, the monthly water balance ``P - PET``, its
+        cumulative sum, and a z-score rescaling onto the Palmer scale
+        (clipped to [-6, +6]). The ``awc`` parameter is retained for API
+        compatibility but does not affect the calculation.
+
         Args:
-            precipitation: Monthly precipitation
-            temperature: Monthly temperature
-            awc: Available water capacity of soil (mm)
-            
+            precipitation: Monthly precipitation (mm)
+            temperature: Monthly mean temperature (deg C)
+            awc: Available water capacity of soil (mm; currently unused)
+
         Returns:
-            PDSI values
+            Drought index values on the PDSI scale
         """
-        # PDSI-style moisture anomaly calculation
-        # Full PDSI requires complex water balance calculations
-        
         # Calculate potential evapotranspiration (Thornthwaite method)
         pet = self._calculate_pet(temperature)
-        
+
         # Water balance
         water_balance = precipitation - pet
-        
+
         # Accumulate water balance
         accumulated = water_balance.cumsum(dim='time')
-        
+
         # Normalize to PDSI scale (-6 to +6)
         mean_balance = accumulated.mean(dim='time')
         std_balance = accumulated.std(dim='time')
-        
+
         pdsi = (accumulated - mean_balance) / (std_balance + 1e-10) * 2
         pdsi = xr.where(pdsi > 6, 6, pdsi)
         pdsi = xr.where(pdsi < -6, -6, pdsi)
-        
+
         pdsi.name = 'PDSI'
         return cast(xr.DataArray, pdsi)
-    
-    def _calculate_pet(self, temperature: xr.DataArray) -> xr.DataArray:
-        """Calculate potential evapotranspiration using Thornthwaite method."""
-        # PET from the temperature-based method
-        # Full method requires day length and latitude
-        pet = 16 * ((10 * temperature / temperature.mean(dim='time')) ** 1.5)
-        pet = xr.where(pet < 0, 0, pet)
-        return cast(xr.DataArray, pet)
 
+    def _calculate_pet(self, temperature: xr.DataArray) -> xr.DataArray:
+        """Calculate potential evapotranspiration using the Thornthwaite method.
+
+        Implements the unadjusted Thornthwaite (1948) monthly equation:
+
+        - monthly heat index: ``i = (T / 5) ** 1.514`` for ``T > 0``, else 0
+        - annual heat index: ``I = sum(i)``
+        - exponent: ``a = 6.75e-7 * I**3 - 7.71e-5 * I**2 + 0.01791 * I + 0.49239``
+        - ``PET = 16 * (10 * T / I) ** a`` mm/month for ``T > 0``, else 0
+
+        The latitude/day-length correction factor is not applied (it is
+        fixed at 1.0), so results are the standard unadjusted monthly PET
+        estimates. Input is expected to be monthly mean temperature (deg C).
+        """
+        heat_i = xr.where(temperature > 0, (temperature / 5.0) ** 1.514, 0.0)
+        heat_index_sum = heat_i.sum(dim="time")
+        a = (
+            6.75e-7 * heat_index_sum**3
+            - 7.71e-5 * heat_index_sum**2
+            + 0.01791 * heat_index_sum
+            + 0.49239
+        )
+        # Guard the division: when I == 0 every month has T <= 0 and PET is 0.
+        i_safe = xr.where(heat_index_sum > 0, heat_index_sum, 1.0)
+        pet = xr.where(temperature > 0, 16.0 * (10.0 * temperature / i_safe) ** a, 0.0)
+        pet.name = "PET"
+        return cast(xr.DataArray, pet)

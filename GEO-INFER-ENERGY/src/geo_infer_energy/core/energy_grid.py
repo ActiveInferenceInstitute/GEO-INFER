@@ -1,8 +1,7 @@
 """Energy grid optimization module."""
 
 import logging
-from typing import Dict, List, Optional
-import numpy as np
+from typing import Dict, Optional
 import xarray as xr
 
 logger = logging.getLogger(__name__)

@@ -9,9 +9,8 @@ Beliefs represent an agent's information about the world. This module provides:
 - Uncertainty handling with confidence levels
 """
 
-from typing import Dict, Any, List, Optional, Set, Tuple
+from typing import Dict, Any, List, Optional, Tuple
 import datetime
-import json
 import logging
 from dataclasses import dataclass, field
 

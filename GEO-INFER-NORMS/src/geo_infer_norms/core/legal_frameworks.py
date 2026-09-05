@@ -6,15 +6,12 @@ applying legal frameworks in geospatial contexts.
 """
 
 import geopandas as gpd
-from typing import Dict, List, Optional, Set, Tuple, Union
-from dataclasses import dataclass
-import datetime
+from typing import Dict, List, Optional, Union
 import logging
 from shapely.geometry import Point, Polygon, MultiPolygon
-import numpy as np
 
-from ..models.legal_entity import LegalEntity, Jurisdiction
-from ..models.regulation import Regulation, RegulatoryFramework
+from ..models.legal_entity import Jurisdiction
+from ..models.regulation import Regulation
 
 logger = logging.getLogger(__name__)
 

@@ -12,7 +12,7 @@ import os
 import time
 import logging
 import functools
-from typing import Dict, Any, Optional, Callable, Type, Union, Tuple, List, cast
+from typing import Dict, Any, Optional, Callable, Type, Tuple, List, cast
 from enum import Enum
 import requests
 import git
@@ -104,8 +104,9 @@ class AuthenticationError(GeoInferGitError):
         super().__init__(message, category=ErrorCategory.AUTHENTICATION,
                         severity=ErrorSeverity.HIGH, **kwargs)
 
-class PermissionError(GeoInferGitError):
-    """Permission-related errors."""
+class PermissionDeniedError(GeoInferGitError):
+    """Permission-related errors (the custom analogue of the builtin
+    :class:`PermissionError`, which is deliberately not shadowed)."""
 
     def __init__(self, message: str, **kwargs: Any) -> None:
         super().__init__(message, category=ErrorCategory.PERMISSION,
@@ -184,7 +185,6 @@ def classify_error(error: Exception) -> Tuple[ErrorCategory, ErrorSeverity, bool
     Returns:
         Tuple of (category, severity, recoverable)
     """
-    error_type = type(error)
 
     # Network errors
     if isinstance(error, requests.RequestException):
@@ -238,7 +238,6 @@ def retry_on_error(max_attempts: int = 3, base_delay: float = 1.0,
     Returns:
         Decorated function
     """
-    retry_config = RetryConfig(max_attempts, base_delay, max_delay, exponential_base, jitter)
     default_retryable_errors = (requests.RequestException, git.GitCommandError, ConnectionError, TimeoutError)
 
     if retryable_errors is None:

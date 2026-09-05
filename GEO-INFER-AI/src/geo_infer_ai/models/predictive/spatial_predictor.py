@@ -4,6 +4,18 @@ Predictive ML models for geospatial forecasting and regression.
 This module provides machine learning models specifically designed for
 geospatial prediction tasks including land use change, climate impacts,
 and resource forecasting.
+
+Interpolation note: ``IDWInterpolator`` and ``OrdinaryKriging`` here are a
+deliberate, self-contained ML-oriented implementation kept separate from
+``geo_infer_math.core.interpolation`` (``IDWInterpolator`` /
+``KrigingInterpolator``). Differences by design: this module takes plain
+constructor kwargs (power, min_points, max_distance) instead of a config
+object, ``IDWInterpolator.predict`` returns values only, and
+``OrdinaryKriging.predict`` returns ``(values, variances)`` so the
+estimation variance is directly usable in prediction-uncertainty
+workflows. GEO-INFER-MATH remains the owner of general-purpose,
+config-driven interpolation; use this module when you need lightweight
+interpolators that ship with the AI package.
 """
 
 import logging

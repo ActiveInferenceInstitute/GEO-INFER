@@ -3,8 +3,6 @@
 import numpy as np
 import pytest
 
-import sys
-sys.path.insert(0, "GEO-INFER-CLIMATE/src")
 
 from geo_infer_climate.core.temperature_trends import TemperatureTrendAnalyzer
 

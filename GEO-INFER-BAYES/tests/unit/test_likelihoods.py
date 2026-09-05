@@ -63,6 +63,22 @@ class TestSpatialLikelihoodPoisson:
         result = ll.log_likelihood(pred, obs)
         assert np.isfinite(result)
 
+    def test_poisson_factorial_term_per_observation(self) -> None:
+        """The factorial penalty must be sum(log(obs_i!)), not log(max(obs)!)."""
+        ll = SpatialLikelihood(likelihood_type="poisson")
+        pred = np.array([2.0, 2.0])
+        obs = np.array([1, 5])
+        expected = float(np.sum(obs * np.log(pred) - pred))
+        from scipy.special import gammaln
+
+        expected -= float(np.sum(gammaln(obs + 1)))
+        assert ll.log_likelihood(pred, obs) == pytest.approx(expected)
+
+    def test_poisson_empty_obs_rejected(self) -> None:
+        ll = SpatialLikelihood(likelihood_type="poisson")
+        with pytest.raises(ValueError):
+            ll.log_likelihood(np.array([1.0]), np.array([]))
+
 
 class TestSpatialLikelihoodBinomial:
 

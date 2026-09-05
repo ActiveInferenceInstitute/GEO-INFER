@@ -1,131 +1,91 @@
+"""Basic risk assessment example using GEO-INFER-RISK.
+
+This example actually computes risk numbers end to end:
+1. Simulates a reproducible earthquake event set with a seeded
+   catastrophe model.
+2. Converts events into an event loss table.
+3. Computes annual average loss (AAL), the 25-year PML, and an annual
+   aggregate exceedance probability curve with ``geo_infer_risk.utils.risk_metrics``.
+
+Run from the repository root:
+    uv run --no-sync python GEO-INFER-RISK/examples/basic_risk_assessment.py
 """
-Basic risk assessment example using GEO-INFER-RISK.
 
-This example demonstrates:
-- Risk engine initialization
-- Hazard modeling
-- Vulnerability assessment
-- Risk calculation
-"""
+import pandas as pd
 
-import sys
-import os
+from geo_infer_risk.core.catastrophe_models import (
+    CatastropheConfig,
+    EnhancedEarthquakeModel,
+)
+from geo_infer_risk.utils.risk_metrics import (
+    calculate_aal,
+    calculate_annual_aggregate_exceedance_probability,
+    calculate_pml,
+)
 
-# Add src directory to path
-project_root = os.path.dirname(os.path.dirname(__file__))
-src_path = os.path.join(project_root, "src")
-if src_path not in sys.path:
-    sys.path.insert(0, src_path)
-
-try:
-    import geopandas as gpd
-    from shapely.geometry import Point, Polygon
-    from geo_infer_risk.core.risk_engine import EnhancedRiskEngine
-
-    IMPORTS_AVAILABLE = True
-except ImportError as e:
-    print(f"⚠️  Some imports not available: {e}")
-    IMPORTS_AVAILABLE = False
+EXPOSURE_YEARS = 50.0
 
 
-def create_sample_exposure_data():
-    """Create sample exposure data (assets at risk)."""
-    # Create sample points representing assets
-    points = [
-        Point(-122.4194, 37.7749),  # Asset 1
-        Point(-122.4094, 37.7849),  # Asset 2
-        Point(-122.4294, 37.7649),  # Asset 3
+def build_loss_table(model: EnhancedEarthquakeModel, n_events: int) -> pd.DataFrame:
+    """Simulate events and derive one loss per event.
+
+    Loss per event uses an ILLUSTRATIVE fragility: 2% of exposure value per
+    unit of magnitude above M5 (the event's intensity measure). Swap in a
+    real vulnerability curve for production use.
+    """
+    events = model.simulate_events(n_events)
+    exposure_value = 1_000_000.0
+    rows = [
+        {
+            "event_id": event["event_id"],
+            "hazard_type": "earthquake",
+            "loss": exposure_value * 0.02 * max(0.0, event["magnitude"] - 5.0),
+        }
+        for event in events
     ]
-
-    data = {
-        "asset_id": ["asset_001", "asset_002", "asset_003"],
-        "asset_type": ["building", "infrastructure", "building"],
-        "value": [1000000, 5000000, 2000000],
-        "geometry": points,
-    }
-
-    return gpd.GeoDataFrame(data, crs="EPSG:4326")
+    return pd.DataFrame(rows)
 
 
-def main():
-    """Run basic risk assessment example."""
+def main() -> None:
+    """Run the basic risk assessment example."""
     print("=" * 60)
     print("GEO-INFER-RISK: Basic Risk Assessment Example")
     print("=" * 60)
 
-    if not IMPORTS_AVAILABLE:
-        print("\n⚠️  Some required modules are not available.")
-        print("   This example requires full GEO-INFER-RISK installation.")
-        return
+    # Step 1: reproducible catastrophe simulation. The seed lives on the
+    # config, so this run replays exactly.
+    config = CatastropheConfig(
+        simulation_years=int(EXPOSURE_YEARS),
+        spatial_correlation=False,
+        random_seed=7,
+    )
+    model = EnhancedEarthquakeModel(config=config)
+    model.model_parameters = {"mean_depth": 15.0}
+    events = model.simulate_events(200)
+    print(f"\nStep 1: simulated {len(events)} earthquake events (seed=7)")
 
-    # Step 1: Risk engine initialization
-    print("\n⚙️  Step 1: Initializing risk engine...")
-    try:
-        risk_engine = EnhancedRiskEngine()
-        print("   ✅ Risk engine initialized")
-        print("   Available capabilities:")
-        print("      • Hazard modeling")
-        print("      • Vulnerability assessment")
-        print("      • Exposure analysis")
-        print("      • Risk calculation")
-        print("      • Uncertainty quantification")
-    except Exception as e:
-        print(f"   ⚠️  Risk engine initialization: {e}")
-        risk_engine = None
+    # Step 2: event loss table
+    losses = build_loss_table(model, 200)
+    print(f"Step 2: loss table with {len(losses)} events")
+    print(f"   Total simulated loss: ${losses['loss'].sum():,.0f}")
 
-    # Step 2: Exposure data
-    print("\n📊 Step 2: Preparing exposure data...")
-    try:
-        exposure_data = create_sample_exposure_data()
-        print(f"   ✅ Created exposure dataset with {len(exposure_data)} assets")
-        print(f"   Total asset value: ${exposure_data['value'].sum():,.0f}")
-        print(f"   Asset types: {', '.join(exposure_data['asset_type'].unique())}")
-    except Exception as e:
-        print(f"   ⚠️  Exposure data: {e}")
-        exposure_data = None
+    # Step 3: risk metrics over a 50-year exposure window
+    aal = calculate_aal(losses, exposure_years=EXPOSURE_YEARS)["total"]
+    pml_25 = calculate_pml(losses, return_period=25, exposure_years=EXPOSURE_YEARS)
+    aep = calculate_annual_aggregate_exceedance_probability(
+        losses,
+        threshold=25_000,
+        num_years=20_000,
+        random_seed=7,
+        exposure_years=EXPOSURE_YEARS,
+    )
 
-    # Step 3: Risk assessment
-    print("\n🔍 Step 3: Performing risk assessment...")
-    try:
-        if risk_engine is not None and exposure_data is not None:
-            print("   ✅ Risk assessment framework ready")
-            print("   Assessment components:")
-            print("      • Hazard identification")
-            print("      • Vulnerability modeling")
-            print("      • Exposure mapping")
-            print("      • Risk quantification")
-            print("      • Spatial risk visualization")
-    except Exception as e:
-        print(f"   ⚠️  Risk assessment: {e}")
+    print(f"Step 3: risk metrics over a {EXPOSURE_YEARS:.0f}-year exposure window")
+    print(f"   AAL (annual average loss):     ${aal:,.0f}")
+    print(f"   25-year PML:                   ${pml_25:,.0f}")
+    print(f"   P(aggregate loss > $25k/yr):   {aep:.4f}")
 
-    # Step 4: Integration capabilities
-    print("\n🔗 Step 4: Integration capabilities...")
-    try:
-        print("   ✅ GEO-INFER-RISK integrates with:")
-        print("      • SPACE: Spatial risk mapping")
-        print("      • TIME: Temporal risk dynamics")
-        print("      • AI: Machine learning risk models")
-        print("      • BAYES: Bayesian risk inference")
-        print("      • MATH: Statistical risk methods")
-        print("      • HEALTH: Health risk assessment")
-        print("      • ECON: Economic risk analysis")
-    except Exception as e:
-        print(f"   ⚠️  Integration info: {e}")
-
-    # Summary
-    print("\n" + "=" * 60)
-    print("✅ Risk assessment example complete!")
-    print("=" * 60)
-    print("\nKey capabilities demonstrated:")
-    print("  • Risk engine initialization")
-    print("  • Exposure data management")
-    print("  • Hazard and vulnerability modeling")
-    print("  • Multi-module integration")
-    print("\nNext steps:")
-    print("  • Integrate with SPACE for spatial risk mapping")
-    print("  • Connect with TIME for temporal risk analysis")
-    print("  • Use with AI for predictive risk modeling")
-    print("  • Combine with HEALTH for health risk assessment")
+    print("\nExample complete. All numbers derive from the simulated event set.")
 
 
 if __name__ == "__main__":

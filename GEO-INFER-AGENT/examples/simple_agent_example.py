@@ -8,19 +8,13 @@ This script demonstrates the basic usage of the GEO-INFER-AGENT module
 by creating and running a data collector agent.
 """
 
-import os
-import sys
 import json
+import sys
 import asyncio
 import logging
-from datetime import datetime
 import argparse
 
-# Add the parent directory to sys.path to be able to import geo_infer_agent
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from geo_infer_agent.agents.data_collector import DataCollectorAgent
-from geo_infer_agent.models.bdi import BDIAgent
 from geo_infer_agent.api.interface import agent_interface
 
 # Configure logging

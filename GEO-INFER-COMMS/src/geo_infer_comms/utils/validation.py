@@ -7,9 +7,8 @@ and system reliability.
 """
 
 from __future__ import annotations
-from typing import Dict, List, Optional, Union, Any
+from typing import Dict, List, Any, Final
 import re
-import math
 from datetime import datetime, timezone
 
 def validate_coordinates(longitude: Any, latitude: Any) -> bool:
@@ -40,6 +39,19 @@ def validate_coordinates(longitude: Any, latitude: Any) -> bool:
         return False
 
 
+SUPPORTED_CRS: Final[Dict[str, str]] = {
+    "WGS84": "EPSG:4326",       # World Geodetic System 1984
+    "UTM": "UTM",               # Universal Transverse Mercator
+    "WEB_MERCATOR": "EPSG:3857",  # Web Mercator (used by most web maps)
+    "LOCAL": "LOCAL",           # Local coordinate system
+}
+"""Supported coordinate reference systems, keyed by short name.
+
+Single source of truth for CRS validation; ``models.spatial.CoordinateSystem``
+derives its constants from this mapping.
+"""
+
+
 def validate_crs(crs: str) -> bool:
     """
     Validate coordinate reference system string.
@@ -50,15 +62,7 @@ def validate_crs(crs: str) -> bool:
     Returns:
         True if CRS is valid, False otherwise
     """
-    # Use string values directly to avoid circular import with spatial.py
-    valid_crs = [
-        "EPSG:4326",   # WGS84
-        "UTM",         # Universal Transverse Mercator
-        "EPSG:3857",   # Web Mercator
-        "LOCAL"        # Local coordinate system
-    ]
-
-    return crs in valid_crs
+    return crs in SUPPORTED_CRS.values()
 
 
 def validate_email(email: Any) -> bool:

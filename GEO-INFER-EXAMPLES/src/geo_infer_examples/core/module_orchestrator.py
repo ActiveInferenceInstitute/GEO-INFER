@@ -4,6 +4,21 @@ GEO-INFER Module Orchestrator
 
 Advanced orchestration system for managing cross-module integrations,
 workflow execution, and pattern-based coordination across the GEO-INFER ecosystem.
+
+Execution-engine limitation
+---------------------------
+``ModuleOrchestrator`` drives every workflow step through :class:`APIConnector`,
+which intentionally raises ``RuntimeError``: the local examples package ships no
+remote module API servers. Consequently ``execute_workflow`` (and the five
+execution strategies behind it) cannot succeed against the bundled
+``SAMPLE_WORKFLOWS`` unless you provide a real transport — for example by
+monkeypatching or subclassing ``APIConnector`` with an object returning
+HTTP-like responses (``status_code``, ``json()``). Module discovery/health
+reporting likewise only becomes meaningful once a transport is injected and
+modules are declared in an orchestrator config file (``modules`` section).
+The workflow *definition* surface (registration, ``list_workflows``,
+``get_workflow_definition``, dependency validation, guard-condition
+evaluation) is fully functional locally.
 """
 
 import asyncio
@@ -16,7 +31,6 @@ from dataclasses import dataclass, field
 from enum import Enum
 import yaml
 from pathlib import Path
-from concurrent.futures import ThreadPoolExecutor
 
 from ..models.integration_models import (
     WorkflowDefinition,
@@ -61,25 +75,41 @@ class APIConnector:
 
 
 class PerformanceMonitor:
-    """Local performance monitor state used by orchestration examples."""
+    """Track wall-clock durations for workflow executions and steps."""
+
+    def __init__(self) -> None:
+        self._workflow_starts: Dict[str, float] = {}
+        self._workflow_totals: Dict[str, float] = {}
+        self._step_starts: Dict[str, float] = {}
+        self._step_totals: Dict[str, Dict[str, float]] = {}
 
     def start_workflow_tracking(self, execution_id: str) -> None:
-        return None
+        self._workflow_starts[execution_id] = time.time()
 
     def stop_workflow_tracking(self, execution_id: str) -> None:
-        return None
+        started = self._workflow_starts.pop(execution_id, None)
+        if started is not None:
+            self._workflow_totals[execution_id] = time.time() - started
 
     def start_step_tracking(self, execution_id: str, step_name: str) -> None:
-        return None
+        self._step_starts[(execution_id, step_name)] = time.time()
 
     def stop_step_tracking(self, execution_id: str, step_name: str) -> None:
-        return None
+        started = self._step_starts.pop((execution_id, step_name), None)
+        if started is None:
+            return
+        elapsed = time.time() - started
+        self._step_totals.setdefault(execution_id, {})[step_name] = elapsed
 
     def get_workflow_metrics(self, execution_id: str) -> Dict[str, Any]:
-        return {}
+        return {
+            "total_seconds": self._workflow_totals.get(execution_id),
+            "step_seconds": dict(self._step_totals.get(execution_id, {})),
+        }
 
     def shutdown(self) -> None:
-        return None
+        self._workflow_starts.clear()
+        self._step_starts.clear()
 
 
 class ExecutionStrategy(Enum):
@@ -264,13 +294,10 @@ class ModuleOrchestrator:
         if monitoring_enabled:
             self.performance_monitor = PerformanceMonitor()
 
-        # Execution resources
-        self.executor = ThreadPoolExecutor(max_workers=8)
-        self.event_bus: Dict[str, Any] = {}  # Simple event system
-
         # Load configuration
         self._load_configuration()
         self._initialize_modules()
+        self._register_sample_workflows()
 
     def _load_configuration(self) -> None:
         """Load orchestrator configuration and workflow definitions."""
@@ -308,6 +335,22 @@ class ModuleOrchestrator:
             except Exception as e:
                 self.logger.warning(f"Failed to initialize module {module_name}: {e}")
                 self.module_health[module_name] = ModuleStatus.ERROR
+
+
+    def _register_sample_workflows(self) -> None:
+        """Register the bundled sample workflows so they are listable locally.
+
+        Sample workflows are registered as *definitions only*: unlike
+        :meth:`register_workflow`, module availability is not required, because
+        the modules they reference live behind remote APIs that are not
+        configured in this examples package (see the module docstring).
+        """
+        for data in SAMPLE_WORKFLOWS.values():
+            workflow = WorkflowDefinition.from_dict(data)
+            self.workflows[workflow.id] = workflow
+        self.logger.info(
+            f"Registered {len(SAMPLE_WORKFLOWS)} sample workflow definitions"
+        )
 
     def _initialize_module(self, module_name: str, config: Dict[str, Any]) -> None:
         """Initialize a specific module and check its health."""
@@ -813,10 +856,17 @@ class ModuleOrchestrator:
         return groups
 
     def _evaluate_condition(self, condition: str, data: Dict[str, Any]) -> bool:
-        """Evaluate a conditional expression against current data."""
+        """Evaluate a conditional expression against current data.
+
+        A malformed guard expression (``ValueError``/``SyntaxError`` from the
+        safe evaluator) logs a warning and evaluates to ``False`` so the step
+        is skipped visibly. Other exception types are programming errors and
+        propagate.
+        """
         try:
             return _SafeConditionEvaluator(data).evaluate(condition)
-        except Exception:
+        except (ValueError, SyntaxError) as exc:
+            self.logger.warning(f"Guard condition {condition!r} treated as False: {exc}")
             return False
 
     async def _trigger_event(
@@ -995,9 +1045,6 @@ class ModuleOrchestrator:
                 execution.status = "cancelled"
                 execution.end_time = time.time()
 
-        # Shutdown executor
-        self.executor.shutdown(wait=True)
-
         if self.monitoring_enabled:
             self.performance_monitor.shutdown()
 
@@ -1033,28 +1080,30 @@ SAMPLE_WORKFLOWS = {
                 "dependencies": ["spatial_analysis"],
                 "optional": False,
             },
+
         ],
     }
 }
 
 
+async def main() -> None:
+    """Demonstration entrypoint: report health and run the first workflow."""
+    orchestrator = ModuleOrchestrator()
+
+    # Health check
+    health = await orchestrator.health_check()
+    print(f"Health status: {health}")
+
+    # Execute sample workflow
+    if orchestrator.workflows:
+        workflow_id = list(orchestrator.workflows.keys())[0]
+        result = await orchestrator.execute_workflow(
+            workflow_id, {"test_data": "sample_input"}
+        )
+        print(f"Workflow result: {result}")
+
+    orchestrator.shutdown()
+
+
 if __name__ == "__main__":
-    # Example usage
-    async def main() -> None:
-        orchestrator = ModuleOrchestrator()
-
-        # Health check
-        health = await orchestrator.health_check()
-        print(f"Health status: {health}")
-
-        # Execute sample workflow
-        if orchestrator.workflows:
-            workflow_id = list(orchestrator.workflows.keys())[0]
-            result = await orchestrator.execute_workflow(
-                workflow_id, {"test_data": "sample_input"}
-            )
-            print(f"Workflow result: {result}")
-
-        orchestrator.shutdown()
-
     asyncio.run(main())

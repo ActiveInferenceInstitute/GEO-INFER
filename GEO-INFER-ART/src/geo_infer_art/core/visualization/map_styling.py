@@ -2,12 +2,15 @@
 Map styling and theming components for advanced cartographic design.
 """
 
+import logging
 from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 
 from geo_infer_art.core.aesthetics import ColorPalette
+
+logger = logging.getLogger(__name__)
 
 
 class MapStyle:

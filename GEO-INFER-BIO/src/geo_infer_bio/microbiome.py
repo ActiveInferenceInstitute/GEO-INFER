@@ -17,32 +17,10 @@ Key Features:
 import logging
 import pandas as pd
 import numpy as np
+import geopandas as gpd
+from shapely.geometry import Point
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
-
-# Biological data processing
-try:
-    import scipy.stats as stats
-    from scipy.spatial.distance import pdist, squareform
-
-    HAS_BIO_DEPS = True
-except ImportError:
-    HAS_BIO_DEPS = False
-    logging.warning(
-        "Optional biological dependencies not available. Install with: uv pip install scipy"
-    )
-
-# Geospatial dependencies
-try:
-    import geopandas as gpd
-    from shapely.geometry import Point
-
-    HAS_GEO_DEPS = True
-except ImportError:
-    HAS_GEO_DEPS = False
-    logging.warning(
-        "Geospatial dependencies not available. Install with: uv pip install geopandas shapely"
-    )
 
 logger = logging.getLogger(__name__)
 
@@ -261,7 +239,6 @@ class MicrobiomeDataset:
         Get sample coordinates as list of (latitude, longitude) tuples.
 
         Returns:
-            List of coordinate tuples
         """
         coords = []
         for _, row in self.metadata.iterrows():
@@ -275,9 +252,6 @@ class MicrobiomeDataset:
         Returns:
             GeoDataFrame with Point geometries
         """
-        if not HAS_GEO_DEPS:
-            raise ImportError("GeoPandas required for GeoDataFrame output")
-
         geometry = [Point(lon, lat) for lat, lon in self.get_coordinates()]
         gdf = gpd.GeoDataFrame(self.metadata, geometry=geometry, crs="EPSG:4326")
         return gdf

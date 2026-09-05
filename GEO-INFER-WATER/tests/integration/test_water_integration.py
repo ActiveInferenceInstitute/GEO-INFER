@@ -1,7 +1,7 @@
 """
 Integration tests for GEO-INFER-WATER: water quality assessment and watershed analysis pipeline.
 
-Tests WaterQualityAssessor and WatershedAnalyzer working together in a
+Tests WaterQualityAssessor and WatershedDelineator working together in a
 comprehensive water resource analysis pipeline.
 """
 
@@ -365,37 +365,40 @@ class TestWatershedAnalysis:
     """Test watershed delineation and analysis."""
 
     def test_watershed_delineation(self, elevation_data):
-        """Test watershed delineation from elevation model."""
-        from geo_infer_water.core.watershed import WatershedAnalyzer
+        """Test watershed delineation from an elevation model."""
+        from geo_infer_water.core.watershed_delineation import WatershedDelineator
 
-        analyzer = WatershedAnalyzer()
-        # Choose outlet at the lowest point (center of the bowl)
-        result = analyzer.delineate_watershed(
+        delineator = WatershedDelineator()
+        # Bowl-shaped DEM: lowest point is at the centre (row 9, col 9 of
+        # the 20x20 grid), so the basin traced from it should cover the
+        # whole grid.
+        result = delineator.full_delineation(
             elevation_data,
-            outlet_point=(38.5, -121.5),
+            outlet=(9, 9),
+            stream_threshold=1.0,
+            cell_size=1000.0,
         )
 
-        assert "watershed_mask" in result
-        assert "watershed_area" in result
-        assert "outlet_elevation" in result
+        assert "basin_mask" in result
+        assert "flow_direction" in result
+        assert "flow_accumulation" in result
+        assert "stream_network" in result
+        assert "slope_degrees" in result
+        assert result.attrs["basin_area_km2"] > 0
 
     def test_stream_network_identification(self):
         """Test stream network identification from flow accumulation."""
-        from geo_infer_water.core.watershed import WatershedAnalyzer
+        from geo_infer_water.core.watershed_delineation import WatershedDelineator
 
-        analyzer = WatershedAnalyzer()
+        delineator = WatershedDelineator()
 
-        # Create synthetic flow direction data
-        flow_dir = xr.DataArray(
-            np.random.uniform(0, 500, (10, 10)),
-            dims=["lat", "lon"],
-        )
-
-        accumulation = analyzer.calculate_flow_accumulation(flow_dir)
+        # Synthetic D8 flow-direction field where every cell flows east.
+        flow_dir = np.full((10, 10), 1, dtype=int)
+        accumulation = delineator.calculate_flow_accumulation(flow_dir)
         assert accumulation.shape == flow_dir.shape
 
-        streams = analyzer.identify_stream_network(accumulation, threshold=0.5)
-        assert streams.dtype == bool
+        streams = delineator.extract_stream_network(accumulation, threshold=0.5)
+        assert streams.dtype == int
 
 
 class TestPollutionSourceTracking:

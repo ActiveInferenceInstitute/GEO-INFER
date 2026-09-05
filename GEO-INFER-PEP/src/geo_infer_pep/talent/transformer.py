@@ -1,7 +1,10 @@
 """Talent Data Transformers."""
+import logging
 from typing import List, Optional
 import pandas as pd
 from ..models.talent_models import Candidate, JobRequisition
+
+logger = logging.getLogger(__name__)
 
 def clean_candidate_data(candidates: List[Candidate]) -> List[Candidate]:
     """
@@ -66,11 +69,11 @@ def clean_candidate_data(candidates: List[Candidate]) -> List[Candidate]:
             cleaned_candidates.append(cand_copy)
 
         except Exception as e:
-            print(f"Error cleaning candidate {cand.candidate_id}: {str(e)}")
+            logger.error(f"Error cleaning candidate {cand.candidate_id}: {str(e)}")
             # Add the original if cleaning fails
             cleaned_candidates.append(cand)
 
-    print(f"Successfully cleaned {len(cleaned_candidates)} candidate records")
+    logger.info(f"Successfully cleaned {len(cleaned_candidates)} candidate records")
     return cleaned_candidates
 
 def enrich_candidate_data(
@@ -196,11 +199,11 @@ def enrich_candidate_data(
             enriched_candidates.append(cand_copy)
 
         except Exception as e:
-            print(f"Error enriching candidate {cand.candidate_id}: {str(e)}")
+            logger.error(f"Error enriching candidate {cand.candidate_id}: {str(e)}")
             # Add the original if enrichment fails
             enriched_candidates.append(cand)
 
-    print(f"Successfully enriched {len(enriched_candidates)} candidate records")
+    logger.info(f"Successfully enriched {len(enriched_candidates)} candidate records")
     return enriched_candidates
 
 def convert_candidates_to_dataframe(candidates: List[Candidate]) -> pd.DataFrame:
@@ -211,7 +214,7 @@ def convert_candidates_to_dataframe(candidates: List[Candidate]) -> pd.DataFrame
         return pd.DataFrame()
     candidate_dicts = [cand.model_dump() for cand in candidates]
     df = pd.DataFrame(candidate_dicts)
-    print(f"Converted {len(df)} candidate records to DataFrame.")
+    logger.info(f"Converted {len(df)} candidate records to DataFrame.")
     return df
 
 def convert_requisitions_to_dataframe(requisitions: List[JobRequisition]) -> pd.DataFrame:
@@ -222,5 +225,5 @@ def convert_requisitions_to_dataframe(requisitions: List[JobRequisition]) -> pd.
         return pd.DataFrame()
     req_dicts = [req.model_dump() for req in requisitions]
     df = pd.DataFrame(req_dicts)
-    print(f"Converted {len(df)} job requisition records to DataFrame.")
+    logger.info(f"Converted {len(df)} job requisition records to DataFrame.")
     return df 

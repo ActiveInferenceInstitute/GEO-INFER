@@ -30,13 +30,20 @@ _SUPPORTED_COMMANDS = {
     "reset": "Reset agent state to defaults",
 }
 
+# Canonical agent-type vocabulary mirrors AgentType values in
+# geo_infer_app.models.agent_interface; "rl" is accepted as an alias.
+_AGENT_TYPE_VALUES = {"bdi", "active_inference", "reinforcement_learning", "rule_based", "hybrid"}
+_AGENT_TYPE_ALIASES = {"rl": "reinforcement_learning"}
+
 
 class AgentAPIClient:
     """
-    Client for interacting with GEO-INFER-AGENT.
+    In-process agent registry for GEO-INFER-APP.
 
     Provides methods for creating, managing, and communicating with
-    intelligent agents from within the GEO-INFER-APP.
+    intelligent agents from within the GEO-INFER-APP process. Agent
+    records are kept in an in-memory dict persisted to a local JSON
+    file; no network transport is involved.
     """
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
@@ -47,7 +54,6 @@ class AgentAPIClient:
             config: Configuration options for the API client
         """
         self.config = config or {}
-        self.base_url = self.config.get("base_url", "http://localhost:8000/api/agents")
         self.agents: Dict[str, Dict[str, Any]] = {}
         self.agent_status_callbacks: Dict[str, List[Callable[[str, str], None]]] = {}
         self._status_monitoring_task: Optional[asyncio.Task[None]] = None
@@ -86,20 +92,32 @@ class AgentAPIClient:
         Create a new agent.
 
         Args:
-            agent_type: Type of agent (bdi, active_inference, rl, rule_based, hybrid)
+            agent_type: One of the AgentType values — "bdi",
+                "active_inference", "reinforcement_learning",
+                "rule_based", "hybrid". The alias "rl" is normalized to
+                "reinforcement_learning".
             config: Agent configuration
 
         Returns:
             Unique ID of the created agent
+
+        Raises:
+            ValueError: If agent_type is not a recognized agent type
         """
-        logger.info(f"Creating agent of type: {agent_type}")
+        normalized_type = _AGENT_TYPE_ALIASES.get(agent_type, agent_type)
+        if normalized_type not in _AGENT_TYPE_VALUES:
+            raise ValueError(
+                f"Unknown agent type '{agent_type}'. "
+                f"Supported: {', '.join(sorted(_AGENT_TYPE_VALUES))}"
+            )
+        logger.info(f"Creating agent of type: {normalized_type}")
 
         agent_id = str(uuid.uuid4())
         now = datetime.now(timezone.utc).isoformat()
 
         self.agents[agent_id] = {
             "id": agent_id,
-            "type": agent_type,
+            "type": normalized_type,
             "config": config,
             "status": "created",
             "created_at": now,
@@ -453,15 +471,33 @@ class AgentAPIClient:
             os.path.join(os.path.expanduser("~"), ".geo_infer_app", "agent_configs.json"),
         )
 
+        if not os.path.exists(config_path):
+            return
+
         try:
-            if os.path.exists(config_path):
-                with open(config_path, "r") as f:
-                    data = json.load(f)
-                self.agents = data.get("agents", {})
-                self._agent_counters = data.get("counters", {})
-                logger.info(f"Loaded {len(self.agents)} agent configurations")
-        except Exception as e:
-            logger.error(f"Error loading agent configurations: {e}")
+            with open(config_path, "r") as f:
+                data = json.load(f)
+        except (OSError, ValueError) as e:
+            # ValueError covers json.JSONDecodeError. Surface the corrupt
+            # file instead of silently continuing with empty state.
+            logger.error(
+                f"Could not load saved agent configurations from {config_path} "
+                f"({e}); starting with an empty agent registry"
+            )
+            return
+
+        agents = data.get("agents", {})
+        counters = data.get("counters", {})
+        if not isinstance(agents, dict) or not isinstance(counters, dict):
+            logger.error(
+                f"Saved agent configurations in {config_path} have unexpected "
+                "shape; expected objects for 'agents' and 'counters' — "
+                "starting with an empty agent registry"
+            )
+            return
+        self.agents = agents
+        self._agent_counters = counters
+        logger.info(f"Loaded {len(self.agents)} agent configurations")
 
     async def _save_agents(self) -> None:
         """Save agent configurations to disk."""
@@ -524,7 +560,9 @@ class AgentManager:
         Create a new agent with the given configuration.
 
         Args:
-            agent_type: Type of agent to create
+            agent_type: One of the AgentType values — "bdi",
+                "active_inference", "reinforcement_learning",
+                "rule_based", "hybrid" ("rl" is accepted as an alias)
             name: Human-readable name for the agent
             config: Agent configuration
 

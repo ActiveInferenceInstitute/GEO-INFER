@@ -10,10 +10,9 @@ import logging
 import numpy as np
 import pandas as pd
 import geopandas as gpd
-from typing import Union, List, Dict, Any, Optional, Tuple, cast
+from typing import Union, Dict, Any, Optional, Tuple, cast
 from shapely.geometry import Point, Polygon
 from scipy.spatial import ConvexHull, Delaunay
-from scipy.spatial.distance import cdist
 from sklearn.cluster import DBSCAN
 from sklearn.neighbors import NearestNeighbors
 

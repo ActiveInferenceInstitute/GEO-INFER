@@ -24,7 +24,6 @@
 - `api/`
 - `core/`
 - `integrations/`
-- `models/`
 - `utils/`
 - `__init__.py`
 

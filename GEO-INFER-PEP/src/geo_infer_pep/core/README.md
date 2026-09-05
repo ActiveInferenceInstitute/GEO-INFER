@@ -5,16 +5,17 @@ Core workspace within `GEO-INFER-PEP`.
 ## Contents
 
 - `__init__.py`
+- `data_store.py`
 - `orchestrator.py`
 - `pep_engine.py`
 - `validator.py`
 
 ## Public Interface
 
+- `data_store.py:PEPDataManager` (class)
 - `orchestrator.py:WorkflowStatus` (class)
 - `orchestrator.py:WorkflowStep` (class)
 - `orchestrator.py:PEPOrchestrator` (class)
-- `pep_engine.py:PEPDataManager` (class)
 - `pep_engine.py:PEPEngine` (class)
 - `validator.py:ValidationResult` (class)
 - `validator.py:PEPValidator` (class)

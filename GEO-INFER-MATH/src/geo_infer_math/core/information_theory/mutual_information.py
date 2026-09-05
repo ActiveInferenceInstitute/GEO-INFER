@@ -6,9 +6,8 @@ dependencies and relationships in spatial data.
 """
 
 import numpy as np
-from typing import Union, Optional, Tuple, Dict, Any
+from typing import Union, Optional, Tuple, Any
 import logging
-from scipy.stats import entropy as scipy_entropy
 
 from geo_infer_math.core.information_theory.entropy import (
     shannon_entropy,

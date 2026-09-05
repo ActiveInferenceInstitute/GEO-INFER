@@ -354,7 +354,7 @@ class SpatialOptimizer:
 
         for iteration in range(max_iter):
             # Evaluate objective and gradient
-            f_val = objective(x)
+            objective(x)  # keep the objective call: user functions may count invocations
             if gradient_function is not None:
                 gradient = gradient_function(x)
                 n_evaluations += 1
@@ -401,7 +401,7 @@ class SpatialOptimizer:
 
         for iteration in range(max_iter):
             # Evaluate objective, gradient, and Hessian
-            f_val = objective(x)
+            objective(x)  # keep the objective call: user functions may count invocations
             gradient = self._numerical_gradient(objective, x)
             hessian = self._numerical_hessian(objective, x)
             n_evaluations += len(x)**2 + len(x) + 1
@@ -566,7 +566,11 @@ class ODESolver:
             **kwargs: Additional solver options
 
         Returns:
-            ODE solution
+            ODE solution. Failure contract: any solver exception is logged and
+            returned as an ODEsolution with empty ``t``/``y`` arrays and
+            ``success=False`` (never raised). Callers MUST check
+            ``solution.success`` before using the result; empty arrays are the
+            sentinel for solver failure, not a valid numeric result.
         """
         try:
             result = solve_ivp(
@@ -752,7 +756,10 @@ def find_root(func: Callable,
         **kwargs: Additional method parameters
 
     Returns:
-        Root value
+        Root value. Failure contract: on failure the error is logged and
+        ``np.nan`` is returned silently (no exception). Check ``np.isfinite``
+        on the result to detect failure; a genuine nan from ``func`` is
+        indistinguishable, so guard the objective function.
     """
     try:
         result = root_scalar(func, bracket=bracket, method=method, **kwargs)
@@ -775,7 +782,10 @@ def minimize_scalar_function(func: Callable,
         **kwargs: Additional method parameters
 
     Returns:
-        Optimal parameter value
+        Optimal parameter value. Failure contract: on failure (or a
+        non-finite minimum) the error is logged and ``np.nan`` is returned
+        silently (no exception). Check ``np.isfinite`` on the result to
+        detect failure.
     """
     try:
         result = minimize_scalar(func, bounds=bounds, method=method, **kwargs)
