@@ -7,6 +7,7 @@ Docs workspace within `GEO-INFER-TEST`.
 - `examples/`
 - `api_reference.md`
 - `getting_started.md`
+- `gnn_continuation_2026_09.md`
 - `gnn_space_time_2026_09.md`
 - `hardening_2026_09.md`
 - `index.md`

@@ -12,6 +12,7 @@ Core workspace within `GEO-INFER-PLACE`.
 - `comprehensive_dashboard.py`
 - `module_bridge.py`
 - `place_interface.py`
+- `regional_layers.py`
 - `unified_backend.py`
 - `visualization_engine.py`
 
@@ -28,6 +29,9 @@ Core workspace within `GEO-INFER-PLACE`.
 - `module_bridge.py:PlaceDataManager` (class)
 - `module_bridge.py:PlaceTemporalAnalyzer` (class)
 - `place_interface.py:PlaceInterface` (class)
+- `regional_layers.py:normalize_regional_layer` (function)
+- `regional_layers.py:acquire_regional_layers` (function)
+- `regional_layers.py:main` (function)
 - `unified_backend.py:CascadianAgriculturalH3Backend` (class)
 - `visualization_engine.py:InteractiveVisualizationEngine` (class)
 

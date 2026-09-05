@@ -7,6 +7,7 @@ Integration workspace within `GEO-INFER-PLACE`.
 - `test_cascadia_geojson_pipeline.py`
 - `test_cascadia_hydrography.py`
 - `test_location_configs.py`
+- `test_regional_layer_acquisition.py`
 
 ## Public Interface
 

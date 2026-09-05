@@ -1,0 +1,71 @@
+name: Paired GNN interchange
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  interchange:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          path: geo
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Read reviewed companion revision
+        id: pair
+        working-directory: geo
+        run: |
+          python - <<'PY'
+          import json, os, re
+          from pathlib import Path
+          pair = json.loads(Path('.github/gnn-pair.json').read_text())
+          assert pair['repository'] == 'ActiveInferenceInstitute/GeneralizedNotationNotation'
+          assert re.fullmatch('[0-9a-f]{40}', pair['revision'])
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('revision=' + pair['revision'] + '\n')
+          PY
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          repository: ActiveInferenceInstitute/GeneralizedNotationNotation
+          ref: ${{ steps.pair.outputs.revision }}
+          path: gnn
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990
+        with:
+          version: "0.10.7"
+      - name: Record both checkouts before installing
+        run: |
+          mkdir receipts
+          git -C geo rev-parse HEAD > receipts/geo-revision.txt
+          git -C gnn rev-parse HEAD > receipts/gnn-revision.txt
+          cp geo/.github/gnn-pair.json receipts/pair.json
+      - name: Install independent locked runtimes
+        env:
+          GEO_PYTHON: ${{ matrix.python }}
+        run: |
+          uv sync --project geo --locked --python "$GEO_PYTHON" --all-packages --all-extras \
+            --no-install-package cupy --no-install-package mayavi \
+            --no-install-package vaex --no-install-package vaex-core
+          uv sync --project gnn --locked --python 3.11 --extra dev --extra geo-infer
+      - name: Export in GNN and infer in GEO
+        run: |
+          geo/.venv/bin/python geo/GEO-INFER-TEST/validate_gnn_interchange.py \
+            --gnn-repo "$PWD/gnn" --gnn-python "$PWD/gnn/.venv/bin/python" \
+            > receipts/interchange.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: paired-interchange-py${{ matrix.python }}
+          path: receipts/
+          if-no-files-found: error
+          retention-days: 14

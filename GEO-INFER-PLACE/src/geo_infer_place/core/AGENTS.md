@@ -29,6 +29,7 @@
 - `comprehensive_dashboard.py`
 - `module_bridge.py`
 - `place_interface.py`
+- `regional_layers.py`
 - `unified_backend.py`
 - `visualization_engine.py`
 

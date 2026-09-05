@@ -120,7 +120,7 @@ def test_wheel_import_timeout_includes_stack_diagnostic(tmp_path):
     with pytest.raises(subprocess.TimeoutExpired) as error:
         _driver().verify_wheels([wheel], [sys.executable], import_timeout=0.5)
     assert b"Timeout" in error.value.stderr
-    assert b"geo_infer_probe/__init__.py" in error.value.stderr
+    assert b"geo_infer_probe/__init__.py" in error.value.stderr.replace(b"\\", b"/")
 
 
 @pytest.mark.parametrize("source", ["raise SystemExit(0)", "import os; os._exit(0)"])

@@ -1,0 +1,2372 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<metadata>
+  <idinfo>
+    <citation>
+      <citeinfo>
+        <origin>Lydia Staisch</origin>
+        <origin>Maureen Walton</origin>
+        <pubdate>20220622</pubdate>
+        <title>Cascadia subduction zone database: compilation of published datasets relevant to Cascadia subduction zone earthquake hazards and tectonics (2022)</title>
+        <geoform>shapefile and raster format</geoform>
+        <pubinfo>
+          <pubplace>Portland, OR</pubplace>
+          <publish>U.S. Geological Survey</publish>
+        </pubinfo>
+        <onlink>https://doi.org/10.5066/P9O69X6E</onlink>
+      </citeinfo>
+    </citation>
+    <descript>
+      <abstract>In this database, we compile and host several available onshore and offshore geologic, paleoseismic, geophysical, and instrumental datasets along the Cascadia subduction zone. The ScienceBase data release and downloadable map package is accompanied by an ArcGIS online map and StoryMap.</abstract>
+      <purpose>As part of the USGS Powell Center working group on Cascadia earthquake hazards, we compile available geologic, paleoseismic, geophysical, and instrumental datasets along the Cascadia subduction zone. The purpose of this compilation is to bring together these abundant and disparate datasets in a single place. Users can find primary data available for download in the layer metadata files or in the layer attributes.</purpose>
+    </descript>
+    <timeperd>
+      <timeinfo>
+        <sngdate>
+          <caldate>2022</caldate>
+        </sngdate>
+      </timeinfo>
+      <current>publication date</current>
+    </timeperd>
+    <status>
+      <progress>Complete</progress>
+      <update>As needed</update>
+    </status>
+    <spdom>
+      <bounding>
+        <westbc>-132.0</westbc>
+        <eastbc>-120.0</eastbc>
+        <northbc>53.5</northbc>
+        <southbc>38.5</southbc>
+      </bounding>
+    </spdom>
+    <keywords>
+      <theme>
+        <themekt>USGS Thesaurus</themekt>
+        <themekey>geology</themekey>
+        <themekey>geophysics</themekey>
+      </theme>
+      <theme>
+        <themekt>USGS Metadata Identifier</themekt>
+        <themekey>USGS:623cf2a6d34e915b67d47586</themekey>
+      </theme>
+      <place>
+        <placekt>Geographic Names Information System (GNIS); GEOnet Names Server (GNS)</placekt>
+        <placekey>Pacific Northwest, Cascadia subduction zone, Washington State, Oregon State, California State, British Columbia Province</placekey>
+      </place>
+    </keywords>
+    <accconst>none</accconst>
+    <useconst>none</useconst>
+    <ptcontac>
+      <cntinfo>
+        <cntperp>
+          <cntper>Lydia M Staisch</cntper>
+          <cntorg>SOUTHWEST REGION: GEOL, MIN, ENERG &amp; GEOPH SCI CTR</cntorg>
+        </cntperp>
+        <cntpos>Research Geologist</cntpos>
+        <cntaddr>
+          <addrtype>mailing and physical</addrtype>
+          <address>2130 SW 5th Ave</address>
+          <city>Portland</city>
+          <state>OR</state>
+          <postal>97201</postal>
+          <country>US</country>
+        </cntaddr>
+        <cntvoice>650-439-2638</cntvoice>
+        <cntemail>lstaisch@usgs.gov</cntemail>
+      </cntinfo>
+    </ptcontac>
+    <datacred>USGS Powell Center</datacred>
+  </idinfo>
+  <dataqual>
+    <attracc>
+      <attraccr>No formal attribute accuracy tests were conducted</attraccr>
+    </attracc>
+    <logic>No formal logical accuracy tests were conducted</logic>
+    <complete>Data set is considered complete for the information presented, as described in the abstract. Users are advised to read the rest of the metadata record carefully for additional details.</complete>
+    <posacc>
+      <horizpa>
+        <horizpar>No formal positional accuracy tests were conducted</horizpar>
+      </horizpa>
+      <vertacc>
+        <vertaccr>No formal positional accuracy tests were conducted</vertaccr>
+      </vertacc>
+    </posacc>
+    <lineage>
+      <procstep>
+        <procdesc>Processing steps for individual raster images are described in the Entity descriptions. These rasters include: Cascadia_LR_aeromag_v1.tif,Cascadia_HR_aeromag_v1.tif, Cascadia_iso.tif, SRTM_90m_HSD.tif, GEBCO_HSD.tif.</procdesc>
+        <procdate>2021</procdate>
+      </procstep>
+    </lineage>
+  </dataqual>
+  <spdoinfo>
+    <direct>Vector</direct>
+  </spdoinfo>
+  <spref>
+    <horizsys>
+      <geograph>
+        <latres>0.018</latres>
+        <longres>0.018</longres>
+        <geogunit>Decimal degrees</geogunit>
+      </geograph>
+      <geodetic>
+        <horizdn>World Geodetic System (WGS84)</horizdn>
+        <ellips>WGS84</ellips>
+        <semiaxis>6378137.0</semiaxis>
+        <denflat>
+        </denflat>
+      </geodetic>
+    </horizsys>
+    <vertdef>
+      <altsys>
+        <altdatum>EGM96 (Earth Gravitational Model 1996)</altdatum>
+        <altres>30.0</altres>
+        <altunits>meters</altunits>
+        <altenc>Attribute values</altenc>
+      </altsys>
+    </vertdef>
+  </spref>
+  <eainfo>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_sliprates_v1</enttypl>
+        <enttypd>Summary: Fault slip rate data compiled from peer-reviewed studies in Washington, Oregon, and northern California. Locations of fault slip rates are represented as a points shapefile. Data were clipped to the following W/E/S/N extents: -132/-120/38.5/53.5</enttypd>
+        <enttypds>Attributes were simplified from Hatem et al. (2021) available here: https://www.sciencebase.gov/catalog/item/5fe3c014d34ea5387deb4aa1</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>FaultName</attrlabl>
+        <attrdef>Published unique fault name.</attrdef>
+        <attrdefs>https://www.sciencebase.gov/catalog/item/5fe3c014d34ea5387deb4aa1</attrdefs>
+        <attrdomv>
+          <udom>Published unique fault name.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>State</attrlabl>
+        <attrdef>Postal code of the U.S. state or Canadian province where the site is located.</attrdef>
+        <attrdefs>https://www.geonames.org/postal-codes/</attrdefs>
+        <attrdomv>
+          <codesetd>
+            <codesetn>Postal code</codesetn>
+            <codesets>https://www.geonames.org/postal-codes/</codesets>
+          </codesetd>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>SiteName</attrlabl>
+        <attrdef>Name of site where slip rate observations and/or measurements were made. If a categorical slip rate is applied, this field is labeled “approx centroid” short for approximate centroid. Centroids were calculated for faults using Albers Equal Area Conic projection.</attrdef>
+        <attrdefs>https://www.sciencebase.gov/catalog/item/5fe3c014d34ea5387deb4aa1</attrdefs>
+        <attrdomv>
+          <udom>Name of site where slip rate observations and/or measurements were made. If a categorical slip rate is applied, this field is labeled “approx centroid” short for approximate centroid. Centroids were calculated for faults using Albers Equal Area Conic projection.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Observn</attrlabl>
+        <attrdef>Observations used to derive slip rate as reported in original published source.</attrdef>
+        <attrdefs>https://www.sciencebase.gov/catalog/item/5fe3c014d34ea5387deb4aa1</attrdefs>
+        <attrdomv>
+          <udom>Observations used to derive slip rate as reported in original published source.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>PrefRate</attrlabl>
+        <attrdef>Reported preferred slip rate (mm/yr) if listed for a slip rate study.</attrdef>
+        <attrdefs>https://www.sciencebase.gov/catalog/item/5fe3c014d34ea5387deb4aa1</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>5</rdommax>
+            <attrunit>mm/yr</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>LowRate</attrlabl>
+        <attrdef>Lower boundary of slip rate. This is either the reinterpreted or reported lower boundary of the range of permissible slip rates (mm/yr).</attrdef>
+        <attrdefs>https://www.sciencebase.gov/catalog/item/5fe3c014d34ea5387deb4aa1</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>5</rdommax>
+            <attrunit>mm/yr</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>HighRate</attrlabl>
+        <attrdef>Upper boundary of slip rate. This is either the reinterpreted or reported upper boundary of the range of permissible slip rates (mm/yr).</attrdef>
+        <attrdefs>https://www.sciencebase.gov/catalog/item/5fe3c014d34ea5387deb4aa1</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>5</rdommax>
+            <attrunit>mm/yr</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>RateType</attrlabl>
+        <attrdef>Type of slip rate, describing what the slip rate is measuring and how it is applied to a given fault.</attrdef>
+        <attrdefs>https://www.sciencebase.gov/catalog/item/5fe3c014d34ea5387deb4aa1</attrdefs>
+        <attrdomv>
+          <udom>Type of slip rate, describing what the slip rate is measuring and how it is applied to a given fault.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>OffType</attrlabl>
+        <attrdef>Basic description of offset measurement.</attrdef>
+        <attrdefs>https://www.sciencebase.gov/catalog/item/5fe3c014d34ea5387deb4aa1</attrdefs>
+        <attrdomv>
+          <udom>Basic description of offset measurement.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Source</attrlabl>
+        <attrdef>Short-form reference(s) to study or studies where slip rate analyses were originally published. The original digital source data are available through Hatem et al. (2021)</attrdef>
+        <attrdefs>https://www.sciencebase.gov/catalog/item/5fe3c014d34ea5387deb4aa1</attrdefs>
+        <attrdomv>
+          <udom>Short-form reference(s) to study or studies where slip rate analyses were originally published. The original digital source data are available through Hatem et al. (2021)</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_faults_merge_v3</enttypl>
+        <enttypd>Fault data compiled from geologic and active fault mapping in Washington, Oregon, northern California, and British Columbia. Faults are represented are polyline shapefiles, and polyline attributes are simplified from source datasets. Data were clipped to the following W/E/S/N extents: -132/-120/38.5/53.5</enttypd>
+        <enttypds>https://www.usgs.gov/programs/earthquake-hazards/faults; https://geologyportal.dnr.wa.gov/; https://www.oregongeology.org/pubs/dds/p-OGDC-6.htm;  https://mrdata.usgs.gov/geology/state/state.php?state=CA; http://cmscontent.nrs.gov.bc.ca/geoscience/bedrock_geology/BC_digital_geology_shp.zip</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Object_ID</attrlabl>
+        <attrdef>Unique integer identifier</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>100000</rdommax>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Name</attrlabl>
+        <attrdef>Published fault name information; if no name, lists “unspecified”.</attrdef>
+        <attrdefs>https://earthquake.usgs.gov/hazards/qfaults/; https://www.usgs.gov/programs/earthquake-hazards/faults; https://geologyportal.dnr.wa.gov/; https://www.oregongeology.org/pubs/dds/p-OGDC-6.htm;  https://mrdata.usgs.gov/geology/state/state.php?state=CA; http://cmscontent.nrs.gov.bc.ca/geoscience/bedrock_geology/BC_digital_geology_shp.zip</attrdefs>
+        <attrdomv>
+          <udom>Published fault name information; if no name, lists “unspecified”.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Type</attrlabl>
+        <attrdef>Type of fault</attrdef>
+        <attrdefs>https://earthquake.usgs.gov/hazards/qfaults/; https://www.usgs.gov/programs/earthquake-hazards/faults; https://geologyportal.dnr.wa.gov/; https://www.oregongeology.org/pubs/dds/p-OGDC-6.htm;  https://mrdata.usgs.gov/geology/state/state.php?state=CA; http://cmscontent.nrs.gov.bc.ca/geoscience/bedrock_geology/BC_digital_geology_shp.zip</attrdefs>
+        <attrdomv>
+          <udom>Normal = all faults listed in original data sources as: normal, extensional, or detachment 
+Reverse = all faults listed in original data sources as: thrust or reverse 
+Strike-slip = all faults listed in original data source as: strike-slip 
+Right-lateral strike-slip = all faults listed in original data source as: dextral, right-lateral, or right-lateral strike-slip 
+Left-lateral strike-slip = all faults listed in original data source as: sinistral, left-lateral, or left-lateral strike-slip 
+Unspecified = all faults without fault type attributes specified in original datasets</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Type_ID</attrlabl>
+        <attrdef>Integer identifier corresponding with “Type” attribute category. 1=normal, 2=reverse, 3= strike-slip, 4=right-lateral strike-slip, 5=left-lateral strike-slip, 6=unspecified.</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>1</rdommin>
+            <rdommax>6</rdommax>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Certainty</attrlabl>
+        <attrdef>Certainty of fault existence and location. Certain = all faults listed in original data source as: certain 
+Questionable = all faults listed in original data source as: inferred, questionable, concealed, buried, approximate, etc. Basically all faults that have either questionable existence or location information.</attrdef>
+        <attrdefs>https://earthquake.usgs.gov/hazards/qfaults/; https://www.usgs.gov/programs/earthquake-hazards/faults; https://geologyportal.dnr.wa.gov/; https://www.oregongeology.org/pubs/dds/p-OGDC-6.htm;  https://mrdata.usgs.gov/geology/state/state.php?state=CA; http://cmscontent.nrs.gov.bc.ca/geoscience/bedrock_geology/BC_digital_geology_shp.zip</attrdefs>
+        <attrdomv>
+          <udom>Questionable = all faults listed in original data source as: inferred, questionable, concealed, buried, approximate, etc. Basically all faults that have either questionable existence or location information.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>SlipRate</attrlabl>
+        <attrdef>slip rate information in mm/yr. Slip rate values are typically only available for faults in the NSHM or Quaternary Fault databases. Some faults from the NSHM database include multiple slip rate estimates, which are weighted in the logic trees of the NSHM. Precision on slip rates from the NSHM are reported at one decimal place. Faults with “unspecified” slip rate indicates that the original dataset did not include slip rate information.</attrdef>
+        <attrdefs>https://earthquake.usgs.gov/hazards/qfaults/; https://www.usgs.gov/programs/earthquake-hazards/faults</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>5</rdommax>
+            <attrunit>mm/yr</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Code_ID</attrlabl>
+        <attrdef>Refers to the type of dataset from which the fault information was gathered. Geologic = faults compiled from geologic mapping datasets from state/federal agencies. Quaternary = fault downloaded from the US Geological Survey Quaternary fault and fold database. NSHM = faults downloaded from the US Geological Survey National Seismic Hazard Map database.</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>Refers to the type of dataset from which the fault information was gathered. Geologic = faults compiled from geologic mapping datasets from state/federal agencies. Quaternary = fault downloaded from the US Geological Survey Quaternary fault and fold database. NSHM = faults downloaded from the US Geological Survey National Seismic Hazard Map database.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>DataSource</attrlabl>
+        <attrdef>Source URL as listed above in Code_ID</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>Source URL as listed above in Code_ID</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Symbol</attrlabl>
+        <attrdef>Identifier used for displaying ArcGIS online fault traces based on source (NSHM, US Geological Survey Quaternary fault and fold database, State geologic compilations) and certainty of fault existence and location.</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>Identifier used for displaying ArcGIS online fault traces based on source (NSHM, US Geological Survey Quaternary fault and fold database, State geologic compilations) and certainty of fault existence and location.</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_terranes_v2</enttypl>
+        <enttypd>Geologic terrane boundaries in the Cascadia subduction zone region modified from Watt and Brothers (2020). Terrane boundaries data are represented as a polyline shapefile.</enttypd>
+        <enttypds>Watt, J. T., &amp; Brothers, D. S. (2020). Systematic characterization of morphotectonic variability along the Cascadia convergent margin: Implications for shallow megathrust behavior and tsunami hazards. Geosphere, 17(1), 95-117.</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Name</attrlabl>
+        <attrdef>Published terrane name.</attrdef>
+        <attrdefs>Watt, J. T., &amp; Brothers, D. S. (2020). Systematic characterization of morphotectonic variability along the Cascadia convergent margin: Implications for shallow megathrust behavior and tsunami hazards. Geosphere, 17(1), 95-117.</attrdefs>
+        <attrdomv>
+          <udom>Published terrane name.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Source</attrlabl>
+        <attrdef>Short-form reference(s) to study or studies where data were originally published. Terrane boundaries west of the Cascade Range were compiled in Watt and Brothers (2020; see below for reference). Terrane boundaries east of the Cascade Range are compiled from a variety of sources.</attrdef>
+        <attrdefs>Watt, J. T., &amp; Brothers, D. S. (2020). Systematic characterization of morphotectonic variability along the Cascadia convergent margin: Implications for shallow megathrust behavior and tsunami hazards. Geosphere, 17(1), 95-117.</attrdefs>
+        <attrdomv>
+          <udom>Short-form reference(s) to study or studies where data were originally published. Terrane boundaries west of the Cascade Range were compiled in Watt and Brothers (2020; see below for reference). Terrane boundaries east of the Cascade Range are compiled from a variety of sources.</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_slab_contours_v2</enttypl>
+        <enttypd>Depth contours of the downgoing Juan de Fuca and Gorda tectonic plate slabs along the Cascadia subduction zone interface from Slab2.0. Contour data are represented as a polyline shapefile. The entire dataset is included and was not clipped for purposes of this database.</enttypd>
+        <enttypds>https://www.sciencebase.gov/catalog/item/5aa312cde4b0b1c392ea3ef5</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>ContDepth</attrlabl>
+        <attrdef>Depth along the contour line in kilometers.</attrdef>
+        <attrdefs>https://www.sciencebase.gov/catalog/item/5aa312cde4b0b1c392ea3ef5</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>20</rdommin>
+            <rdommax>420</rdommax>
+            <attrunit>kilometers</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Tectonic_plate_boundaries</enttypl>
+        <enttypd>The tectonic plate boundaries derived from downloadable Google Earth file hosted by USGS. Data were clipped to the following W/E/S/N extents: -132/-120/38.5/53.5</enttypd>
+        <enttypds>https://www.usgs.gov/media/files/plate-boundaries-kmz-file</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Name</attrlabl>
+        <attrdef>Name of plate boundary</attrdef>
+        <attrdefs>https://www.usgs.gov/media/files/plate-boundaries-kmz-file</attrdefs>
+        <attrdomv>
+          <udom>Name of plate boundary.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>SymbolID</attrlabl>
+        <attrdef>Identification number for boundary appearance.</attrdef>
+        <attrdefs>https://www.usgs.gov/media/files/plate-boundaries-kmz-file</attrdefs>
+        <attrdomv>
+          <udom>Identification number for boundary appearance.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Type</attrlabl>
+        <attrdef>Type of tectonic boundary.</attrdef>
+        <attrdefs>https://www.usgs.gov/media/files/plate-boundaries-kmz-file</attrdefs>
+        <attrdomv>
+          <udom>Type of tectonic boundary.</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_seismic_stations_v2</enttypl>
+        <enttypd>Locations and station information for seismic monitoring networks in the Pacific Northwest represented as a points shapefile. Attributes were downloaded and simplified from published sources including http://www.fdsn.org/networks/ and https://ds.iris.edu/gmap/. Unique source data links are provided for each station; all data are available through http://ds.iris.edu/. Data were clipped to the following W/E/S/N extents: -132/-120/38.5/53.5</enttypd>
+        <enttypds>http://ds.iris.edu/.</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>NetCode</attrlabl>
+        <attrdef>Short seismic network code identifier.</attrdef>
+        <attrdefs>http://ds.iris.edu/.</attrdefs>
+        <attrdomv>
+          <udom>Short seismic network code identifier.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>NetName</attrlabl>
+        <attrdef>Full name of the seismic network.</attrdef>
+        <attrdefs>http://ds.iris.edu/.</attrdefs>
+        <attrdomv>
+          <udom>Full name of the seismic network.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>StaCode</attrlabl>
+        <attrdef>Unique short station code identifier.</attrdef>
+        <attrdefs>http://ds.iris.edu/.</attrdefs>
+        <attrdomv>
+          <udom>Unique short station code identifier.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>StaName</attrlabl>
+        <attrdef>Full name of the station, often a location.</attrdef>
+        <attrdefs>http://ds.iris.edu/.</attrdefs>
+        <attrdomv>
+          <udom>Full name of the station, often a location.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Latitude</attrlabl>
+        <attrdef>Latitude of the station location in signed decimal degrees.</attrdef>
+        <attrdefs>http://ds.iris.edu/.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>38,5</rdommin>
+            <rdommax>53.5</rdommax>
+            <attrunit>decimal degrees</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Longitude</attrlabl>
+        <attrdef>Longitude of the station location in signed decimal degrees.</attrdef>
+        <attrdefs>http://ds.iris.edu/.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>-132</rdommin>
+            <rdommax>-120</rdommax>
+            <attrunit>decimal degrees</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Elevation</attrlabl>
+        <attrdef>Site elevation in meters.</attrdef>
+        <attrdefs>http://ds.iris.edu/.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>4400</rdommax>
+            <attrunit>meters</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Operator</attrlabl>
+        <attrdef>The organization(s) that operate the station and/or seismic network.</attrdef>
+        <attrdefs>http://ds.iris.edu/.</attrdefs>
+        <attrdomv>
+          <udom>The organization(s) that operate the station and/or seismic network.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>DataCenter</attrlabl>
+        <attrdef>The data center hosting the data for the station and/or seismic network. Data may be housed at multiple data centers. Data centers may include some combination of the following abbreviations:  
+IRISDMC: Incorporated Research Institutions for Seismology Data Management Center 
+NCEDC: Northern California Earthquake Data Center 
+SCEDC: Southern California Earthquake Data Center 
+RASPISHAKE: Raspberry Shake</attrdef>
+        <attrdefs>http://ds.iris.edu/.</attrdefs>
+        <attrdomv>
+          <edom>
+            <edomv>IRISDMC</edomv>
+            <edomvd>Incorporated Research Institutions for Seismology Data Management Center</edomvd>
+            <edomvds>Producer-defined.</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>NCEDC</edomv>
+            <edomvd>Northern California Earthquake Data Center</edomvd>
+            <edomvds>Producer-defined.</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>SCEDC</edomv>
+            <edomvd>Southern California Earthquake Data Center</edomvd>
+            <edomvds>Producer-defined.</edomvds>
+          </edom>
+        </attrdomv>
+        <attrdomv>
+          <edom>
+            <edomv>RASPISHAKE</edomv>
+            <edomvd>Raspberry Shake</edomvd>
+            <edomvds>Producer-defined.</edomvds>
+          </edom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>DataSource</attrlabl>
+        <attrdef>URL or link to source where data can be downloaded. Unique links are provided for each station, but all data are available through http://ds.iris.edu/.</attrdef>
+        <attrdefs>http://ds.iris.edu/.</attrdefs>
+        <attrdomv>
+          <udom>URL or link to source where data can be downloaded. Unique links are provided for each station, but all data are available through http://ds.iris.edu/.</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_seismicity_M4</enttypl>
+        <enttypd>Locations, timing, and magnitude information for earthquake events of magnitude 4.0 and above in the Cascadia subduction zone region from https://earthquake.usgs.gov. Data are represented as a points shapefile. Attributes were downloaded and simplified from https://earthquake.usgs.gov/earthquakes/search/. Data were clipped to the following W/E/S/N extents: -132/-120/38.5/53.5</enttypd>
+        <enttypds>https://earthquake.usgs.gov/earthquakes/search/</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Time</attrlabl>
+        <attrdef>Time and date of earthquake event. Format is YYYY-MM-DD[T]HH:MM:SS.SSS[Z]</attrdef>
+        <attrdefs>https://earthquake.usgs.gov</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>1950-01-01[T]00:00:00.000[Z]</rdommin>
+            <rdommax>2022-01-01[T]00:00:00.000[Z]</rdommax>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Location</attrlabl>
+        <attrdef>Description of general location of the earthquake event; name typically includes the U.S. state or country.</attrdef>
+        <attrdefs>https://earthquake.usgs.gov</attrdefs>
+        <attrdomv>
+          <udom>Description of general location of the earthquake event; name typically includes the U.S. state or country.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Latitude</attrlabl>
+        <attrdef>Latitude of the event location in signed decimal degrees.</attrdef>
+        <attrdefs>https://earthquake.usgs.gov</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>38.5</rdommin>
+            <rdommax>53.5</rdommax>
+            <attrunit>decimal degrees</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Longitude</attrlabl>
+        <attrdef>Longitude of the event location in signed decimal degrees.</attrdef>
+        <attrdefs>https://earthquake.usgs.gov</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>-132</rdommin>
+            <rdommax>-120</rdommax>
+            <attrunit>decimal degrees</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Depth</attrlabl>
+        <attrdef>Depth of the event in kilometers.</attrdef>
+        <attrdefs>https://earthquake.usgs.gov</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>500</rdommax>
+            <attrunit>kilometers</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Mag</attrlabl>
+        <attrdef>Magnitude of the event.</attrdef>
+        <attrdefs>https://earthquake.usgs.gov</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>4</rdommin>
+            <rdommax>9</rdommax>
+            <attrunit>earthquake magnitude</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>MagType</attrlabl>
+        <attrdef>Type of magnitude reported for the event (see https://www.usgs.gov/natural-hazards/earthquake-hazards/science/magnitude-types for magnitude type definitions)</attrdef>
+        <attrdefs>https://www.usgs.gov/natural-hazards/earthquake-hazards/science/magnitude-types for magnitude type definitions</attrdefs>
+        <attrdomv>
+          <udom>Type of magnitude reported for the event (see https://www.usgs.gov/natural-hazards/earthquake-hazards/science/magnitude-types for magnitude type definitions)</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Catalog</attrlabl>
+        <attrdef>Short abbreviation for the catalog source of the earthquake event data. See https://earthquake.usgs.gov/data/comcat/catalog/ for abbreviation definitions and more information about the earthquake catalog sources.</attrdef>
+        <attrdefs>https://earthquake.usgs.gov</attrdefs>
+        <attrdomv>
+          <udom>Short abbreviation for the catalog source of the earthquake event data. See https://earthquake.usgs.gov/data/comcat/catalog/ for abbreviation definitions and more information about the earthquake catalog sources.</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_seismicity_plateboundary</enttypl>
+        <enttypd>Locations, timing, and magnitude information for earthquake events interpreted along the plate boundary from Stone et al., 2018. Events are all below magnitude 4.0. Data are represented as a points shapefile. Attributes were simplified from data tables published as supplements with Stone et al., 2018.</enttypd>
+        <enttypds>Stone I, Vidale JE, Han S, Roland E. 2018. Catalog of offshore seismicity in Cascadia: insights into the regional distribution of microseismicity and its relation to subduction processes. J. Geophys. Res. Solid Earth 123(1):641–52</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Date</attrlabl>
+        <attrdef>Date of earthquake event. Format is ‘YYYY/MM/DD’</attrdef>
+        <attrdefs>Stone I, Vidale JE, Han S, Roland E. 2018. Catalog of offshore seismicity in Cascadia: insights into the regional distribution of microseismicity and its relation to subduction processes. J. Geophys. Res. Solid Earth 123(1):641–52.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>1950/01/01</rdommin>
+            <rdommax>2022/01/01</rdommax>
+            <attrunit>days</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Time</attrlabl>
+        <attrdef>Time of earthquake event. Format is ‘HH:MM:SS.SS’</attrdef>
+        <attrdefs>Stone I, Vidale JE, Han S, Roland E. 2018. Catalog of offshore seismicity in Cascadia: insights into the regional distribution of microseismicity and its relation to subduction processes. J. Geophys. Res. Solid Earth 123(1):641–52.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>00:00:00.00</rdommin>
+            <rdommax>23:59:59.99</rdommax>
+            <attrunit>seconds</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Latitude</attrlabl>
+        <attrdef>Latitude of the event location in signed decimal degrees.</attrdef>
+        <attrdefs>Stone I, Vidale JE, Han S, Roland E. 2018. Catalog of offshore seismicity in Cascadia: insights into the regional distribution of microseismicity and its relation to subduction processes. J. Geophys. Res. Solid Earth 123(1):641–52.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>38.5</rdommin>
+            <rdommax>53.5</rdommax>
+            <attrunit>decimal degrees</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Longitude</attrlabl>
+        <attrdef>Longitude of the event location in signed decimal degrees.</attrdef>
+        <attrdefs>Stone I, Vidale JE, Han S, Roland E. 2018. Catalog of offshore seismicity in Cascadia: insights into the regional distribution of microseismicity and its relation to subduction processes. J. Geophys. Res. Solid Earth 123(1):641–52.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>-132</rdommin>
+            <rdommax>-120</rdommax>
+            <attrunit>decimal degrees</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Depth</attrlabl>
+        <attrdef>Depth of the event in kilometers.</attrdef>
+        <attrdefs>Stone I, Vidale JE, Han S, Roland E. 2018. Catalog of offshore seismicity in Cascadia: insights into the regional distribution of microseismicity and its relation to subduction processes. J. Geophys. Res. Solid Earth 123(1):641–52.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>500</rdommax>
+            <attrunit>kilometers</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Mag</attrlabl>
+        <attrdef>Magnitude of the event.</attrdef>
+        <attrdefs>Stone I, Vidale JE, Han S, Roland E. 2018. Catalog of offshore seismicity in Cascadia: insights into the regional distribution of microseismicity and its relation to subduction processes. J. Geophys. Res. Solid Earth 123(1):641–52.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>4</rdommax>
+            <attrunit>earthquake magnitude</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Source</attrlabl>
+        <attrdef>Short-form reference to published study where core data have been published. All data are from Stone et al., 2018.</attrdef>
+        <attrdefs>Stone I, Vidale JE, Han S, Roland E. 2018. Catalog of offshore seismicity in Cascadia: insights into the regional distribution of microseismicity and its relation to subduction processes. J. Geophys. Res. Solid Earth 123(1):641–52.</attrdefs>
+        <attrdomv>
+          <udom>Short-form reference to published study where core data have been published. All data are from Stone et al., 2018.</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_tsunami_paleoseismology_v1</enttypl>
+        <enttypd>Locations of published tsunami deposits in coastal Cascadia represented as a points shapefile. Attributes were simplified from published, peer-reviewed sources.</enttypd>
+        <enttypds>Producer defined.</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Location</attrlabl>
+        <attrdef>Name of the site where core samples were collected.</attrdef>
+        <attrdefs>Defined by data set publisher.</attrdefs>
+        <attrdomv>
+          <udom>Name of the site where core samples were collected.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>State</attrlabl>
+        <attrdef>Postal code of the U.S. state or Canadian province where the site is located.</attrdef>
+        <attrdefs>https://www.geonames.org/postal-codes/</attrdefs>
+        <attrdomv>
+          <codesetd>
+            <codesetn>Postal code</codesetn>
+            <codesets>https://www.geonames.org/postal-codes/</codesets>
+          </codesetd>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Latitude</attrlabl>
+        <attrdef>Latitude of the site location in signed decimal degrees.</attrdef>
+        <attrdefs>Defined by data set publisher or estimated from published map.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>38.5</rdommin>
+            <rdommax>53.5</rdommax>
+            <attrunit>decimal degrees</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Longitude</attrlabl>
+        <attrdef>Longitude of the site location in signed decimal degrees.</attrdef>
+        <attrdefs>Defined by data set publisher or estimated from published map.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>-132</rdommin>
+            <rdommax>-120</rdommax>
+            <attrunit>decimal degrees</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>RecLength</attrlabl>
+        <attrdef>Temporal length of core records at the site in cal years BP.</attrdef>
+        <attrdefs>Defined by data set publisher.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>13000</rdommax>
+            <attrunit>years</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>EventsTot</attrlabl>
+        <attrdef>Integer number of disturbance events interpreted in the core records at the site.</attrdef>
+        <attrdefs>Defined by data set publisher.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>30</rdommax>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>EventsCSZ</attrlabl>
+        <attrdef>Integer number of disturbance events attributed to tsunami events from Cascadia subduction zone earthquakes in peer-reviewed sources. Tsunami events with corresponding land-level subsidence were considered to be from Cascadia subduction zone earthquakes.</attrdef>
+        <attrdefs>Defined by data set publisher.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>30</rdommax>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Source</attrlabl>
+        <attrdef>Short-form reference to published study or studies where site data and paleoseismology analyses have been published. Multiple references are separated by a semicolon.</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>Short-form reference to published study or studies where site data and paleoseismology analyses have been published. Multiple references are separated by a semicolon.</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_landlevel_paleoseismology_v2</enttypl>
+        <enttypd>Locations of published land-level change sites in coastal Cascadia that have been analyzed for paleoseismic events represented as a points shapefile. Attributes were simplified from published, peer-reviewed sources.</enttypd>
+        <enttypds>Producer defined.</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Location</attrlabl>
+        <attrdef>Name of the site where cores or samples were collected.</attrdef>
+        <attrdefs>Defined by data set publisher.</attrdefs>
+        <attrdomv>
+          <udom>Proper name of the site where cores or samples were collected.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>State</attrlabl>
+        <attrdef>Postal code of the U.S. state or Canadian province where the site is located.</attrdef>
+        <attrdefs>https://www.geonames.org/postal-codes/</attrdefs>
+        <attrdomv>
+          <codesetd>
+            <codesetn>Postal code</codesetn>
+            <codesets>https://www.geonames.org/postal-codes/</codesets>
+          </codesetd>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Latitude</attrlabl>
+        <attrdef>Latitude of the site location in signed decimal degrees.</attrdef>
+        <attrdefs>Defined by data set publisher.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>38.5</rdommin>
+            <rdommax>53.5</rdommax>
+            <attrunit>decimal degrees</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Longitude</attrlabl>
+        <attrdef>Longitude of the site location in signed decimal degrees.</attrdef>
+        <attrdefs>Defined by data set publisher.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>-132</rdommin>
+            <rdommax>-120</rdommax>
+            <attrunit>decimal degrees</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>RecLength</attrlabl>
+        <attrdef>Temporal length of core or sample records at the site in cal years BP.</attrdef>
+        <attrdefs>Defined by data set publisher.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>13000</rdommax>
+            <attrunit>years</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>EventsTot</attrlabl>
+        <attrdef>Integer number of land-level change events interpreted in the core or sample records at the site.</attrdef>
+        <attrdefs>Defined by data set publisher.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>30</rdommax>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>EventsCSZ</attrlabl>
+        <attrdef>Integer number of land-level change events attributed to Cascadia subduction zone earthquakes in peer-reviewed sources. Land-level change events with corresponding tsunami were considered to be from Cascadia subduction zone earthquakes.</attrdef>
+        <attrdefs>Defined by data set publisher.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>30</rdommax>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Source</attrlabl>
+        <attrdef>Short-form reference to published study or studies where site data and paleoseismology analyses have been published. Multiple references are separated by a semicolon.</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>Short-form reference to published study or studies where site data and paleoseismology analyses have been published. Multiple references are separated by a semicolon.</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_lacustrine_cores_v1</enttypl>
+        <enttypd>Locations of published lacustrine cores represented as a points shapefile. Attributes were simplified from the National Centers for Environmental Information (NCEI) core data repository at https://www.ngdc.noaa.gov/geosamples/. Data were clipped to the following W/E/S/N extents: -132/-120/38.5/53.5</enttypd>
+        <enttypds>https://www.ngdc.noaa.gov/geosamples/</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Platform</attrlabl>
+        <attrdef>Name of the ship or vessel on which the coring survey was conducted.</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/geosamples/.</attrdefs>
+        <attrdomv>
+          <udom>Name of the ship or vessel on which the coring survey was conducted.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Cruise</attrlabl>
+        <attrdef>Identifier of the cruise on which the coring survey was conducted, as listed in the NCEI core data repository.</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/geosamples/.</attrdefs>
+        <attrdomv>
+          <udom>Identifier of the cruise on which the coring survey was conducted, as listed in the NCEI core data repository.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>CoreSite</attrlabl>
+        <attrdef>Core, sample, or site name as listed in the NCEI core data repository.</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/geosamples/.</attrdefs>
+        <attrdomv>
+          <udom>Core, sample, or site name as listed in the NCEI core data repository.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Date</attrlabl>
+        <attrdef>Date on which the core or sample was collected; format is YYYYMMDD.</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/geosamples/.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0000000000</rdommin>
+            <rdommax>20220101</rdommax>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Latitude</attrlabl>
+        <attrdef>Latitude of the core location in signed decimal degrees.</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/geosamples/.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>38.5</rdommin>
+            <rdommax>53.5</rdommax>
+            <attrunit>decimal degrees</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Longitude</attrlabl>
+        <attrdef>Longitude of the core location in signed decimal degrees.</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/geosamples/.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>38.5</rdommin>
+            <rdommax>53.5</rdommax>
+            <attrunit>decimal degrees</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Depth</attrlabl>
+        <attrdef>Site depth in meters; same as water depth.</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/geosamples/.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>1000</rdommax>
+            <attrunit>meters</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Device</attrlabl>
+        <attrdef>Type of instrument used to collect the core or sample.</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/geosamples/.</attrdefs>
+        <attrdomv>
+          <udom>Type of instrument used to collect the core or sample. Device types in this dataset include: core 
+core, box 
+core, dart 
+core, free-fall 
+core, gravity 
+core, hand-held 
+core, kastenlot 
+core, multicorer 
+core, piston 
+core, submersible mounted 
+core, vibrating 
+core, trigger wt.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Repository</attrlabl>
+        <attrdef>Abbreviation of the organization hosting the digital and/or physical core data archives.</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/geosamples/.</attrdefs>
+        <attrdomv>
+          <udom>Abbreviation of the organization hosting the digital and/or physical core data archives.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>DataSource</attrlabl>
+        <attrdef>URL or link to source where data can be downloaded from the NCEI core data repository at https://www.ngdc.noaa.gov/geosamples/. Unique links are provided for each core or sample.</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/geosamples/.</attrdefs>
+        <attrdomv>
+          <udom>URL or link to source where data can be downloaded from the NCEI core data repository at https://www.ngdc.noaa.gov/geosamples/. Unique links are provided for each core or sample.</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_onshore_shaking_paleoseismology_v2</enttypl>
+        <enttypd>Locations of published evidence for coseismic shaking, or lack thereof, in Cascadia that have been analyzed for paleoseismic events represented as a points shapefile. Attributes were simplified from published, peer-reviewed sources.</enttypd>
+        <enttypds>Producer defined</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>RecordType</attrlabl>
+        <attrdef>Type of record analyzed for evidence of coseismic shaking.</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>Type of record analyzed for evidence of coseismic shaking.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Location</attrlabl>
+        <attrdef>Proper name of the lake or site where core samples were collected.</attrdef>
+        <attrdefs>Defined by data set publisher.</attrdefs>
+        <attrdomv>
+          <udom>Proper name of the lake or site where core samples were collected.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Latitude</attrlabl>
+        <attrdef>Latitude of the lake or site location in signed decimal degrees.</attrdef>
+        <attrdefs>Defined by data set publisher.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>38.5</rdommin>
+            <rdommax>53.5</rdommax>
+            <attrunit>decimal degrees</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Longitude</attrlabl>
+        <attrdef>Longitude of the lake or site location in signed decimal degrees.</attrdef>
+        <attrdefs>Defined by data set publisher.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>-132</rdommin>
+            <rdommax>-120</rdommax>
+            <attrunit>decimal degrees</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>RecLength</attrlabl>
+        <attrdef>Temporal length of core records at the lake or site in cal years BP.</attrdef>
+        <attrdefs>Defined by data set publisher.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>13000</rdommax>
+            <attrunit>years</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>EventsTot</attrlabl>
+        <attrdef>Integer number of disturbance events interpreted in the core records at the site.</attrdef>
+        <attrdefs>Defined by data set publisher</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>30</rdommax>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>EventsCSZ</attrlabl>
+        <attrdef>Integer number of disturbance events attributed to Cascadia subduction zone earthquakes in peer-reviewed sources. Disturbance events interpreted as tsunami were considered to be from Cascadia subduction zone earthquakes.</attrdef>
+        <attrdefs>Defined by data set publisher.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>30</rdommax>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Source</attrlabl>
+        <attrdef>Short-form reference to published study or studies where site data and paleoseismology analyses have been published. Multiple references are separated by a semicolon.</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>Short-form reference to published study or studies where site data and paleoseismology analyses have been published. Multiple references are separated by a semicolon.</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_landslide_polygons</enttypl>
+        <enttypd>Merged terrestrial landslide inventories in Washington, Oregon, and northern California represented as a polygon shapefile. Polygon attributes were taken and simplified from a merged source dataset downloaded from the U.S. Geological Survey landslide inventory</enttypd>
+        <enttypds>https://www.sciencebase.gov/catalog/item/5c7065b4e4b0fe48cb43fbd7</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Object_ID</attrlabl>
+        <attrdef>Unique integer identifier</attrdef>
+        <attrdefs>https://www.sciencebase.gov/catalog/item/5c7065b4e4b0fe48cb43fbd7</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>19830</rdommin>
+            <rdommax>217937</rdommax>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Date</attrlabl>
+        <attrdef>Date of ground failure or observed date</attrdef>
+        <attrdefs>https://www.sciencebase.gov/catalog/item/5c7065b4e4b0fe48cb43fbd7</attrdefs>
+        <attrdomv>
+          <udom>Date of ground failure or observed date taken from the U.S. Geological Survey source data. Value --- indicates no date.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Confidence</attrlabl>
+        <attrdef>Confidence of ground failure event and location from the U.S. Geological Survey source data, defined as follows: (8) High confidence in extent or nature of landslide, (5) Confident consequential landslide at this location, (3) Likely landslide at or near this location, (2) Probable landslide in the area, (1) Possible landslide in the area.</attrdef>
+        <attrdefs>https://www.sciencebase.gov/catalog/item/5c7065b4e4b0fe48cb43fbd7</attrdefs>
+        <attrdomv>
+          <udom>Confidence of ground failure event and location from the U.S. Geological Survey source data, defined as follows: (8) High confidence in extent or nature of landslide, (5) Confident consequential landslide at this location, (3) Likely landslide at or near this location, (2) Probable landslide in the area, (1) Possible landslide in the area.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Inventory</attrlabl>
+        <attrdef>Name of the original source inventory for landslide points. There are five total original source inventories: OR Slido, California GS, USGS WA PS, USGS WA PS Historical, and WA DNR.</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>Name of the original source inventory for landslide points. There are five total original source inventories: OR Slido, California GS, USGS WA PS, USGS WA PS Historical, and WA DNR.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>InfoSource</attrlabl>
+        <attrdef>Information source if the source is not the inventory. This could be a picture, news article, video, or publication.</attrdef>
+        <attrdefs>https://www.sciencebase.gov/catalog/item/5c7065b4e4b0fe48cb43fbd7</attrdefs>
+        <attrdomv>
+          <udom>Information source if the source is not the inventory. This could be a picture, news article, video, or publication. Attribute information taken from the U.S. Geological Survey source data.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>DataSource</attrlabl>
+        <attrdef>URL or link to original source inventories where data can be downloaded.</attrdef>
+        <attrdefs>https://www.sciencebase.gov/catalog/item/5c7065b4e4b0fe48cb43fbd7</attrdefs>
+        <attrdomv>
+          <udom>The sources for data are: 
+OR Slido: https://gis.dogami.oregon.gov/maps/slido/ 
+California GS: https://maps.conservation.ca.gov/cgs/lsi/app/ 
+USGS WA PS and USGS WA PS Historical: https://pubs.usgs.gov/mf/2000/mf-2346/   
+WA DNR: https://www.dnr.wa.gov/geologyportal 
+Data from the above inventories were merged into the U.S. Geological Survey inventory available at  https://www.sciencebase.gov/catalog/item/5c7065b4e4b0fe48cb43fbd7</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Notes</attrlabl>
+        <attrdef>Notes about each landslide feature from the U.S. Geological Survey source data. Most notes were populated using original fields. The notes field is different for each inventory and shows other attribute fields that were combined using logic expressions within the original attribute table.</attrdef>
+        <attrdefs>https://www.sciencebase.gov/catalog/item/5c7065b4e4b0fe48cb43fbd7</attrdefs>
+        <attrdomv>
+          <udom>Notes about each landslide feature from the U.S. Geological Survey source data. Most notes were populated using original fields. The notes field is different for each inventory and shows other attribute fields that were combined using logic expressions within the original attribute table.</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_LiDAR_coverage_v5_WGS84</enttypl>
+        <enttypd>Lidar survey coverage in coastal Washington, Oregon, and northern California. Lidar data are represented as polygon shapefiles, and polygon attributes were simplified from source datasets downloaded from https://coast.noaa.gov/. Data were clipped to the following W/E/S/N extents: -132/-120/38.5/53.5</enttypd>
+        <enttypds>Producer defined.</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Year</attrlabl>
+        <attrdef>Published year of dataset collection.</attrdef>
+        <attrdefs>https://coast.noaa.gov/</attrdefs>
+        <attrdomv>
+          <udom>Published year of dataset collection.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Originator</attrlabl>
+        <attrdef>Agency or entity responsible for data collection. Federal agencies are abbreviated, e.g. USGS, NOAA, USFS.</attrdef>
+        <attrdefs>https://coast.noaa.gov/</attrdefs>
+        <attrdomv>
+          <udom>Agency or entity responsible for data collection. Federal agencies are abbreviated, e.g. USGS, NOAA, USFS.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>State</attrlabl>
+        <attrdef>Postal code of the US state or states where the data are located.</attrdef>
+        <attrdefs>https://coast.noaa.gov/</attrdefs>
+        <attrdomv>
+          <codesetd>
+            <codesetn>Postal code of the US state</codesetn>
+            <codesets>https://coast.noaa.gov/</codesets>
+          </codesetd>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Name</attrlabl>
+        <attrdef>Published survey name or title information.</attrdef>
+        <attrdefs>https://coast.noaa.gov/</attrdefs>
+        <attrdomv>
+          <udom>Published survey name or title information.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>DataSource</attrlabl>
+        <attrdef>Source URL where dataset can be downloaded. The only two sources for data are https://coast.noaa.gov/dataviewer/ and https://lidarportal.dnr.wa.gov/. For https://lidarportal.dnr.wa.gov/, data are discoverable by searching for the dataset name populated in the Name attribute.</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>Source URL where dataset can be downloaded. The only two sources for data are https://coast.noaa.gov/dataviewer/ and https://lidarportal.dnr.wa.gov/. For https://lidarportal.dnr.wa.gov/, data are discoverable by searching for the dataset name populated in the Name attribute.</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_GNSS_vectors_v3_clip</enttypl>
+        <enttypd>Locations and velocity information for published Global Navigation Satellite System (GNSS) data in the Pacific Northwest represented as a points shapefile with azimuth and velocity information. Attributes were simplified from published, peer-reviewed sources including McCaffrey et al., 2013 and McCaffrey et al., 2016. Data were clipped to the following W/E/S/N extents: -132/-120/38.5/53.5</enttypd>
+        <enttypds>McCaffrey et al., 2013; McCaffrey et al., 2016</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Site</attrlabl>
+        <attrdef>Unique site code identifier.</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>Unique site code identifier.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Longitude</attrlabl>
+        <attrdef>Longitude of the site location in signed decimal degrees.</attrdef>
+        <attrdefs>McCaffrey et al., 2013; McCaffrey et al., 2016</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>-132</rdommin>
+            <rdommax>-120</rdommax>
+            <attrunit>decimal degrees</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Latitude</attrlabl>
+        <attrdef>Latitude of the site location in signed decimal degrees.</attrdef>
+        <attrdefs>McCaffrey et al., 2013; McCaffrey et al., 2016</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>38.5</rdommin>
+            <rdommax>53.5</rdommax>
+            <attrunit>decimal degrees</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Elevation</attrlabl>
+        <attrdef>Site elevation in meters.</attrdef>
+        <attrdefs>McCaffrey, R., King, R. W., Payne, S. J., &amp; Lancaster, M. (2013). Active tectonics of northwestern US inferred from GPS‐derived surface velocities. Journal of Geophysical Research: Solid Earth, 118(2), 709-723. McCaffrey, R., King, R. W., Wells, R. E., Lancaster, M., &amp; Miller, M. M. (2016). Contemporary deformation in the Yakima fold and thrust belt estimated with GPS. Geophysical Journal International, 207(1), 1-11.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>-30</rdommin>
+            <rdommax>3000</rdommax>
+            <attrunit>meter</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Evel</attrlabl>
+        <attrdef>East velocity in millimeters per year.</attrdef>
+        <attrdefs>McCaffrey et al., 2013; McCaffrey et al., 2016</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>-20</rdommin>
+            <rdommax>40</rdommax>
+            <attrunit>mm/yr</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Nvel</attrlabl>
+        <attrdef>North velocity in millimeters per year.</attrdef>
+        <attrdefs>McCaffrey et al., 2013; McCaffrey et al., 2016</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>-20</rdommin>
+            <rdommax>40</rdommax>
+            <attrunit>mm/yr</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Upvel</attrlabl>
+        <attrdef>Vertical velocity in millimeters per year, up is positive.</attrdef>
+        <attrdefs>McCaffrey et al., 2013; McCaffrey et al., 2016</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>-50</rdommin>
+            <rdommax>60</rdommax>
+            <attrunit>mm/yr</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Esig</attrlabl>
+        <attrdef>Standard 1-sigma error in east velocity in millimeters per year.</attrdef>
+        <attrdefs>McCaffrey et al., 2013; McCaffrey et al., 2016</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>200</rdommax>
+            <attrunit>mm/yr</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Nsig</attrlabl>
+        <attrdef>Standard 1-sigma error in north velocity in millimeters per year.</attrdef>
+        <attrdefs>McCaffrey et al., 2013; McCaffrey et al., 2016</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>200</rdommax>
+            <attrunit>mm/yr</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Upsig</attrlabl>
+        <attrdef>Standard 1-sigma error in vertical velocity in millimeters per year.</attrdef>
+        <attrdefs>McCaffrey et al., 2013; McCaffrey et al., 2016</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>200</rdommax>
+            <attrunit>mm/yr</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Azimuth</attrlabl>
+        <attrdef>Angle of velocity vector from north; east rotation is positive, west rotation is negative. Value calculated from Evel, Nvel fields.</attrdef>
+        <attrdefs>McCaffrey et al., 2013; McCaffrey et al., 2016</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>360</rdommax>
+            <attrunit>degrees</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Length</attrlabl>
+        <attrdef>Length of velocity vector, representative of total velocity. Value calculated using Evel, Nvel fields.</attrdef>
+        <attrdefs>McCaffrey et al., 2013; McCaffrey et al., 2016</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>32</rdommax>
+            <attrunit>mm/yr</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Source</attrlabl>
+        <attrdef>Short-form reference to published study where core data have been published. References include McCaffrey et al., 2013 and McCaffrey et al., 2016.</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>Short-form reference to published study where core data have been published. References include McCaffrey et al., 2013 and McCaffrey et al., 2016.</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_geology_v3</enttypl>
+        <enttypd>Geologic unit database compiled from geologic mapping in Washington, Oregon, northern California, and British Columbia. Geologic data are represented as polygon shapefiles, and polygon attributes were simplified from source datasets. Sources include the Washington Department of Natural Resources, the Oregon Geologic Data Compilation, the U.S. Geological Survey, and the British Columbia Geological Survey. Data were clipped to the following W/E/S/N extents: -132/-120/38.5/53.5</enttypd>
+        <enttypds>Producer defined.</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>State</attrlabl>
+        <attrdef>Postal code of the U.S. state or Canadian province where the geologic unit is located.</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <codesetd>
+            <codesetn>Postal code of the U.S. state or Canadian province</codesetn>
+            <codesets>Postal code of the U.S. state or Canadian province</codesets>
+          </codesetd>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Lithology</attrlabl>
+        <attrdef>Specific lithologic information about the geologic unit available from source datasets.</attrdef>
+        <attrdefs>https://geologyportal.dnr.wa.gov/; https://www.oregongeology.org/pubs/dds/p-OGDC-6.htm; https://mrdata.usgs.gov/geology/state/state.php?state=CA; http://cmscontent.nrs.gov.bc.ca/geoscience/bedrock_geology/BC_digital_geology_shp.zip</attrdefs>
+        <attrdomv>
+          <udom>Specific lithologic information about the geologic unit available from source datasets.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>AGE</attrlabl>
+        <attrdef>Generalized age of geologic unit simplified from source datasets.</attrdef>
+        <attrdefs>https://geologyportal.dnr.wa.gov/; https://www.oregongeology.org/pubs/dds/p-OGDC-6.htm; https://mrdata.usgs.gov/geology/state/state.php?state=CA; http://cmscontent.nrs.gov.bc.ca/geoscience/bedrock_geology/BC_digital_geology_shp.zip</attrdefs>
+        <attrdomv>
+          <udom>Generalized age of geologic unit simplified from source datasets.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>UNIT_NAME</attrlabl>
+        <attrdef>Proper name of geologic unit if provided in the source datasets.</attrdef>
+        <attrdefs>https://geologyportal.dnr.wa.gov/; https://www.oregongeology.org/pubs/dds/p-OGDC-6.htm; https://mrdata.usgs.gov/geology/state/state.php?state=CA; http://cmscontent.nrs.gov.bc.ca/geoscience/bedrock_geology/BC_digital_geology_shp.zip</attrdefs>
+        <attrdomv>
+          <udom>Proper name of geologic unit if provided in the source datasets.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>GEN_LITH</attrlabl>
+        <attrdef>Generalized lithogic information about the geologic unit simplified from source datasets.</attrdef>
+        <attrdefs>https://geologyportal.dnr.wa.gov/; https://www.oregongeology.org/pubs/dds/p-OGDC-6.htm; https://mrdata.usgs.gov/geology/state/state.php?state=CA; http://cmscontent.nrs.gov.bc.ca/geoscience/bedrock_geology/BC_digital_geology_shp.zip</attrdefs>
+        <attrdomv>
+          <udom>Generalized lithogic information about the geologic unit simplified from source datasets.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>DataSource</attrlabl>
+        <attrdef>URL or link to original source inventories where geospatial data can be downloaded. The sources for data are: 
+Washington State = Washington Department of Natural Resources 1:100k geologic map dataset downloaded from: https://geologyportal.dnr.wa.gov/ 
+Oregon State = The Oregon Geologic Data Compilation (OGDC), a statewide compilation of geologic data created by the Oregon Department of Geology and Mineral Industries (DOGAMI). Mapping scale is variable. Version used is OGDC-6 from: https://www.oregongeology.org/pubs/dds/p-OGDC-6.htm 
+California State = US Geological Survey map of California at 1:750k. Downloaded from: https://mrdata.usgs.gov/geology/state/state.php?state=CA 
+British Columbia, Canada = British Columbia Geological Survey digital geologic map. Scale varies from 1:50k  to 1:250k. Data version 2018-04-05. Data downloaded from: http://cmscontent.nrs.gov.bc.ca/geoscience/bedrock_geology/BC_digital_geology_shp.zip</attrdef>
+        <attrdefs>Producer defined</attrdefs>
+        <attrdomv>
+          <udom>URL or link to original source inventories where geospatial data can be downloaded. The sources for data are: 
+Washington State = Washington Department of Natural Resources 1:100k geologic map dataset downloaded from: https://geologyportal.dnr.wa.gov/ 
+Oregon State = The Oregon Geologic Data Compilation (OGDC), a statewide compilation of geologic data created by the Oregon Department of Geology and Mineral Industries (DOGAMI). Mapping scale is variable. Version used is OGDC-6 from: https://www.oregongeology.org/pubs/dds/p-OGDC-6.htm 
+California State = US Geological Survey map of California at 1:750k. Downloaded from: https://mrdata.usgs.gov/geology/state/state.php?state=CA 
+British Columbia, Canada = British Columbia Geological Survey digital geologic map. Scale varies from 1:50k  to 1:250k. Data version 2018-04-05. Data downloaded from: http://cmscontent.nrs.gov.bc.ca/geoscience/bedrock_geology/BC_digital_geology_shp.zip</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_marine_paleoseismology_v4_clip</enttypl>
+        <enttypd>Locations of published marine cores used to identify turbidite deposits offshore of the Pacific Northwest, represented as a points shapefile. Attributes were simplified from published, peer-reviewed sources including Goldfinger et al., 2012 and the National Centers for Environmental Information (NCEI) core data repository at https://www.ngdc.noaa.gov/geosamples/. Core data are also available the Oregon State University (OSU) Marine and Geology Repository at http://core-repository.coas.oregonstate.edu/ and http://activetectonics.coas.oregonstate.edu/paleoseismology_download.html. Data were clipped to the following W/E/S/N extents: -132/-120/38.5/53.5</enttypd>
+        <enttypds>Producer defined.</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Platform</attrlabl>
+        <attrdef>Name of the ship or vessel on which the coring survey was conducted.</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/geosamples/</attrdefs>
+        <attrdomv>
+          <udom>Name of the ship or vessel on which the coring survey was conducted.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Cruise</attrlabl>
+        <attrdef>Identifier of the cruise on which the coring survey was conducted, as listed in the NCEI core data repository.</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/geosamples/</attrdefs>
+        <attrdomv>
+          <udom>Identifier of the cruise on which the coring survey was conducted, as listed in the NCEI core data repository.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>CoreSite</attrlabl>
+        <attrdef>Core, sample, or site name as listed in the NCEI core data repository.</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/geosamples/</attrdefs>
+        <attrdomv>
+          <udom>Core, sample, or site name as listed in the NCEI core data repository.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Date</attrlabl>
+        <attrdef>Date on which the core or sample was collected; format is YYYYMMDD.</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/geosamples/</attrdefs>
+        <attrdomv>
+          <udom>Date on which the core or sample was collected; format is YYYYMMDD.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Latitude</attrlabl>
+        <attrdef>Latitude of the core location in signed decimal degrees.</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/geosamples/</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>-132</rdommin>
+            <rdommax>-120</rdommax>
+            <attrunit>decimal degrees</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Longitude</attrlabl>
+        <attrdef>Longitude of the core location in signed decimal degrees.</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/geosamples/</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>38,5</rdommin>
+            <rdommax>53,5</rdommax>
+            <attrunit>decimal degrees</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Depth</attrlabl>
+        <attrdef>Site depth in meters; same as water depth.</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/geosamples/</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>5000</rdommax>
+            <attrunit>meters</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Device</attrlabl>
+        <attrdef>Type of instrument used to collect the core or sample. Device types in this dataset include: 
+core, box 
+core, gravity 
+core, kastenlot 
+core, piston 
+core, trigger wt</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/geosamples/</attrdefs>
+        <attrdomv>
+          <udom>Type of instrument used to collect the core or sample. Device types in this dataset include: 
+core, box 
+core, gravity 
+core, kastenlot 
+core, piston 
+core, trigger wt</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Location</attrlabl>
+        <attrdef>Brief location description or name of a nearby geographic feature where the core was collected.</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>Brief location description or name of a nearby geographic feature where the core was collected.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Events</attrlabl>
+        <attrdef>Summary of paleoseismic events interpreted from core records at the site. For cores with noted event names, turbidite correlation was interpreted by Goldfinger et al., 2012. For other sites, a value of “events not interpreted” indicates a core or sample lacking interpreted events or not analyzed for the Goldfinger et al. 2012 study.</attrdef>
+        <attrdefs>Goldfinger, C., Nelson, C.H., Morey, A.E., Johnson, J.E., Patton, J.R., Karabanov, E.B., Gutierrez-Pastor, J., Eriksson, A.T., Gracia, E., Dunhill, G. and Enkin, R.J. (2012). Turbidite event history—Methods and implications for Holocene paleoseismicity of the Cascadia subduction zone (Prof. Paper No. 1661-F). US Geological Survey.</attrdefs>
+        <attrdomv>
+          <udom>Summary of paleoseismic events interpreted from core records at the site. For cores with noted event names, turbidite correlation was interpreted by Goldfinger et al., 2012. For other sites, a value of “events not interpreted” indicates a core or sample lacking interpreted events or not analyzed for the Goldfinger et al. 2012 study.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>DataSource</attrlabl>
+        <attrdef>URL or link to source where data can be downloaded from the NCEI core data repository at https://www.ngdc.noaa.gov/geosamples/. Unique links are provided for each core or sample. Core data are also available at the Oregon State University (OSU) Marine and Geology Repository at http://core-repository.coas.oregonstate.edu/ and http://activetectonics.coas.oregonstate.edu/paleoseismology_download.html.</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>URL or link to source where data can be downloaded from the NCEI core data repository at https://www.ngdc.noaa.gov/geosamples/. Unique links are provided for each core or sample. Core data are also available at the Oregon State University (OSU) Marine and Geology Repository at http://core-repository.coas.oregonstate.edu/ and http://activetectonics.coas.oregonstate.edu/paleoseismology_download.html.</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_marine_drilling_v1</enttypl>
+        <enttypd>Locations of published marine drill sites represented as a points shapefile. Attributes were simplified from the National Centers for Environmental Information (NCEI) International Ocean Drilling Data Archive at https://www.ngdc.noaa.gov/mgg/geology/drill.html (data are also available at https://www.ngdc.noaa.gov/geosamples/). Data were clipped to the following W/E/S/N extents: -132/-120/38.5/53.5</enttypd>
+        <enttypds>https://www.ngdc.noaa.gov/mgg/geology/drill.htm</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Cruise</attrlabl>
+        <attrdef>Identifier of the cruise on which the coring survey was conducted, as listed in the NCEI core data repository.</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/mgg/geology/drill.htm</attrdefs>
+        <attrdomv>
+          <udom>Identifier of the cruise on which the coring survey was conducted, as listed in the NCEI core data repository.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>DrillSite</attrlabl>
+        <attrdef>Core, sample, or site name as listed in the NCEI core data repository.</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/mgg/geology/drill.htm</attrdefs>
+        <attrdomv>
+          <udom>Core, sample, or site name as listed in the NCEI core data repository.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Date</attrlabl>
+        <attrdef>Date on which the core or sample was collected; format is YYYYMMDD.</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/mgg/geology/drill.htm</attrdefs>
+        <attrdomv>
+          <udom>Date on which the core or sample was collected; format is YYYYMMDD.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Latitude</attrlabl>
+        <attrdef>Latitude of the core location in signed decimal degrees</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/mgg/geology/drill.htm</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>38.5</rdommin>
+            <rdommax>53.5</rdommax>
+            <attrunit>decimal degrees</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Longitude</attrlabl>
+        <attrdef>Longitude of the core location in signed decimal degrees</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/mgg/geology/drill.htm</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>-132</rdommin>
+            <rdommax>-120</rdommax>
+            <attrunit>decimal degrees</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Depth</attrlabl>
+        <attrdef>Site depth in meters; same as water depth.</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/mgg/geology/drill.htm</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>5000</rdommax>
+            <attrunit>meters</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Device</attrlabl>
+        <attrdef>Type of instrument used to collect the core or sample. Device types in this dataset include: 
+core 
+core, box 
+core, dart 
+core, free-fall 
+core, gravity 
+core, hand-held 
+core, kastenlot 
+core, multicorer 
+core, piston 
+core, submersible mounted 
+core, vibrating 
+core, trigger wt.</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/mgg/geology/drill.htm</attrdefs>
+        <attrdomv>
+          <udom>Type of instrument used to collect the core or sample. Device types in this dataset include: 
+core 
+core, box 
+core, dart 
+core, free-fall 
+core, gravity 
+core, hand-held 
+core, kastenlot 
+core, multicorer 
+core, piston 
+core, submersible mounted 
+core, vibrating 
+core, trigger wt.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Repository</attrlabl>
+        <attrdef>Abbreviation of the organization hosting the digital and/or physical core data archives. Repositories in this dataset include: 
+Canada (Geological Survey of Canada): https://www.nrcan.gc.ca/science-data/research-centres-labs/geological-survey-canada/17100 
+LacCore (National Lacustrine Core Facility): http://lrc.geo.umn.edu/laccore/  
+LDEO (Lamont-Doherty Earth Observatory): https://www.ldeo.columbia.edu/core-repository  
+OSU (Oregon State University): http://core-repository.coas.oregonstate.edu/  
+PMEL (Pacific Marine Environmental Laboratory): https://www.pmel.noaa.gov/   
+SIO (Scripps Institution of Oceanography): https://scripps.ucsd.edu/collections  
+USGSMP (U.S. Geological Survey Pacific Coastal and Marine Science Center): https://www.usgs.gov/centers/pcmsc  
+USGSSP (U.S. Geological Survey St. Petersburg Coastal and Marine Science Center): https://www.usgs.gov/centers/spcmsc</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/mgg/geology/drill.htm</attrdefs>
+        <attrdomv>
+          <udom>Abbreviation of the organization hosting the digital and/or physical core data archives. Repositories in this dataset include: 
+Canada (Geological Survey of Canada): https://www.nrcan.gc.ca/science-data/research-centres-labs/geological-survey-canada/17100 
+LacCore (National Lacustrine Core Facility): http://lrc.geo.umn.edu/laccore/  
+LDEO (Lamont-Doherty Earth Observatory): https://www.ldeo.columbia.edu/core-repository  
+OSU (Oregon State University): http://core-repository.coas.oregonstate.edu/  
+PMEL (Pacific Marine Environmental Laboratory): https://www.pmel.noaa.gov/   
+SIO (Scripps Institution of Oceanography): https://scripps.ucsd.edu/collections  
+USGSMP (U.S. Geological Survey Pacific Coastal and Marine Science Center): https://www.usgs.gov/centers/pcmsc  
+USGSSP (U.S. Geological Survey St. Petersburg Coastal and Marine Science Center): https://www.usgs.gov/centers/spcmsc</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>DataSource</attrlabl>
+        <attrdef>URL or link to source where data can be downloaded from the NCEI core data repository at https://www.ngdc.noaa.gov/geosamples/. Unique links are provided for each core or sample.</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>URL or link to source where data can be downloaded from the NCEI core data repository at https://www.ngdc.noaa.gov/geosamples/. Unique links are provided for each core or sample.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Platform</attrlabl>
+        <attrdef>Name of the ship or vessel on which the coring survey was conducted.</attrdef>
+        <attrdefs>https://www.ngdc.noaa.gov/geosamples/</attrdefs>
+        <attrdomv>
+          <udom>Name of the ship or vessel on which the coring survey was conducted.</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_GNSS-A_sites_v3</enttypl>
+        <enttypd>Locations of current and proposed Global Navigation Satellite System-Acoustic (GNSS-A) sites offshore of the Pacific Northwest represented as a points shapefile. The data from these sites have not been published in peer-reviewed sources as of 4/2021; the dataset may be updated periodically as more data are released.</enttypd>
+        <enttypds>Producer defined.</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>SiteType</attrlabl>
+        <attrdef>Abbreviation of type of instrument at site. GNSS-A is Global Navigation Satellite System-Acoustic.</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>Abbreviation of type of instrument at site. GNSS-A is Global Navigation Satellite System-Acoustic.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>SiteName</attrlabl>
+        <attrdef>Unique name of site where monument or instrument was installed on the seafloor.</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>Unique name of site where monument or instrument was installed on the seafloor.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Location</attrlabl>
+        <attrdef>Description of general location of the site; name includes the nearest U.S. state or Canadian province.</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>Description of general location of the site; name includes the nearest U.S. state or Canadian province.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Longitude</attrlabl>
+        <attrdef>Longitude of the site location in signed decimal degrees.</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>-132</rdommin>
+            <rdommax>-120</rdommax>
+            <attrunit>decimal degrees</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Latitude</attrlabl>
+        <attrdef>Latitude of the site location in signed decimal degrees.</attrdef>
+        <attrdefs>Producer defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>38.5</rdommin>
+            <rdommax>53.5</rdommax>
+            <attrunit>decimal degrees</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Depth</attrlabl>
+        <attrdef>Site depth in meters; same as water depth.</attrdef>
+        <attrdefs>Producer defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>5000</rdommax>
+            <attrunit>meters</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>YearInst</attrlabl>
+        <attrdef>Year in which the equipment was installed. If not known, the entry is left blank.</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>Year in which the equipment was installed. If not known, the entry is left blank.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>YearRem</attrlabl>
+        <attrdef>Year in which the equipment was removed. If not known or if not yet removed, the entry is left blank.</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>Year in which the equipment was removed. If not known or if not yet removed, the entry is left blank.</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_marine_seismic_v1</enttypl>
+        <enttypd>Offshore seismic reflection and refraction surveys represented as a polyline shapefile. Data include tracklines for multi-channel seismic (MCS), single-channel seismic (SCS), subbottom profile (SB), and seismic refraction (SR) data from published data repositories. Attributes were simplified from source data available through the National Archive of Marine Seismic Surveys (NAMSS; https://walrus.wr.usgs.gov/namss/), the National Centers for Environmental Information (NCEI; https://ngdc.noaa.gov/mgg/geodas/trackline.html and https://hub.arcgis.com/maps/noaa::trackline-geophysical-data-dynamic-map-service/about), and the Marine Geoscience Data System (MGDS; https://www.marine-geo.org/index.php). Data were clipped to the following W/E/S/N extents: -132/-120/38.5/53.5</enttypd>
+        <enttypds>Producer defined.</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Cruise</attrlabl>
+        <attrdef>Identifier of the cruise on which the survey was conducted, as listed in the source data repository.</attrdef>
+        <attrdefs>NAMSS; https://walrus.wr.usgs.gov/namss/; NCEI; https://ngdc.noaa.gov/mgg/geodas/trackline.html and https://hub.arcgis.com/maps/noaa::trackline-geophysical-data-dynamic-map-service/about; MGDS; https://www.marine-geo.org/index.php</attrdefs>
+        <attrdomv>
+          <udom>Identifier of the cruise on which the survey was conducted, as listed in the source data repository.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Platform</attrlabl>
+        <attrdef>Name of the ship or vessel on which the survey was conducted. If not known, lists “unspecified”.</attrdef>
+        <attrdefs>NAMSS; https://walrus.wr.usgs.gov/namss/; NCEI; https://ngdc.noaa.gov/mgg/geodas/trackline.html and https://hub.arcgis.com/maps/noaa::trackline-geophysical-data-dynamic-map-service/about; MGDS; https://www.marine-geo.org/index.php</attrdefs>
+        <attrdomv>
+          <udom>Name of the ship or vessel on which the survey was conducted. If not known, lists “unspecified”.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Year</attrlabl>
+        <attrdef>Year in which the cruise was conducted.</attrdef>
+        <attrdefs>NAMSS; https://walrus.wr.usgs.gov/namss/; NCEI; https://ngdc.noaa.gov/mgg/geodas/trackline.html and https://hub.arcgis.com/maps/noaa::trackline-geophysical-data-dynamic-map-service/about; MGDS; https://www.marine-geo.org/index.php</attrdefs>
+        <attrdomv>
+          <udom>Year in which the cruise was conducted.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>DataType</attrlabl>
+        <attrdef>Type of seismic data. If multiple data types exist for a cruise, multiple entries for that cruise exist in the shapefile, due to some data types being available via different repositories. 
+MCS: Multi-channel seismic reflection 
+SCS: Single-channel seismic reflection 
+SB: sub-bottom profile 
+SR: seismic refraction</attrdef>
+        <attrdefs>NAMSS; https://walrus.wr.usgs.gov/namss/; NCEI; https://ngdc.noaa.gov/mgg/geodas/trackline.html and https://hub.arcgis.com/maps/noaa::trackline-geophysical-data-dynamic-map-service/about; MGDS; https://www.marine-geo.org/index.php</attrdefs>
+        <attrdomv>
+          <udom>Type of seismic data. If multiple data types exist for a cruise, multiple entries for that cruise exist in the shapefile, due to some data types being available via different repositories. 
+MCS: Multi-channel seismic reflection 
+SCS: Single-channel seismic reflection 
+SB: sub-bottom profile 
+SR: seismic refraction</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Originator</attrlabl>
+        <attrdef>Agency or entity responsible for data collection and contribution to the data repository. If not known, the entry is left blank. 
+Federal agencies are abbreviated, e.g. NOAA. If not known, the entry is left blank.</attrdef>
+        <attrdefs>NAMSS; https://walrus.wr.usgs.gov/namss/; NCEI; https://ngdc.noaa.gov/mgg/geodas/trackline.html and https://hub.arcgis.com/maps/noaa::trackline-geophysical-data-dynamic-map-service/about; MGDS; https://www.marine-geo.org/index.php</attrdefs>
+        <attrdomv>
+          <udom>Agency or entity responsible for data collection and contribution to the data repository. If not known, the entry is left blank. 
+Federal agencies are abbreviated, e.g. NOAA. If not known, the entry is left blank.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>ChiefSci</attrlabl>
+        <attrdef>Chief scientist or principal investigator on the cruise. If not known or there was no chief scientist, the entry is left blank.</attrdef>
+        <attrdefs>NAMSS; https://walrus.wr.usgs.gov/namss/; NCEI; https://ngdc.noaa.gov/mgg/geodas/trackline.html and https://hub.arcgis.com/maps/noaa::trackline-geophysical-data-dynamic-map-service/about; MGDS; https://www.marine-geo.org/index.php</attrdefs>
+        <attrdomv>
+          <udom>Chief scientist or principal investigator on the cruise. If not known or there was no chief scientist, the entry is left blank.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Repository</attrlabl>
+        <attrdef>Abbreviation of the organization hosting the digital data archive for the cruise. Repositories in this dataset include: 
+NAMSS: National Archive of Marine Seismic Surveys 
+NCEI: National Centers for Environmental Information  
+MGDS: Marine Geoscience Data System</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>Abbreviation of the organization hosting the digital data archive for the cruise. Repositories in this dataset include: 
+NAMSS: National Archive of Marine Seismic Surveys 
+NCEI: National Centers for Environmental Information  
+MGDS: Marine Geoscience Data System</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>DataSource</attrlabl>
+        <attrdef>URL or link to source where digital data can be downloaded. Unique links are provided for each survey. The sources for the data are: 
+NAMSS: https://walrus.wr.usgs.gov/namss/ 
+NCEI: https://ngdc.noaa.gov/mgg/geodas/trackline.html and https://hub.arcgis.com/maps/noaa::trackline-geophysical-data-dynamic-map-service/about 
+MGDS: https://www.marine-geo.org/index.php</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>URL or link to source where digital data can be downloaded. Unique links are provided for each survey. The sources for the data are: 
+NAMSS: https://walrus.wr.usgs.gov/namss/ 
+NCEI: https://ngdc.noaa.gov/mgg/geodas/trackline.html and https://hub.arcgis.com/maps/noaa::trackline-geophysical-data-dynamic-map-service/about 
+MGDS: https://www.marine-geo.org/index.php</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_marine_geophysics_v1</enttypl>
+        <enttypd>Offshore geophysical tracklines represented as a polyline shapefile. Data include tracklines for magnetics (M), gravity (G), and side-scan sonar (SS) data from published data repositories. Attributes were simplified from source data available through the National Centers for Environmental Information (NCEI; https://ngdc.noaa.gov/mgg/geodas/trackline.html and https://hub.arcgis.com/maps/noaa::trackline-geophysical-data-dynamic-map-service/about), and the Marine Geoscience Data System (MGDS; https://www.marine-geo.org/index.php). Data were clipped to the following W/E/S/N extents: -132/-120/38.5/53.5</enttypd>
+        <enttypds>Producer defined.</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Cruise</attrlabl>
+        <attrdef>Identifier of the cruise on which the survey was conducted, as listed in the source data repository.</attrdef>
+        <attrdefs>NCEI; https://ngdc.noaa.gov/mgg/geodas/trackline.html and https://hub.arcgis.com/maps/noaa::trackline-geophysical-data-dynamic-map-service/about; MGDS; https://www.marine-geo.org/index.php</attrdefs>
+        <attrdomv>
+          <udom>Identifier of the cruise on which the survey was conducted, as listed in the source data repository.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Platform</attrlabl>
+        <attrdef>Name of the ship or vessel on which the survey was conducted. If not known, lists “unspecified”.</attrdef>
+        <attrdefs>NCEI; https://ngdc.noaa.gov/mgg/geodas/trackline.html and https://hub.arcgis.com/maps/noaa::trackline-geophysical-data-dynamic-map-service/about; MGDS; https://www.marine-geo.org/index.php</attrdefs>
+        <attrdomv>
+          <udom>Name of the ship or vessel on which the survey was conducted. If not known, lists “unspecified”.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Year</attrlabl>
+        <attrdef>Year in which the cruise was conducted.</attrdef>
+        <attrdefs>NCEI; https://ngdc.noaa.gov/mgg/geodas/trackline.html and https://hub.arcgis.com/maps/noaa::trackline-geophysical-data-dynamic-map-service/about; MGDS; https://www.marine-geo.org/index.php</attrdefs>
+        <attrdomv>
+          <udom>Year in which the cruise was conducted.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>DataType</attrlabl>
+        <attrdef>Type of marine geophysical data. If multiple data types exist for a cruise, multiple entries for that cruise exist in the shapefile, due to some data types being available via different repositories. 
+M: magnetics 
+G: gravity 
+SS: side-scan sonar</attrdef>
+        <attrdefs>NCEI; https://ngdc.noaa.gov/mgg/geodas/trackline.html and https://hub.arcgis.com/maps/noaa::trackline-geophysical-data-dynamic-map-service/about; MGDS; https://www.marine-geo.org/index.php</attrdefs>
+        <attrdomv>
+          <udom>Type of marine geophysical data. If multiple data types exist for a cruise, multiple entries for that cruise exist in the shapefile, due to some data types being available via different repositories. 
+M: magnetics 
+G: gravity 
+SS: side-scan sonar</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Originator</attrlabl>
+        <attrdef>Agency or entity responsible for data collection and contribution to the data repository. Federal agencies are abbreviated, e.g. NOAA. If not known, the entry is left blank.</attrdef>
+        <attrdefs>NCEI; https://ngdc.noaa.gov/mgg/geodas/trackline.html and https://hub.arcgis.com/maps/noaa::trackline-geophysical-data-dynamic-map-service/about; MGDS; https://www.marine-geo.org/index.php</attrdefs>
+        <attrdomv>
+          <udom>Agency or entity responsible for data collection and contribution to the data repository. Federal agencies are abbreviated, e.g. NOAA. If not known, the entry is left blank.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>ChiefSci</attrlabl>
+        <attrdef>Chief scientist or principal investigator on the cruise. If not known or there was no chief scientist, the entry is left blank.</attrdef>
+        <attrdefs>NCEI; https://ngdc.noaa.gov/mgg/geodas/trackline.html and https://hub.arcgis.com/maps/noaa::trackline-geophysical-data-dynamic-map-service/about; MGDS; https://www.marine-geo.org/index.php</attrdefs>
+        <attrdomv>
+          <udom>Chief scientist or principal investigator on the cruise. If not known or there was no chief scientist, the entry is left blank.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Repository</attrlabl>
+        <attrdef>Abbreviation of the organization hosting the digital data archive for the cruise. Repositories in this dataset include: 
+NCEI: National Centers for Environmental Information  
+MGDS: Marine Geoscience Data System</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>Abbreviation of the organization hosting the digital data archive for the cruise. Repositories in this dataset include: 
+NCEI: National Centers for Environmental Information  
+MGDS: Marine Geoscience Data System</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>DataSource</attrlabl>
+        <attrdef>URL or link to source where digital data can be downloaded. Unique links are provided for each survey. The sources for the data are: 
+NCEI: https://ngdc.noaa.gov/mgg/geodas/trackline.html and https://hub.arcgis.com/maps/noaa::trackline-geophysical-data-dynamic-map-service/about 
+MGDS: https://www.marine-geo.org/index.php</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>URL or link to source where digital data can be downloaded. Unique links are provided for each survey. The sources for the data are: 
+NCEI: https://ngdc.noaa.gov/mgg/geodas/trackline.html and https://hub.arcgis.com/maps/noaa::trackline-geophysical-data-dynamic-map-service/about 
+MGDS: https://www.marine-geo.org/index.php</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_multibeam_footprints_v3</enttypl>
+        <enttypd>Offshore multibeam survey footprints represented as a polygon shapefile. Data include the geographic outlines of gridded multibeam bathymetric data available from published data repositories. Attributes were simplified from source data available through a 2021 U.S. Geological Survey (USGS) data compilation (Dartnell et al., 2021; https://doi.org/10.5066/P9C5DBMR), the Olympic Coast National Marine Sanctuary (OCNMS; https://olympiccoast.noaa.gov/science/habitatmapping/habitatmapping.html), the Marine Geoscience Data Systm (MGDS; https://www.marine-geo.org/tools/search), and the National Centers for Environmental Information (NCEI; https://www.ngdc.noaa.gov/mgg/bathymetry/multibeam.html, https://hub.arcgis.com/datasets/noaa::multibeam-survey-footprints/about, and https://hub.arcgis.com/maps/noaa::nos-hydrographic-survey-data-dynamic-map-service/about). Data were clipped to the following W/E/S/N extents: -132/-120/38.5/53.5</enttypd>
+        <enttypds>Producer defined.</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Cruise</attrlabl>
+        <attrdef>Identifier of the cruise on which the survey was conducted, as listed in the source data repository. If not known, the entry is left blank.</attrdef>
+        <attrdefs>Dartnell et al., 2021; https://doi.org/10.5066/P9C5DBMR); OCNMS; https://olympiccoast.noaa.gov/science/habitatmapping/habitatmapping.html; MGDS; https://www.marine-geo.org/tools/search); NCEI; https://www.ngdc.noaa.gov/mgg/bathymetry/multibeam.html, https://hub.arcgis.com/datasets/noaa::multibeam-survey-footprints/about, and https://hub.arcgis.com/maps/noaa::nos-hydrographic-survey-data-dynamic-map-service/about</attrdefs>
+        <attrdomv>
+          <udom>Identifier of the cruise on which the survey was conducted, as listed in the source data repository. If not known, the entry is left blank.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Platform</attrlabl>
+        <attrdef>Name of the ship or vessel on which the survey was conducted. If not known, the entry is left blank.</attrdef>
+        <attrdefs>Dartnell et al., 2021; https://doi.org/10.5066/P9C5DBMR); OCNMS; https://olympiccoast.noaa.gov/science/habitatmapping/habitatmapping.html; MGDS; https://www.marine-geo.org/tools/search); NCEI; https://www.ngdc.noaa.gov/mgg/bathymetry/multibeam.html, https://hub.arcgis.com/datasets/noaa::multibeam-survey-footprints/about, and https://hub.arcgis.com/maps/noaa::nos-hydrographic-survey-data-dynamic-map-service/about</attrdefs>
+        <attrdomv>
+          <udom>Name of the ship or vessel on which the survey was conducted. If not known, the entry is left blank.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Year</attrlabl>
+        <attrdef>Year or most recent year in which the survey was conducted.</attrdef>
+        <attrdefs>Dartnell et al., 2021; https://doi.org/10.5066/P9C5DBMR); OCNMS; https://olympiccoast.noaa.gov/science/habitatmapping/habitatmapping.html; MGDS; https://www.marine-geo.org/tools/search); NCEI; https://www.ngdc.noaa.gov/mgg/bathymetry/multibeam.html, https://hub.arcgis.com/datasets/noaa::multibeam-survey-footprints/about, and https://hub.arcgis.com/maps/noaa::nos-hydrographic-survey-data-dynamic-map-service/about</attrdefs>
+        <attrdomv>
+          <udom>Year or most recent year in which the survey was conducted.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Device</attrlabl>
+        <attrdef>Type of instrument used to conduct the multibeam survey. If not known, the entry is left blank.</attrdef>
+        <attrdefs>Dartnell et al., 2021; https://doi.org/10.5066/P9C5DBMR); OCNMS; https://olympiccoast.noaa.gov/science/habitatmapping/habitatmapping.html; MGDS; https://www.marine-geo.org/tools/search); NCEI; https://www.ngdc.noaa.gov/mgg/bathymetry/multibeam.html, https://hub.arcgis.com/datasets/noaa::multibeam-survey-footprints/about, and https://hub.arcgis.com/maps/noaa::nos-hydrographic-survey-data-dynamic-map-service/about</attrdefs>
+        <attrdomv>
+          <udom>Type of instrument used to conduct the multibeam survey. If not known, the entry is left blank.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Originator</attrlabl>
+        <attrdef>Agency or entity responsible for data collection and contribution to the data repository. Federal agencies are sometimes abbreviated, e.g. USGS, NOAA</attrdef>
+        <attrdefs>Dartnell et al., 2021; https://doi.org/10.5066/P9C5DBMR); OCNMS; https://olympiccoast.noaa.gov/science/habitatmapping/habitatmapping.html; MGDS; https://www.marine-geo.org/tools/search); NCEI; https://www.ngdc.noaa.gov/mgg/bathymetry/multibeam.html, https://hub.arcgis.com/datasets/noaa::multibeam-survey-footprints/about, and https://hub.arcgis.com/maps/noaa::nos-hydrographic-survey-data-dynamic-map-service/about</attrdefs>
+        <attrdomv>
+          <udom>Agency or entity responsible for data collection and contribution to the data repository. Federal agencies are sometimes abbreviated, e.g. USGS, NOAA</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>ChiefSci</attrlabl>
+        <attrdef>Chief scientist or principal investigator on the cruise. If not known or there was no chief scientist, the entry is left blank.</attrdef>
+        <attrdefs>Dartnell et al., 2021; https://doi.org/10.5066/P9C5DBMR); OCNMS; https://olympiccoast.noaa.gov/science/habitatmapping/habitatmapping.html; MGDS; https://www.marine-geo.org/tools/search); NCEI; https://www.ngdc.noaa.gov/mgg/bathymetry/multibeam.html, https://hub.arcgis.com/datasets/noaa::multibeam-survey-footprints/about, and https://hub.arcgis.com/maps/noaa::nos-hydrographic-survey-data-dynamic-map-service/about</attrdefs>
+        <attrdomv>
+          <udom>Chief scientist or principal investigator on the cruise. If not known or there was no chief scientist, the entry is left blank.</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Repository</attrlabl>
+        <attrdef>Abbreviation of the organization(s) hosting the digital data archive for the cruise. Repositories in this dataset include: 
+MGDS: Marine Geoscience Data System 
+NCEI: National Centers for Environmental Information  
+OCNMS: Olympic Coast National Marine Sanctuary 
+OET: Ocean Exploration Trust 
+USGS: U.S. Geological Survey</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>Abbreviation of the organization(s) hosting the digital data archive for the cruise. Repositories in this dataset include: 
+MGDS: Marine Geoscience Data System 
+NCEI: National Centers for Environmental Information  
+OCNMS: Olympic Coast National Marine Sanctuary 
+OET: Ocean Exploration Trust 
+USGS: U.S. Geological Survey</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>DataSource</attrlabl>
+        <attrdef>URL or link to source where digital data can be downloaded. Unique links are provided for each survey. The sources for the data are: 
+Dartnell et al., 2021 compilation: https://doi.org/10.5066/P9C5DBMR 
+OCNMS: https://olympiccoast.noaa.gov/science/habitatmapping/habitatmapping.html 
+MGDS: https://www.marine-geo.org/tools/search 
+NCEI: https://www.ngdc.noaa.gov/mgg/bathymetry/multibeam.html,</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>URL or link to source where digital data can be downloaded. Unique links are provided for each survey. The sources for the data are: 
+Dartnell et al., 2021 compilation: https://doi.org/10.5066/P9C5DBMR 
+OCNMS: https://olympiccoast.noaa.gov/science/habitatmapping/habitatmapping.html 
+MGDS: https://www.marine-geo.org/tools/search 
+NCEI: https://www.ngdc.noaa.gov/mgg/bathymetry/multibeam.html,</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>FileName</attrlabl>
+        <attrdef>Name of the specific file associated with the shape, typical for National Oceanic and Atmospheric Administration (NOAA) National Ocean Service (NOS) data.</attrdef>
+        <attrdefs>Dartnell et al., 2021; https://doi.org/10.5066/P9C5DBMR); OCNMS; https://olympiccoast.noaa.gov/science/habitatmapping/habitatmapping.html; MGDS; https://www.marine-geo.org/tools/search); NCEI; https://www.ngdc.noaa.gov/mgg/bathymetry/multibeam.html, https://hub.arcgis.com/datasets/noaa::multibeam-survey-footprints/about, and https://hub.arcgis.com/maps/noaa::nos-hydrographic-survey-data-dynamic-map-service/about</attrdefs>
+        <attrdomv>
+          <udom>Name of the specific file associated with the shape, typical for National Oceanic and Atmospheric Administration (NOAA) National Ocean Service (NOS) data.</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_LR_aeromag_v1.tif</enttypl>
+        <enttypd>Data were compiled from various aeromagnetic surveys at different scales. Rasters are in RGB format with a color scale from high (white/pink) to low (blue) total field magnetic anomalies, units in nanoteslas (nT). Data from lower resolution aeromagnetic datasets are in more pastel tones, high resolution datasets are highlighted in bright tones. Data were clipped to the following W/E/S/N extents: -132/-120/38.5/53.5.</enttypd>
+        <enttypds>Lower resolution surveys gridded at 1000 meters include data from the following sources: Canada: http://gdr.agg.nrcan.gc.ca/gdrdap/dap/index-eng.php?db_project_no=10011#  Washington: Finn, C., Brenner, K.C., and Kucks, R. (1998). Washington aeromagnetic maps and data:  U.S. Geological Survey Open-File Report 98-241. https://pubs.usgs.gov/of/1998/ofr-98-0241/  Oregon:  Roberts, C.W., Kucks, R.P., and Hill, P.L. (2008). Oregon magnetic and gravity maps and data--a website for distribution of data:  U.S. Geological Survey Data Series 355. https://pubs.usgs.gov/ds/355/or_proc.htm California:  Roberts, C.W., and Jachens, R.C. (1999). Preliminary aeromagnetic anomaly map of California:  U.S. Geological Survey Open-File Report 99-440. https://pubs.usgs.gov/of/1999/0440/</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Value</attrlabl>
+        <attrdef>Rasters are in RGB format with a color scale from high (white/pink) to low (blue) total field magnetic anomalies, units in nanoteslas (nT)</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>Rasters are in RGB format with a color scale from high (white/pink) to low (blue) total field magnetic anomalies, units in nanoteslas (nT)</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_HR_aeromag_v1.tif</enttypl>
+        <enttypd>Data were compiled from various aeromagnetic surveys at different scales. Rasters are in RGB format with a color scale from high (white/pink) to low (blue) total field magnetic anomalies, units in nanoteslas (nT). Data from lower resolution aeromagnetic datasets are in more pastel tones, high resolution datasets are highlighted in bright tones. Data were clipped to the following W/E/S/N extents: -132/-120/38.5/53.5.</enttypd>
+        <enttypds>Higher resolution surveys gridded at 100 meters and include the following: Washington  Puget Sound: Blakely, Richard J., Ray E. Wells, and Craig S. Weaver (1999). Puget Sound aeromagnetic maps and data. U.S. Geological Survey data release 99-514. https://pubs.usgs.gov/of/1999/of99-514/grids.html  Centralia: Blakely, R.J., Sherrod, B.L., and Weaver, C.S. (2020). High-Resolution Aeromagnetic Survey of the Centralia Area, Southwest Washington, U.S. Geological Survey data release. https://doi.org/10.5066/P9T4UC6W Oregon https://pubs.usgs.gov/ds/355/or_indmap.htm Columbia: 4265, survey at 100 meter resolution Eugene: 4186, survey at 100 meter resolution Longview: 4174 and 4175, survey at 125 meter resolution Roseburg: 4176, survey at 200 meter resolution Tillamook: 4226, survey at 125 meter resolution Portland: 1148, survey at 100 meter resolution Scott Mills: 4169, survey at 125 meter resolution Hillsboro: 4178, survey at 125 meter resolution California Sacramento Valley: Langenheim, Victoria E. (2015). Aeromagnetic survey map of Sacramento Valley, California, U.S. Geological Survey Open-File Report 2015-1186. https://doi.org/10.3133/ofr20151186  Burney region: Langenheim, Victoria E. (2021). Aeromagnetic map of Burney and the surrounding area, northeastern California, U.S. Geological Survey Open-File Report 2021-1006, https://doi.org/10.3133/ofr20211006.</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Value</attrlabl>
+        <attrdef>Rasters are in RGB format with a color scale from high (white/pink) to low (blue) total field magnetic anomalies, units in nanoteslas (nT)</attrdef>
+        <attrdefs>Producer defined</attrdefs>
+        <attrdomv>
+          <udom>Rasters are in RGB format with a color scale from high (white/pink) to low (blue) total field magnetic anomalies, units in nanoteslas (nT)</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_iso.tif</enttypl>
+        <enttypd>Data were compiled from various gravity surveys at different scales. Rasters are in RGB format with a color scale from high (white/pink) to low (blue) isostatic residual gravity anomalies, units in milligals (mGal). Surveys were sampled at 2000 m grid and data were clipped to the following W/E/S/N extents: -132/-120/38.5/53.5.</enttypd>
+        <enttypds>Canada: Canada 2 km - GRAV - downloaded from: http://gdr.agg.nrcan.gc.ca/gdrdap/dap/index-eng.php?north=53.5&amp;east=-120&amp;south=38.5&amp;west=-132&amp;region-ddl=-140.9%2C41.7%2C-52.7%2C83.11&amp;Update_AOI=Search+by+Area   Washington, Oregon, northern California station data were downloaded from the following sources and used to create a 2 km resolution gridded raster file:  Finn, C., W. M. Phillips, and D. L. Williams (1991). Gravity anomaly and terrain maps of Washington, scale 1:500,000 and 1:1,000,000, Geophysical Investigations Map GP-988, U.S. Geological Survey. https://pubs.er.usgs.gov/publication/gp972  Finn, C., Williams, D. L., Couch, R. W., Danes, Z. F., Pitts, G. S., &amp; Phillips, W. M. (1986). Gravity anomaly and terrain maps of the Cascade Range, California, Oregon, Washington, and British Columbia,Geophysical Investigations Map GP-972, U.S. Geological Survey. https://pubs.er.usgs.gov/publication/gp988  https://www.ngdc.noaa.gov/mgg/gravity/1999/data/regional/calif/  Langenheim, V. E., Roberts, C. W., McCabe, C. A., McPhee, D. K., Tilden, J. E., &amp; Jachens, R. C. (2006). Preliminary isostatic gravity map of the Sonoma Volcanic Field and vicinity, Sonoma and Napa Counties, California. US Geological Survey Open-File Report, 1056(1). https://pubs.usgs.gov/of/2006/1056/ Langenheim, V. E., Jachens, R. C., Morin, R. L., &amp; McCabe, C. A. (2007). Preliminary gravity and magnetic data of the Lake Pillsbury region, Northern Coast Ranges, California. U. S. Geological Survey. https://pubs.usgs.gov/of/2007/1368/</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Value</attrlabl>
+        <attrdef>Rasters are in RGB format with a color scale from high (white/pink) to low (blue) isostatic residual gravity anomalies, units in milligals (mGal)</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <udom>Rasters are in RGB format with a color scale from high (white/pink) to low (blue) isostatic residual gravity anomalies, units in milligals (mGal)</udom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Cascadia_coastline_v2</enttypl>
+        <enttypd>The coastline polygon shapefile was generated in ArcGIS desktop version 10.8.1 from the SRTM 30m digital elevation model (DEM) at the zero-elevation marker. The DEM was reclassified in ArcGIS version 10.8.1 to only include values above 0m elevation. This raster was then converted using the Raster to Feature tool to a polygon shapefile. Data were clipped to the following W/E/S/N extents: -132/-120/38.5/53.5.</enttypd>
+        <enttypds>https://www.opentopography.org/news/srtm-version-30-global-90m-and-united-states-30m-elevation-data-now-available</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Gridcode</attrlabl>
+        <attrdef>ArcGIS ascribed value, not meaningful for data interpretation</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>2</rdommin>
+            <rdommax>2</rdommax>
+          </rdom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>SRTM_90m_DEM.tif</enttypl>
+        <enttypd>Topographic data are derived from a digital elevation model (DEM) that was downloaded as individual tiles and merged together in ArcGIS Desktop version 10.8.1 for single raster coverage. Data were clipped to the following W/E/S/N extents: -132/-120/38.5/53.5.</enttypd>
+        <enttypds>https://www.opentopography.org/news/srtm-version-30-global-90m-and-united-states-30m-elevation-data-now-available</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Value</attrlabl>
+        <attrdef>Elevation in meters above sea level</attrdef>
+        <attrdefs>https://www.opentopography.org/news/srtm-version-30-global-90m-and-united-states-30m-elevation-data-now-available</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>-150</rdommin>
+            <rdommax>4400</rdommax>
+            <attrunit>meters</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>SRTM_90m_HSD.tif</enttypl>
+        <enttypd>Derived from the SRTM_90m_DEM.tif, a hillshade overlay was produced in ArcGIS Desktop version 10.8.1 using the Spatial Analyst Tools. A default azimuth of 315 degrees clockwise from north and a default altitude of 45 degrees from the horizon were used. Data were clipped to the following W/E/S/N extents: -132/-120/38.5/53.5.</enttypd>
+        <enttypds>Producer defined.</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Value</attrlabl>
+        <attrdef>Hillshade values range 0-255 and are derived from ArcGIS Desktop version 10.8.1 using the Spatial Analyst Tools. A default azimuth of 315 degrees clockwise from north and a default altitude of 45 degrees from the horizon were used.</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>255</rdommax>
+          </rdom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>GEBCO_DEM.tif</enttypl>
+        <enttypd>Bathymetric data are derived from a digital elevation model (DEM) that was downloaded as a single file. Data were clipped to the following W/E/S/N extents: -132/-120/38.5/53.5. Offshore bathymetric values were downloaded from: https://download.gebco.net/</enttypd>
+        <enttypds>https://download.gebco.net/</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Value</attrlabl>
+        <attrdef>Elevation above sea level</attrdef>
+        <attrdefs>https://download.gebco.net/</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>-5025</rdommin>
+            <rdommax>4400</rdommax>
+            <attrunit>meters</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>GEBCO_HSD.tif</enttypl>
+        <enttypd>Derived from the GEBCO_DEM.tif, A hillshade overlay was produced in ArcGIS Desktop version 10.8.1 using the Spatial Analyst Tools. A default azimuth of 315 degrees clockwise from north and a default altitude of 45 degrees from the horizon were used. Data were clipped to the following W/E/S/N extents: -132/-120/38.5/53.5.</enttypd>
+        <enttypds>Producer defined.</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>Value</attrlabl>
+        <attrdef>Hillshade values range 0-255 and are derived from ArcGIS Desktop version 10.8.1 using the Spatial Analyst Tools. A default azimuth of 315 degrees clockwise from north and a default altitude of 45 degrees from the horizon were used.</attrdef>
+        <attrdefs>Producer defined.</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>0</rdommin>
+            <rdommax>255</rdommax>
+          </rdom>
+        </attrdomv>
+      </attr>
+    </detailed>
+  </eainfo>
+  <distinfo>
+    <distrib>
+      <cntinfo>
+        <cntperp>
+          <cntper>Lydia M Staisch</cntper>
+          <cntorg>SOUTHWEST REGION: GEOL, MIN, ENERG &amp; GEOPH SCI CTR</cntorg>
+        </cntperp>
+        <cntpos>Research Geologist</cntpos>
+        <cntaddr>
+          <addrtype>mailing and physical</addrtype>
+          <address>Mail Stop 973, 350 North Akron Road</address>
+          <city>Moffett Field</city>
+          <state>CA</state>
+          <postal>94035</postal>
+          <country>US</country>
+        </cntaddr>
+        <cntvoice>650-439-2638</cntvoice>
+        <cntemail>lstaisch@usgs.gov</cntemail>
+      </cntinfo>
+    </distrib>
+    <distliab>The datasets included in this database are derived from a multitude of sources, with information regarding the quality of data and location of data available for each entity. The majority of datasets have had little to no alteration from original data source, other than clipping to the extent of the database. Some datasets, namely raster images, were processed minimally from original data. Processing steps are described in the Entity metadata and are replicable given access to appropriate software.</distliab>
+    <stdorder>
+      <digform>
+        <digtinfo>
+          <formname>MPK</formname>
+          <formvern>ArcGIS 10.8.1</formvern>
+          <formspec>ESRI Point Shapefile; GeoTIFF;</formspec>
+          <formcont>This .mpk includes seven GeoTIFF rasters and 24 Esri Shapefiles 
+
+Shapefiles: 
+Cascadia_sliprates_v1.shp 
+Cascadia_faults_merge_v3.shp 
+Cascadia_terranes_v2.shp 
+Cascadia_slab_contours_v2.shp 
+Tectonic_plate_boundaries.shp 
+Cascadia_seismic_stations_v2.shp 
+Cascadia_seismicity_M4.shp 
+Cascadia_seismicity_plateboundary 
+Cascadia_tsunami_paleoseismology_v1.shp 
+Cascadia_landlevel_paleoseismology_v1.shp 
+Cascadia_lacustrine_cores_v1.shp 
+Cascadia_onshore_shaking_paleoseismology_v2.shp 
+Cascadia_landslide_polygons.shp 
+Cascadia_lidar_coverage_v5.shp 
+Cascadia_GNSS_vectors_v3.shp 
+Cascadia_geology_v3.shp 
+Cascadia_marine_paleoseismology_v4.shp 
+Cascadia_marine_drilling_v1.shp 
+Cascadia_marine_cores_v1.shp 
+Cascadia_GNSS-A_sites_v3.shp 
+Cascadia_marine_seismic_v1.shp 
+Cascadia_marine_geophysics_v1.shp 
+Cascadia_multibeam_footprints_v3.shp 
+Cascadia_coastline_v2.shp 
+
+Rasters: 
+SRTM_90m_DEM.tif  
+SRTM_90m_HSD.tif 
+GEBCO_DEM.tif  
+GEBCO_HSD.tif 
+Cascadia_isostatic_residual_gravity.tif 
+Cascadia_LR_total_field_aeromag.tif  
+Cascadia_HR_total_field_aeromag.tif</formcont>
+          <transize>3306.0</transize>
+        </digtinfo>
+        <digtopt>
+          <onlinopt>
+            <computer>
+              <networka>
+                <networkr>Cascadia_database.mpk</networkr>
+              </networka>
+            </computer>
+            <accinstr>ESRI map package may be opened directly into ArcGIS Desktop or ArcGIS Pro.</accinstr>
+          </onlinopt>
+        </digtopt>
+      </digform>
+      <fees>None</fees>
+    </stdorder>
+    <techpreq>This database is available for download as an ESRI .mpk file (map package), which include .tif raster files and .shp shapefiles. Shapefile format requires ArcView or ArcGIS software for use on an individual desktop.</techpreq>
+  </distinfo>
+  <distinfo>
+    <distrib>
+      <cntinfo>
+        <cntperp>
+          <cntper>Lydia M Staisch</cntper>
+          <cntorg>SOUTHWEST REGION: GEOL, MIN, ENERG &amp; GEOPH SCI CTR</cntorg>
+        </cntperp>
+        <cntpos>Research Geologist</cntpos>
+        <cntaddr>
+          <addrtype>mailing and physical</addrtype>
+          <address>Mail Stop 973, 350 North Akron Road</address>
+          <city>Moffett Field</city>
+          <state>CA</state>
+          <postal>94035</postal>
+          <country>US</country>
+        </cntaddr>
+        <cntvoice>650-439-2638</cntvoice>
+        <cntemail>lstaisch@usgs.gov</cntemail>
+      </cntinfo>
+    </distrib>
+    <distliab>The datasets included in this database are derived from a multitude of sources, with information regarding the quality of data and location of data available for each entity. The majority of datasets have had little to no alteration from original data source, other than clipping to the extent of the database. Some datasets, namely raster images, were processed minimally from original data. Processing steps are described in the Entity metadata and are replicable given access to appropriate software.</distliab>
+    <stdorder>
+      <digform>
+        <digtinfo>
+          <formname>ArcGIS Online webmap</formname>
+          <formvern>n/a</formvern>
+          <formspec>n/a</formspec>
+          <formcont>Entire database is viewable as an ArcGIS Online webmap</formcont>
+        </digtinfo>
+        <digtopt>
+          <onlinopt>
+            <computer>
+              <networka>
+                <networkr>https://usgs.maps.arcgis.com/apps/instant/basic/index.html?appid=db391c919fc143e2b5afe328d66c090c</networkr>
+              </networka>
+            </computer>
+          </onlinopt>
+        </digtopt>
+      </digform>
+      <fees>None</fees>
+    </stdorder>
+  </distinfo>
+  <distinfo>
+    <distrib>
+      <cntinfo>
+        <cntperp>
+          <cntper>Lydia M Staisch</cntper>
+          <cntorg>SOUTHWEST REGION: GEOL, MIN, ENERG &amp; GEOPH SCI CTR</cntorg>
+        </cntperp>
+        <cntpos>Research Geologist</cntpos>
+        <cntaddr>
+          <addrtype>mailing and physical</addrtype>
+          <address>2130 SW 5th Ave</address>
+          <city>Portland</city>
+          <state>OR</state>
+          <postal>97201</postal>
+          <country>US</country>
+        </cntaddr>
+        <cntvoice>650-439-2638</cntvoice>
+        <cntemail>lstaisch@usgs.gov</cntemail>
+      </cntinfo>
+    </distrib>
+    <distliab>The datasets included in this database are derived from a multitude of sources, with information regarding the quality of data and location of data available for each entity. The majority of datasets have had little to no alteration from original data source, other than clipping to the extent of the database. Some datasets, namely raster images, were processed minimally from original data. Processing steps are described in the Entity metadata and are replicable given access to appropriate software.</distliab>
+    <stdorder>
+      <digform>
+        <digtinfo>
+          <formname>ArcGIS Online story map</formname>
+          <formvern>n/a</formvern>
+          <formspec>n/a</formspec>
+          <formcont>Entire database is viewable as an ArcGIS Online story map</formcont>
+        </digtinfo>
+        <digtopt>
+          <onlinopt>
+            <computer>
+              <networka>
+                <networkr>https://storymaps.arcgis.com/stories/6fee2ed36976400b9fb1d6487ea9a49a</networkr>
+              </networka>
+            </computer>
+          </onlinopt>
+        </digtopt>
+      </digform>
+      <fees>None</fees>
+    </stdorder>
+  </distinfo>
+  <metainfo>
+    <metd>20220622</metd>
+    <metc>
+      <cntinfo>
+        <cntperp>
+          <cntper>Lydia M Staisch</cntper>
+          <cntorg>SOUTHWEST REGION: GEOL, MIN, ENERG &amp; GEOPH SCI CTR</cntorg>
+        </cntperp>
+        <cntpos>Research Geologist</cntpos>
+        <cntaddr>
+          <addrtype>mailing and physical</addrtype>
+          <address>2130 SW 5th Ave</address>
+          <city>Portland</city>
+          <state>OR</state>
+          <postal>97201</postal>
+          <country>US</country>
+        </cntaddr>
+        <cntvoice>650-439-2638</cntvoice>
+        <cntemail>lstaisch@usgs.gov</cntemail>
+      </cntinfo>
+    </metc>
+    <metstdn>Content Standard for Digital Geospatial Metadata</metstdn>
+    <metstdv>FGDC-STD-001-1998</metstdv>
+  </metainfo>
+</metadata>

@@ -1,5 +1,8 @@
 # Space, time and GNN integration verification
 
+Historical first-phase receipt. See [the continuation](gnn_continuation_2026_09.md)
+for later capabilities, passing combined suites and current verification limits.
+
 This work extends GEO-INFER from `f098b292` and GNN from `64d49355` in isolated
 checkouts. Both original checkouts were changing concurrently; this receipt does
 not describe their evolving uncommitted trees. The GNN baseline includes existing

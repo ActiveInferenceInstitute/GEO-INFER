@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `__init__.py`
+- `action_schedule.py`
 - `advanced_forecasting.py`
 - `analysis.py`
 - `event_detection.py`

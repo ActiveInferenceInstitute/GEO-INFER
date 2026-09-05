@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `test_action_schedule.py`
 - `test_core.py`
 - `test_inference_schedule.py`
 

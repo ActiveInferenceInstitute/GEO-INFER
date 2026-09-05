@@ -1,0 +1,94 @@
+# Sourced Cascadia regional display layers
+
+The September 2026 snapshot supplies three authentic source layers for the
+existing bioregion renderer. The complete Cascadia bioregion boundary remains
+unavailable. The strict renderer therefore still rejects a complete-map request;
+`allow_missing_layers=True` produces a partial map with the missing boundary
+identified in its HTML and `.layers.json` receipt.
+
+| Layer | Snapshot | Interpretation |
+| --- | --- | --- |
+| Volcanoes | 24 points, native USGS/GVP `vnum` IDs | USGS volcano inventory inside the land study window; not a fixed list of 12 volcanoes or a live alert feed |
+| Major watersheds | 13 HU4 subregion polygons, native HUC4 IDs | USGS WBD region 17 plus HUC4 1801, intersecting the land study window; hydrologic subregions, not a new delineation of the bioregion |
+| Subduction zone | 1 named convergent plate-boundary feature, native OBJECTID | USGS compilation's `North America:Juan de Fuca` line intersecting the offshore window; no rupture probability, hazard surface or inferred slab polygon |
+
+The land window is WGS84 `[-124.8, 40, -114.5, 49]`. The offshore window is
+`[-130, 40, -120, 51]`, widened explicitly to include the offshore plate boundary.
+Returned source geometries are clipped to the relevant window. The WBD query
+requests source-side display generalization at `maxAllowableOffset=0.002`
+degrees and six decimal places; these polygons are for regional display, not
+parcel boundaries or regulatory determinations. Source areas remain source
+areas and are not relabeled as areas of clipped polygons. The complete raw
+responses preserve original coordinates, attributes and native IDs for review.
+Clipping must preserve the layer's geometry type. Polygon contacts that reduce
+to a line or point and line contacts that reduce to a point are excluded. Mixed
+geometry collections fail validation instead of being labeled as watershed
+polygons or tectonic lines. Nonfinite JSON numbers are rejected at ingestion.
+
+## Reproduction and limits
+
+```bash
+uv run python -m geo_infer_place.core.regional_layers \
+  GEO-INFER-PLACE/locations/cascadia/config --offline
+```
+
+Omit `--offline` to fetch the three explicitly configured USGS endpoints. A batch
+accepts at most 1,000 source features per response and at most 20 MiB of persisted
+raw responses, output layers and the acquisition receipt. A five-minute
+**cooperative deadline** is checked before requests, after response headers,
+between yielded chunks, after streaming, and before writing the prepared files.
+Connection/read inactivity timeouts are at most 10/30 seconds and are shortened
+to the remaining budget when a request starts; redirects are rejected. These
+timeouts do not terminate a slow-drip response at an exact wall-clock deadline.
+A hard wall-clock guarantee requires a separately supervised request worker and
+is not claimed by this implementation.
+The committed snapshot is approximately 1.3 MiB including source metadata.
+Output files are prepared only after all three responses validate; each final
+file is replaced atomically. This is not a multi-file filesystem transaction.
+
+`cascadia_layers.provenance.json` records source URLs, raw-response SHA-256,
+derived-file SHA-256, source/output counts, generation time and unresolved work.
+The generation timestamp describes the local build, not a claimed source survey
+or retrieval date. Each GeoJSON repeats its source digest, citation, study bounds
+and explicit `whole_cascadia_bioregion=false`. Source snapshots are named
+`cascadia_{volcanoes,watersheds,tectonics}.source.json`. No current alert synopsis,
+image, eruption date or lahar drainage is invented from a volcano name.
+
+The renderer's threat labels remove the literal suffix ` Threat` from USGS
+`nvewsThreat`; the original category is retained in `nvews_threat_source`. Missing
+eruption and lahar information is labeled as not provided by this source.
+
+## Sources and reuse evidence
+
+- The [USGS volcano API documentation](https://volcanoes.usgs.gov/vsc/api/volcanoApi/)
+  identifies its GeoJSON inventory endpoint and makes its application data freely
+  available. The [USGS copyrights policy](https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits)
+  supplies the agency's public-domain context. Images linked from the API are not
+  downloaded or redistributed by this acquisition.
+- The [USGS WBD service metadata](https://hydro.nationalmap.gov/arcgis/rest/services/wbd/MapServer)
+  identifies HU4 as hydrologic subregions, states that the data are open and
+  non-proprietary with no use constraints, and reports a July 2026 refresh.
+- The [USGS Cascadia database](https://www.usgs.gov/special-topics/subduction-zone-science/science/cascadia-subduction-zone-database)
+  links its authoritative web map and [ScienceBase release](https://www.sciencebase.gov/catalog/item/623cf2a6d34e915b67d47586),
+  DOI `10.5066/P9O69X6E`. Its original metadata XML is retained as
+  `cascadia_tectonics.metadata.xml`; both access and use constraints are `none`.
+  `cascadia_regional_source_metadata.json` records the metadata download URL and
+  checksum. The complete 3.44 GB map package was not downloaded.
+
+For the missing boundary, the originating [Cascadia Institute](https://cascadia-institute.org/)
+and the Department of Bioregion's [maps and resources](https://cascadiabioregion.org/maps-and-resources)
+provide descriptions, raster maps and poster resources. This review did not verify
+a downloadable full-boundary vector with explicit reuse permission. A study
+rectangle, union of US-only HU4 polygons, or hand-drawn outline is not an
+acceptable substitute. The remaining task is to obtain and cite that vector,
+validate the complete intended bioregion geometry, and run the strict renderer.
+
+## Verification
+
+`tests/integration/test_regional_layer_acquisition.py` replays the captured raw
+responses byte-for-byte, checks source/output hashes, WGS84 geometry, identities,
+study extents and original metadata restrictions. It drives the actual Folium
+renderer and confirms exactly three loaded layers plus the missing-boundary
+notice. Negative cases reject duplicate IDs/JSON keys, projected coordinates,
+wrong geometry, truncated responses and feature-count overflow. HTML generation
+is verified; this is not a claim of a live interactive browser inspection.
