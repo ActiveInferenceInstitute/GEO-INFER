@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+"""Hydrate GEO-INFER manuscript variables before every render.
+
+The docxology template looks for exactly this path — ``scripts/
+z_generate_manuscript_variables.py`` — in
+:func:`infrastructure.rendering._manuscript_source.run_manuscript_variable_script`,
+and when it is absent that function returns ``0`` with no log line, which the
+pipeline reads as "hydrated OK".  GEO-INFER's generator lives at
+``manuscript/generate_research_artifacts.py``, a path the template never looks
+for, so the manuscript's own invariant — "changing values must enter the
+manuscript through the generator" — was enforced by human discipline alone and
+``stage_03_render.py --project GEO-INFER`` would publish whatever happened to
+be on disk and exit 0.
+
+This shim closes that gap.  Every render now regenerates the evidence bundle
+and then re-checks it, so a render either produces current values or fails.
+
+Modes:
+    default
+        Regenerate from the working tree.  An unclean checkout is permitted
+        but is stamped ``<sha>-dirty`` and its uncommitted-entry count is
+        published as ``RESEARCH_TREE_DIRTY_FILE_COUNT`` — a render during
+        ordinary development must work, but it must not claim to be a clean
+        commit.
+    ``GEO_INFER_MANUSCRIPT_PUBLICATION=1``
+        Publication build.  Requires a clean checkout and a non-empty
+        verification record, and runs the full validation suite.
+
+Runs standalone as well: ``python scripts/z_generate_manuscript_variables.py``.
+"""
+
+from __future__ import annotations
+
+import importlib.util
+import os
+import sys
+from pathlib import Path
+from types import ModuleType
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+GENERATOR_PATH = PROJECT_ROOT / "manuscript" / "generate_research_artifacts.py"
+PUBLICATION_ENV = "GEO_INFER_MANUSCRIPT_PUBLICATION"
+_TRUTHY = frozenset({"1", "true", "yes", "on"})
+
+
+def _load_generator() -> ModuleType:
+    """Import the generator by path, without requiring it to be a package."""
+    spec = importlib.util.spec_from_file_location(
+        "geo_infer_manuscript_generator", GENERATOR_PATH
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load the manuscript generator: {GENERATOR_PATH}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def _publication_requested() -> bool:
+    return os.environ.get(PUBLICATION_ENV, "").strip().lower() in _TRUTHY
+
+
+def main() -> int:
+    if not GENERATOR_PATH.is_file():
+        print(f"manuscript generator is missing: {GENERATOR_PATH}", file=sys.stderr)
+        return 1
+    generator = _load_generator()
+    publication = _publication_requested()
+    try:
+        generator.generate(
+            PROJECT_ROOT,
+            verify=publication,
+            full_validation=publication,
+            allow_dirty=not publication,
+            publication=publication,
+        )
+    except (OSError, RuntimeError, ValueError) as exc:
+        print(f"manuscript variable hydration failed: {exc}", file=sys.stderr)
+        return 1
+    problems = generator.check_published_artifacts(PROJECT_ROOT)
+    for problem in problems:
+        print(f"manuscript artifacts are stale after hydration: {problem}",
+              file=sys.stderr)
+    if problems:
+        return 1
+    mode = "publication" if publication else "working-tree"
+    print(f"manuscript variables hydrated ({mode} build)")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

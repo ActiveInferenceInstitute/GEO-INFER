@@ -35,6 +35,90 @@ FIGURE_SCHEMA = "geo-infer-manuscript-figures/v1"
 RESEARCH_SCHEMA = "geo-infer-manuscript-evidence/v1"
 FOCUS_MODULES = ("GEO-INFER-ACT", "GEO-INFER-BAYES", "GEO-INFER-RISK")
 
+# Editorial grouping of the module set, mirroring the "Module Themes" table in
+# README.md. This is a classification, not a measurement: the counts beside
+# each module are read from the checkout, but which theme a module belongs to
+# is a judgement and has to be declared somewhere. ``_module_table`` refuses to
+# render unless every measured module appears in exactly one theme, so adding a
+# module without theming it fails the build instead of dropping it silently.
+MODULE_THEMES: tuple[tuple[str, tuple[str, ...]], ...] = (
+    (
+        "Spatial and place-based",
+        (
+            "GEO-INFER-SPACE",
+            "GEO-INFER-PLACE",
+            "GEO-INFER-TIME",
+            "GEO-INFER-MARINE",
+            "GEO-INFER-WATER",
+            "GEO-INFER-FOREST",
+            "GEO-INFER-CLIMATE",
+            "GEO-INFER-ENERGY",
+            "GEO-INFER-TRANSPORT",
+            "GEO-INFER-EMERGENCY",
+        ),
+    ),
+    (
+        "Bayesian and active inference",
+        (
+            "GEO-INFER-BAYES",
+            "GEO-INFER-SIM",
+            "GEO-INFER-SPM",
+            "GEO-INFER-COG",
+            "GEO-INFER-ACT",
+            "GEO-INFER-MATH",
+        ),
+    ),
+    (
+        "Agents and AI orchestration",
+        (
+            "GEO-INFER-AGENT",
+            "GEO-INFER-AG",
+            "GEO-INFER-AI",
+            "GEO-INFER-ANT",
+            "GEO-INFER-OPS",
+            "GEO-INFER-COMMS",
+        ),
+    ),
+    (
+        "Governance, risk and domain",
+        (
+            "GEO-INFER-INSURANCE",
+            "GEO-INFER-RISK",
+            "GEO-INFER-METAGOV",
+            "GEO-INFER-NORMS",
+            "GEO-INFER-ECON",
+            "GEO-INFER-PEP",
+            "GEO-INFER-REQ",
+            "GEO-INFER-SEC",
+            "GEO-INFER-CIV",
+            "GEO-INFER-HEALTH",
+            "GEO-INFER-ORG",
+        ),
+    ),
+    (
+        "Data, API and applications",
+        (
+            "GEO-INFER-API",
+            "GEO-INFER-APP",
+            "GEO-INFER-DATA",
+            "GEO-INFER-IOT",
+            "GEO-INFER-ART",
+            "GEO-INFER-EDU",
+        ),
+    ),
+    (
+        "Infrastructure and validation",
+        (
+            "GEO-INFER-INTRA",
+            "GEO-INFER-TEST",
+            "GEO-INFER-LOG",
+            "GEO-INFER-GIT",
+            "GEO-INFER-EXAMPLES",
+            "GEO-INFER-BIO",
+        ),
+    ),
+)
+
 # Printable geometry of the template's LaTeX text block, in inches, read from
 # output/pdf/_combined_manuscript.log (textwidth 430.00462pt, textheight
 # 556.47656pt).  Every figure is typeset inside this box, so a figure drawn
@@ -60,6 +144,7 @@ class ModuleMetrics:
     """Measured implementation and test surfaces for one module."""
 
     name: str
+    package: str
     source_files: int
     source_lines: int
     test_files: int
@@ -314,6 +399,16 @@ def _source_hash(root: Path) -> str:
     return digest.hexdigest()[:16]
 
 
+def _module_package(module_path: Path) -> str:
+    """Return the importable package directory shipped under ``src/``."""
+    packages = sorted(
+        path.name
+        for path in (module_path / "src").iterdir()
+        if path.is_dir() and (path / "__init__.py").is_file()
+    )
+    return packages[0] if packages else "unavailable"
+
+
 def _module_paths(root: Path) -> tuple[Path, ...]:
     return tuple(
         sorted(
@@ -396,6 +491,7 @@ def collect_inventory(
         modules.append(
             ModuleMetrics(
                 name=module_path.name,
+                package=_module_package(module_path),
                 source_files=len(source),
                 source_lines=sum(_nonempty_lines(path) for path in source),
                 test_files=len(tests),
@@ -447,6 +543,43 @@ def collect_inventory(
         test_files=len(all_tests),
         python_version=platform.python_version(),
     )
+
+
+def _module_table(inventory: RepositoryInventory) -> str:
+    """Render every measured module as a themed Markdown table.
+
+    Raises:
+        ValueError: when a measured module has no theme, or a declared theme
+            names a module that is not in the checkout.  Either way the table
+            would silently misrepresent the module set.
+    """
+    measured = {module.name: module for module in inventory.modules}
+    declared = [name for _theme, names in MODULE_THEMES for name in names]
+    duplicates = sorted({name for name in declared if declared.count(name) > 1})
+    if duplicates:
+        raise ValueError(f"modules declared in more than one theme: {duplicates}")
+    unthemed = sorted(set(measured) - set(declared))
+    if unthemed:
+        raise ValueError(f"measured modules with no declared theme: {unthemed}")
+    missing = sorted(set(declared) - set(measured))
+    if missing:
+        raise ValueError(f"themed modules absent from the checkout: {missing}")
+    rows = [
+        "| Theme | Module | Package | Source files | Test files |",
+        "| --- | --- | --- | ---: | ---: |",
+    ]
+    for theme, names in MODULE_THEMES:
+        ordered = sorted(
+            (measured[name] for name in names),
+            key=lambda item: (-item.source_files, item.name),
+        )
+        for position, module in enumerate(ordered):
+            label = theme if position == 0 else ""
+            rows.append(
+                f"| {label} | `{module.name}` | `{module.package}` | "
+                f"{module.source_files} | {module.test_files} |"
+            )
+    return "\n".join(rows)
 
 
 def _format_count(value: int) -> str:
@@ -872,6 +1005,8 @@ def build_variables(
         "PROJECT_LICENSE": inventory.project_license,
         "MODULE_COUNT": str(inventory.module_count),
         "MODULE_NAMES": ", ".join(module.name for module in inventory.modules),
+        "MODULE_TABLE": _module_table(inventory),
+        "MODULE_THEME_COUNT": str(len(MODULE_THEMES)),
         "MODULES_WITH_TESTS_COUNT": str(inventory.modules_with_tests),
         "SOURCE_FILE_COUNT": _format_count(inventory.source_files),
         "SOURCE_LINE_COUNT": _format_count(inventory.source_lines),
@@ -1068,6 +1203,7 @@ def generate(
     verify: bool = False,
     full_validation: bool = False,
     allow_dirty: bool = False,
+    publication: bool = False,
 ) -> dict[str, Any]:
     """Generate the complete evidence bundle and resolved manuscript.
 
@@ -1092,6 +1228,11 @@ def generate(
             "Commit the tree, or pass --allow-dirty to stamp the build "
             "'<sha>-dirty' and record the count in "
             "RESEARCH_TREE_DIRTY_FILE_COUNT."
+        )
+    if publication and not verify:
+        raise RuntimeError(
+            "a publication build must execute its verification commands; "
+            "re-run with --verify or --full-validation"
         )
     # config.yaml is a hashed input, so refresh it before the digest is taken.
     # Writing it afterwards would publish a fingerprint of a tree that no
@@ -1135,6 +1276,12 @@ def generate(
         "verification": "output/data/research_verification.json",
     }
     _write_json(data_dir / "research_manifest.json", manifest)
+    if publication and not verification:
+        raise RuntimeError(
+            "refusing to publish an empty evidence record: "
+            f"{len(defined_command_groups(full_validation=full_validation))} "
+            "verification command groups are defined and none ran"
+        )
     if verify:
         failures = [result for result in verification if result.status != "passed"]
         if failures:
@@ -1197,6 +1344,14 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         help="also run the full unit, integration, performance, and H3 suites",
     )
     parser.add_argument(
+        "--publication",
+        action="store_true",
+        help=(
+            "refuse to produce a build whose evidence record is empty; implies "
+            "that verification must have been requested and produced results"
+        ),
+    )
+    parser.add_argument(
         "--check",
         action="store_true",
         help=(
@@ -1232,6 +1387,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             verify=args.verify or args.full_validation,
             full_validation=args.full_validation,
             allow_dirty=args.allow_dirty,
+            publication=args.publication,
         )
     except (OSError, RuntimeError, ValueError) as exc:
         print(f"research artifact generation failed: {exc}", file=sys.stderr)
