@@ -4,7 +4,7 @@ paper:
   title: "GEO-INFER: Geospatial Inference Framework"
   subtitle: "An evidence-backed manuscript for a modular spatial inference monorepo"
   version: "0.2.0"  # generator-owned (PROJECT_VERSION)
-  date: "2026-09-05T15:41:14-07:00"  # generator-owned (RESEARCH_COMMIT_DATE)
+  date: "2026-09-05T15:43:01-07:00"  # generator-owned (RESEARCH_COMMIT_DATE)
 
 authors:
   - name: "Daniel Ari Friedman"
@@ -55,7 +55,12 @@ render:
     docx: false
     epub: false
 
+# Both gates are enforced by manuscript/generate_research_artifacts.py
+# (audit_bibliography). No renderer code reads these keys, so before the
+# generator honoured them they described a check that did not run.
 bibliography:
   references_path: "manuscript/references.bib"
   fail_on_missing: true
+  # Set to true once every entry in references.bib is cited. As of this
+  # commit gelman_bda_2014 is not, and the generator warns on every run.
   fail_on_unused: false

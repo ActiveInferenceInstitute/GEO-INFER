@@ -1197,6 +1197,64 @@ def write_resolved_manuscript(
     return tuple(written)
 
 
+BIB_ENTRY_RE = re.compile(r"^@[A-Za-z]+\{\s*([^,\s]+)\s*,", re.MULTILINE)
+# A pandoc citation key is introduced by ``@`` at the start of a token, so the
+# ``@`` must follow whitespace or a bracket. Without that guard an email
+# address in the author block reads as a citation.
+CITATION_RE = re.compile(r"(?:^|[\s\[;(])@([A-Za-z][A-Za-z0-9_.:+-]*)", re.MULTILINE)
+# pandoc-crossref references share the citation syntax but resolve against
+# labels in the document, not against the bibliography.
+CROSSREF_PREFIXES = ("fig:", "tbl:", "sec:", "eq:", "lst:")
+
+# ``bibliography.fail_on_missing`` / ``fail_on_unused`` are documented config
+# keys that no renderer code reads, so a project could set them and get no
+# gate. The generator honours them here, using the same line-oriented read as
+# _CONFIG_OWNED_FIELDS so config.yaml stays parseable without a YAML dependency.
+_BIBLIOGRAPHY_POLICY: tuple[tuple[str, str, bool], ...] = (
+    ("  fail_on_missing: ", "fail_on_missing", True),
+    ("  fail_on_unused: ", "fail_on_unused", False),
+)
+
+
+def bibliography_policy(root: Path) -> dict[str, bool]:
+    """Read the bibliography gate settings from ``manuscript/config.yaml``."""
+    config = root / "manuscript" / "config.yaml"
+    text = config.read_text(encoding="utf-8") if config.is_file() else ""
+    lines = text.splitlines()
+    policy: dict[str, bool] = {}
+    for prefix, name, default in _BIBLIOGRAPHY_POLICY:
+        policy[name] = default
+        for line in lines:
+            if line.startswith(prefix):
+                policy[name] = line[len(prefix) :].strip().lower() == "true"
+                break
+    return policy
+
+
+def audit_bibliography(
+    root: Path, manuscript_files: Sequence[Path]
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """Compare the reference database against the citations that use it.
+
+    Returns:
+        ``(uncited, undefined)`` — bibliography keys that no manuscript file
+        cites, and citation keys with no bibliography entry.
+    """
+    bib = root / "manuscript" / "references.bib"
+    if not bib.is_file():
+        return (), ()
+    entries = set(BIB_ENTRY_RE.findall(bib.read_text(encoding="utf-8")))
+    cited: set[str] = set()
+    for path in manuscript_files:
+        cited.update(CITATION_RE.findall(path.read_text(encoding="utf-8")))
+    undefined = {
+        key
+        for key in cited - entries
+        if not key.startswith(CROSSREF_PREFIXES)
+    }
+    return tuple(sorted(entries - cited)), tuple(sorted(undefined))
+
+
 def generate(
     root: Path,
     *,
@@ -1263,6 +1321,19 @@ def generate(
             f"pre-scan refresh: {', '.join(stale_config)}"
         )
     written = write_resolved_manuscript(root, variables)
+    uncited, undefined = audit_bibliography(root, written)
+    policy = bibliography_policy(root)
+    if undefined and policy["fail_on_missing"]:
+        raise ValueError(
+            "citations with no bibliography entry: " + ", ".join(undefined)
+        )
+    if uncited:
+        message = (
+            "bibliography entries are never cited: " + ", ".join(uncited)
+        )
+        if policy["fail_on_unused"]:
+            raise ValueError(message)
+        print(f"warning: {message}", file=sys.stderr)
     manifest = {
         "schema_version": RESEARCH_SCHEMA,
         "source_commit": inventory.commit,
