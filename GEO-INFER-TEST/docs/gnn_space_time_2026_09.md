@@ -48,8 +48,8 @@ Cross-environment artifact digests:
 - Gridworld: `0bcd9d7dc78951754533a24f11d757d9d001491eb8a3772ce0af063995d9647d`
 - H3: `caa97b84f98946c6b459a4b0fbe526fcf4fca2a862eaf1797e0622ecc5d67019`
 
-The configured advisor exited with an error; no advisor review ran. Neither repo
-had an available GitNexus index. Direct source/caller review and numerical tests
+[DEFERRED-VERIFY] The configured advisor exited with an error; no advisor review ran. Repeat advisor review when the configured service is available. [DEFERRED-VERIFY] Neither repo
+had an available GitNexus index. Build/check repository-specific indexes before relying on indexed impact reports. Direct source/caller review and numerical tests
 provide the evidence above; indexed impact analysis remains unavailable.
 
 ## Reproduce and integrate
@@ -65,3 +65,9 @@ files scope Gaussian/multifactor interchange, longer policies, irregular samplin
 sparse/multiresolution grids, Step 7 integration and legacy ACT timing alignment.
 
 GNN topic publication verified at `8005e37c668e91b85f6d54b1a989983098ee99a8`.
+
+## Publication receipt
+
+- GEO implementation: `e028aa9060e05f765762224499f5e2c714cf25a3`, pushed to `codex/gnn-space-time` with remote SHA parity verified.
+- GNN topic: `92255b125b46fd64de45e2628fce4c8e9c5f89d2`, pushed to `codex/geo-infer-interchange` with remote SHA parity verified.
+- Main-branch integration remains the scoped follow-up; original shared checkouts were not reset or cleaned.
