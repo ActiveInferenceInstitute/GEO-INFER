@@ -876,7 +876,31 @@ _CONFIG_OWNED_FIELDS: tuple[tuple[str, str, str], ...] = (
 )
 
 
-def refresh_config_metadata(root: Path, variables: Mapping[str, str]) -> tuple[str, ...]:
+def _research_year(commit_date: str) -> str:
+    return commit_date[:4] if commit_date[:4].isdigit() else "unavailable"
+
+
+def config_metadata_values(root: Path) -> dict[str, str]:
+    """Derive the generator-owned ``config.yaml`` values without a full scan.
+
+    ``config.yaml`` is inside the source-hash input set, so it has to be
+    written *before* the digest is taken.  These four values are cheap and come
+    from the same producers ``build_variables`` uses (``pyproject.toml`` and
+    ``git show``), which is what lets ``generate`` cross-check the two.
+    """
+    metadata = _project_metadata(root)
+    commit_date = _run_git(root, "show", "-s", "--format=%cI", default="unavailable")
+    return {
+        "PROJECT_VERSION": metadata["version"],
+        "PROJECT_LICENSE": metadata["license"],
+        "RESEARCH_COMMIT_DATE": commit_date,
+        "RESEARCH_YEAR": _research_year(commit_date),
+    }
+
+
+def refresh_config_metadata(
+    root: Path, variables: Mapping[str, str], *, dry_run: bool = False
+) -> tuple[str, ...]:
     """Write measured metadata into the authored ``manuscript/config.yaml``.
 
     The render template copies ``config.yaml`` verbatim, so a ``{{TOKEN}}``
@@ -885,6 +909,14 @@ def refresh_config_metadata(root: Path, variables: Mapping[str, str]) -> tuple[s
     own exemplar therefore keeps literal metadata refreshed by a script. This
     function is that script for GEO-INFER: the values stay measured rather than
     hand-entered, and the file stays verbatim-copyable.
+
+    Args:
+        root: Repository root holding ``manuscript/config.yaml``.
+        variables: Resolved values keyed by the token each field is owned by.
+        dry_run: Report the fields that are stale without writing them.
+
+    Returns:
+        The dotted names of the fields that changed (or would change).
     """
     config = root / "manuscript" / "config.yaml"
     if not config.is_file():
@@ -905,7 +937,8 @@ def refresh_config_metadata(root: Path, variables: Mapping[str, str]) -> tuple[s
             break
         else:
             raise ValueError(f"config.yaml has no line starting with {prefix!r}")
-    config.write_text("".join(lines), encoding="utf-8")
+    if updated and not dry_run:
+        config.write_text("".join(lines), encoding="utf-8")
     return tuple(updated)
 
 
@@ -988,6 +1021,10 @@ def generate(
             "'<sha>-dirty' and record the count in "
             "RESEARCH_TREE_DIRTY_FILE_COUNT."
         )
+    # config.yaml is a hashed input, so refresh it before the digest is taken.
+    # Writing it afterwards would publish a fingerprint of a tree that no
+    # longer exists by the time the run ends.
+    refresh_config_metadata(root, config_metadata_values(root))
     inventory = collect_inventory(root, dirty_file_count=dirty_files)
     output = root / "output"
     data_dir = output / "data"
@@ -1006,7 +1043,12 @@ def generate(
         inventory, specs, verification, full_validation=full_validation
     )
     _write_json(data_dir / "manuscript_variables.json", variables)
-    refresh_config_metadata(root, variables)
+    stale_config = refresh_config_metadata(root, variables, dry_run=True)
+    if stale_config:
+        raise RuntimeError(
+            "config.yaml disagrees with the measured variables after the "
+            f"pre-scan refresh: {', '.join(stale_config)}"
+        )
     written = write_resolved_manuscript(root, variables)
     manifest = {
         "schema_version": RESEARCH_SCHEMA,
@@ -1031,6 +1073,42 @@ def generate(
     return manifest
 
 
+def check_published_artifacts(root: Path) -> tuple[str, ...]:
+    """Return every reason the published artifacts no longer describe the tree.
+
+    ``RESEARCH_SOURCE_HASH`` is computed on every run and published in four
+    places, but nothing ever compared it to anything: a render that skipped
+    regeneration would republish stale counts and exit 0.  This is the missing
+    comparison, and it is fail-closed by construction — an empty tuple is the
+    only passing answer.
+    """
+    problems: list[str] = []
+    variables_path = root / "output" / "data" / "manuscript_variables.json"
+    if not variables_path.is_file():
+        problems.append(
+            f"no published variables at {variables_path.relative_to(root).as_posix()}"
+        )
+    else:
+        try:
+            published = json.loads(variables_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            problems.append(f"published variables are unreadable: {exc}")
+            published = {}
+        measured = _source_hash(root)
+        if published.get("RESEARCH_SOURCE_HASH") != measured:
+            problems.append(
+                "RESEARCH_SOURCE_HASH is stale: published "
+                f"{published.get('RESEARCH_SOURCE_HASH')!r}, measured {measured!r}"
+            )
+    problems.extend(
+        f"manuscript/config.yaml is stale: {field}"
+        for field in refresh_config_metadata(
+            root, config_metadata_values(root), dry_run=True
+        )
+    )
+    return tuple(problems)
+
+
 def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -1047,6 +1125,14 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         help="also run the full unit, integration, performance, and H3 suites",
     )
     parser.add_argument(
+        "--check",
+        action="store_true",
+        help=(
+            "write nothing; exit non-zero when the published source hash or "
+            "the generator-owned config.yaml metadata no longer match the tree"
+        ),
+    )
+    parser.add_argument(
         "--allow-dirty",
         action="store_true",
         help=(
@@ -1060,6 +1146,14 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parse_args(argv)
     root = args.root.resolve()
+    if args.check:
+        problems = check_published_artifacts(root)
+        for problem in problems:
+            print(f"stale manuscript artifact: {problem}", file=sys.stderr)
+        if problems:
+            return 1
+        print("manuscript artifacts match the current tree")
+        return 0
     try:
         manifest = generate(
             root,
