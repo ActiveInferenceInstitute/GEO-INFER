@@ -134,6 +134,11 @@ jobs:
           uv run python GEO-INFER-TEST/run_unified_tests.py --category performance \
             --timeout 600
 
+      - name: Run system tests
+        run: |
+          uv run python GEO-INFER-TEST/run_unified_tests.py --category system \
+            --timeout 600
+
       - name: Run H3 contracts
         run: |
           uv run python GEO-INFER-TEST/run_unified_tests.py --h3-migration

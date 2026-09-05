@@ -45,7 +45,7 @@ Replace `MODULE` with an uppercase module suffix such as `ACT`, `MATH`, or
 
 GEO-INFER uses criteria such as:
 
-- All 44 workspace modules have the required generated signposts.
+- All 45 workspace modules have the required generated signposts.
 - Package directories use lowercase `geo_infer_<module>` names.
 - The ACT typed result contracts and policy-selection behavior pass their
   executable contract validator.

@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-GEO-INFER is a 44-module geospatial inference framework implementing Active Inference principles for ecological, civic, and commercial applications. It is a Python monorepo using `uv` as the package manager, with Python 3.11+ required.
+GEO-INFER is a 45-module geospatial inference framework implementing Active Inference principles for ecological, civic, and commercial applications. It is a Python monorepo using `uv` as the package manager, with Python 3.11+ required.
 
 ### Current repository inventory
 
-- **44 modules**; source, test and generated-document counts are maintained in
+- **45 modules**; source, test and generated-document counts are maintained in
   the root [README](README.md#current-repository-facts) by `rewrite_readme_agents.py`.
 - Nested README/AGENTS signposts are generated from repository files.
 - All package directories follow PEP 8 lowercase naming: `geo_infer_<module>` (including `geo_infer_forest`, `geo_infer_marine`, `geo_infer_energy`, `geo_infer_water`). Mixed-case directory normalization is complete.
@@ -126,7 +126,7 @@ Foundation modules (MATH) have no dependencies. Core modules (BAYES, ACT) depend
   `[lng, lat]` GeoJSON conversion rather than legacy APIs.
 - **Backend-agnostic pattern**: SPACE module uses a dispatcher/interface pattern for H3 vs SRAI backends.
 - **Graceful degradation**: `__init__.py` files use `try/except` for optional dependency imports, with module-level `HAS_<DEP>` flags consumed by call sites.
-- **Package directory casing**: All 44 modules use `geo_infer_<module>` (lowercase) naming.
+- **Package directory casing**: All 45 modules use `geo_infer_<module>` (lowercase) naming.
 - **Real implementations only**: BAYES GaussianProcess uses Cholesky decomposition. Model comparison uses real LOO/WAIC/DIC/BIC/AIC. ACT free energy exposes typed breakdowns and uses `complexity - accuracy` for categorical variational free energy.
 - **Active Inference contract**: `GEO-INFER-ACT` exports `FreeEnergyBreakdown`, `PolicyEvaluation`, and `ActiveInferenceStepResult`. `PolicySelector(selection_mode="deterministic")` selects the lowest expected free energy; stochastic selection is seedable.
 
@@ -158,7 +158,7 @@ These rules are from `.agents/` and apply to all modules:
 - `GEO-INFER-INTRA/docs/` - Central documentation hub (guides, tutorials, integration docs)
 - `GEO-INFER-EXAMPLES/examples/` - Working examples including module orchestrators
 - `SKILL.md` - Root Claude Code skill (ecosystem overview)
-- `GEO-INFER-*/SKILL.md` - Module-level Claude Code skills (44 files)
+- `GEO-INFER-*/SKILL.md` - Module-level Claude Code skills (45 files)
 - `.agents/` - Framework-wide development rules and agent guidance
 - `AGENTS.md` - Multi-agent systems architecture documentation
 - `PAI.md` - PAI Algorithm integration and development methodology
