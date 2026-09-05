@@ -1295,36 +1295,50 @@ def generate(
 def check_published_artifacts(root: Path) -> tuple[str, ...]:
     """Return every reason the published artifacts no longer describe the tree.
 
+    Two comparisons, both of which were missing.
+
     ``RESEARCH_SOURCE_HASH`` is computed on every run and published in four
     places, but nothing ever compared it to anything: a render that skipped
-    regeneration would republish stale counts and exit 0.  This is the missing
-    comparison, and it is fail-closed by construction — an empty tuple is the
-    only passing answer.
+    regeneration would republish stale counts and exit 0.
+
+    ``manuscript/config.yaml`` supplies the title page and is generator-owned.
+    It is checked against the *published variables*, not against a fresh read
+    of ``HEAD``: the file is tracked, so the commit that records it is always
+    newer than the commit date it holds, and comparing to ``HEAD`` could never
+    pass.  What must hold — and what the published PDF depends on — is that the
+    title page and the evidence bundle shipped beside it describe the same
+    build.
+
+    Returns:
+        Every reason the artifacts are stale.  An empty tuple is the only
+        passing answer.
     """
     problems: list[str] = []
     variables_path = root / "output" / "data" / "manuscript_variables.json"
     if not variables_path.is_file():
+        return (
+            f"no published variables at {variables_path.relative_to(root).as_posix()}",
+        )
+    try:
+        published = json.loads(variables_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return (f"published variables are unreadable: {exc}",)
+    measured = _source_hash(root)
+    if published.get("RESEARCH_SOURCE_HASH") != measured:
         problems.append(
-            f"no published variables at {variables_path.relative_to(root).as_posix()}"
+            "RESEARCH_SOURCE_HASH is stale: published "
+            f"{published.get('RESEARCH_SOURCE_HASH')!r}, measured {measured!r}"
+        )
+    missing = [key for _prefix, key, _field in _CONFIG_OWNED_FIELDS if key not in published]
+    if missing:
+        problems.append(
+            "published variables omit config metadata: " + ", ".join(missing)
         )
     else:
-        try:
-            published = json.loads(variables_path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError) as exc:
-            problems.append(f"published variables are unreadable: {exc}")
-            published = {}
-        measured = _source_hash(root)
-        if published.get("RESEARCH_SOURCE_HASH") != measured:
-            problems.append(
-                "RESEARCH_SOURCE_HASH is stale: published "
-                f"{published.get('RESEARCH_SOURCE_HASH')!r}, measured {measured!r}"
-            )
-    problems.extend(
-        f"manuscript/config.yaml is stale: {field}"
-        for field in refresh_config_metadata(
-            root, config_metadata_values(root), dry_run=True
+        problems.extend(
+            f"manuscript/config.yaml disagrees with the published build: {field}"
+            for field in refresh_config_metadata(root, published, dry_run=True)
         )
-    )
     return tuple(problems)
 
 
