@@ -2679,12 +2679,16 @@ docs = [
     { name = "sphinx" },
     { name = "sphinx-rtd-theme" },
 ]
+gnn = [
+    { name = "geo-infer-time" },
+]
 
 [package.metadata]
 requires-dist = [
     { name = "arviz", specifier = ">=0.11.0" },
     { name = "bayeux-ml", specifier = ">=0.0.1" },
     { name = "black", marker = "extra == 'dev'", specifier = ">=21.9.0" },
+    { name = "geo-infer-time", marker = "extra == 'gnn'", editable = "GEO-INFER-TIME" },
     { name = "h3", specifier = ">=4.5.0,<5" },
     { name = "imageio", specifier = ">=2.9.0" },
     { name = "inferactively-pymdp", specifier = "==1.0.3" },
@@ -2712,7 +2716,7 @@ requires-dist = [
     { name = "sphinx-rtd-theme", marker = "extra == 'docs'", specifier = ">=1.0.0" },
     { name = "torch", specifier = ">=1.9.0" },
 ]
-provides-extras = ["dev", "docs"]
+provides-extras = ["gnn", "dev", "docs"]
 
 [[package]]
 name = "geo-infer-ag"

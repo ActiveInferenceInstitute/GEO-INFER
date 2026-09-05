@@ -204,7 +204,7 @@ def test_python_source_syntax_contract_rejects_invalid_module_source(
     contracts.validate_python_source_syntax(report)
 
     errors = "\n".join(report.errors)
-    assert "GEO-INFER-SAMPLE/examples/broken.py" in errors
+    assert str(Path("GEO-INFER-SAMPLE") / "examples" / "broken.py") in errors
     assert "invalid syntax" in errors
 
 

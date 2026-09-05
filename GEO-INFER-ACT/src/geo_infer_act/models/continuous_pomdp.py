@@ -17,12 +17,11 @@ logger = logging.getLogger(__name__)
 
 
 class ContinuousPOMDPActiveInference:
-    r"""
-    Continuous-state Active Inference model with Laplace approximation / Kalman-Bucy filter.
-    
-    Implements continuous state transitions $\dot{x} = f(x, a) + w$, linear/nonlinear
-    observation mapping $y = g(x) + v$, and variational free energy minimization
-    over continuous trajectory predictions and policy controls.
+    """Linear Gaussian filtering and finite-candidate active control.
+
+    Continuous mode discretizes dx/dt = A x + B u with Euler steps and dt*Q.
+    Discrete mode uses x[t+1] = A x[t] + B u[t] and Q per step directly.
+    Observation noise R is per measurement in both modes; dt is in seconds.
     """
 
     def __init__(
@@ -37,7 +36,24 @@ class ContinuousPOMDPActiveInference:
         prior_cov: Optional[np.ndarray] = None,
         target_prior: Optional[np.ndarray] = None,
         random_seed: Optional[int] = None,
+        time_domain: str = "continuous",
     ):
+        for name, value in (
+            ("state_dim", state_dim),
+            ("obs_dim", obs_dim),
+            ("action_dim", action_dim),
+        ):
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, (int, np.integer))
+                or value < 1
+            ):
+                raise ValueError(f"{name} must be a positive integer")
+        if not np.isfinite(dt) or dt <= 0:
+            raise ValueError("dt must be finite and positive")
+        if time_domain not in {"continuous", "discrete"}:
+            raise ValueError("time_domain must be continuous or discrete")
+        self.time_domain = time_domain
         self.state_dim = state_dim
         self.obs_dim = obs_dim
         self.action_dim = action_dim
@@ -46,24 +62,84 @@ class ContinuousPOMDPActiveInference:
 
         # Transition dynamics matrices: dx/dt = A x + B u
         self.A = np.zeros((state_dim, state_dim))
-        np.fill_diagonal(self.A, -0.1)  # stable decay by default
+        np.fill_diagonal(
+            self.A, -0.1 if time_domain == "continuous" else 1.0
+        )  # stable decay by default
         self.B = np.eye(state_dim, action_dim)
 
         # Observation mapping: y = C x
         self.C = np.eye(obs_dim, state_dim)
 
         # Covariances
-        self.Q = process_noise_cov if process_noise_cov is not None else np.eye(state_dim) * 0.05
+        self.Q = (
+            process_noise_cov
+            if process_noise_cov is not None
+            else np.eye(state_dim) * 0.05
+        )
         self.R = obs_noise_cov if obs_noise_cov is not None else np.eye(obs_dim) * 0.05
 
         # Belief states (mean and covariance)
-        self.mu = np.zeros(state_dim) if prior_mean is None else np.asarray(prior_mean, dtype=float).copy()
-        self.sigma = np.eye(state_dim) if prior_cov is None else np.asarray(prior_cov, dtype=float).copy()
+        self.mu = (
+            np.zeros(state_dim)
+            if prior_mean is None
+            else np.asarray(prior_mean, dtype=float).copy()
+        )
+        self.sigma = (
+            np.eye(state_dim)
+            if prior_cov is None
+            else np.asarray(prior_cov, dtype=float).copy()
+        )
 
         # Desired/preferred continuous observations
-        self.target_prior = np.zeros(obs_dim) if target_prior is None else np.asarray(target_prior, dtype=float).copy()
+        self.target_prior = (
+            np.zeros(obs_dim)
+            if target_prior is None
+            else np.asarray(target_prior, dtype=float).copy()
+        )
 
+        self.Q = self._covariance(self.Q, state_dim, "Q", semidefinite=True)
+        self.R = self._covariance(self.R, obs_dim, "R")
+        self.sigma = self._covariance(self.sigma, state_dim, "prior_cov")
+        self.mu = self._array(self.mu, (state_dim,), "prior_mean")
+        self.target_prior = self._array(self.target_prior, (obs_dim,), "target_prior")
+        self._last_update: Optional[Tuple[np.ndarray, np.ndarray, np.ndarray]] = None
         self.history: List[Dict[str, Any]] = []
+
+    @staticmethod
+    def _array(value: Any, shape: Tuple[int, ...], name: str) -> np.ndarray:
+        array = np.asarray(value, dtype=float)
+        if array.shape != shape or not np.all(np.isfinite(array)):
+            raise ValueError(f"{name} must be finite with shape {shape}")
+        return array.copy()
+
+    @classmethod
+    def _covariance(
+        cls, value: Any, size: int, name: str, semidefinite: bool = False
+    ) -> np.ndarray:
+        array = cls._array(value, (size, size), name)
+        if not np.allclose(array, array.T, rtol=1e-10, atol=1e-12):
+            raise ValueError(f"{name} must be symmetric")
+        array = (array + array.T) / 2
+        eigenvalues = np.linalg.eigvalsh(array)
+        if np.min(eigenvalues) < 0 or (not semidefinite and np.min(eigenvalues) <= 0):
+            raise ValueError(
+                f"{name} must be positive {'semidefinite' if semidefinite else 'definite'}"
+            )
+        return array
+
+    def _discrete_dynamics(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        if self.time_domain == "discrete":
+            return self.A, self.B, self.Q
+        return (
+            np.eye(self.state_dim) + self.dt * self.A,
+            self.dt * self.B,
+            self.dt * self.Q,
+        )
+
+    def _entropy(self) -> float:
+        return 0.5 * float(
+            self.state_dim * np.log(2 * np.pi * np.e) + np.linalg.slogdet(self.sigma)[1]
+        )
 
     def set_system_matrices(
         self,
@@ -72,38 +148,44 @@ class ContinuousPOMDPActiveInference:
         C: Optional[np.ndarray] = None,
     ) -> None:
         """Set continuous transition, control, and measurement matrices."""
-        if A is not None:
-            self.A = np.asarray(A, dtype=float)
-        if B is not None:
-            self.B = np.asarray(B, dtype=float)
-        if C is not None:
-            self.C = np.asarray(C, dtype=float)
+        new_A = (
+            self.A
+            if A is None
+            else self._array(A, (self.state_dim, self.state_dim), "A")
+        )
+        new_B = (
+            self.B
+            if B is None
+            else self._array(B, (self.state_dim, self.action_dim), "B")
+        )
+        new_C = (
+            self.C if C is None else self._array(C, (self.obs_dim, self.state_dim), "C")
+        )
+        self.A, self.B, self.C = new_A, new_B, new_C
+        self._last_update = None
 
-    def predict(self, action: Optional[np.ndarray] = None) -> Tuple[np.ndarray, np.ndarray]:
-        """
-        Continuous prior propagation step (Euler discretization of continuous dynamics).
-        """
-        u = np.zeros(self.action_dim) if action is None else np.asarray(action, dtype=float)
-        # mu_dot = A * mu + B * u
-        mu_dot = self.A @ self.mu + self.B @ u
-        mu_pred = self.mu + self.dt * mu_dot
-
-        # Covariance update via discrete Riccati-style approximation:
-        # F = I + dt * A
-        F = np.eye(self.state_dim) + self.dt * self.A
-        sigma_pred = F @ self.sigma @ F.T + self.dt * self.Q
-        return mu_pred, sigma_pred
+    def predict(
+        self, action: Optional[np.ndarray] = None
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """Propagate one interval; discrete matrices already include the interval."""
+        u = (
+            np.zeros(self.action_dim)
+            if action is None
+            else self._array(action, (self.action_dim,), "action")
+        )
+        F, control, noise = self._discrete_dynamics()
+        return F @ self.mu + control @ u, F @ self.sigma @ F.T + noise
 
     def update_beliefs(
         self, observation: np.ndarray, action: Optional[np.ndarray] = None
     ) -> Tuple[np.ndarray, np.ndarray, float]:
         """
         Bayesian belief update on receiving continuous measurement.
-        
+
         Returns:
             (updated_mean, updated_covariance, free_energy)
         """
-        y = np.asarray(observation, dtype=float)
+        y = self._array(observation, (self.obs_dim,), "observation")
         mu_pred, sigma_pred = self.predict(action)
 
         # Innovation / prediction error
@@ -112,17 +194,26 @@ class ContinuousPOMDPActiveInference:
 
         # Innovation covariance S = C * sigma_pred * C.T + R
         S = self.C @ sigma_pred @ self.C.T + self.R
-        K = sigma_pred @ self.C.T @ np.linalg.inv(S)
+        K = np.linalg.solve(S, self.C @ sigma_pred).T
 
         # Posterior update
-        self.mu = mu_pred + K @ eps
+        posterior_mean = mu_pred + K @ eps
         I_KC = np.eye(self.state_dim) - K @ self.C
-        self.sigma = I_KC @ sigma_pred @ I_KC.T + K @ self.R @ K.T
+        posterior_cov = I_KC @ sigma_pred @ I_KC.T + K @ self.R @ K.T
 
         # Variational Free Energy: F = 0.5 * (eps.T @ S^-1 @ eps + log|S| + c)
         sign, logdet = np.linalg.slogdet(S)
-        vfe = 0.5 * float(eps.T @ np.linalg.inv(S) @ eps + logdet + self.obs_dim * np.log(2 * np.pi))
+        vfe = 0.5 * float(
+            eps.T @ np.linalg.solve(S, eps) + logdet + self.obs_dim * np.log(2 * np.pi)
+        )
 
+        if sign <= 0 or not np.isfinite(vfe):
+            raise ValueError("Invalid innovation covariance or free energy")
+        posterior_cov = self._covariance(
+            posterior_cov, self.state_dim, "posterior covariance"
+        )
+        self.mu, self.sigma = posterior_mean, posterior_cov
+        self._last_update = (y.copy(), mu_pred.copy(), sigma_pred.copy())
         record = {
             "observation": y.tolist(),
             "belief_mean": self.mu.copy().tolist(),
@@ -138,9 +229,7 @@ class ContinuousPOMDPActiveInference:
     def _innovation_covariance(self, action: Optional[np.ndarray] = None) -> np.ndarray:
         """Return the innovation covariance S = C sigma_pred C^T + R."""
         _, sigma_pred = self.predict(action)
-        return cast(
-            np.ndarray, self.C @ sigma_pred @ self.C.T + self.R
-        )
+        return cast(np.ndarray, self.C @ sigma_pred @ self.C.T + self.R)
 
     def _adaptive_precision(self, action: Optional[np.ndarray] = None) -> float:
         """
@@ -160,47 +249,49 @@ class ContinuousPOMDPActiveInference:
         observation: Optional[np.ndarray] = None,
         action: Optional[np.ndarray] = None,
     ) -> FreeEnergyBreakdown:
-        """
-        Laplace-approximated variational free energy for the current belief.
+        """Return F = KL(q || predictive prior) - E_q[log p(y | x)].
 
-        Decomposes F into an *accuracy* term (precision-weighted squared
-        innovation) and a *complexity* term (KL from the predictive prior to
-        the posterior).  Both are evaluated in a numerically stable way using
-        the Joseph-form covariance handed back by ``update_beliefs``.
+        With no arguments, evaluate the most recent measurement and its saved
+        predictive prior. Before any update, evaluate the current belief against
+        its next predictive prior at the current expected measurement. Explicit
+        arguments request that latter prospective diagnostic.
         """
-        y = (
-            self.mu
-            if observation is None
-            else np.asarray(observation, dtype=float).reshape(-1)
+        if observation is None and action is None and self._last_update is not None:
+            y, mu_pred, sigma_pred = self._last_update
+        else:
+            y = (
+                self.C @ self.mu
+                if observation is None
+                else self._array(observation, (self.obs_dim,), "observation")
+            )
+            mu_pred, sigma_pred = self.predict(action)
+        sigma_pred = self._covariance(
+            sigma_pred, self.state_dim, "predictive covariance"
         )
-        mu_pred, sigma_pred = self.predict(action)
-        y_pred = self.C @ mu_pred
-        eps = y - y_pred
-        S = self.C @ sigma_pred @ self.C.T + self.R
-        sign_logdet, logdet = np.linalg.slogdet(S)
-        if sign_logdet <= 0:
-            logdet = float(np.log(max(float(np.trace(S)), 1e-12)))
-        acc = 0.5 * float(eps.T @ np.linalg.solve(S, eps) + logdet + self.obs_dim * np.log(2 * np.pi))
-        _, logdet_prior = np.linalg.slogdet(self.sigma)
-        _, logdet_post = np.linalg.slogdet(self.sigma)
-        # Complexity: half the expected divergence from the predicted prior.
+        residual = y - self.C @ self.mu
+        accuracy = -0.5 * float(
+            self.obs_dim * np.log(2 * np.pi)
+            + np.linalg.slogdet(self.R)[1]
+            + residual @ np.linalg.solve(self.R, residual)
+            + np.trace(np.linalg.solve(self.R, self.C @ self.sigma @ self.C.T))
+        )
+        delta = self.mu - mu_pred
         complexity = 0.5 * float(
-            np.trace(np.linalg.solve(sigma_pred + np.eye(self.state_dim) * 1e-9, self.sigma))
-            + (self.mu - mu_pred).T @ sigma_pred @ (self.mu - mu_pred)
+            np.trace(np.linalg.solve(sigma_pred, self.sigma))
+            + delta @ np.linalg.solve(sigma_pred, delta)
             - self.state_dim
-            + logdet_prior
-            - logdet_post
+            + np.linalg.slogdet(sigma_pred)[1]
+            - np.linalg.slogdet(self.sigma)[1]
         )
-        fe = float(complexity + acc)
         return FreeEnergyBreakdown(
-            free_energy=fe,
-            accuracy=acc,
+            free_energy=complexity - accuracy,
+            accuracy=accuracy,
             complexity=complexity,
-            entropy=float(np.trace(self.sigma)),
+            entropy=self._entropy(),
             metadata={
                 "model_type": "gaussian_laplace",
+                "time_domain": self.time_domain,
                 "adaptive_precision": self._adaptive_precision(action),
-                "innovation_trace": float(np.trace(S)),
             },
         )
 
@@ -224,7 +315,7 @@ class ContinuousPOMDPActiveInference:
           (goal-seeking; minimized by approaching ``target_prior``).  It is
           exposed as ``pragmatic_value`` in the breakdown.
         - **Epistemic gain** is the expected information gain measured by
-          the trajectory-average log-determinant of the innovation covariance
+          the sum of conditional Gaussian mutual information
           (uncertainty resolution; strongest when sensing would disambiguate
           hidden states).
         - **Risk** folds in the control effort, favouring parsimonious
@@ -233,46 +324,60 @@ class ContinuousPOMDPActiveInference:
         Returns a ``FreeEnergyBreakdown`` when requested; the scalar combined
         EFE otherwise.
         """
+        if (
+            isinstance(horizon, bool)
+            or not isinstance(horizon, (int, np.integer))
+            or horizon < 1
+        ):
+            raise ValueError("horizon must be a positive integer")
+        if not np.isfinite(epistemic_weight) or epistemic_weight < 0:
+            raise ValueError("epistemic_weight must be finite and nonnegative")
         target = (
             self.target_prior
             if preference_prior is None
-            else np.asarray(preference_prior, dtype=float).reshape(-1)
+            else self._array(preference_prior, (self.obs_dim,), "preference_prior")
         )
-        u = np.asarray(action, dtype=float)
+        u = self._array(action, (self.action_dim,), "action")
         mu_h = self.mu.copy()
         cov_h = self.sigma.copy()
+        cost_cov_h = self.sigma.copy()
         pragmatic = 0.0
         epistemic = 0.0
-        F = np.eye(self.state_dim) + self.dt * self.A
-        for _ in range(max(int(horizon), 1)):
-            mu_dot = self.A @ mu_h + self.B @ u
-            mu_h = mu_h + self.dt * mu_dot
-            cov_h = F @ cov_h @ F.T + self.dt * self.Q
+        F, control_matrix, noise = self._discrete_dynamics()
+        for _ in range(horizon):
+            mu_h = F @ mu_h + control_matrix @ u
+            cov_h = F @ cov_h @ F.T + noise
+            cost_cov_h = F @ cost_cov_h @ F.T + noise
             y_proj = self.C @ mu_h
             # Pragmatic cost: summed squared error to the target (lower is
             # better; drives goal-seeking).
-            pragmatic += float(np.sum((y_proj - target) ** 2))
-            # Epistemic gain: log-determinant of the innovation covariance
-            # (higher innovation means more uncertainty resolved by sensing).
+            pragmatic += float(
+                np.sum((y_proj - target) ** 2)
+                + np.trace(self.C @ cost_cov_h @ self.C.T + self.R)
+            )
+            # Gaussian mutual information I(x;y) = .5 log(|H P H' + R| / |R|).
+            # Condition covariance on each anticipated measurement so repeated
+            # sensing does not count the same uncertainty again.
             S_h = self.C @ cov_h @ self.C.T + self.R
             sign, ld = np.linalg.slogdet(S_h)
             if sign > 0 and np.isfinite(ld):
-                epistemic += 0.5 * float(ld)
-        control = 0.01 * float(np.sum(u**2))
+                epistemic += 0.5 * float(ld - np.linalg.slogdet(self.R)[1])
+            gain = np.linalg.solve(S_h, self.C @ cov_h).T
+            residual_map = np.eye(self.state_dim) - gain @ self.C
+            cov_h = residual_map @ cov_h @ residual_map.T + gain @ self.R @ gain.T
+        control = 0.01 * horizon * float(np.sum(u**2))
         pragmatic_value = float(pragmatic)
         epistemic_value = float(epistemic)
         # Minimise pragmatic cost and control effort while rewarding epistemic
         # (information-gain) value via the subtractive epistemic term.
-        expected_free_energy = float(
-            pragmatic - epistemic_weight * epistemic + control
-        )
+        expected_free_energy = float(pragmatic - epistemic_weight * epistemic + control)
         if return_breakdown:
             return FreeEnergyBreakdown(
                 free_energy=expected_free_energy,
                 pragmatic_value=pragmatic_value,
                 epistemic_value=epistemic_value,
                 risk=control,
-                entropy=float(np.trace(self.sigma)),
+                entropy=self._entropy(),
                 metadata={
                     "action": u.tolist(),
                     "epistemic_weight": float(epistemic_weight),
@@ -315,15 +420,15 @@ class ContinuousPOMDPActiveInference:
             ]
         else:
             candidates = [
-                np.asarray(action, dtype=float).reshape(-1) for action in candidate_actions
+                self._array(action, (self.action_dim,), "candidate action")
+                for action in candidate_actions
             ]
+        if not candidates:
+            raise ValueError("candidate_actions must not be empty")
         efe_scores: List[float] = []
         pragmatic_values: List[float] = []
         epistemic_values: List[float] = []
         for cand in candidates:
-            # Normalise candidate length to action_dim for broadcasting safety.
-            if cand.size != self.action_dim:
-                cand = np.resize(cand, self.action_dim)
             breakdown = cast(
                 FreeEnergyBreakdown,
                 self.compute_expected_free_energy(

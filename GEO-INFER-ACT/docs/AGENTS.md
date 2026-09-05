@@ -26,6 +26,8 @@
 - `categorical_inference.md`
 - `free_energy_principle.md`
 - `geospatial_applications.md`
+- `gnn_factored_interchange.md`
+- `gnn_interchange.md`
 - `mathematical_framework.md`
 - `method_inventory.md`
 - `references.md`
