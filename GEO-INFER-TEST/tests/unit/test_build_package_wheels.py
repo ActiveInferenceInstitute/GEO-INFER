@@ -118,7 +118,9 @@ def test_wheel_import_timeout_includes_stack_diagnostic(tmp_path):
     """A blocked installed import times out with the actual child stack attached."""
     wheel = _wheel(tmp_path, "import time\ntime.sleep(10)\n")
     with pytest.raises(subprocess.TimeoutExpired) as error:
-        _driver().verify_wheels([wheel], [sys.executable], import_timeout=0.5)
+        # Allow cold Windows imports to reach the deliberately blocked package
+        # before the halfway-point diagnostic snapshot is taken.
+        _driver().verify_wheels([wheel], [sys.executable], import_timeout=3)
     assert b"Timeout" in error.value.stderr
     assert b"geo_infer_probe/__init__.py" in error.value.stderr.replace(b"\\", b"/")
 
