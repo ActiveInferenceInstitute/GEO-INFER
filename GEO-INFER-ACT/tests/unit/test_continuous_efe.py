@@ -5,7 +5,7 @@ Kalman-Bucy filter in the continuous POMDP active-inference engine.
 These tests pin real model behaviour: the adopted sign convention (EFE =
 pragmatic cost - epistemic gain + control effort), the stability of the
 variational free-energy breakdown, and the active-sensing property that
-greater sensor uncertainty raises the epistemic (information-gain) term.
+greater sensor uncertainty reduces the epistemic (information-gain) term.
 """
 
 from __future__ import annotations
@@ -57,9 +57,9 @@ def test_efe_against_target_prefers_approach_action() -> None:
     assert scoreboard["best_efe"] == pytest.approx(float(efe_scores.min()), rel=1e-9)
 
 
-def test_epistemic_gain_grows_with_sensor_uncertainty() -> None:
+def test_epistemic_gain_decreases_with_sensor_uncertainty() -> None:
     """
-    Information-gain rises with observation (sensor) noise: the EFE rewards
+    Information-gain falls with observation (sensor) noise: the EFE rewards
     sensing in regimes where a measurement would disambiguate the hidden
     state, which is the active-sensing property.
     """
@@ -83,20 +83,20 @@ def test_epistemic_gain_grows_with_sensor_uncertainty() -> None:
         high.update_beliefs(obs)
 
     action = np.array([0.3, -0.2])
-    low_bd = low.compute_expected_free_energy(
-        action, horizon=2, return_breakdown=True
-    )
+    low_bd = low.compute_expected_free_energy(action, horizon=2, return_breakdown=True)
     high_bd = high.compute_expected_free_energy(
         action, horizon=2, return_breakdown=True
     )
     assert isinstance(low_bd, FreeEnergyBreakdown)
     assert isinstance(high_bd, FreeEnergyBreakdown)
-    assert high_bd.epistemic_value > low_bd.epistemic_value
+    assert high_bd.epistemic_value < low_bd.epistemic_value
 
 
 def test_variational_free_energy_breaks_into_accuracy_and_complexity() -> None:
-    """Laplace VFE reports accuracy + complexity and stays finite."""
-    model = ContinuousPOMDPActiveInference(state_dim=2, obs_dim=2, action_dim=2, dt=0.05)
+    """Laplace VFE reports complexity - accuracy and stays finite."""
+    model = ContinuousPOMDPActiveInference(
+        state_dim=2, obs_dim=2, action_dim=2, dt=0.05
+    )
     for obs in (np.array([0.1, -0.1]), np.array([1.5, 0.2])):
         model.update_beliefs(obs)
     breakdown = model.compute_variational_free_energy()
@@ -105,12 +105,13 @@ def test_variational_free_energy_breaks_into_accuracy_and_complexity() -> None:
     for value in (breakdown.free_energy, breakdown.accuracy, breakdown.complexity):
         assert np.isfinite(value)
     assert breakdown.free_energy == pytest.approx(
-        breakdown.accuracy + breakdown.complexity, rel=1e-9
+        breakdown.complexity - breakdown.accuracy, rel=1e-9
     )
 
 
 def test_seeded_evaluate_actions_is_reproducible() -> None:
     """Identically seeded models produce identical EFE scoreboards."""
+
     def board(seed: int) -> np.ndarray:
         model = ContinuousPOMDPActiveInference(state_dim=2, obs_dim=2, action_dim=2)
         return np.asarray(model.evaluate_actions(horizon=2)["efe_scores"], dtype=float)

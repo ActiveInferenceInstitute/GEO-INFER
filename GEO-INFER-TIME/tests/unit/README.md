@@ -5,6 +5,7 @@ Unit workspace within `GEO-INFER-TIME`.
 ## Contents
 
 - `test_core.py`
+- `test_inference_schedule.py`
 
 ## Public Interface
 

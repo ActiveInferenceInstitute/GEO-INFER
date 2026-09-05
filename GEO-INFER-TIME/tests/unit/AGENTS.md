@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `test_core.py`
+- `test_inference_schedule.py`
 
 ## Validation
 
