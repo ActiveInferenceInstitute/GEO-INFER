@@ -23,12 +23,9 @@
 
 - `config/`
 - `docs/`
-- `etl/`
 - `examples/`
 - `src/`
-- `storage/`
 - `tests/`
-- `validation/`
 - `setup.py`
 - `SKILL.md`
 - `pyproject.toml`

@@ -20,14 +20,15 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 - **Monitoring**: System health metrics, spatial operation performance
 - **Log aggregation**: Structured log collection and querying
 - **Deployment**: Configuration management for spatial services
-- **Observability**: Distributed tracing for cross-module operations
+- **Observability**: Prometheus metrics for cross-module operations
 
 ### Key Imports
 
 ```python
 from geo_infer_ops.core.monitoring import record_request, record_error, start_metrics_server
 from geo_infer_ops.core.deployment import DeploymentManager
-from geo_infer_ops.core.logging import setup_logging, get_logger
+from geo_infer_ops.utils.shared_logging import configure_logging
+from geo_infer_ops.utils.logger import get_logger
 ```
 
 ## Examples
@@ -36,16 +37,17 @@ from geo_infer_ops.core.logging import setup_logging, get_logger
 from geo_infer_ops.core.monitoring import record_request, start_metrics_server
 
 with start_metrics_server(port=9090) as metrics_port:
-    cells = backend.tessellate(region, resolution=7)
     record_request("space", "/h3/tessellate", 200, 0.12)
+    record_error("space", "TimeoutError")
     print(f"Metrics listening on {metrics_port}")
 ```
 
 ```python
 from geo_infer_ops.core.deployment import DeploymentManager
-from geo_infer_ops.core.logging import setup_logging, get_logger
+from geo_infer_ops.utils.shared_logging import configure_logging
+from geo_infer_ops.utils.logger import get_logger
 
-setup_logging(log_level="INFO", json_format=True)
+configure_logging(log_level="INFO", json_format=True)
 logger = get_logger(__name__)
 
 deployer = DeploymentManager(namespace="geo-prod")

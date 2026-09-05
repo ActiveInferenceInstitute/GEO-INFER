@@ -5,6 +5,8 @@ This module provides FastAPI endpoints for last-mile delivery functionality,
 service area analysis, and delivery scheduling.
 """
 
+from functools import lru_cache
+
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Dict, Optional, Tuple
 from pydantic import ConfigDict, Field
@@ -192,21 +194,20 @@ class RescheduleRequest(BaseModel):
     )
 
 
-# Get a last-mile router instance
+# Cached module-level singletons: schedules and service areas must survive
+# across requests for the API to behave correctly.
+@lru_cache(maxsize=1)
 def get_last_mile_router() -> LastMileRouter:
     """Dependency for last-mile router."""
     return LastMileRouter()
 
 
-# Get a delivery scheduler instance
-def get_delivery_scheduler(
-    router: LastMileRouter = Depends(get_last_mile_router),
-) -> DeliveryScheduler:
+def get_delivery_scheduler() -> DeliveryScheduler:
     """Dependency for delivery scheduler."""
-    return DeliveryScheduler(router)
+    return DeliveryScheduler(get_last_mile_router())
 
 
-# Get a service area analyzer instance
+@lru_cache(maxsize=1)
 def get_service_area_analyzer() -> ServiceAreaAnalyzer:
     """Dependency for service area analyzer."""
     return ServiceAreaAnalyzer()

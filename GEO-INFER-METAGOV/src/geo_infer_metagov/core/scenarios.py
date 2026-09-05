@@ -1,9 +1,10 @@
 """Scenario planning for governance systems."""
 
-from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional
+from dataclasses import dataclass
+from typing import List, Dict, Any
 import logging
-import math
+
+from geo_infer_metagov.utils.helpers import entity_field
 
 logger = logging.getLogger(__name__)
 
@@ -230,15 +231,28 @@ class ScenarioPlanner:
         """Apply scenario modifications to governance structure."""
         modified = structure.copy()
         
-        # Modify entities
+        # Modify entities (dict payloads or GovernanceEntity dataclass instances)
         if 'entities' in modified:
             for entity in modified['entities']:
                 if 'capacity' in modifications:
-                    entity['capacity'] = entity.get('capacity', 1.0) * modifications['capacity']
+                    if isinstance(entity, dict):
+                        entity['capacity'] = entity.get('capacity', 1.0) * modifications['capacity']
+                    else:
+                        entity.capacity = entity_field(entity, 'capacity', 1.0) * modifications['capacity']
                 if 'resource_budget' in modifications:
-                    if 'resources' not in entity:
-                        entity['resources'] = {}
-                    entity['resources']['budget'] = entity.get('resources', {}).get('budget', 1000000) * modifications['resource_budget']
+                    if isinstance(entity, dict):
+                        if 'resources' not in entity:
+                            entity['resources'] = {}
+                        entity['resources']['budget'] = (
+                            entity.get('resources', {}).get('budget', 1000000)
+                            * modifications['resource_budget']
+                        )
+                    else:
+                        resources = dict(entity_field(entity, 'resources', {}))
+                        resources['budget'] = (
+                            resources.get('budget', 1000000) * modifications['resource_budget']
+                        )
+                        entity.resources = resources
         
         # Modify stakeholder engagement
         if 'stakeholder_engagement' in modifications:
@@ -259,8 +273,10 @@ class ScenarioPlanner:
         entities = structure.get('entities', [])
         
         # Calculate scenario-adjusted metrics
-        avg_capacity = sum(e.get('capacity', 0.5) for e in entities) / len(entities) if entities else 0.5
-        total_budget = sum(e.get('resources', {}).get('budget', 0) for e in entities)
+        avg_capacity = sum(entity_field(e, 'capacity', 0.5) for e in entities) / len(entities) if entities else 0.5
+        total_budget = sum(
+            entity_field(entity_field(e, 'resources', {}), 'budget', 0) for e in entities
+        )
         
         # Scenario impact on performance
         capacity_factor = avg_capacity
@@ -369,7 +385,6 @@ class ScenarioPlanner:
         # Calculate sensitivity for each variable
         for variable in key_variables:
             # Test impact of variable changes
-            base_value = 1.0  # Default
             test_modifications = {variable: 0.8}  # 20% reduction
             
             test_structure = self._apply_scenario_modifications(

@@ -5,13 +5,12 @@ This module provides implementation of various anonymization techniques
 for geospatial data to protect privacy while maintaining utility.
 """
 
-from typing import Union, Dict, List, Tuple, Optional, Any
+from typing import List, Optional
 import numpy as np
 import geopandas as gpd
-from shapely.geometry import Point, Polygon, MultiPolygon
+from shapely.geometry import Point
 import pandas as pd
 import h3
-from pyproj import Transformer
 
 
 class GeospatialAnonymizer:
@@ -44,9 +43,26 @@ class GeospatialAnonymizer:
 
         Returns:
             GeoDataFrame with perturbed geometries
+
+        Raises:
+            ValueError: If any geometry is not a Point, or if the GeoDataFrame
+                declares a CRS other than EPSG:4326.
+
+        Note:
+            Displacement assumes EPSG:4326 geographic coordinates: meters are
+            converted to degrees with a flat 111,000 m/deg factor. This is an
+            approximation whose accuracy degrades away from the equator;
+            projected CRS input is rejected rather than silently mis-scaled.
         """
         if not all(isinstance(geom, Point) for geom in gdf[geometry_col]):
             raise ValueError("All geometries must be Point objects")
+
+        crs = getattr(gdf, "crs", None)
+        if crs is not None and not crs.equals("EPSG:4326"):
+            raise ValueError(
+                "location_perturbation assumes EPSG:4326 coordinates; "
+                f"got {crs.to_string()}. Reproject before anonymizing."
+            )
         
         result = gdf.copy()
         for idx, row in result.iterrows():

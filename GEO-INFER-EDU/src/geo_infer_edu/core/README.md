@@ -27,8 +27,8 @@ Core workspace within `GEO-INFER-EDU`.
 - `personalization.py:LearnerProfile` (class)
 - `personalization.py:LearningResource` (class)
 - `personalization.py:LearningPathway` (class)
+- `personalization.py:compute_skill_gap_pathway` (function)
 - `personalization.py:PersonalizedLearning` (class)
-- `professional.py:CertificationLevel` (class)
 - `professional.py:ProfessionalProfile` (class)
 - `professional.py:ContinuingEducationActivity` (class)
 - `professional.py:CertificationPathway` (class)
@@ -44,11 +44,7 @@ Core workspace within `GEO-INFER-EDU`.
 
 ## Dependencies
 
-- `numpy>=1.20.0`
-- `pandas>=1.3.0`
 - `pyyaml>=6.0`
-- `pydantic>=2.0.0`
-- `jinja2>=3.0.0`
 
 
 ## Validation

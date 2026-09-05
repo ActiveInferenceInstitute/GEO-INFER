@@ -6,10 +6,10 @@ land use classifications, and their spatial implications.
 """
 
 import geopandas as gpd
-from typing import Dict, List, Optional, Set, Tuple, Union, Any
+from typing import Dict, List, Optional, Tuple, Union, Any
 import pandas as pd
 import numpy as np
-from shapely.geometry import Point, Polygon, MultiPolygon, LineString
+from shapely.geometry import Point, MultiPolygon, LineString
 import logging
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
@@ -954,8 +954,6 @@ class LandUseClassifier:
             return results
             
         # Reproject for accurate area calculation (using EPSG:3857 as a common web mercator)
-        # Store original CRS to potentially revert later if needed, though area is the goal here.
-        original_crs = land_use_gdf.crs
         try:
             gdf_proj = land_use_gdf.to_crs(epsg=3857) 
         except Exception as e:

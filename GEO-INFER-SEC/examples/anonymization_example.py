@@ -6,18 +6,13 @@ This example shows how to use the GeospatialAnonymizer class to apply
 different anonymization methods to point data.
 """
 
-import os
-import sys
 import numpy as np
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
 import matplotlib.pyplot as plt
 
-# Add the parent directory to the path for imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from src.geo_infer_sec.core.anonymization import GeospatialAnonymizer
+from geo_infer_sec.core.anonymization import GeospatialAnonymizer
 
 
 def create_sample_data(n_points=100, seed=42):

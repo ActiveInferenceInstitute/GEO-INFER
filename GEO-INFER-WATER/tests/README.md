@@ -7,16 +7,10 @@ Tests workspace within `GEO-INFER-WATER`.
 - `integration/`
 - `unit/`
 - `conftest.py`
-- `test_water_quality.py`
 
 ## Public Interface
 
-- `conftest.py:sample_coordinates` (function)
-- `conftest.py:sample_geodataframe` (function)
-- `conftest.py:tmp_output_dir` (function)
-- `conftest.py:watershed_gdf` (function)
-- `conftest.py:streamflow_series` (function)
-- `conftest.py:water_quality_data` (function)
+- No public Python symbols are defined directly in this directory.
 
 ## Module Metadata
 
@@ -24,16 +18,13 @@ Tests workspace within `GEO-INFER-WATER`.
 - Package: `geo_infer_water`
 - Version: `0.2.0`
 - Install: `uv pip install -e ./GEO-INFER-WATER`
-- Tests: `uv run python -m pytest GEO-INFER-WATER/tests`
+- Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module WATER`
 
 ## Dependencies
 
 - `numpy>=1.20.0`
-- `pandas>=1.3.0`
 - `scipy>=1.7.0`
-- `matplotlib>=3.4.0`
 - `xarray>=0.19.0`
-- `pyyaml>=6.0`
 
 
 ## Strict Test Inventory
@@ -57,7 +48,7 @@ Tests workspace within `GEO-INFER-WATER`.
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-WATER/tests
+uv run python GEO-INFER-TEST/run_unified_tests.py --module WATER
 ```
 
 

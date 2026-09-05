@@ -10,22 +10,19 @@ This module provides holistic security management by integrating:
 - Coordinated incident response across domains
 """
 
-import asyncio
 import logging
 import threading
 import time
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Dict, List, Optional, Tuple, Any, Union, Callable, cast
+from typing import Dict, List, Optional, Tuple, Any, Callable, cast
 from dataclasses import dataclass, field
-from collections import defaultdict
-import json
 import yaml
 
 from .physical_security import PhysicalSecurityManager, PhysicalThreat
-from .digital_security import DigitalSecurityManager, DigitalThreat
-from .cognitive_security import CognitiveSecurityManager, CognitiveThreat
-from ..models.security_models import SecurityEvent, ThreatLevel, SecurityAlert
+from .digital_security import DigitalSecurityManager
+from .cognitive_security import CognitiveSecurityManager
+from ..models.security_models import ThreatLevel, SecurityAlert
 from ..utils.security_utils import SecurityUtils
 
 
@@ -695,9 +692,6 @@ class IntegratedSecurityManager:
         for incident in self.security_incidents.values():
             if incident.status == "open":
                 # Check if threats are resolved
-                resolved_count = 0
-                total_threats = len(incident.threat_vectors)
-                
                 # Simple resolution check (in practice, this would be more sophisticated)
                 if datetime.now() - incident.created_at > timedelta(hours=24):
                     incident.status = "investigating"

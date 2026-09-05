@@ -12,9 +12,6 @@ This example demonstrates:
 - Adaptive governance
 """
 
-import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../src'))
 
 from geo_infer_metagov.core.multi_level import MultiLevelGovernanceFramework
 from geo_infer_metagov.core.stakeholder import StakeholderGovernanceCoordinator
@@ -114,11 +111,21 @@ def main():
     
     resolution = conflict_resolver.resolve_conflict(
         conflict=conflict,
+        stakeholders=[
+            {
+                'id': 'fisheries_association',
+                'name': 'Fisheries Association',
+                'decision_power': 0.6,
+                'interest_level': 0.9,
+            },
+            {
+                'id': 'tourism_industry',
+                'name': 'Tourism Industry',
+                'decision_power': 0.4,
+                'interest_level': 0.8,
+            },
+        ],
         method=ConflictResolutionMethod.MEDIATION,
-        stakeholder_priorities={
-            'fisheries_association': 0.6,
-            'tourism_industry': 0.4
-        }
     )
     
     print(f"✓ Conflict resolution: {resolution.resolved}")
@@ -203,17 +210,14 @@ def main():
     print("\n7. ADAPTIVE GOVERNANCE SYSTEM")
     print("-" * 80)
     
-    adaptive_system = AdaptiveGovernanceSystem(
-        learning_mechanisms=['performance_monitoring', 'stakeholder_feedback', 'outcome_evaluation'],
-        adaptation_triggers=['performance_gaps', 'environmental_changes', 'stakeholder_demands']
-    )
-    
+    adaptive_system = AdaptiveGovernanceSystem()
     # Monitor performance
     performance_results = adaptive_system.monitor_performance(
-        performance_indicators=['effectiveness', 'efficiency', 'stakeholder_satisfaction'],
-        governance_structure=governance_structure.__dict__
+        governance_indicators=['effectiveness', 'efficiency', 'stakeholder_satisfaction'],
+        data_sources=['governance_structure', 'performance_metrics'],
+        evaluation_periods='annual',
     )
-    
+
     # Adapt governance
     adaptation_result = adaptive_system.adapt_governance(
         performance_results=performance_results,

@@ -1,6 +1,6 @@
 ---
 name: geo-infer-req
-description: Requirements engineering and traceability for geospatial projects. Use when managing spatial project requirements, building traceability matrices, implementing P3IF frameworks (Purpose, People, Process, Infrastructure, Finance), or tracking requirement coverage and verification.
+description: Requirements engineering and traceability for geospatial projects. Use when managing project requirements, building traceability matrices, analyzing dependency graphs and critical paths, or validating requirement consistency, conflicts, and feasibility.
 prerequisites:
   required: []
   recommended: []
@@ -15,39 +15,98 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 
 ### Core Capabilities
 
-- **Requirements management**: Spatial project requirement CRUD and lifecycle tracking
-- **Traceability**: Bidirectional requirement-to-implementation mapping
-- **P3IF framework**: Purpose, People, Process, Infrastructure, Finance analysis
-- **Coverage analysis**: Requirements coverage verification and gap detection
-- **Change management**: Requirement change impact analysis
+- **Requirements analysis**: dependency graphs, topological ordering, cycle detection, critical path
+- **Priority scoring**: weighted composite scores (priority level, dependents, stakeholders, effort)
+- **Completeness checks**: descriptions, acceptance criteria, dangling dependencies, type coverage
+- **Traceability**: trace links, coverage reports, change impact analysis
+- **Validation**: consistency checks, conflict detection, feasibility assessment
+
+Pure-stdlib implementation (dataclasses + enums); no third-party runtime dependencies.
 
 ### Key Imports
 
 ```python
-from geo_infer_req.core.requirements import RequirementsManager
-from geo_infer_req.core.traceability import TraceabilityMatrix
-from geo_infer_req.core.p3if import P3IFFramework
-from geo_infer_req.core.coverage import CoverageAnalyzer
+from geo_infer_req import (
+    RequirementsAnalyzer, Requirement, RequirementType,
+    RequirementStatus, PriorityLevel, DependencyGraph, CompletenessReport,
+    TraceabilityManager, TraceLink, ArtifactType, TraceMatrixEntry,
+    CoverageReport, ImpactReport,
+    RequirementValidator, RequirementSpec, ValidationIssue,
+    ValidationSeverity, ConflictType, ConflictDetectionResult,
+    ConsistencyReport, FeasibilityAssessment,
+)
 ```
 
 ## Examples
 
-```python
-from geo_infer_req.core.traceability import TraceabilityMatrix
+### Requirements analysis
 
-matrix = TraceabilityMatrix()
-matrix.add_requirement("REQ-001", "System shall support H3 v4 indexing")
-matrix.link("REQ-001", implementation="geo_infer_space/backends/h3.py")
-matrix.link("REQ-001", test="test_h3_backend.py")
-report = matrix.coverage_report()
-print(f"Coverage: {report.coverage_percent:.0f}%")
+```python
+from geo_infer_req import RequirementsAnalyzer, Requirement, RequirementType, PriorityLevel
+
+analyzer = RequirementsAnalyzer()
+analyzer.add_requirements([
+    Requirement("R001", "H3 indexing",
+                "The system shall support H3 v4 cell indexing",
+                RequirementType.FUNCTIONAL, PriorityLevel.HIGH),
+    Requirement("R002", "Query latency",
+                "Spatial queries shall return within 200 ms at p95",
+                RequirementType.PERFORMANCE,
+                dependencies=["R001"]),
+])
+
+graph = analyzer.build_dependency_graph()
+graph.topological_order   # ['R001', 'R002']
+graph.critical_path       # ['R001', 'R002']
+graph.cycles              # [] (cycles are reported as closed node loops)
+
+scores = analyzer.compute_priority_scores()   # {req_id: composite score}
+report = analyzer.check_completeness()        # missing descriptions/criteria, orphans
+```
+
+### Traceability
+
+```python
+from geo_infer_req import TraceabilityManager, TraceLink, ArtifactType
+
+tm = TraceabilityManager()
+tm.register_requirement("R001")
+tm.add_trace_link(TraceLink("R001", "test_h3_backend.py", ArtifactType.TEST_CASE))
+tm.verify_link("R001", "test_h3_backend.py")      # True; marks the link verified
+
+coverage = tm.analyze_coverage()                  # coverage_ratio, untraced, by type
+impact = tm.analyze_impact("R001")                # affected requirements + artifacts
+```
+
+### Validation
+
+```python
+from geo_infer_req import RequirementValidator, RequirementSpec
+
+validator = RequirementValidator()
+validator.add_spec(RequirementSpec(
+    "R001", "H3 indexing", "The system shall support H3 v4 cell indexing",
+    priority=4, effort_estimate=10.0,
+    tags=["spatial"], resources_required=["backend_dev"],
+))
+validator.set_resource_capacity({"backend_dev": 12.0})  # person-days
+
+consistency = validator.check_consistency()  # errors / warnings / info items
+conflicts = validator.detect_conflicts()     # overlapping constraints, resource conflicts
+feasibility = validator.assess_feasibility(available_effort=20.0)
 ```
 
 ## Guidelines
 
-- P3IF framework partially implemented (Alpha)
+- `find_dependency_cycles` in `geo_infer_req.core.validation` is the single
+  canonical cycle detector; `DependencyGraph.cycles` and
+  `ConsistencyReport` both report through it.
+- Cycle errors never block loading — inspect `graph.cycles` and break the
+  reported back-edge.
 
 ### Integrations
 
-- Integrates with NORMS for compliance requirement tracking
+No cross-module imports are implemented; the module is self-contained
+(Governance category). Integrations with NORMS/SEC/SPACE would be new work.
+
 - Test: `uv run python -m pytest GEO-INFER-REQ/tests/ -v`

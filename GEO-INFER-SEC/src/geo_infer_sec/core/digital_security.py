@@ -92,8 +92,13 @@ class DigitalThreat:
 
 
 @dataclass
-class SecurityPolicy:
-    """Represents a digital security policy."""
+class DigitalSecurityPolicy:
+    """Digital-domain security policy.
+
+    Distinct from the canonical :class:`geo_infer_sec.models.security_models.SecurityPolicy`,
+    which models organization-wide policy records; this dataclass is the
+    runtime policy shape used by the digital security engine.
+    """
 
     policy_id: str
     name: str
@@ -137,7 +142,18 @@ class VulnerabilityReport:
 
 
 class DigitalSecurityManager:
-    """Comprehensive digital security management system."""
+    """Comprehensive digital security management system.
+
+    .. note::
+        SIMULATION-ONLY threat intelligence. Threat indicators (blocked IPs,
+        malware hashes, suspicious domains) are loaded from a configurable
+        YAML file (``threat_indicators_file`` config key, defaulting to the
+        packaged ``config/threat_indicators.yaml``). The shipped defaults are
+        illustrative examples, not live feeds, and the scheduled background
+        loops (key rotation, vulnerability scanning) are placeholders that do
+        not contact real systems. Do not treat this manager as a production
+        SIEM without wiring real feeds and responders.
+    """
 
     def __init__(self, config_path: Optional[str] = None):
         """Initialize the digital security manager."""
@@ -146,7 +162,7 @@ class DigitalSecurityManager:
 
         # Initialize security components
         self.active_threats: Dict[str, DigitalThreat] = {}
-        self.security_policies: Dict[str, SecurityPolicy] = {}
+        self.security_policies: Dict[str, DigitalSecurityPolicy] = {}
         self.security_events: List[SecurityEvent] = []
         self.network_connections: Dict[str, NetworkConnection] = {}
         self.vulnerability_reports: Dict[str, VulnerabilityReport] = {}
@@ -166,6 +182,7 @@ class DigitalSecurityManager:
         # Threat intelligence
         self.threat_indicators: Set[str] = set()
         self.blocked_ips: Set[str] = set()
+        self.ip_unblock_schedule: Dict[str, datetime] = {}
         self.trusted_ips: Set[str] = set()
 
         # Rate limiting
@@ -244,7 +261,7 @@ class DigitalSecurityManager:
         ]
 
         for policy_config in default_policies:
-            policy = SecurityPolicy(**cast(Dict[str, Any], policy_config))
+            policy = DigitalSecurityPolicy(**cast(Dict[str, Any], policy_config))
             self.security_policies[policy.policy_id] = policy
 
     def _initialize_encryption_keys(self) -> None:
@@ -259,19 +276,39 @@ class DigitalSecurityManager:
         )
 
     def _load_threat_intelligence(self) -> None:
-        """Load threat intelligence indicators."""
-        # In a real implementation, this would fetch from threat intelligence feeds
-        # For now, we'll use some example indicators
-        known_malicious_ips = [
-            "192.168.1.100",  # Example malicious IP
-            "10.0.0.50",  # Another example
-        ]
+        """Load threat intelligence indicators from a configurable YAML file.
 
-        self.blocked_ips.update(known_malicious_ips)
+        SIMULATION-ONLY: the shipped defaults are illustrative examples, not
+        live threat-intelligence feeds. Provide ``threat_indicators_file`` in
+        the manager config to point at your own indicator file with the shape
+        ``{"blocked_ips": [...], "threat_indicators": [...], "trusted_ips": [...]}``.
+        """
+        indicator_file = self.config.get("threat_indicators_file")
+        if not indicator_file:
+            indicator_file = (
+                Path(__file__).resolve().parent.parent
+                / "config"
+                / "threat_indicators.yaml"
+            )
 
-        # Load malware signatures, domains, etc.
-        self.threat_indicators.update(
-            ["suspicious-domain.com", "malware-hash-123456", "phishing-url-pattern"]
+        path = Path(indicator_file)
+        if path.exists():
+            with open(path, "r") as f:
+                indicators = yaml.safe_load(f) or {}
+        else:
+            self.logger.warning(
+                "Threat indicator file not found: %s; starting with empty sets",
+                path,
+            )
+            indicators = {}
+
+        self.blocked_ips.update(indicators.get("blocked_ips", []))
+        self.threat_indicators.update(indicators.get("threat_indicators", []))
+        self.trusted_ips.update(indicators.get("trusted_ips", []))
+        self.logger.info(
+            "Loaded threat intelligence: %d blocked IPs, %d indicators",
+            len(self.blocked_ips),
+            len(self.threat_indicators),
         )
 
     # Threat Detection and Analysis
@@ -534,9 +571,11 @@ class DigitalSecurityManager:
         try:
             self.blocked_ips.add(ip_address)
 
-            # Schedule unblocking
-            _unblock_time = datetime.now() + timedelta(hours=duration_hours)
-            # In a real implementation, you'd use a proper scheduler
+            # Record when the block should lapse; consumers (or a real
+            # scheduler) can expire entries from this mapping.
+            self.ip_unblock_schedule[ip_address] = datetime.now() + timedelta(
+                hours=duration_hours
+            )
 
             self.logger.info(f"Blocked IP {ip_address} for {duration_hours} hours")
             return True

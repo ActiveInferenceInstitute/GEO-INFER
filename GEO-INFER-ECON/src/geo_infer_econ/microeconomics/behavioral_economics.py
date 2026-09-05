@@ -11,12 +11,8 @@ Implements behavioral economics models including:
 """
 
 import numpy as np
-import pandas as pd
-from typing import Dict, List, Optional, Tuple, Any, Callable, cast
+from typing import Dict, List, Optional, Any, cast
 from dataclasses import dataclass
-import logging
-from scipy.optimize import minimize
-from scipy.stats import norm, expon
 
 from ..utils.rng import resolve_rng
 

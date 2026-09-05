@@ -3,6 +3,11 @@ MLflow integration for MLOps workflows.
 
 This module provides integration with MLflow for experiment tracking,
 model versioning, and model deployment in geospatial AI workflows.
+
+MLflow is an optional dependency: install the ``mlops`` extra
+(``pip install geo-infer-ai[mlops]`` / ``uv sync --extra mlops``) to enable
+tracking; without it the pipeline degrades gracefully to disabled mode.
+
 """
 
 import logging

@@ -42,6 +42,9 @@ Utils workspace within `GEO-INFER-COMMS`.
 
 - `fastapi>=0.100.0`
 - `pydantic>=2.0.0`
+- `uvicorn>=0.23.0`
+- `websockets>=12.0`
+- `requests>=2.31.0`
 
 
 ## Validation

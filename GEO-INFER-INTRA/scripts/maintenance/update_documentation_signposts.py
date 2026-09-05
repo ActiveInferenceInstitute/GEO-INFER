@@ -5,7 +5,8 @@ import glob
 
 ROOT_DIR = "."
 
-# Module Categories (Based on AGENTS.md)
+# Module Categories (matching the canonical 44-module taxonomy in
+# geo_infer_intra.core.documentation.visual_preview.MODULE_PROFILES)
 CORE_AGENT_MODULES = ["GEO-INFER-AGENT", "GEO-INFER-ACT", "GEO-INFER-ANT", "GEO-INFER-SIM", "GEO-INFER-COG"]
 
 DOMAIN_MODULES = [
@@ -22,7 +23,7 @@ INFRASTRUCTURE_MODULES = [
     "GEO-INFER-SEC", "GEO-INFER-OPS", "GEO-INFER-GIT", "GEO-INFER-INTRA",
     "GEO-INFER-REQ", "GEO-INFER-NORMS", "GEO-INFER-ORG", "GEO-INFER-PEP",
     "GEO-INFER-COMMS", "GEO-INFER-SPM", "GEO-INFER-TEST", "GEO-INFER-EXAMPLES",
-    "GEO-INFER-METAGOV", "GEO-INFER-VIZ" # VIZ might be new
+    "GEO-INFER-METAGOV", "GEO-INFER-ART"
 ]
 
 # Signpost HTML

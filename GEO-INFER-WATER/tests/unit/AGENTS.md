@@ -24,6 +24,7 @@
 - `test_flood_drought.py`
 - `test_hydrology.py`
 - `test_water_balance.py`
+- `test_water_infrastructure.py`
 - `test_water_quality.py`
 - `test_watershed_delineation.py`
 

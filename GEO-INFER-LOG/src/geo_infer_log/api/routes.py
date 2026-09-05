@@ -4,8 +4,10 @@ API endpoints for route optimization in GEO-INFER-LOG.
 This module provides FastAPI endpoints for route optimization functionality.
 """
 
+from functools import lru_cache
+
 from fastapi import APIRouter, HTTPException, Depends
-from typing import Any, List, Dict, Optional, Tuple, cast
+from typing import Any, List, Dict, Optional, Tuple
 from pydantic import ConfigDict, Field
 from geo_infer_log.models.base import BaseModel
 
@@ -127,23 +129,24 @@ class VRPRequest(BaseModel):
     )
 
 
-# Get a route optimizer instance
+# Cached module-level singletons: stateful services (fleet, networks,
+# schedules) must survive across requests for the API to behave correctly.
+@lru_cache(maxsize=1)
 def get_route_optimizer() -> RouteOptimizer:
     """Dependency for route optimizer."""
     return RouteOptimizer()
 
 
-# Get a fleet manager instance
+@lru_cache(maxsize=1)
 def get_fleet_manager() -> FleetManager:
     """Dependency for fleet manager."""
     return FleetManager()
 
 
-# Get a vehicle router instance
+@lru_cache(maxsize=1)
 def get_vehicle_router() -> VehicleRouter:
     """Dependency for vehicle router."""
-    fleet_manager = get_fleet_manager()
-    return VehicleRouter(fleet_manager)
+    return VehicleRouter(get_fleet_manager())
 
 
 @router.post("/optimize", response_model=Dict)
@@ -154,7 +157,7 @@ async def optimize_route(
     try:
         # Apply parameters if provided
         if request.parameters:
-            optimizer.parameters = cast(Any, request.parameters)
+            optimizer.parameters = request.parameters
 
         # Optimize route
         route = optimizer.optimize_route(
@@ -175,7 +178,7 @@ async def register_vehicle(
 ) -> Dict:
     """Register a vehicle with the fleet manager."""
     try:
-        fleet_manager.add_vehicle(cast(Any, registration.vehicle))
+        fleet_manager.add_vehicle(registration.vehicle)
         return {
             "status": "success",
             "message": f"Vehicle {registration.vehicle.id} registered",
@@ -192,7 +195,7 @@ async def solve_vrp(
     try:
         # Register vehicles with fleet manager
         for vehicle in request.vehicles:
-            router.fleet_manager.add_vehicle(cast(Any, vehicle))
+            router.fleet_manager.add_vehicle(vehicle)
 
         # Solve VRP
         result = router.solve_vrp(

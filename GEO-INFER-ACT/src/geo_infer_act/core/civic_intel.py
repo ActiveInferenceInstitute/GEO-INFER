@@ -30,7 +30,27 @@ from typing import Any, Dict, List, Optional, Sequence, Union
 
 import numpy as np
 
-SUPPORTED_SCHEMA = "crescent-city-geo-intel/v1"
+# Shared civic-intel ingestion core: the canonical schema constant and raw
+# contract resolver live in GEO-INFER-BAYES, so every consumer resolves the
+# SAME objects and reads the ONE reviewed crescent-city-geo-intel.json copy.
+# The import is guarded: when the sibling is absent this module still imports
+# and its policy-prior surface keeps working (cross-module identity tests pin
+# object identity when the sibling IS importable).
+try:
+    from geo_infer_bayes.civic_intel import (
+        CRESCENT_CITY_INTEL_SCHEMA,
+        load_crescent_city_contract,
+    )
+except ImportError:  # pragma: no cover - sibling-absent degradation path
+    CRESCENT_CITY_INTEL_SCHEMA = "crescent-city-geo-intel/v1"
+
+    def load_crescent_city_contract():
+        raise ImportError(
+            "load_crescent_city_contract requires geo-infer-bayes; the canonical"
+            " crescent-city-geo-intel.json copy ships with geo-infer-bayes"
+        )
+
+SUPPORTED_SCHEMA = CRESCENT_CITY_INTEL_SCHEMA
 ENV_CONTRACT_PATH = "CRESCENT_CITY_INTEL_CONTRACT_PATH"
 
 # Path to the sibling crescent-city-intel contract relative to this checkout.
@@ -200,19 +220,12 @@ def _coerce_contract(source: Any) -> Optional[Dict[str, Any]]:
         stripped = source.lstrip()
         if stripped.startswith(("{", "[")):
             return _decode_contract_json(source, "injected string")
-        path = Path(source)
-    elif isinstance(source, os.PathLike):
-        path = Path(source)
-    else:
-        return None
 
-    try:
-        if not path.exists():
-            return None
-        text = path.read_text(encoding="utf-8")
-    except OSError as exc:
-        raise ValueError(f"unable to read Crescent City intel JSON at {path}: {exc}") from exc
-    return _decode_contract_json(text, str(path))
+    # None, path strings, and os.PathLike values delegate to the canonical
+    # GEO-INFER-BAYES contract resolver: a missing file yields ``None`` while
+    # existing but unreadable or malformed JSON fails closed with ``ValueError``.
+    contract = load_crescent_city_contract(source)
+    return dict(contract) if contract is not None else None
 
 
 def _require_dict(value: Any, field_name: str) -> Dict[str, Any]:

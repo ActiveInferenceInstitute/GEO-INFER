@@ -69,22 +69,10 @@ class Employee(BaseModel):
     emergency_contact_name: Optional[str] = None
     emergency_contact_phone: Optional[str] = None
     
-    custom_fields: Dict[str, Any] = {}
+    custom_fields: Dict[str, Any] = Field(default_factory=dict)
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 
     @property
     def full_name(self) -> str:
         return f"{self.first_name} {self.last_name}"
-
-    # Add other HR-related models like:
-    # - Department
-    # - LeaveRequest
-    # - TrainingRecord
-    # - BenefitEnrollment
-
-    # Add other HR-related models like:
-    # - Department
-    # - LeaveRequest
-    # - TrainingRecord
-    # - BenefitEnrollment 

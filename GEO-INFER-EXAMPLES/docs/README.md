@@ -8,7 +8,6 @@ Docs workspace within `GEO-INFER-EXAMPLES`.
 - `COMPREHENSIVE_DOCUMENTATION_ANALYSIS.md`
 - `COMPREHENSIVE_TECHNICAL_SUMMARY.md`
 - `CROSS_MODULE_REFERENCE.md`
-- `INTEGRATION_EXECUTION_REPORT.md`
 - `INTEGRATION_GUIDE.md`
 - `PERFORMANCE_BENCHMARKING_GUIDE.md`
 - `TECHNICAL_ARCHITECTURE_GUIDE.md`
@@ -28,14 +27,7 @@ Docs workspace within `GEO-INFER-EXAMPLES`.
 
 ## Dependencies
 
-- `jupyterlab>=3.4.0`
-- `matplotlib>=3.5.0`
-- `pandas>=1.4.0`
 - `pyyaml>=6.0`
-- `h3>=4.5.0,<5`
-- `requests>=2.28.0`
-- `rich>=12.0.0`
-- `typer>=0.7.0`
 
 
 ## Validation

@@ -13,8 +13,6 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "slow: marks tests as slow")
 
 
-import geopandas as gpd
-from shapely.geometry import Point
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
 
@@ -29,16 +27,6 @@ def sample_coordinates() -> List[Tuple[float, float]]:
         (51.5074, -0.1278),
         (35.6762, 139.6503),
     ]
-
-
-@pytest.fixture(scope="function")
-def sample_geodataframe() -> gpd.GeoDataFrame:
-    """Standard GeoDataFrame with EPSG:4326 for spatial tests."""
-    return gpd.GeoDataFrame(
-        {"id": range(5), "value": np.random.uniform(0, 100, 5)},
-        geometry=[Point(-122.33 + i * 0.01, 47.61 + i * 0.01) for i in range(5)],
-        crs="EPSG:4326",
-    )
 
 
 @pytest.fixture
@@ -74,15 +62,11 @@ def pheromone_grid() -> List[Dict[str, Any]]:
     Uses H3 v4 API (latlng_to_cell). Each entry has a cell ID string
     and a float concentration value representing pheromone intensity.
     """
-    try:
-        import h3
+    import h3
 
-        cells = [
-            h3.latlng_to_cell(47.6 + i * 0.01, -122.3 + i * 0.01, 9) for i in range(5)
-        ]
-    except ImportError:
-        # Fallback cell IDs for environments without h3
-        cells = [f"892a100d603ffff_{i}" for i in range(5)]
+    cells = [
+        h3.latlng_to_cell(47.6 + i * 0.01, -122.3 + i * 0.01, 9) for i in range(5)
+    ]
 
     return [
         {"cell": cells[0], "concentration": 10.0},

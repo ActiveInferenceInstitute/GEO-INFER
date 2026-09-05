@@ -144,27 +144,60 @@ class ExtremeEventAnalyzer:
         precipitation: xr.DataArray,
         threshold_percentile: float = 10.0,
         min_duration: int = 30,
-    ) -> xr.Dataset:
+    ) -> Dict[str, Any]:
         """
-        Detect drought events.
+        Detect drought events from precipitation data.
+
+        A drought is a run of consecutive time steps whose precipitation is
+        at or below the given percentile threshold (computed over all
+        cells). Runs shorter than ``min_duration`` are discarded.
 
         Args:
-            precipitation: Precipitation data
+            precipitation: Precipitation data; first dimension is time
             threshold_percentile: Percentile threshold for drought
-            min_duration: Minimum duration in days
+            min_duration: Minimum duration in time steps
 
         Returns:
-            Dataset with drought events
+            Dictionary with drought detection results.
         """
-        threshold = precipitation.quantile(threshold_percentile / 100.0, dim="time")
+        threshold = float(precipitation.quantile(threshold_percentile / 100.0))
 
-        # Identify days below threshold
-        below_threshold = precipitation < threshold
+        values = precipitation.values
+        if np.nanmax(values) == np.nanmin(values):
+            below_threshold = np.zeros_like(values, dtype=bool)
+        else:
+            below_threshold = values <= threshold
 
-        # Find consecutive periods
-        droughts = self._find_consecutive_periods(below_threshold, min_duration)
+        events = []
+        for cell, event_start, event_end in self._iter_runs(below_threshold):
+            if event_end - event_start < min_duration:
+                continue
+            if values.ndim == 1:
+                segment = values[event_start:event_end]
+                location: Dict[str, Any] = {}
+            else:
+                lat_idx, lon_idx = np.unravel_index(cell, values.shape[1:])
+                segment = values[event_start:event_end, lat_idx, lon_idx]
+                location = {"cell": [int(lat_idx), int(lon_idx)]}
+            events.append(
+                {
+                    **location,
+                    "start_index": event_start,
+                    "end_index": event_end - 1,
+                    "duration_days": event_end - event_start,
+                    "min_precip": float(np.min(segment)),
+                    "mean_precip": float(np.mean(segment)),
+                }
+            )
 
-        return droughts
+        return {
+            "threshold_precip": threshold,
+            "threshold_percentile": threshold_percentile,
+            "min_duration": min_duration,
+            "events_detected": len(events),
+            "events": events,
+            "total_dry_days": int(np.sum(below_threshold)),
+        }
 
     def detect_cold_spells(
         self,
@@ -566,16 +599,6 @@ class ExtremeEventAnalyzer:
             else:
                 current_run = 0
         return max_run
-
-    def _find_consecutive_periods(
-        self, condition: xr.DataArray, min_duration: int
-    ) -> xr.Dataset:
-        """Find consecutive periods meeting condition."""
-        # Count per time step the number of qualifying grid cells
-        events = condition.astype(int).groupby("time").sum()
-        events = events.where(events >= min_duration, 0)
-
-        return xr.Dataset({"events": events})
 
     def register_event(self, event: ExtremeEvent) -> str:
         """Register an extreme event."""

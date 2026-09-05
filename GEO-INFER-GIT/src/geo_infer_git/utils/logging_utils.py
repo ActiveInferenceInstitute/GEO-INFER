@@ -8,11 +8,10 @@ This module provides comprehensive logging functionality including
 structured logging, log formatting, and log management.
 """
 
-import os
 import sys
 import logging
 import logging.handlers
-from typing import Dict, Any, Optional, Iterator, Callable, cast
+from typing import Dict, Any, Optional, Callable, cast
 from pathlib import Path
 import json
 import time

@@ -288,10 +288,16 @@ class SeasonalAnalysis:
         # Get time series data for the growing season
         season_data = time_series.loc[start_date:end_date]
 
-        # Normalize data for comparison with reference ranges
+        # Normalize data for comparison with reference ranges; a constant
+        # series has zero range, so map it to the middle of the normalized
+        # range instead of producing NaN for every observation.
         min_val = season_data.min()
         max_val = season_data.max()
-        normalized_data = (season_data - min_val) / (max_val - min_val)
+        value_range = max_val - min_val
+        if value_range == 0:
+            normalized_data = pd.Series(0.5, index=season_data.index)
+        else:
+            normalized_data = (season_data - min_val) / value_range
 
         # Identify stages by comparing with reference ranges
         stages = {}
@@ -364,9 +370,9 @@ class SeasonalAnalysis:
         if period == "weekly":
             resampled = time_series.resample("W").mean()
         elif period == "monthly":
-            resampled = time_series.resample("M").mean()
+            resampled = time_series.resample("ME").mean()
         elif period == "annual":
-            resampled = time_series.resample("A").mean()
+            resampled = time_series.resample("YE").mean()
         else:
             resampled = time_series
 

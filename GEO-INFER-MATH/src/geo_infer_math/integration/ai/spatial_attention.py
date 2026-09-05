@@ -6,7 +6,7 @@ distance-weighted spatial attention.
 """
 
 import numpy as np
-from typing import Optional, Tuple, Dict, Any, cast
+from typing import Optional, Tuple, Any, cast
 import logging
 
 logger = logging.getLogger(__name__)

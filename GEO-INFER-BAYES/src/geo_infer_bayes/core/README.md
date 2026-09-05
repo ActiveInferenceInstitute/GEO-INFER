@@ -48,17 +48,13 @@ Core workspace within `GEO-INFER-BAYES`.
 
 ## Dependencies
 
-- `arviz`
-- `cmdstanpy`
-- `geopandas`
-- `matplotlib`
-- `numpy`
-- `pandas`
-- `pymc`
-- `rasterio`
-- `scipy`
-- `tensorflow-probability`
-- `xarray`
+- `arviz>=0.12.0`
+- `matplotlib>=3.5.0`
+- `numpy>=1.20.0,<2.0`
+- `pandas>=1.3.0`
+- `scipy>=1.7.0`
+- `tqdm>=4.60.0`
+- `xarray>=2022.3.0`
 
 
 ## Validation

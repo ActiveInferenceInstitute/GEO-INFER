@@ -19,7 +19,6 @@ before_level = logging.root.level
 
 import geo_infer_ops  # noqa: F401
 import geo_infer_ops.core  # noqa: F401
-import geo_infer_ops.core.backup.logging  # noqa: F401
 import geo_infer_ops.utils.logger  # noqa: F401
 import geo_infer_ops.utils.shared_logging  # noqa: F401
 

@@ -18,7 +18,7 @@ uv pip install -e ./GEO-INFER-EMERGENCY ./GEO-INFER-TRANSPORT ./GEO-INFER-RISK
 
 GEO-INFER-EMERGENCY requires Python 3.11+ with:
 
-- Standard library (`datetime`, `dataclasses`, `enum`, `heapq`, `logging`)
+- Standard library (`datetime`, `dataclasses`, `enum`, `logging`)
 
 Optional:
 

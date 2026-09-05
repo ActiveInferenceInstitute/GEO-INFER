@@ -58,15 +58,22 @@ class AgentFactory:
             ValueError: If no interface is registered for the agent type
         """
         if agent_type not in cls._registry:
-            # Try to dynamically import the interface
+            # Try to dynamically import the interface; modules self-register
+            # with AgentFactory at import time.
+            module_name = f"geo_infer_app.models.interfaces.{agent_type.value}_interface"
             try:
-                module_name = f"geo_infer_app.models.interfaces.{agent_type.value}_interface"
                 importlib.import_module(module_name)
-                
-                # If we reach here, the module was imported but the interface wasn't registered
-                raise ValueError(f"Interface for agent type {agent_type.value} was not registered")
-            except ModuleNotFoundError:
-                raise ValueError(f"No interface found for agent type {agent_type.value}")
+            except ImportError as e:
+                raise ValueError(
+                    f"No interface found for agent type '{agent_type.value}' "
+                    f"(could not import {module_name}: {e})"
+                ) from e
+            if agent_type not in cls._registry:
+                raise ValueError(
+                    f"No interface found for agent type '{agent_type.value}': "
+                    f"{module_name} was imported but did not register an interface "
+                    f"via AgentFactory.register_interface()"
+                )
         
         interface_class = cls._registry[agent_type]
         config = config or {}

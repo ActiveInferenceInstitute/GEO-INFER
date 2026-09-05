@@ -4,10 +4,7 @@ Geo Infer Org workspace within `GEO-INFER-ORG`.
 
 ## Contents
 
-- `api/`
 - `core/`
-- `models/`
-- `utils/`
 - `__init__.py`
 
 ## Public Interface
@@ -24,7 +21,7 @@ Geo Infer Org workspace within `GEO-INFER-ORG`.
 
 ## Dependencies
 
-- `pandas>=1.3.0`
+- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
 
 
 ## Validation

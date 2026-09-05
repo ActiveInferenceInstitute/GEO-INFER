@@ -8,9 +8,10 @@ from pydantic import BaseModel
 import pandas as pd
 from pathlib import Path
 import tempfile
-import json
+import base64
 from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
+from .. import __version__
 
 from ..core.sequence_analysis import SequenceAnalyzer
 from ..utils.validation import DataValidator
@@ -45,7 +46,7 @@ class AnalysisResult(BaseModel):
 app = FastAPI(
     title="GEO-INFER-BIO API",
     description="API for biological sequence analysis with spatial context",
-    version="0.1.0",
+    version=__version__,
 )
 
 
@@ -54,7 +55,7 @@ async def root() -> Dict[str, Any]:
     """Root endpoint."""
     return {
         "name": "GEO-INFER-BIO API",
-        "version": "0.1.0",
+        "version": __version__,
         "description": "API for biological sequence analysis with spatial context",
     }
 
@@ -135,13 +136,14 @@ async def analyze_file(
     with tempfile.NamedTemporaryFile(delete=False, suffix=".fasta") as fasta_temp:
         fasta_temp.write(await file.read())
         fasta_path = fasta_temp.name
-
     spatial_df = None
+    spatial_path: Optional[str] = None
     if spatial_data:
         with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as spatial_temp:
             spatial_temp.write(await spatial_data.read())
             spatial_path = spatial_temp.name
-            spatial_df = pd.read_csv(spatial_path)
+        # Read after the temp-file handle is closed so written bytes are flushed
+        spatial_df = pd.read_csv(spatial_path)
 
     # Load and validate sequences
     loaded = analyzer.load_sequence(fasta_path)
@@ -191,22 +193,45 @@ async def analyze_file(
 @app.post("/visualize/spatial")
 async def visualize_spatial(
     analysis_results: List[AnalysisResult],
-    output_format: str = "png",
-) -> Dict[str, Any]:
+) -> Dict[str, str]:
     """
     Generate spatial visualizations of analysis results.
 
+    Every result must carry spatial_data; the plots place each sequence on a
+    latitude/longitude map.
+
     Args:
-        analysis_results: List of analysis results
-        output_format: Output format for visualizations
+        analysis_results: List of analysis results with spatial context
 
     Returns:
-        Visualization data
+        Mapping of plot name to base64-encoded PNG data
     """
+    if not analysis_results:
+        raise HTTPException(
+            status_code=400, detail="at least one analysis result is required"
+        )
+    if any(result.spatial_data is None for result in analysis_results):
+        raise HTTPException(
+            status_code=400,
+            detail="every analysis result must include spatial_data for spatial visualization",
+        )
+
     visualizer = BioVisualizer()
 
-    # Convert results to DataFrame
-    df = pd.DataFrame([result.model_dump() for result in analysis_results])
+    # Convert results to DataFrame with flattened spatial columns
+    df = pd.DataFrame(
+        [
+            {
+                "sequence_id": result.sequence_id,
+                "gc_content": result.gc_content,
+                "motif_count": result.motif_count,
+                "coding_regions": result.coding_regions,
+                "latitude": result.spatial_data.latitude,
+                "longitude": result.spatial_data.longitude,
+            }
+            for result in analysis_results
+        ]
+    )
 
     # Generate visualizations
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -224,11 +249,13 @@ async def visualize_spatial(
         coding_plot = output_dir / "coding_potential.png"
         visualizer.plot_coding_potential(df, output_path=str(coding_plot))
 
-        # Read visualization files
-        visualizations = {}
+        # Read visualization files and encode as base64 for JSON transport
+        visualizations: Dict[str, str] = {}
         for plot_file in [gc_plot, motif_plot, coding_plot]:
             with open(plot_file, "rb") as f:
-                visualizations[plot_file.stem] = f.read()
+                visualizations[plot_file.stem] = base64.b64encode(f.read()).decode(
+                    "ascii"
+                )
 
         return visualizations
 

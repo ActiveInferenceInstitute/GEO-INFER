@@ -2,10 +2,10 @@
 PlaceArt module for creating art based on specific locations and places.
 """
 
+import logging
 import os
 import hashlib
-import random
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 
 import geopandas as gpd
 import matplotlib.pyplot as plt
@@ -14,6 +14,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from geo_infer_art.core.generation import ProceduralArt
 
+logger = logging.getLogger(__name__)
 
 class PlaceArt:
     """

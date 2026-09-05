@@ -2,7 +2,11 @@
 
 from .oceanographic_data import OceanographicDataProcessor
 from .coastal_analysis import CoastalAnalyzer
-from .marine_ecosystems import MarineEcosystemModeler
+from .marine_ecosystems import (
+    MarineEcosystemModeler,
+    MarineHabitatType,
+    SpeciesData,
+)
 from .sea_level import SeaLevelAnalyzer
 from .marine_spatial_planning import MarineSpatialPlanner
 from .ocean_currents import OceanCurrentModeler
@@ -13,6 +17,8 @@ __all__ = [
     "OceanographicDataProcessor",
     "CoastalAnalyzer",
     "MarineEcosystemModeler",
+    "MarineHabitatType",
+    "SpeciesData",
     "SeaLevelAnalyzer",
     "MarineSpatialPlanner",
     "OceanCurrentModeler",

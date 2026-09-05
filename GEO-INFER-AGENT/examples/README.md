@@ -36,15 +36,15 @@ Examples workspace within `GEO-INFER-AGENT`.
 - `numpy>=1.23.5`
 - `torch>=2.0.0`
 - `pyyaml>=6.0`
-- `tqdm>=4.65.0`
 - `requests>=2.28.2`
-- `colorlog>=6.7.0`
+- `fastapi>=0.104.0`
+- `pydantic>=2.5.0`
+- `pandas>=1.3.0`
+- `uvicorn>=0.24.0`
+- `psutil>=5.9.0`
 - `pytest>=7.3.1`
 - `pytest-cov>=4.1.0`
-- `mypy>=1.3.0`
-- `black>=23.3.0`
-- `isort>=5.12.0`
-- `matplotlib>=3.7.1`
+- `pytest-asyncio>=0.20.0`
 
 
 ## Validation

@@ -34,17 +34,14 @@ bash # Navigate to project root cd /path/to/INFER-GEO # List modules ls -d GEO-I
  GEO-INFER-SPACE/ - Spatial data processing and analysis GEO-INFER-TIME/ - Temporal data processing and analysis GEO-INFER-DATA/ - Data management and storage GEO-INFER-OPS/ - Operational orchestration and deployment GEO-INFER-API/ - API definitions and gateway GEO-INFER-APP/ - User-facing applications GEO-INFER-INTRA/ - Documentation and knowledge management
 ```
  ### 3. Understand Code Context Examine the structure and conventions of the module you're working with: - Review the module's README.md - Check the src/geo_infer_module structure - Identify key patterns used in the codebase - Examine test cases for usage examples ## Making Effective Contributions ### 1. Code Organization Always organize code according to existing patterns: - **Core functionality**: `src/geo_infer_module/core/` - **API endpoints**: `src/geo_infer_module/api/` - **Data models**: `src/geo_infer_module/models/` - **Utility functions**: `src/geo_infer_module/utils/` ### 2. Testing Approach Follow the established testing patterns: - **Unit tests**: Test individual functions and methods - **Integration tests**: Test interactions between components - **Functional tests**: Test end-to-end workflows - **Property-based tests**: Test with generated inputs Example:
-```
 ```python
  # Unit test example - always in tests/ directory def test_coordinate_transformation(): # Given input_coord = Coordinate(lat=45.0, lon=-122.0) # When result = transform_coordinate(input_coord, "EPSG:4326", "EPSG:3857") # Then assert abs(result.x - -13580977.876779) < 0.1 assert abs(result.y - 5621521.486191) < 0.1
 ```
  ### 3. Documentation Standards Document your code following these patterns:
-```
 ```python
  def calculate_distance(point_a, point_b, method="haversine"): """ Calculate the distance between two geographic points. Args: point_a: The first geographic point (lat, lon) point_b: The second geographic point (lat, lon) method: The calculation method, one of ["haversine", "vincenty"] Returns: float: The distance in meters Raises: ValueError: If the calculation method is not supported """ # Implementation...
 ```
  ### 4. Agent Communication When multiple agents work on related code, communication is crucial: - Use code comments to mark handoff points - Document design decisions in relevant docs - Update module README.md with significant changes - Add migration guides for breaking changes ## Common Workflows ### 1. Adding a Feature 1. Determine the appropriate module 2. Review similar features for patterns 3. Update documentation to describe the feature 4. Add tests specifying the behavior 5. Implement the feature 6. Update example code ### 2. Fixing a Bug 1. Add a test that reproduces the bug 2. Fix the implementation 3. Verify the test passes 4. Update documentation if necessary 5. Consider implications for other modules ### 3. Refactoring Code 1. Ensure test coverage 2. Make incremental changes 3. Maintain API compatibility 4. Update documentation to reflect changes 5. Add deprecation notices for changed APIs ## Working with GEO-INFER-OPS GEO-INFER-OPS is the orchestration layer for the project. When interacting with it: 1. Use established logging patterns:
-```
 ```python
  from geo_infer_ops.core.logging import get_logger logger = get_logger(__name__) logger.info("Processing started", extra={"data_id": data_id})
 ```

@@ -21,8 +21,7 @@ Comprehensive collection of working examples and tutorials demonstrating cross-m
 
 ## Public Interface
 
-- `setup.py:read_readme` (function)
-- `setup.py:read_version` (function)
+- No public Python symbols are defined directly in this directory.
 
 ## Module Metadata
 
@@ -34,14 +33,7 @@ Comprehensive collection of working examples and tutorials demonstrating cross-m
 
 ## Dependencies
 
-- `jupyterlab>=3.4.0`
-- `matplotlib>=3.5.0`
-- `pandas>=1.4.0`
 - `pyyaml>=6.0`
-- `h3>=4.5.0,<5`
-- `requests>=2.28.0`
-- `rich>=12.0.0`
-- `typer>=0.7.0`
 
 
 ## Validation

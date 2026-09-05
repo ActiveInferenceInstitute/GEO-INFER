@@ -238,7 +238,7 @@ class UnderwritingEngine:
 
     def _setup_logging(self) -> logging.Logger:
         """Set up logging for the underwriting engine."""
-        logger = logging.getLogger("geo_infer_risk.underwriting")
+        logger = logging.getLogger("geo_infer_insurance.underwriting")
         logger.setLevel(logging.INFO)
 
         # Create formatter

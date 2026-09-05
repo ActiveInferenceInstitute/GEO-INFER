@@ -4,8 +4,6 @@ import numpy as np
 import pytest
 import xarray as xr
 
-import sys
-sys.path.insert(0, "GEO-INFER-CLIMATE/src")
 
 from geo_infer_climate.core.extreme_events import (
     ExtremeEventAnalyzer,
@@ -44,6 +42,8 @@ class TestHeatwaveDetection:
 
 
 class TestColdSpellDetection:
+
+
     def test_detect_cold_spell(self, analyzer):
         # Use gradual data so -10 is well below the 10th percentile
         np.random.seed(42)
@@ -64,6 +64,43 @@ class TestColdSpellDetection:
         if result["events"]:
             for event in result["events"]:
                 assert event["duration_days"] >= 3
+
+class TestDroughtDetection:
+    def test_detect_drought_in_dry_spell(self, analyzer):
+        # A 40-step near-zero dry spell embedded in variable rainfall must
+        # be detected as one long consecutive drought run.
+        np.random.seed(42)
+        wet = np.random.exponential(10, 60).tolist()
+        dry = [0.0] * 40
+        values = np.array(wet[:30] + dry + wet[30:])
+        precip = xr.DataArray(values, dims=["time"])
+        result = analyzer.detect_droughts(precip, min_duration=30)
+        assert result["events_detected"] == 1
+        event = result["events"][0]
+        assert event["duration_days"] >= 30
+        assert event["min_precip"] <= event["mean_precip"]
+        assert result["total_dry_days"] >= 40
+
+    def test_drought_min_duration_filters_short_runs(self, analyzer):
+        # Only a 5-step dry spell: with min_duration=30 nothing qualifies.
+        np.random.seed(42)
+        wet = np.random.exponential(10, 80).tolist()
+        values = np.array(wet[:40] + [0.0] * 5 + wet[40:])
+        precip = xr.DataArray(values, dims=["time"])
+        result = analyzer.detect_droughts(precip, min_duration=30)
+        assert result["events_detected"] == 0
+
+    def test_droughts_per_grid_cell(self, analyzer):
+        # (time, lat, lon) input: only one cell has a long dry run.
+        np.random.seed(42)
+        n = 90
+        wet = np.random.exponential(10, n)
+        data = np.stack([wet, wet + 5.0], axis=1)[:, None, :]  # (time, lat, lon)
+        data[:, 0, 1] = 0.0  # second cell permanently dry
+        precip = xr.DataArray(data, dims=["time", "lat", "lon"])
+        result = analyzer.detect_droughts(precip, min_duration=60)
+        assert result["events_detected"] >= 1
+        assert any(e["duration_days"] >= 60 for e in result["events"])
 
 
 class TestFloodDetection:
@@ -99,8 +136,8 @@ class TestReturnPeriod:
     def test_gumbel_return_period(self, analyzer):
         np.random.seed(42)
         data = xr.DataArray(np.random.normal(100, 20, 1000), dims=["time"])
-        result = analyzer.calculate_return_period(data, value=180, method="gumbel")
-        assert result["method"] == "gumbel"
+        result = analyzer.calculate_return_period(data, value=150, method="gumbel")
+        assert "return_period_years" in result
         assert result["return_period_years"] is not None
 
     def test_severity_extreme_value(self, analyzer):

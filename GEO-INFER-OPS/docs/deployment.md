@@ -12,7 +12,6 @@ bash # Install dependencies uv pip install -e . # Run the module python -m geo_i
 bash # Build the Docker image docker build -t geo-infer-ops:latest . # Run the container docker run -p 8000:8000 -p 9090:9090 -v $(pwd)/config:/app/config geo-infer-ops:latest
 ```
  ## Docker Compose Deployment For a local environment with monitoring:
-```
 ```bash
  # Start all services docker-compose up -d # View logs docker-compose logs -f # Stop all services docker-compose down
 ```

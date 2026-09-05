@@ -5,15 +5,16 @@ Macroeconomics workspace within `GEO-INFER-ECON`.
 ## Contents
 
 - `__init__.py`
+- `aggregate_models.py`
 - `growth_models.py`
 
 ## Public Interface
 
-- `__init__.py:AggregateGrowthModels` (class)
-- `__init__.py:BusinessCycleModels` (class)
-- `__init__.py:MonetaryPolicyModels` (class)
-- `__init__.py:FiscalPolicyModels` (class)
-- `__init__.py:TradeModels` (class)
+- `aggregate_models.py:AggregateGrowthModels` (class)
+- `aggregate_models.py:BusinessCycleModels` (class)
+- `aggregate_models.py:MonetaryPolicyModels` (class)
+- `aggregate_models.py:FiscalPolicyModels` (class)
+- `aggregate_models.py:TradeModels` (class)
 - `growth_models.py:RegionProfile` (class)
 - `growth_models.py:SolowGrowthModel` (class)
 - `growth_models.py:SpatialGrowthModels` (class)
@@ -42,7 +43,6 @@ Macroeconomics workspace within `GEO-INFER-ECON`.
 - `seaborn>=0.12.0`
 - `networkx>=2.8.0`
 - `h3>=4.5.0,<5`
-- `pyyaml>=6.0`
 - `requests>=2.28.0`
 
 

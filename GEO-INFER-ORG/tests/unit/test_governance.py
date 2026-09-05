@@ -140,6 +140,69 @@ class TestVotingEngine:
         result = engine.tally("ap")
         assert result.winner == "B"  # B has 3 approvals
 
+class TestRankedChoiceIRV:
+    def _rc_proposal(self, engine: VotingEngine, pid: str, options=None) -> None:
+        engine.create_proposal(Proposal(
+            pid, "RC", "Ranked choice", "proposer",
+            options=options or ["A", "B", "C"],
+            voting_method=VotingMethod.RANKED_CHOICE,
+        ))
+
+    def test_single_elimination_recovers_blocked_winner(self, engine):
+        """Multi-elimination would wipe B, C, and D together and crown A;
+        standard single-elimination IRV transfers D's votes to B, who wins."""
+        self._rc_proposal(engine, "rc1", options=["A", "B", "C", "D"])
+        ballots = (
+            [["A", "C", "B"]] * 4
+            + [["B", "C", "A"]] * 2
+            + [["C", "B", "A"]] * 2
+            + [["D", "B", "A"]]
+        )
+        for i, rank in enumerate(ballots):
+            engine.cast_vote("rc1", Vote(f"v{i}", rank[0], rank=rank))
+        result = engine.tally("rc1")
+        assert result.winner == "B"
+        assert result.rounds == [
+            {"A": 4.0, "B": 2.0, "C": 2.0, "D": 1.0},
+            {"A": 4.0, "B": 3.0, "C": 2.0},
+            {"A": 4.0, "B": 5.0},
+        ]
+
+    def test_tie_break_is_deterministic(self, engine):
+        """Candidates tied at the minimum eliminate the lexicographically
+        first id, so repeated tallies agree."""
+        self._rc_proposal(engine, "rc2")
+        for i, rank in enumerate([
+            ["B", "A", "C"],
+            ["B", "A", "C"],
+            ["A", "C", "B"],
+            ["C", "A", "B"],
+        ]):
+            engine.cast_vote("rc2", Vote(f"v{i}", rank[0], rank=rank))
+        r1 = engine.tally("rc2")
+        r2 = engine.tally("rc2")
+        assert r1.winner == r2.winner
+        # A and C tie at the minimum in round 1; 'A' is eliminated first.
+        assert r1.rounds is not None and r1.rounds[0] == {"A": 1.0, "B": 2.0, "C": 1.0}
+        assert "A" not in r1.rounds[1]
+
+    def test_eliminated_votes_transfer_to_survivor(self, engine):
+        """A candidate eliminated mid-run transfers its ballots, letting a
+        trailing candidate overtake the round-1 leader."""
+        self._rc_proposal(engine, "rc3")
+        ballots = (
+            [["A", "C", "B"]] * 2
+            + [["B", "A", "C"]] * 2
+            + [["C", "B", "A"]]
+        )
+        for i, rank in enumerate(ballots):
+            engine.cast_vote("rc3", Vote(f"v{i}", rank[0], rank=rank))
+        result = engine.tally("rc3")
+        # C is eliminated in round 1; its ballot transfers to B, who then
+        # reaches a majority (3 of 5) over A.
+        assert result.winner == "B"
+        assert result.rounds is not None and len(result.rounds) == 2
+
 
 class TestConsensusModel:
     def test_no_ratings_raises(self, consensus):

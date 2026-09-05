@@ -8,7 +8,6 @@ NumPy and the Python standard library for zero-dependency fallback.
 """
 
 import logging
-import struct
 from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional, Union
 

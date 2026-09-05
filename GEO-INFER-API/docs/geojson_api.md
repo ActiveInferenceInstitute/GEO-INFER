@@ -4,6 +4,11 @@
 
 This document describes the GeoJSON API endpoints provided by GEO-INFER-API for handling geospatial data in GeoJSON format.
 
+> **Storage warning:** polygon features created through this API are held in a
+> process-local in-memory store. Data is not persisted and is not shared
+> between multiple uvicorn workers — restarts and multi-worker deployments
+> silently lose POSTed features. Use an external store for production.
+
 ## Base URL
 
 ```

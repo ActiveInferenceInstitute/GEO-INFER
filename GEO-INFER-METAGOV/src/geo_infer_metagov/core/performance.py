@@ -2,11 +2,13 @@
 
 from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
+from geo_infer_metagov.utils.helpers import entity_field
 from enum import Enum
 import logging
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
+
 
 
 class PerformanceDimension(Enum):
@@ -212,8 +214,10 @@ class PerformanceEvaluator:
             return 0.5
         
         # Calculate resource utilization
-        total_budget = sum(e.get('resources', {}).get('budget', 0) for e in entities)
-        avg_capacity = sum(e.get('capacity', 0.5) for e in entities) / len(entities)
+        total_budget = sum(
+            entity_field(entity_field(e, 'resources', {}), 'budget', 0) for e in entities
+        )
+        avg_capacity = sum(entity_field(e, 'capacity', 0.5) for e in entities) / len(entities)
         
         # Efficiency = capacity utilization / resource investment
         efficiency = avg_capacity * min(1.0, 1000000 / max(1, total_budget))
@@ -237,7 +241,7 @@ class PerformanceEvaluator:
         # Check stakeholder representation
         if stakeholder_groups and entities:
             # Count stakeholders per entity
-            stakeholders_per_entity = sum(len(e.get('stakeholders', [])) for e in entities) / len(entities)
+            stakeholders_per_entity = sum(len(entity_field(e, 'stakeholders', [])) for e in entities) / len(entities)
             representation_score = min(1.0, stakeholders_per_entity / len(stakeholder_groups))
         else:
             representation_score = 0.5
@@ -284,7 +288,7 @@ class PerformanceEvaluator:
         # Participation score based on stakeholder involvement
         if stakeholder_groups and entities:
             total_stakeholder_connections = sum(
-                len(e.get('stakeholders', [])) for e in entities
+                len(entity_field(e, 'stakeholders', [])) for e in entities
             )
             participation_score = min(1.0, total_stakeholder_connections / (len(stakeholder_groups) * len(entities)))
         else:
@@ -380,7 +384,7 @@ class PerformanceEvaluator:
             return 0.5
         
         # Resilience based on redundancy and capacity
-        avg_capacity = sum(e.get('capacity', 0.5) for e in entities) / len(entities)
+        avg_capacity = sum(entity_field(e, 'capacity', 0.5) for e in entities) / len(entities)
         num_entities = len(entities)
         redundancy_score = min(1.0, num_entities / 5.0)  # More entities = more redundancy
         

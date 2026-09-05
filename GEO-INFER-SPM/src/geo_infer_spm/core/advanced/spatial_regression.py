@@ -128,7 +128,6 @@ class SpatialRegression:
 
         if bandwidth is None:
             # Adaptive bandwidth based on k nearest neighbors
-            distances = np.zeros((n_points, n_points))
             for i in range(n_points):
                 dists = np.linalg.norm(coordinates - coordinates[i], axis=1)
                 sorted_dists = np.sort(dists)
@@ -179,7 +178,6 @@ class SpatialRegression:
 
         def sar_loglik(params: np.ndarray) -> float:
             rho = params[0]  # Spatial autoregressive parameter
-            beta = params[1:]  # Regression coefficients
 
             # Ensure rho is in valid range for stationarity
             rho = np.clip(rho, -1, 1)
@@ -299,7 +297,6 @@ class SpatialRegression:
 
         def sem_loglik(params: np.ndarray) -> float:
             lambda_param = params[0]  # Spatial error parameter
-            beta = params[1:]
 
             lambda_param = np.clip(lambda_param, -1, 1)
 

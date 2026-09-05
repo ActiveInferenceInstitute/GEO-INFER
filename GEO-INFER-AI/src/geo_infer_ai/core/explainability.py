@@ -6,10 +6,9 @@ geospatial AI model predictions.
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 import numpy as np
-import pandas as pd
 from sklearn.inspection import permutation_importance
 
 from ..utils.rng import resolve_rng
@@ -25,7 +24,7 @@ class ModelExplainer:
     spatial interpretability for geospatial models.
     """
     
-    def __init__(self, model: Any, config: Optional[Dict] = None):
+    def __init__(self, model: Any, config: Optional[Dict[str, Any]] = None) -> None:
         """
         Initialize model explainer.
         

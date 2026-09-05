@@ -5,8 +5,13 @@ This module provides likelihood function classes for Bayesian
 inference in geospatial applications.
 """
 
+import logging
+
 import numpy as np
+from scipy.special import gammaln
 from typing import Any, Dict, Optional
+
+logger = logging.getLogger(__name__)
 
 
 class SpatialLikelihood:
@@ -76,13 +81,14 @@ class SpatialLikelihood:
 
     def _poisson_likelihood(self, pred: np.ndarray, obs: np.ndarray) -> float:
         """Poisson likelihood for count spatial data."""
+        if obs.size == 0:
+            raise ValueError("Poisson likelihood requires at least one observation")
         # Ensure predictions are positive for Poisson
         pred = np.maximum(pred, 1e-10)
 
-        # Poisson log-likelihood
-        log_likelihood = np.sum(
-            obs * np.log(pred) - pred - np.log(np.arange(1, int(np.max(obs)) + 1)).sum()
-        )
+        # Poisson log-likelihood: Σ obs_i * log(pred_i) - pred_i - log(obs_i!)
+        log_likelihood = np.sum(obs * np.log(pred) - pred)
+        log_likelihood -= float(np.sum([gammaln(o + 1) for o in obs]))
 
         return float(log_likelihood)
 
@@ -115,6 +121,14 @@ class PoissonProcess:
     ) -> float:
         """
         Compute the log likelihood for a spatial Poisson process.
+
+        This is a homogeneous approximation: the intensity field is reduced
+        to its mean over the observation window (via ``_integrate_intensity``),
+        so the point term uses ``n_points * log(Λ)`` where ``Λ = ∫ λ`` is the
+        integrated intensity, equivalent to ``Σ log λ`` under constant
+        intensity. The exact inhomogeneous log-likelihood
+        ``Σ log λ(x_i) − ∫ λ`` would require evaluating the intensity at each
+        observed point; that refinement is documented but not implemented.
 
         Args:
             intensity: Intensity function values

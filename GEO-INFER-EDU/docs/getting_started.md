@@ -30,13 +30,14 @@ Optional:
 
 ### Education Levels
 
-GEO-INFER-EDU supports six education levels, each with appropriate content complexity and pedagogical strategies:
+GEO-INFER-EDU supports seven education levels, each with appropriate content complexity and pedagogical strategies:
 
 | Level | Target | Content Complexity |
 |-------|--------|-------------------|
 | `ELEMENTARY` | Ages 6-11 | Map reading, basic spatial concepts |
 | `MIDDLE_SCHOOL` | Ages 11-14 | Coordinate systems, simple GIS |
 | `HIGH_SCHOOL` | Ages 14-18 | Spatial analysis, remote sensing basics |
+| `INTERMEDIATE` | Bridging level | Consolidated skills between secondary and university study |
 | `UNDERGRADUATE` | University | GIS, spatial statistics, geodatabases |
 | `GRADUATE` | Masters/PhD | Advanced spatial analysis, research methods |
 | `PROFESSIONAL` | Practitioners | Applied techniques, industry workflows |
@@ -166,7 +167,7 @@ from geo_infer_edu.core.curriculum import (
 )
 
 designer = CurriculumDesigner(
-    education_standard="geospatial_bok",
+    standards=["bok"],
     pedagogical_approach=PedagogicalApproach.PROJECT_BASED,
 )
 

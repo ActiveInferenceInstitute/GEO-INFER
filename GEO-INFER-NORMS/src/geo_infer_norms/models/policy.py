@@ -6,9 +6,9 @@ their relationships with jurisdictions and entities.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any, Set, Union
+from typing import Dict, List, Optional, Any
 import datetime
-from shapely.geometry import Polygon, MultiPolygon
+from shapely.geometry import MultiPolygon
 import uuid
 
 

@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+build/
+*.egg-info/
+.geo-infer-test-results/
+.benchmarks/
+.hypothesis/
+example_logs/
+example_reports/

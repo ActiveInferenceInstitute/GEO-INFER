@@ -4,15 +4,13 @@ These tests verify end-to-end integration across multiple modules.
 """
 
 import json
-import sys
 import tempfile
 from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from intra_utils import collect_test_modules
-from intra_utils.geospatial import (
+from geo_infer_intra.utils.module_discovery import collect_test_modules
+from geo_infer_intra.utils.geospatial_utils import (
     create_feature,
     create_feature_collection,
     create_point,

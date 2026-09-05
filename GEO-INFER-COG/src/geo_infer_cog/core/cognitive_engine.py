@@ -24,11 +24,10 @@ import json
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple, Any, Union, cast
+from typing import Dict, List, Optional, Any, cast
 
 import numpy as np
 
-from ..models.cognitive_models import CognitiveMap, SpatialKnowledgeGraph
 from ..models.user_profiles import UserCognitiveProfile
 from ..utils.rng import resolve_rng
 from .spatial_perception import SpatialPerceptionModel
@@ -447,7 +446,15 @@ class CognitiveProcessingEngine:
         }
 
     def save_cognitive_state(self, filepath: str) -> None:
-        """Save current cognitive state to file."""
+        """Save current cognitive state to file.
+
+        Serialization contract: the state is JSON-serialized with
+        ``default=str``, so non-JSON-native values (e.g. ``datetime``
+        timestamps in working-memory items) are written as ISO-8601 strings
+        and are NOT restored as their original types by
+        :meth:`load_cognitive_state`. Persisted state is a snapshot for
+        inspection/recovery, not a lossless round trip.
+        """
         state_data = {
             'cognitive_state': self.state.__dict__,
             'performance_metrics': self.performance_metrics,

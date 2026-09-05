@@ -8,10 +8,9 @@ integration protocols for real California data.
 """
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass
-from urllib.parse import urljoin
 import requests
 
 logger = logging.getLogger(__name__)
@@ -487,8 +486,6 @@ class CaliforniaDataSources:
         # Determine if location is coastal (within 50km of coast)
         is_coastal = west <= -117.0  # Rough coastal boundary for California
         
-        # Determine if location is northern California
-        is_northern = north > 37.0
         
         relevant_sources: Dict[str, List[DataSource]] = {
             'high_priority': [],

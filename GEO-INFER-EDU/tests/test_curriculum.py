@@ -282,3 +282,23 @@ class TestCurriculum:
         
         assert len(curriculum.modules) == 1
         assert curriculum.modules[0].id == "module_1"
+
+
+class TestStandardsValidation:
+    """Standards must be validated and gistbok must produce real alignment data."""
+
+    def test_unknown_standard_raises(self):
+        with pytest.raises(ValueError, match="Unsupported standard"):
+            CurriculumDesigner(standards=["bok", "made_up_standard"])
+
+    def test_gistbok_produces_alignment(self):
+        designer = CurriculumDesigner(standards=["gistbok"])
+        curriculum = designer.design(
+            topic="geospatial_analysis",
+            level="undergraduate",
+            duration="8_weeks",
+        )
+        assert "UCGIS GIS&T Body of Knowledge (GISTBOK)" in curriculum.standards_alignment
+        assert curriculum.standards_alignment[
+            "UCGIS GIS&T Body of Knowledge (GISTBOK)"
+        ]

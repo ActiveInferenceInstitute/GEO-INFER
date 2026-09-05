@@ -6,7 +6,6 @@ with hierarchical relationships, boundary management, and system-level operation
 """
 
 import logging
-import math
 from datetime import datetime
 from dataclasses import dataclass, field
 from typing import Dict, List, Any, Optional, Union, Tuple, Set, Callable
@@ -15,13 +14,7 @@ from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
-try:
-    import numpy as np
-
-    NUMPY_AVAILABLE = True
-except ImportError:
-    NUMPY_AVAILABLE = False
-    logger.warning("NumPy not available. Some functionality will be limited.")
+import numpy as np  # hard dependency (numpy<2.0 pinned); no fallback path
 
 try:
     import h3
@@ -33,7 +26,7 @@ except ImportError:
 
 # Import H3 components from the backends module (unified architecture)
 try:
-    from ...backends.h3.core import H3Grid, H3Cell
+    from ...backends.h3.core import H3Grid as H3Grid, H3Cell
     from ...core import SpatialIndexingInterface
 
     # Create module-level interface for convenience
@@ -816,8 +809,6 @@ class NestedH3Grid:
         """
         Aggregate numeric child vectors to H3 parents with finite normalized means.
         """
-        if not NUMPY_AVAILABLE:
-            raise RuntimeError("NumPy is required for child-value aggregation")
         if not H3_AVAILABLE:
             raise RuntimeError("h3-py package required for H3 aggregation")
         grouped: Dict[str, List[np.ndarray]] = defaultdict(list)
@@ -1034,7 +1025,7 @@ class NestedH3Grid:
                     cell_indices = []
                     for h3_index in surrounding_indices:
                         h3_cell = H3Cell(index=h3_index, resolution=resolution)
-                        nested_cell = self.add_cell(h3_cell, system_id)
+                        self.add_cell(h3_cell, system_id)
                         cell_indices.append(h3_index)
 
                     # Create the system

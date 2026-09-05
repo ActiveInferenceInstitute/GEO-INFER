@@ -7,8 +7,8 @@ coordinate manipulation, and geospatial data conversion.
 
 import math
 import numpy as np
-from typing import List, Dict, Tuple, Union, Optional
-from shapely.geometry import Point, LineString, Polygon, MultiPolygon
+from typing import List, Dict, Tuple, Optional
+from shapely.geometry import Point, LineString, Polygon
 import geopandas as gpd
 
 

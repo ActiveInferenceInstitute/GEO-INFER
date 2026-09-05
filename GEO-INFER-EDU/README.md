@@ -8,6 +8,7 @@ Educational technology for geospatial systems including curriculum design, inter
 - `examples/`
 - `src/`
 - `tests/`
+- `.gitignore`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`
@@ -26,11 +27,7 @@ Educational technology for geospatial systems including curriculum design, inter
 
 ## Dependencies
 
-- `numpy>=1.20.0`
-- `pandas>=1.3.0`
 - `pyyaml>=6.0`
-- `pydantic>=2.0.0`
-- `jinja2>=3.0.0`
 
 
 ## Validation

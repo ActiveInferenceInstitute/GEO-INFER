@@ -28,7 +28,6 @@ The shared workspace contract is defined by `pyproject.toml`, `uv.lock`, and
 
 When working on one module, syncing the package is usually faster:
 
-```
 ```bash
 uv sync --package geo-infer-space
 uv sync --package geo-infer-act
@@ -45,7 +44,6 @@ The root project defines grouped extras for AI, Bayesian inference, simulation,
 bioinformatics, health, climate, performance, quality, documentation, web, and
 IoT work. The broadest local setup is:
 
-```
 ```bash
 uv sync --all-packages --all-extras
 ```
@@ -57,7 +55,6 @@ change the meaning of a successful result.
 
 ## Verify the installation
 
-```
 ```bash
 uv run python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
 uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language

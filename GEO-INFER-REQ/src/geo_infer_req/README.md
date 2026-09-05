@@ -4,10 +4,7 @@ Geo Infer Req workspace within `GEO-INFER-REQ`.
 
 ## Contents
 
-- `api/`
 - `core/`
-- `models/`
-- `utils/`
 - `__init__.py`
 
 ## Public Interface
@@ -24,7 +21,7 @@ Geo Infer Req workspace within `GEO-INFER-REQ`.
 
 ## Dependencies
 
-- `pydantic>=2.0.0`
+- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
 
 
 ## Validation

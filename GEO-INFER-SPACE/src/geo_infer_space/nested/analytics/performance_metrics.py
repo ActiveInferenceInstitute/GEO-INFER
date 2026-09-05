@@ -20,15 +20,7 @@ from collections import defaultdict, deque
 
 logger = logging.getLogger(__name__)
 
-try:
-    import numpy as np
-
-    NUMPY_AVAILABLE = True
-except ImportError:
-    NUMPY_AVAILABLE = False
-    logger.warning(
-        "NumPy not available. Some performance analysis features will be limited."
-    )
+import numpy as np  # hard dependency (numpy<2.0 pinned); no fallback path
 
 
 class PerformanceMetric(Enum):
@@ -151,7 +143,7 @@ class BenchmarkResult:
 
         # Calculate statistics for each metric
         for metric_type, values in metric_groups.items():
-            if values and NUMPY_AVAILABLE:
+            if values:
                 self.summary_stats[metric_type] = {
                     "count": len(values),
                     "mean": float(np.mean(values)),
@@ -159,13 +151,6 @@ class BenchmarkResult:
                     "min": float(np.min(values)),
                     "max": float(np.max(values)),
                     "median": float(np.median(values)),
-                }
-            elif values:
-                self.summary_stats[metric_type] = {
-                    "count": len(values),
-                    "mean": sum(values) / len(values),
-                    "min": min(values),
-                    "max": max(values),
                 }
 
 
@@ -774,7 +759,7 @@ class H3PerformanceAnalyzer:
 
         summary = {}
         for metric_type, values in metric_summaries.items():
-            if values and NUMPY_AVAILABLE:
+            if values:
                 summary[metric_type] = {
                     "count": len(values),
                     "mean": float(np.mean(values)),
@@ -782,13 +767,6 @@ class H3PerformanceAnalyzer:
                     "min": float(np.min(values)),
                     "max": float(np.max(values)),
                     "median": float(np.median(values)),
-                }
-            elif values:
-                summary[metric_type] = {
-                    "count": len(values),
-                    "mean": sum(values) / len(values),
-                    "min": min(values),
-                    "max": max(values),
                 }
 
         return {

@@ -9,26 +9,15 @@ __version__ = "0.2.0"
 __author__ = "GEO-INFER Team"
 __email__ = "blanket@activeinference.institute"
 
-# Import core submodules with error handling
-try:
-    from .core import (
-        legal_frameworks,
-        zoning_analysis,
-        compliance_tracking,
-        policy_impact,
-        normative_inference,
-    )
-except ImportError as e:
-    import logging
+from .core import (
+    legal_frameworks,
+    zoning_analysis,
+    compliance_tracking,
+    policy_impact,
+    normative_inference,
+)
 
-    logging.warning(f"NORMS core submodules not available: {e}")
-
-try:
-    from .models import legal_entity, regulation, compliance_status, zoning, policy
-except ImportError as e:
-    import logging
-
-    logging.warning(f"NORMS models submodules not available: {e}")
+from .models import legal_entity, regulation, compliance_status, zoning, policy
 
 __all__ = [
     "legal_frameworks",

@@ -6,8 +6,7 @@ notifications, events, and spatial data with full geospatial support.
 """
 
 from geo_infer_comms.models.message import (
-    MessageRequest, MessageResponse, MessagePriority, MessageType,
-    MessageStatus, ChannelRequest, ChannelResponse, ChannelType,
+    MessageRequest, MessageResponse, MessageStatus as MessageStatus, ChannelRequest, ChannelResponse, ChannelType,
     NotificationRequest, NotificationResponse, NotificationType,
     EventPublishRequest, EventPublishResponse, CollaborationSessionRequest,
     CollaborationSessionResponse, StreamRequest, StreamResponse,
@@ -15,8 +14,8 @@ from geo_infer_comms.models.message import (
     SubscriptionResponse, MessageListResponse, ChannelListResponse,
     NotificationListResponse, CollaborationSessionListResponse,
     StreamListResponse, HealthResponse, Error, Participant,
-    ParticipantRole, ParticipantStatus, MessageMetadata,
-    validate_geospatial_bounds, MessagePriority, MessageType
+    ParticipantRole as ParticipantRole, ParticipantStatus as ParticipantStatus, MessageMetadata as MessageMetadata,
+    MessagePriority, MessageType
 )
 from geo_infer_comms.models.spatial import (
     GeospatialPoint, GeospatialBounds, GeospatialMetadata,
@@ -40,6 +39,6 @@ __all__ = [
     "GeospatialPoint", "GeospatialBounds", "GeospatialMetadata",
     "SpatialFilter", "SpatialIndex", "CoordinateSystem",
     "calculate_distance", "create_bounds_from_points", "buffer_point",
-    "validate_geospatial_bounds", "validate_geojson_geometry",
+    "validate_geojson_geometry",
     "geojson_to_geospatial_point", "geospatial_point_to_geojson"
 ]

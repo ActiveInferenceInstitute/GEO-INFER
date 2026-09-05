@@ -821,7 +821,6 @@ class ForestHealthMonitor:
         vegetation_analysis = analysis_results.get("vegetation_analysis", {})
         change_analysis = analysis_results.get("change_analysis", {})
         mortality_analysis = analysis_results.get("mortality_analysis", {})
-        climate_vulnerability = analysis_results.get("climate_vulnerability", {})
 
         risk_assessment: Dict[str, Any] = {
             "overall_risk_score": 0.0,

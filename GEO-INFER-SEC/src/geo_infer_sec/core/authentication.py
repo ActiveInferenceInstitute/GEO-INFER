@@ -7,7 +7,9 @@ OAuth 2.0, JWT token management, and multi-factor authentication.
 
 import logging
 import hashlib
+import hmac
 import secrets
+import struct
 from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass
@@ -17,6 +19,61 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.backends import default_backend
 import base64
+
+logger = logging.getLogger(__name__)
+
+# RFC 6238 TOTP parameters.
+_TOTP_STEP_SECONDS = 30
+_TOTP_DIGITS = 6
+_TOTP_ALLOWED_SKEW = 1  # accept codes from the previous/current/next step
+
+
+def generate_totp(secret: str, at_time: Optional[float] = None) -> str:
+    """Generate an RFC 6238 TOTP code for a base32-encoded secret.
+
+    Args:
+        secret: Base32-encoded shared secret (as provisioned via
+            ``AuthenticationManager.enable_mfa``).
+        at_time: Unix timestamp to generate the code for (defaults to now).
+
+    Returns:
+        The zero-padded 6-digit TOTP code.
+    """
+    key = base64.b32decode(secret, casefold=True)
+    counter = int(at_time if at_time is not None else datetime.now(timezone.utc).timestamp())
+    counter //= _TOTP_STEP_SECONDS
+    msg = struct.pack(">Q", counter)
+    digest = hmac.new(key, msg, hashlib.sha1).digest()
+    offset = digest[-1] & 0x0F
+    code = (
+        ((digest[offset] & 0x7F) << 24)
+        | (digest[offset + 1] << 16)
+        | (digest[offset + 2] << 8)
+        | digest[offset + 3]
+    ) % (10**_TOTP_DIGITS)
+    return str(code).zfill(_TOTP_DIGITS)
+
+
+def verify_totp(secret: str, code: str, at_time: Optional[float] = None) -> bool:
+    """Verify an RFC 6238 TOTP code against a base32-encoded secret.
+
+    Accepts codes from the previous, current, or next time step to tolerate
+    clock skew. Comparison is constant-time.
+    """
+    try:
+        reference = (
+            at_time
+            if at_time is not None
+            else datetime.now(timezone.utc).timestamp()
+        )
+        for skew in range(-_TOTP_ALLOWED_SKEW, _TOTP_ALLOWED_SKEW + 1):
+            expected = generate_totp(secret, reference + skew * _TOTP_STEP_SECONDS)
+            if hmac.compare_digest(expected, code.strip()):
+                return True
+        return False
+    except Exception as e:
+        logger.error(f"TOTP verification error: {e}")
+        return False
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +92,7 @@ class UserCredentials:
     last_login: Optional[datetime] = None
     mfa_enabled: bool = False
     mfa_secret: Optional[str] = None
+    password_salt: Optional[str] = None
 
 
 @dataclass
@@ -178,8 +236,10 @@ class AuthenticationManager:
             enabled=True,
         )
 
-        # Store salt with user (in production, store in database)
-        user.mfa_secret = salt  # Temporary storage
+        # Store the password salt with the user (in production, store in database).
+        # This is deliberately separate from ``mfa_secret`` so enabling MFA can
+        # never clobber the password salt.
+        user.password_salt = salt
 
         self.users[username] = user
         logger.info(f"Registered user: {username}")
@@ -215,11 +275,11 @@ class AuthenticationManager:
             return None
 
         # Verify password
-        if not user.mfa_secret:  # Using mfa_secret to store salt temporarily
-            logger.error("User salt not found")
+        if not user.password_salt:
+            logger.error(f"Password salt not found for user {username}")
             return None
 
-        if not self.verify_password(password, user.password_hash, user.mfa_secret):
+        if not self.verify_password(password, user.password_hash, user.password_salt):
             user.failed_attempts += 1
             if user.failed_attempts >= 5:
                 user.locked = True
@@ -227,13 +287,17 @@ class AuthenticationManager:
             logger.warning(f"Authentication failed: invalid password for {username}")
             return None
 
-        # Verify MFA if enabled
-        if user.mfa_enabled and mfa_code:
-            # MFA verification would go here
-            # For now, just check that code is provided
+        # Verify MFA if enabled. A missing or invalid code always denies
+        # authentication -- the second factor can never be bypassed by omitting it.
+        if user.mfa_enabled:
             if not mfa_code:
                 logger.warning(
                     f"Authentication failed: MFA code required for {username}"
+                )
+                return None
+            if not user.mfa_secret or not verify_totp(user.mfa_secret, mfa_code):
+                logger.warning(
+                    f"Authentication failed: invalid MFA code for {username}"
                 )
                 return None
 
@@ -391,6 +455,13 @@ class AuthenticationManager:
         """
         if username not in self.users:
             return False
+
+        try:
+            base64.b32decode(secret, casefold=True)
+        except Exception as e:
+            raise ValueError(
+                "MFA secret must be a valid base32 string (RFC 6238 shared secret)"
+            ) from e
 
         user = self.users[username]
         user.mfa_enabled = True

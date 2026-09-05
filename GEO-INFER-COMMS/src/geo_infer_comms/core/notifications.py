@@ -6,22 +6,17 @@ with geospatial filtering, multi-channel delivery, and intelligent routing.
 """
 
 from __future__ import annotations
-from typing import Dict, List, Optional, Callable, Any, Set, Literal, cast
-import asyncio
-import json
+from typing import Dict, List, Optional, Callable, Any, Literal, cast
 import logging
 import threading
 import time
 from datetime import datetime, timezone, timedelta
 from dataclasses import dataclass, field
 import uuid
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
 from geo_infer_comms.models.message import (
     NotificationRequest, NotificationResponse, NotificationStatus,
-    NotificationType, MessagePriority, BroadcastRequest, BroadcastResponse
+    NotificationType, MessagePriority
 )
 from geo_infer_comms.models.spatial import (
     GeospatialMetadata, SpatialFilter, GeospatialPoint, GeospatialBounds
@@ -166,14 +161,16 @@ class NotificationManager:
         if not notification:
             return False
 
-        if notification.status != NotificationStatus.PENDING:
-            return False
+        with self._lock:
+            if notification.status != NotificationStatus.PENDING:
+                return False
 
-        try:
-            # Update status
+            # Claim the notification under the lock so concurrent scheduler and
+            # delivery threads cannot double-send it.
             notification.status = NotificationStatus.SENT
             notification.created_at = datetime.now(timezone.utc)
 
+        try:
             # Deliver notification
             success = self._deliver_notification(notification)
 
@@ -207,11 +204,12 @@ class NotificationManager:
         """
         notification = self.create_notification(request)
 
-        # Update for scheduling
+        # Keep the notification PENDING but withhold delivery until the
+        # scheduled time: the delivery thread skips notifications whose
+        # schedule_time is still in the future.
+        notification.schedule_time = schedule_time
         notification.status = NotificationStatus.PENDING
-
-        # In a real implementation, would store in persistent scheduler
-        # For now, just mark as scheduled
+        self.metrics.scheduled_notifications += 1
 
         self.logger.info(f"Notification scheduled: {notification.notification_id} at {schedule_time}")
         return notification.notification_id
@@ -268,6 +266,9 @@ class NotificationManager:
         # Apply filters
         filtered = notifications
 
+        if user_id:
+            filtered = [n for n in filtered if user_id in n.recipients]
+
         if status:
             filtered = [n for n in filtered if n.status == status]
 
@@ -318,16 +319,17 @@ class NotificationManager:
             try:
                 current_time = datetime.now(timezone.utc)
 
-                # Check for notifications ready to send
-                ready_notifications = [
-                    n for n in self.notification_queue
-                    if n.status == NotificationStatus.PENDING and
-                    n.schedule_time and n.schedule_time <= current_time
-                ]
+                with self._lock:
+                    # Check for notifications ready to send
+                    ready_ids = [
+                        n.notification_id for n in self.notification_queue
+                        if n.status == NotificationStatus.PENDING and
+                        n.schedule_time and n.schedule_time <= current_time
+                    ]
 
-                for notification in ready_notifications:
-                    self.send_notification(notification.notification_id)
-                    self.notification_queue.remove(notification)
+                for notification_id in ready_ids:
+                    self.send_notification(notification_id)
+                    self._dequeue_notification(notification_id)
 
                 # Brief pause before next check
                 time.sleep(1.0)
@@ -340,23 +342,37 @@ class NotificationManager:
         """Background thread to process notification delivery."""
         while self._running:
             try:
-                # Process pending notifications
-                pending_notifications = [
-                    n for n in self.notification_queue
-                    if n.status == NotificationStatus.PENDING
-                ]
+                current_time = datetime.now(timezone.utc)
 
-                for notification in pending_notifications:
-                    if self.send_notification(notification.notification_id):
-                        self.notification_queue.remove(notification)
+                with self._lock:
+                    # Process pending notifications that are due (or were never
+                    # scheduled); future schedule_time values are withheld
+                    # until the scheduler thread picks them up.
+                    pending_ids = [
+                        n.notification_id for n in self.notification_queue
+                        if n.status == NotificationStatus.PENDING and
+                        (n.schedule_time is None or n.schedule_time <= current_time)
+                    ]
+
+                for notification_id in pending_ids:
+                    if self.send_notification(notification_id):
+                        self._dequeue_notification(notification_id)
 
                 # Brief pause if no work
-                if not pending_notifications:
+                if not pending_ids:
                     time.sleep(1.0)
 
             except Exception as e:
                 self.logger.error(f"Error processing notification delivery: {e}")
                 time.sleep(5.0)  # Longer pause on error
+
+    def _dequeue_notification(self, notification_id: str) -> None:
+        """Remove a notification from the processing queue under the lock."""
+        with self._lock:
+            self.notification_queue = [
+                n for n in self.notification_queue
+                if n.notification_id != notification_id
+            ]
 
     def _deliver_notification(self, notification: NotificationResponse) -> bool:
         """Deliver notification via configured methods."""
@@ -407,15 +423,6 @@ class NotificationManager:
 
             # Create email content
             subject = f"GEO-INFER Notification: {notification.title}"
-            body = f"""
-            {notification.content}
-
-            Notification Type: {notification.notification_type.value}
-            Priority: {notification.priority.value}
-            Time: {notification.created_at.isoformat()}
-
-            {f'Location Context: {notification.geospatial_context}' if notification.geospatial_context else ''}
-            """
 
             # In production, would send actual email
             self.logger.info(f"Email notification sent to {valid_emails}: {subject}")
@@ -585,6 +592,7 @@ class AlertSystem:
             self.alert_history = self.alert_history[-self.max_history:]
 
         self.logger.info(f"Alert triggered: {alert_response.alert_id}")
+        rule.update_last_triggered()
         return alert_response
 
     def get_alert_history(

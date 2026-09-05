@@ -48,6 +48,31 @@ class SpatialInterpolation:
 
         logger.info("SpatialInterpolation initialized")
 
+    def _haversine_meters(
+        self, from_latlon: np.ndarray, to_latlon: np.ndarray
+    ) -> np.ndarray:
+        """Pairwise great-circle distances in meters.
+
+        Args:
+            from_latlon: (N, 2) array of (latitude, longitude) degrees
+            to_latlon: (M, 2) array of (latitude, longitude) degrees
+
+        Returns:
+            (N, M) array of distances in meters
+        """
+        from_latlon = np.asarray(from_latlon, dtype=float)
+        to_latlon = np.asarray(to_latlon, dtype=float)
+        from_rad = np.radians(from_latlon)[:, None, :]
+        to_rad = np.radians(to_latlon)[None, :, :]
+        dlat = to_rad[..., 0] - from_rad[..., 0]
+        dlon = to_rad[..., 1] - from_rad[..., 1]
+        a = (
+            np.sin(dlat / 2.0) ** 2
+            + np.cos(from_rad[..., 0]) * np.cos(to_rad[..., 0]) * np.sin(dlon / 2.0) ** 2
+        )
+        earth_radius_m = 6_371_000.0
+        return 2.0 * earth_radius_m * np.arcsin(np.sqrt(np.clip(a, 0.0, 1.0)))
+
     def interpolate_to_grid(self, measurements: List[Dict[str, Any]], target_grid: List[Tuple[float, float]],
                           method: Optional[str] = None) -> Dict[str, Any]:
         """
@@ -67,46 +92,50 @@ class SpatialInterpolation:
 
             method = method or self.config.get('method', 'inverse_distance_weighted')
 
-            # Extract sensor coordinates and values
-            sensor_coords_list = []
+            # Extract sensor coordinates and values. Internal representation
+            # is (latitude, longitude) in degrees; all distance thresholds are
+            # meters and converted via haversine.
+            sensor_latlon_list = []
             sensor_values_list = []
 
             for measurement in measurements:
                 if 'latitude' in measurement and 'longitude' in measurement:
-                    sensor_coords_list.append([measurement['longitude'], measurement['latitude']])
+                    sensor_latlon_list.append(
+                        [measurement['latitude'], measurement['longitude']]
+                    )
                     sensor_values_list.append(measurement['value'])
 
-            sensor_coords = np.array(sensor_coords_list)
+            sensor_latlon = np.array(sensor_latlon_list)
             sensor_values = np.array(sensor_values_list)
 
-            if len(sensor_coords) < 3:
+            if len(sensor_latlon) < 3:
                 return {"error": "Need at least 3 sensor locations for interpolation"}
 
             # Prepare target grid
-            target_coords = np.array(target_grid)
+            target_latlon = np.array(target_grid)
 
             # Perform interpolation based on method
             if method == "inverse_distance_weighted":
                 interpolated_values = self._inverse_distance_weighted(
-                    sensor_coords, sensor_values, target_coords
+                    sensor_latlon, sensor_values, target_latlon
                 )
             elif method == "nearest_neighbor":
                 interpolated_values = self._nearest_neighbor(
-                    sensor_coords, sensor_values, target_coords
+                    sensor_latlon, sensor_values, target_latlon
                 )
             elif method == "linear" and HAS_SCIPY:
                 interpolated_values = self._linear_interpolation(
-                    sensor_coords, sensor_values, target_coords
+                    sensor_latlon, sensor_values, target_latlon
                 )
             else:
                 # Default to IDW
                 interpolated_values = self._inverse_distance_weighted(
-                    sensor_coords, sensor_values, target_coords
+                    sensor_latlon, sensor_values, target_latlon
                 )
 
             # Calculate interpolation uncertainty
             uncertainty = self._calculate_interpolation_uncertainty(
-                sensor_coords, target_coords, method or "inverse_distance_weighted"
+                sensor_latlon, target_latlon, method or "inverse_distance_weighted"
             )
 
             return {
@@ -123,28 +152,29 @@ class SpatialInterpolation:
             logger.error(f"Error in grid interpolation: {e}")
             return {"error": f"Interpolation failed: {str(e)}"}
 
-    def _inverse_distance_weighted(self, sensor_coords: np.ndarray, sensor_values: np.ndarray,
-                                 target_coords: np.ndarray) -> np.ndarray:
+    def _inverse_distance_weighted(self, sensor_latlon: np.ndarray, sensor_values: np.ndarray,
+                                 target_latlon: np.ndarray) -> np.ndarray:
         """Perform inverse distance weighted interpolation."""
         power = self.config.get('power', 2)
-        max_distance = self.config.get('max_distance', 10000)
+        max_distance = self.config.get('max_distance', 10000)  # meters
+
+        distances = self._haversine_meters(sensor_latlon, target_latlon)  # (N, M)
 
         interpolated = []
-
-        for target_point in target_coords:
-            distances = np.sqrt(np.sum((sensor_coords - target_point) ** 2, axis=1))
+        for j in range(distances.shape[1]):
+            target_distances = distances[:, j]
 
             # Filter points within max distance
-            valid_indices = distances <= max_distance
+            valid_indices = target_distances <= max_distance
             if not np.any(valid_indices):
                 interpolated.append(np.nan)
                 continue
 
-            valid_distances = distances[valid_indices]
+            valid_distances = target_distances[valid_indices]
             valid_values = sensor_values[valid_indices]
 
             # Avoid division by zero for coincident points
-            valid_distances = np.where(valid_distances == 0, 1e-10, valid_distances)
+            valid_distances = np.where(valid_distances == 0, 1e-3, valid_distances)
 
             # Calculate weights (inverse distance)
             weights = 1.0 / (valid_distances ** power)
@@ -160,66 +190,71 @@ class SpatialInterpolation:
 
         return np.array(interpolated)
 
-    def _nearest_neighbor(self, sensor_coords: np.ndarray, sensor_values: np.ndarray,
-                         target_coords: np.ndarray) -> np.ndarray:
+    def _nearest_neighbor(self, sensor_latlon: np.ndarray, sensor_values: np.ndarray,
+                         target_latlon: np.ndarray) -> np.ndarray:
         """Perform nearest neighbor interpolation."""
-        interpolated = []
+        distances = self._haversine_meters(sensor_latlon, target_latlon)
+        nearest_indices = np.argmin(distances, axis=0)
+        return sensor_values[nearest_indices]
 
-        for target_point in target_coords:
-            distances = np.sqrt(np.sum((sensor_coords - target_point) ** 2, axis=1))
-            nearest_index = np.argmin(distances)
 
-            interpolated.append(sensor_values[nearest_index])
-
-        return np.array(interpolated)
-
-    def _linear_interpolation(self, sensor_coords: np.ndarray, sensor_values: np.ndarray,
-                             target_coords: np.ndarray) -> np.ndarray:
-        """Perform linear interpolation using scipy."""
+    def _linear_interpolation(self, sensor_latlon: np.ndarray, sensor_values: np.ndarray,
+                             target_latlon: np.ndarray) -> np.ndarray:
+        """Perform linear interpolation using scipy on projected planar meters."""
         if not HAS_SCIPY:
             # Fall back to IDW
-            return self._inverse_distance_weighted(sensor_coords, sensor_values, target_coords)
+            return self._inverse_distance_weighted(sensor_latlon, sensor_values, target_latlon)
 
         try:
+            # Project degrees to a local equirectangular metric plane so
+            # scipy's planar griddata operates in consistent units
+            mean_lat = float(np.radians(np.mean(sensor_latlon[:, 0])))
+            def _project(points: np.ndarray) -> np.ndarray:
+                x = np.radians(points[:, 1]) * 6_371_000.0 * np.cos(mean_lat)
+                y = np.radians(points[:, 0]) * 6_371_000.0
+                return np.column_stack([x, y])
+
+            sensor_xy = _project(sensor_latlon)
+            target_xy = _project(target_latlon)
+
             # Use scipy's griddata for linear interpolation
             interpolated = interpolate.griddata(
-                sensor_coords, sensor_values, target_coords, method='linear'
+                sensor_xy, sensor_values, target_xy, method='linear'
             )
 
             # Fill NaN values with nearest neighbor
             nan_mask = np.isnan(interpolated)
             if np.any(nan_mask):
-                nearest_values = self._nearest_neighbor(sensor_coords, sensor_values, target_coords)
+                nearest_values = self._nearest_neighbor(sensor_latlon, sensor_values, target_latlon)
                 interpolated[nan_mask] = nearest_values[nan_mask]
 
             return cast(np.ndarray, interpolated)
 
         except Exception as e:
             logger.warning(f"Linear interpolation failed, using IDW: {e}")
-            return self._inverse_distance_weighted(sensor_coords, sensor_values, target_coords)
+            return self._inverse_distance_weighted(sensor_latlon, sensor_values, target_latlon)
 
-    def _calculate_interpolation_uncertainty(self, sensor_coords: np.ndarray,
-                                          target_coords: np.ndarray, method: str) -> np.ndarray:
-        """Calculate uncertainty for interpolated values."""
-        # Simplified uncertainty calculation based on distance to nearest sensors
-        uncertainties = []
+    def _calculate_interpolation_uncertainty(self, sensor_latlon: np.ndarray,
+                                          target_latlon: np.ndarray, method: str) -> np.ndarray:
+        """Calculate uncertainty for interpolated values.
 
-        for target_point in target_coords:
-            distances = np.sqrt(np.sum((sensor_coords - target_point) ** 2, axis=1))
-            min_distance = np.min(distances)
+        Distances are great-circle meters, so the divisor constants below
+        operate on the same unit scale as the max_distance/search_radius
+        meter thresholds.
+        """
+        distances = self._haversine_meters(sensor_latlon, target_latlon)
+        min_distances = np.min(distances, axis=0)
 
-            # Uncertainty increases with distance from sensors
-            # Also depends on interpolation method
-            if method == "nearest_neighbor":
-                uncertainty = min_distance / 1000  # Simple distance-based uncertainty
-            elif method == "inverse_distance_weighted":
-                uncertainty = min_distance / 5000 + 0.1  # IDW has some base uncertainty
-            else:
-                uncertainty = min_distance / 3000 + 0.2  # Default uncertainty
+        # Uncertainty increases with distance from sensors
+        # Also depends on interpolation method
+        if method == "nearest_neighbor":
+            uncertainty = min_distances / 1000  # Simple distance-based uncertainty
+        elif method == "inverse_distance_weighted":
+            uncertainty = min_distances / 5000 + 0.1  # IDW has some base uncertainty
+        else:
+            uncertainty = min_distances / 3000 + 0.2  # Default uncertainty
 
-            uncertainties.append(max(0.01, min(1.0, uncertainty)))  # Clamp between 0.01 and 1.0
-
-        return np.array(uncertainties)
+        return np.clip(uncertainty, 0.01, 1.0)  # Clamp between 0.01 and 1.0
 
     def interpolate_h3_cells(self, measurements: List[Dict], target_h3_indices: List[str]) -> Dict:
         """

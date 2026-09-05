@@ -74,6 +74,23 @@ def cache_manager(mock_config, mock_redis):
         manager = CacheManager(signing_key=SIGNING_KEY)
         yield manager
 
+
+def test_cache_manager_constructs_with_real_shipped_config(mock_redis):
+    """CacheManager works against the real shipped Config without mocking get_config.
+
+    The Config model ships a ``cache`` section (redis host/port/db/password) with
+    defaults, so ``CacheManager()`` must construct using those values — only the
+    Redis client itself is patched out to avoid a network dependency.
+    """
+    from geo_infer_ops.core.config import Config
+    import geo_infer_ops.core.cache as cache_module
+
+    with patch.object(cache_module, "get_config", return_value=Config()):
+        manager = CacheManager(signing_key=SIGNING_KEY)
+    assert manager.redis is mock_redis
+    manager.redis.ping.assert_called_once()
+
+
 def test_cache_connection_success(cache_manager, mock_redis):
     """Test successful cache connection."""
     mock_redis.ping.return_value = True

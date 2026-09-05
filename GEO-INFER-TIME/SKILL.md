@@ -17,11 +17,37 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 
 ### Core Capabilities
 
-- **Time series analysis**: Decomposition, trend detection, seasonality
-- **Forecasting**: ARIMA, exponential smoothing, temporal GP
-- **Change detection**: CUSUM, Bayesian change points, structural breaks
+- **Time series analysis**: Seasonal decomposition, trend detection, seasonality
+  detection, stationarity tests, autocorrelation, rolling statistics
+- **Forecasting**: ARIMA/SARIMAX, Holt-Winters exponential smoothing, linear
+  regression, moving average (statsmodels-backed)
+- **Anomaly & changepoint detection**: z-score/IQR/rolling-z-score/isolation-forest
+  anomaly detection; CUSUM and binary-segmentation changepoint detection
+  (`TemporalAnalyzer.detect_change_points`), plus moving-window mean-shift
+  changepoints (`EventDetector`)
 - **Temporal indexing**: Time-aware spatial queries, temporal resolution management
 - **Spatio-temporal**: Joint analysis of spatial and temporal dimensions
+
+### Additional Public Surface
+
+The package also exports `TemporalInterpolator`, `TemporalStatistics`,
+`TemporalVisualization`, `AdvancedForecastingEngine`, and the `db`
+(TimeSeriesStore/InMemoryStore), `io` (read/write_timeseries), and `utils`
+(validate/align/fill_gaps) subpackages:
+
+```python
+from geo_infer_time import TemporalInterpolator, AdvancedForecastingEngine, db, io, utils
+```
+
+For sequential inference pipelines, `geo_infer_time.core.inference_schedule`
+validates aware timestamps against an explicit fixed-interval model step:
+off-grid, missing, or duplicated instants raise; the function never fills gaps
+or silently resamples.
+
+```python
+from geo_infer_time.core.inference_schedule import inference_schedule
+steps = inference_schedule(sensor_timestamps, step_seconds=60.0)
+```
 
 ### Key Imports
 

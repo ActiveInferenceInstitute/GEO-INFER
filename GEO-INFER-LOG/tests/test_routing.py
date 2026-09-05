@@ -344,3 +344,38 @@ class TestNetworkLoading:
 
         result = optimizer.optimize_route((-118.30, 34.10), (-118.20, 34.05))
         assert result == {"error": "No path found"}
+
+    def test_optimize_route_without_network(self):
+        """Network-free routing works via haversine nearest-neighbor order."""
+        origin = (-118.25, 34.05)
+        destination = (-118.32, 34.04)
+        waypoints = [(-118.28, 34.08), (-118.30, 34.02)]
+
+        optimizer = RouteOptimizer()
+        result = optimizer.optimize_route(origin, destination, waypoints=waypoints)
+
+        assert "error" not in result
+        assert result["distance"] > 0
+        assert result["travel_time"] > 0
+        # Ordered stops: origin, both waypoints, destination.
+        assert len(result["path"]) == 4
+
+    def test_optimize_route_waypoint_destination_unreachable(self, tmp_path):
+        """An unreachable destination yields an error, not a partial route."""
+        import pickle
+
+        graph = self._build_network()
+        network_file = tmp_path / "network.gpickle"
+        with open(network_file, "wb") as handle:
+            pickle.dump(graph, handle)
+
+        optimizer = RouteOptimizer()
+        optimizer.load_network(str(network_file))
+
+        # Node 3 is in a disconnected component, so the final leg
+        # (waypoint 2 -> destination 3) cannot be completed.
+        result = optimizer.optimize_route(
+            (-118.25, 34.05), (-118.30, 34.10), waypoints=[(-118.20, 34.05)]
+        )
+
+        assert "error" in result

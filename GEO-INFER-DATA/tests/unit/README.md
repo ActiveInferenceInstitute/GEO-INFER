@@ -38,18 +38,18 @@ Unit workspace within `GEO-INFER-DATA`.
 
 ## Dependencies
 
+- `aiohttp>=3.8.0`
+- `aiomqtt>=2.4.0`
+- `boto3>=1.28.0`
+- `fastapi>=0.100.0`
 - `geopandas>=0.13.0`
-- `pandas>=2.0.0`
+- `h3>=4.5.0,<5`
+- `minio>=7.1.0`
 - `numpy>=1.24.0`
-- `shapely>=2.0.0`
-- `rasterio>=1.3.0`
-- `fiona>=1.9.0`
-- `pyproj>=3.5.0`
-- `scipy>=1.10.0`
-- `scikit-learn>=1.3.0`
-- `pyyaml>=6.0.0`
-- `openpyxl>=3.1.0`
-- `xlrd>=2.0.1`
+- `pandas>=2.0.0`
+- `psutil>=5.9.0`
+- `psycopg2-binary>=2.9.0`
+- `pydantic>=2.0.0`
 
 
 ## Validation

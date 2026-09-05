@@ -11,16 +11,12 @@ This module defines RESTful API endpoints that allow:
 - Configuring agent parameters
 """
 
-import os
-import json
 import logging
-import asyncio
-from typing import Dict, List, Any, Optional, Union, Tuple
-from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks, Body, Query, Path
+from typing import Dict, List, Any, Optional
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from geo_infer_agent.core.agent_base import BaseAgent
 from geo_infer_agent.core.agent_registry import AgentRegistry
 
 logger = logging.getLogger("geo_infer_agent.api.endpoints")

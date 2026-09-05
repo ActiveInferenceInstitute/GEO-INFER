@@ -58,6 +58,36 @@ class TestAgentConfiguration:
         assert "learning_rate" in defaults
         assert defaults["learning_rate"] == 0.1
 
+    def test_validate_string_on_number_field_with_min_is_error_not_crash(self):
+        # A string value on a NUMBER field with min/max validation must produce
+        # a validation error, not raise TypeError from a str < float comparison.
+        errors = AgentConfiguration.validate_config(AgentType.ACTIVE_INFERENCE, {
+            "name": "AI Agent",
+            "precision": "high",
+        })
+        assert any("must be a number" in e for e in errors)
+
+    def test_validate_geolocation_field(self):
+        schema = AgentConfiguration.get_schema(AgentType.BDI)
+        errors = AgentConfiguration.validate_config(AgentType.BDI, {
+            "name": "Geo Agent",
+            "initial_location": {"lat": 40.7128, "lng": -74.0060},
+        })
+        assert not any("initial_location" in e for e in errors)
+
+        for bad in [
+            {"lat": 91.0, "lng": -74.0},    # lat out of bounds
+            {"lat": 40.0, "lng": 181.0},    # lng out of bounds
+            {"lat": 40.0},                  # missing lng
+            {"lat": "40", "lng": -74.0},    # non-numeric lat
+            [40.0, -74.0],                  # not a dict
+        ]:
+            errs = AgentConfiguration.validate_config(AgentType.BDI, {
+                "name": "Geo Agent",
+                "initial_location": bad,
+            })
+            assert any("initial_location" in e for e in errs), f"bad value accepted: {bad}"
+
 
 class TestConfigField:
     def test_field_creation(self):

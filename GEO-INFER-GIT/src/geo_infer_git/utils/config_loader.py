@@ -525,7 +525,7 @@ class ConfigLoader:
 def load_clone_config(config_dir: Optional[str] = None) -> CloneConfig:
     """Load clone configuration."""
     loader = ConfigLoader(config_dir)
-    return loader.load_clone_config(config_dir)
+    return loader.load_clone_config()
 
 
 def load_target_repos_config(
@@ -533,10 +533,10 @@ def load_target_repos_config(
 ) -> List[TargetRepository]:
     """Load target repositories configuration."""
     loader = ConfigLoader(config_dir)
-    return loader.load_target_repos_config(config_dir)
+    return loader.load_target_repos_config()
 
 
 def load_target_users_config(config_dir: Optional[str] = None) -> List[TargetUser]:
     """Load target users configuration."""
     loader = ConfigLoader(config_dir)
-    return loader.load_target_users_config(config_dir)
+    return loader.load_target_users_config()

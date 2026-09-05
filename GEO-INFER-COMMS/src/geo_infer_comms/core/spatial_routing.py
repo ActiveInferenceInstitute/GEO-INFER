@@ -8,15 +8,13 @@ message distribution based on geospatial context and network topology.
 
 from __future__ import annotations
 import heapq
-import math
 import logging
 from typing import Dict, List, Optional, Tuple, Any, Set
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
 from geo_infer_comms.models.spatial import (
-    GeospatialPoint, GeospatialBounds, GeospatialMetadata,
-    SpatialFilter, SpatialIndex, CoordinateSystem
+    GeospatialPoint, SpatialFilter, SpatialIndex
 )
 from geo_infer_comms.models.message import MessageResponse, MessagePriority
 
@@ -43,15 +41,23 @@ class AdvancedSpatialRouter:
         self.load_balancing = load_balancing
 
         # Routing state
-        self.routing_cache: Dict[str, Dict[str, Any]] = {}
         self.network_topology: Dict[str, Dict[str, float]] = {}  # node -> node -> distance
         self.node_loads: Dict[str, float] = {}
+        self.node_locations: Dict[str, GeospatialPoint] = {}
         self.routing_history: List[Dict[str, Any]] = []
 
         # Performance metrics
         self.routing_metrics = SpatialRoutingMetrics()
 
         self.logger = logging.getLogger(__name__)
+
+    def register_node_location(self, node_id: str, location: GeospatialPoint) -> None:
+        """Register a node's geospatial location for proximity routing."""
+        self.node_locations[node_id] = location
+        self.logger.info(
+            f"Node location registered: {node_id} at "
+            f"{location.latitude}, {location.longitude}"
+        )
 
     def route_message(
         self,
@@ -176,18 +182,20 @@ class AdvancedSpatialRouter:
         if not self.network_topology:
             return [target_node]
 
-        # Identify the source node closest to message_location
+        # Identify the source node closest to message_location using
+        # registered node locations; fall back to lexicographic selection
+        # when no locations are registered.
         source_node: Optional[str] = None
         best_dist = float('inf')
         for node_id in self.network_topology:
-            loc = self.node_loads.get(node_id)  # reuse existing lookup
-            # fall back to simple lexicographic selection if no coords available
-            if source_node is None:
+            loc = self.node_locations.get(node_id)
+            if loc is not None:
+                dist = message_location.distance_to(loc)
+                if dist < best_dist:
+                    best_dist = dist
+                    source_node = node_id
+            elif source_node is None or node_id < source_node:
                 source_node = node_id
-            # Use node_id that appears first alphabetically as heuristic
-            if node_id < (source_node or ''):
-                source_node = node_id
-
         if source_node is None or source_node == target_node:
             return [target_node]
 
@@ -329,8 +337,6 @@ class SpatialRoutingMetrics:
     failed_routes: int = 0
     total_latency: float = 0.0
     route_count: int = 0
-    cache_hits: int = 0
-    cache_misses: int = 0
     start_time: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def to_dict(self) -> Dict[str, Any]:
@@ -347,9 +353,6 @@ class SpatialRoutingMetrics:
             "average_latency": (
                 self.total_latency / max(self.route_count, 1)
             ),
-            "cache_hit_rate": (
-                self.cache_hits / max(self.cache_hits + self.cache_misses, 1) * 100
-            ),
             "uptime_seconds": uptime.total_seconds()
         }
 
@@ -359,8 +362,6 @@ class SpatialRoutingMetrics:
         self.failed_routes = 0
         self.total_latency = 0.0
         self.route_count = 0
-        self.cache_hits = 0
-        self.cache_misses = 0
         self.start_time = datetime.now(timezone.utc)
 
 
@@ -971,18 +972,6 @@ class SpatialRoutingOptimizer:
         if not history:
             return {"message": "No routing history available"}
 
-        # Analyze success rates by message type
-        success_by_type: Dict[str, int] = {}
-        latency_by_type: Dict[str, float] = {}
-
-        for record in history:
-            message_id = record["message_id"]
-            success = record["success"]
-            latency = record.get("latency")
-
-            # In a real implementation, would need to correlate with message data
-            # For now, use simplified analysis
-
         return {
             "total_routes_analyzed": len(history),
             "success_rate": sum(1 for r in history if r["success"]) / len(history) * 100,
@@ -1004,7 +993,3 @@ class SpatialRoutingOptimizer:
 
         return suggestions
 
-    def optimize_routing_strategy(self) -> None:
-        """Optimize routing strategy based on performance analysis."""
-        # In a real implementation, would adjust routing algorithms and parameters
-        self.logger.info("Routing strategy optimization completed")

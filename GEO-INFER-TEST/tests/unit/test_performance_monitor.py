@@ -42,6 +42,31 @@ class TestPerformanceMonitor:
         monitor.reset()
         assert len(monitor.get_all_records()) == 0
 
+    def test_nested_sections_both_recorded(self):
+        """Nested start/stop pairs must yield two records and balanced tracing.
+
+        Pre-fix behavior: the inner start overwrote the outer record and the
+        inner stop() killed tracemalloc for the outer section.
+        """
+        monitor = PerformanceMonitor()
+        monitor.start("outer")
+        monitor.start("inner")
+        inner = monitor.stop()
+        outer = monitor.stop()
+
+        assert inner["label"] == "inner"
+        assert outer["label"] == "outer"
+        labels = [r["label"] for r in monitor.get_all_records()]
+        assert labels == ["inner", "outer"]
+        # Both sections captured a real traced-memory peak.
+        assert inner["peak_memory_bytes"] >= 0
+        assert outer["peak_memory_bytes"] >= 0
+        assert monitor._trace_depth == 0
+
+        monitor.reset()
+        monitor.start("after_reset")
+        assert monitor.stop()["label"] == "after_reset"
+
 
 class TestBenchmarkRunner:
     """Tests for BenchmarkRunner."""

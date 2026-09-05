@@ -23,158 +23,90 @@ Required packages:
 """
 
 import sys
-import subprocess
 import importlib
 import argparse
 import json
 import logging
+import tempfile
 from pathlib import Path
 from datetime import datetime
 import traceback
 
-# Configure basic logging early
+# Log to the system temp directory — never scatter log files into the cwd
+_log_path = Path(tempfile.gettempdir()) / "del_norte_demo.log"
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(), logging.FileHandler("del_norte_demo.log")],
+    handlers=[logging.StreamHandler(), logging.FileHandler(_log_path)],
 )
 
 logger = logging.getLogger(__name__)
+logger.info("Demo log file: %s", _log_path)
 
 
-def check_and_install_dependencies():
-    """Check and install required dependencies with comprehensive logging."""
-    logger.info("=== Comprehensive Dependency Check ===")
+def check_dependencies():
+    """Verify required dependencies are importable.
 
-    # Extended list of required packages for advanced dashboard
+    This example never installs packages: mutating the user's environment at
+    runtime is the package manager's job. Missing deps are a hard error with
+    actionable instructions.
+
+    Returns:
+        True when all required packages are importable.
+    """
+    logger.info("=== Dependency Check ===")
+
+    # Required packages — all declared in pyproject.toml [project.dependencies]
     required_packages = {
-        # Core geospatial packages
         "folium": "folium",
         "h3": "h3",
         "pandas": "pandas",
         "geopandas": "geopandas",
         "numpy": "numpy",
         "requests": "requests",
-        "yaml": "PyYAML",
-        # Advanced visualization packages
+        "yaml": "pyyaml",
         "plotly": "plotly",
         "matplotlib": "matplotlib",
-        "seaborn": "seaborn",
         "branca": "branca",
-        # Scientific computing packages
-        "scipy": "scipy",
-        "sklearn": "scikit-learn",
-        # Additional utility packages
         "shapely": "shapely",
-        "rasterio": "rasterio",
-        "fiona": "fiona",
-    }
-
-    # Optional packages that enhance functionality
-    optional_packages = {
-        "contextily": "contextily",
-        "cartopy": "cartopy",
-        "descartes": "descartes",
-        "pyproj": "pyproj",
     }
 
     available_packages = []
     missing_packages = []
-    optional_available = []
-    optional_missing = []
 
-    logger.info("Checking core required packages...")
     for module_name, package_name in required_packages.items():
         try:
             importlib.import_module(module_name)
             available_packages.append(module_name)
-            logger.info(f"✓ {module_name} is available")
+            logger.info("✓ %s is available", module_name)
         except ImportError:
             missing_packages.append(package_name)
-            logger.warning(f"✗ {module_name} is missing - will install {package_name}")
+            logger.warning("✗ %s is missing", module_name)
 
-    logger.info("Checking optional enhancement packages...")
-    for module_name, package_name in optional_packages.items():
-        try:
-            importlib.import_module(module_name)
-            optional_available.append(module_name)
-            logger.info(f"✓ {module_name} (optional) is available")
-        except ImportError:
-            optional_missing.append(package_name)
-            logger.info(f"○ {module_name} (optional) is missing")
-
-    # Install missing required packages
     if missing_packages:
-        logger.info(
-            f"\nInstalling {len(missing_packages)} missing required packages: {', '.join(missing_packages)}"
+        logger.error(
+            "Missing required packages: %s. Install them with:\n"
+            "  uv add %s\n"
+            "or:\n"
+            "  uv pip install %s",
+            ", ".join(missing_packages),
+            " ".join(missing_packages),
+            " ".join(missing_packages),
         )
-        try:
-            install_cmd = ["uv", "pip", "install", "--user"] + missing_packages
-            logger.info(f"Running: {' '.join(install_cmd)}")
+        return False
 
-            result = subprocess.run(install_cmd, capture_output=True, text=True)
-            if result.returncode == 0:
-                logger.info("✓ Successfully installed missing required packages")
-                logger.info(f"Installation output: {result.stdout}")
-            else:
-                logger.error(f"✗ Failed to install packages: {result.stderr}")
-                logger.error("Please install manually:")
-                logger.error(f"uv pip install {' '.join(missing_packages)}")
-                return False
-        except Exception as e:
-            logger.error(f"✗ Installation failed with exception: {e}")
-            return False
-
-    # Attempt to install some optional packages for enhanced functionality
-    if optional_missing:
-        logger.info(
-            f"\nAttempting to install {len(optional_missing)} optional packages for enhanced functionality..."
-        )
-        safe_optional = [
-            "contextily",
-            "pyproj",
-        ]  # Packages that usually install without issues
-        safe_to_install = [pkg for pkg in optional_missing if pkg in safe_optional]
-
-        if safe_to_install:
-            try:
-                install_cmd = ["uv", "pip", "install", "--user"] + safe_to_install
-                logger.info(
-                    f"Installing optional packages: {' '.join(safe_to_install)}"
-                )
-                result = subprocess.run(install_cmd, capture_output=True, text=True)
-                if result.returncode == 0:
-                    logger.info(
-                        f"✓ Successfully installed optional packages: {', '.join(safe_to_install)}"
-                    )
-                else:
-                    logger.warning(
-                        f"⚠ Optional package installation had issues: {result.stderr}"
-                    )
-            except Exception as e:
-                logger.warning(f"⚠ Optional package installation failed: {e}")
-
-    # Summary
-    logger.info("=== Dependency Check Summary ===")
     logger.info(
-        f"✓ Available required packages: {len(available_packages)}/{len(required_packages)}"
+        "All %d required packages available: %s",
+        len(available_packages),
+        ", ".join(available_packages),
     )
-    logger.info(
-        f"✓ Available optional packages: {len(optional_available)}/{len(optional_packages)}"
-    )
-
-    if available_packages:
-        logger.info(f"Core packages available: {', '.join(available_packages)}")
-    if optional_available:
-        logger.info(f"Optional packages available: {', '.join(optional_available)}")
-
-    return len(missing_packages) == 0
+    return True
 
 
 # Check dependencies first
 print("=== Checking Dependencies ===")
-if not check_and_install_dependencies():
-    print("Dependencies check failed. Please install missing packages manually.")
+if not check_dependencies():
+    print("Dependencies check failed. Install the missing packages listed above.")
     sys.exit(1)
 
 # Now import the modules after ensuring dependencies are available
@@ -238,9 +170,6 @@ except ImportError as e:
 
 print("=== Core Module Import Complete ===")
 print()
-
-# Add the source directory to Python path
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 # Import the concrete dashboard and data integration components.
 from geo_infer_place.locations.del_norte_county.comprehensive_dashboard import (

@@ -5,7 +5,7 @@ model comparison for selecting among competing spatial models.
 """
 
 import numpy as np
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 import logging
 
 logger = logging.getLogger(__name__)

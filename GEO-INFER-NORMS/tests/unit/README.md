@@ -27,12 +27,14 @@ Unit workspace within `GEO-INFER-NORMS`.
 
 ## Dependencies
 
-- `geopandas>=0.10.0`
-- `matplotlib>=3.4.0`
-- `networkx>=2.6.0`
-- `numpy>=1.20.0`
-- `pandas>=1.3.0`
-- `shapely>=1.8.0`
+- `fastapi>=0.95.0,<1`
+- `geopandas>=0.13.0,<2`
+- `matplotlib>=3.7.0,<4`
+- `networkx>=2.6.0,<4`
+- `numpy>=1.24.0,<3`
+- `pandas>=2.0.0,<3`
+- `pydantic>=2.0.0,<3`
+- `shapely>=2.0.0,<3`
 
 
 ## Validation

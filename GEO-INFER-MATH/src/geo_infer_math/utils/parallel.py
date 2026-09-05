@@ -8,13 +8,10 @@ of geospatial data and mathematical operations.
 import multiprocessing as mp
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
 import numpy as np
-from typing import Any, Callable, List, Optional, Union, Iterable, Dict, Tuple, cast
+from typing import Any, Callable, List, Optional, Union, Iterable, cast
 import logging
-import os
 import time
-import psutil
-from functools import partial, wraps
-import threading
+from functools import partial
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +86,7 @@ def parallel_compute(func: Callable,
                 if completed % max(1, len(chunks) // 10) == 0:
                     elapsed = time.time() - start_time
                     rate = completed / elapsed if elapsed > 0 else 0
-                    logger.info(".1f")
+                    logger.info(f"Progress: {completed}/{len(chunks)} chunks, {rate:.1f} chunks/s")
 
             except Exception as e:
                 logger.error(f"Error processing chunk: {e}")

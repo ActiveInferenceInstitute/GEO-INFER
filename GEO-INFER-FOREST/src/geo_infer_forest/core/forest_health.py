@@ -39,14 +39,22 @@ class ForestHealthMonitor:
         
         if temperature is not None:
             # Temperature stress
-            optimal_temp = 20.0  # Example optimal temperature
-            temp_stress = np.abs(temperature - optimal_temp) / optimal_temp
+            optimal_temp = float(self.config.get("optimal_temperature_c", 20.0))
+            temp_stress = np.clip(
+                np.abs(temperature - optimal_temp) / max(abs(optimal_temp), 1e-6),
+                0.0,
+                1.0,
+            )
             results['temperature_stress'] = temp_stress
         
         if precipitation is not None:
             # Water stress
-            optimal_precip = 1000.0  # mm/year
-            water_stress = np.abs(precipitation - optimal_precip) / (optimal_precip + 1e-10)
+            optimal_precip = float(self.config.get("optimal_precipitation_mm", 1000.0))
+            water_stress = np.clip(
+                np.abs(precipitation - optimal_precip) / max(optimal_precip, 1e-6),
+                0.0,
+                1.0,
+            )
             results['water_stress'] = water_stress
         
         return xr.Dataset(results)

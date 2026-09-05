@@ -4,7 +4,6 @@ import pytest
 from geo_infer_emergency.core.resources import (
     ResourceDeployer,
     Resource,
-    ResourceRequest,
     ResourceStatus,
     ResourceType,
 )
@@ -23,17 +22,6 @@ class TestResourceDataclasses:
         assert resource.resource_id == "r1"
         assert resource.status == ResourceStatus.AVAILABLE
         assert resource.resource_type == ResourceType.ENGINE
-
-    def test_resource_request_creation(self) -> None:
-        request = ResourceRequest(
-            request_id="req1",
-            incident_id="inc1",
-            resource_types=["engine", "ambulance"],
-            quantity=2,
-            priority=1,
-        )
-        assert request.priority == 1
-        assert request.fulfilled is False
 
     def test_resource_status_values(self) -> None:
         assert ResourceStatus.AVAILABLE.value == "available"

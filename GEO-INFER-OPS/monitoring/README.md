@@ -21,15 +21,17 @@ Monitoring workspace within `GEO-INFER-OPS`.
 ## Dependencies
 
 - `fastapi>=0.100.0`
-- `prometheus-client>=0.16.0`
+- `prometheus-client>=0.12.0`
 - `prometheus-fastapi-instrumentator>=5.7.0`
 - `pydantic>=2.0.0`
-- `structlog>=23.1.0`
-- `pytest>=7.3.1`
-- `pytest-timeout>=2.0.0`
-- `kubernetes>=26.1.0`
-- `black>=23.3.0`
-- `pytest-cov>=4.1.0`
+- `structlog>=21.1.0`
+- `kubernetes>=29.0.0`
+- `redis>=4.5.0`
+- `PyJWT>=2.0.0`
+- `cryptography>=40.0.0`
+- `psutil>=5.9.0`
+- `PyYAML>=6.0.0`
+- `uvicorn>=0.23.0`
 
 
 ## Validation

@@ -76,17 +76,14 @@ python from geo_infer_norms.core.legal_frameworks import LegalFramework from geo
 python from geo_infer_norms.core.legal_frameworks import JurisdictionHandler # Create a jurisdiction handler handler = JurisdictionHandler(jurisdictions=[...]) # Get jurisdictional hierarchy hierarchy = handler.get_jurisdiction_hierarchy("city_1") # Find jurisdictions at a specific level states = handler.find_jurisdictions_at_level("state") # Find jurisdictions that overlap with a geometry overlapping = handler.get_overlapping_jurisdictions(polygon)
 ```
  ### 3.2 Zoning Analysis Components #### `ZoningAnalyzer` Class
-```
 ```python
  from geo_infer_norms.core.zoning_analysis import ZoningAnalyzer from geo_infer_norms.models.zoning import ZoningCode, ZoningDistrict # Create a zoning analyzer analyzer = ZoningAnalyzer( zoning_districts=[...], # List of ZoningDistrict objects zoning_codes=[...] # List of ZoningCode objects ) # Analyze zoning boundaries for conflicts conflicts = analyzer.analyze_zoning_boundaries() # Evaluate a zoning change evaluation = analyzer.evaluate_zoning_change("district_1", "new_code") # Visualize zoning districts fig = analyzer.visualize_zoning()
 ```
  #### `LandUseClassifier` Class
-```
 ```python
  from geo_infer_norms.core.zoning_analysis import LandUseClassifier import geopandas as gpd # Create a land use classifier classifier = LandUseClassifier(land_use_types=[...]) # Classify land use based on features parcels_gdf = gpd.GeoDataFrame(...) classified = classifier.classify_land_use( parcels_gdf, feature_columns=['building_count', 'population_density', ...] ) # Analyze land use patterns pattern_analysis = classifier.analyze_land_use_pattern(classified_gdf) # Visualize land use classification fig = classifier.visualize_land_use(classified_gdf)
 ```
  ### 3.3 Compliance Tracking Components #### `ComplianceTracker` Class
-```
 ```python
  from geo_infer_norms.core.compliance_tracking import ComplianceTracker from geo_infer_norms.models.compliance_status import ComplianceStatus, ComplianceMetric # Create a compliance tracker tracker = ComplianceTracker( name="Environmental Compliance Tracker", compliance_statuses=[...], # List of ComplianceStatus objects compliance_metrics=[...] # List of ComplianceMetric objects ) # Get compliance status for an entity entity_compliance = tracker.get_entity_compliance("entity_1") # Get compliance status for a regulation regulation_compliance = tracker.get_regulation_compliance("reg_1") # Evaluate compliance of an entity with a regulation status = tracker.evaluate_compliance(entity, regulation, evaluation_data) # Export compliance data for visualization compliance_gdf = tracker.export_compliance_to_geodataframe(entities)
 ```

@@ -4,7 +4,7 @@ import math
 from datetime import timedelta
 
 from geo_infer_health.models import DiseaseReport, Location, PopulationData
-from geo_infer_health.utils.geospatial_utils import haversine_distance, create_bounding_box
+from geo_infer_health.utils.geospatial_utils import haversine_distance
 
 class DiseaseHotspotAnalyzer:
     """Analyzes disease reports to identify hotspots."""
@@ -198,7 +198,6 @@ class DiseaseHotspotAnalyzer:
             List of potential contact records
         """
         contacts = []
-        time_window = timedelta(hours=time_window_hours)
         
         for report in self.reports:
             if report == case_report:
@@ -257,8 +256,7 @@ class DiseaseHotspotAnalyzer:
         if not self.reports:
             return {"error": "No reports to analyze"}
         
-        from collections import defaultdict
-        
+
         # Group reports by time period
         time_series: Dict[str, int] = defaultdict(int)
         

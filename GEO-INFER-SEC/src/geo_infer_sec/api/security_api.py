@@ -5,28 +5,36 @@ This module provides API endpoints for security-related operations
 on geospatial data.
 """
 
-from typing import Dict, List, Optional, Any, Union, Callable
-from flask import Flask, request, jsonify, Blueprint, g
-import jwt
+from typing import Dict, Optional, Any, Callable
+from flask import Flask, request, jsonify, Blueprint, g, current_app
 import json
-import datetime
 import geopandas as gpd
-import pandas as pd
-from shapely.geometry import Point, Polygon, MultiPolygon, shape
 import functools
 
 from geo_infer_sec.core.anonymization import GeospatialAnonymizer
-from geo_infer_sec.core.access_control import GeospatialAccessManager, Role, SpatialPermission
+from geo_infer_sec.core.access_control import GeospatialAccessManager
 from geo_infer_sec.core.compliance import ComplianceFramework, ComplianceRegime
 
 
 # Create a Blueprint for security API endpoints
 security_api = Blueprint('security_api', __name__)
 
-# Global objects (should be initialized with proper config in a real application)
-access_manager: Optional[GeospatialAccessManager] = None
-anonymizer: Optional[GeospatialAnonymizer] = None
-compliance_framework: Optional[ComplianceFramework] = None
+_SECURITY_STATE_KEY = "geo_infer_sec"
+
+
+def _security_state() -> Dict[str, Any]:
+    """Return the app-scoped security components registered by init_security_api.
+
+    Raises:
+        RuntimeError: If the security API was never initialized for the
+            current Flask app (routes translate this into a 503 response).
+    """
+    state = current_app.extensions.get(_SECURITY_STATE_KEY)
+    if state is None:
+        raise RuntimeError(
+            "Security API not initialized; call init_security_api(app, secret_key) first"
+        )
+    return state
 
 
 def init_security_api(
@@ -44,17 +52,15 @@ def init_security_api(
         enable_anonymization: Whether to enable anonymization features
         enable_compliance: Whether to enable compliance checking
     """
-    global access_manager, anonymizer, compliance_framework
-    
-    # Initialize components
-    access_manager = GeospatialAccessManager(secret_key)
-    
-    if enable_anonymization:
-        anonymizer = GeospatialAnonymizer()
-        
-    if enable_compliance:
-        compliance_framework = ComplianceFramework()
-    
+    # Bundle all components in app-scoped state instead of module globals so
+    # multiple Flask apps in one process can carry independent configurations.
+    state: Dict[str, Any] = {
+        "access_manager": GeospatialAccessManager(secret_key),
+        "anonymizer": GeospatialAnonymizer() if enable_anonymization else None,
+        "compliance_framework": ComplianceFramework() if enable_compliance else None,
+    }
+    app.extensions[_SECURITY_STATE_KEY] = state
+
     # Register blueprint with the app
     app.register_blueprint(security_api, url_prefix='/api/security')
     
@@ -84,7 +90,11 @@ def token_required(f: Callable[..., Any]) -> Callable[..., Any]:
             
         try:
             # Validate token
-            assert access_manager is not None
+            access_manager: Optional[GeospatialAccessManager] = _security_state()[
+                "access_manager"
+            ]
+            if access_manager is None:
+                return jsonify({"error": "Security service unavailable"}), 503
             payload = access_manager.validate_token(token)
             if not payload:
                 return jsonify({"error": "Invalid or expired token"}), 401
@@ -93,6 +103,9 @@ def token_required(f: Callable[..., Any]) -> Callable[..., Any]:
             g.user_id = payload['user_id']
             g.roles = payload['roles']
             
+        except RuntimeError as e:
+            # Security API never initialized for this app.
+            return jsonify({"error": str(e)}), 503
         except Exception as e:
             return jsonify({"error": f"Token validation error: {str(e)}"}), 401
             
@@ -112,8 +125,14 @@ def get_token() -> Any:
     user_id = data['user_id']
     expiration_hours = data.get('expiration_hours', 24)
     
-    # Check if user exists and has roles
-    assert access_manager is not None
+    try:
+        access_manager: Optional[GeospatialAccessManager] = _security_state()[
+            "access_manager"
+        ]
+    except RuntimeError as e:
+        return jsonify({"error": str(e)}), 503
+    if access_manager is None:
+        return jsonify({"error": "Security service unavailable"}), 503
     user_roles = access_manager.user_roles.get(user_id, [])
     if not user_roles:
         return jsonify({"error": "User has no assigned roles"}), 403
@@ -135,7 +154,11 @@ def get_roles() -> Any:
     user_id = g.user_id
     
     # Get user roles
-    assert access_manager is not None
+    access_manager: Optional[GeospatialAccessManager] = _security_state()[
+        "access_manager"
+    ]
+    if access_manager is None:
+        return jsonify({"error": "Security service unavailable"}), 503
     roles = access_manager.get_user_roles(user_id)
     
     # Convert to serializable format
@@ -152,8 +175,12 @@ def get_roles() -> Any:
 @token_required
 def anonymize_data() -> Any:
     """Anonymize geospatial data."""
+    try:
+        anonymizer: Optional[GeospatialAnonymizer] = _security_state()["anonymizer"]
+    except RuntimeError as e:
+        return jsonify({"error": str(e)}), 503
     if anonymizer is None:
-        return jsonify({"error": "Anonymization service not enabled"}), 501
+        return jsonify({"error": "Anonymization service not enabled"}), 503
         
     data = request.get_json()
     
@@ -212,7 +239,11 @@ def check_location_access() -> Any:
     lon = data['longitude']
     
     # Check access
-    assert access_manager is not None
+    access_manager: Optional[GeospatialAccessManager] = _security_state()[
+        "access_manager"
+    ]
+    if access_manager is None:
+        return jsonify({"error": "Security service unavailable"}), 503
     has_access = access_manager.can_access_location(user_id, lat, lon)
     
     return jsonify({
@@ -228,8 +259,14 @@ def check_location_access() -> Any:
 @token_required
 def check_compliance() -> Any:
     """Check data compliance with regulations."""
+    try:
+        compliance_framework: Optional[ComplianceFramework] = _security_state()[
+            "compliance_framework"
+        ]
+    except RuntimeError as e:
+        return jsonify({"error": str(e)}), 503
     if compliance_framework is None:
-        return jsonify({"error": "Compliance service not enabled"}), 501
+        return jsonify({"error": "Compliance service not enabled"}), 503
         
     data = request.get_json()
     
@@ -279,7 +316,11 @@ def filter_data() -> Any:
         gdf = gpd.GeoDataFrame.from_features(data['features'])
         
         # Filter data based on user permissions
-        assert access_manager is not None
+        access_manager: Optional[GeospatialAccessManager] = _security_state()[
+            "access_manager"
+        ]
+        if access_manager is None:
+            return jsonify({"error": "Security service unavailable"}), 503
         filtered = access_manager.filter_geodataframe(user_id, gdf)
         
         # Convert filtered data back to GeoJSON

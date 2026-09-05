@@ -5,7 +5,7 @@ and precipitation statistics for hydrological design.
 """
 
 import logging
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional
 
 import numpy as np
 from scipy import stats as scipy_stats

@@ -22,12 +22,10 @@ bash uv pip install srai
  from srai.loaders import OSMOnlineLoader from srai.plotting import plot_regions from srai.regionalizers import geocode_to_region_gdf query = {"leisure": "park"} area = geocode_to_region_gdf("Wrocław, Poland") loader = OSMOnlineLoader() parks_gdf = loader.load(area, query) folium_map = plot_regions(area, colormap=["rgba(0,0,0,0)"], tiles_style="CartoDB positron") parks_gdf.explore(m=folium_map, color="forestgreen")
 ```
  <p align="center"> <img src="https://raw.githubusercontent.com/kraina-ai/srai/main/docs/assets/images/downloading_osm_data.jpg" style="max-width:600px;width:100%"/> </p> ### Downloading road network Road network downloading is a special case of OSM data downloading. To download road network for a given area, use `OSMWayLoader` class:
-```
 ```python
  from srai.loaders import OSMNetworkType, OSMWayLoader from srai.plotting import plot_regions from srai.regionalizers import geocode_to_region_gdf area = geocode_to_region_gdf("Utrecht, Netherlands") loader = OSMWayLoader(OSMNetworkType.BIKE) nodes, edges = loader.load(area) folium_map = plot_regions(area, colormap=["rgba(0,0,0,0.1)"], tiles_style="CartoDB positron") edges[["geometry"]].explore(m=folium_map, color="seagreen")
 ```
  <p align="center"> <img src="https://raw.githubusercontent.com/kraina-ai/srai/main/docs/assets/images/downloading_road_network_data.jpg" style="max-width:600px;width:100%"/> </p> ### Downloading GTFS data To extract features from GTFS use `GTFSLoader`. It will extract trip count and available directions for each stop in 1h time windows.
-```
 ```python
  from pathlib import Path from srai.loaders import GTFSLoader, download_file from srai.plotting import plot_regions from srai.regionalizers import geocode_to_region_gdf area = geocode_to_region_gdf("Vienna, Austria") gtfs_file = Path("vienna_gtfs.zip") download_file("https://transitfeeds.com/p/stadt-wien/888/latest/download", gtfs_file.as_posix()) loader = GTFSLoader() features = loader.load(gtfs_file) folium_map = plot_regions(area, colormap=["rgba(0,0,0,0.1)"], tiles_style="CartoDB positron") features[["trips_at_8", "geometry"]].explore("trips_at_8", m=folium_map)
 ```

@@ -13,36 +13,19 @@ from geo_infer_time.core.interpolation import TemporalInterpolator
 from geo_infer_time.core.event_detection import EventDetector
 from geo_infer_time.core.statistics import TemporalStatistics
 from geo_infer_time.core.visualization import TemporalVisualization
+from geo_infer_time.core.advanced_forecasting import AdvancedForecastingEngine
 
-# Advanced forecasting (optional dependency)
-try:
-    from geo_infer_time.core.advanced_forecasting import AdvancedForecastingEngine
-
-    __all__ = [
-        "TemporalAnalyzer",
-        "ForecastingEngine",
-        "AdvancedForecastingEngine",
-        "StreamProcessor",
-        "StreamIngestAdapter",
-        "ReplayIngestAdapter",
-        "WebSocketIngestAdapter",
-        "KafkaIngestAdapter",
-        "TemporalInterpolator",
-        "EventDetector",
-        "TemporalStatistics",
-        "TemporalVisualization",
-    ]
-except ImportError:
-    __all__ = [
-        "TemporalAnalyzer",
-        "ForecastingEngine",
-        "StreamProcessor",
-        "StreamIngestAdapter",
-        "ReplayIngestAdapter",
-        "WebSocketIngestAdapter",
-        "KafkaIngestAdapter",
-        "TemporalInterpolator",
-        "EventDetector",
-        "TemporalStatistics",
-        "TemporalVisualization",
-    ]
+__all__ = [
+    "TemporalAnalyzer",
+    "ForecastingEngine",
+    "AdvancedForecastingEngine",
+    "StreamProcessor",
+    "StreamIngestAdapter",
+    "ReplayIngestAdapter",
+    "WebSocketIngestAdapter",
+    "KafkaIngestAdapter",
+    "TemporalInterpolator",
+    "EventDetector",
+    "TemporalStatistics",
+    "TemporalVisualization",
+]

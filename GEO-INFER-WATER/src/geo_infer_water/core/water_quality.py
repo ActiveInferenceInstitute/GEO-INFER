@@ -4,8 +4,10 @@ import logging
 from typing import Any, Dict, List, Optional, Tuple, cast
 from dataclasses import dataclass
 from enum import Enum
+from datetime import datetime
 import numpy as np
 import xarray as xr
+from scipy import stats as scipy_stats
 
 logger = logging.getLogger(__name__)
 
@@ -252,22 +254,51 @@ class WaterQualityAssessor:
         
         Args:
             pollutant_concentration: Pollutant concentration map
-            flow_direction: Optional flow direction for upstream analysis
-            
+            flow_direction: Optional D8 flow-direction field. When
+                supplied, hotspots are refined to the most upstream cells
+                (those whose downstream neighbour is not itself a hotspot),
+                isolating likely source locations from downstream transport.
+
         Returns:
-            Potential source locations
+            Dataset with ``pollution_hotspots`` (all cells above the 95th
+            percentile), ``potential_sources`` (refined via flow direction
+            when supplied, otherwise equal to ``pollution_hotspots``), and
+            ``concentration``.
         """
-        # Identify hotspots (high concentration areas)
         threshold = pollutant_concentration.quantile(0.95)
         hotspots = pollutant_concentration >= threshold
-        
-        # If flow direction available, trace upstream
+
+        # When a D8 flow-direction field is supplied, refine the hotspots to
+        # the most upstream cells: a hotspot is a candidate source only if
+        # its immediate downstream neighbour is not also a hotspot (i.e. the
+        # hotspot sits at the upstream end of a polluted reach rather than
+        # being fed by an upstream source).
         if flow_direction is not None:
-            # Hotspots act as candidate sources without upstream tracing
-            potential_sources = hotspots
+            d8_offsets = {
+                1: (0, 1), 2: (1, 1), 4: (1, 0), 8: (1, -1),
+                16: (0, -1), 32: (-1, -1), 64: (-1, 0), 128: (-1, 1),
+            }
+            hotspots_vals = hotspots.values
+            fd_vals = flow_direction.values
+            # Lat/lon (or y/x) are the last two dims.
+            spatial_dims = list(hotspots.dims)[-2:]
+            ny, nx = hotspots_vals.shape
+            sources = np.zeros_like(hotspots_vals, dtype=bool)
+            for i in range(ny):
+                for j in range(nx):
+                    if not hotspots_vals[i, j]:
+                        continue
+                    code = int(fd_vals[i, j]) if np.isfinite(fd_vals[i, j]) else 0
+                    dy, dx = d8_offsets.get(code, (0, 0))
+                    ni, nj = i + dy, j + dx
+                    # A hotspot with no downstream hotspot (off-grid or
+                    # non-hotspot downstream) is a candidate source.
+                    if not (0 <= ni < ny and 0 <= nj < nx) or not hotspots_vals[ni, nj]:
+                        sources[i, j] = True
+            potential_sources = xr.DataArray(sources, dims=spatial_dims)
         else:
             potential_sources = hotspots
-        
+
         return xr.Dataset({
             'pollution_hotspots': hotspots,
             'potential_sources': potential_sources,
@@ -358,46 +389,75 @@ class WaterQualityAssessor:
     ) -> Dict[str, Any]:
         """
         Analyze water quality trends over time.
-        
+
+        Samples are sorted chronologically by ``timestamp`` before fitting
+        a linear regression with :func:`scipy.stats.linregress`, so out-of-
+        order samples no longer corrupt the trend. Significance is judged
+        from the regression p-value at alpha = 0.05.
+
         Args:
             samples: List of water samples
             parameter: Parameter to analyze (e.g., 'ph', 'dissolved_oxygen')
-            time_window_days: Analysis time window
-            
+            time_window_days: Analysis time window (informational)
+
         Returns:
             Trend analysis results
         """
         if not samples:
             return {'error': 'No samples provided'}
-        
-        # Extract values
-        values = [getattr(s, parameter, None) for s in samples]
-        values = [v for v in values if v is not None]
-        
-        if len(values) < 3:
+
+        # Sort samples chronologically by timestamp so the regression is
+        # over real time, not sample-list order.
+        def _parse_ts(ts: str) -> datetime:
+            try:
+                return datetime.fromisoformat(ts)
+            except (ValueError, TypeError):
+                # Fall back to a best-effort parse; otherwise treat as
+                # unorderable (datetime.min keeps it in place).
+                try:
+                    return datetime.strptime(str(ts), "%Y-%m-%d")
+                except ValueError:
+                    return datetime.min
+
+        ordered = sorted(samples, key=lambda s: _parse_ts(s.timestamp))
+
+        # Extract values for the requested parameter in time order.
+        pairs: List[Tuple[float, float]] = []
+        for s in ordered:
+            value = getattr(s, parameter, None)
+            if value is None:
+                continue
+            t = _parse_ts(s.timestamp)
+            # Ordinal day as the regression x-axis (float days since epoch).
+            pairs.append((float(t.toordinal()), float(value)))
+
+        if len(pairs) < 3:
             return {'error': 'Insufficient data for trend analysis'}
-        
-        values_arr = np.array(values)
-        time_points = np.arange(len(values_arr))
-        
-        # Linear regression for trend
-        slope, intercept = np.polyfit(time_points, values_arr, 1)
+
+        time_points = np.array([p[0] for p in pairs], dtype=float)
+        values_arr = np.array([p[1] for p in pairs], dtype=float)
+
+        # Linear regression with a proper p-value (scipy.stats.linregress).
+        result = scipy_stats.linregress(time_points, values_arr)
+        slope = float(result.slope)
+        intercept = float(result.intercept)
+        p_value = float(result.pvalue)
+        r_squared = float(result.rvalue ** 2)
         trend_line = slope * time_points + intercept
-        
-        # Calculate statistics
+
+        # Trend significance from the regression p-value at alpha=0.05.
+        trend_significant = bool(p_value < 0.05)
+        if trend_significant:
+            trend_direction = "increasing" if slope > 0 else "decreasing"
+        else:
+            trend_direction = "stable"
+
+        # Statistics
         mean_val = float(np.mean(values_arr))
         std_val = float(np.std(values_arr))
         min_val = float(np.min(values_arr))
         max_val = float(np.max(values_arr))
-        
-        # Trend significance via a slope-to-noise ratio heuristic
-        if abs(slope) > std_val / len(values_arr):
-            trend_significant = True
-            trend_direction = "increasing" if slope > 0 else "decreasing"
-        else:
-            trend_significant = False
-            trend_direction = "stable"
-        
+
         # Check against standards
         standard = self.standards.get(parameter, {})
         if 'max' in standard:
@@ -405,21 +465,24 @@ class WaterQualityAssessor:
         elif 'min' in standard:
             exceedance_count = int(np.sum(values_arr < standard['min']))
         else:
-            exceedance_count = 0
-        
+            exceedance_count =  0
+
         return {
             'parameter': parameter,
-            'sample_count': len(values),
-            'mean': float(mean_val),
-            'std': float(std_val),
-            'min': float(min_val),
-            'max': float(max_val),
-            'trend_slope': float(slope),
+            'sample_count': len(pairs),
+            'mean': mean_val,
+            'std': std_val,
+            'min': min_val,
+            'max': max_val,
+            'trend_slope': slope,
+            'trend_intercept': intercept,
+            'trend_p_value': p_value,
+            'trend_r_squared': r_squared,
             'trend_direction': trend_direction,
             'trend_significant': trend_significant,
-            'exceedance_count': int(exceedance_count),
-            'exceedance_rate': float(exceedance_count / len(values)),
-            'trend_values': trend_line.tolist()
+            'exceedance_count': exceedance_count,
+            'exceedance_rate': float(exceedance_count / len(pairs)),
+            'trend_values': trend_line.tolist(),
         }
     
     def assess_risk(
@@ -469,8 +532,6 @@ class WaterQualityAssessor:
         
         thresholds = usage_thresholds.get(usage_type, usage_thresholds['drinking'])
         
-        # Calculate risk scores for each parameter
-        risk_scores: Dict[str, float] = {}
         violations = []
         
         for sample in samples:

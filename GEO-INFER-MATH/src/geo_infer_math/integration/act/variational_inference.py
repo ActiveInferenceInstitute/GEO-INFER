@@ -9,7 +9,7 @@ References:
 """
 
 import numpy as np
-from typing import Optional, Dict, Any, Callable, List, cast
+from typing import Optional, Dict, Any, List, cast
 import logging
 
 logger = logging.getLogger(__name__)
@@ -97,7 +97,6 @@ class VariationalInferenceHelpers:
             elbo_history.append(elbo)
 
             # Check convergence
-            q_change = float(np.max(np.abs(q_new - q)))
             q = q_new
 
             if len(elbo_history) > 1:

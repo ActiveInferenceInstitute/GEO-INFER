@@ -6,7 +6,7 @@ in the GEO-INFER framework.
 """
 
 import logging
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass
 from urllib.parse import quote
 
@@ -203,8 +203,7 @@ class AgriculturalAPI:
 
         # Adjust for weather conditions
         weather_factor = 1.0
-        avg_temp = sum(d["temperature_high"] for d in weather_data) / len(weather_data)
-        total_precip = sum(d["precipitation"] for d in weather_data)
+        avg_temp, total_precip = self._weather_totals(weather_data)
 
         if avg_temp < 15 or avg_temp > 35:
             weather_factor *= 0.7
@@ -236,6 +235,37 @@ class AgriculturalAPI:
         )
         return analysis
 
+
+    @staticmethod
+    def _weather_totals(weather_data: List[Dict[str, Any]]) -> Tuple[float, float]:
+        """Compute (mean daily high temperature, total precipitation).
+
+        Args:
+            weather_data: List of daily weather records
+
+        Returns:
+            Tuple of (average temperature_high, total precipitation)
+
+        Raises:
+            ValueError: If weather_data is empty or a record is missing a
+                required key.
+        """
+        if not weather_data:
+            raise ValueError("weather_data must contain at least one daily record")
+
+        for index, record in enumerate(weather_data):
+            if "temperature_high" not in record:
+                raise ValueError(
+                    f"weather_data record {index} is missing 'temperature_high'"
+                )
+            if "precipitation" not in record:
+                raise ValueError(
+                    f"weather_data record {index} is missing 'precipitation'"
+                )
+
+        avg_temp = sum(d["temperature_high"] for d in weather_data) / len(weather_data)
+        total_precip = sum(d["precipitation"] for d in weather_data)
+        return avg_temp, total_precip
     def _generate_recommendations(
         self, soil_data: Dict[str, Any], weather_data: List[Dict[str, Any]]
     ) -> List[str]:
@@ -253,8 +283,7 @@ class AgriculturalAPI:
             recommendations.append("Apply nitrogen fertilizer")
 
         # Weather-based recommendations
-        avg_temp = sum(d["temperature_high"] for d in weather_data) / len(weather_data)
-        total_precip = sum(d["precipitation"] for d in weather_data)
+        avg_temp, total_precip = self._weather_totals(weather_data)
 
         if total_precip < 50:
             recommendations.append("Consider irrigation due to low precipitation")

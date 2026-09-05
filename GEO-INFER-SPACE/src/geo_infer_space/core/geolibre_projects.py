@@ -20,7 +20,7 @@ from __future__ import annotations
 import copy
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Sequence
+from typing import Any, Dict, Mapping, Optional, Sequence
 
 # Mirrors GeoLibre's DEFAULT_PROJECT_PREFERENCES (packages/core/src/types.ts).
 DEFAULT_PROJECT_PREFERENCES: Dict[str, Any] = {

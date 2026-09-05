@@ -38,6 +38,9 @@ from geo_infer_bayes import (
     load_crescent_city_intel,
 )
 
+from geo_infer_act.core import civic_intel as act_civic
+from geo_infer_bayes import civic_intel as bayes_civic
+from geo_infer_risk import civic_intel as risk_civic
 _SCHEMA = "crescent-city-geo-intel/v1"
 
 _ANCHOR = {
@@ -305,3 +308,33 @@ def test_act_policy_prior_surfaces_the_same_hazard_surface() -> None:
     }
     assert prior["dominantHazard"] == "tsunami"
     assert len(prior["hazardTags"]) + 1 == len(prior["preferences"])
+
+
+def test_shared_core_resolves_to_canonical_bayes_objects() -> None:
+    """ACT and RISK re-export the canonical BAYES ingestion core by identity."""
+    canonical = bayes_civic.load_crescent_city_contract
+
+    assert act_civic.load_crescent_city_contract is canonical
+    assert risk_civic.load_crescent_city_contract is canonical
+    assert act_civic.SUPPORTED_SCHEMA is bayes_civic.CRESCENT_CITY_INTEL_SCHEMA
+    assert risk_civic.CRESCENT_CITY_GEO_INTEL_SCHEMA is bayes_civic.CRESCENT_CITY_INTEL_SCHEMA
+    assert (
+        str(act_civic.SUPPORTED_SCHEMA)
+        == str(risk_civic.CRESCENT_CITY_GEO_INTEL_SCHEMA)
+        == "crescent-city-geo-intel/v1"
+    )
+
+
+def test_bundled_contract_ships_exactly_one_canonical_copy() -> None:
+    """The reviewed crescent-city-geo-intel.json lives only in BAYES."""
+    import importlib.resources
+    import json
+
+    bundled = importlib.resources.files("geo_infer_bayes").joinpath(
+        "crescent-city-geo-intel.json"
+    )
+    assert bundled.is_file()
+    assert json.loads(bundled.read_text(encoding="utf-8"))["schema"] == _SCHEMA
+    assert not (
+        importlib.resources.files("geo_infer_risk") / "crescent-city-geo-intel.json"
+    ).is_file()

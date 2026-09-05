@@ -13,7 +13,6 @@ uv sync --package geo-infer-act
 
 ## 1. Index a location with H3 v4
 
-```
 ```python
 from geo_infer_space import cell_to_latlng, latlng_to_cell
 
@@ -31,7 +30,6 @@ metric operations.
 
 ## 2. Build a categorical generative model
 
-```
 ```python
 import numpy as np
 
@@ -64,7 +62,6 @@ the established tuple shape can omit it and receive `(beliefs, action)`.
 
 ## 3. Inspect the free-energy terms
 
-```
 ```python
 from geo_infer_act import FreeEnergyCalculator
 
@@ -91,12 +88,11 @@ normalization. The typed result also exposes entropy and metadata.
 An application can associate the inference result with the H3 cell created in
 step 1:
 
-```
 ```python
 cell_result = {
     "cell": cell,
     "center": center,
-    "beliefs": result.beliefs.tolist(),
+    "beliefs": result.beliefs["states"].tolist(),
     "action": result.action,
     "free_energy": result.free_energy,
 }
@@ -109,7 +105,6 @@ are opt-in and must use real H3 cells and ordered resolutions.
 
 ## 5. Validate the workflow
 
-```
 ```bash
 uv run python GEO-INFER-TEST/validate_active_inference_contract.py
 uv run python GEO-INFER-TEST/validate_h3_active_inference_contract.py

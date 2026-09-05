@@ -2,12 +2,14 @@
 Markov Chain Monte Carlo implementation for Bayesian inference.
 """
 
+import logging
 import numpy as np
 import xarray as xr
 from typing import Dict, Any, Union, List, Tuple, Optional
 from tqdm import tqdm
 from ..utils.rng import SeedLike, resolve_rng
 
+logger = logging.getLogger(__name__)
 
 class MCMC:
     """
@@ -176,8 +178,10 @@ class MCMC:
         # Report diagnostics
         if progress_bar:
             for c in range(self.n_chains):
-                print(
-                    f"Chain {c+1} acceptance rate: {acceptance_rate[c] / total_iterations:.2f}"
+                logger.info(
+                    "Chain %d acceptance rate: %.2f",
+                    c + 1,
+                    acceptance_rate[c] / total_iterations,
                 )
 
         # Convert samples to desired format (add coordinates for xarray if needed)

@@ -32,7 +32,6 @@ The first step converts a continuous field polygon into discrete hexagonal analy
 
 ### Defining the Field Boundary
 
-```
 ```python
 import numpy as np
 from shapely.geometry import Polygon
@@ -60,7 +59,6 @@ print(f"Field area: {field_gdf.to_crs(epsg=32610).area.iloc[0] / 10000:.1f} hect
 
 ### Creating the H3 Grid
 
-```
 ```python
 import h3
 from typing import List, Dict
@@ -119,7 +117,6 @@ print(f"Approximate cell area: {grid_gdf.to_crs(epsg=32610).area.mean():.0f} m^2
 
 ### Visualizing the Grid
 
-```
 ```python
 import matplotlib.pyplot as plt
 
@@ -142,7 +139,6 @@ Sparse soil moisture sensor readings are interpolated across the full field grid
 
 In practice, this data comes from in-field IoT sensors (see GEO-INFER-IOT). Here we generate realistic synthetic data with spatial correlation.
 
-```
 ```python
 import numpy as np
 
@@ -205,7 +201,6 @@ print(f"Moisture range: {sensor_gdf['moisture'].min():.3f} - {sensor_gdf['moistu
 
 ### Training the Gaussian Process
 
-```
 ```python
 from geo_infer_bayes.core.gaussian_process import GaussianProcess
 
@@ -271,7 +266,6 @@ print(f"Mean prediction uncertainty (std): "
 
 ### Visualizing the Interpolation
 
-```
 ```python
 fig, axes = plt.subplots(1, 2, figsize=(16, 7))
 
@@ -307,7 +301,6 @@ Yield prediction uses multiple features per H3 cell: soil moisture, NDVI (vegeta
 
 ### Generating Multi-Feature Grid Data
 
-```
 ```python
 def generate_field_features(
     moisture_grid: gpd.GeoDataFrame,
@@ -358,7 +351,6 @@ print(f"Temp range: {feature_grid['temperature_c'].min():.1f} - {feature_grid['t
 
 ### Yield Prediction Model
 
-```
 ```python
 from geo_infer_ag.core.yield_predictor import YieldPredictor
 
@@ -441,7 +433,6 @@ print(f"\nPredicted yield range: "
 
 ### Yield Map Visualization
 
-```
 ```python
 fig, axes = plt.subplots(1, 2, figsize=(16, 7))
 
@@ -477,7 +468,6 @@ The following code ties all three stages into a single callable pipeline.
 
 ### Data Flow
 
-```
 ```mermaid
 graph LR
     A[Field Polygon] --> B[GEO-INFER-SPACE<br/>H3 Gridding]
@@ -493,7 +483,6 @@ graph LR
 
 ### End-to-End Pipeline
 
-```
 ```python
 from typing import Dict, Any
 from shapely.geometry import Polygon

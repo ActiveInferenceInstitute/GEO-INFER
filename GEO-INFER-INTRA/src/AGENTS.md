@@ -22,11 +22,6 @@
 ## Local Contents
 
 - `geo_infer_intra/`
-- `markdown_to_pdf.py`
-- `README_markdown_to_pdf.md`
-- `example-config.json`
-- `md2pdf.sh`
-- `package.json`
 
 ## Validation
 

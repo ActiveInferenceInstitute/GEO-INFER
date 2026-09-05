@@ -11,11 +11,17 @@ from __future__ import annotations
 import hashlib
 import html as html_lib
 import json
+import os
+import re
 from dataclasses import dataclass
+from io import BytesIO
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-# Canonical specifications and spatial profiles for all 44 GEO-INFER modules
+import h3
+from PIL import Image, ImageDraw, PngImagePlugin
+
+# Canonical specifications and spatial profiles for all 45 GEO-INFER modules
 MODULE_PROFILES: Dict[str, Dict[str, Any]] = {
     "ACT": {
         "name": "Active Inference Engine",
@@ -261,6 +267,20 @@ MODULE_PROFILES: Dict[str, Dict[str, Any]] = {
             "Infection Clusters",
             "Care Access Isochrones",
             "Exposure Contours",
+        ],
+    },
+    "INSURANCE": {
+        "name": "Insurance Operations",
+        "description": "Underwriting decisions, premium pricing, claims lifecycle, and portfolio capacity",
+        "category": "Applications",
+        "center": [37.7750, -122.4250],
+        "zoom": 12,
+        "primary_color": "#0e7490",
+        "secondary_color": "#22d3ee",
+        "features": [
+            "Underwriting Case Flow",
+            "Premium Surface",
+            "Claim Reserves",
         ],
     },
     "INTRA": {
@@ -519,7 +539,6 @@ def _profile(module_id: str) -> dict[str, Any]:
     """Resolve a canonical module profile before using it in output paths."""
     if not isinstance(module_id, str) or module_id.upper() not in MODULE_PROFILES:
         raise ValueError(f"Unknown module ID: {module_id}")
-    import re
 
     profile = MODULE_PROFILES[module_id.upper()]
     for field in ("primary_color", "secondary_color"):
@@ -538,8 +557,6 @@ def _dimensions(width: int, height: int) -> None:
 
 def _cells(module_id: str) -> list[tuple[str, list[tuple[float, float]]]]:
     """Return real H3 cell identifiers and closed latitude/longitude boundaries."""
-    import h3
-
     center = h3.latlng_to_cell(*_profile(module_id)["center"], RESOLUTION)
     ids = [center, *sorted(set(h3.grid_disk(center, 1)) - {center})]
     result = []
@@ -675,8 +692,6 @@ def render_png_card(
     height: int = 240,
 ) -> bytes:
     """Draw the geographic preview with Pillow and embed its data provenance."""
-    from io import BytesIO
-    from PIL import Image, ImageDraw, PngImagePlugin
 
     profile = _profile(module_id)
     mod = module_id.upper()
@@ -712,8 +727,6 @@ def generate_module_preview_suite(
     module_id: str, output_dir: Path | str
 ) -> SpatialPreviewArtifacts:
     """Write reproducible geometry previews with per-artifact checksums."""
-    import h3
-
     profile = _profile(module_id)
     mod = module_id.upper()
     out = Path(output_dir)
@@ -869,9 +882,7 @@ def _inject_preview_section(module_doc: Path, module_id: str, prefix: str) -> bo
 
 
 def build_previews(modules_dir: Path, output_dir: Path) -> int:
-    """Generate preview bundles for all 44 modules and write a preview index."""
-    import os
-
+    """Generate preview bundles for all 45 modules and write a preview index."""
     modules_dir.mkdir(parents=True, exist_ok=True)
     output_dir.mkdir(parents=True, exist_ok=True)
     prefix = Path(os.path.relpath(output_dir, modules_dir)).as_posix()

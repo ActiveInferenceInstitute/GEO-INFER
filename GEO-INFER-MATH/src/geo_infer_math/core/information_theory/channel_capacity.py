@@ -6,10 +6,8 @@ communication systems and data transmission.
 """
 
 import numpy as np
-from typing import Union, Optional, Tuple, Dict, Any
+from typing import Optional, Tuple, Any
 import logging
-from scipy.optimize import minimize_scalar, minimize
-from scipy.special import logsumexp
 
 logger = logging.getLogger(__name__)
 

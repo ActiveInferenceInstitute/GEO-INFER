@@ -24,12 +24,11 @@
 - `integration/`
 - `unit/`
 - `conftest.py`
-- `test_marine_ecosystems.py`
 
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-MARINE/tests
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MARINE
 ```
 
 

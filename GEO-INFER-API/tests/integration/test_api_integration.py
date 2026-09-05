@@ -64,8 +64,6 @@ class TestConfigIntegration:
         assert settings.app_version == "0.0.1-test"
         assert settings.api_prefix == "/api/v1"
         assert settings.cors_origins == []
-        assert settings.algorithm == "HS256"
-        assert settings.access_token_expire_minutes == 30
 
     def test_settings_ogc_flags(self, settings):
         """Test OGC API feature flags."""

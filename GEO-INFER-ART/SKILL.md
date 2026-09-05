@@ -1,11 +1,6 @@
 ---
 name: geo-infer-art
-description: Generative geospatial art and cartographic visualization. Use when creating artistic map visualizations, generative spatial art, interactive cartographic displays, animation sequences, or aesthetically-focused geographic rendering.
-prerequisites:
-  required:
-    - geo-infer-space
-  recommended:
-    - geo-infer-data
+description: Generative geospatial art and cartographic visualization. Use when creating artistic map visualizations, procedural spatial art, animation sequences, color palettes, style transfer, or aesthetically-focused geographic rendering.
 difficulty: beginner
 estimated_time: 30min
 examples_dir: ../GEO-INFER-EXAMPLES/examples/
@@ -17,40 +12,88 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 
 ### Core Capabilities
 
-- **Generative art**: Algorithmic spatial pattern generation, fractal landscapes
-- **Cartographic design**: Aesthetic map styling, color palettes, typography
-- **Interactive display**: mplcursors-based interactive map exploration
-- **Animation**: Temporal spatial animation sequences, GIF/video export
-- **Style transfer**: Apply artistic styles to geographic data visualizations
+- **Generative art**: 23 procedural algorithms (noise fields, fractals, cellular automata, L-systems, boids, DLA, WFC, ...) via `ProceduralArt`
+- **Cartographic design**: Aesthetic map styling via `GeoArt.apply_style` / `MapStyle`, color palettes via `ColorPalette`
+- **Interactive display**: mplcursors-based interactive map exploration (`GeoArt.add_interactive_elements`)
+- **Animation**: GIF/video export via `GeoArt.create_animation` and `GenerativeMap.create_animation`
+- **Style transfer**: Neural style transfer on geospatial data via `StyleTransfer` (requires the `neural` extra: `uv sync --extra neural` or install `tensorflow`)
+- **Place-based art**: `PlaceArt` and `CulturalMap` generate art from coordinates or place names
 
 ### Key Imports
 
 ```python
-from geo_infer_art.core.geo_art import GeoArtGenerator
-from geo_infer_art.core.cartography import CartographicDesigner
-from geo_infer_art.core.animation import SpatialAnimator
-from geo_infer_art.core.style import StyleTransfer
+# Package-level exports (all 10 public classes)
+from geo_infer_art import (
+    GeoArt,
+    MapStyle,
+    ColorPalette,
+    StyleTransfer,
+    GenerativeMap,
+    ProceduralArt,
+    PlaceArt,
+    CulturalMap,
+    CustomAlgorithmFramework,
+    PerformanceOptimizer,
+)
+
+# Or by subpackage
+from geo_infer_art.core.visualization import GeoArt, MapStyle
+from geo_infer_art.core.aesthetics import StyleTransfer, ColorPalette
+from geo_infer_art.core.generation import (
+    GenerativeMap,
+    ProceduralArt,
+    CustomAlgorithmFramework,
+    PerformanceOptimizer,
+)
+from geo_infer_art.core.place import PlaceArt, CulturalMap
 ```
 
 ## Examples
 
 ```python
-from geo_infer_art.core.geo_art import GeoArtGenerator
+from geo_infer_art import ProceduralArt, GeoArt
 
-generator = GeoArtGenerator()
-artwork = generator.create(
-    data=spatial_data,
-    style="watercolor",
-    interactive=True  # Enables mplcursors hover
+# Procedural art seeded by geographic coordinates (works offline)
+art = ProceduralArt.from_geo_coordinates(
+    lat=40.7128, lon=-74.0060, algorithm="noise_field"
 )
-artwork.save("output.png", dpi=300)
+art.save("nyc_noise.png")
+art.show()
+
+# Styled map from a GeoJSON file
+geo_art = GeoArt.load_geojson("data.geojson")
+geo_art.apply_style(style="default", color_palette="ocean", legend=True)
+geo_art.save("styled_map.png", dpi=300)
+
+# Procedural art with explicit algorithm selection
+art = ProceduralArt(
+    algorithm="koch_snowflake",
+    params={"iterations": 3, "color_palette": "ocean", "seed": 42},
+    resolution=(800, 800),
+)
+art.generate()
+```
+
+Neural style transfer (requires `tensorflow`, packaged as the `neural` extra;
+raises a clear `ImportError` when absent):
+
+```python
+from geo_infer_art import StyleTransfer
+
+styled = StyleTransfer.apply(geo_data=geo_art.data, style="watercolor")
+styled.save("stylized.png")
 ```
 
 ## Guidelines
 
-- Interactive features use real mplcursors + matplotlib (not `ax.plot([0],[0])`)
+- `ProceduralArt.ALGORITHMS` lists all 23 supported algorithm names; `generate()`
+  dispatches to `_generate_<name>` for every entry (unknown names raise `ValueError`).
+- Heavy backends are optional: `plotly`/`folium`/`psutil` (`integrations` extra),
+  `mayavi` (`viz3d` extra), `tensorflow` (`neural` extra). Guarded imports raise
+  informative errors when missing.
 
 ### Integrations
 
-- Integrates with SPACE for H3-based spatial patterns
-- Test: `uv run python -m pytest GEO-INFER-ART/tests/ -v`
+- No required cross-module dependencies; ART is a leaf module that consumes plain
+  GeoDataFrames / numpy arrays.
+- Test: `uv run --no-sync python -m pytest tests/ -v`

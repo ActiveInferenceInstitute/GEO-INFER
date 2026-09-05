@@ -56,12 +56,14 @@ try:
         InterpolationManager,
     )
     from geo_infer_math.core.spatial_statistics import (  # type: ignore[import-untyped]
+        GearysC,
         MoranI,
     )
 
     MATH_AVAILABLE = True
 except ImportError:
     MATH_AVAILABLE = False
+    GearysC = None
     MoranI = None
     InterpolationManager = None
 
@@ -540,9 +542,25 @@ class EnhancedRiskEngine:
 
             coords_arr = np.array(coords)
             vals = np.array(values, dtype=float)
+            dev = vals - np.mean(vals)
+
+            # Delegate to GEO-INFER-MATH's spatial statistics when the
+            # integrations extra is installed; otherwise fall back to an
+            # inline inverse-distance implementation with the same outputs.
+            if MATH_AVAILABLE and MoranI is not None and GearysC is not None:
+                moran_result = MoranI().compute(vals, coords_arr)
+                geary_result = GearysC().compute(vals, coords_arr)
+                morans_i = float(moran_result["I"])
+                geary_c = float(geary_result["C"])
+                return {
+                    "spatial_autocorrelation": morans_i,
+                    "morans_i": morans_i,
+                    "geary_c": geary_c,
+                    "local_indicators": [float(d) for d in dev[:10]],
+                    "source": "geo_infer_math",
+                }
+
             n = len(vals)
-            mean_val = np.mean(vals)
-            dev = vals - mean_val
 
             # Distance-based spatial weights (inverse distance)
             from scipy.spatial.distance import pdist, squareform
@@ -568,6 +586,7 @@ class EnhancedRiskEngine:
                 "morans_i": float(morans_i),
                 "geary_c": float(geary_c),
                 "local_indicators": [float(d) for d in dev[:10]],
+                "source": "inline_fallback",
             }
         except ImportError:
             self.logger.warning("scipy not available for spatial statistics")
@@ -789,36 +808,32 @@ class EnhancedRiskEngine:
 
         Args:
             calibration_data: Historical data for calibration
-            method: Calibration method ('maximum_likelihood', 'bayesian', 'cross_validation')
+            method: Calibration method ('maximum_likelihood' or
+                'cross_validation'). 'bayesian' is intentionally not accepted:
+                it was a dead option behind a validation error because a
+                generic Bayesian calibration needs a model-specific adapter
+                with explicit likelihood and prior per configured risk
+                component; no such adapter exists yet.
 
         Returns:
             Calibration results and updated parameters
         """
         self._ensure_open()
         method = method.lower()
-        if method not in {"cross_validation", "maximum_likelihood", "bayesian"}:
+        if method not in {"cross_validation", "maximum_likelihood"}:
             raise ValueError(
-                "method must be 'cross_validation', 'maximum_likelihood', or 'bayesian'"
+                "method must be 'cross_validation' or 'maximum_likelihood'; "
+                "'bayesian' calibration is not implemented because it requires "
+                "a model-specific BayesianModel adapter"
             )
         self.logger.info(f"Starting model calibration using {method} method")
 
-        # Use Bayesian inference if available
-        if method == "bayesian":
-            return self._calibrate_with_bayes(calibration_data)
         if method == "cross_validation":
             return self._calibrate_with_cross_validation(calibration_data)
         raise ValueError(
             "maximum_likelihood calibration requires a model-specific likelihood adapter"
         )
 
-    def _calibrate_with_bayes(self, calibration_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Reject underspecified Bayesian calibration rather than fabricating results."""
-        if not self.integration_status.bayesian_inference_available:
-            raise ValueError("Bayesian inference not available")
-        raise ValueError(
-            "Bayesian calibration requires a BayesianModel adapter with an explicit "
-            "likelihood and prior for each configured risk component"
-        )
 
     def _calibrate_with_cross_validation(self, calibration_data: Dict[str, Any]) -> Dict[str, Any]:
         """Fit and cross-validate an empirical mean-loss baseline.
@@ -1155,10 +1170,22 @@ class EnhancedRiskEngine:
         )
 
     def _run_portfolio_analysis(self, **kwargs: Any) -> Dict[str, Any]:
-        """Run portfolio risk analysis."""
+        """Run portfolio risk analysis.
+
+        The inter-peril correlation is an ILLUSTRATIVE default (0.3 when more
+        than one hazard model is configured), not an empirically fitted
+        statistic. Override it per analysis via the ``inter_peril_correlation``
+        keyword or persistently via ``config["portfolio"]["inter_peril_correlation"]``.
+        """
         # Aggregate risk across loaded models
         hazard_count = len(self.hazard_models)
         vuln_count = len(self.vulnerability_models)
+        default_correlation = float(
+            self.config.get("portfolio", {}).get("inter_peril_correlation", 0.3)
+        )
+        inter_peril_correlation = float(
+            kwargs.get("inter_peril_correlation", default_correlation)
+        )
         return {
             "portfolio_id": kwargs.get("portfolio_id", "default"),
             "analysis_type": "portfolio",
@@ -1167,17 +1194,42 @@ class EnhancedRiskEngine:
                 "hazard_model_count": hazard_count,
                 "vulnerability_model_count": vuln_count,
             },
-            "correlation_analysis": {"inter_peril_correlation": 0.3 if hazard_count > 1 else 0.0},
+            "correlation_analysis": {
+                "inter_peril_correlation": (
+                    inter_peril_correlation if hazard_count > 1 else 0.0
+                ),
+                "inter_peril_correlation_is_illustrative_default": True,
+            },
             "diversification_benefits": {"benefit_ratio": max(0, 1 - 1 / max(hazard_count, 1))},
         }
 
     def _run_climate_analysis(self, **kwargs: Any) -> Dict[str, Any]:
-        """Run climate risk analysis."""
+        """Run climate risk analysis.
+
+        The scenario factors, linear year scaling, and adaptation cost-benefit
+        ratio are ILLUSTRATIVE defaults for first-order scenario comparison —
+        they are not downscaled climate projections. Override per analysis via
+        the ``scenario_factors`` / ``cost_benefit_ratio`` keywords, or
+        persistently via ``config["climate"]["scenario_factors"]`` /
+        ``config["climate"]["cost_benefit_ratio"]``.
+        """
         # Climate projection using simple scaling factors per scenario
         baseline_year = kwargs.get("baseline_year", 2023)
         target_years = kwargs.get("target_years", [2050, 2100])
         scenarios = kwargs.get("scenarios", ["rcp4.5", "rcp8.5"])
-        scenario_factors = {"rcp2.6": 1.1, "rcp4.5": 1.3, "rcp6.0": 1.5, "rcp8.5": 2.0}
+        climate_config = self.config.get("climate", {})
+        scenario_factors = dict(
+            climate_config.get(
+                "scenario_factors",
+                {"rcp2.6": 1.1, "rcp4.5": 1.3, "rcp6.0": 1.5, "rcp8.5": 2.0},
+            )
+        )
+        scenario_factors.update(kwargs.get("scenario_factors", {}))
+        cost_benefit_ratio = float(
+            kwargs.get(
+                "cost_benefit_ratio", climate_config.get("cost_benefit_ratio", 2.5)
+            )
+        )
         projected = {}
         for sc in scenarios:
             factor = scenario_factors.get(sc, 1.2)
@@ -1190,7 +1242,7 @@ class EnhancedRiskEngine:
             "target_years": target_years,
             "scenarios": scenarios,
             "projected_risks": projected,
-            "adaptation_analysis": {"cost_benefit_ratio": 2.5},
+            "adaptation_analysis": {"cost_benefit_ratio": cost_benefit_ratio},
         }
 
     def _run_stress_test(self, **kwargs: Any) -> Dict[str, Any]:

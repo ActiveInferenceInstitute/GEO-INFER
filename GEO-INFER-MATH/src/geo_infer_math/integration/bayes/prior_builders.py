@@ -5,7 +5,7 @@ spatial analysis: uniform, normal, beta, gamma, and Dirichlet.
 """
 
 import numpy as np
-from typing import Optional, Dict, Any, cast
+from typing import Any, cast
 import logging
 
 logger = logging.getLogger(__name__)

@@ -1,7 +1,7 @@
 """
 GraphQL API for GEO-INFER-BIO.
 """
-from typing import List, Optional, Dict, Any, cast
+from typing import List, Optional, cast
 import strawberry
 from strawberry.fastapi import GraphQLRouter
 from fastapi import FastAPI

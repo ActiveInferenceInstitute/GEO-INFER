@@ -93,17 +93,14 @@ mermaid graph TD classDef input fill:#e1f5fe,stroke:#01579b,stroke-width:2px cla
 python # Simple sequential processing DATA → SPACE → TIME → AI → DOMAIN → API → APP # Example: Basic spatial analysis from geo_infer_data import DataManager from geo_infer_space import SpatialProcessor from geo_infer_ai import MLPredictor from geo_infer_api import APIManager # Initialize components data_mgr = DataManager() spatial = SpatialProcessor() ml_engine = MLPredictor() api = APIManager() # Sequential processing raw_data = data_mgr.load_dataset("example.geojson") spatial_features = spatial.extract_features(raw_data) predictions = ml_engine.predict(spatial_features) api.serve_results(predictions)
 ```
  ### **Pattern 2: Parallel Processing with Convergence**
-```
 ```python
  # Parallel processing that converges DATA → [SPACE, TIME] → AI → DOMAIN # Example: Spatio-temporal analysis from geo_infer_examples.core import ParallelProcessor processor = ParallelProcessor([ ('spatial', SpatialProcessor()), ('temporal', TimeProcessor()) ]) # Parallel processing results = processor.process_parallel(data, modules=['SPACE', 'TIME']) combined = processor.merge_results(results) predictions = ml_engine.analyze(combined)
 ```
  ### **Pattern 3: Feedback Loop (Active Inference)**
-```
 ```python
  # Iterative processing with feedback ACT ↔ BAYES ↔ AI ↔ SIM → AGENT # Example: Adaptive learning system from geo_infer_act import ActiveInferenceEngine from geo_infer_agent import AutonomousAgent act_engine = ActiveInferenceEngine() agent = AutonomousAgent() for iteration in range(max_iterations): # Belief update beliefs = act_engine.update_beliefs(observations) # Policy selection action = act_engine.select_action(beliefs) # Execute action result = agent.execute(action) # Update observations observations = result.get_observations()
 ```
  ### **Pattern 4: Hub-and-Spoke (Centralized Coordination)**
-```
 ```python
  # Central coordinator managing multiple modules OPS → [SPACE, TIME, AI, DOMAIN] → APP # Example: Multi-module dashboard from geo_infer_examples.core import ModuleOrchestrator orchestrator = ModuleOrchestrator([ 'GEO-INFER-SPACE', 'GEO-INFER-TIME', 'GEO-INFER-AI', 'GEO-INFER-HEALTH' ]) # Coordinated execution results = orchestrator.execute_workflow({ 'data_source': 'health_surveillance_data.csv', 'analysis_type': 'outbreak_detection', 'output_format': 'dashboard' })
 ```

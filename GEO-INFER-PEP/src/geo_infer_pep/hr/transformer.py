@@ -1,8 +1,11 @@
 """HR Data Transformers."""
+import logging
+from datetime import date
 from typing import List, Optional
 import pandas as pd
-from datetime import date, datetime
 from ..models.hr_models import Employee
+
+logger = logging.getLogger(__name__)
 
 def clean_employee_data(employees: List[Employee]) -> List[Employee]:
     """
@@ -72,11 +75,11 @@ def clean_employee_data(employees: List[Employee]) -> List[Employee]:
             cleaned_employees.append(emp_copy)
 
         except Exception as e:
-            print(f"Error cleaning employee {emp.employee_id}: {str(e)}")
+            logger.error(f"Error cleaning employee {emp.employee_id}: {str(e)}")
             # Add the original if cleaning fails
             cleaned_employees.append(emp)
 
-    print(f"Successfully cleaned {len(cleaned_employees)} employee records")
+    logger.info(f"Successfully cleaned {len(cleaned_employees)} employee records")
     return cleaned_employees
 
 def enrich_employee_data(
@@ -175,11 +178,11 @@ def enrich_employee_data(
             enriched_employees.append(emp_copy)
 
         except Exception as e:
-            print(f"Error enriching employee {emp.employee_id}: {str(e)}")
+            logger.error(f"Error enriching employee {emp.employee_id}: {str(e)}")
             # Add the original if enrichment fails
             enriched_employees.append(emp)
 
-    print(f"Successfully enriched {len(enriched_employees)} employee records")
+    logger.info(f"Successfully enriched {len(enriched_employees)} employee records")
     return enriched_employees
 
 def convert_employees_to_dataframe(employees: List[Employee]) -> pd.DataFrame:
@@ -193,5 +196,5 @@ def convert_employees_to_dataframe(employees: List[Employee]) -> pd.DataFrame:
     df = pd.DataFrame(employee_dicts)
     # Further processing like flattening nested structures (e.g., compensation, job_history)
     # can be done here if needed for specific analyses.
-    print(f"Converted {len(df)} employee records to DataFrame.")
+    logger.info(f"Converted {len(df)} employee records to DataFrame.")
     return df 

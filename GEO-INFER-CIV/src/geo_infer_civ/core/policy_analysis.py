@@ -6,8 +6,8 @@ and equity analysis for policy evaluation.
 """
 
 import math
-from typing import Dict, List, Optional, Tuple, Any
-from dataclasses import dataclass, field
+from typing import Dict, List, Optional, Tuple
+from dataclasses import dataclass
 from enum import Enum
 
 
@@ -191,8 +191,11 @@ class CostBenefitAnalyzer:
         return total
 
     def _approximate_irr(self) -> float:
-        """Approximate the internal rate of return using bisection."""
-        max_year = max((i.time_horizon_years for i in self._items), default=1)
+        """Approximate the internal rate of return using bisection.
+
+        Returns ``nan`` when NPV never crosses zero over the searched
+        rate range (pure-cost or pure-benefit item sets have no IRR).
+        """
 
         def npv_at_rate(rate: float) -> float:
             total = 0.0
@@ -202,6 +205,8 @@ class CostBenefitAnalyzer:
             return total
 
         low, high = -0.5, 2.0
+        if npv_at_rate(low) * npv_at_rate(high) > 0:
+            return float("nan")
         for _ in range(100):
             mid = (low + high) / 2.0
             if npv_at_rate(mid) > 0:
@@ -214,7 +219,11 @@ class CostBenefitAnalyzer:
         return (low + high) / 2.0
 
     def _compute_payback_period(self) -> float:
-        """Compute the simple payback period in years."""
+        """Compute the simple payback period in years.
+
+        Returns ``float("inf")`` when the cumulative net position never
+        reaches zero within the modeled horizon.
+        """
         costs_by_year: Dict[int, float] = {}
         benefits_by_year: Dict[int, float] = {}
 
@@ -244,7 +253,7 @@ class CostBenefitAnalyzer:
                     return year - 1 + fraction
                 return float(year)
 
-        return float(max_year + 1)
+        return float("inf")
 
 
 class StakeholderImpactAnalyzer:

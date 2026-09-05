@@ -19,19 +19,16 @@ import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from src.geo_infer_sec.core.integrated_security import IntegratedSecurityManager
-from src.geo_infer_sec.core.physical_security import (
+from geo_infer_sec.core.integrated_security import IntegratedSecurityManager
+from geo_infer_sec.core.physical_security import (
     PhysicalSecurityManager, AccessControlDevice, SurveillanceDevice, SecurityZone,
     AccessControlType, SurveillanceType, SecurityZoneType
 )
-from src.geo_infer_sec.core.digital_security import (
+from geo_infer_sec.core.digital_security import (
     DigitalSecurityManager, NetworkConnection, SecurityEventType
 )
-from src.geo_infer_sec.core.cognitive_security import CognitiveSecurityManager
-from src.geo_infer_sec.models.security_models import SecurityEvent, ThreatLevel
+from geo_infer_sec.core.cognitive_security import CognitiveSecurityManager
+from geo_infer_sec.models.security_models import SecurityEvent, ThreatLevel
 from shapely.geometry import Point, Polygon
 
 

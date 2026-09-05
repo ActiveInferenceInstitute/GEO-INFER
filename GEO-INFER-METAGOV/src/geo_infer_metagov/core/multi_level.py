@@ -1,11 +1,9 @@
 """Multi-level governance framework implementation."""
 
 from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional
 from enum import Enum
 import logging
-import math
-from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
@@ -98,18 +96,20 @@ class MultiLevelGovernanceFramework:
         domain_coverage : List[str]
             Policy domains covered (environmental, civic, commercial, social)
         """
-        # Normalize governance levels
+        # Validate governance levels against the GovernanceLevel enum
         default_levels = ['local', 'regional', 'national']
         levels_to_use = governance_levels or default_levels
-        
-        self.governance_levels = []
+
+        self.governance_levels: List[GovernanceLevel] = []
         for level in levels_to_use:
             try:
                 self.governance_levels.append(GovernanceLevel(level.lower()))
             except ValueError:
-                # If level not in enum, try to use a supported level
-                logger.warning(f"Governance level '{level}' not recognized, using 'regional'")
-                self.governance_levels.append(GovernanceLevel.REGIONAL)
+                valid = ', '.join(lvl.value for lvl in GovernanceLevel)
+                raise ValueError(
+                    f"Unknown governance level '{level}'. "
+                    f"Valid levels are: {valid}"
+                ) from None
         
         self.coordination_mechanisms = [
             CoordinationMechanism(mech) if isinstance(mech, str) else mech
@@ -543,7 +543,6 @@ class MultiLevelGovernanceFramework:
         resource_score = min(1.0, available_budget / required_budget) if required_budget > 0 else 1.0
         
         # Calculate stakeholder consensus (based on number of stakeholders and their alignment)
-        num_stakeholders = len(entity.stakeholders)
         # Simulate stakeholder alignment based on entity capacity and policy characteristics
         base_consensus = 0.5 + (capacity_score * 0.3)
         # Adjust for policy complexity
@@ -614,7 +613,6 @@ class MultiLevelGovernanceFramework:
         # Policy characteristics that affect mechanism choice
         policy_scope = policy_proposal.get('scope', 'local')
         requires_consensus = policy_proposal.get('requires_consensus', False)
-        urgency = policy_proposal.get('urgency', 'normal')
         
         alignment_scores = []
         
@@ -806,7 +804,6 @@ class MultiLevelGovernanceFramework:
         conflicts = []
         
         try:
-            spatial_indexer = SpatialIndexingInterface()
             
             # Extract spatial boundaries from entities
             entity_boundaries: List[Dict[str, Any]] = []

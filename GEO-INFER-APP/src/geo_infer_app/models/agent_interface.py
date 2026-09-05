@@ -59,7 +59,7 @@ class AgentInterface(ABC):
         Returns:
             AgentState object containing the current state
         """
-        raise RuntimeError("Agent implementations must define initialize()")
+        ...
 
     @abstractmethod
     def list_agents(
@@ -74,7 +74,7 @@ class AgentInterface(ABC):
         Returns:
             List of agent summary dictionaries
         """
-        raise RuntimeError("Agent implementations must define process()")
+        ...
 
     @abstractmethod
     def send_command(
@@ -91,7 +91,7 @@ class AgentInterface(ABC):
         Returns:
             Response from the agent
         """
-        raise RuntimeError("Agent implementations must define communicate()")
+        ...
 
     @abstractmethod
     def register_event_handler(
@@ -104,7 +104,7 @@ class AgentInterface(ABC):
             event_type: Type of event to handle
             callback: Function to call when the event occurs
         """
-        raise RuntimeError("Agent implementations must define get_status()")
+        ...
 
     @abstractmethod
     def create_agent(self, agent_type: AgentType, config: Dict[str, Any]) -> str:
@@ -118,4 +118,4 @@ class AgentInterface(ABC):
         Returns:
             ID of the created agent
         """
-        raise RuntimeError("Agent implementations must define shutdown()")
+        ...

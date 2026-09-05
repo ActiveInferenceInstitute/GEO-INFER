@@ -8,7 +8,7 @@ and service planning capabilities.
 import logging
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
-from datetime import datetime, time
+from datetime import datetime
 from enum import Enum
 
 logger = logging.getLogger(__name__)
@@ -182,6 +182,7 @@ class TransitOptimizer:
         
         total_population = sum(z.get("population", 0) for z in population_zones)
         covered_population = 0
+        zone_covered_flags: List[bool] = []
         covered_zones = []
         uncovered_zones = []
         
@@ -210,6 +211,7 @@ class TransitOptimizer:
                 if distance_m <= walk_radius_m:
                     is_covered = True
                     break
+            zone_covered_flags.append(is_covered)
             
             if is_covered:
                 covered_population += zone_pop
@@ -231,12 +233,36 @@ class TransitOptimizer:
         }
         
         if equity_focus:
-            # Analyze coverage by demographic groups
-            coverage["equity_analysis"] = {
-                "low_income_coverage": 0.75,  # Baseline
-                "minority_coverage": 0.72,
-                "elderly_coverage": 0.80
-            }
+            # Per-group coverage computed from zone demographics. Zones carry
+            # either a "demographics" mapping (group -> population share) or a
+            # single "demographic_group" name. Without demographic data no
+            # equity_analysis is reported.
+            group_total: Dict[str, float] = {}
+            group_covered: Dict[str, float] = {}
+            for zone, is_covered in zip(population_zones, zone_covered_flags):
+                zone_pop = zone.get("population", 0)
+                demographics = zone.get("demographics")
+                if isinstance(demographics, dict):
+                    shares: Dict[str, float] = demographics
+                elif zone.get("demographic_group"):
+                    shares = {zone["demographic_group"]: 1.0}
+                else:
+                    continue
+                for group, share in shares.items():
+                    pop = zone_pop * float(share)
+                    group_total[group] = group_total.get(group, 0.0) + pop
+                    if is_covered:
+                        group_covered[group] = group_covered.get(group, 0.0) + pop
+            if group_total:
+                coverage["equity_analysis"] = {
+                    "group_coverage": {
+                        group: round(group_covered.get(group, 0.0) / total, 4)
+                        for group, total in group_total.items()
+                    },
+                    "group_population": {
+                        group: round(total, 1) for group, total in group_total.items()
+                    },
+                }
         
         logger.info(f"Coverage analysis: {coverage['coverage_rate']:.1%} population covered")
         return coverage
@@ -341,24 +367,36 @@ class TransitOptimizer:
             "recommendation": ""
         }
         
+        per_change_impacts: List[Dict[str, Any]] = []
         for change in proposed_changes:
             change_type = change.get("type")
-            
+            change_impact: Dict[str, Any] = {"type": change_type}
+
             if change_type == "add_route":
-                impacts["ridership_change"] = change.get("expected_ridership", 1000)
-                impacts["cost_annual"] = 500000
-                impacts["coverage_change_pct"] = 2.5
-                
+                change_impact["ridership_change"] = change.get("expected_ridership", 1000)
+                change_impact["cost_annual"] = 500000
+                change_impact["coverage_change_pct"] = 2.5
             elif change_type == "increase_frequency":
-                impacts["ridership_change"] = 500
-                impacts["cost_annual"] = 100000
-                impacts["coverage_change_pct"] = 0
-                
+                change_impact["ridership_change"] = 500
+                change_impact["cost_annual"] = 100000
+                change_impact["coverage_change_pct"] = 0
             elif change_type == "extend_route":
-                impacts["ridership_change"] = 300
-                impacts["cost_annual"] = 200000
-                impacts["coverage_change_pct"] = 1.5
-        
+                change_impact["ridership_change"] = 300
+                change_impact["cost_annual"] = 200000
+                change_impact["coverage_change_pct"] = 1.5
+            else:
+                logger.warning("Unknown scenario change type: %r", change_type)
+                continue
+
+            per_change_impacts.append(change_impact)
+
+        # Aggregate impacts across ALL changes (not just the last one)
+        impacts["changes"] = per_change_impacts
+        impacts["ridership_change"] = sum(c["ridership_change"] for c in per_change_impacts)
+        impacts["cost_annual"] = sum(c["cost_annual"] for c in per_change_impacts)
+        impacts["coverage_change_pct"] = round(
+            sum(c["coverage_change_pct"] for c in per_change_impacts), 4
+        )
         # Calculate benefit-cost ratio
         if impacts.get("cost_annual", 0) > 0:
             ridership_value = impacts.get("ridership_change", 0) * 3 * 365  # $3/ride

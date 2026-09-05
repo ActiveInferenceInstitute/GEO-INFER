@@ -8,7 +8,7 @@ and progress visualization for educational systems.
 import hashlib
 import json
 import logging
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
@@ -23,6 +23,16 @@ class CompetencyLevel(Enum):
     DEVELOPING = "developing"
     PROFICIENT = "proficient"
     EXEMPLARY = "exemplary"
+
+
+_COMPETENCY_LEVEL_ORDER: Dict[CompetencyLevel, int] = {
+    CompetencyLevel.NOT_STARTED: 0,
+    CompetencyLevel.EMERGING: 1,
+    CompetencyLevel.DEVELOPING: 2,
+    CompetencyLevel.PROFICIENT: 3,
+    CompetencyLevel.EXEMPLARY: 4,
+}
+"""Ordinal ranking of competency levels; string values must never be compared lexicographically."""
 
 
 @dataclass
@@ -214,7 +224,7 @@ class ProgressTracker:
         if competency_id in progress.competencies:
             record = progress.competencies[competency_id]
             # Update only if new level is higher or same with higher confidence
-            if level.value >= record.level.value:
+            if _COMPETENCY_LEVEL_ORDER[level] >= _COMPETENCY_LEVEL_ORDER[record.level]:
                 record.level = level
                 record.last_assessed = datetime.now()
                 record.confidence = min(1.0, record.confidence + 0.1)
@@ -270,13 +280,8 @@ class ProgressTracker:
         
         # Collect competency data
         level_values = {
-            CompetencyLevel.NOT_STARTED: 0,
-            CompetencyLevel.EMERGING: 25,
-            CompetencyLevel.DEVELOPING: 50,
-            CompetencyLevel.PROFICIENT: 75,
-            CompetencyLevel.EXEMPLARY: 100
+            level: 25 * rank for level, rank in _COMPETENCY_LEVEL_ORDER.items()
         }
-        
         for comp_id in target_competencies:
             if comp_id in progress.competencies:
                 record = progress.competencies[comp_id]
@@ -367,7 +372,7 @@ class ProgressTracker:
                 progress.last_activity_date.isoformat() if progress.last_activity_date else None
             ),
             "competencies": {
-                name: {"level": record.level, "confidence": record.confidence}
+                name: {"level": record.level.value, "confidence": record.confidence}
                 for name, record in progress.competencies.items()
             },
         }

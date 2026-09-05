@@ -15,10 +15,10 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 SCHEMA = "crescent-city-geo-intel/v1"
 PRODUCER_CONTRACT = "docxology/crescent-city-intel/pages-data/geo-intel.json"
 SEED_PATHS = {
+    # Canonical packaged copy (post-consolidation single source; the former
+    # RISK duplicate was removed and is pinned by object identity below).
     "BAYES": REPO_ROOT
     / "GEO-INFER-BAYES/src/geo_infer_bayes/crescent-city-geo-intel.json",
-    "RISK": REPO_ROOT
-    / "GEO-INFER-RISK/src/geo_infer_risk/crescent-city-geo-intel.json",
     "PLACE": REPO_ROOT
     / (
         "GEO-INFER-PLACE/src/geo_infer_place/locations/del_norte_county/"
@@ -220,4 +220,26 @@ def test_bundled_seeds_share_canonical_hazard_domain_ids() -> None:
     assert actual_ids == EXPECTED_HAZARD_DOMAIN_IDS, _drift_message(
         "Bundled seed hazard domain IDs no longer match the canonical v1 surface: "
         f"expected {sorted(EXPECTED_HAZARD_DOMAIN_IDS)!r}, got {sorted(actual_ids)!r}."
+    )
+
+
+def test_consumer_modules_resolve_canonical_schema_objects() -> None:
+    """RISK/ACT pin the canonical schema via identity, not bundled copies."""
+    import geo_infer_act.core.civic_intel as act_civic
+    import geo_infer_bayes.civic_intel as bayes_civic
+    import geo_infer_risk.civic_intel as risk_civic
+
+    assert bayes_civic.CRESCENT_CITY_INTEL_SCHEMA == SCHEMA
+    assert act_civic.CRESCENT_CITY_INTEL_SCHEMA is (
+        bayes_civic.CRESCENT_CITY_INTEL_SCHEMA
+    )
+    assert act_civic.SUPPORTED_SCHEMA is bayes_civic.CRESCENT_CITY_INTEL_SCHEMA
+    assert risk_civic.CRESCENT_CITY_GEO_INTEL_SCHEMA is (
+        bayes_civic.CRESCENT_CITY_INTEL_SCHEMA
+    )
+    assert risk_civic.load_crescent_city_contract is (
+        bayes_civic.load_crescent_city_contract
+    )
+    assert act_civic.load_crescent_city_contract is (
+        bayes_civic.load_crescent_city_contract
     )

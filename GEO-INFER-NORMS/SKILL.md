@@ -69,8 +69,23 @@ print(f"Overall compliance: {status.compliance_level:.1%}")
 - Content influence uses Jaccard similarity (real implementation)
 - Compliance evaluation handles threshold/range/boolean types correctly
 
+### API Layer
+
+The `geo_infer_norms.api` package exposes five importable FastAPI routers
+(compliance, legal, normative, policy, zoning). The module ships no app
+assembly; mount the routers into your own FastAPI application:
+
+```python
+from fastapi import FastAPI
+
+from geo_infer_norms.api import ComplianceAPI, LegalAPI, NormativeAPI, PolicyAPI, ZoningAPI
+
+app = FastAPI()
+for api_cls in (ComplianceAPI, LegalAPI, NormativeAPI, PolicyAPI, ZoningAPI):
+    app.include_router(api_cls().router)
+```
+
 ### Integrations
 
-- Integrates with METAGOV for governance compliance monitoring
-- Integrates with REQ for requirements compliance tracking
+- None: this module has no runtime imports of other GEO-INFER modules.
 - Test: `uv run python -m pytest GEO-INFER-NORMS/tests/ -v`

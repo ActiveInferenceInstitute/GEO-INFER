@@ -23,11 +23,11 @@ This roadmap addresses inconsistencies identified in the repository assessment a
 ```
 txt # Core dependencies numpy>=1.20.0 pandas>=1.3.0 # Module-specific dependencies # Add module-specific dependencies here # Development dependencies (optional) pytest>=6.0.0 pytest-cov>=2.12.0
 ```
- **Success Criteria**: All 36 modules have requirements.txt --- ### P0.2: Add setup.py to Modules Missing It **Status**: ❌ Critical **Impact**: High - Required for package installation **Effort**: Medium - Template-based **Modules Affected**: 13 **Modules Missing setup.py/pyproject.toml**: - AG, AI, APP, CIV, COG, COMMS, ECON, LOG, ORG, REQ, RISK, SIM, TIME **Action Plan**: 1. Create standardized setup.py template 2. Extract metadata from README.md YAML front matter 3. Add setup.py to all 13 modules 4. Validate with `uv pip install -e .` **Template** (setup.py): ```
+ **Success Criteria**: All 36 modules have requirements.txt --- ### P0.2: Add setup.py to Modules Missing It **Status**: ❌ Critical **Impact**: High - Required for package installation **Effort**: Medium - Template-based **Modules Affected**: 13 **Modules Missing setup.py/pyproject.toml**: - AG, AI, APP, CIV, COG, COMMS, ECON, LOG, ORG, REQ, RISK, SIM, TIME **Action Plan**: 1. Create standardized setup.py template 2. Extract metadata from README.md YAML front matter 3. Add setup.py to all 13 modules 4. Validate with `uv pip install -e .` **Template** (setup.py):
+```
 python from setuptools import setup, find_packages setup( name="geo-infer-module", version="0.1.0", description="Module description from README", author="GEO-INFER Team", packages=find_packages(where="src"), package_dir={"": "src"}, install_requires=[ # Core dependencies from requirements.txt ], python_requires=">=3.9", )
 ```
  **Success Criteria**: All 36 modules have setup.py or pyproject.toml --- ## Phase 2: High Priority Fixes (Short-term - 1 month) ### P1.1: README Sections **Status**: ⚠️ High Priority **Impact**: High - Documentation completeness **Effort**: Medium - Template-based **Modules Affected**: 24 **Modules Missing Required Sections**: - ACT, AG, AGENT, AI, ANT, API, APP, ART, BAYES, BIO, DATA, EXAMPLES, INTRA, MATH, METAGOV, NORMS, OPS, ORG, PLACE, REQ, SIM, SPACE, TEST, TIME **Required Sections**: 1. Overview 2. Core Features 3. API Reference 4. Integration **Action Plan**: 1. Use compliant modules as templates (GIT, HEALTH, SEC, SPM) 2. Extract existing content into structured sections 3. Add missing sections to all 24 modules 4. Verify cross-references **Template Structure**:
-```
 ```markdown
  ## Overview Brief description of module purpose and capabilities. ## Core Features ### Feature 1 Description and usage example. ### Feature 2 Description and usage example. ## API Reference ### MainClass
 ```
@@ -35,7 +35,6 @@ python from setuptools import setup, find_packages setup( name="geo-infer-module
  class MainClass: """Class description."""
 ```
  ## Integration ### Integration with Other Modules Describe how this module integrates with others.
-```
  **Success Criteria**: All 36 modules have all required sections --- ### P1.2: Add Basic Tests to Modules Without Tests **Status**: ⚠️ High Priority **Impact**: High - Quality assurance **Effort**: Medium - Start with structure tests **Modules Affected**: 11 **Modules Without Tests**: - AI, CIV, COG, COMMS, LOG, ORG, REQ, RISK, SIM, TIME **Action Plan**: 1. Create basic structure tests (imports, module loading) 2. Add basic functionality tests 3. Add integration test placeholders 4. Ensure test discovery works **Test Template**:
 ```
 python """Basic tests for GEO-INFER-MODULE.""" import pytest import sys from pathlib import Path # Add src to path sys.path.insert(0, str(Path(__file__).parent.parent / "src")) def test_module_import(): """Test that module can be imported.""" try: import geo_infer_module assert geo_infer_module is not None except ImportError as e: pytest.skip(f"Module not yet implemented: {e}") def test_module_structure(): """Test that module has expected structure.""" from geo_infer_module import __version__ assert __version__ is not None

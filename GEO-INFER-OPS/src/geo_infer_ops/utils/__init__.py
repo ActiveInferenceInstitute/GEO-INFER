@@ -15,6 +15,11 @@ from .shared_logging import (
     setup_module_logging,
     LOG_LEVELS,
 )
+
+# Documented alias: cross-module callers historically imported
+# ``configure_shared_logging``; it is the same app-level logging entry as
+# ``configure_logging``.
+configure_shared_logging = configure_logging
 from .config import load_config, find_config_file
 from .error_handling import (
     ErrorSeverity,

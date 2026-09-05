@@ -950,7 +950,13 @@ class H3Backend:
             try:
                 neighbors = list(self.h3.grid_disk(cell, distance_threshold))
                 return [n for n in neighbors if n in cell_set and n != cell]
-            except Exception:
+            except (ValueError, self.h3.H3BaseException) as e:
+                # h3-py 4.x raises ValueError for malformed indices and
+                # H3BaseException subclasses for library errors (no CellError).
+                logger.warning(
+                    f"grid_disk failed for cell {cell}; cluster expansion may "
+                    f"degrade around it: {e}"
+                )
                 return []
 
         def expand_cluster(cell: str, neighbors: List[str], cluster: List[str]) -> None:
@@ -1670,7 +1676,10 @@ class H3Backend:
 
         try:
             return list(self.h3.grid_path_cells(start_cell, end_cell))
-        except Exception:
+        except (ValueError, self.h3.H3BaseException) as e:
+            logger.warning(
+                f"grid_path_cells failed for {start_cell} -> {end_cell}: {e}"
+            )
             # Keep endpoint cells when H3 cannot construct a continuous path.
             return [start_cell, end_cell]
 

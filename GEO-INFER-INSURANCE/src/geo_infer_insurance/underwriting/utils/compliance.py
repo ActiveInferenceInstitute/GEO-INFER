@@ -116,7 +116,7 @@ class ComplianceEngine:
             framework: Primary compliance framework
         """
         self.framework = framework
-        self.logger = logging.getLogger("geo_infer_risk.underwriting.compliance")
+        self.logger = logging.getLogger("geo_infer_insurance.underwriting.compliance")
 
         # Regulatory requirements
         self.requirements: Dict[str, RegulatoryRequirement] = {}
@@ -459,7 +459,7 @@ class RegulatoryFramework:
 
     def __init__(self) -> None:
         """Initialize regulatory framework manager."""
-        self.logger = logging.getLogger("geo_infer_risk.underwriting.regulatory_framework")
+        self.logger = logging.getLogger("geo_infer_insurance.underwriting.regulatory_framework")
 
         # Framework definitions
         self.frameworks = {

@@ -11,9 +11,8 @@ the bridge still works with reduced functionality and logs a warning.
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +26,7 @@ _HAS_TIME = False
 try:
     from geo_infer_data import (
         DataQualityManager,
-        DataQualityReport,
+        DataQualityReport as DataQualityReport,
         MultiSourceDataIngestion,
     )
     _HAS_DATA = True

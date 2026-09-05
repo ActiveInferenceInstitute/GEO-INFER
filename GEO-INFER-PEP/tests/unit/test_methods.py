@@ -33,75 +33,88 @@ def _make_candidate(candidate_id="cand123_workflow", status="offer_accepted"):
     return candidate
 
 
-def test_process_employee_onboarding_workflow_success(capsys):
+def test_process_employee_onboarding_workflow_success(caplog):
     """Test the successful run of the onboarding workflow using real candidate DB."""
     clear_all_data()
     candidate = _make_candidate("cand123_workflow")
     methods_module._candidates_db.append(candidate)
 
     employee_data = {"candidate_id": "cand123_workflow"}
-    result = process_employee_onboarding_workflow(employee_data)
+    with caplog.at_level("INFO", logger="geo_infer_pep.methods"):
+        result = process_employee_onboarding_workflow(employee_data)
     assert result is True
+    assert any(
+        "Starting onboarding workflow for candidate cand123_workflow" in r.getMessage()
+        for r in caplog.records
+    )
+    assert any(
+        "Onboarding workflow for New Hire" in r.getMessage() for r in caplog.records
+    )
 
-    captured = capsys.readouterr()
-    assert "Starting onboarding workflow for candidate cand123_workflow" in captured.out
-    assert "Onboarding workflow for New Hire" in captured.out
 
-
-def test_process_employee_onboarding_workflow_candidate_not_found(capsys):
+def test_process_employee_onboarding_workflow_candidate_not_found(caplog):
     """Test failure when candidate is not in the DB."""
     clear_all_data()  # Ensure DB is empty
 
     employee_data = {"candidate_id": "cand_ghost"}
-    result = process_employee_onboarding_workflow(employee_data)
+    with caplog.at_level("ERROR", logger="geo_infer_pep.methods"):
+        result = process_employee_onboarding_workflow(employee_data)
     assert result is False
+    assert any(
+        "Candidate cand_ghost not found." in r.getMessage() for r in caplog.records
+    )
 
-    captured = capsys.readouterr()
-    assert "Onboarding Aborted: Candidate cand_ghost not found." in captured.out
 
-
-def test_generate_quarterly_people_report_success(capsys):
+def test_generate_quarterly_people_report_success(caplog):
     """Test successful generation of the quarterly report."""
     quarter = "Q1"
     year = 2025
     clear_all_data()
 
-    report_path = generate_quarterly_people_report(quarter, year)
+    with caplog.at_level("INFO", logger="geo_infer_pep.methods"):
+        report_path = generate_quarterly_people_report(quarter, year)
 
     assert report_path.endswith(".json")
 
-    captured = capsys.readouterr()
-    assert f"Generating quarterly people report for {quarter} {year}..." in captured.out
-    assert "QQ1" not in captured.out
-    assert "Quarterly people report generated" in captured.out
+    messages = [r.getMessage() for r in caplog.records]
+    assert any(
+        f"Generating quarterly people report for {quarter} {year}..." in m
+        for m in messages
+    )
+    assert not any("QQ1" in m for m in messages)
+    assert any("Quarterly people report generated" in m for m in messages)
 
 
-def test_generate_quarterly_report_no_data(capsys):
+def test_generate_quarterly_report_no_data(caplog):
     """Test report generation with no data."""
     quarter = "Q2"
     year = 2025
     clear_all_data()
 
-    report_path = generate_quarterly_people_report(quarter, year)
+    with caplog.at_level("INFO", logger="geo_infer_pep.methods"):
+        report_path = generate_quarterly_people_report(quarter, year)
 
     assert report_path.endswith(".json")
+    assert any(
+        f"Generating quarterly people report for {quarter} {year}..." in r.getMessage()
+        for r in caplog.records
+    )
 
-    captured = capsys.readouterr()
-    assert f"Generating quarterly people report for {quarter} {year}..." in captured.out
 
-
-def test_generate_quarterly_report_normalizes_numeric_quarter(capsys):
+def test_generate_quarterly_report_normalizes_numeric_quarter(caplog):
     """Test report generation normalizes numeric quarter input."""
     quarter = "3"
     year = 2025
     clear_all_data()
 
-    report_path = generate_quarterly_people_report(quarter, year)
+    with caplog.at_level("INFO", logger="geo_infer_pep.methods"):
+        report_path = generate_quarterly_people_report(quarter, year)
 
     assert report_path.endswith(".json")
 
-    captured = capsys.readouterr()
-    assert (
-        f"Generating quarterly people report for Q{quarter} {year}..." in captured.out
+    messages = [r.getMessage() for r in caplog.records]
+    assert any(
+        f"Generating quarterly people report for Q{quarter} {year}..." in m
+        for m in messages
     )
-    assert "QQ3" not in captured.out
+    assert not any("QQ3" in m for m in messages)

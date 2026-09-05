@@ -11,12 +11,11 @@ configuration files, repository data, and user inputs.
 import os
 import re
 import json
-from typing import Dict, Any, List, Optional, Union, Tuple
+from typing import Dict, Any, List, Optional, Tuple
 from pathlib import Path
 import jsonschema
 from urllib.parse import urlparse
 
-from ..utils.error_handler import ValidationError, ErrorCategory, ErrorSeverity
 
 class ConfigValidator:
     """

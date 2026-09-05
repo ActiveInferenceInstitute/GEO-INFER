@@ -2,15 +2,23 @@
 """
 Disease Surveillance Pipeline - GEO-INFER Health Integration Example
 
-This example demonstrates a comprehensive 8-module integration for disease surveillance:
-DATA → SPACE → TIME → HEALTH → AI → RISK → API → APP
+IMPORTANT — scope of this example: this is a SELF-CONTAINED SYNTHETIC
+SIMULATION, not a live integration of GEO-INFER modules. It imports no
+geo_infer_* packages; every stage below (data ingestion, spatial clustering,
+temporal analysis, disease and risk assessment) is implemented locally with
+NumPy on seeded synthetic data. The stage names (DATA → SPACE → TIME → HEALTH
+→ AI → RISK → API → APP) describe the pipeline *shape* that a real
+cross-module deployment would follow.
+
+For a genuine cross-module example that drives real public APIs from
+geo_infer_space, geo_infer_time and geo_infer_math, see
+examples/getting_started/basic_integration_demo.
 
 Learning Objectives:
-1. Multi-module integration patterns
-2. Health data processing workflows
-3. Spatial-temporal disease tracking
-4. Risk assessment and prediction
-5. Real-world application development
+1. Multi-stage pipeline structure for surveillance workflows
+2. Synthetic health data generation and processing
+3. Spatial-temporal outbreak-style pattern simulation
+4. Deterministic, offline-runnable example design
 """
 
 import sys
@@ -32,7 +40,7 @@ class DiseaseSurveillancePipeline:
         self.results = {}
     
     def run_pipeline(self):
-        """Execute the complete 8-module disease surveillance pipeline."""
+        """Execute the full synthetic disease surveillance pipeline."""
         self.logger.info("🏥 Starting Disease Surveillance Pipeline")
         self.logger.info("Pipeline: DATA → SPACE → TIME → HEALTH → AI → RISK → API → APP")
         
@@ -571,7 +579,7 @@ class DiseaseSurveillancePipeline:
 def main():
     """Main function to run the disease surveillance pipeline."""
     print("🏥 GEO-INFER Disease Surveillance Pipeline")
-    print("Comprehensive 8-Module Integration: DATA → SPACE → TIME → HEALTH → AI → RISK → API → APP")
+    print("Self-contained synthetic simulation (stage shape: DATA → SPACE → TIME → HEALTH → AI → RISK → API → APP; no geo_infer_* imports)")
     print("="*90)
     
     try:

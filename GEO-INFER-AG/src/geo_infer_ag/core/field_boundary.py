@@ -9,7 +9,11 @@ import pandas as pd
 from shapely.geometry import Polygon, MultiPolygon
 import rasterio
 from rasterio.features import shapes
+from pyproj import CRS
 
+# WGS 84 / Equal Area (EPSG:6933): true equal-area projection for computing
+# field areas in hectares without the scale distortion of Web Mercator.
+EQUAL_AREA_CRS = CRS.from_epsg(6933)
 
 class FieldBoundaryManager:
     """
@@ -232,9 +236,26 @@ class FieldBoundaryManager:
         if field is None:
             raise ValueError(f"Field with ID {field_id} not found")
 
-        # Create a buffer around the field
-        field_geom = field.geometry
-        buffer_geom = field_geom.buffer(buffer_distance)
+        # Interpret buffer_distance as meters: buffer in a local metric CRS
+        # (UTM) when the fields are stored in a geographic CRS. Buffering a
+        # geographic geometry would treat the distance as degrees (~111 km/m).
+        metric_crs = (
+            self.fields.estimate_utm_crs()
+            if self.fields.crs is not None and self.fields.crs.is_geographic
+            else None
+        )
+        if metric_crs is not None:
+            metric_fields = self.fields.to_crs(metric_crs)
+            metric_field = metric_fields[metric_fields["field_id"] == field_id]
+            buffer_geom = metric_field.geometry.iloc[0].buffer(buffer_distance)
+            mask = (metric_fields["field_id"] != field_id) & metric_fields.geometry.intersects(
+                buffer_geom
+            )
+            # Return neighbors in the manager's original CRS
+            return self.fields.loc[metric_fields.index[mask]].copy()
+
+        # Projected (metric) CRS: buffer distance is in CRS units
+        buffer_geom = field.geometry.buffer(buffer_distance)
 
         # Find fields that intersect with the buffer (excluding the original field)
         neighbors = self.fields[
@@ -286,14 +307,16 @@ class FieldBoundaryManager:
                 # Convert to GeoDataFrame
                 gdf = gpd.GeoDataFrame.from_features(list(results), crs=src.crs)
 
-                # Convert area units and filter by minimum area
+                # Convert area units and filter by minimum area, computed in a
+                # true equal-area projection (EPSG:6933) so hectares are not
+                # distorted by Web Mercator scale error.
                 area_factor = 0.0001  # Convert m² to hectares
-                metric_gdf = (
-                    gdf.to_crs("EPSG:3857")
-                    if gdf.crs and gdf.crs.is_geographic
+                equal_area_gdf = (
+                    gdf.to_crs(EQUAL_AREA_CRS)
+                    if gdf.crs is not None
                     else gdf
                 )
-                gdf["area_ha"] = metric_gdf.geometry.area * area_factor
+                gdf["area_ha"] = equal_area_gdf.geometry.area * area_factor
                 gdf = gdf[gdf["area_ha"] >= min_area]
 
                 # Simplify geometries if tolerance is provided
@@ -341,12 +364,14 @@ class FieldBoundaryManager:
 
     def _calculate_areas(self) -> None:
         """Calculate area in hectares for all fields."""
-        # Create a copy in equal-area projection for accurate area calculation
-        if self.fields.crs and self.fields.crs != "EPSG:3857":
-            area_gdf = self.fields.to_crs("EPSG:3857")
+        # Compute areas in a true equal-area projection (EPSG:6933). Web
+        # Mercator inflates areas by 1/cos(latitude), so hectares computed
+        # there are wrong away from the equator.
+        if self.fields.crs is not None:
+            area_gdf = self.fields.to_crs(EQUAL_AREA_CRS)
             areas = area_gdf.geometry.area / 10000  # Convert m² to hectares
         else:
-            # If already in an equal-area projection
+            # No CRS set: interpret coordinates as planar meters
             areas = self.fields.geometry.area / 10000
 
         self.fields["area_ha"] = areas.values

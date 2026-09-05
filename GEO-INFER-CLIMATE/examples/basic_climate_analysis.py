@@ -21,8 +21,8 @@ def create_sample_climate_data():
     lon = np.linspace(-120, -100, 10)
     
     # Create realistic temperature and precipitation patterns
-    temperature = 20 + 10 * np.sin(2 * np.pi * np.arange(365) / 365) + np.random.randn(365, 10, 10) * 2
-    precipitation = np.maximum(0, 2 + np.sin(2 * np.pi * np.arange(365) / 365) + np.random.randn(365, 10, 10) * 0.5)
+    temperature = 20 + 10 * np.sin(2 * np.pi * np.arange(365) / 365)[:, None, None] + np.random.randn(365, 10, 10) * 2
+    precipitation = np.maximum(0, 2 + np.sin(2 * np.pi * np.arange(365) / 365)[:, None, None] + np.random.randn(365, 10, 10) * 0.5)
     
     dataset = xr.Dataset({
         'temperature': (['time', 'lat', 'lon'], temperature),
@@ -64,7 +64,7 @@ def main():
     print("\n5. Detecting heatwaves...")
     temp_point = dataset['temperature'].isel(lat=5, lon=5)
     heatwaves = extreme_analyzer.detect_heatwaves(temp_point, threshold_percentile=90.0, min_duration=3)
-    print(f"   Heatwave events detected: {heatwaves['events'].sum().values}")
+    print(f"   Heatwave events detected: {heatwaves['events_detected']}")
     
     # Calculate extreme indices
     print("\n6. Calculating extreme climate indices...")

@@ -13,11 +13,9 @@ if SRAI is not installed.
 
 import logging
 from functools import wraps
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union, cast
+from typing import Any, Callable, Dict, List, Tuple, TypeVar, cast
 
 from ...core.interfaces import (
-    IndexingBackendProtocol,
-    AnalyticsBackendProtocol,
     SRAIUnavailableError,
 )
 
@@ -135,7 +133,7 @@ class SraiBackend:
         if self._available:
             try:
                 from srai.regionalizers import (  # type: ignore[import-not-found]
-                    H3Regionalizer,
+                    H3Regionalizer as H3Regionalizer,
                 )
                 capabilities['regionalizers_available'] = True
             except ImportError:
@@ -143,7 +141,7 @@ class SraiBackend:
             
             try:
                 from srai.embedders import (  # type: ignore[import-not-found]
-                    CountEmbedder,
+                    CountEmbedder as CountEmbedder,
                 )
                 capabilities['embedders_available'] = True
             except ImportError:
@@ -174,7 +172,6 @@ class SraiBackend:
         logger.debug(f"Converting ({lat}, {lng}) to cell at resolution {resolution}")
         
         if self.default_regionalizer == 'h3':
-            from srai.regionalizers import H3Regionalizer
             # SRAI uses H3 under the hood for H3 regionalizer
             import h3
             cell = h3.latlng_to_cell(lat, lng, resolution)

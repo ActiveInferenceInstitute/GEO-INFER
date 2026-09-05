@@ -36,7 +36,6 @@ The generated `tests/README.md` records the current inventory.
 
 From the repository root:
 
-```
 ```bash
 uv sync --all-packages --all-extras
 uv run python -c "import sys; print(sys.executable)"
@@ -49,7 +48,6 @@ loading a system interpreter or a conflicting H3/pymdp installation.
 
 Run the smallest useful check first:
 
-```
 ```bash
 uv run python -m pytest GEO-INFER-ACT/tests/unit/test_h3_active_inference.py -q
 uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
@@ -57,14 +55,12 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
 
 For direct pytest use, retain the repository configuration and strict warnings:
 
-```
 ```bash
 uv run python -m pytest -c pyproject.toml -W error GEO-INFER-SPACE/tests/unit -q
 ```
 
 ## Canonical repository gates
 
-```
 ```bash
 # generated docs and structural contracts
 uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check
@@ -158,7 +154,6 @@ probabilities, stochastic matrices, model contracts, seed replay, visualization
 manifests, local filesystem boundaries, and local HTTP/SQLite/service fixtures.
 Prefer these helpers when they make the invariant clearer.
 
-```
 ```python
 from geo_infer_test import assert_probability, assert_seed_replay
 

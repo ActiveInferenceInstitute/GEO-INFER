@@ -1,7 +1,10 @@
 """HR Reporting functions."""
+import logging
 from typing import List, Dict, Any, Optional
 from ..models.hr_models import Employee, EmploymentStatus
 from ..hr.transformer import convert_employees_to_dataframe
+
+logger = logging.getLogger(__name__)
 
 def generate_headcount_report(
     employees: List[Employee], group_by: Optional[List[str]] = None
@@ -28,7 +31,7 @@ def generate_headcount_report(
             else:
                 report[f'headcount_by_{field}'] = f"Field '{field}' not found for grouping."
     
-    print("Generated headcount report.")
+    logger.info("Generated headcount report.")
     return report
 
 def generate_diversity_report(
@@ -64,7 +67,7 @@ def generate_diversity_report(
         else:
             report[f'diversity_by_{field}'] = f"Field '{field}' not found for diversity metrics."
             
-    print("Generated diversity report.")
+    logger.info("Generated diversity report.")
     return report
 
 def get_quarterly_metrics(
@@ -81,7 +84,7 @@ def get_quarterly_metrics(
     Returns:
         Dictionary containing calculated HR metrics
     """
-    print(f"Calculating HR quarterly metrics for {quarter} {year}")
+    logger.info(f"Calculating HR quarterly metrics for {quarter} {year}")
 
     if not employees:
         return {
@@ -158,7 +161,7 @@ def get_quarterly_metrics(
         "data_source": f"Calculated from {len(employees)} employee records"
     }
 
-    print(f"Successfully calculated HR metrics for {quarter} {year}")
+    logger.info(f"Successfully calculated HR metrics for {quarter} {year}")
     return metrics
 
 # Add more HR-specific reporting functions here, e.g.:

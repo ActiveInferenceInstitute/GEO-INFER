@@ -3,7 +3,6 @@ Data validation utilities for GEO-INFER-BIO.
 """
 from typing import Dict, List, Union, Optional
 import pandas as pd
-import numpy as np
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Align import MultipleSeqAlignment
@@ -16,6 +15,7 @@ class DataValidator:
     def __init__(self) -> None:
         """Initialize the DataValidator."""
         self.valid_nucleotides = set("ATCG")
+        self.valid_rna_nucleotides = set("AUCG")
         self.valid_amino_acids = set("ACDEFGHIKLMNPQRSTVWY")
         self.valid_coordinates = {
             "latitude": (-90, 90),
@@ -30,7 +30,9 @@ class DataValidator:
 
         Args:
             sequence: The sequence to validate
-            sequence_type: Type of sequence ("DNA", "RNA", or "protein")
+            sequence_type: Type of sequence ("DNA", "RNA", or "protein").
+                DNA uses A/T/C/G, RNA uses A/U/C/G, protein uses the standard
+                one-letter amino-acid alphabet.
 
         Returns:
             bool: True if sequence is valid, False otherwise
@@ -40,7 +42,7 @@ class DataValidator:
 
         valid_chars = {
             "DNA": self.valid_nucleotides,
-            "RNA": self.valid_nucleotides,
+            "RNA": self.valid_rna_nucleotides,
             "protein": self.valid_amino_acids,
         }
 

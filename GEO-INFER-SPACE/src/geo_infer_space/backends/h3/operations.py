@@ -696,6 +696,9 @@ def cell_area(h3_index: str, unit: str = "km^2") -> float:
     """
     Calculate the area of an H3 cell.
 
+    Delegates to :func:`geo_infer_space.utils.h3_utils.cell_area` — the
+    canonical implementation.
+
     Args:
         h3_index: H3 cell index
         unit: Area unit ('km^2', 'm^2', 'rads^2')
@@ -707,14 +710,9 @@ def cell_area(h3_index: str, unit: str = "km^2") -> float:
         >>> area = cell_area('89283082e3fffff', 'km^2')
         >>> print(f"Cell area: {area:.6f} km²")
     """
-    if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
+    from ...utils.h3_utils import cell_area as _canonical_cell_area
 
-    try:
-        return cast(float, h3.cell_area(h3_index, unit=unit))
-    except Exception as e:
-        logger.error(f"Failed to calculate area for {h3_index}: {e}")
-        raise
+    return _canonical_cell_area(h3_index, unit)
 
 
 def cells_area(h3_indices: Set[str], unit: str = "km^2") -> float:

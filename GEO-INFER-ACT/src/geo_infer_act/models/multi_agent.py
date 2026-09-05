@@ -6,7 +6,7 @@ from typing import Dict, Any, List, Optional, Tuple, Callable
 import numpy as np
 import logging
 
-from geo_infer_act.models.base import ActiveInferenceModel, CategoricalModel
+from geo_infer_act.models.base import BaseActiveInferenceModel, CategoricalModel
 from geo_infer_act.utils.h3_adapter import (
     get_h3_adapter,
     get_nested_h3_grid_class,
@@ -16,7 +16,7 @@ from geo_infer_act.utils.h3_adapter import (
 logger = logging.getLogger(__name__)
 
 
-class MultiAgentModel(ActiveInferenceModel):
+class MultiAgentModel(BaseActiveInferenceModel):
     """Multi-agent coordination using active inference and stigmergy."""
 
     def __init__(
@@ -791,8 +791,9 @@ class MultiAgentModel(ActiveInferenceModel):
             target_resolution: Optional coarser H3 resolution to aggregate to.
 
         Returns:
-            Dict with ``scores``, ``best_cells``, ``count_cells``,
-            ``mean_score``, ``resolution`` and ``uncertain_cell_fraction``.
+            Dict with ``scores``, ``best_cells``, ``best_score``,
+            ``count_cells``, ``mean_score``, ``resolution`` and
+            ``uncertain_cell_fraction``.
         """
         if not self.spatial_mode or not self.h3_cells:
             return {

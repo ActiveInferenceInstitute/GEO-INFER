@@ -1,7 +1,7 @@
 """Stakeholder governance coordination for multi-stakeholder systems."""
 
 from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 import logging
 
 logger = logging.getLogger(__name__)

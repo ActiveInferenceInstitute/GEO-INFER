@@ -34,11 +34,7 @@ class TestLogModule:
 
     def test_routing_import(self) -> None:
         """Test that routing module can be imported."""
-        try:
-            from geo_infer_log.core.routing import RouteOptimizer
-            assert RouteOptimizer is not None
-        except ImportError:
-            # The routing module must exist — a missing import is a loud
-            # failure, not a silent skip.
-            raise
+        from geo_infer_log.core.routing import RouteOptimizer
+
+        assert RouteOptimizer is not None
 

@@ -4,7 +4,7 @@ import pytest
 from geo_infer_iot.core.registry import (
     SensorRegistry,
     SensorMetadata,
-    SensorNetwork,
+    SensorNetworkRecord,
 )
 
 
@@ -43,9 +43,9 @@ class TestSensorMetadata:
         assert sensor.h3_resolution == 6
 
 
-class TestSensorNetwork:
+class TestSensorNetworkRecord:
     def test_create_network(self):
-        network = SensorNetwork(
+        network = SensorNetworkRecord(
             network_id="net-1",
             name="Test Network",
             protocol="mqtt",

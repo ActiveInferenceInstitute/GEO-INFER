@@ -103,7 +103,6 @@ def _gaussian_parameters(observations: np.ndarray, mean: Any, std: Any) -> Tuple
 
 def _crps_per_point(observations: np.ndarray, draws: np.ndarray) -> np.ndarray:
     """Exact empirical CRPS per observed point from sorted draws."""
-    n_obs = observations.size
     n_draws = draws.shape[0]
     ordered = np.sort(draws, axis=0)  # (n_draws, n_points)
     below = ordered < observations[None, :]

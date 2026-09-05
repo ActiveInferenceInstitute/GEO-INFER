@@ -1,5 +1,6 @@
 """HR Data Visualization functions."""
 
+import logging
 from typing import List, Optional
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -7,6 +8,8 @@ from pathlib import Path
 
 from ..models.hr_models import Employee, EmploymentStatus
 from ..hr.transformer import convert_employees_to_dataframe
+
+logger = logging.getLogger(__name__)
 
 # Ensure output directory exists from crm_visuals or define one
 # from .crm_visuals import DEFAULT_OUTPUT_DIR # Option 1: Reuse
@@ -22,14 +25,14 @@ def plot_headcount_by_department(
     Saves the plot and returns its path.
     """
     if not employees:
-        print("No employee data for headcount by department plot.")
+        logger.info("No employee data for headcount by department plot.")
         return None
 
     df = convert_employees_to_dataframe(employees)
     active_df = df[df["employment_status"] == EmploymentStatus.ACTIVE]
 
     if active_df.empty or "department" not in active_df.columns:
-        print("No active employee data or 'department' column missing.")
+        logger.info("No active employee data or 'department' column missing.")
         return None
 
     plt.figure(figsize=(12, 7))
@@ -49,11 +52,11 @@ def plot_headcount_by_department(
     file_path = output_dir / "headcount_by_department.png"
     try:
         plt.savefig(file_path)
-        print(f"Saved headcount by department plot to: {file_path}")
+        logger.info(f"Saved headcount by department plot to: {file_path}")
         plt.close()
         return str(file_path)
     except Exception as e:
-        print(f"Error saving plot: {e}")
+        logger.error(f"Error saving plot: {e}")
         plt.close()
         return None
 
@@ -66,19 +69,19 @@ def plot_gender_distribution(
     (Consider ethical implications and alternatives for diversity visualization).
     """
     if not employees:
-        print("No employee data for gender distribution plot.")
+        logger.info("No employee data for gender distribution plot.")
         return None
 
     df = convert_employees_to_dataframe(employees)
     active_df = df[df["employment_status"] == EmploymentStatus.ACTIVE]
 
     if active_df.empty or "gender" not in active_df.columns:
-        print("No active employee data or 'gender' column missing.")
+        logger.info("No active employee data or 'gender' column missing.")
         return None
 
     gender_counts = active_df["gender"].value_counts()
     if gender_counts.empty:
-        print("No gender data to plot.")
+        logger.info("No gender data to plot.")
         return None
 
     plt.figure(figsize=(8, 8))
@@ -95,11 +98,11 @@ def plot_gender_distribution(
     file_path = output_dir / "gender_distribution.png"
     try:
         plt.savefig(file_path)
-        print(f"Saved gender distribution plot to: {file_path}")
+        logger.info(f"Saved gender distribution plot to: {file_path}")
         plt.close()
         return str(file_path)
     except Exception as e:
-        print(f"Error saving plot: {e}")
+        logger.error(f"Error saving plot: {e}")
         plt.close()
         return None
 

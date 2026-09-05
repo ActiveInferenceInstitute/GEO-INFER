@@ -6,13 +6,12 @@ coordinating between multiple modules and handling multi-step processes.
 """
 
 from typing import Dict, List, Any, Optional, Callable
-from datetime import datetime, date
+from datetime import datetime
 import logging
 from enum import Enum
 
-from .pep_engine import PEPEngine, PEPDataManager
-from ..models.hr_models import Employee, EmploymentStatus
-from ..models.talent_models import Candidate, CandidateStatus
+from .pep_engine import PEPEngine
+from ..models.talent_models import CandidateStatus
 
 logger = logging.getLogger(__name__)
 

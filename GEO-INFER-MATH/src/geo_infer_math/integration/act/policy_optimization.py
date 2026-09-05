@@ -9,7 +9,7 @@ References:
 """
 
 import numpy as np
-from typing import Optional, Dict, Any, List, Tuple, cast
+from typing import Optional, Dict, Any, cast
 import logging
 
 logger = logging.getLogger(__name__)
@@ -125,7 +125,6 @@ class PolicyOptimization:
         G = ambiguity + risk
           = E_q[H[p(o|s)]] + D_KL[q(o) || p(o)]
         """
-        n_obs = A.shape[0]
         current = beliefs.copy()
 
         total_ambiguity = 0.0

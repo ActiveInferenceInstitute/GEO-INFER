@@ -3,31 +3,36 @@ Pytest fixtures for GEO-INFER-EMERGENCY tests.
 
 Provides hazard zone GeoDataFrames, shelter locations,
 emergency response configurations, and standard spatial fixtures.
+
+Geo-stack imports (numpy, geopandas, shapely) are performed lazily inside
+the fixtures that need them, so pure-logic tests run without the heavy
+optional geo dependencies.
 """
-import pytest
-import numpy as np
-import pandas as pd
-import geopandas as gpd
-from shapely.geometry import Point, Polygon
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from typing import Any, Dict, List, Tuple
+
+import pytest
 
 
 @pytest.fixture(scope="session")
 def sample_coordinates() -> List[Tuple[float, float]]:
     """Standard (lat, lng) coordinate pairs for spatial tests."""
     return [
-        (47.6062, -122.3321),
-        (37.7749, -122.4194),
-        (40.7128, -74.0060),
-        (51.5074, -0.1278),
-        (35.6762, 139.6503),
+        (47.6062, -122.3321),  # Seattle
+        (45.5152, -122.6784),  # Portland
+        (48.4284, -122.3321),  # Whidbey Island
+        (47.2529, -120.8398),  # Wenatchee
+        (46.9753, -120.5408),  # Ellensburg
     ]
 
 
 @pytest.fixture(scope="function")
-def sample_geodataframe() -> gpd.GeoDataFrame:
+def sample_geodataframe() -> "gpd.GeoDataFrame":
     """Standard GeoDataFrame with EPSG:4326 for spatial tests."""
+    import geopandas as gpd
+    import numpy as np
+    from shapely.geometry import Point
+
     return gpd.GeoDataFrame(
         {"id": range(5), "value": np.random.uniform(0, 100, 5)},
         geometry=[Point(-122.33 + i * 0.01, 47.61 + i * 0.01) for i in range(5)],
@@ -44,13 +49,16 @@ def tmp_output_dir(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def hazard_zone_gdf() -> gpd.GeoDataFrame:
+def hazard_zone_gdf() -> "gpd.GeoDataFrame":
     """GeoDataFrame with 3 hazard risk zones for emergency planning.
 
     Contains polygon geometries representing flood, earthquake, and
     wildfire risk zones with severity levels and affected population
     estimates in the Pacific Northwest.
     """
+    import geopandas as gpd
+    from shapely.geometry import Polygon
+
     zones = [
         Polygon([
             (-122.4, 47.5), (-122.3, 47.5),
@@ -80,12 +88,15 @@ def hazard_zone_gdf() -> gpd.GeoDataFrame:
 
 
 @pytest.fixture
-def shelter_locations_gdf() -> gpd.GeoDataFrame:
+def shelter_locations_gdf() -> "gpd.GeoDataFrame":
     """GeoDataFrame with 5 emergency shelter point locations.
 
     Contains shelter positions with capacity, type (school, community
     center, stadium), and current supply levels for evacuation planning.
     """
+    import geopandas as gpd
+    from shapely.geometry import Point
+
     return gpd.GeoDataFrame(
         {
             "shelter_id": [f"SHL_{i:03d}" for i in range(5)],

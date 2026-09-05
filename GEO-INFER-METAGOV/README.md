@@ -29,9 +29,7 @@ Advanced meta-governance frameworks, organizational governance methods, and mult
 
 ## Dependencies
 
-- `numpy>=1.20`
-- `pyyaml>=6.0`
-- `typing_extensions>=4.0`
+- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
 
 
 ## Validation

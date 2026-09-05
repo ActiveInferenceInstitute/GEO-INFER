@@ -10,7 +10,7 @@ from unittest.mock import Mock, AsyncMock
 from fastapi.testclient import TestClient
 from datetime import datetime
 
-from geo_infer_data.api.rest_api import DataAPI, DatasetAPI
+from geo_infer_data.api.rest_api import DataAPI
 from geo_infer_data.api.service import DataService
 from geo_infer_data.models.schemas import (
     DatasetMetadata,
@@ -137,85 +137,6 @@ class TestDataAPI:
             "/search?bbox=-122.5,37.7,-122.3,37.9&temporal=2023-01-01/2023-12-31&tags=weather"
         )
         assert response.status_code == 200
-
-
-class TestDatasetAPI:
-    """Test cases for DatasetAPI."""
-
-    @pytest.fixture
-    def mock_storage(self):
-        """Create mock storage service."""
-        storage = Mock()
-        storage.store_geospatial_data = AsyncMock(return_value="dataset_123")
-        return storage
-
-    @pytest.fixture
-    def mock_quality(self):
-        """Create mock quality service."""
-        quality = Mock()
-        quality.validator.validate_data = AsyncMock(
-            return_value=Mock(overall_score=0.9, status="pass", issues=[])
-        )
-        return quality
-
-    @pytest.fixture
-    def dataset_api(self, mock_storage, mock_quality):
-        """Create test DatasetAPI."""
-        return DatasetAPI(mock_storage, mock_quality)
-
-    @pytest.fixture
-    def test_metadata(self):
-        """Create test metadata."""
-        return DatasetMetadata(
-            title="Test Dataset",
-            description="Test dataset for API testing",
-            spatial=SpatialExtent(bbox=[-122.5, 37.7, -122.3, 37.9], crs="EPSG:4326"),
-            temporal=TemporalExtent(
-                start=datetime(2023, 1, 1), end=datetime(2023, 12, 31)
-            ),
-            lineage=DataLineage(
-                source="test_source", process="test_process", created_by="test_system"
-            ),
-        )
-
-    @pytest.mark.asyncio
-    async def test_create_dataset(self, dataset_api, test_metadata):
-        """Test dataset creation."""
-        data = Mock()  # Mock data
-
-        dataset_id = await dataset_api.create_dataset(test_metadata, data)
-
-        assert dataset_id == "dataset_123"
-        dataset_api.storage_service.store_geospatial_data.assert_called_once()
-
-    @pytest.mark.asyncio
-    async def test_get_dataset(self, dataset_api):
-        """Unknown datasets are not fabricated by the service."""
-        dataset = await dataset_api.get_dataset("dataset_123")
-        assert dataset is None
-
-    @pytest.mark.asyncio
-    async def test_update_dataset(self, dataset_api):
-        """Updating an unknown dataset reports that nothing changed."""
-        updates = {"title": "Updated Dataset", "description": "Updated description"}
-
-        result = await dataset_api.update_dataset("dataset_123", updates)
-
-        assert result is False
-
-    @pytest.mark.asyncio
-    async def test_delete_dataset(self, dataset_api):
-        """Deleting an unknown dataset reports that nothing changed."""
-        result = await dataset_api.delete_dataset("dataset_123")
-        assert result is False
-
-    @pytest.mark.asyncio
-    async def test_get_dataset_quality(self, dataset_api):
-        """Test dataset quality retrieval."""
-        quality_report = await dataset_api.get_dataset_quality("dataset_123")
-
-        assert quality_report is not None
-        assert hasattr(quality_report, "overall_score")
 
 
 class TestDataService:

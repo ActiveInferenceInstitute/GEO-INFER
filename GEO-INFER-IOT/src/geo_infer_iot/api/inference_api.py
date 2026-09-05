@@ -9,15 +9,11 @@ import logging
 from typing import Dict, List, Optional, Any
 from datetime import datetime
 from fastapi import FastAPI, HTTPException, Query, BackgroundTasks
-import h3
-import numpy as np
 
-# Optional imports for enhanced functionality
-try:
-    from geo_infer_iot.core.ingestion import BayesianSpatialInference  # type: ignore[attr-defined]
-    HAS_BAYESIAN_INFERENCE = True
-except ImportError:
-    HAS_BAYESIAN_INFERENCE = False
+# BayesianSpatialInference lives in geo_infer_iot.core.inference; a broken
+# installation must fail at import time instead of silently 503-ing every
+# inference endpoint.
+from geo_infer_iot.core.inference import BayesianSpatialInference
 
 logger = logging.getLogger(__name__)
 
@@ -36,17 +32,14 @@ class BayesianInferenceAPI:
         self.config = config or {}
         self.app = FastAPI(title="GEO-INFER-IOT Bayesian Inference API", version="1.0.0")
 
-        # Initialize Bayesian inference if available
-        self.inference_engine: Optional[Any] = None
-        if HAS_BAYESIAN_INFERENCE:
-            self.inference_engine = BayesianSpatialInference(
-                variable="default",
-                spatial_resolution=8,
-                temporal_window="1h",
-                config=config
-            )
-        else:
-            self.inference_engine = None
+        # Initialize the inference engine. The import above fails loudly when
+        # the package is broken, so the engine is always available here.
+        self.inference_engine: Optional[Any] = BayesianSpatialInference(
+            variable="default",
+            spatial_resolution=8,
+            temporal_window="1h",
+            config=config,
+        )
 
         # Inference cache and history
         self.inference_history: List[Dict[str, Any]] = []
@@ -67,7 +60,7 @@ class BayesianInferenceAPI:
                 "service": "GEO-INFER-IOT Bayesian Inference API",
                 "version": "1.0.0",
                 "status": "operational",
-                "inference_available": HAS_BAYESIAN_INFERENCE,
+                "inference_available": self.inference_engine is not None,
                 "timestamp": datetime.now().isoformat()
             }
 
@@ -161,7 +154,7 @@ class BayesianInferenceAPI:
                     "type": "Gaussian Process",
                     "variables": ["temperature", "humidity", "air_quality", "soil_moisture"],
                     "spatial_resolution": [5, 6, 7, 8, 9, 10],
-                    "available": HAS_BAYESIAN_INFERENCE,
+                    "available": self.inference_engine is not None,
                     "description": "Bayesian spatial inference using Gaussian processes"
                 }
             }
@@ -181,13 +174,11 @@ class BayesianInferenceAPI:
             if model_type != "bayesian_spatial":
                 raise HTTPException(status_code=404, detail=f"Model type {model_type} not found")
 
-            if not HAS_BAYESIAN_INFERENCE:
+            if self.inference_engine is None:
                 raise HTTPException(status_code=503, detail="Bayesian inference not available")
 
             try:
                 # Update inference engine configuration
-                if self.inference_engine is None:
-                    raise HTTPException(status_code=503, detail="Bayesian inference not available")
                 self.inference_engine.config.update(config)
 
                 # Store in model cache

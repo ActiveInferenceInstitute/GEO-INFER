@@ -5,13 +5,13 @@ This module provides comprehensive validation and integrity checking
 for all PEP data types and workflows.
 """
 
-from typing import Dict, List, Any, Optional, Tuple, Callable
+from typing import Dict, List, Any, Optional, Callable
 from datetime import datetime, date
 import re
 import logging
 # Email validation will use basic regex validation
 
-from ..models.hr_models import Employee, EmploymentStatus, Gender
+from ..models.hr_models import Employee, EmploymentStatus
 from ..models.crm_models import Customer
 from ..models.talent_models import Candidate, CandidateStatus, JobRequisition
 

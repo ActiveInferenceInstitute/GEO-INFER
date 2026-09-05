@@ -9,10 +9,7 @@ import pytest
 import numpy as np
 import pandas as pd
 
-from geo_infer_time.core.advanced_forecasting import (
-    AdvancedForecastingEngine,
-    STATSMODELS_AVAILABLE,
-)
+from geo_infer_time.core.advanced_forecasting import AdvancedForecastingEngine
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -172,6 +169,21 @@ class TestForecastExponentialSmoothing:
         assert "forecast" in result
         assert "model" in result
 
+    def test_exp_smoothing_additive_seasonal(self, engine, seasonal_series):
+        """Exponential smoothing with additive seasonality and explicit period."""
+        result = engine.forecast_exponential_smoothing(
+            seasonal_series, trend="add", seasonal="add", seasonal_periods=12,
+            forecast_steps=12,
+        )
+        assert len(result["forecast"]) == 12
+
+    def test_exp_smoothing_seasonal_requires_period(self, engine, seasonal_series):
+        """Seasonal smoothing without a period raises instead of assuming 12."""
+        with pytest.raises(ValueError, match="seasonal_periods is required"):
+            engine.forecast_exponential_smoothing(
+                seasonal_series, trend="add", seasonal="add", forecast_steps=12
+            )
+
     def test_exp_smoothing_forecast_length(self, engine, trending_series):
         """Forecast length matches requested steps."""
         steps = 10
@@ -187,10 +199,11 @@ class TestForecastExponentialSmoothing:
         )
         assert len(result["forecast"]) == 5
 
-    def test_exp_smoothing_additive_seasonal(self, engine, seasonal_series):
-        """Exponential smoothing with additive seasonality."""
+    def test_exp_smoothing_additive_seasonal_honors_user_period(self, engine, seasonal_series):
+        """A user-supplied seasonal_periods is honored (no hardcoded 12)."""
         result = engine.forecast_exponential_smoothing(
-            seasonal_series, trend="add", seasonal="add", forecast_steps=12
+            seasonal_series, trend="add", seasonal="add", seasonal_periods=6,
+            forecast_steps=12,
         )
         assert len(result["forecast"]) == 12
 
@@ -271,10 +284,6 @@ class TestDetectTrendSeasonality:
 class TestImportGuard:
     """Verify the declared statsmodels backend is installed and operational."""
 
-    def test_statsmodels_flag_is_bool(self):
-        """STATSMODELS_AVAILABLE is a boolean."""
-        assert isinstance(STATSMODELS_AVAILABLE, bool)
-
     def test_arima_backend_is_available(self, engine, trending_series):
         """The required ARIMA backend executes on a valid series."""
         result = engine.forecast_arima(
@@ -320,7 +329,8 @@ class TestForecastingIntegration:
         # Use detection results to decide forecast method
         if detection["has_seasonality"]:
             result = engine.forecast_exponential_smoothing(
-                seasonal_series, trend="add", seasonal="add", forecast_steps=6
+                seasonal_series, trend="add", seasonal="add",
+                seasonal_periods=12, forecast_steps=6
             )
         else:
             result = engine.forecast_arima(

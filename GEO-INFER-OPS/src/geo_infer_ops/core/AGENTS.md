@@ -21,7 +21,6 @@
 
 ## Local Contents
 
-- `backup/`
 - `__init__.py`
 - `cache.py`
 - `config.py`

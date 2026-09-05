@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `maintenance/`
+- `markdown_to_pdf/`
 - `add_missing_deps.py`
 - `analyze_module_dependencies.py`
 - `audit_agents_docs.py`

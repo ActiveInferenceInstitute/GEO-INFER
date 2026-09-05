@@ -7,22 +7,22 @@ and API server management.
 """
 
 import argparse
+import csv
 import json
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import uvicorn
 from loguru import logger
 
-# Add the src directory to the path so we can import the module
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from geo_infer_health.api import router
 from geo_infer_health.core import (
     DiseaseHotspotAnalyzer,
-    HealthcareAccessibilityAnalyzer,
+    EnvironmentalHealthAnalyzer,
 )
+from geo_infer_health.models import EnvironmentalData, Location, PopulationData
 from geo_infer_health.utils.config import load_config
 from geo_infer_health.utils.logging import setup_logging
 
@@ -129,6 +129,12 @@ Examples:
     )
     environment_parser.add_argument("--air-quality", help="Air quality data file")
     environment_parser.add_argument("--water-quality", help="Water quality data file")
+    environment_parser.add_argument(
+        "--radius", type=float, default=10.0, help="Exposure search radius in km"
+    )
+    environment_parser.add_argument(
+        "--time-window-days", type=int, default=30, help="Time window in days"
+    )
     environment_parser.add_argument(
         "--population", required=True, help="Population data file"
     )
@@ -346,10 +352,6 @@ def run_accessibility_analysis(args: argparse.Namespace, config: Any) -> None:
             )
             population_data.append(pop_data)
 
-        # Run analysis
-        analyzer = HealthcareAccessibilityAnalyzer(
-            facilities=facilities, population_data=population_data
-        )
 
         # Summary output reports basic statistics
         total_facilities = len(facilities)
@@ -378,47 +380,106 @@ def run_accessibility_analysis(args: argparse.Namespace, config: Any) -> None:
         raise
 
 
+def _load_environmental_readings(
+    file_path: str, default_parameter: str, default_unit: str
+) -> List[EnvironmentalData]:
+    """Load environmental readings from a CSV file.
+
+    Expected columns: ``latitude``, ``longitude``, ``value`` and optionally
+    ``parameter_name``, ``unit``, ``timestamp`` (ISO 8601), ``data_id``.
+    """
+    readings: List[EnvironmentalData] = []
+    with open(file_path, newline="", encoding="utf-8") as fh:
+        for index, row in enumerate(csv.DictReader(fh)):
+            timestamp_raw = row.get("timestamp")
+            timestamp = (
+                datetime.fromisoformat(str(timestamp_raw))
+                if timestamp_raw
+                else datetime.now(timezone.utc)
+            )
+            if timestamp.tzinfo is None:
+                timestamp = timestamp.replace(tzinfo=timezone.utc)
+            readings.append(
+                EnvironmentalData(
+                    data_id=row.get("data_id", f"{Path(file_path).stem}_{index}"),
+                    parameter_name=row.get("parameter_name", default_parameter),
+                    value=float(row["value"]),
+                    unit=row.get("unit", default_unit),
+                    location=Location(
+                        latitude=float(row["latitude"]),
+                        longitude=float(row["longitude"]),
+                    ),
+                    timestamp=timestamp,
+                )
+            )
+    return readings
+
+
 def run_environment_analysis(args: argparse.Namespace, config: Any) -> None:
     """Run environmental health analysis."""
+    if not args.air_quality and not args.water_quality:
+        raise ValueError(
+            "Environmental analysis requires --air-quality and/or --water-quality"
+        )
     try:
-        # Load environmental and population data
         import geopandas as gpd
 
         population_gdf = gpd.read_file(args.population)
         logger.info(f"Loaded {len(population_gdf)} population areas")
 
-        # Convert population data
-        from geo_infer_health.models import PopulationData
-
+        # Population area centroids become the exposure target locations.
+        target_locations: List[Location] = []
         population_data: List[PopulationData] = []
-        for _, row in population_gdf.iterrows():
-            pop_data = PopulationData(
-                area_id=str(row.get("area_id", f"area_{len(population_data)}")),
-                population_count=int(row.get("population", 0)),
+        for index, (_, row) in enumerate(population_gdf.iterrows()):
+            centroid = row.geometry.centroid
+            target_locations.append(
+                Location(latitude=centroid.y, longitude=centroid.x)
             )
-            population_data.append(pop_data)
+            population_data.append(
+                PopulationData(
+                    area_id=str(row.get("area_id", f"area_{index}")),
+                    population_count=int(row.get("population", 0)),
+                )
+            )
 
-        results = {
+        results: Dict[str, Any] = {
             "analysis_type": "environmental_health",
             "population_areas": len(population_data),
             "total_population": sum(p.population_count for p in population_data),
         }
 
-        # Add air quality analysis if provided
-        if args.air_quality:
-            results["air_quality_file"] = args.air_quality
-            logger.info("Air quality analysis would be implemented here")
+        exposure_inputs = [
+            ("air_quality", getattr(args, "air_quality", None), "air_quality", "AQI"),
+            ("water_quality", getattr(args, "water_quality", None), "water_quality", "index"),
+        ]
+        radius_km = float(getattr(args, "radius", 10.0))
+        time_window_days = int(getattr(args, "time_window_days", 30))
 
-        # Add water quality analysis if provided
-        if args.water_quality:
-            results["water_quality_file"] = args.water_quality
-            logger.info("Water quality analysis would be implemented here")
+        for key, path, default_parameter, default_unit in exposure_inputs:
+            if not path:
+                continue
+            readings = _load_environmental_readings(
+                path, default_parameter, default_unit
+            )
+            results[f"{key}_file"] = path
+            results[f"{key}_readings"] = len(readings)
+            if readings:
+                analyzer = EnvironmentalHealthAnalyzer(
+                    environmental_readings=readings
+                )
+                results[f"{key}_average_exposure"] = (
+                    analyzer.calculate_average_exposure(
+                        target_locations=target_locations,
+                        radius_km=radius_km,
+                        parameter_name=default_parameter,
+                        time_window_days=time_window_days,
+                    )
+                )
+            else:
+                results[f"{key}_average_exposure"] = {}
 
-        # Save results
-        import json
-
-        with open(args.output, "w") as f:
-            json.dump(results, f, indent=2)
+        with open(args.output, "w", encoding="utf-8") as f:
+            json.dump(results, f, indent=2, default=str)
 
         logger.info(f"Environmental health analysis completed, saved to {args.output}")
 
@@ -474,9 +535,7 @@ def run_batch_processing(
 
     manifest = output_dir / "batch_manifest.json"
     manifest.write_text(json.dumps({"jobs": completed}, indent=2), encoding="utf-8")
-    logger.info(
-        "Completed %d batch jobs; manifest saved to %s", len(completed), manifest
-    )
+    logger.info(f"Completed {len(completed)} batch jobs; manifest saved to {manifest}")
     return completed
 
 

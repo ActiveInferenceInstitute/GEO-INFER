@@ -4,8 +4,6 @@ import numpy as np
 import pytest
 import xarray as xr
 
-import sys
-sys.path.insert(0, "GEO-INFER-WATER/src")
 
 from geo_infer_water.core.watershed_delineation import WatershedDelineator
 
@@ -111,3 +109,28 @@ class TestFullDelineation:
         assert "stream_network" in result
         assert "slope_degrees" in result
         assert result.attrs["basin_area_cells"] > 0
+
+    def test_full_pipeline_area_attribute(self, delineator, simple_dem):
+        dem_da = xr.DataArray(simple_dem, dims=("y", "x"))
+        result = delineator.full_delineation(dem_da, outlet=(2, 2), cell_size=500.0)
+        # Area is basin_cells * cell_size^2 / 1e6 km2.
+        expected_km2 = result.attrs["basin_area_cells"] * (500.0 ** 2) / 1e6
+        assert result.attrs["basin_area_km2"] == pytest.approx(expected_km2)
+
+    def test_full_pipeline_outlet_in_basin(self, delineator, simple_dem):
+        dem_da = xr.DataArray(simple_dem, dims=("y", "x"))
+        result = delineator.full_delineation(dem_da, outlet=(2, 2))
+        # The outlet cell must be inside the delineated basin.
+        assert int(result["basin_mask"].values[2, 2]) == 1
+        # Flow accumulation at the outlet is the maximum (everything
+        # drains to the lowest point of the V-valley).
+        accum = result["flow_accumulation"].values
+        assert accum[2, 2] == float(np.max(accum))
+
+    def test_delineate_basin_traces_upstream(self, delineator, simple_dem):
+        flow_dir = delineator.calculate_flow_direction_d8(simple_dem)
+        basin = delineator.delineate_basin(flow_dir, 2, 2)
+        # The basin is a boolean mask that includes the outlet.
+        assert basin[2, 2] == 1
+        # Upstream cells draining to the outlet are part of the basin.
+        assert int(np.sum(basin)) > 1

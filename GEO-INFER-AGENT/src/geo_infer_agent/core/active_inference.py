@@ -11,7 +11,7 @@ perception, learning and decision-making as minimizing variational free energy.
 
 import numpy as np
 import logging
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 import torch
 import torch.nn as nn
@@ -628,18 +628,19 @@ class ActiveInferenceAgent:
         # Sample random batch
         indices = self.rng.choice(buffer_size, size=batch_size, replace=False)
 
-        # Prepare batch
+        # Prepare batch (stack first: converting a list of numpy arrays to a
+        # tensor directly is extremely slow and warns under -W error)
         states = torch.FloatTensor(
-            [self.experience_buffer["states"][i] for i in indices]
+            np.stack([self.experience_buffer["states"][i] for i in indices])
         ).to(self.model.device)
         actions = torch.FloatTensor(
-            [self.experience_buffer["actions"][i] for i in indices]
+            np.stack([self.experience_buffer["actions"][i] for i in indices])
         ).to(self.model.device)
         next_states = torch.FloatTensor(
-            [self.experience_buffer["next_states"][i] for i in indices]
+            np.stack([self.experience_buffer["next_states"][i] for i in indices])
         ).to(self.model.device)
         observations = torch.FloatTensor(
-            [self.experience_buffer["observations"][i] for i in indices]
+            np.stack([self.experience_buffer["observations"][i] for i in indices])
         ).to(self.model.device)
 
         # Update model
@@ -676,47 +677,3 @@ class ActiveInferenceAgent:
         logger.info("Experience buffer cleared")
 
 
-# Example usage
-if __name__ == "__main__":
-    demo_rng = np.random.default_rng(0)
-
-    # Create a simple test environment
-    def simple_env(
-        state: np.ndarray, action: np.ndarray
-    ) -> Tuple[np.ndarray, np.ndarray]:
-        """Simple environment for testing."""
-        # Next state is current state + action
-        next_state = state + action
-        # Observation is just the state with some noise
-        observation = next_state + demo_rng.normal(0, 0.1, size=state.shape)
-        return next_state, observation
-
-    # Initialize agent
-    state_dim = 2
-    obs_dim = 2
-    action_dim = 2
-    agent = ActiveInferenceAgent(state_dim, obs_dim, action_dim)
-
-    # Initial state
-    state = np.zeros(state_dim)
-
-    # Simulation loop
-    for step in range(100):
-        # Select action
-        action = agent.act(state)
-
-        # Step environment
-        next_state, observation = simple_env(state, action)
-
-        # Add experience
-        agent.add_experience(state, action, next_state, observation)
-
-        # Learn every 10 steps
-        if step % 10 == 0:
-            losses = agent.learn(batch_size=10)
-            logger.info(f"Step {step}, Losses: {losses}")
-
-        # Update state
-        state = next_state
-
-    logger.info("Simulation complete")

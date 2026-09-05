@@ -5,18 +5,13 @@ Geo Infer Risk workspace within `GEO-INFER-RISK`.
 ## Contents
 
 - `core/`
-- `underwriting/`
 - `utils/`
 - `__init__.py`
 - `civic_intel.py`
-- `crescent-city-geo-intel.json`
 
 ## Public Interface
 
 - `__init__.py:create_risk_analysis` (function)
-- `__init__.py:create_underwriting_system` (function)
-- `__init__.py:underwrite_insurance_policy` (function)
-- `__init__.py:process_insurance_claim` (function)
 - `civic_intel.py:CrescentCityBounds` (class)
 - `civic_intel.py:CrescentCityAnchor` (class)
 - `civic_intel.py:MunicipalCodeSection` (class)
@@ -39,6 +34,9 @@ Geo Infer Risk workspace within `GEO-INFER-RISK`.
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
 - `scipy>=1.7.0`
+- `geopandas>=0.13.0`
+- `shapely>=2.0.0`
+- `geo-infer-bayes>=0.2.0`
 
 
 ## Validation

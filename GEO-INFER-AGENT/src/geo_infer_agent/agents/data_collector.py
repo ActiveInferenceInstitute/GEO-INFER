@@ -73,11 +73,6 @@ class DataCollectorAgent(BDIAgent):
                         },
                         {"type": "collect_data_from_sources"},
                         {
-                            "type": "update_belief",
-                            "belief_name": "last_collection_time",
-                            "belief_value": "AUTO_TIMESTAMP",
-                        },
-                        {
                             "type": "log",
                             "message": "Data collection complete",
                             "level": "info",
@@ -95,11 +90,6 @@ class DataCollectorAgent(BDIAgent):
                             "level": "info",
                         },
                         {"type": "check_sources_availability"},
-                        {
-                            "type": "update_belief",
-                            "belief_name": "last_monitoring_time",
-                            "belief_value": "AUTO_TIMESTAMP",
-                        },
                         {
                             "type": "log",
                             "message": "Source monitoring complete",
@@ -119,11 +109,6 @@ class DataCollectorAgent(BDIAgent):
                             "level": "info",
                         },
                         {"type": "process_collected_data"},
-                        {
-                            "type": "update_belief",
-                            "belief_name": "last_processing_time",
-                            "belief_value": "AUTO_TIMESTAMP",
-                        },
                         {
                             "type": "update_belief",
                             "belief_name": "has_unprocessed_data",
@@ -232,7 +217,6 @@ class DataCollectorAgent(BDIAgent):
 
         for source in data_sources:
             source_id = source.get("id", f"source_{data_sources.index(source)}")
-            source_type = source.get("type", "unknown")
 
             try:
                 # Check if source is available
@@ -313,6 +297,8 @@ class DataCollectorAgent(BDIAgent):
         else:
             agent.state.update_belief("total_collected_datasets", collected_count)
 
+        agent.state.update_belief("last_collection_time", datetime.now().isoformat())
+
         return {
             "success": error_count == 0,
             "collected_count": collected_count,
@@ -380,6 +366,8 @@ class DataCollectorAgent(BDIAgent):
                 )
 
                 logger.error(f"Error checking data source {source_id}: {str(e)}")
+
+        agent.state.update_belief("last_monitoring_time", datetime.now().isoformat())
 
         return {
             "success": True,
@@ -480,7 +468,9 @@ class DataCollectorAgent(BDIAgent):
                     f"Error processing data from source {dataset_info['source_id']}: {str(e)}"
                 )
 
-        # Update beliefs
+        # Record the processing pass on the agent-level belief
+        agent.state.update_belief("last_processing_time", datetime.now().isoformat())
+
         agent.state.update_belief(
             "has_unprocessed_data", len(agent.unprocessed_data) > 0
         )
@@ -816,52 +806,3 @@ class DataCollectorAgent(BDIAgent):
         }
 
 
-# Example usage
-async def run_agent_example() -> None:
-    """Run an example data collector agent."""
-    # Create agent config
-    config = {
-        "collection_interval": 60,
-        "data_sources": [
-            {
-                "id": "weather_api",
-                "name": "Weather API",
-                "type": "api",
-                "url": "https://example.com/weather/api",
-            },
-            {
-                "id": "traffic_sensors",
-                "name": "Traffic Sensors",
-                "type": "sensor",
-                "sensor_id": "traffic_network_1",
-            },
-        ],
-        "region": "POLYGON((-73.9876 40.7661, -73.9397 40.7721, -73.9235 40.7473, -73.9814 40.7408, -73.9876 40.7661))",
-    }
-
-    # Create agent
-    agent = DataCollectorAgent(config=config)
-
-    # Initialize agent
-    await agent.initialize()
-
-    # Run agent for a while
-    try:
-        task = asyncio.create_task(agent.run())
-
-        # Let it run for 5 minutes
-        await asyncio.sleep(300)
-
-        # Stop agent
-        agent.stop()
-        await task
-
-    except KeyboardInterrupt:
-        # Handle Ctrl+C
-        print("Stopping agent...")
-        agent.stop()
-        await task
-
-
-if __name__ == "__main__":
-    asyncio.run(run_agent_example())

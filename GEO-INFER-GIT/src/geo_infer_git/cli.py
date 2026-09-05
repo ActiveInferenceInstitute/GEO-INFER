@@ -13,8 +13,7 @@ import sys
 import argparse
 import logging
 import yaml
-from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Any
 import json
 
 from geo_infer_git.core.repo_manager import RepoManager

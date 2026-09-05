@@ -3,7 +3,12 @@
 __version__ = "0.2.0"
 __author__ = "GEO-INFER Development Team"
 
-from .core.renewable_resources import RenewableResourceAssessor
+from .core.renewable_resources import (
+    RenewableResourceAssessor,
+    RenewableType,
+    SuitabilityClass,
+    RenewableSite,
+)
 from .core.energy_grid import EnergyGridOptimizer
 from .core.energy_demand import EnergyDemandForecaster
 from .core.energy_infrastructure import EnergyInfrastructurePlanner
@@ -13,6 +18,9 @@ from .core.wind_analysis import WindAnalyzer
 
 __all__ = [
     "RenewableResourceAssessor",
+    "RenewableType",
+    "SuitabilityClass",
+    "RenewableSite",
     "EnergyGridOptimizer",
     "EnergyDemandForecaster",
     "EnergyInfrastructurePlanner",

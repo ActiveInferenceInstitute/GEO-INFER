@@ -7,22 +7,21 @@ with support for different channel types and access controls.
 """
 
 from __future__ import annotations
-from typing import Dict, List, Optional, Callable, Any, Set, cast
+from typing import Dict, List, Optional, Any, Set, cast
 import threading
 import logging
 from datetime import datetime, timezone
 from dataclasses import dataclass, field
-import uuid
 
 from geo_infer_comms.models.message import (
     ChannelRequest, ChannelResponse, ChannelType, ChannelStatus,
     SubscriptionRequest, SubscriptionResponse, MessageResponse
 )
 from geo_infer_comms.models.spatial import (
-    GeospatialMetadata, GeospatialBounds, GeospatialPoint, SpatialFilter
+    GeospatialBounds, GeospatialPoint
 )
 from geo_infer_comms.utils.validation import (
-    validate_user_id, validate_channel_id, validate_spatial_bounds
+    validate_user_id, validate_spatial_bounds
 )
 
 
@@ -437,14 +436,21 @@ class ChannelManager:
 
         # Check channels within approximate bounds
         for channel in self.channels.values():
-            if channel.geospatial_bounds:
-                # Simple bounds intersection check
-                bounds = cast(Any, channel.geospatial_bounds)
-                if (bounds.min_longitude <= max_lon and
-                    bounds.max_longitude >= min_lon and
-                    bounds.min_latitude <= max_lat and
-                    bounds.max_latitude >= min_lat):
-                    nearby_channels.append(channel)
+            if not channel.geospatial_bounds:
+                continue
+            try:
+                bounds = GeospatialBounds.from_dict(channel.geospatial_bounds)
+            except (KeyError, TypeError, ValueError):
+                self.logger.warning(
+                    f"Channel {channel.channel_id} has invalid geospatial bounds; "
+                    "skipping in location query"
+                )
+                continue
+            if (bounds.min_longitude <= max_lon and
+                bounds.max_longitude >= min_lon and
+                bounds.min_latitude <= max_lat and
+                bounds.max_latitude >= min_lat):
+                nearby_channels.append(channel)
 
         return nearby_channels
 
@@ -633,7 +639,12 @@ class ChannelPermissionManager:
             return self.channel_manager.check_permission(channel_id, user_id, permission)
 
         # Check if location is within channel bounds
-        bounds = cast(Any, channel.geospatial_bounds)
+        try:
+            bounds = GeospatialBounds.from_dict(channel.geospatial_bounds)
+        except (KeyError, TypeError, ValueError) as e:
+            raise ValueError(
+                f"Channel {channel_id} has invalid geospatial bounds: {e}"
+            ) from e
         if not bounds.contains_point(location):
             return False
 
@@ -754,7 +765,6 @@ class ChannelMessageFilter:
         rule_type = filter_rule.get("type", "keyword")
 
         if rule_type == "keyword":
-            keywords = filter_rule.get("keywords", [])
             content_lower = message.content.lower()
 
             # Check for blocked keywords

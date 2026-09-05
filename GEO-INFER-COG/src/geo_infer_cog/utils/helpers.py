@@ -22,16 +22,11 @@ import numpy as np
 import logging
 import json
 import yaml
-from typing import Dict, List, Optional, Tuple, Any, Union, cast
+from typing import Dict, List, Optional, Any, Union, cast
 from datetime import datetime, timedelta
 from pathlib import Path
 
-try:
-    from ..models.user_profiles import UserCognitiveProfile, ProfileManager
-except ImportError:
-    # Handle case where models aren't fully implemented yet
-    UserCognitiveProfile = None  # type: ignore[misc, assignment]
-    ProfileManager = None  # type: ignore[misc, assignment]
+from ..models.user_profiles import UserCognitiveProfile
 
 logger = logging.getLogger(__name__)
 

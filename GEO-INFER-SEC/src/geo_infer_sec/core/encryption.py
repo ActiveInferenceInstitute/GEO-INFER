@@ -8,7 +8,7 @@ geospatial data both at rest and in transit.
 import base64
 import os
 import json
-from typing import Dict, List, Any, Optional, Union, Tuple, cast
+from typing import Dict, List, Any, Optional, Tuple, cast
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
@@ -21,9 +21,13 @@ from cryptography.hazmat.primitives.serialization import (
     PublicFormat,
     NoEncryption
 )
+
+import logging
+
+logger = logging.getLogger(__name__)
 import geopandas as gpd
 import pandas as pd
-from shapely.geometry import Point, Polygon, MultiPolygon
+from shapely.geometry import Point
 
 
 class GeospatialEncryption:
@@ -223,7 +227,11 @@ class GeospatialEncryption:
                     lambda x: self.decrypt_text(base64.urlsafe_b64decode(x)) if pd.notna(x) else None
                 )
                 
-        # Decrypt geometries if present
+        # Decrypt geometries if present. Corrupted/undecryptable rows are not
+        # silently discarded: each failure is logged and its row index is
+        # collected into ``result.attrs["decryption_failures"]`` so callers
+        # can detect and handle the data loss explicitly.
+        decryption_failures: List[int] = []
         if geometry_col in result.columns:
             for idx, row in result.iterrows():
                 if pd.notna(row[geometry_col]):
@@ -231,9 +239,14 @@ class GeospatialEncryption:
                         lat, lon = self.decrypt_coordinates(row[geometry_col])
                         result.at[idx, 'geometry'] = Point(lon, lat)
                     except Exception as e:
-                        # Skip invalid encrypted geometries
-                        pass
-                        
+                        logger.warning(
+                            "Failed to decrypt geometry at row %s: %s", idx, e
+                        )
+                        decryption_failures.append(int(idx))
+
+        if decryption_failures:
+            result.attrs["decryption_failures"] = decryption_failures
+
         return result
 
 

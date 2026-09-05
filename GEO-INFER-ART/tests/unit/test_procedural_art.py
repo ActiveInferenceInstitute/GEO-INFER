@@ -151,28 +151,36 @@ class TestProceduralArt(unittest.TestCase):
         except Exception as e:
             self.fail(f"show() method raised an error: {str(e)}")
 
-    def test_different_algorithms(self):
-        """Test generating art with different algorithms."""
-        algorithms = [
-            "noise_field",
-            "l_system",
-            "cellular_automata",
-            "reaction_diffusion",
-            "voronoi",
-            "fractal_tree",
-        ]
+    # Small parameters so every algorithm runs fast at low resolution.
+    FAST_PARAMS = {
+        "boids": {"num_boids": 10, "iterations": 5},
+        "particle_system": {"num_particles": 100, "iterations": 5},
+        "diffusion_limited_aggregation": {"num_particles": 30, "iterations": 2},
+        "turtle_graphics": {"iterations": 2},
+        "sierpinski": {"iterations": 3},
+        "dragon_curve": {"iterations": 5},
+        "hilbert_curve": {"order": 2},
+        "koch_snowflake": {"iterations": 2},
+        "barnsley_fern": {"num_points": 500},
+        "ifs_fractal": {"num_points": 500, "iterations": 2},
+    }
 
-        for algorithm in algorithms:
+    def test_different_algorithms(self):
+        """Test generating art with every advertised algorithm (all of ALGORITHMS)."""
+        for algorithm in ProceduralArt.ALGORITHMS:
             try:
-                # Create procedural art with this algorithm
+                params = {"color_palette": "viridis", "seed": 42}
+                params.update(self.FAST_PARAMS.get(algorithm, {}))
+
                 proc_art = ProceduralArt(
                     algorithm=algorithm,
-                    params={"color_palette": "viridis"},
-                    resolution=(300, 300),  # Smaller for faster tests
+                    params=params,
+                    resolution=(200, 200),  # Smaller for faster tests
                 )
 
                 proc_art.generate()
                 self.assertIsNotNone(proc_art.image)
+                self.assertEqual(proc_art.image.size, (200, 200))
 
                 # Save the output for this algorithm
                 output_path = os.path.join(self.test_dir, f"procedural_{algorithm}.png")
@@ -181,6 +189,27 @@ class TestProceduralArt(unittest.TestCase):
 
             except Exception as e:
                 self.fail(f"Generation with algorithm {algorithm} failed: {str(e)}")
+
+    def test_dla_degenerate_structure(self):
+        """DLA with no stuck particles must not divide by zero (NaN -> ValueError)."""
+        proc_art = ProceduralArt(
+            algorithm="diffusion_limited_aggregation",
+            params={"seed": 7, "num_particles": 10, "iterations": 1,
+                    "stickiness": 0.0},
+            resolution=(100, 100),
+        )
+        proc_art.generate()
+        self.assertIsNotNone(proc_art.image)
+
+    def test_koch_snowflake_default_palette(self):
+        """Koch snowflake defaults must use a palette that actually exists."""
+        proc_art = ProceduralArt(
+            algorithm="koch_snowflake",
+            params={"seed": 3, "iterations": 2},
+            resolution=(200, 200),
+        )
+        proc_art.generate()
+        self.assertIsNotNone(proc_art.image)
 
     def test_invalid_inputs(self):
         """Test handling of invalid inputs."""

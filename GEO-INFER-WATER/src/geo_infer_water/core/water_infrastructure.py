@@ -2,7 +2,6 @@
 
 import logging
 from typing import Dict, Optional
-import numpy as np
 import xarray as xr
 
 logger = logging.getLogger(__name__)
@@ -34,16 +33,40 @@ class WaterInfrastructurePlanner:
         """
         # Calculate supply-demand ratio
         supply_demand_ratio = water_supply / (water_demand + 1e-10)
-        
-        # Allocation (proportional to supply)
+
+        # Priority-weighted allocation: when supply is scarce, each demander
+        # receives a share of the supply proportional to its weighted need
+        # (demand * priority), capped at its demand so no demander is
+        # over-allocated. Default priority is 1.0 (equal weighting).
         if priorities is not None:
-            allocation = water_supply * priorities / priorities.sum()
+            weights = priorities
         else:
-            allocation = water_supply * (water_demand / (water_demand.sum() + 1e-10))
-        
-        # Shortage
+            weights = xr.ones_like(water_demand)
+
+        weighted_need = water_demand * weights
+        total_weighted_need = weighted_need.sum()
+        # Allocate supply in proportion to weighted need.
+        raw_allocation = water_supply * weighted_need / (total_weighted_need + 1e-10)
+        # Cap at demand (no over-allocation); surplus is left unallocated.
+        allocation = xr.where(raw_allocation > water_demand, water_demand, raw_allocation)
+        allocated_surplus = water_supply - allocation.sum()
+        # Redistribute any surplus left after capping proportionally to the
+        # unmet weighted need of demanders that still have a shortfall.
+        if float(allocated_surplus) > 1e-10:
+            remaining_need = (water_demand - allocation) * weights
+            remaining_total = remaining_need.sum()
+            top_up = xr.where(
+                remaining_total > 1e-10,
+                allocated_surplus * remaining_need / (remaining_total + 1e-10),
+                0.0,
+            )
+            allocation = allocation + xr.where(
+                top_up > remaining_need, remaining_need, top_up
+            )
+
+        # Shortage is the unmet demand after allocation.
         shortage = xr.where(water_demand > allocation, water_demand - allocation, 0)
-        
+
         return xr.Dataset({
             'allocation': allocation,
             'shortage': shortage,

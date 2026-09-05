@@ -10,7 +10,11 @@ __author__ = "GEO-INFER Development Team"
 
 from .core.oceanographic_data import OceanographicDataProcessor
 from .core.coastal_analysis import CoastalAnalyzer
-from .core.marine_ecosystems import MarineEcosystemModeler
+from .core.marine_ecosystems import (
+    MarineEcosystemModeler,
+    MarineHabitatType,
+    SpeciesData,
+)
 from .core.sea_level import SeaLevelAnalyzer
 from .core.marine_spatial_planning import MarineSpatialPlanner
 from .core.ocean_currents import OceanCurrentModeler
@@ -21,6 +25,8 @@ __all__ = [
     "OceanographicDataProcessor",
     "CoastalAnalyzer",
     "MarineEcosystemModeler",
+    "MarineHabitatType",
+    "SpeciesData",
     "SeaLevelAnalyzer",
     "MarineSpatialPlanner",
     "OceanCurrentModeler",

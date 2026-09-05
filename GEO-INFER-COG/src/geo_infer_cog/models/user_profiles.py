@@ -22,10 +22,9 @@ Mathematical Foundations:
 
 import numpy as np
 import logging
-from typing import Dict, List, Optional, Tuple, Any, Union
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from datetime import datetime
-import json
 
 logger = logging.getLogger(__name__)
 
@@ -301,7 +300,6 @@ class UserCognitiveProfile:
             return style_performance
 
         # Analyze recent interactions for style preferences
-        recent_interactions = self.task_performance_history[-20:]
 
         # This would analyze interaction types and outcomes
         # For now, return balanced performance

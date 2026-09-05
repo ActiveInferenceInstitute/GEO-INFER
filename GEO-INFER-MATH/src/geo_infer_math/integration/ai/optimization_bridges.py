@@ -6,7 +6,7 @@ regularisation support.
 """
 
 import numpy as np
-from typing import Optional, Dict, Any, Callable, List, Tuple
+from typing import Optional, Dict, Any, Callable, List
 import logging
 
 logger = logging.getLogger(__name__)

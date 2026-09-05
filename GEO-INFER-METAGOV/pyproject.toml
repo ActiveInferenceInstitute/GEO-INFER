@@ -25,11 +25,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Information Analysis",
 ]
 
-dependencies = [
-    "numpy>=1.20",
-    "pyyaml>=6.0",
-    "typing_extensions>=4.0"
-]
+dependencies = []
 
 [project.optional-dependencies]
 dev = [
@@ -45,14 +41,15 @@ docs = [
     "nbsphinx>=0.8.0",
     "myst-parser>=0.15.0",
 ]
+integrations = [
+    "geo-infer-space",
+]
 
 [project.urls]
 Homepage = "https://github.com/ActiveInferenceInstitute/GEO-INFER"
 Documentation = "https://geo-infer.readthedocs.io/"
 Repository = "https://github.com/ActiveInferenceInstitute/GEO-INFER"
 "Bug Tracker" = "https://github.com/ActiveInferenceInstitute/GEO-INFER/issues"
-
-[project.scripts]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -103,23 +100,13 @@ warn_no_return = true
 warn_unreachable = true
 strict_equality = true
 
+
 [[tool.mypy.overrides]]
-module = [
-    "numpy.*",
-    "pandas.*",
-    "geopandas.*",
-    "h3.*",
-    "folium.*",
-    "plotly.*",
-    "matplotlib.*",
-    "scipy.*",
-    "sklearn.*",
-    "tensorflow.*",
-    "torch.*",
-    "pymc.*",
-    "arviz.*",
-]
+module = ["geo_infer_space.*"]
 ignore_missing_imports = true
+
+[tool.uv.sources]
+geo-infer-space = { workspace = true }
 
 [tool.coverage.run]
 source = ["src"]

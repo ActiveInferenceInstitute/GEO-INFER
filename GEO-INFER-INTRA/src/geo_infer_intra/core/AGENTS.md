@@ -22,9 +22,6 @@
 ## Local Contents
 
 - `documentation/`
-- `knowledge_base/`
-- `ontology/`
-- `workflow/`
 - `__init__.py`
 
 ## Validation

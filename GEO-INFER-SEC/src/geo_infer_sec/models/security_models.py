@@ -203,8 +203,13 @@ class SecurityMetrics:
 
 
 @dataclass
-class RiskAssessment:
-    """Risk assessment model."""
+class RiskAssessmentRecord:
+    """Static risk-assessment record.
+
+    Distinct from the canonical, behavior-carrying
+    :class:`geo_infer_sec.models.risk_assessment.RiskAssessment` used by the
+    CLI and acceptance tests; this dataclass is a serialized record shape.
+    """
     assessment_id: str
     asset_id: str
     threat_id: str

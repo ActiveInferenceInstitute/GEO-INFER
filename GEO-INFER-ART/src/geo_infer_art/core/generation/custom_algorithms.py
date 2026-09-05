@@ -1,11 +1,11 @@
 """
 Custom algorithm framework for creating user-defined procedural art algorithms.
 """
-
+import logging
 import os
 import inspect
 import json
-from typing import Dict, List, Optional, Callable, Any, Union
+from typing import Dict, List, Optional, Callable, Any
 import importlib.util
 
 import numpy as np
@@ -14,6 +14,8 @@ from matplotlib.figure import Figure
 
 from geo_infer_art.core.aesthetics import ColorPalette
 
+
+logger = logging.getLogger(__name__)
 
 class CustomAlgorithmFramework:
     """
@@ -216,7 +218,7 @@ class CustomAlgorithmFramework:
                         example_usage=metadata['example_usage']
                     )
             except Exception as e:
-                print(f"Warning: Could not load algorithm '{name}': {str(e)}")
+                logger.warning("Could not load algorithm '%s': %s", name, e)
 
 
 # Example custom algorithms for demonstration
@@ -366,7 +368,7 @@ def example_fractal_landscape_algorithm(
 
     # Add contour lines
     contour_levels = np.linspace(0, 1, 11)
-    contours = ax.contour(noise, levels=contour_levels, colors='black', linewidths=0.5, alpha=0.3)
+    ax.contour(noise, levels=contour_levels, colors='black', linewidths=0.5, alpha=0.3)
 
     ax.set_axis_off()
     plt.tight_layout(pad=0)

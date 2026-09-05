@@ -45,6 +45,7 @@
 - `geo-infer-forest.md`
 - `geo-infer-git.md`
 - `geo-infer-health.md`
+- `geo-infer-insurance.md`
 - `geo-infer-intra.md`
 - `geo-infer-iot.md`
 - `geo-infer-log.md`

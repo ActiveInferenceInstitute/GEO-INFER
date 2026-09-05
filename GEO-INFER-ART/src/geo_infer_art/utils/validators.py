@@ -2,11 +2,15 @@
 Validation functions for file paths, geospatial data, and other inputs.
 """
 
+import logging
 import os
 from typing import List, Union, Tuple, Optional
 
 import geopandas as gpd
 import numpy as np
+
+logger = logging.getLogger(__name__)
+
 
 
 def validate_file_path(

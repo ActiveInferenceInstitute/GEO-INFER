@@ -89,6 +89,13 @@ class CacheManager:
             )
             self.redis.ping()
             logger.info("cache_connected")
+        except AttributeError as e:
+            raise RuntimeError(
+                "CacheManager requires a 'cache' section on the configuration. "
+                "The shipped Config model provides it by default; if a custom "
+                "config object was injected, add a CacheConfig with redis "
+                "host/port/db/password."
+            ) from e
         except RedisError as e:
             logger.error("cache_connection_failed", error=str(e))
             raise

@@ -5,17 +5,17 @@ This module provides API endpoints for interacting with legal frameworks,
 regulations, and jurisdictional data.
 """
 
-from typing import Dict, List, Optional, Union, Any
+from typing import Dict, List, Optional, Any
 import datetime
-from fastapi import APIRouter, HTTPException, Query, Path, Body, Depends
+from fastapi import APIRouter, HTTPException, Query, Path
 from pydantic import BaseModel, Field
 import geopandas as gpd
-from shapely.geometry import Point, Polygon, MultiPolygon, shape
+from shapely.geometry import Point, shape
 import json
 from shapely.geometry.base import BaseGeometry
 
 from geo_infer_norms.core.legal_frameworks import LegalFramework, JurisdictionHandler
-from geo_infer_norms.models.legal_entity import LegalEntity, Jurisdiction
+from geo_infer_norms.models.legal_entity import Jurisdiction
 from geo_infer_norms.models.regulation import Regulation, RegulatoryFramework
 
 

@@ -7,10 +7,8 @@ and geodesic distances.
 """
 
 import numpy as np
-from typing import Union, Optional, Tuple, Dict, Any, Callable
+from typing import Optional, Dict, Callable
 import logging
-from scipy.optimize import minimize
-from scipy.linalg import inv, sqrtm
 
 logger = logging.getLogger(__name__)
 
@@ -277,7 +275,6 @@ def spatial_fisher_information(
     # Calculate gradient at each data point
     for point_idx in range(len(coordinates)):
         coord = coordinates[point_idx]
-        value = values[point_idx]
         
         # Calculate gradient
         gradient = np.zeros(n_params)

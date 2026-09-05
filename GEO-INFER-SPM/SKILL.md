@@ -1,13 +1,6 @@
 ---
 name: geo-infer-spm
 description: Statistical Parametric Mapping for geospatial data. Use when performing GLM-based spatial analysis, random field theory corrections, cluster-level inference, or neuroimaging-style statistical mapping on geographic datasets.
-prerequisites:
-  required:
-    - geo-infer-act
-    - geo-infer-bayes
-  recommended:
-    - geo-infer-space
-    - geo-infer-time
 difficulty: advanced
 estimated_time: 60min
 examples_dir: ../GEO-INFER-EXAMPLES/examples/
@@ -75,11 +68,13 @@ data = SPMData(
 - Coordinates must be valid: latitude ∈ [-90, 90], longitude ∈ [-180, 180]
 - GLM implementation is Alpha status — spatial design matrices in progress
 - Time series explorer uses Plotly for interactive mean±SD visualization
-- Test: `uv run python -m pytest GEO-INFER-SPM/tests/ -v`
+- Test: `uv run --no-sync python -m pytest tests/ -v`
 
 ### Integrations
 
-- **MATH** → Spatial statistics and topology input
-- **BAYES** → Bayesian GLM parameter estimation
-- **SPACE** → Spatial residual fields from H3 grids
-- **AI** → Feature engineering for statistical maps
+- None required: SPM is fully self-contained (no `geo_infer_*` imports in src/)
+  and consumes plain numpy arrays / GeoDataFrames.
+- Optional extras: `bayesian` (pymc + arviz enable the full MCMC path in
+  `BayesianSPM`; without them it falls back to a logged empirical-Bayes
+  approximation).
+

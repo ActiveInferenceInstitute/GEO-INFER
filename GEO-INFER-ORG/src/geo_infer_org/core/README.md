@@ -42,7 +42,7 @@ Core workspace within `GEO-INFER-ORG`.
 
 ## Dependencies
 
-- `pandas>=1.3.0`
+- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
 
 
 ## Validation

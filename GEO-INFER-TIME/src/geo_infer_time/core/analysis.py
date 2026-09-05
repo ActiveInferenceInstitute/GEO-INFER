@@ -14,13 +14,9 @@ import numpy as np
 
 from ..models.timeseries import TimeSeries
 
-# Optional statsmodels imports
-try:
-    from statsmodels.tsa.seasonal import seasonal_decompose
-    from statsmodels.tsa.stattools import adfuller, acf, ccf
-    HAS_STATSMODELS = True
-except ImportError:
-    HAS_STATSMODELS = False
+
+from statsmodels.tsa.seasonal import seasonal_decompose
+from statsmodels.tsa.stattools import adfuller, acf
 
 logger = logging.getLogger(__name__)
 
@@ -142,6 +138,60 @@ class TemporalAnalyzer:
             "autocorrelations": autocorr,
         }
 
+    @staticmethod
+    def _infer_seasonal_period(frequency: Optional[str]) -> int:
+        """
+        Infer a seasonal period in samples from a pandas frequency alias.
+
+        Only unambiguous standard frequencies are mapped: hourly -> 24
+        (pro-rated for hourly multiples such as '2h' -> 12), daily -> 7,
+        business-daily -> 5, weekly -> 52, monthly -> 12, quarterly -> 4.
+        Sub-daily sample frequencies (minutes/seconds), annual frequencies,
+        and unknown aliases cannot be mapped to a sample count without extra
+        assumptions and are rejected.
+
+        Raises:
+            ValueError: When no period can be inferred for the frequency
+        """
+        if not frequency:
+            raise ValueError(
+                "seasonal period cannot be inferred without a frequency; "
+                "pass period explicitly"
+            )
+        offset = pd.tseries.frequencies.to_offset(frequency)
+        if offset is None:
+            raise ValueError(
+                f"unknown frequency {frequency!r}; pass period explicitly"
+            )
+        base = offset.name
+        if base == "h":
+            if offset.n > 1 and 24 % offset.n != 0:
+                raise ValueError(
+                    f"cannot infer a seasonal period from frequency "
+                    f"{frequency!r}; pass period explicitly"
+                )
+            return 24 // offset.n
+        if offset.n != 1:
+            raise ValueError(
+                f"cannot infer a seasonal period from frequency {frequency!r}; "
+                "pass period explicitly"
+            )
+        if base == "D":
+            return 7
+        if base == "B":
+            return 5
+        if base.startswith("W"):
+            return 52
+        if base in {"ME", "MS", "BME", "BMS"}:
+            return 12
+        if base.startswith(("Q", "BQ")):
+            return 4
+        raise ValueError(
+            f"cannot infer a seasonal period from frequency {frequency!r} "
+            f"(canonical alias {base!r}); pass period explicitly"
+        )
+
+
     def decompose(
         self,
         timeseries: TimeSeries,
@@ -154,54 +204,41 @@ class TemporalAnalyzer:
         Args:
             timeseries: TimeSeries object
             model: Decomposition model ('additive', 'multiplicative')
-            period: Optional seasonal period (if None, auto-detect)
+            period: Seasonal period in samples. When omitted, it is inferred
+                from the series frequency (hourly -> 24, daily -> 7,
+                weekly -> 52, monthly -> 12, quarterly -> 4). Frequencies
+                that cannot be mapped unambiguously raise ValueError.
 
         Returns:
             Dictionary with decomposition components
+
+        Raises:
+            ValueError: If no period is given and none can be inferred, or if
+                the period is unsuitable for the series length
         """
         data = timeseries.to_dataframe()
         series = data.iloc[:, 0]
 
-        # Auto-detect period if not provided
         if period is None:
-            freq = timeseries.frequency
-            if freq:
-                # Estimate period from frequency
-                if "H" in freq:
-                    period = 24  # Daily seasonality
-                elif "D" in freq:
-                    period = 7  # Weekly seasonality
-                elif "W" in freq:
-                    period = 52  # Yearly seasonality
-                else:
-                    period = min(12, len(series) // 2)
-            else:
-                period = min(12, len(series) // 2)
+            period = self._infer_seasonal_period(timeseries.frequency)
 
-        try:
-            if not HAS_STATSMODELS:
-                raise ImportError("statsmodels required for decomposition")
-            decomposition = seasonal_decompose(
-                series, model=model, period=period, extrapolate_trend="freq"
+        if period < 2 or period > len(series) // 2:
+            raise ValueError(
+                f"seasonal period {period} is invalid for a series of length "
+                f"{len(series)}; it must be >= 2 and <= half the length"
             )
 
-            return {
-                "trend": decomposition.trend.dropna().tolist(),
-                "seasonal": decomposition.seasonal.dropna().tolist(),
-                "residual": decomposition.resid.dropna().tolist(),
-                "model": model,
-                "period": period,
-            }
-        except Exception as e:
-            logger.error(f"Decomposition failed: {e}")
-            return {
-                "trend": series.tolist(),
-                "seasonal": [0.0] * len(series),
-                "residual": [0.0] * len(series),
-                "model": model,
-                "period": period,
-                "error": str(e),
-            }
+        decomposition = seasonal_decompose(
+            series, model=model, period=period, extrapolate_trend="freq"
+        )
+
+        return {
+            "trend": decomposition.trend.dropna().tolist(),
+            "seasonal": decomposition.seasonal.dropna().tolist(),
+            "residual": decomposition.resid.dropna().tolist(),
+            "model": model,
+            "period": period,
+        }
 
     def test_stationarity(self, timeseries: TimeSeries) -> Dict[str, Any]:
         """
@@ -217,8 +254,6 @@ class TemporalAnalyzer:
         values = data.iloc[:, 0].dropna().values
 
         try:
-            if not HAS_STATSMODELS:
-                raise ImportError("statsmodels required for stationarity test")
             result = adfuller(values)
 
             return {
@@ -611,18 +646,7 @@ class TemporalAnalyzer:
 
         # Calculate ACF
         nlags = min(max_lag, len(values) // 2)
-        if not HAS_STATSMODELS:
-            # Fallback: compute ACF manually
-            n = len(values)
-            mean = np.mean(values)
-            var = np.var(values)
-            acf_values = np.array([
-                np.sum((values[:n-k] - mean) * (values[k:] - mean)) / (n * var)
-                if var > 0 else 0.0
-                for k in range(nlags + 1)
-            ])
-        else:
-            acf_values = acf(values, nlags=nlags, fft=True)
+        acf_values = acf(values, nlags=nlags, fft=True)
 
         # Find significant lags
         n = len(values)
@@ -874,7 +898,6 @@ class TemporalAnalyzer:
                 
                 # F-test
                 n = len(y_lagged)
-                k_r = lag + 1
                 k_u = 2 * lag + 1
                 
                 if rss_u > 0:

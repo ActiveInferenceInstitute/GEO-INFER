@@ -2,12 +2,14 @@
 Color palette module for managing and applying color schemes in geospatial visualizations.
 """
 
-from typing import Dict, List, Optional, Tuple, Union
+import logging
+from typing import Dict, List, Optional, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 
+logger = logging.getLogger(__name__)
 
 class ColorPalette:
     """

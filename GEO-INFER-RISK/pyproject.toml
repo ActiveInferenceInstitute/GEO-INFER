@@ -37,23 +37,44 @@ classifiers = [
 dependencies = [
     "numpy>=1.20.0",
     "pandas>=1.3.0",
-    "scipy>=1.7.0"
+    "scipy>=1.7.0",
+    "geopandas>=0.13.0",
+    "shapely>=2.0.0",
+    "geo-infer-bayes>=0.2.0",
 ]
 
 [project.optional-dependencies]
+# Optional cross-module GEO-INFER integrations. Every import of these
+# packages in src/ is guarded with try/except and degrades gracefully;
+# install this extra to enable the spatial/temporal/bayesian/data
+# integration surfaces.
+integrations = [
+    "geo-infer-space",
+    "geo-infer-time",
+    "geo-infer-math",
+    "geo-infer-bayes",
+    "geo-infer-data",
+]
 dev = [
     "pytest>=6.2.0",
     "pytest-cov>=2.12.0",
     "pytest-asyncio>=0.20.0",
     "black>=21.9.0",
-        "mypy>=0.910",
-    ]
+    "mypy>=0.910",
+]
 docs = [
     "sphinx>=4.2.0",
     "sphinx-rtd-theme>=1.0.0",
     "nbsphinx>=0.8.0",
     "myst-parser>=0.15.0",
 ]
+
+[tool.uv.sources]
+geo-infer-space = { workspace = true }
+geo-infer-time = { workspace = true }
+geo-infer-math = { workspace = true }
+geo-infer-bayes = { workspace = true }
+geo-infer-data = { workspace = true }
 
 [project.urls]
 Homepage = "https://github.com/ActiveInferenceInstitute/GEO-INFER"

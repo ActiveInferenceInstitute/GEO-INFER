@@ -5,8 +5,7 @@ This module provides integration between theorem proving and
 symbolic mathematics capabilities.
 """
 
-import numpy as np
-from typing import Union, Optional, List, Dict, Any
+from typing import Optional, List, Any
 import logging
 
 from geo_infer_math.core.theorem_proving.prover import TheoremProver, ProofResult

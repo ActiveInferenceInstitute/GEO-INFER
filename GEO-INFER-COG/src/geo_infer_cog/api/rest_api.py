@@ -26,7 +26,7 @@ from datetime import datetime
 import traceback
 
 try:
-    from flask import Flask, request, jsonify, Response
+    from flask import Flask, request, jsonify, Response as Response
     from flask_cors import CORS  # type: ignore[import-untyped]
 
     FLASK_AVAILABLE = True
@@ -37,28 +37,18 @@ except ImportError:
     jsonify = None  # type: ignore[assignment]
     CORS = None
 
-try:
-    from ..core.cognitive_engine import CognitiveProcessingEngine
-    from ..core.spatial_perception import SpatialPerceptionModel
-    from ..core.spatial_reasoning import SpatialReasoningEngine
-    from ..core.spatial_memory import SpatialMemoryModel
-    from ..spatial_language import SpatialLanguageProcessor
-    from ..visualization import HumanCenteredVisualizer
-    from ..decision import SpatialDecisionSupport
-    from ..models.user_profiles import UserCognitiveProfile, ProfileManager
-    from ..models.cognitive_models import CognitiveMap, SpatialKnowledgeGraph
-    from ..utils.validation import (
-        validate_spatial_data,
-        validate_cognitive_model,
-        validate_user_profile,
-    )
-    from ..utils.helpers import (
-        load_cognitive_profile,
-        save_cognitive_profile,
-        create_performance_report,
-    )
-except ImportError as e:
-    print(f"Warning: Could not import all COG components: {e}")
+from ..core.cognitive_engine import CognitiveProcessingEngine
+from ..core.spatial_perception import SpatialPerceptionModel
+from ..core.spatial_reasoning import SpatialReasoningEngine
+from ..core.spatial_memory import SpatialMemoryModel
+from ..spatial_language import SpatialLanguageProcessor
+from ..visualization import HumanCenteredVisualizer
+from ..decision import SpatialDecisionSupport
+from ..models.user_profiles import UserCognitiveProfile, ProfileManager
+from ..utils.validation import (
+    validate_spatial_data,
+    validate_user_profile,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -285,7 +275,6 @@ def register_api_routes(app: Any) -> None:
             if not data:
                 return jsonify({"error": "No data provided"}), 400
 
-            premises = data.get("premises", [])
             reasoning_type = data.get("reasoning_type", "deductive")
 
             if not app.reasoning_engine:
@@ -535,16 +524,25 @@ def register_api_routes(app: Any) -> None:
                 spatial_data=spatial_data, context=context, user_profile=user_profile
             )
 
+            decision_result = processing_result.get("decision_result", {})
+            decisions = decision_result.get("decisions", [])
+            confidences = [
+                d.get("confidence_score", 0.0)
+                for d in decisions
+                if isinstance(d, dict)
+            ]
+            mean_confidence = (
+                sum(confidences) / len(confidences) if confidences else 0.0
+            )
+
             return jsonify(
                 {
                     "processing_id": f"cog_{int(datetime.now().timestamp())}",
                     "timestamp": datetime.now().isoformat(),
                     "processing_time": processing_result.get("processing_time", 0),
                     "cognitive_state": processing_result.get("cognitive_state", {}),
-                    "confidence_score": processing_result.get("confidence_score", 0.5),
-                    "decision_recommendations": processing_result.get(
-                        "decision_result", {}
-                    ).get("decisions", []),
+                    "confidence_score": mean_confidence,
+                    "decision_recommendations": decisions,
                 }
             )
 
@@ -731,7 +729,15 @@ def run_api_server(
         port: Port to bind the server to
         debug: Enable debug mode
     """
-    app = cast(Flask, create_cog_api_app())
+    if not FLASK_AVAILABLE:
+        raise RuntimeError(
+            "Flask is not installed. Install the API extra with: "
+            "pip install 'geo-infer-cog[api]'"
+        )
+
+    app = create_cog_api_app()
+    if app is None:
+        raise RuntimeError("Failed to create the COG API application")
 
     logger.info(f"Starting COG API server on {host}:{port}")
     app.run(host=host, port=port, debug=debug)

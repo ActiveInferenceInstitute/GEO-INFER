@@ -293,8 +293,7 @@ You are tasked with analyzing spatial patterns using {concept_display}.
 Complete the functions below to implement {concept.replace('_', ' ')} analysis.
 """
 
-import numpy as np
-from geo_infer_space import SpatialAnalyzer
+from spatial_analysis_lib import SpatialAnalyzer  # replace with your spatial analysis library
 
 
 def analyze_{concept_snake}(data, parameters=None):

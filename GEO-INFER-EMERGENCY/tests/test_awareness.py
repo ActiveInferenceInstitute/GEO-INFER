@@ -154,6 +154,30 @@ class TestDataFusion:
         # Weighted avg: (30*0.9 + 32*0.7) / (0.9+0.7) = 49.4/1.6 = 30.88
         assert 30.0 < result["fused_data"]["temperature"] < 32.0
 
+    def test_fuse_data_confidence_is_mean_and_bounded(self) -> None:
+        sa = SituationalAwareness()
+        result = sa.fuse_data(
+            sources=[
+                {"data": {"temperature": 30.0}, "confidence": 0.9},
+                {"data": {"temperature": 32.0}, "confidence": 0.7},
+            ],
+            confidence_weighting=True,
+        )
+        # Confidence is the mean of contributing source confidences.
+        assert result["confidence"] == pytest.approx(0.8)
+
+    def test_fuse_data_confidence_clamped(self) -> None:
+        """Out-of-range source confidences cannot push confidence above 1.0."""
+        sa = SituationalAwareness()
+        result = sa.fuse_data(
+            sources=[
+                {"data": {"wind_speed": 20.0}, "confidence": 5.0},
+                {"data": {"wind_speed": 22.0}, "confidence": 2.0},
+            ],
+            confidence_weighting=True,
+        )
+        assert result["confidence"] == pytest.approx(1.0)
+
     def test_fuse_empty_sources(self) -> None:
         sa = SituationalAwareness()
         result = sa.fuse_data(sources=[])

@@ -1,5 +1,5 @@
 from typing import List, Optional, Dict
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
 from geo_infer_health.models import Location, EnvironmentalData
 from geo_infer_health.utils.geospatial_utils import haversine_distance
@@ -66,8 +66,10 @@ class EnvironmentalHealthAnalyzer:
         if not self.readings:
             return {key_for(loc): None for loc in target_locations}
 
-        now = datetime.now(timezone.utc)
-        latest_reading_time = max(now, self.readings[-1].timestamp)
+        # Anchor the trailing window to the most recent reading in the
+        # dataset (mirroring disease_surveillance.py) so historical datasets
+        # older than ``time_window_days`` from *today* still yield results.
+        latest_reading_time = self.readings[-1].timestamp
         start_time = latest_reading_time - timedelta(days=time_window_days)
 
         avg_exposure_results: Dict[str, Optional[float]] = {}

@@ -15,13 +15,20 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+try:
+    from importlib.metadata import version as _metadata_version
+
+    _PACKAGE_VERSION: str = _metadata_version("geo-infer-iot")
+except Exception:  # pragma: no cover - metadata unavailable in dev checkouts
+    _PACKAGE_VERSION = "0.2.0"
+
 @dataclass
 class IoTConfig:
     """Comprehensive configuration for GEO-INFER-IOT module."""
 
     # Core module settings
     module_name: str = "geo_infer_iot"
-    version: str = "1.0.0"
+    version: str = _PACKAGE_VERSION
     debug: bool = False
 
     # Sensor network configuration
@@ -257,10 +264,12 @@ class ConfigurationManager:
     """
 
     def __init__(self, config_paths: Optional[List[str]] = None):
+        module_root = os.path.dirname(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        )
         self.config_paths = config_paths or [
-            os.path.join(os.path.dirname(__file__), 'example.yaml'),
-            os.path.join(os.path.dirname(__file__), '..', '..', 'config', 'iot_config.yaml'),
-            os.path.join(os.path.dirname(__file__), '..', '..', '..', 'config', 'iot_config.yaml')
+            # Repository-level example configuration shipped with the module.
+            os.path.join(module_root, 'config', 'example.yaml'),
         ]
         self.config = IoTConfig()
         self.validation_errors: List[str] = []

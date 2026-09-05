@@ -31,17 +31,14 @@ python # Spatial Convolutional Neural Network # For input spatial data X with di
 python # Spatial Attention Mechanism # Attention weights: α_ij = softmax(e_ij) # Where: e_ij = f(Q_i, K_j) = Q_i^T K_j / √d_k # Context vector: c_i = Σ_j α_ij V_j # Where: # Q_i = query for position i # K_j = key for position j # V_j = value for position j # d_k = dimension of keys
 ```
  #### Uncertainty Quantification in AI Bayesian neural networks for uncertainty estimation:
-```
 ```python
  # Bayesian Neural Network # Posterior distribution: p(θ|D) ∝ p(D|θ) p(θ) # Predictive distribution: p(y*|x*, D) = ∫ p(y*|x*, θ) p(θ|D) dθ # Where: # θ = network parameters # D = training data # x*, y* = input and output
 ```
  ### Key Concepts #### Machine Learning for Geospatial Data The module provides specialized ML capabilities for spatial data:
-```
 ```python
  from geo_infer_ai import AIEngine # Initialize AI engine ai_engine = AIEngine( capabilities=['deep_learning', 'reinforcement_learning', 'federated_learning'], hardware_acceleration=True, uncertainty_quantification=True, explainable_ai=True ) # Train spatial neural network spatial_model = ai_engine.train_spatial_neural_network( data=spatial_training_data, architecture='transformer_convolutional', target_variable='land_use_classification', uncertainty_quantification=True, explainable_ai=True ) # Make predictions with uncertainty predictions, uncertainty = spatial_model.predict_with_uncertainty(new_spatial_data)
 ```
  #### Computer Vision for Remote Sensing Image processing for satellite and aerial imagery with deep learning:
-```
 ```python
  # See GEO-INFER-AI/examples for runnable scripts; APIs may differ by model
 ```

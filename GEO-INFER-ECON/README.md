@@ -38,7 +38,6 @@ Spatial economic modeling, market analysis, policy evaluation, and economic impa
 - `seaborn>=0.12.0`
 - `networkx>=2.8.0`
 - `h3>=4.5.0,<5`
-- `pyyaml>=6.0`
 - `requests>=2.28.0`
 
 

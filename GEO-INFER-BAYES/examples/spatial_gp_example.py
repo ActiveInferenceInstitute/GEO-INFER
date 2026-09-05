@@ -26,7 +26,7 @@ def generate_synthetic_data(n_points=50, seed=42):
             process-wide ``numpy.random`` stream.
 
     Returns:
-        Tuple of ``(X, y, true_lengthscale, true_variance, noise_std)``.
+        Tuple of ``(X, y, true_lengthscale, true_variance)``.
     """
     rng = np.random.default_rng(seed)
 

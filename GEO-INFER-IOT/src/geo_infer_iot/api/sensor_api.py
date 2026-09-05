@@ -7,9 +7,8 @@ Integrates with FastAPI for high-performance web services.
 
 import logging
 from typing import Dict, List, Optional, Any
-from datetime import datetime, timedelta
-from fastapi import FastAPI, HTTPException, Query, Depends
-from fastapi.responses import JSONResponse
+from datetime import datetime
+from fastapi import FastAPI, HTTPException, Query
 import h3
 
 # Optional imports for enhanced functionality
@@ -180,12 +179,20 @@ class SensorAPI:
             variable: Optional[str] = Query(None, description="Filter by variable type"),
             start_time: Optional[datetime] = Query(None, description="Start time for query"),
             end_time: Optional[datetime] = Query(None, description="End time for query"),
-            h3_resolution: int = Query(8, description="H3 resolution for spatial queries"),
+            h3_index: Optional[str] = Query(
+                None, description="H3 cell to filter measurements by location"
+            ),
+            h3_resolution: int = Query(
+                8, description="H3 resolution used to match measurements to h3_index"
+            ),
             limit: int = Query(1000, description="Maximum measurements to return")
         ) -> Dict[str, Any]:
             """Query sensor measurements with temporal and spatial filtering."""
             if self.ingestion is None:
                 raise HTTPException(status_code=503, detail="Data ingestion not available")
+
+            if h3_index is not None and not h3.is_valid_cell(h3_index):
+                raise HTTPException(status_code=400, detail=f"Invalid H3 index: {h3_index}")
 
             try:
                 # Filter measurements based on query parameters
@@ -205,6 +212,17 @@ class SensorAPI:
                     # Variable filtering
                     if variable and measurement.variable != variable:
                         continue
+
+                    # Spatial filtering: match each measurement's location to the
+                    # requested H3 cell at the requested resolution
+                    if h3_index is not None:
+                        measurement_cell = h3.latlng_to_cell(
+                            measurement.latitude,
+                            measurement.longitude,
+                            h3_resolution,
+                        )
+                        if measurement_cell != h3_index:
+                            continue
 
                     filtered_measurements.append(measurement)
 
@@ -236,6 +254,7 @@ class SensorAPI:
                         "variable": variable,
                         "start_time": start_time.isoformat() if start_time else None,
                         "end_time": end_time.isoformat() if end_time else None,
+                        "h3_index": h3_index,
                         "h3_resolution": h3_resolution
                     }
                 }

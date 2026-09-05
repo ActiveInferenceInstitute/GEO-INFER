@@ -10,6 +10,8 @@ Use ``initialize_data_system()`` to set up all components in one call.
 from typing import Any, Dict, List, Optional
 import logging
 
+__version__ = "0.2.0"
+
 from .core.ingestion import MultiSourceDataIngestion
 from .core.pipeline import IntelligentETLPipeline
 from .core.storage import AdaptiveDataStorage
@@ -23,8 +25,6 @@ from . import utils as utils
 
 
 logger = logging.getLogger(__name__)
-
-__version__ = "0.2.0"
 __all__ = [
     # Core classes
     "MultiSourceDataIngestion",

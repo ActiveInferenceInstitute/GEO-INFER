@@ -246,7 +246,7 @@ class ClaimsProcessor:
             config: Claims processing configuration
         """
         self.config = config or ClaimsProcessingConfig()
-        self.logger = logging.getLogger("geo_infer_risk.underwriting.claims_processor")
+        self.logger = logging.getLogger("geo_infer_insurance.underwriting.claims_processor")
 
         # Claims storage
         self.claims: Dict[str, Claim] = {}
@@ -471,7 +471,7 @@ class ClaimsProcessor:
             > 30,
         ]
 
-        return bool(sum(suspicious_indicators) >= 2)
+        return bool(sum(bool(i) for i in suspicious_indicators) >= 2)
 
     def _check_for_fraud(
         self, claim: Claim, claim_data: Dict[str, Any]
@@ -544,7 +544,6 @@ class ClaimsProcessor:
             )
 
             indemnity_reserve = {
-                "reserve_id": str(uuid.uuid4()),
                 "reserve_type": "indemnity",
                 "amount": indemnity_amount,
                 "confidence_level": 0.8,
@@ -554,9 +553,7 @@ class ClaimsProcessor:
 
         # Expense reserve
         expense_amount = claim.claimed_amount * 0.1  # 10% for expenses
-
         expense_reserve = {
-            "reserve_id": str(uuid.uuid4()),
             "reserve_type": "expense",
             "amount": expense_amount,
             "confidence_level": 0.9,
@@ -898,7 +895,7 @@ class ClaimsEngine:
             config: Claims processing configuration
         """
         self.config = config or ClaimsProcessingConfig()
-        self.logger = logging.getLogger("geo_infer_risk.underwriting.claims_engine")
+        self.logger = logging.getLogger("geo_infer_insurance.underwriting.claims_engine")
 
         # ML models are loaded lazily on first prediction call
         self.claim_assessment_model = None

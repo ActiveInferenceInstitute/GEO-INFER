@@ -1,16 +1,20 @@
 """Talent Data Importers (e.g., from ATS)."""
 
+import logging
 import csv
 import os
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional
 from datetime import datetime, date
 from ..models.talent_models import (
+
     Candidate,
     JobRequisition,
     CandidateStatus,
     JobRequisitionStatus,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class BaseTalentImporter(ABC):
@@ -68,7 +72,7 @@ class BaseTalentImporter(ABC):
             last_sync_date=last_sync_date, requisition_id=requisition_id
         )
         transformed_data = self.transform_candidates(raw_data)
-        print(f"Imported and transformed {len(transformed_data)} candidate records.")
+        logger.info(f"Imported and transformed {len(transformed_data)} candidate records.")
         return transformed_data
 
     def import_requisitions(
@@ -80,7 +84,7 @@ class BaseTalentImporter(ABC):
         self.connect(**kwargs)
         raw_data = self.fetch_requisitions(last_sync_date=last_sync_date, status=status)
         transformed_data = self.transform_requisitions(raw_data)
-        print(
+        logger.info(
             f"Imported and transformed {len(transformed_data)} job requisition records."
         )
         return transformed_data
@@ -130,13 +134,13 @@ class CSVTalentImporter(BaseTalentImporter):
                 reader = csv.DictReader(csvfile)
                 for row in reader:
                     records.append(dict(row))
-            print(f"Fetched {len(records)} records from {file_path}")
+            logger.info(f"Fetched {len(records)} records from {file_path}")
             return records
         except FileNotFoundError:
-            print(f"Error: CSV file not found at {file_path}")
+            logger.error(f"Error: CSV file not found at {file_path}")
             raise  # Re-raise to be caught by tests or higher level logic
         except Exception as e:
-            print(f"Error fetching data from CSV file {file_path}: {e}")
+            logger.error(f"Error fetching data from CSV file {file_path}: {e}")
             return []
 
     def fetch_candidates(
@@ -145,7 +149,7 @@ class CSVTalentImporter(BaseTalentImporter):
         requisition_id: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         if not self.candidate_file_path:
-            print("Warning: Candidate file path not provided for fetch_candidates.")
+            logger.warning("Warning: Candidate file path not provided for fetch_candidates.")
             return []
         # Basic filtering could be added here post-fetch if needed, e.g., by date or req_id
         return self._read_csv_file(self.candidate_file_path)
@@ -159,7 +163,7 @@ class CSVTalentImporter(BaseTalentImporter):
                     try:
                         applied_at_dt = datetime.fromisoformat(record["applied_at"])
                     except ValueError:
-                        print(
+                        logger.warning(
                             f"Warn: Bad applied_at for cand {record.get('candidate_id')}"
                         )
 
@@ -168,7 +172,7 @@ class CSVTalentImporter(BaseTalentImporter):
                     try:
                         updated_at_dt = datetime.fromisoformat(record["updated_at"])
                     except ValueError:
-                        print(
+                        logger.warning(
                             f"Warn: Bad updated_at for cand {record.get('candidate_id')}"
                         )
 
@@ -209,17 +213,17 @@ class CSVTalentImporter(BaseTalentImporter):
                 }
                 candidates.append(Candidate(**candidate_data_cleaned))
             except Exception as e:
-                print(
+                logger.info(
                     f"Error transforming candidate record: {record.get('candidate_id', 'Unknown ID')}. Error: {e}"
                 )
-        print(f"Transformed {len(candidates)} candidate records.")
+        logger.info(f"Transformed {len(candidates)} candidate records.")
         return candidates
 
     def fetch_requisitions(
         self, last_sync_date: Optional[datetime] = None, status: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         if not self.requisition_file_path:
-            print("Warning: Requisition file path not provided for fetch_requisitions.")
+            logger.warning("Warning: Requisition file path not provided for fetch_requisitions.")
             return []
         # Basic filtering could be added here post-fetch if needed
         return self._read_csv_file(self.requisition_file_path)
@@ -237,7 +241,7 @@ class CSVTalentImporter(BaseTalentImporter):
                             record["opened_at"], "%Y-%m-%d"
                         ).date()
                     except ValueError:
-                        print(
+                        logger.warning(
                             f"Warn: Bad opened_at for req {record.get('requisition_id')}"
                         )
 
@@ -248,7 +252,7 @@ class CSVTalentImporter(BaseTalentImporter):
                             record["closed_at"], "%Y-%m-%d"
                         ).date()
                     except ValueError:
-                        print(
+                        logger.warning(
                             f"Warn: Bad closed_at for req {record.get('requisition_id')}"
                         )
 
@@ -276,10 +280,10 @@ class CSVTalentImporter(BaseTalentImporter):
                 }
                 requisitions.append(JobRequisition(**req_data_cleaned))
             except Exception as e:
-                print(
+                logger.info(
                     f"Error transforming requisition record: {record.get('requisition_id', 'Unknown ID')}. Error: {e}"
                 )
-        print(f"Transformed {len(requisitions)} job requisition records.")
+        logger.info(f"Transformed {len(requisitions)} job requisition records.")
         return requisitions
 
 

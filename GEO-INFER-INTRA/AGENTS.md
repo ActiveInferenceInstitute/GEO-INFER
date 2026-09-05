@@ -4,7 +4,7 @@
 
 - Owning module: `GEO-INFER-INTRA`
 - Python package: `geo_infer_intra`
-- Directory role: Comprehensive project documentation, workflow management, and ontology systems for the GEO-INFER ecosystem.
+- Directory role: Reproducible documentation previews and configuration utilities for the GEO-INFER ecosystem.
 
 ## Capabilities
 

@@ -1,39 +1,22 @@
 """HR API Endpoints."""
 from typing import List, Optional, Dict, Any
-from fastapi import APIRouter, HTTPException, Query, UploadFile, File, Depends
-from pathlib import Path
-import tempfile # For handling file uploads
+from fastapi import APIRouter, HTTPException, Query, UploadFile, File
 import logging
 
-logger = logging.getLogger(__name__)
-
 from ..models.hr_models import Employee
-from ..hr.importer import CSVHRImporter # Assuming CSV importer for now
+from ..core.data_store import pep_data_manager as store
+from ..hr.importer import CSVHRImporter
 from ..hr.transformer import clean_employee_data, enrich_employee_data
 from ..reporting.hr_reports import generate_headcount_report, generate_diversity_report
-from ..visualizations.hr_visuals import plot_headcount_by_department, plot_gender_distribution
+from ..visualizations.hr_visuals import plot_headcount_by_department
+from ..utils import save_upload_file_tmp
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/hr",
     tags=["HR"],
 )
-
-# In-memory storage for HR data (replace with database in production)
-DB_EMPLOYEES: List[Employee] = []
-
-# Helper from crm_endpoints, consider moving to a shared utils if used often
-async def save_upload_file_tmp(upload_file: UploadFile) -> Path:
-    try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=upload_file.filename) as tmp:
-            contents = await upload_file.read()
-            tmp.write(contents)
-            tmp_path = Path(tmp.name)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Could not save uploaded file: {e}")
-    finally:
-        await upload_file.close()
-    return tmp_path
-
 @router.post("/upload/csv", response_model=Dict[str, Any])
 async def upload_hr_csv(
     file: UploadFile = File(...),
@@ -41,8 +24,12 @@ async def upload_hr_csv(
     enrich_data: bool = Query(True, description="Perform data enrichment after cleaning")
 ) -> Dict[str, Any]:
     """
-    Upload a CSV file with HR employee data. Data will be imported, (optionally) cleaned 
-    and enriched, and then stored in memory.
+    Upload a CSV file with HR employee data. Data will be imported, (optionally)
+    cleaned and enriched, and then appended to the shared in-memory store.
+
+    Appending is non-destructive: existing employee records are kept. Re-uploading
+    the same CSV therefore creates duplicate employee IDs; delete or update records
+    explicitly if needed.
     """
     if not file.filename or not file.filename.endswith('.csv'):
         raise HTTPException(status_code=400, detail="Invalid file type. Only CSV files are accepted.")
@@ -51,7 +38,7 @@ async def upload_hr_csv(
 
     try:
         importer = CSVHRImporter(file_path=str(temp_file_path))
-        imported_employees = importer.import_employees() # This uses the skeleton CSVHRImporter
+        imported_employees = importer.import_employees()
         
         processed_employees = imported_employees
         if clean_data:
@@ -59,14 +46,13 @@ async def upload_hr_csv(
         if enrich_data:
             processed_employees = enrich_employee_data(processed_employees)
         
-        global DB_EMPLOYEES
-        DB_EMPLOYEES.clear() # Replace for simplicity
-        DB_EMPLOYEES.extend(processed_employees)
-        
+        store.employees.extend(processed_employees)
+
         return {
-            "message": f"Successfully imported and processed {len(DB_EMPLOYEES)} employees from {file.filename}",
+            "message": f"Successfully imported and processed {len(processed_employees)} employees from {file.filename}",
             "imported_count": len(imported_employees),
-            "processed_count": len(DB_EMPLOYEES),
+            "processed_count": len(processed_employees),
+            "total_employees_in_store": len(store.employees),
             "cleaning_applied": clean_data,
             "enrichment_applied": enrich_data
         }
@@ -88,30 +74,30 @@ async def get_all_employees(
     offset: int = Query(0, ge=0)
 ) -> List[Employee]:
     """Retrieve all employees from the in-memory store."""
-    return DB_EMPLOYEES[offset : offset + limit]
+    return store.employees[offset : offset + limit]
 
 @router.get("/employees/count", response_model=Dict[str, int])
 async def get_employees_count() -> Dict[str, int]:
     """Get the total number of employees in the in-memory store."""
-    return {"total_employees": len(DB_EMPLOYEES)}
+    return {"total_employees": len(store.employees)}
 
 @router.get("/reports/headcount", response_model=Dict[str, Any])
 async def get_hr_headcount_report(group_by: Optional[List[str]] = Query(None, description="Fields to group by, e.g., department,location")) -> Dict[str, Any]:
-    if not DB_EMPLOYEES:
+    if not store.employees:
         raise HTTPException(status_code=404, detail="No employee data. Upload data first.")
-    return generate_headcount_report(DB_EMPLOYEES, group_by=group_by if group_by else [])
+    return generate_headcount_report(store.employees, group_by=group_by if group_by else [])
 
 @router.get("/reports/diversity", response_model=Dict[str, Any])
 async def get_hr_diversity_report(diversity_fields: Optional[List[str]] = Query(None, description="Fields for diversity metrics, e.g., gender,nationality")) -> Dict[str, Any]:
-    if not DB_EMPLOYEES:
+    if not store.employees:
         raise HTTPException(status_code=404, detail="No employee data. Upload data first.")
-    return generate_diversity_report(DB_EMPLOYEES, diversity_fields=diversity_fields if diversity_fields else ['gender'])
+    return generate_diversity_report(store.employees, diversity_fields=diversity_fields if diversity_fields else ['gender'])
 
 @router.get("/visualizations/headcount-by-department", response_model=Dict[str, str])
 async def get_headcount_by_dept_plot() -> Dict[str, str]:
-    if not DB_EMPLOYEES:
+    if not store.employees:
         raise HTTPException(status_code=404, detail="No employee data for visualization.")
-    plot_path = plot_headcount_by_department(DB_EMPLOYEES)
+    plot_path = plot_headcount_by_department(store.employees)
     if plot_path:
         return {"message": "Plot generated", "plot_file_path": plot_path}
     else:
@@ -120,7 +106,7 @@ async def get_headcount_by_dept_plot() -> Dict[str, str]:
 @router.get("/employees/{employee_id}", response_model=Employee)
 async def get_employee_by_id(employee_id: str) -> Employee:
     """Get a specific employee by ID."""
-    for emp in DB_EMPLOYEES:
+    for emp in store.employees:
         if emp.employee_id == employee_id:
             return emp
     raise HTTPException(status_code=404, detail=f"Employee {employee_id} not found")
@@ -129,7 +115,7 @@ async def get_employee_by_id(employee_id: str) -> Employee:
 async def create_employee(employee: Employee) -> Employee:
     """Create a new employee."""
     # Check if employee already exists
-    for emp in DB_EMPLOYEES:
+    for emp in store.employees:
         if emp.employee_id == employee.employee_id:
             raise HTTPException(status_code=400, detail=f"Employee {employee.employee_id} already exists")
 
@@ -141,13 +127,13 @@ async def create_employee(employee: Employee) -> Employee:
     if not result.is_valid:
         raise HTTPException(status_code=400, detail=f"Validation failed: {result.errors}")
 
-    DB_EMPLOYEES.append(employee)
+    store.employees.append(employee)
     return employee
 
 @router.put("/employees/{employee_id}", response_model=Employee)
 async def update_employee(employee_id: str, employee_update: Dict[str, Any]) -> Employee:
     """Update an existing employee."""
-    for i, emp in enumerate(DB_EMPLOYEES):
+    for i, emp in enumerate(store.employees):
         if emp.employee_id == employee_id:
             # Update fields
             for key, value in employee_update.items():
@@ -162,7 +148,7 @@ async def update_employee(employee_id: str, employee_update: Dict[str, Any]) -> 
             if not result.is_valid:
                 raise HTTPException(status_code=400, detail=f"Validation failed: {result.errors}")
 
-            DB_EMPLOYEES[i] = emp
+            store.employees[i] = emp
             return emp
 
     raise HTTPException(status_code=404, detail=f"Employee {employee_id} not found")
@@ -170,9 +156,9 @@ async def update_employee(employee_id: str, employee_update: Dict[str, Any]) -> 
 @router.delete("/employees/{employee_id}")
 async def delete_employee(employee_id: str) -> Dict[str, Any]:
     """Delete an employee."""
-    for i, emp in enumerate(DB_EMPLOYEES):
+    for i, emp in enumerate(store.employees):
         if emp.employee_id == employee_id:
-            del DB_EMPLOYEES[i]
+            del store.employees[i]
             return {"message": f"Employee {employee_id} deleted successfully"}
 
     raise HTTPException(status_code=404, detail=f"Employee {employee_id} not found")
@@ -185,7 +171,7 @@ async def search_employees(
     limit: int = Query(100, ge=1, le=1000)
 ) -> List[Employee]:
     """Search employees with filters."""
-    filtered_employees = DB_EMPLOYEES
+    filtered_employees = store.employees
 
     if department:
         filtered_employees = [emp for emp in filtered_employees if emp.department == department]
@@ -202,7 +188,7 @@ async def search_employees(
 @router.get("/dashboard", response_model=Dict[str, Any])
 async def get_hr_dashboard() -> Dict[str, Any]:
     """Get comprehensive HR dashboard data."""
-    if not DB_EMPLOYEES:
+    if not store.employees:
         raise HTTPException(status_code=404, detail="No employee data available")
 
     from ..methods import generate_comprehensive_hr_dashboard
@@ -216,10 +202,10 @@ async def get_hr_dashboard() -> Dict[str, Any]:
 @router.get("/analytics/tenure", response_model=Dict[str, Any])
 async def get_tenure_analytics() -> Dict[str, Any]:
     """Get employee tenure analytics."""
-    if not DB_EMPLOYEES:
+    if not store.employees:
         raise HTTPException(status_code=404, detail="No employee data available")
 
-    active_employees = [emp for emp in DB_EMPLOYEES if emp.employment_status.value == "ACTIVE"]
+    active_employees = [emp for emp in store.employees if emp.employment_status.value == "ACTIVE"]
     tenure_values = []
 
     for emp in active_employees:
@@ -248,11 +234,11 @@ async def get_tenure_analytics() -> Dict[str, Any]:
 @router.get("/analytics/turnover", response_model=Dict[str, Any])
 async def get_turnover_analytics() -> Dict[str, Any]:
     """Get employee turnover analytics."""
-    if not DB_EMPLOYEES:
+    if not store.employees:
         raise HTTPException(status_code=404, detail="No employee data available")
 
-    terminated_employees = [emp for emp in DB_EMPLOYEES if emp.employment_status.value == "TERMINATED"]
-    total_employees = len(DB_EMPLOYEES)
+    terminated_employees = [emp for emp in store.employees if emp.employment_status.value == "TERMINATED"]
+    total_employees = len(store.employees)
 
     # Calculate turnover rate
     turnover_rate = (len(terminated_employees) / total_employees * 100) if total_employees > 0 else 0

@@ -2,9 +2,9 @@
 
 ## Implementation status
 
-The workflow package under `GEO-INFER-INTRA/src/geo_infer_intra/core/workflow/`
-currently contains only its package marker (`__init__.py`). It does not expose a
-workflow service, REST server, client library, persistence layer, or CLI.
+No workflow package exists under `GEO-INFER-INTRA/src/geo_infer_intra/`. The
+empty shell directory was removed; any workflow capability remains roadmap and
+is not part of the package.
 
 Consequently, the REST endpoints and JavaScript client examples that were
 previously documented on this page were proposals rather than supported API.

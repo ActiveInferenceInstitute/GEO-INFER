@@ -21,10 +21,8 @@
 
 ## Local Contents
 
-- `api/`
 - `core/`
 - `models/`
-- `utils/`
 - `__init__.py`
 - `testing.py`
 

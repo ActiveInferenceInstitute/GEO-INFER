@@ -7,7 +7,7 @@ and demographic representation analysis for civic processes.
 
 import math
 from typing import Dict, List, Optional, Tuple, Any
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 
 

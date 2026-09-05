@@ -1,36 +1,28 @@
 # GEO-INFER-CLIMATE Documentation
 
-GEO-INFER-CLIMATE provides climate data processing, trend analysis, anomaly detection, extreme event identification, and climate change projections. The module works with standard climate data formats (NetCDF, GRIB) and supports CMIP6 scenarios for future projections.
+GEO-INFER-CLIMATE provides climate data processing, trend analysis, anomaly detection, extreme event identification, and climate change projections. The module works with standard climate data formats (NetCDF, GRIB) and supports SSP scenarios for simplified future projections.
 
 ## Module Overview
 
-GEO-INFER-CLIMATE operates across five functional areas:
+GEO-INFER-CLIMATE operates across six functional areas:
 
 1. **Data Processing** -- Load, validate, and transform climate datasets from CMIP6, ERA5, NCEP, and observational sources.
-2. **Temperature Trends** -- Linear regression and Mann-Kendall non-parametric trend tests with Sen's slope estimator.
-3. **Extreme Events** -- Detection of heatwaves, cold spells, droughts, floods, and extreme precipitation using percentile-based thresholds.
-4. **Climate Projections** -- Future climate projections under SSP scenarios (SSP1-2.6, SSP2-4.5, SSP3-7.0, SSP5-8.5).
-5. **Impact Assessment** -- Climate impact classification, downscaling, and precipitation analysis.
+2. **Temperature Trends** -- Linear regression and Mann-Kendall non-parametric trend tests.
+3. **Extreme Events** -- Detection of heatwaves, cold spells, droughts, floods, and compound events using percentile-based thresholds, plus return period estimation.
+4. **Climate Indices** -- SPI, heat index, extreme indices, and a first-order Palmer-style drought index.
+5. **Climate Projections** -- Simplified linear-scaling future projections under SSP scenarios (SSP1-2.6, SSP2-4.5, SSP3-7.0, SSP5-8.5).
+6. **Specialized Analysis** -- Downscaling and bias correction, precipitation (IDF) analysis, impact assessment, and Koppen-Geiger climate classification.
 
 ## Core Capabilities
 
 - **Multi-format data loading**: NetCDF (.nc), GRIB (.grib, .grib2), with xarray backend for efficient multi-dimensional array operations.
 - **Dataset validation**: Check for required coordinates, time dimensions, spatial dimensions, data completeness, and missing values.
 - **Parametric trends**: Ordinary least squares regression with slope, intercept, R-squared, p-value, standard error, and per-decade slope.
-- **Non-parametric trends**: Mann-Kendall test with S statistic, variance calculation, Z-score, p-value, and Sen's slope median estimator.
-- **Extreme event detection**: Percentile-based thresholds for heatwaves (90th), cold spells (10th), drought (10th), floods (95th), extreme precipitation (99th), with configurable minimum duration.
-- **Climate projections**: Scenario-based scaling (SSP1-2.6 through SSP5-8.5) applied to historical trends.
-- **Climate indices**: Standard climate indices including consecutive dry days, growing degree days, and frost days.
-
-## Integration Points
-
-| Module | Integration |
-|--------|------------|
-| GEO-INFER-SPACE | Spatial interpolation and H3 grid mapping for climate variables |
-| GEO-INFER-TIME | Temporal analysis, seasonal decomposition, and time series management |
-| GEO-INFER-BAYES | Bayesian uncertainty quantification for projections and trend significance |
-| GEO-INFER-DATA | Data pipeline management for climate dataset ingestion |
-| GEO-INFER-RISK | Climate hazard inputs for risk modeling |
+- **Non-parametric trends**: Mann-Kendall test with S statistic, variance calculation, Z value, and p-value.
+- **Extreme event detection**: Percentile-based thresholds for heatwaves (90th), cold spells (10th), droughts (10th), floods (95th), with configurable minimum duration.
+- **Climate projections**: Scenario-based scaling (SSP1-2.6 through SSP5-8.5) applied to historical linear trends (illustrative, not a model emulator).
+- **Climate indices**: SPI, Rothfusz heat index, hot/cold day counts, Palmer-style drought index.
+- **Koppen-Geiger classification**: Per-site and per-grid climate zone classification.
 
 ## Documentation Contents
 
@@ -43,20 +35,17 @@ GEO-INFER-CLIMATE operates across five functional areas:
 
 ```
 geo_infer_climate/
+  __init__.py              -- Public API (9 core classes)
   core/
     climate_data.py          -- ClimateDataProcessor (loading, validation)
     temperature_trends.py    -- TemperatureTrendAnalyzer (linear, Mann-Kendall)
     extreme_events.py        -- ExtremeEventAnalyzer (heatwave, drought, flood)
     projections.py           -- ClimateProjections (SSP scenario projections)
-    precipitation_analysis.py -- Precipitation trend and intensity analysis
-    climate_indices.py       -- Standard climate index calculations
-    downscaling.py           -- Statistical downscaling methods
-    impact_assessment.py     -- Climate impact classification
-    classification.py        -- Climate zone classification
-  models/
-    climate_models.py        -- Data models for climate entities
-  api/
-    endpoints.py             -- REST API for climate analytics
+    precipitation_analysis.py -- PrecipitationAnalyzer (IDF, Gumbel, gamma)
+    climate_indices.py       -- ClimateIndicesCalculator (SPI, heat index, PDSI-style)
+    downscaling.py           -- DownscalingMethods (bias correction, interpolation)
+    impact_assessment.py     -- ClimateImpactAssessor (agriculture, water)
+    classification.py        -- ClimateClassifier (Koppen-Geiger)
 ```
 
 ## Quick Start
@@ -82,14 +71,12 @@ print(f"P-value: {trend['p_value']:.4f}")
 mk = analyzer.mann_kendall_test(temperatures)
 print(f"MK trend: {mk['trend']}")
 print(f"MK p-value: {mk['p_value']:.4f}")
-print(f"Sen's slope: {mk['sens_slope']:.4f} deg C/year")
+print(f"MK Z value: {mk['z_value']:.4f}")
 ```
 
 ## Key Concepts
 
 **Mann-Kendall test** is a non-parametric trend test that does not require normal distribution. The test statistic S counts the number of positive minus negative differences between all pairs of observations. It is particularly useful for climate data which often has non-normal distributions and outliers.
-
-**Sen's slope** is the median of all pairwise slopes between data points. It provides a robust estimate of trend magnitude that is resistant to outliers, making it preferred over linear regression slope for climate trend reporting.
 
 **SSP scenarios** (Shared Socioeconomic Pathways) define future greenhouse gas concentration trajectories: SSP1-2.6 (sustainability), SSP2-4.5 (middle of the road), SSP3-7.0 (regional rivalry), SSP5-8.5 (fossil-fuel development). These drive the scaling factors for climate projections.
 

@@ -25,17 +25,14 @@ python from geo_infer_sec import SecurityManager # Create security manager secur
 python from geo_infer_sec.access import AccessControlManager # Create access control manager access_manager = AccessControlManager( control_parameters={ 'authentication': True, 'authorization': True, 'audit_logging': True } ) # Manage access control access_result = access_manager.manage_access_control( user_data=user_information, permission_data=permission_settings, audit_data=audit_requirements )
 ```
  ## 📚 Core Features ### 1. Data Protection Engine **Purpose**: Protect geospatial data through encryption and privacy-preserving techniques.
-```
 ```python
  from geo_infer_sec.protection import DataProtectionEngine # Initialize data protection engine protection_engine = DataProtectionEngine() # Define protection parameters protection_config = protection_engine.configure_protection({ 'encryption_algorithm': 'AES-256', 'key_management': 'hardware_security_module', 'privacy_technique': 'differential_privacy', 'anonymization_level': 'k_anonymity', 'k_value': 5 }) # Protect geospatial data protected_result = protection_engine.protect_geospatial_data( spatial_data=geospatial_data, protection_config=protection_config, privacy_requirements=privacy_standards )
 ```
  ### 2. Access Control Management **Purpose**: Manage access to geospatial resources and data.
-```
 ```python
  from geo_infer_sec.access import AccessControlEngine # Initialize access control engine access_engine = AccessControlEngine() # Define access control parameters access_config = access_engine.configure_access_control({ 'authentication_method': 'oauth2', 'authorization_model': 'rbac', 'session_timeout': 3600, 'multi_factor_auth': True, 'audit_logging': True }) # Manage access control access_result = access_engine.manage_access_control( user_identity=user_profile, geospatial_resources=spatial_resources, access_config=access_config )
 ```
  ### 3. Compliance Management **Purpose**: Ensure compliance with security and privacy regulations.
-```
 ```python
  from geo_infer_sec.compliance import ComplianceEngine # Initialize compliance engine compliance_engine = ComplianceEngine() # Define compliance parameters compliance_config = compliance_engine.configure_compliance({ 'regulatory_framework': 'gdpr', 'data_retention_policy': '7_years', 'audit_frequency': 'monthly', 'privacy_impact_assessment': True }) # Manage compliance compliance_result = compliance_engine.manage_compliance( geospatial_system=spatial_system, compliance_config=compliance_config, audit_requirements=audit_standards )
 ```

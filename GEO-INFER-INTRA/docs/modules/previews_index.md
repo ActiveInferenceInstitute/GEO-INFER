@@ -27,6 +27,7 @@ Auto-generated single and static preview snapshots for all GEO-INFER domain modu
 | FOREST | [Interactive](previews/geo-infer-forest_preview.html) · [Static SVG](previews/geo-infer-forest_preview.svg) |
 | GIT | [Interactive](previews/geo-infer-git_preview.html) · [Static SVG](previews/geo-infer-git_preview.svg) |
 | HEALTH | [Interactive](previews/geo-infer-health_preview.html) · [Static SVG](previews/geo-infer-health_preview.svg) |
+| INSURANCE | [Interactive](previews/geo-infer-insurance_preview.html) · [Static SVG](previews/geo-infer-insurance_preview.svg) |
 | INTRA | [Interactive](previews/geo-infer-intra_preview.html) · [Static SVG](previews/geo-infer-intra_preview.svg) |
 | IOT | [Interactive](previews/geo-infer-iot_preview.html) · [Static SVG](previews/geo-infer-iot_preview.svg) |
 | LOG | [Interactive](previews/geo-infer-log_preview.html) · [Static SVG](previews/geo-infer-log_preview.svg) |

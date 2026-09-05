@@ -30,11 +30,11 @@ __all__ = [
 # Raster I/O (requires rasterio)
 try:
     from .raster_io import (
-        RasterReader,
-        RasterWriter,
-        read_raster_file,
-        write_raster_file,
-        supported_raster_formats
+        RasterReader as RasterReader,
+        RasterWriter as RasterWriter,
+        read_raster_file as read_raster_file,
+        write_raster_file as write_raster_file,
+        supported_raster_formats as supported_raster_formats
     )
     __all__.extend([
         'RasterReader',
@@ -49,11 +49,11 @@ except ImportError:
 # Point cloud I/O (basic always available, LAS/LAZ requires laspy)
 try:
     from .point_cloud_io import (
-        PointCloudReader,
-        PointCloudWriter,
-        read_point_cloud_file,
-        write_point_cloud_file,
-        supported_point_cloud_formats
+        PointCloudReader as PointCloudReader,
+        PointCloudWriter as PointCloudWriter,
+        read_point_cloud_file as read_point_cloud_file,
+        write_point_cloud_file as write_point_cloud_file,
+        supported_point_cloud_formats as supported_point_cloud_formats
     )
     __all__.extend([
         'PointCloudReader',
@@ -68,13 +68,13 @@ except ImportError:
 # Format handlers
 try:
     from .format_handlers import (
-        FormatHandler,
-        GeoJSONHandler,
-        ShapefileHandler,
-        GeoTIFFHandler,
-        COGHandler,
-        LASHandler,
-        NetCDFHandler
+        FormatHandler as FormatHandler,
+        GeoJSONHandler as GeoJSONHandler,
+        ShapefileHandler as ShapefileHandler,
+        GeoTIFFHandler as GeoTIFFHandler,
+        COGHandler as COGHandler,
+        LASHandler as LASHandler,
+        NetCDFHandler as NetCDFHandler
     )
     __all__.extend([
         'FormatHandler',

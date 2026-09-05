@@ -6,7 +6,7 @@ spatial convolution kernels, and adjacency tensor construction.
 """
 
 import numpy as np
-from typing import Optional, Dict, Any, Tuple, cast
+from typing import Optional, Any, cast
 import logging
 
 logger = logging.getLogger(__name__)

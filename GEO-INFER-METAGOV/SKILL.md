@@ -2,10 +2,9 @@
 name: geo-infer-metagov
 description: Meta-governance frameworks for geospatial decision-making. Use when implementing polycentric governance, multi-level institutional analysis, stakeholder engagement, conflict resolution, or adaptive governance scenarios for spatial resource management.
 prerequisites:
-  required:
-    - geo-infer-data
-    - geo-infer-api
+  required: []
   recommended:
+    - geo-infer-space
     - geo-infer-norms
 difficulty: intermediate
 estimated_time: 45min
@@ -56,6 +55,9 @@ conflicts = analysis["interest_conflicts"]
 
 ### Integrations
 
-- Integrates with NORMS for normative governance checks
-- Integrates with CIV for participatory governance
-- Test: `uv run python -m pytest GEO-INFER-METAGOV/tests/ -v`
+- Integrates with NORMS for normative governance checks (self-contained reimplementation in
+  `integrations/normative.py` — no hard dependency on `geo_infer_norms`)
+- Integrates with SPACE for spatial governance indexing (optional, guarded import in
+  `integrations/spatial.py`; degrades gracefully when absent)
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module METAGOV`
+  (or directly: `uv run python -m pytest GEO-INFER-METAGOV/tests/ -v`)

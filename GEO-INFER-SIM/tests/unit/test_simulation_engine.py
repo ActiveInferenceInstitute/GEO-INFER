@@ -207,3 +207,56 @@ class TestSimulationEngine:
         assert result["module"] == "ANT"
         assert len(result["trail_history"]) == 1
         assert result["final_trails"].sum() > 0
+
+
+class TestCheckpointReproducibility:
+    """Loading a checkpoint must restore config and re-seed the RNG."""
+
+    def test_load_checkpoint_restores_config_and_rng(self, tmp_path) -> None:
+        import numpy as np
+
+        config = SimulationConfig(
+            time_step=0.5, max_time=10.0, output_interval=0.5, random_seed=123
+        )
+        engine = SimulationEngine(config)
+        engine.initialize({"x": 1.0})
+
+        filepath = str(tmp_path / "ckpt.json")
+        engine.save_checkpoint(filepath)
+
+        resumed = SimulationEngine(SimulationConfig(random_seed=999))
+        resumed.load_checkpoint(filepath)
+
+        assert resumed.config.time_step == 0.5
+        assert resumed.config.max_time == 10.0
+        assert resumed.config.random_seed == 123
+        assert resumed.config.output_interval == 0.5
+
+        # Resumed RNG draws reproduce the original engine's stream.
+        expected = engine.rng.random(5)
+        assert resumed.rng.random(5).tolist() == expected.tolist()
+
+    def test_resumed_run_matches_uninterrupted_run(self, tmp_path) -> None:
+        """A run resumed from a checkpoint draws the same random values as an
+        uninterrupted run with the same seed."""
+
+        def make(seed: int) -> SimulationEngine:
+            engine = SimulationEngine(
+                SimulationConfig(time_step=1.0, max_time=3.0, random_seed=seed)
+            )
+            engine.initialize({})
+            return engine
+
+        uninterrupted = make(7)
+        for _ in range(2):
+            uninterrupted.step(
+                lambda t, s: {"v": uninterrupted.rng.random()}
+            )
+
+        resumed = make(7)
+        resumed.step(lambda t, s: {"v": resumed.rng.random()})
+        resumed.save_checkpoint(str(tmp_path / "mid.json"))
+        resumed.load_checkpoint(str(tmp_path / "mid.json"))
+        resumed.step(lambda t, s: {"v": resumed.rng.random()})
+
+        assert resumed._current_state["v"] == uninterrupted._current_state["v"]

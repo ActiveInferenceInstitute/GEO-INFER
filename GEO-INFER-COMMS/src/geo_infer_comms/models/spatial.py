@@ -7,21 +7,22 @@ reference systems, spatial bounds, and geospatial filtering capabilities.
 """
 
 from __future__ import annotations
-from typing import Dict, List, Optional, Union, Any, Tuple, Literal, cast
+from typing import Dict, List, Optional, Any, Literal, cast
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-import json
 import math
 
-from geo_infer_comms.utils.validation import validate_coordinates, validate_crs
+from geo_infer_comms.utils.validation import (
+    SUPPORTED_CRS, validate_coordinates, validate_crs, validate_geojson_geometry
+)
 
 
 class CoordinateSystem(str):
     """Supported coordinate reference systems."""
-    WGS84 = "EPSG:4326"  # World Geodetic System 1984
-    UTM = "UTM"          # Universal Transverse Mercator
-    WEB_MERCATOR = "EPSG:3857"  # Web Mercator (used by most web maps)
-    LOCAL = "LOCAL"      # Local coordinate system
+    WGS84 = SUPPORTED_CRS["WGS84"]
+    UTM = SUPPORTED_CRS["UTM"]
+    WEB_MERCATOR = SUPPORTED_CRS["WEB_MERCATOR"]
+    LOCAL = SUPPORTED_CRS["LOCAL"]
 
 
 @dataclass
@@ -443,29 +444,6 @@ def buffer_point(point: GeospatialPoint, distance_meters: float) -> GeospatialBo
     )
 
 
-def validate_geojson_geometry(geometry: Any) -> bool:
-    """Validate GeoJSON geometry structure."""
-    required_fields = ["type", "coordinates"]
-
-    if not isinstance(geometry, dict):
-        return False
-
-    if not all(field in geometry for field in required_fields):
-        return False
-
-    geom_type = geometry["type"]
-    valid_types = ["Point", "LineString", "Polygon", "MultiPoint",
-                   "MultiLineString", "MultiPolygon", "GeometryCollection"]
-
-    if geom_type not in valid_types:
-        return False
-
-    # Basic coordinate validation
-    coordinates = geometry["coordinates"]
-    if not isinstance(coordinates, list):
-        return False
-
-    return True
 
 
 def geojson_to_geospatial_point(geojson: Dict[str, Any]) -> GeospatialPoint:

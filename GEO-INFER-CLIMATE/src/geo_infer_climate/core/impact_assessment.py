@@ -3,7 +3,7 @@ Climate impact assessment module.
 """
 
 import logging
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 import numpy as np
 import xarray as xr
 
@@ -31,13 +31,20 @@ class ClimateImpactAssessor:
         crop_type: str = 'wheat'
     ) -> xr.Dataset:
         """
-        Assess climate impact on agriculture.
-        
+        Assess climate impact on agriculture with a first-order stress model.
+
+        Stress indices compare the input data against fixed per-crop optima.
+        Note: precipitation is compared directly against the annual-total
+        optimum (mm/year), so input precipitation must be annual totals (or
+        totals over the same period as the optima), not daily values. This
+        is a documented first-order proxy, not a crop model.
+
         Args:
-            temperature: Temperature data
-            precipitation: Precipitation data
-            crop_type: Type of crop
-            
+            temperature: Temperature data (deg C)
+            precipitation: Precipitation totals comparable to the per-crop
+                annual optimum (mm)
+            crop_type: Type of crop ('wheat', 'corn', 'rice')
+
         Returns:
             Impact assessment results
         """
@@ -65,13 +72,19 @@ class ClimateImpactAssessor:
         evapotranspiration: Optional[xr.DataArray] = None
     ) -> xr.Dataset:
         """
-        Assess climate impact on water resources.
-        
+        Assess climate impact on water resources via a simple water balance.
+
+        When ``evapotranspiration`` is omitted, ET is estimated with a
+        crude linear temperature proxy (``ET = 0.5 * T`` mm per time step),
+        which is not a physically-based PET estimate; pass measured or
+        modelled ET for meaningful results.
+
         Args:
-            precipitation: Precipitation data
-            temperature: Temperature data
-            evapotranspiration: Optional ET data
-            
+            precipitation: Precipitation data (mm per time step)
+            temperature: Temperature data (deg C); used only when
+                ``evapotranspiration`` is omitted
+            evapotranspiration: Optional ET data (mm per time step)
+
         Returns:
             Water resources assessment
         """

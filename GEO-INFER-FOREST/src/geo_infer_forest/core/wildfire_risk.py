@@ -537,7 +537,6 @@ class WildfireRiskAnalyzer:
         
         # Calculate downwind hazard zone (elliptical)
         # Fire spreads primarily in wind direction
-        wind_rad = np.radians(wind_direction_deg)
         
         # Downwind extension
         downwind_factor = 2.0

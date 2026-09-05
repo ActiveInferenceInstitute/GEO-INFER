@@ -1,14 +1,18 @@
 """HR Data Importers."""
 
+import logging
 import csv
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 from ..models.hr_models import (
+
     Employee,
     EmploymentStatus,
     Gender,
 )  # Adjusted import path
+
+logger = logging.getLogger(__name__)
 
 
 class BaseHRImporter(ABC):
@@ -40,7 +44,7 @@ class BaseHRImporter(ABC):
         self.connect(**kwargs)
         raw_data = self.fetch_employees(last_sync_date=last_sync_date)
         transformed_data = self.transform_employees(raw_data)
-        print(
+        logger.info(
             f"Successfully imported and transformed {len(transformed_data)} employee records."
         )
         return transformed_data
@@ -53,7 +57,7 @@ class CSVHRImporter(BaseHRImporter):
     def __init__(self, file_path: str):
         self.file_path = file_path
         self.connection: Optional[str] = None
-        print(f"CSV HR Importer initialized for file: {self.file_path}")
+        logger.info(f"CSV HR Importer initialized for file: {self.file_path}")
 
     def connect(self, **kwargs: Any) -> None:
         try:
@@ -61,12 +65,12 @@ class CSVHRImporter(BaseHRImporter):
             with open(self.file_path, "r", encoding="utf-8") as f:
                 f.read(0)
             self.connection = "connected"
-            print(f"Successfully connected to HR CSV file: {self.file_path}")
+            logger.info(f"Successfully connected to HR CSV file: {self.file_path}")
         except FileNotFoundError:
-            print(f"Error: HR CSV file not found at {self.file_path}")
+            logger.error(f"Error: HR CSV file not found at {self.file_path}")
             raise
         except Exception as e:
-            print(f"Error connecting to HR CSV file {self.file_path}: {e}")
+            logger.error(f"Error connecting to HR CSV file {self.file_path}: {e}")
             raise
 
     def fetch_employees(
@@ -82,10 +86,10 @@ class CSVHRImporter(BaseHRImporter):
                 for row in reader:
                     # Add date filtering if last_sync_date and relevant date column in CSV
                     records.append(dict(row))
-            print(f"Fetched {len(records)} employee records from {self.file_path}")
+            logger.info(f"Fetched {len(records)} employee records from {self.file_path}")
             return records
         except Exception as e:
-            print(f"Error fetching employee data from CSV {self.file_path}: {e}")
+            logger.error(f"Error fetching employee data from CSV {self.file_path}: {e}")
             return []
 
     def transform_employees(self, raw_data: List[Dict[str, Any]]) -> List[Employee]:
@@ -100,7 +104,7 @@ class CSVHRImporter(BaseHRImporter):
                             record["hire_date"], "%Y-%m-%d"
                         ).date()
                     except ValueError:
-                        print(
+                        logger.warning(
                             f"Warning: Could not parse hire_date for record: {record.get('employee_id')}"
                         )
 
@@ -135,10 +139,10 @@ class CSVHRImporter(BaseHRImporter):
                 # Pydantic will validate
                 employees.append(Employee(**employee_data_cleaned))
             except Exception as e:
-                print(
+                logger.info(
                     f"Error transforming HR record: {record.get('employee_id', 'Unknown ID')}. Error: {e}"
                 )
-        print(f"Transformed {len(employees)} employee records.")
+        logger.info(f"Transformed {len(employees)} employee records.")
         return employees
 
 

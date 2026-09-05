@@ -10,7 +10,7 @@ import logging
 import uuid
 from datetime import datetime
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Union, Tuple, Set, Callable, cast
+from typing import Dict, List, Any, Optional, Callable, cast
 from enum import Enum
 from collections import defaultdict
 
@@ -23,12 +23,7 @@ except ImportError:
     H3_AVAILABLE = False
     logger.warning("h3-py package not available")
 
-try:
-    import numpy as np
-    NUMPY_AVAILABLE = True
-except ImportError:
-    NUMPY_AVAILABLE = False
-    logger.warning("NumPy not available. Some splitting features will be limited.")
+import numpy as np  # hard dependency (numpy<2.0 pinned); no fallback path
 
 
 class SplittingStrategy(Enum):
@@ -414,8 +409,8 @@ class H3SplittingEngine:
         gradient_field = kwargs.get('gradient_field', 'value')
         gradient_threshold = kwargs.get('gradient_threshold', 0.3)
         
-        if not H3_AVAILABLE or not NUMPY_AVAILABLE:
-            logger.warning("h3-py and NumPy required for gradient-based splitting")
+        if not H3_AVAILABLE:
+            logger.warning("h3-py required for gradient-based splitting")
             return {}
         
         split_cells = {}
@@ -548,24 +543,14 @@ class H3SplittingEngine:
         if not children_counts:
             return 0.0
         
-        if NUMPY_AVAILABLE:
-            # Lower variance means better balance
-            mean_count: float = cast(float, np.mean(children_counts))
-            variance: float = cast(float, np.var(children_counts))
-            
-            if mean_count > 0:
-                balance = 1.0 / (1.0 + variance / mean_count)
-            else:
-                balance = 0.0
+        # Lower variance means better balance
+        mean_count: float = cast(float, np.mean(children_counts))
+        variance: float = cast(float, np.var(children_counts))
+        
+        if mean_count > 0:
+            balance = 1.0 / (1.0 + variance / mean_count)
         else:
-            # Simple balance calculation
-            mean_count = sum(children_counts) / len(children_counts)
-            variance = sum((count - mean_count) ** 2 for count in children_counts) / len(children_counts)
-            
-            if mean_count > 0:
-                balance = 1.0 / (1.0 + variance / mean_count)
-            else:
-                balance = 0.0
+            balance = 0.0
         
         return min(1.0, max(0.0, balance))
     

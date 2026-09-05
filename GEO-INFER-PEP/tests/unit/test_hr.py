@@ -178,13 +178,16 @@ def test_employee_model():
 
 
 # Importer Tests
-def test_csv_hr_importer(dummy_hr_csv_file, capsys):
+def test_csv_hr_importer(dummy_hr_csv_file, caplog):
     """Behavior-focused test: test_csv_hr_importer."""
     importer = CSVHRImporter(file_path=str(dummy_hr_csv_file))
-    employees = importer.import_employees()
+    with caplog.at_level("WARNING", logger="geo_infer_pep.hr.importer"):
+        employees = importer.import_employees()
 
-    captured = capsys.readouterr()  # To check for warnings
-    assert "Warning: Could not parse hire_date for record: emp_csv_003" in captured.out
+    assert any(
+        "Could not parse hire_date for record: emp_csv_003" in record.getMessage()
+        for record in caplog.records
+    )
 
     assert len(employees) >= 3  # All rows should import; some may have None fields.
     # One record (emp_csv_003) had a bad date and thus hire_date=None, still valid Employee object.
@@ -218,22 +221,35 @@ def test_csv_hr_importer(dummy_hr_csv_file, capsys):
     assert emp_minimal.employment_status == EmploymentStatus.PENDING_HIRE
 
 
-# Transformer Tests (simulated, as actual transformation from CSV depends on importer populating fields)
-# These tests remain largely the same as transformers are simple pass-throughs for now.
+
+
 def test_clean_employee_data(sample_employee_data_list):
-    """Behavior-focused test: test_clean_employee_data."""
-    cleaned = clean_employee_data(sample_employee_data_list)  # Currently a pass-through
-    assert len(cleaned) == 4
-    # Add specific assertions if/when cleaning logic is implemented
+    """clean_employee_data title-cases department, job title, and location."""
+    messy = Employee(
+        employee_id="emp_dirty",
+        first_name="Diana",
+        last_name="Prince",
+        email="diana.prince@example.com",
+        employment_status=EmploymentStatus.ACTIVE,
+        job_title="data scientist",
+        department="engineering",
+        location=" remote ",
+    )
+
+    cleaned = clean_employee_data([messy])
+
+    assert len(cleaned) == 1
+    assert cleaned[0].job_title == "Data Scientist"
+    assert cleaned[0].department == "Engineering"
+    assert cleaned[0].location == "Remote"
+    # Already-clean fixtures pass through unchanged
+    assert clean_employee_data(sample_employee_data_list)[0].department == "Technology"
 
 
 def test_enrich_employee_data(sample_employee_data_list):
     """Behavior-focused test: test_enrich_employee_data."""
-    enriched = enrich_employee_data(
-        sample_employee_data_list
-    )  # Currently a pass-through
+    enriched = enrich_employee_data(sample_employee_data_list)
     assert len(enriched) == 4
-    # Add specific assertions if/when enrichment logic is implemented (e.g., tenure calculation)
 
 
 def test_convert_employees_to_dataframe(sample_employee_data_list):

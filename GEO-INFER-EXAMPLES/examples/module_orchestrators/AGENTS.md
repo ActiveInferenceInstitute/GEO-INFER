@@ -38,6 +38,7 @@
 - `ECON/`
 - `GIT/`
 - `HEALTH/`
+- `INSURANCE/`
 - `INTRA/`
 - `IOT/`
 - `LOG/`

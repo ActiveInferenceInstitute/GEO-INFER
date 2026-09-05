@@ -1,9 +1,18 @@
+# DESIGN SPECIFICATION — NOT IMPLEMENTED
+#
+# This OpenAPI document is a forward-looking design for a REST layer over the
+# in-process AgentAPIClient/AgentManager (see src/geo_infer_app/api/agent_api.py).
+# No HTTP server ships in GEO-INFER-APP today: the in-process client stores agent
+# state in memory and the WebAgentWidget fetch() calls target endpoints described
+# here for a future deployment. Treat this file as a roadmap artifact, not a
+# description of running code.
+
 openapi: 3.0.3
 info:
   title: GEO-INFER-APP API
   description: |
     Comprehensive application framework API for building geospatial intelligence applications.
-    
+
     This API provides tools for:
     - Application lifecycle management
     - UI component orchestration

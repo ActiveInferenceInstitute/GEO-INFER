@@ -14,7 +14,6 @@ python3 --version
 
 If you need to install a specific Python version:
 
-```
 ```bash
 # macOS (Homebrew)
 brew install python@3.11
@@ -30,7 +29,6 @@ winget install Python.Python.3.11
 
 GEO-INFER uses `uv` as its package manager. Install it first:
 
-```
 ```bash
 # macOS/Linux
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -54,7 +52,6 @@ uv --version
 
 ### Basic Installation
 
-```
 ```bash
 # Clone the repository
 git clone https://github.com/ActiveInferenceInstitute/GEO-INFER.git
@@ -73,7 +70,6 @@ uv pip install -e ./GEO-INFER-ACT
 
 ### Installing Multiple Modules
 
-```
 ```bash
 # Install a working set of modules
 uv pip install -e ./GEO-INFER-MATH ./GEO-INFER-SPACE ./GEO-INFER-ACT ./GEO-INFER-BAYES ./GEO-INFER-TIME
@@ -88,7 +84,6 @@ uv pip install -e "./GEO-INFER-AI[dev,docs]"
 
 **Fix:** Ensure you are running the command from the repository root, not from inside the module directory.
 
-```
 ```bash
 # Wrong (from inside the module)
 cd GEO-INFER-SPACE
@@ -103,7 +98,6 @@ uv pip install -e ./GEO-INFER-SPACE
 
 **Fix:** Check that the `src` layout is correct. GEO-INFER uses `src/geo_infer_module/` layout:
 
-```
 ```bash
 # Verify the package is findable
 python -c "import geo_infer_space; print(geo_infer_space.__file__)"
@@ -111,7 +105,6 @@ python -c "import geo_infer_space; print(geo_infer_space.__file__)"
 
 If this prints `None` or a path outside your repo, the editable install may have linked to a stale build. Reinstall:
 
-```
 ```bash
 uv pip install --force-reinstall -e ./GEO-INFER-SPACE
 ```
@@ -122,7 +115,6 @@ Several GEO-INFER modules depend on GDAL through `rasterio`, `fiona`, or `geopan
 
 ### macOS
 
-```
 ```bash
 # Install GDAL via Homebrew
 brew install gdal
@@ -144,7 +136,6 @@ uv pip install GDAL==$(gdal-config --version)
 
 ### Linux (Ubuntu/Debian)
 
-```
 ```bash
 # Install GDAL and development headers
 sudo apt update
@@ -159,7 +150,6 @@ uv pip install GDAL==$(gdal-config --version)
 
 ### Linux (Fedora/RHEL)
 
-```
 ```bash
 sudo dnf install gdal gdal-devel python3-gdal
 ```
@@ -168,7 +158,6 @@ sudo dnf install gdal gdal-devel python3-gdal
 
 The simplest approach on Windows is to use pre-built wheels:
 
-```
 ```bash
 # Install from Christoph Gohlke's wheels or conda-forge
 uv pip install rasterio fiona geopandas
@@ -181,7 +170,6 @@ conda install -c conda-forge gdal rasterio fiona geopandas
 
 H3 v4 is required. The Python `h3` package includes pre-built wheels for most platforms.
 
-```
 ```bash
 uv pip install "h3>=4.5.0,<5"
 
@@ -191,7 +179,6 @@ python -c "import h3; print(h3.versions())"
 
 **If wheels are not available for your platform** (rare), you need the H3 C library:
 
-```
 ```bash
 # macOS
 brew install h3
@@ -203,7 +190,6 @@ pip install h3 --no-binary h3  # builds from source
 
 **H3 v3 vs v4 check:**
 
-```
 ```python
 import h3
 
@@ -231,7 +217,6 @@ except AttributeError:
 
 If you have multiple environments, ensure you activate the correct one:
 
-```
 ```bash
 # Check which Python is active
 which python
@@ -245,7 +230,6 @@ uv pip list | grep geo-infer
 
 If you use conda for system dependencies (GDAL) and uv for Python packages:
 
-```
 ```bash
 # Create conda env with system deps
 conda create -n geoinfer python=3.11 gdal rasterio fiona -c conda-forge
@@ -283,7 +267,6 @@ Do not mix `conda install` and `uv pip install` for the same package. Use conda 
 
 Run these checks to verify your installation:
 
-```
 ```bash
 # 1. Check Python version
 python --version  # Should be 3.9+

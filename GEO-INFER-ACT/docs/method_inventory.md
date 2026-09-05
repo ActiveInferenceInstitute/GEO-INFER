@@ -201,9 +201,9 @@ package layout, not an aspirational API list.
 
 ## Domain Model Methods
 
-- `models.base.ActiveInferenceModel.step(actions=None)`: base one-step
-  interface.
-- `models.base.ActiveInferenceModel.reset()`: base reset interface.
+- `models.base.BaseActiveInferenceModel.step(actions=None)`: abstract one-step
+  interface; raises `NotImplementedError` until a concrete model overrides it.
+- `models.base.BaseActiveInferenceModel.reset()`: base reset interface.
 - `CategoricalModel.set_preferences(...)`: set discrete preference distribution.
 - `CategoricalModel.set_transition_matrix(...)`: set normalized transition
   matrix.

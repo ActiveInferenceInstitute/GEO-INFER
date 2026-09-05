@@ -10,18 +10,13 @@ import logging
 import uuid
 from datetime import datetime
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Union, Tuple, Set, Callable
+from typing import Dict, List, Any, Optional, Callable
 from enum import Enum
 from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
-try:
-    import numpy as np
-    NUMPY_AVAILABLE = True
-except ImportError:
-    NUMPY_AVAILABLE = False
-    logger.warning("NumPy not available. Some aggregation features will be limited.")
+import numpy as np  # hard dependency (numpy<2.0 pinned); no fallback path
 
 try:
     import h3
@@ -133,9 +128,6 @@ class AggregationRule:
     
     def _apply_standard_function(self, values: List, weights: List) -> Any:
         """Apply standard aggregation function."""
-        if not NUMPY_AVAILABLE:
-            return self._apply_simple_function(values, weights)
-        
         values_array = np.array(values)
         weights_array = np.array(weights)
         
@@ -482,7 +474,6 @@ class H3AggregationEngine:
         nested_grid: Any,
     ) -> Dict[str, Dict[str, Any]]:
         """Aggregate data by boundary regions."""
-        boundary_distance = rule.scope_parameters.get('boundary_distance', 1)
         
         # This would require boundary information from the nested grid
         # For now, fall back to neighbor-based aggregation
@@ -553,23 +544,15 @@ class H3AggregationEngine:
         
         for field, values in field_values.items():
             if values:
-                if NUMPY_AVAILABLE:
-                    values_array = np.array(values)
-                    summary[field] = {
-                        'count': len(values),
-                        'mean': np.mean(values_array),
-                        'std': np.std(values_array),
-                        'min': np.min(values_array),
-                        'max': np.max(values_array),
-                        'median': np.median(values_array)
-                    }
-                else:
-                    summary[field] = {
-                        'count': len(values),
-                        'mean': sum(values) / len(values),
-                        'min': min(values),
-                        'max': max(values)
-                    }
+                values_array = np.array(values)
+                summary[field] = {
+                    'count': len(values),
+                    'mean': np.mean(values_array),
+                    'std': np.std(values_array),
+                    'min': np.min(values_array),
+                    'max': np.max(values_array),
+                    'median': np.median(values_array)
+                }
         
         return summary
     

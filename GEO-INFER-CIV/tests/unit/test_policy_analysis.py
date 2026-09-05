@@ -1,5 +1,7 @@
 """Tests for policy impact assessment: cost-benefit, stakeholder, and equity analysis."""
 
+import math
+
 import pytest
 from geo_infer_civ.core.policy_analysis import (
     CostBenefitAnalyzer,
@@ -75,6 +77,27 @@ class TestCostBenefitAnalyzer:
         result = cba.analyze()
         assert result.payback_period_years > 0
         assert result.payback_period_years <= 4
+
+    def test_payback_period_inf_when_never_recovered(self, cba):
+        """A proposal that never breaks even reports an infinite payback."""
+        cba.add_item(CostBenefitItem("cost", 1000, is_benefit=False, time_horizon_years=0))
+        cba.add_item(CostBenefitItem("income", 100, is_benefit=True, time_horizon_years=1))
+        result = cba.analyze()
+        assert result.payback_period_years == float("inf")
+
+    def test_irr_is_nan_without_sign_crossing(self, cba):
+        """Pure-cost or pure-benefit item sets have no IRR; result is nan."""
+        cba.add_item(CostBenefitItem("cost", 1000, is_benefit=False, time_horizon_years=0))
+        cba.add_item(CostBenefitItem("cost", 500, is_benefit=False, time_horizon_years=1))
+        result = cba.analyze()
+        assert math.isnan(result.internal_rate_of_return)
+
+    def test_irr_lands_between_bisection_bounds(self, cba):
+        """A net-positive proposal yields a finite IRR in the searched range."""
+        cba.add_item(CostBenefitItem("cost", 1000, is_benefit=False, time_horizon_years=0))
+        cba.add_item(CostBenefitItem("income", 600, is_benefit=True, time_horizon_years=1))
+        result = cba.analyze()
+        assert -0.5 < result.internal_rate_of_return < 2.0
 
 
 class TestStakeholderImpactAnalyzer:

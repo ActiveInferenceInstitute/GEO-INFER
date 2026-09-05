@@ -2,6 +2,12 @@
 
 Network dependencies load only on connection. Kafka delivery requires an explicit
 acknowledgement after processing; network errors never produce synthetic records.
+
+Note for other GEO-INFER modules: these transport adapters (replay, WebSocket,
+Kafka) are self-contained and substantial. If your module needs validated
+temporal record ingestion, import and reuse them from here
+(``geo_infer_time.core.stream_ingest``) rather than reimplementing the
+delivery, watermarking, and replay contracts.
 """
 
 from __future__ import annotations

@@ -4,6 +4,7 @@ Api workspace within `GEO-INFER-GIT`.
 
 ## Contents
 
+- `__init__.py`
 - `rest_api.py`
 
 ## Public Interface
@@ -18,16 +19,16 @@ Api workspace within `GEO-INFER-GIT`.
 - `rest_api.py:BranchResponse` (class)
 - `rest_api.py:MergeRequest` (class)
 - `rest_api.py:MergeResponse` (class)
-- `rest_api.py:CommitRequest` (class)
-- `rest_api.py:CommitResponse` (class)
-- `rest_api.py:WorkflowRequest` (class)
-- `rest_api.py:WorkflowResponse` (class)
-- `rest_api.py:IntegrationRequest` (class)
-- `rest_api.py:IntegrationResponse` (class)
 - `rest_api.py:HealthResponse` (class)
 - `rest_api.py:SystemStatusResponse` (class)
 - `rest_api.py:get_repo_manager` (function)
 - `rest_api.py:get_github_api` (function)
+- `rest_api.py:get_logger` (function)
+- `rest_api.py:health_check` (function)
+- `rest_api.py:list_repositories` (function)
+- `rest_api.py:add_repository` (function)
+- `rest_api.py:get_repository` (function)
+- `rest_api.py:clone_repository` (function)
 
 ## Module Metadata
 
@@ -47,10 +48,8 @@ Api workspace within `GEO-INFER-GIT`.
 - `fastapi>=0.104.0`
 - `uvicorn[standard]>=0.24.0`
 - `pydantic>=2.5.0`
-- `pytest>=7.3.1`
-- `black>=23.3.0`
-- `flake8>=6.0.0`
-- `mypy>=1.3.0`
+- `colorlog>=6.7.0`
+- `tqdm>=4.65.0`
 
 
 ## Validation

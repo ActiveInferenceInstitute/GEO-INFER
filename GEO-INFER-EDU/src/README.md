@@ -20,11 +20,7 @@ Src workspace within `GEO-INFER-EDU`.
 
 ## Dependencies
 
-- `numpy>=1.20.0`
-- `pandas>=1.3.0`
 - `pyyaml>=6.0`
-- `pydantic>=2.0.0`
-- `jinja2>=3.0.0`
 
 
 ## Validation

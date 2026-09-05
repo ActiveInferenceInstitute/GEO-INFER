@@ -16,13 +16,7 @@ from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
-try:
-    import numpy as np
-
-    NUMPY_AVAILABLE = True
-except ImportError:
-    NUMPY_AVAILABLE = False
-    logger.warning("NumPy not available. Some flow analysis features will be limited.")
+import numpy as np  # hard dependency (numpy<2.0 pinned); no fallback path
 
 try:
     import h3
@@ -155,11 +149,10 @@ class FlowField:
         )
 
         # Calculate dominant direction (circular mean)
-        if NUMPY_AVAILABLE:
-            directions = [v.direction for v in self.vectors.values()]
-            sin_sum = np.sum(np.sin(directions))
-            cos_sum = np.sum(np.cos(directions))
-            self.dominant_direction = np.arctan2(sin_sum, cos_sum)
+        directions = [v.direction for v in self.vectors.values()]
+        sin_sum = np.sum(np.sin(directions))
+        cos_sum = np.sum(np.cos(directions))
+        self.dominant_direction = np.arctan2(sin_sum, cos_sum)
 
 
 @dataclass
@@ -412,7 +405,7 @@ class H3FlowAnalyzer:
 
     def _analyze_convergence(self, vectors: List[FlowVector]) -> float:
         """Analyze convergence patterns."""
-        if not vectors or not NUMPY_AVAILABLE:
+        if not vectors:
             return 0.0
 
         # Count flows into each cell
@@ -444,7 +437,7 @@ class H3FlowAnalyzer:
 
     def _analyze_divergence(self, vectors: List[FlowVector]) -> float:
         """Analyze divergence patterns."""
-        if not vectors or not NUMPY_AVAILABLE:
+        if not vectors:
             return 0.0
 
         # Count flows from each cell
@@ -476,7 +469,7 @@ class H3FlowAnalyzer:
 
     def _analyze_parallel_flow(self, vectors: List[FlowVector]) -> float:
         """Analyze parallel flow patterns."""
-        if not vectors or not NUMPY_AVAILABLE:
+        if not vectors:
             return 0.0
 
         directions = [v.direction for v in vectors]
@@ -511,7 +504,7 @@ class H3FlowAnalyzer:
 
     def _analyze_turbulence(self, vectors: List[FlowVector]) -> float:
         """Analyze turbulent flow patterns."""
-        if not vectors or not NUMPY_AVAILABLE:
+        if not vectors:
             return 0.0
 
         # High variance in direction and magnitude indicates turbulence
@@ -588,7 +581,7 @@ class H3FlowAnalyzer:
         # Analyze temporal stability of flow patterns
         recent_vectors = field_history[-10:]  # Last 10 vectors
 
-        if not recent_vectors or not NUMPY_AVAILABLE:
+        if not recent_vectors:
             return 1.0
 
         # Calculate variance in magnitude and direction over time

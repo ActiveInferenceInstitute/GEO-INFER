@@ -25,9 +25,7 @@ Unit workspace within `GEO-INFER-CIV`.
 
 ## Dependencies
 
-- `geopandas>=0.10.0`
-- `numpy>=1.20.0`
-- `pandas>=1.3.0`
+- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
 
 
 ## Validation

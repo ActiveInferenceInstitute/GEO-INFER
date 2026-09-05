@@ -256,7 +256,7 @@ class AntColonyOptimization:
             constraints: Problem constraints
         """
         if nodes is None or len(nodes) == 0:
-            raise ValueError("nodes must contain at least two nodes")
+            raise ValueError("nodes must not be empty")
         if len(nodes) < 2:
             raise ValueError("ACO requires at least two nodes")
         self.nodes = list(nodes)

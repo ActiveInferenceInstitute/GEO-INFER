@@ -21,9 +21,7 @@
 
 ## Local Contents
 
-- `api/`
 - `core/`
-- `utils/`
 - `__init__.py`
 
 ## Validation

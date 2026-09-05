@@ -5,16 +5,10 @@ Src workspace within `GEO-INFER-INTRA`.
 ## Contents
 
 - `geo_infer_intra/`
-- `markdown_to_pdf.py`
-- `README_markdown_to_pdf.md`
-- `example-config.json`
-- `md2pdf.sh`
-- `package.json`
 
 ## Public Interface
 
-- `markdown_to_pdf.py:MarkdownToPDFConverter` (class)
-- `markdown_to_pdf.py:main` (function)
+- No public Python symbols are defined directly in this directory.
 
 ## Module Metadata
 
@@ -26,18 +20,10 @@ Src workspace within `GEO-INFER-INTRA`.
 
 ## Dependencies
 
-- `fastapi>=0.100.0`
 - `h3>=4.5.0,<5`
-- `pydantic>=2.0.0`
-- `sqlalchemy>=2.0.0`
-- `elasticsearch>=8.0.0`
-- `rdflib>=6.0.0`
-- `mkdocs>=1.4.0`
-- `celery>=5.2.0`
-- `pyyaml>=6.0`
 - `jsonschema>=4.0.0`
-- `typer>=0.7.0`
-- `rich>=12.0.0`
+- `Pillow>=10.0`
+- `pyyaml>=6.0`
 
 
 ## Validation

@@ -7,17 +7,12 @@ and easily chainable.
 """
 
 import logging
-from typing import Dict, Any, List, Optional, Tuple, Set, cast
+from typing import Dict, Any, List, Optional, Set, cast
 from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
-try:
-    import numpy as np
-    NUMPY_AVAILABLE = True
-except ImportError:
-    NUMPY_AVAILABLE = False
-    np: Any = None  # type: ignore[no-redef]
+import numpy as np
 
 
 class SpatialMethods:
@@ -178,12 +173,7 @@ class SpatialMethods:
             filtered = [(c, v) for c, v in cell_values if v >= threshold]
         
         elif filter_type == 'percentile' and percentile is not None:
-            if NUMPY_AVAILABLE:
-                thresh = float(np.percentile(values, percentile))
-            else:
-                sorted_vals = sorted(values)
-                idx = int(len(sorted_vals) * percentile / 100)
-                thresh = sorted_vals[min(idx, len(sorted_vals)-1)]
+            thresh = float(np.percentile(values, percentile))
             filtered = [(c, v) for c, v in cell_values if v >= thresh]
         
         elif filter_type == 'top_n' and top_n is not None:
@@ -192,13 +182,8 @@ class SpatialMethods:
         
         elif filter_type == 'outliers':
             # IQR-based outlier detection
-            if NUMPY_AVAILABLE:
-                q1 = float(np.percentile(values, 25))
-                q3 = float(np.percentile(values, 75))
-            else:
-                sorted_vals = sorted(values)
-                q1 = sorted_vals[len(sorted_vals)//4]
-                q3 = sorted_vals[3*len(sorted_vals)//4]
+            q1 = float(np.percentile(values, 25))
+            q3 = float(np.percentile(values, 75))
             iqr = q3 - q1
             lower = q1 - 1.5 * iqr
             upper = q3 + 1.5 * iqr
@@ -494,7 +479,6 @@ class SpatialMethods:
         if not self.h3:
             raise RuntimeError('H3 backend not available')
         
-        dest_set = set(destination_cells)
         accessibility = {}
         
         for origin in origin_cells:

@@ -6,7 +6,7 @@ active inference models, including belief updating and policy selection.
 """
 
 import numpy as np
-from typing import Dict, Any, Optional, cast
+from typing import Dict, Any, Optional
 import logging
 
 from geo_infer_act.core.generative_model import GenerativeModel

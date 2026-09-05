@@ -69,13 +69,45 @@ class TestAgentMessagePassing(unittest.TestCase):
         self.assertEqual(len(received_entries), 1)
         self.assertEqual(received_entries[0]["message"]["from"], "alpha")
 
-    def test_send_message_returns_true(self) -> None:
-        """send_message returns True for a well-formed message."""
-        agent = ExampleAgent(agent_id="sender")
-        result = self._run(
-            agent.send_message("target-agent", {"command": "start"})
-        )
-        self.assertTrue(result)
+    def test_send_message_delivers_to_registered_agent(self) -> None:
+        """send_message delivers to a registered recipient's queue and returns True."""
+        from geo_infer_agent.core.agent_registry import AgentRegistry
+
+        AgentRegistry._instance = None
+        registry = AgentRegistry()
+        try:
+            self._run(
+                registry.create_agent(
+                    agent_type="default", config={}, agent_id="receiver-x"
+                )
+            )
+            sender = ExampleAgent(agent_id="sender-x")
+            result = self._run(
+                sender.send_message("receiver-x", {"command": "start"})
+            )
+            self.assertTrue(result)
+            receiver = registry.get_agent("receiver-x")
+            self.assertFalse(receiver.message_queue.empty())
+            delivered = receiver.message_queue.get_nowait()
+            self.assertEqual(delivered["content"], {"command": "start"})
+            self.assertEqual(delivered["from"], "sender-x")
+        finally:
+            AgentRegistry._instance = None
+
+    def test_send_message_to_unknown_agent_returns_false(self) -> None:
+        """send_message returns False (not a fake success) for an unregistered recipient."""
+        from geo_infer_agent.core.agent_registry import AgentRegistry
+
+        AgentRegistry._instance = None
+        AgentRegistry()  # ensure a clean, empty registry
+        try:
+            sender = ExampleAgent(agent_id="sender-y")
+            result = self._run(
+                sender.send_message("nobody-registered", {"command": "start"})
+            )
+            self.assertFalse(result)
+        finally:
+            AgentRegistry._instance = None
 
     def test_multiple_agents_communicate(self) -> None:
         """Two agents can exchange messages through their queues."""

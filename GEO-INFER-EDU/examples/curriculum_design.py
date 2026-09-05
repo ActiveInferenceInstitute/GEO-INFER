@@ -2,8 +2,9 @@
 """
 GEO-INFER-EDU Example: Complete Curriculum Design Workflow
 
-This example demonstrates how to design a comprehensive geospatial curriculum
-including learning objectives, modules, assessments, and progress tracking.
+Demonstrates the real public API: curriculum design against educational
+standards, exercise generation, learner progress tracking, learning-pathway
+creation, and a professional certification pathway.
 """
 
 from geo_infer_edu import (
@@ -11,135 +12,117 @@ from geo_infer_edu import (
     ExerciseGenerator,
     ProgressTracker,
     PersonalizedLearning,
-    ProfessionalDevelopment
+    ProfessionalDevelopment,
 )
 
 
-def main():
+def main() -> None:
     print("=" * 60)
-    print("GEO-INFER-EDU: Curriculum Design Example")
+    print("1. Design a standards-aligned curriculum")
     print("=" * 60)
-    
-    # 1. Design a curriculum
-    print("\n1. Designing GIS Curriculum...")
     designer = CurriculumDesigner(
-        standards=['bok', 'gistbok'],
-        pedagogical_approach='constructivist',
-        assessment_framework='competency_based'
+        standards=["bok", "gistbok"],
+        pedagogical_approach="project_based",
+        assessment_framework="competency_based",
     )
-    
     curriculum = designer.design(
-        topic='geospatial_analysis',
-        level='undergraduate',
-        duration='16_weeks',
+        topic="geospatial_analysis",
+        level="undergraduate",
+        duration="8_weeks",
         learning_objectives=[
-            'Understand spatial data types and formats',
-            'Apply spatial analysis techniques',
-            'Interpret and visualize geospatial data',
-            'Develop GIS-based solutions'
-        ]
+            "Explain core concepts of geospatial analysis",
+            "Apply overlay and buffering techniques to real datasets",
+            "Evaluate analysis results and communicate findings",
+        ],
     )
-    
-    print(f"   Created curriculum: {curriculum.title}")
-    print(f"   Duration: {curriculum.duration_weeks} weeks")
-    print(f"   Modules: {len(curriculum.modules)}")
-    
-    # 2. Generate curriculum modules
-    print("\n2. Generating Curriculum Modules...")
-    modules = designer.generate_modules(
-        topic='geospatial_analysis',
-        level=curriculum.level,
-        duration_weeks=curriculum.duration_weeks,
-        objectives=curriculum.modules[0].learning_objectives if curriculum.modules else [],
-        hours_per_module=4.0
+    print(f"Curriculum: {curriculum.title}")
+    print(f"Modules: {len(curriculum.modules)} over {curriculum.duration_weeks} weeks")
+    print(f"Target competencies: {', '.join(curriculum.target_competencies)}")
+    for standard_name, items in curriculum.standards_alignment.items():
+        print(f"Aligned with {standard_name}: {len(items)} objectives")
+
+    print()
+    print("=" * 60)
+    print("2. Generate exercises and track a learner")
+    print("=" * 60)
+    generator = ExerciseGenerator()
+    exercises = generator.create(
+        concepts=["buffer_analysis", "overlay_analysis", "interpolation"],
+        format="code",
+        difficulty="progressive",
+        include_hints=True,
     )
-    
-    for i, module in enumerate(modules[:3], 1):
-        print(f"   Module {i}: {module.title} ({module.duration_hours}h)")
-    
-    # 3. Generate interactive exercises
-    print("\n3. Generating Exercises...")
-    exercise_gen = ExerciseGenerator(
-        difficulty_levels=['beginner', 'intermediate', 'advanced'],
-        exercise_types=['coding', 'analysis', 'project_based']
+    for exercise in exercises:
+        print(f"- {exercise.title} ({exercise.difficulty.value}, "
+              f"{exercise.expected_duration_minutes} min)")
+
+    tracker = ProgressTracker(privacy_compliance="ferpa")
+    tracker.track_progress(
+        learner_id="student_042",
+        activity_log=[
+            {
+                "id": f"activity_{i + 1}",
+                "type": "exercise",
+                "topic": exercise.concepts[0],
+                "score": [0.55, 0.78, 0.91][i],
+                "duration_minutes": exercise.expected_duration_minutes,
+            }
+            for i, exercise in enumerate(exercises)
+        ],
+        assessments=[
+            {"competency": "spatial_analysis", "score": 0.91, "id": "final_quiz"},
+            {"competency": "geovisualization", "score": 0.63, "id": "map_review"},
+        ],
     )
-    
-    exercises = exercise_gen.generate(
-        topic='spatial_analysis',
-        difficulty='intermediate',
-        count=5,
-        exercise_types=['coding', 'data_analysis']
+    progress = tracker.track_progress("student_042", activity_log=[])
+    report = tracker.generate_competency_report("student_042")
+    print(f"Completion rate: {progress.completion_rate:.0%}")
+    for comp in report["competencies"]:
+        print(f"- {comp['name']}: {comp['level']} (confidence {comp['confidence']:.1f})")
+
+    # Export must be JSON-serializable and FERPA-pseudonymized
+    export = tracker.export_progress("student_042")
+    assert "student_042" not in export, "FERPA export leaked the raw learner id"
+    print(f"Exported {len(export)} chars of progress JSON (identifier suppressed)")
+
+    print()
+    print("=" * 60)
+    print("3. Personalized learning pathway")
+    print("=" * 60)
+    personalizer = PersonalizedLearning()
+    pathway = personalizer.create_pathway(
+        learner_profile={
+            "id": "student_042",
+            "prior_knowledge": ["spatial_analysis"],
+            "hours_per_week": 8,
+        },
+        learning_goals=["spatial_analysis", "geovisualization", "geospatial_programming"],
+        constraints={"time": "30_hours"},
     )
-    
-    print(f"   Generated {len(exercises)} exercises")
-    for ex in exercises[:3]:
-        print(f"   - {ex.get('title', 'Exercise')}: {ex.get('type', 'unknown')}")
-    
-    # 4. Create progress tracker
-    print("\n4. Setting Up Progress Tracking...")
-    tracker = ProgressTracker(
-        tracking_method='competency_based',
-        analytics_enabled=True
+    print(f"Pathway {pathway.pathway_id}: {len(pathway.sequence)} steps, "
+          f"~{pathway.estimated_duration_weeks} weeks")
+    for step in pathway.sequence:
+        print(f"  {step['order']}. {step['skill']} "
+              f"(~{step['estimated_hours']:.1f} hours)")
+
+    print()
+    print("=" * 60)
+    print("4. Professional certification pathway")
+    print("=" * 60)
+    professional = ProfessionalDevelopment()
+    cert_pathway = professional.create_certification_pathway(
+        target_certification="gisp",
+        current_qualifications={
+            "education_points": 20,
+            "experience_years": 4,
+            "contributions_points": 25,
+        },
+        timeline="12_months",
     )
-    
-    tracker.register_learner(
-        learner_id='student_001',
-        curriculum_id=curriculum.id,
-        initial_level='beginner'
-    )
-    
-    # Record some progress
-    tracker.record_progress(
-        learner_id='student_001',
-        module_id='mod_001',
-        score=85.0,
-        completion_status='completed'
-    )
-    
-    progress = tracker.get_learner_progress('student_001')
-    print(f"   Student progress: {progress.get('overall_completion', 0):.1f}%")
-    
-    # 5. Generate learning path
-    print("\n5. Generating Personalized Learning Path...")
-    personalizer = PersonalizedLearning(
-        adaptation_strategy='mastery_based',
-        learning_style_assessment=True
-    )
-    
-    learning_path = personalizer.generate_path(
-        learner_id='student_001',
-        target_competencies=['spatial_analysis', 'data_visualization'],
-        current_level='intermediate',
-        available_time='10_hours_per_week'
-    )
-    
-    print(f"   Learning path: {learning_path.get('total_modules', 0)} modules")
-    print(f"   Estimated duration: {learning_path.get('estimated_weeks', 0)} weeks")
-    
-    # 6. Professional development
-    print("\n6. Professional Development Tracking...")
-    professional = ProfessionalDevelopment(
-        certification_programs=['gis_professional', 'remote_sensing'],
-        cpd_tracking=True
-    )
-    
-    professional.register_professional(
-        professional_id='prof_001',
-        current_certifications=['basic_gis'],
-        career_goals=['senior_gis_analyst']
-    )
-    
-    cpd_plan = professional.generate_cpd_plan(
-        professional_id='prof_001',
-        target_certification='gis_professional',
-        available_hours_per_month=20
-    )
-    
-    print(f"   CPD Plan: {cpd_plan.get('total_activities', 0)} activities")
-    print(f"   Target: {cpd_plan.get('target_certification', 'N/A')}")
-    
-    print("\n" + "=" * 60)
-    print("Curriculum Design Complete!")
+    for step in cert_pathway.next_steps:
+        print(f"- {step}")
+
+    print()
     print("=" * 60)
 
 

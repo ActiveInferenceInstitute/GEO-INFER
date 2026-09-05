@@ -118,7 +118,7 @@ class TestEmergencyCoordinator:
             incident=incident,
             update_frequency="hourly",
             distribution=["eoc", "region"],
-            format="ics_209"
+            report_format="ics_209"
         )
         
         assert sitrep["incident_id"] == "inc_001"
@@ -137,6 +137,58 @@ class TestEmergencyCoordinator:
         
         incidents = coordinator.get_active_incidents()
         assert len(incidents) >= 1
+
+    def test_establish_command_registers_active_incident(self, coordinator):
+        """establish_command incidents appear in get_active_incidents."""
+        result = coordinator.establish_command(
+            incident_type="earthquake",
+            location={"lat": 34.0, "lon": -118.0},
+            scale="type_1",
+            command_structure={"incident_commander": "Chief Doe"}
+        )
+
+        incident_ids = {i["incident_id"] for i in coordinator.get_active_incidents()}
+        assert result["incident_id"] in incident_ids
+
+    def test_assign_sector_deterministic(self):
+        """Sector assignment is stable across processes (crc32, not hash())."""
+        import zlib
+        from geo_infer_emergency.core.coordinator import (
+            Incident as IncidentDataclass,
+            IncidentScale,
+            IncidentType,
+        )
+        coordinator = EmergencyCoordinator()
+        incident = IncidentDataclass(
+            incident_id="inc_x",
+            incident_type=IncidentType.WILDFIRE,
+            name="Determinism Check",
+            location={},
+            scale=IncidentScale.TYPE_3
+        )
+
+        expected = ["Alpha", "Bravo", "Charlie", "Delta"][
+            zlib.crc32("agency_fire".encode("utf-8")) % 4
+        ]
+        assert coordinator._assign_sector("agency_fire", incident) == expected
+        assert (
+            coordinator._assign_sector("agency_fire", incident)
+            == EmergencyCoordinator()._assign_sector("agency_fire", incident)
+        )
+
+    def test_coordinate_counts_dict_resource_values(self, coordinator):
+        """Dict-shaped resource entries are counted, not reported as key counts."""
+        plan = coordinator.coordinate(
+            incident={"id": "inc_res", "type": "flood", "location": {}, "scale": "type_3"},
+            agencies=["agency_fire"],
+            resources={"engines": {"engine_1": 2, "engine_2": 3}}
+        )
+
+        fire_assignment = [
+            a for a in plan["resource_assignments"] if a["agency"] == "agency_fire"
+        ][0]
+        engines = [r for r in fire_assignment["resources"] if r["type"] == "engines"][0]
+        assert engines["quantity"] == 5
 
 
 class TestResourceDeployer:

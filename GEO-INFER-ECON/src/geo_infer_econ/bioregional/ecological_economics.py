@@ -7,11 +7,9 @@ systems and ecological systems.
 """
 
 import numpy as np
-import pandas as pd
-from typing import cast, Dict, List, Optional, Tuple, Union, Any
+from typing import cast, Dict, List, Optional, Any
 from dataclasses import dataclass, field
 import logging
-from abc import ABC, abstractmethod
 
 from ..utils.rng import resolve_rng
 
@@ -243,7 +241,6 @@ class BiophysicalEquilibriumModels:
         interaction_matrix = parameters.get('interaction_matrix', [[1.0, 0.2, 0.1], [0.1, 1.0, 0.3], [0.2, 0.1, 1.0]])
 
         # Spatial parameters
-        spatial_scale = parameters.get('spatial_scale', 1.0)
         diffusion_rate = parameters.get('diffusion_rate', 0.1)
 
         # Initial service values

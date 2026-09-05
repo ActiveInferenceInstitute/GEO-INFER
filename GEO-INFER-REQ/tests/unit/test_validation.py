@@ -139,3 +139,26 @@ class TestRequirementValidator:
         v.add_spec(RequirementSpec("D", "D", "Description D is long enough", priority=2, effort_estimate=2.0))
         result = v.assess_feasibility(available_effort=100.0)
         assert "R1" in result.bottleneck_requirements
+
+
+class TestInfoIssues:
+    """check_consistency reports info-severity issues for untagged specs."""
+
+    def test_untagged_spec_produces_info_item(self):
+        v = RequirementValidator()
+        v.add_spec(RequirementSpec(
+            "R1", "Req", "A description long enough for validation checks",
+            priority=3, effort_estimate=5.0,
+        ))
+        report = v.check_consistency()
+        assert report.is_consistent  # info issues are not errors
+        assert any("no tags" in i.description for i in report.info_items)
+
+    def test_tagged_spec_has_no_info_issue(self):
+        v = RequirementValidator()
+        v.add_spec(RequirementSpec(
+            "R1", "Req", "A description long enough for validation checks",
+            priority=3, effort_estimate=5.0, tags=["spatial"],
+        ))
+        report = v.check_consistency()
+        assert report.info_items == []

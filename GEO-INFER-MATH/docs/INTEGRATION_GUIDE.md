@@ -12,7 +12,6 @@ python from geo_infer_math import ActiveInferenceConvenience from geo_infer_math
 python from geo_infer_math import BayesianConvenience from geo_infer_math.integration.bayes import PosteriorHelpers, MCMCHelpers # Calculate posterior bayes_conv = BayesianConvenience() posterior = bayes_conv.calculate_posterior(prior, likelihood, data) # MCMC sampling mcmc = MCMCHelpers() samples, metadata = mcmc.mcmc_sample(log_posterior, initial_state)
 ```
  ### AI/ML (GEO-INFER-AI)
-```
 ```python
  from geo_infer_math import AIConvenience from geo_infer_math.integration.ai import AIGradientHelpers, SpatialLossFunctions # Compute gradients ai_conv = AIConvenience() gradient = ai_conv.compute_gradient(objective_function, parameters) # Calculate spatial loss loss_func = SpatialLossFunctions() loss = loss_func.calculate_loss(predictions, targets, coordinates)
 ```

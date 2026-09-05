@@ -424,7 +424,6 @@ class FireRiskAssessor:
         risk_components["fuel_risk"] = fuel_risk
 
         # WUI risk
-        wui_zones = wui_analysis.get("wui_zones", {})
         high_risk_structures = wui_analysis.get("structure_vulnerability", {}).get(
             "high_risk_structures", 0
         )

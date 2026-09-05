@@ -1,16 +1,16 @@
-# Agent Instructions: GEO-INFER-RISK/src/geo_infer_risk/underwriting/models
+# Agent Instructions: GEO-INFER-INSURANCE/src/geo_infer_insurance/underwriting/models
 
 ## Scope
 
-- Owning module: `GEO-INFER-RISK`
-- Python package: `geo_infer_risk`
-- Directory role: Models workspace within `GEO-INFER-RISK`.
+- Owning module: `GEO-INFER-INSURANCE`
+- Python package: `geo_infer_insurance`
+- Directory role: Models workspace within `GEO-INFER-INSURANCE`.
 
 ## Capabilities
 
 - Maintains the tracked files and subdirectories listed below for this workspace.
 - Validates behavior with the command in the Validation section.
-- Integrates through `geo_infer_risk` and the owning module's public contracts.
+- Integrates through `geo_infer_insurance` and the owning module's public contracts.
 
 ## Working Rules
 
@@ -30,7 +30,7 @@
 ## Validation
 
 ```bash
-uv run python GEO-INFER-TEST/run_unified_tests.py --module RISK
+uv run python GEO-INFER-TEST/run_unified_tests.py --module INSURANCE
 ```
 
 

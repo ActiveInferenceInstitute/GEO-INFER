@@ -75,6 +75,14 @@ def setup_testing(
 ) -> int:
     """Set up and run tests.
 
+    Known caveats (documented, not fixed, to avoid behavior change): this
+    mutates the live process environment and runs ``pytest.main`` in-process;
+    ``parallel=True`` (``-n=auto``) is fragile under in-process invocation, and
+    ``coverage_report=True`` applies the configured coverage threshold (default
+    95) as ``--cov-fail-under``, which can make library-invoked runs fail
+    spuriously. Pass ``parallel=False, coverage_report=False`` for predictable
+    in-library runs, or invoke pytest from the shell instead.
+
     Args:
         test_dir: Directory containing tests
         coverage_report: Whether to generate coverage report

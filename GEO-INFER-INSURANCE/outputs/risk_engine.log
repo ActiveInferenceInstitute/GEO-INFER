@@ -1,0 +1,140 @@
+2026-09-05 11:42:25,988 - geo_infer_risk_enhanced - INFO - [risk_engine:_initialize_spatial_interface:311] - Spatial interface initialized successfully
+2026-09-05 11:42:25,988 - geo_infer_risk_enhanced - INFO - [risk_engine:__init__:207] - EnhancedRiskEngine initialized successfully with 8 module integrations
+2026-09-05 11:42:25,992 - geo_infer_risk_enhanced - INFO - [risk_engine:_initialize_spatial_interface:311] - Spatial interface initialized successfully
+2026-09-05 11:42:25,992 - geo_infer_risk_enhanced - INFO - [risk_engine:__init__:207] - EnhancedRiskEngine initialized successfully with 8 module integrations
+2026-09-05 11:42:25,992 - geo_infer_risk_enhanced - INFO - [risk_engine:run_enhanced_analysis:398] - Starting enhanced comprehensive risk analysis
+2026-09-05 11:42:25,992 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1137] - Loading risk models...
+2026-09-05 11:42:25,992 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading building vulnerability model
+2026-09-05 11:42:25,992 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading infrastructure vulnerability model
+2026-09-05 11:42:25,992 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading population vulnerability model
+2026-09-05 11:42:25,993 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading property exposure model
+2026-09-05 11:42:25,993 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading population exposure model
+2026-09-05 11:42:25,993 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading infrastructure exposure model
+2026-09-05 11:42:25,993 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1166] - Models loaded: 0 hazard, 3 vulnerability, 3 exposure
+2026-09-05 11:42:25,993 - geo_infer_risk_enhanced - INFO - [risk_engine:run_enhanced_analysis:417] - Enhanced comprehensive analysis completed successfully
+2026-09-05 11:42:43,346 - geo_infer_risk_enhanced - INFO - [risk_engine:_initialize_spatial_interface:311] - Spatial interface initialized successfully
+2026-09-05 11:42:43,346 - geo_infer_risk_enhanced - INFO - [risk_engine:__init__:207] - EnhancedRiskEngine initialized successfully with 8 module integrations
+2026-09-05 11:42:43,350 - geo_infer_risk_enhanced - INFO - [risk_engine:_initialize_spatial_interface:311] - Spatial interface initialized successfully
+2026-09-05 11:42:43,350 - geo_infer_risk_enhanced - INFO - [risk_engine:__init__:207] - EnhancedRiskEngine initialized successfully with 8 module integrations
+2026-09-05 11:42:43,350 - geo_infer_risk_enhanced - INFO - [risk_engine:run_enhanced_analysis:398] - Starting enhanced comprehensive risk analysis
+2026-09-05 11:42:43,350 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1137] - Loading risk models...
+2026-09-05 11:42:43,350 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading building vulnerability model
+2026-09-05 11:42:43,350 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading infrastructure vulnerability model
+2026-09-05 11:42:43,350 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading population vulnerability model
+2026-09-05 11:42:43,350 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading property exposure model
+2026-09-05 11:42:43,351 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading population exposure model
+2026-09-05 11:42:43,351 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading infrastructure exposure model
+2026-09-05 11:42:43,351 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1166] - Models loaded: 0 hazard, 3 vulnerability, 3 exposure
+2026-09-05 11:42:43,351 - geo_infer_risk_enhanced - INFO - [risk_engine:run_enhanced_analysis:417] - Enhanced comprehensive analysis completed successfully
+2026-09-05 11:43:03,514 - geo_infer_risk_enhanced - INFO - [risk_engine:_initialize_spatial_interface:311] - Spatial interface initialized successfully
+2026-09-05 11:43:03,514 - geo_infer_risk_enhanced - INFO - [risk_engine:__init__:207] - EnhancedRiskEngine initialized successfully with 8 module integrations
+2026-09-05 11:43:03,518 - geo_infer_risk_enhanced - INFO - [risk_engine:_initialize_spatial_interface:311] - Spatial interface initialized successfully
+2026-09-05 11:43:03,518 - geo_infer_risk_enhanced - INFO - [risk_engine:__init__:207] - EnhancedRiskEngine initialized successfully with 8 module integrations
+2026-09-05 11:43:03,519 - geo_infer_risk_enhanced - INFO - [risk_engine:run_enhanced_analysis:398] - Starting enhanced comprehensive risk analysis
+2026-09-05 11:43:03,519 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1137] - Loading risk models...
+2026-09-05 11:43:03,519 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading building vulnerability model
+2026-09-05 11:43:03,519 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading infrastructure vulnerability model
+2026-09-05 11:43:03,519 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading population vulnerability model
+2026-09-05 11:43:03,519 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading property exposure model
+2026-09-05 11:43:03,519 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading population exposure model
+2026-09-05 11:43:03,519 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading infrastructure exposure model
+2026-09-05 11:43:03,519 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1166] - Models loaded: 0 hazard, 3 vulnerability, 3 exposure
+2026-09-05 11:43:03,519 - geo_infer_risk_enhanced - INFO - [risk_engine:run_enhanced_analysis:417] - Enhanced comprehensive analysis completed successfully
+2026-09-05 11:43:19,399 - geo_infer_risk_enhanced - INFO - [risk_engine:_initialize_spatial_interface:311] - Spatial interface initialized successfully
+2026-09-05 11:43:19,400 - geo_infer_risk_enhanced - INFO - [risk_engine:__init__:207] - EnhancedRiskEngine initialized successfully with 8 module integrations
+2026-09-05 11:43:19,403 - geo_infer_risk_enhanced - INFO - [risk_engine:_initialize_spatial_interface:311] - Spatial interface initialized successfully
+2026-09-05 11:43:19,403 - geo_infer_risk_enhanced - INFO - [risk_engine:__init__:207] - EnhancedRiskEngine initialized successfully with 8 module integrations
+2026-09-05 11:43:19,404 - geo_infer_risk_enhanced - INFO - [risk_engine:run_enhanced_analysis:398] - Starting enhanced comprehensive risk analysis
+2026-09-05 11:43:19,404 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1137] - Loading risk models...
+2026-09-05 11:43:19,404 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading building vulnerability model
+2026-09-05 11:43:19,404 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading infrastructure vulnerability model
+2026-09-05 11:43:19,404 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading population vulnerability model
+2026-09-05 11:43:19,404 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading property exposure model
+2026-09-05 11:43:19,404 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading population exposure model
+2026-09-05 11:43:19,404 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading infrastructure exposure model
+2026-09-05 11:43:19,404 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1166] - Models loaded: 0 hazard, 3 vulnerability, 3 exposure
+2026-09-05 11:43:19,404 - geo_infer_risk_enhanced - INFO - [risk_engine:run_enhanced_analysis:417] - Enhanced comprehensive analysis completed successfully
+2026-09-05 11:43:34,666 - geo_infer_risk_enhanced - INFO - [risk_engine:_initialize_spatial_interface:311] - Spatial interface initialized successfully
+2026-09-05 11:43:34,666 - geo_infer_risk_enhanced - INFO - [risk_engine:__init__:207] - EnhancedRiskEngine initialized successfully with 8 module integrations
+2026-09-05 11:43:34,670 - geo_infer_risk_enhanced - INFO - [risk_engine:_initialize_spatial_interface:311] - Spatial interface initialized successfully
+2026-09-05 11:43:34,670 - geo_infer_risk_enhanced - INFO - [risk_engine:__init__:207] - EnhancedRiskEngine initialized successfully with 8 module integrations
+2026-09-05 11:43:34,670 - geo_infer_risk_enhanced - INFO - [risk_engine:run_enhanced_analysis:398] - Starting enhanced comprehensive risk analysis
+2026-09-05 11:43:34,670 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1137] - Loading risk models...
+2026-09-05 11:43:34,670 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading building vulnerability model
+2026-09-05 11:43:34,670 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading infrastructure vulnerability model
+2026-09-05 11:43:34,670 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading population vulnerability model
+2026-09-05 11:43:34,671 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading property exposure model
+2026-09-05 11:43:34,671 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading population exposure model
+2026-09-05 11:43:34,671 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading infrastructure exposure model
+2026-09-05 11:43:34,671 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1166] - Models loaded: 0 hazard, 3 vulnerability, 3 exposure
+2026-09-05 11:43:34,671 - geo_infer_risk_enhanced - INFO - [risk_engine:run_enhanced_analysis:417] - Enhanced comprehensive analysis completed successfully
+2026-09-05 11:43:59,254 - geo_infer_risk_enhanced - INFO - [risk_engine:_initialize_spatial_interface:311] - Spatial interface initialized successfully
+2026-09-05 11:43:59,255 - geo_infer_risk_enhanced - INFO - [risk_engine:__init__:207] - EnhancedRiskEngine initialized successfully with 8 module integrations
+2026-09-05 11:43:59,258 - geo_infer_risk_enhanced - INFO - [risk_engine:_initialize_spatial_interface:311] - Spatial interface initialized successfully
+2026-09-05 11:43:59,258 - geo_infer_risk_enhanced - INFO - [risk_engine:__init__:207] - EnhancedRiskEngine initialized successfully with 8 module integrations
+2026-09-05 11:43:59,258 - geo_infer_risk_enhanced - INFO - [risk_engine:run_enhanced_analysis:398] - Starting enhanced comprehensive risk analysis
+2026-09-05 11:43:59,258 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1137] - Loading risk models...
+2026-09-05 11:43:59,258 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading building vulnerability model
+2026-09-05 11:43:59,259 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading infrastructure vulnerability model
+2026-09-05 11:43:59,259 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading population vulnerability model
+2026-09-05 11:43:59,259 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading property exposure model
+2026-09-05 11:43:59,259 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading population exposure model
+2026-09-05 11:43:59,259 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading infrastructure exposure model
+2026-09-05 11:43:59,259 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1166] - Models loaded: 0 hazard, 3 vulnerability, 3 exposure
+2026-09-05 11:43:59,259 - geo_infer_risk_enhanced - INFO - [risk_engine:run_enhanced_analysis:417] - Enhanced comprehensive analysis completed successfully
+2026-09-05 11:44:11,778 - geo_infer_risk_enhanced - INFO - [risk_engine:_initialize_spatial_interface:311] - Spatial interface initialized successfully
+2026-09-05 11:44:11,779 - geo_infer_risk_enhanced - INFO - [risk_engine:__init__:207] - EnhancedRiskEngine initialized successfully with 8 module integrations
+2026-09-05 11:44:11,782 - geo_infer_risk_enhanced - INFO - [risk_engine:_initialize_spatial_interface:311] - Spatial interface initialized successfully
+2026-09-05 11:44:11,782 - geo_infer_risk_enhanced - INFO - [risk_engine:__init__:207] - EnhancedRiskEngine initialized successfully with 8 module integrations
+2026-09-05 11:44:11,782 - geo_infer_risk_enhanced - INFO - [risk_engine:run_enhanced_analysis:398] - Starting enhanced comprehensive risk analysis
+2026-09-05 11:44:11,782 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1137] - Loading risk models...
+2026-09-05 11:44:11,782 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading building vulnerability model
+2026-09-05 11:44:11,783 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading infrastructure vulnerability model
+2026-09-05 11:44:11,783 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading population vulnerability model
+2026-09-05 11:44:11,783 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading property exposure model
+2026-09-05 11:44:11,783 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading population exposure model
+2026-09-05 11:44:11,783 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading infrastructure exposure model
+2026-09-05 11:44:11,783 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1166] - Models loaded: 0 hazard, 3 vulnerability, 3 exposure
+2026-09-05 11:44:11,783 - geo_infer_risk_enhanced - INFO - [risk_engine:run_enhanced_analysis:417] - Enhanced comprehensive analysis completed successfully
+2026-09-05 11:44:19,770 - geo_infer_risk_enhanced - INFO - [risk_engine:_initialize_spatial_interface:311] - Spatial interface initialized successfully
+2026-09-05 11:44:19,770 - geo_infer_risk_enhanced - INFO - [risk_engine:__init__:207] - EnhancedRiskEngine initialized successfully with 8 module integrations
+2026-09-05 11:44:19,774 - geo_infer_risk_enhanced - INFO - [risk_engine:_initialize_spatial_interface:311] - Spatial interface initialized successfully
+2026-09-05 11:44:19,774 - geo_infer_risk_enhanced - INFO - [risk_engine:__init__:207] - EnhancedRiskEngine initialized successfully with 8 module integrations
+2026-09-05 11:44:19,774 - geo_infer_risk_enhanced - INFO - [risk_engine:run_enhanced_analysis:398] - Starting enhanced comprehensive risk analysis
+2026-09-05 11:44:19,774 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1137] - Loading risk models...
+2026-09-05 11:44:19,774 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading building vulnerability model
+2026-09-05 11:44:19,774 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading infrastructure vulnerability model
+2026-09-05 11:44:19,774 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading population vulnerability model
+2026-09-05 11:44:19,775 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading property exposure model
+2026-09-05 11:44:19,775 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading population exposure model
+2026-09-05 11:44:19,775 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading infrastructure exposure model
+2026-09-05 11:44:19,775 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1166] - Models loaded: 0 hazard, 3 vulnerability, 3 exposure
+2026-09-05 11:44:19,775 - geo_infer_risk_enhanced - INFO - [risk_engine:run_enhanced_analysis:417] - Enhanced comprehensive analysis completed successfully
+2026-09-05 11:44:27,593 - geo_infer_risk_enhanced - INFO - [risk_engine:_initialize_spatial_interface:311] - Spatial interface initialized successfully
+2026-09-05 11:44:27,593 - geo_infer_risk_enhanced - INFO - [risk_engine:__init__:207] - EnhancedRiskEngine initialized successfully with 8 module integrations
+2026-09-05 11:44:27,597 - geo_infer_risk_enhanced - INFO - [risk_engine:_initialize_spatial_interface:311] - Spatial interface initialized successfully
+2026-09-05 11:44:27,597 - geo_infer_risk_enhanced - INFO - [risk_engine:__init__:207] - EnhancedRiskEngine initialized successfully with 8 module integrations
+2026-09-05 11:44:27,597 - geo_infer_risk_enhanced - INFO - [risk_engine:run_enhanced_analysis:398] - Starting enhanced comprehensive risk analysis
+2026-09-05 11:44:27,597 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1137] - Loading risk models...
+2026-09-05 11:44:27,597 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading building vulnerability model
+2026-09-05 11:44:27,597 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading infrastructure vulnerability model
+2026-09-05 11:44:27,597 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading population vulnerability model
+2026-09-05 11:44:27,597 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading property exposure model
+2026-09-05 11:44:27,597 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading population exposure model
+2026-09-05 11:44:27,597 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading infrastructure exposure model
+2026-09-05 11:44:27,597 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1166] - Models loaded: 0 hazard, 3 vulnerability, 3 exposure
+2026-09-05 11:44:27,597 - geo_infer_risk_enhanced - INFO - [risk_engine:run_enhanced_analysis:417] - Enhanced comprehensive analysis completed successfully
+2026-09-05 11:49:43,919 - geo_infer_risk_enhanced - INFO - [risk_engine:_initialize_spatial_interface:311] - Spatial interface initialized successfully
+2026-09-05 11:49:43,920 - geo_infer_risk_enhanced - INFO - [risk_engine:__init__:207] - EnhancedRiskEngine initialized successfully with 8 module integrations
+2026-09-05 11:49:43,924 - geo_infer_risk_enhanced - INFO - [risk_engine:_initialize_spatial_interface:311] - Spatial interface initialized successfully
+2026-09-05 11:49:43,924 - geo_infer_risk_enhanced - INFO - [risk_engine:__init__:207] - EnhancedRiskEngine initialized successfully with 8 module integrations
+2026-09-05 11:49:43,924 - geo_infer_risk_enhanced - INFO - [risk_engine:run_enhanced_analysis:398] - Starting enhanced comprehensive risk analysis
+2026-09-05 11:49:43,924 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1137] - Loading risk models...
+2026-09-05 11:49:43,924 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading building vulnerability model
+2026-09-05 11:49:43,924 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading infrastructure vulnerability model
+2026-09-05 11:49:43,924 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1152] - Loading population vulnerability model
+2026-09-05 11:49:43,924 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading property exposure model
+2026-09-05 11:49:43,925 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading population exposure model
+2026-09-05 11:49:43,925 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1161] - Loading infrastructure exposure model
+2026-09-05 11:49:43,925 - geo_infer_risk_enhanced - INFO - [risk_engine:_load_configured_models:1166] - Models loaded: 0 hazard, 3 vulnerability, 3 exposure
+2026-09-05 11:49:43,925 - geo_infer_risk_enhanced - INFO - [risk_engine:run_enhanced_analysis:417] - Enhanced comprehensive analysis completed successfully

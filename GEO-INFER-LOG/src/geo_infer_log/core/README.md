@@ -15,9 +15,6 @@ Core workspace within `GEO-INFER-LOG`.
 - `delivery.py:LastMileRouter` (class)
 - `delivery.py:DeliveryScheduler` (class)
 - `delivery.py:ServiceAreaAnalyzer` (class)
-- `routing.py:VehicleType` (class)
-- `routing.py:Vehicle` (class)
-- `routing.py:RoutingParameters` (class)
 - `routing.py:RouteOptimizer` (class)
 - `routing.py:FleetManager` (class)
 - `routing.py:VehicleRouter` (class)
@@ -32,6 +29,7 @@ Core workspace within `GEO-INFER-LOG`.
 - `transport.py:MultiModalPlanner` (class)
 - `transport.py:TransportationNetworkAnalyzer` (class)
 - `transport.py:TrafficSimulator` (class)
+- `transport.py:EmissionsCalculator` (class)
 
 ## Module Metadata
 
@@ -46,8 +44,13 @@ Core workspace within `GEO-INFER-LOG`.
 - `pandas>=1.3.0`
 - `geopandas>=0.10.0`
 - `networkx>=2.6.0`
-- `pulp>=2.7.0`
+- `pulp>=2.7.0,<3`
 - `shapely>=1.8.0`
+- `pydantic>=2.0.0`
+- `fastapi>=0.100.0`
+- `scipy>=1.9.0`
+- `matplotlib>=3.5.0`
+- `folium>=0.14.0`
 
 
 ## Validation

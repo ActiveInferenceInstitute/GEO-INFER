@@ -1,10 +1,14 @@
 """CRM Reporting functions."""
 
+import logging
 from typing import List, Dict, Any, Optional
 from ..models.crm_models import Customer
 from ..crm.transformer import (
+
     convert_customers_to_dataframe,
 )  # Assuming this function exists
+
+logger = logging.getLogger(__name__)
 
 
 def generate_customer_segmentation_report(customers: List[Customer]) -> Dict[str, Any]:
@@ -41,11 +45,11 @@ def generate_customer_segmentation_report(customers: List[Customer]) -> Dict[str
             else:
                 report["vip_customer_count"] = 0
         except Exception as e:
-            print(f"Could not process tags for reporting: {e}")
+            logger.warning(f"Could not process tags for reporting: {e}")
             report["tags_processing_error"] = str(e)
 
     report["total_customers"] = len(df)
-    print("Generated customer segmentation report.")
+    logger.info("Generated customer segmentation report.")
     return report
 
 
@@ -83,7 +87,7 @@ def generate_lead_conversion_report(customers: List[Customer]) -> Dict[str, Any]
     else:
         report["lead_to_customer_conversion_rate"] = 0.0
 
-    print("Generated lead conversion report.")
+    logger.info("Generated lead conversion report.")
     return report
 
 
@@ -131,23 +135,3 @@ def get_quarterly_metrics(
 # - Sales pipeline analysis
 # - Customer activity summary
 # - Churn rate analysis
-
-# Example conceptual usage
-# if __name__ == '__main__':
-#     from ..crm.importer import CSVCRMImporter
-#     from ..crm.transformer import clean_customer_data, enrich_customer_data
-
-#     # Assume crm_example_data.csv exists
-#     importer = CSVCRMImporter(file_path='crm_example_data.csv')
-#     raw_customers = importer.import_customers()
-#     cleaned = clean_customer_data(raw_customers)
-#     enriched = enrich_customer_data(cleaned)
-
-#     segment_report = generate_customer_segmentation_report(enriched)
-#     print("\nSegmentation Report:")
-#     import json
-#     print(json.dumps(segment_report, indent=2))
-
-#     conversion_report = generate_lead_conversion_report(enriched)
-#     print("\nConversion Report:")
-#     print(json.dumps(conversion_report, indent=2))

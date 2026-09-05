@@ -8,7 +8,7 @@ including batch processing, quality metadata, and temporal analysis.
 import logging
 from typing import Dict, List, Optional, Any
 from datetime import datetime
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, ValidationInfo, field_validator
 import numpy as np
 import h3
 
@@ -169,8 +169,14 @@ class MeasurementBatch(BaseModel):
     """Batch of sensor measurements for efficient processing."""
 
     batch_id: str = Field(..., description="Unique batch identifier")
+    allow_empty: bool = Field(
+        False,
+        description="Internal flag permitting an empty batch (used by filter_* helpers)",
+        exclude=True,
+        repr=False,
+    )
     measurements: List[Measurement] = Field(
-        ..., description="List of measurements in batch"
+        ..., description="Measurements included in this batch"
     )
 
     # Batch metadata
@@ -183,7 +189,6 @@ class MeasurementBatch(BaseModel):
     time_range: Dict[str, datetime] = Field(
         default_factory=dict, description="Time range of batch"
     )
-
     # Batch processing information
     batch_size: int = Field(..., description="Number of measurements in batch")
     created_at: datetime = Field(
@@ -199,9 +204,11 @@ class MeasurementBatch(BaseModel):
     )
 
     @field_validator("measurements")
-    def validate_measurements(cls, v: List["Measurement"]) -> List["Measurement"]:
-        """Validate measurements in batch."""
-        if len(v) == 0:
+    def validate_measurements(
+        cls, v: List["Measurement"], info: "ValidationInfo"
+    ) -> List["Measurement"]:
+        """Validate measurements in batch unless explicitly allowed empty."""
+        if len(v) == 0 and not info.data.get("allow_empty", False):
             raise ValueError("Batch must contain at least one measurement")
         return v
 
@@ -285,7 +292,10 @@ class MeasurementBatch(BaseModel):
         if not filtered_measurements:
             # Return empty batch if no measurements meet criteria
             return MeasurementBatch(
-                batch_id=f"{self.batch_id}_filtered", measurements=[], batch_size=0
+                batch_id=f"{self.batch_id}_filtered",
+                measurements=[],
+                batch_size=0,
+                allow_empty=True,
             )
 
         return MeasurementBatch(
@@ -302,6 +312,7 @@ class MeasurementBatch(BaseModel):
             batch_id=f"{self.batch_id}_{variable}",
             measurements=filtered_measurements,
             batch_size=len(filtered_measurements),
+            allow_empty=True,
         )
 
     def filter_by_sensor(self, sensor_id: str) -> "MeasurementBatch":
@@ -314,6 +325,7 @@ class MeasurementBatch(BaseModel):
             batch_id=f"{self.batch_id}_{sensor_id}",
             measurements=filtered_measurements,
             batch_size=len(filtered_measurements),
+            allow_empty=True,
         )
 
     def get_statistics(self) -> Dict[str, Any]:

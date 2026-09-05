@@ -2,15 +2,12 @@
 name: geo-infer-health
 description: Spatial epidemiology and public health analysis. Use when modeling disease spread, analyzing health disparities, performing spatial health risk assessment, building epidemiological surveillance systems, or assessing healthcare accessibility.
 prerequisites:
-  required:
+  recommended:
     - geo-infer-space
     - geo-infer-data
-  recommended:
-    - geo-infer-bayes
-    - geo-infer-time
 difficulty: intermediate
 estimated_time: 45min
-examples_dir: ../GEO-INFER-EXAMPLES/examples/
+examples_dir: ../examples/
 ---
 
 # GEO-INFER-HEALTH
@@ -19,38 +16,92 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 
 ### Core Capabilities
 
-- **Spatial epidemiology**: Disease clustering (SaTScan), hotspot detection, SIR/SEIR spatial models
-- **Health disparities**: Accessibility analysis, equity mapping, deprivation indices
-- **Risk assessment**: Environmental health risk, exposure modeling
-- **Surveillance**: Real-time epidemiological monitoring, early warning systems
-- **Accessibility**: Hospital catchment areas, travel time to care, coverage gaps
-- **Data validation**: Coordinate precision checks (flags >6 decimal places as suspect)
+- **Disease surveillance**: hotspot detection (DBSCAN-style local density), local incidence rates, temporal trend analysis
+- **Active Inference surveillance**: belief-state updating, free-energy driven anomaly detection, and risk prediction (`ActiveInferenceDiseaseAnalyzer`)
+- **Healthcare accessibility**: facility search by radius, nearest-facility lookup, facility-to-population ratios
+- **Environmental health**: exposure averaging over space and time windows anchored to the latest reading
+- **Geospatial utilities**: UTM projection, spatial clustering, Moran's I autocorrelation, Voronoi regions, local hotspot statistics
 
 ### Key Imports
 
 ```python
-from geo_infer_health.core.epidemiology import EpidemiologicalModel
-from geo_infer_health.core.risk_assessment import HealthRiskAssessor
-from geo_infer_health.core.accessibility import HealthcareAccessAnalyzer
-from geo_infer_health.utils.advanced_geospatial import SpatialValidator
+from geo_infer_health.core import (
+    DiseaseHotspotAnalyzer,
+    ActiveInferenceDiseaseAnalyzer,
+    HealthcareAccessibilityAnalyzer,
+    EnvironmentalHealthAnalyzer,
+)
+from geo_infer_health.models import (
+    Location,
+    DiseaseReport,
+    PopulationData,
+    EnvironmentalData,
+)
+from geo_infer_health.utils.advanced_geospatial import (
+    spatial_clustering,
+    calculate_spatial_autocorrelation,
+    calculate_hotspot_statistics,
+)
 ```
 
 ## Examples
 
 ```python
-from geo_infer_health.core.epidemiology import EpidemiologicalModel
+from datetime import datetime, timezone
+from geo_infer_health.core import DiseaseHotspotAnalyzer
+from geo_infer_health.models import DiseaseReport, Location
 
-model = EpidemiologicalModel(disease_type="infectious")
-clusters = model.detect_clusters(cases_gdf, method="satscan")
-risk_surface = model.compute_risk_surface(clusters, population_raster)
+reports = [
+    DiseaseReport(
+        report_id="case001",
+        disease_code="FLU",
+        location=Location(latitude=34.05, longitude=-118.24),
+        report_date=datetime(2024, 1, 10, tzinfo=timezone.utc),
+        case_count=5,
+        source="Hospital A",
+    ),
+    DiseaseReport(
+        report_id="case002",
+        disease_code="FLU",
+        location=Location(latitude=34.06, longitude=-118.25),
+        report_date=datetime(2024, 1, 11, tzinfo=timezone.utc),
+        case_count=3,
+        source="Clinic B",
+    ),
+]
+
+analyzer = DiseaseHotspotAnalyzer(reports=reports)
+hotspots = analyzer.identify_simple_hotspots(threshold_case_count=2, scan_radius_km=2.0)
+rate, cases, population, population_estimated = analyzer.calculate_local_incidence_rate(
+    center_loc=Location(latitude=34.05, longitude=-118.24),
+    radius_km=5.0,
+)
+```
+
+```python
+from geo_infer_health.core import ActiveInferenceDiseaseAnalyzer
+
+# Enhanced surveillance with belief updating and risk prediction
+enhanced = ActiveInferenceDiseaseAnalyzer(reports=reports)
+result = enhanced.analyze_with_active_inference(time_window_days=30)
+print(result["overall_risk"])
+```
+
+### API server
+
+```bash
+geo-infer-health serve --host 0.0.0.0 --port 8000
+# Routes are mounted under /api/v1: /surveillance, /environment, /accessibility
 ```
 
 ## Guidelines
 
-- Coordinate validation checks for unrealistic precision (>6 decimal places)
+- All analytics run on plain Pydantic models — no external geospatial services required.
+- `calculate_local_incidence_rate` returns raw case counts in the rate slot (flagged via
+  `population_estimated=False`) when no population data is available.
 
 ### Integrations
 
-- Integrates with SPACE for H3-based health district tessellation
-- Integrates with TRANSPORT for healthcare accessibility travel times
-- Test: `uv run python -m pytest GEO-INFER-HEALTH/tests/ -v`
+None: this module has no runtime imports of other GEO-INFER modules.
+
+Test: `uv run python -m pytest GEO-INFER-HEALTH/tests/ -v`

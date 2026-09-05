@@ -12,17 +12,14 @@ mermaid graph TD subgraph "Core Services" SPACE[GEO-INFER-SPACE] TIME[GEO-INFER-
 python # Example: GEO-INFER-AG using GEO-INFER-SPACE functionality from geo_infer_space import indexing from geo_infer_ag import crop_models # Create spatial indexes for agricultural fields field_gdf = crop_models.load_field_boundaries("path/to/fields.geojson") h3_indexes = indexing.geometries_to_h3(field_gdf.geometry, resolution=8) # Use these indexes in crop modeling zoned_analysis = crop_models.analyze_by_zones(field_data, h3_indexes)
 ```
  ### 2. Standardized Data Structures Common data structures ensure compatibility across modules: - **GeospatialDataset**: Core class for handling geospatial data - **TemporalSeries**: Standard representation for time-series data - **SpatioTemporalCube**: For data with both spatial and temporal dimensions - **BeliefDistribution**: Probabilistic representation used in active inference
-```
 ```python
  # Example: Passing data between modules from geo_infer_data import datasets from geo_infer_time import temporal_analysis # Load dataset with standardized structure dataset = datasets.GeospatialDataset.from_file("climate_data.nc") # Directly usable in time module trends = temporal_analysis.detect_trends(dataset.to_temporal_series())
 ```
  ### 3. RESTful API Services For distributed deployment, modules can communicate through the GEO-INFER-API layer:
-```
 ```python
  # Example: Using API for cross-module communication from geo_infer_api import client # Connect to API api = client.GeoInferAPI(base_url="/v1") # Request processing from different modules spatial_result = api.space.create_h3_index(geometry=some_geometry, resolution=8) temporal_result = api.time.detect_seasonality(time_series=some_data) # Combine results from different modules combined = api.data.merge_results(spatial_result, temporal_result)
 ```
  ### 4. Event Bus For asynchronous processing and notifications, a message bus facilitates communication:
-```
 ```python
  # Example: Event-driven communication from geo_infer_intra import events # Subscribe to events from another module @events.subscribe("geo_infer_data.dataset.updated") def handle_dataset_update(event_data): # Process the updated dataset dataset_id = event_data["dataset_id"] process_updated_dataset(dataset_id) # Publish events for other modules events.publish("geo_infer_risk.risk_assessment.completed", { "assessment_id": "123456", "risk_level": "high", "affected_area": bbox_coordinates })
 ```

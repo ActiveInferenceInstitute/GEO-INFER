@@ -10,12 +10,16 @@ from geo_infer_act.utils.math import categorical_posterior
 # from abc import ABC, abstractmethod
 
 
-class ActiveInferenceModel:
+class BaseActiveInferenceModel:
     """
     Base class for active inference models.
 
     This abstract base class defines the interface for
     all active inference models in the GEO-INFER-ACT module.
+
+    Note: this is distinct from ``geo_infer_act.core.active_inference``
+    ``ActiveInferenceModel``, the orchestration agent that this package
+    exports at top level.
     """
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
@@ -30,6 +34,11 @@ class ActiveInferenceModel:
     def step(self, actions: Optional[Any] = None) -> Any:
         """
         Advance the model by one step.
+
+        Domain subclasses (ecological, urban, resource, multi-agent, climate)
+        override this with their active-inference cycle; the base
+        implementation returns the configuration so a bare model instance
+        remains inert but harmless.
 
         Args:
             actions: Optional actions to apply
@@ -58,7 +67,7 @@ class ActiveInferenceModel:
         return self.__str__()
 
 
-class CategoricalModel(ActiveInferenceModel):
+class CategoricalModel(BaseActiveInferenceModel):
     """
     Categorical active inference model.
 
@@ -222,7 +231,7 @@ class CategoricalModel(ActiveInferenceModel):
         return float(np.sum(beliefs * (np.log(beliefs) - np.log(preferences))))
 
 
-class GaussianModel(ActiveInferenceModel):
+class GaussianModel(BaseActiveInferenceModel):
     """
     Gaussian active inference model.
 

@@ -12,16 +12,19 @@ Api workspace within `GEO-INFER-HEALTH`.
 
 ## Public Interface
 
+- `api_disease_surveillance.py:reset_stores` (function)
 - `api_disease_surveillance.py:submit_disease_report` (function)
 - `api_disease_surveillance.py:get_all_disease_reports` (function)
 - `api_disease_surveillance.py:identify_disease_hotspots` (function)
 - `api_disease_surveillance.py:get_local_incidence_rate` (function)
 - `api_disease_surveillance.py:add_population_data_area` (function)
 - `api_disease_surveillance.py:get_all_population_data` (function)
+- `api_environmental_health.py:reset_stores` (function)
 - `api_environmental_health.py:submit_environmental_reading` (function)
 - `api_environmental_health.py:get_all_environmental_readings` (function)
 - `api_environmental_health.py:get_readings_near_location_api` (function)
 - `api_environmental_health.py:get_average_exposure_api` (function)
+- `api_healthcare_accessibility.py:reset_stores` (function)
 - `api_healthcare_accessibility.py:add_health_facility` (function)
 - `api_healthcare_accessibility.py:get_all_health_facilities` (function)
 - `api_healthcare_accessibility.py:find_nearby_facilities` (function)
@@ -44,14 +47,9 @@ Api workspace within `GEO-INFER-HEALTH`.
 - `uvicorn>=0.24.0`
 - `pydantic>=2.5.0`
 - `pydantic-settings>=2.1.0`
+- `pyyaml>=6.0.0`
+- `loguru>=0.7.0`
 - `geopandas>=0.14.0`
-- `shapely>=2.0.0`
-- `pyproj>=3.6.0`
-- `rasterio>=1.3.0`
-- `fiona>=1.9.0`
-- `numpy>=1.24.0`
-- `scipy>=1.11.0`
-- `pandas>=2.1.0`
 
 
 ## Validation

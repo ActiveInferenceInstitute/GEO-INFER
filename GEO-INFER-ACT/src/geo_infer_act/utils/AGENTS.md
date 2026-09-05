@@ -24,7 +24,6 @@
 - `__init__.py`
 - `analysis.py`
 - `config.py`
-- `geospatial_ai.py`
 - `h3_adapter.py`
 - `integration.py`
 - `math.py`

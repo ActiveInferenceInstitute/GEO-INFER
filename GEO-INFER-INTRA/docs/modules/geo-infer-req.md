@@ -25,17 +25,14 @@ python from geo_infer_req import RequirementAnalyzer # Create requirement analyz
 python from geo_infer_req.specification import SpecificationManager # Create specification manager spec_manager = SpecificationManager( management_parameters={ 'specification_documentation': True, 'version_control': True, 'change_tracking': True } ) # Manage specifications spec_result = spec_manager.manage_specifications( specification_data=requirement_specifications, version_data=version_information, change_data=change_history )
 ```
  ## 📚 Core Features ### 1. Requirements Engineering Engine **Purpose**: Systematically gather, analyze, and manage requirements for geospatial systems.
-```
 ```python
  from geo_infer_req.engineering import RequirementsEngineeringEngine # Initialize requirements engineering engine req_engine = RequirementsEngineeringEngine() # Define engineering parameters engineering_config = req_engine.configure_engineering({ 'methodology': 'p3if', 'stakeholder_analysis': True, 'requirements_gathering': 'comprehensive', 'analysis_techniques': 'multiple', 'validation_framework': True }) # Engineer requirements engineering_result = req_engine.engineer_requirements( geospatial_system=spatial_system, engineering_config=engineering_config, stakeholder_needs=stakeholder_requirements )
 ```
  ### 2. Stakeholder Management Engine **Purpose**: Manage and analyze stakeholder needs and requirements.
-```
 ```python
  from geo_infer_req.stakeholders import StakeholderManagementEngine # Initialize stakeholder management engine stakeholder_engine = StakeholderManagementEngine() # Define stakeholder parameters stakeholder_config = stakeholder_engine.configure_stakeholder_management({ 'stakeholder_identification': True, 'needs_analysis': True, 'priority_assessment': True, 'conflict_resolution': True, 'engagement_strategy': True }) # Manage stakeholders stakeholder_result = stakeholder_engine.manage_stakeholders( stakeholder_groups=stakeholder_communities, stakeholder_config=stakeholder_config, project_context=project_requirements )
 ```
  ### 3. System Specification Engine **Purpose**: Develop system specifications and technical requirements.
-```
 ```python
  from geo_infer_req.specifications import SystemSpecificationEngine # Initialize system specification engine spec_engine = SystemSpecificationEngine() # Define specification parameters spec_config = spec_engine.configure_specifications({ 'functional_requirements': True, 'non_functional_requirements': True, 'technical_specifications': True, 'interface_requirements': True, 'performance_requirements': True }) # Develop specifications spec_result = spec_engine.develop_specifications( requirements_model=requirements_model, spec_config=spec_config, technical_constraints=system_constraints )
 ```

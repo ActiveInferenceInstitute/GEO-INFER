@@ -5,8 +5,8 @@ Provides trace matrix construction, coverage analysis,
 and impact analysis for tracking requirements through implementation.
 """
 
-from typing import Dict, List, Optional, Tuple, Set, Any
-from dataclasses import dataclass, field
+from typing import Dict, List, Optional, Set
+from dataclasses import dataclass
 from enum import Enum
 
 

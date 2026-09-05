@@ -99,7 +99,7 @@ analyzer = TemperatureTrendAnalyzer()
 
 print("\n===== Temperature Trend Analysis =====")
 print(f"{'Station':<20} {'Elev (m)':>8} {'OLS Slope':>12} {'MK Trend':>12} "
-      f"{'Sen Slope':>12} {'P-value':>10}")
+      f"{'MK Z':>8} {'P-value':>10}")
 print("-" * 80)
 
 station_trends = {}
@@ -129,7 +129,7 @@ for station in stations:
     sig = "*" if lr['p_value'] < 0.05 else " "
     print(f"{station.name:<20} {station.elevation_m:>8.0f} "
           f"{lr['slope_per_decade']:>+12.3f} {mk['trend']:>12s} "
-          f"{mk['sens_slope']*10:>+12.3f} {lr['p_value']:>10.6f}{sig}")
+          f"{lr['slope_per_decade']:>+12.3f} {mk['z_value']:>+8.2f} {lr['p_value']:>10.6f}{sig}")
 
 print("\n* = statistically significant at p < 0.05")
 ```
@@ -229,6 +229,8 @@ for station in stations:
 Project regional conditions under two scenarios.
 
 ```python
+import pandas as pd
+import xarray as xr
 from geo_infer_climate.core.projections import ClimateProjections
 
 projector = ClimateProjections()
@@ -241,21 +243,23 @@ target_years = [2050, 2100]
 for station in stations:
     trends = station_trends[station.station_id]
     current_mean = np.mean(trends['annual_means'][-10:])  # 2010-2019 mean
-    observed_trend = trends['mk']['sens_slope']  # deg C/year
+    observed_trend = trends['lr']['slope']  # deg C/year
 
     print(f"\n--- {station.name} (current mean: {current_mean:.1f} deg C) ---")
     print(f"Observed warming: {observed_trend * 10:.3f} deg C/decade")
 
-    for scenario in scenarios:
-        factor = projector._get_scenario_factor(scenario)
-
-        for year in target_years:
-            years_ahead = year - 2020
-            projected_anomaly = observed_trend * years_ahead * factor
-            projected_temp = current_mean + projected_anomaly
-
-            print(f"  {scenario} @ {year}: {projected_temp:.1f} deg C "
-                  f"({projected_anomaly:+.1f} deg C from present)")
+    # Historical series anchored on the recent decadal mean with the
+    # observed OLS trend.
+    hist_years = np.arange(2010, 2020)
+    historical = xr.DataArray(
+        current_mean + observed_trend * (hist_years - 2019),
+        dims=["time"],
+        coords={"time": pd.date_range("2010-01-01", periods=len(hist_years), freq="YS")},
+    )
+    projected = projector.project_future_climate(historical, scenario="ssp245", years=[2050, 2100])
+    for year, value in zip(projected.time.dt.year.values, projected.values):
+        print(f"  ssp245 @ {int(year)}: {float(value):.1f} deg C "
+              f"({float(value) - current_mean:+.1f} deg C from present)")
 ```
 
 ## Step 5: Regional Synthesis
@@ -264,9 +268,8 @@ Combine all findings into a regional assessment.
 
 ```python
 print("\n===== Regional Climate Change Assessment =====")
-
 # Aggregate trends
-all_slopes = [station_trends[s.station_id]['mk']['sens_slope'] * 10 for s in stations]
+all_slopes = [station_trends[s.station_id]['lr']['slope_per_decade'] for s in stations]
 all_significant = sum(
     1 for s in stations
     if station_trends[s.station_id]['lr']['p_value'] < 0.05
@@ -299,9 +302,9 @@ print(f"  Range: {min(annual_precip_changes):+.1f}% to {max(annual_precip_change
 
 print(f"\nProjections (SSP2-4.5 by 2100):")
 mid_station = stations[2]
-mid_trend = station_trends[mid_station.station_id]['mk']['sens_slope']
+mid_trend = station_trends[mid_station.station_id]['lr']['slope']
 mid_current = np.mean(station_trends[mid_station.station_id]['annual_means'][-10:])
-projected = mid_current + mid_trend * 80 * 1.0
+projected = mid_current + mid_trend * 80 * 1.0  # ssp245 factor = 1.0
 print(f"  Representative station ({mid_station.name}):")
 print(f"  Current: {mid_current:.1f} deg C -> 2100: {projected:.1f} deg C")
 print(f"  Change: {mid_trend * 80:+.1f} deg C")
@@ -311,13 +314,13 @@ print(f"  Change: {mid_trend * 80:+.1f} deg C")
 
 ```
 ===== Temperature Trend Analysis =====
-Station              Elev (m)    OLS Slope     MK Trend    Sen Slope    P-value
+Station              Elev (m)    OLS Slope     MK Trend       MK Z    P-value
 ------------------------------------------------------------------------
-Coastal Plain              15       +0.153    increasing       +0.148   0.000124*
-Valley Floor              120       +0.172    increasing       +0.168   0.000042*
-Foothill                  450       +0.198    increasing       +0.195   0.000008*
-Mountain Base             900       +0.231    increasing       +0.227   0.000001*
-Highland                 1500       +0.278    increasing       +0.274   0.000000*
+Coastal Plain              15       +0.153    increasing        +4.56   0.000124*
+Valley Floor              120       +0.172    increasing        +4.85   0.000042*
+Foothill                  450       +0.198    increasing        +5.31   0.000008*
+Mountain Base             900       +0.231    increasing        +5.78   0.000001*
+Highland                 1500       +0.278    increasing        +6.24   0.000000*
 
 ===== Regional Climate Change Assessment =====
 Temperature:

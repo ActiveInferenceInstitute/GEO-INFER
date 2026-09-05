@@ -6,7 +6,7 @@ systems as collections of autonomous, interacting agents.
 """
 
 import logging
-from typing import Dict, List, Optional, Any, Callable
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 import numpy as np
 
@@ -65,17 +65,22 @@ class AgentBasedModel:
         self,
         environment: Optional[Dict[str, Any]] = None,
         spatial_bounds: Optional[np.ndarray] = None,
+        neighbor_radius: float = 10.0,
     ) -> None:
         """
         Initialize the agent-based model.
 
         Args:
             environment: Initial environment state
-            spatial_bounds: Spatial bounds [[min_x, min_y], [max_x, max_y]]
+            spatial_bounds: Spatial bounds [[min_x, min_y], [max_x, max_y]];
+                advisory metadata only — positions are not clamped
+            neighbor_radius: Default search radius used by step() when
+                updating agent neighbor lists
         """
         self.agents: Dict[str, Agent] = {}
         self.environment = environment or {}
         self.spatial_bounds = spatial_bounds
+        self.neighbor_radius = neighbor_radius
         self.time = 0.0
 
     def add_agent(self, agent: Agent) -> None:
@@ -159,7 +164,7 @@ class AgentBasedModel:
         # Update agent neighbors
         for agent in self.agents.values():
             agent.neighbors = [
-                n.agent_id for n in self.find_neighbors(agent, radius=10.0)
+                n.agent_id for n in self.find_neighbors(agent, radius=self.neighbor_radius)
             ]
 
         # Execute agent steps

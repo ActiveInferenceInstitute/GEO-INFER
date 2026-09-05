@@ -5,6 +5,8 @@ This module provides FastAPI endpoints for supply chain modeling,
 resilience analysis, network optimization, and facility location.
 """
 
+from functools import lru_cache
+
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Dict, Optional, Tuple
 from pydantic import ConfigDict, Field
@@ -177,13 +179,15 @@ class NetworkOptimizationRequest(BaseModel):
     )
 
 
-# Get a supply chain model instance
+# Cached module-level singletons: built networks and analysis state must
+# survive across requests for the API to behave correctly.
+@lru_cache(maxsize=1)
 def get_supply_chain_model() -> SupplyChainModel:
     """Dependency for supply chain model."""
     return SupplyChainModel()
 
 
-# Get a resilience analyzer instance
+@lru_cache(maxsize=1)
 def get_resilience_analyzer(
     model: SupplyChainModel = Depends(get_supply_chain_model),
 ) -> ResilienceAnalyzer:
@@ -191,13 +195,13 @@ def get_resilience_analyzer(
     return ResilienceAnalyzer(model)
 
 
-# Get a network optimizer instance
+@lru_cache(maxsize=1)
 def get_network_optimizer() -> NetworkOptimizer:
     """Dependency for network optimizer."""
     return NetworkOptimizer()
 
 
-# Get a facility locator instance
+@lru_cache(maxsize=1)
 def get_facility_locator() -> FacilityLocator:
     """Dependency for facility locator."""
     return FacilityLocator()

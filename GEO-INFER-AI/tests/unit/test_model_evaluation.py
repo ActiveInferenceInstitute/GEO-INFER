@@ -2,6 +2,8 @@
 Unit tests for model evaluation functionality.
 """
 
+from typing import List
+
 import numpy as np
 import pytest
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
@@ -110,3 +112,51 @@ class TestGeospatialModelEvaluator:
         assert 'std_score' in result
         assert 'scores' in result
         assert len(result['scores']) == 3
+
+    def test_cross_validate_spatial_blocks_prevent_leakage(
+        self, evaluator: GeospatialModelEvaluator
+    ) -> None:
+        """Test folds hold out contiguous spatial blocks, not random rows."""
+        np.random.seed(42)
+        centers = np.array([[0.0, 0.0], [1000.0, 0.0], [2000.0, 0.0]])
+        coords = np.vstack(
+            [c + np.random.uniform(-10, 10, size=(10, 2)) for c in centers]
+        )
+        y = np.repeat([0.0, 100.0, 200.0], 10) + np.random.uniform(0, 5, size=30)
+
+        folds: List[List[int]] = []
+
+        class SpyModel:
+            """Echoes the test rows back so folds can be attributed."""
+
+            def fit(self, X: np.ndarray, y: np.ndarray) -> "SpyModel":
+                return self
+
+            def predict(self, X: np.ndarray) -> np.ndarray:
+                folds.append([int(np.argmin(np.sum((centers - row) ** 2, axis=1))) for row in X])
+                return np.full(len(X), 50.0)
+
+        result = evaluator.cross_validate_spatial(
+            SpyModel(), coords, y, coords, n_splits=3
+        )
+
+        assert len(result['scores']) == 3
+        # Every sample is tested exactly once across folds.
+        assert sorted(count for fold in folds for count in fold) == [0] * 10 + [1] * 10 + [2] * 10
+        # Each fold's test set is spatially contiguous: one cluster only.
+        for fold in folds:
+            assert len(set(fold)) == 1
+
+    def test_cross_validate_spatial_validates_splits(
+        self, evaluator: GeospatialModelEvaluator
+    ) -> None:
+        np.random.seed(42)
+        X = np.random.randn(20, 3)
+        y = np.random.randn(20)
+        coords = np.random.randn(20, 2)
+        model = RandomForestRegressor(n_estimators=5, random_state=42)
+
+        with pytest.raises(ValueError):
+            evaluator.cross_validate_spatial(model, X, y, coords, n_splits=1)
+        with pytest.raises(ValueError):
+            evaluator.cross_validate_spatial(model, X, y, coords, n_splits=21)

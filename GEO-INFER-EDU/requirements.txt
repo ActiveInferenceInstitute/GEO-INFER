@@ -1,6 +1,2 @@
-# GEO-INFER-EDU Requirements
-numpy>=1.20.0
-pandas>=1.3.0
+# GEO-INFER-EDU Requirements (runtime dependencies; mirrors [project] in pyproject.toml)
 pyyaml>=6.0
-pydantic>=2.0.0
-jinja2>=3.0.0

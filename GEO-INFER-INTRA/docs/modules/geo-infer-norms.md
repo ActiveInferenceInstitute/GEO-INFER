@@ -25,17 +25,14 @@ python from geo_infer_norms import ComplianceManager # Create compliance manager
 python from geo_infer_norms.standards import StandardsEnforcementEngine # Create standards enforcement engine standards_engine = StandardsEnforcementEngine( enforcement_parameters={ 'data_standards': True, 'process_standards': True, 'quality_assurance': True } ) # Enforce standards standards_result = standards_engine.enforce_standards( data_standards=data_quality_standards, process_standards=workflow_standards, compliance_data=compliance_requirements )
 ```
  ## 📚 Core Features ### 1. Regulatory Compliance Engine **Purpose**: Track and manage regulatory compliance for geospatial systems.
-```
 ```python
  from geo_infer_norms.compliance import RegulatoryComplianceEngine # Initialize regulatory compliance engine compliance_engine = RegulatoryComplianceEngine() # Define compliance parameters compliance_config = compliance_engine.configure_compliance({ 'regulatory_framework': 'gdpr', 'compliance_level': 'strict', 'audit_frequency': 'continuous', 'reporting_requirements': 'automated', 'penalty_avoidance': True }) # Manage regulatory compliance compliance_result = compliance_engine.manage_regulatory_compliance( geospatial_system=spatial_system, compliance_config=compliance_config, regulatory_standards=regulatory_framework )
 ```
  ### 2. Social Norm Modeling **Purpose**: Model and analyze social norms in geospatial contexts.
-```
 ```python
  from geo_infer_norms.social import SocialNormEngine # Initialize social norm engine norm_engine = SocialNormEngine() # Define social norm parameters norm_config = norm_engine.configure_social_norms({ 'norm_detection': 'automated', 'behavioral_analysis': True, 'cultural_sensitivity': True, 'community_engagement': True, 'norm_evolution': 'adaptive' }) # Model social norms norm_result = norm_engine.model_social_norms( community_data=community_spatial_data, behavioral_patterns=behavioral_data, norm_config=norm_config )
 ```
  ### 3. Ethical Framework Engine **Purpose**: Implement and manage ethical frameworks for geospatial applications.
-```
 ```python
  from geo_infer_norms.ethics import EthicalFrameworkEngine # Initialize ethical framework engine ethics_engine = EthicalFrameworkEngine() # Define ethical parameters ethics_config = ethics_engine.configure_ethics({ 'ethical_principles': 'fairness_equity_transparency', 'bias_detection': True, 'discrimination_prevention': True, 'transparency_requirements': 'high', 'accountability_framework': True }) # Implement ethical framework ethics_result = ethics_engine.implement_ethical_framework( geospatial_application=spatial_application, ethics_config=ethics_config, ethical_standards=ethical_guidelines )
 ```

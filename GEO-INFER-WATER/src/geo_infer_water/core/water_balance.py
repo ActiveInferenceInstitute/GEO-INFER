@@ -28,6 +28,42 @@ class WaterBalanceModeler:
         """
         self.config = config or {}
 
+    def water_balance_closure(
+        self,
+        precipitation: xr.DataArray,
+        evapotranspiration: xr.DataArray,
+        runoff: xr.DataArray,
+    ) -> xr.Dataset:
+        """Close a water balance from supplied components.
+
+        The storage change is ``P - ET - runoff`` and the closure residual
+        is ``P - (ET + runoff) - storage_change`` (identically zero for
+        internally consistent components; non-zero values reveal a
+        structural mismatch between the supplied fluxes).
+
+        Args:
+            precipitation: Precipitation flux.
+            evapotranspiration: Evapotranspiration flux.
+            runoff: Runoff flux.
+
+        Returns:
+            Dataset with ``precipitation``, ``evapotranspiration``,
+            ``runoff``, ``storage_change``, ``balance`` (alias of
+            ``storage_change``), and ``closure_residual``.
+        """
+        storage_change = precipitation - evapotranspiration - runoff
+        closure_residual = precipitation - (evapotranspiration + runoff) - storage_change
+        return xr.Dataset(
+            {
+                "precipitation": precipitation,
+                "evapotranspiration": evapotranspiration,
+                "runoff": runoff,
+                "storage_change": storage_change,
+                "balance": storage_change,
+                "closure_residual": closure_residual,
+            }
+        )
+
     def thornthwaite_pet(
         self,
         monthly_temp_c: np.ndarray,

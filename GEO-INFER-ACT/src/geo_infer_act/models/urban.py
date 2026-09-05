@@ -5,12 +5,12 @@ Urban planning model using active inference.
 from typing import Dict, List, Optional, Any, Tuple
 import numpy as np
 
-from geo_infer_act.models.base import ActiveInferenceModel
+from geo_infer_act.models.base import BaseActiveInferenceModel
 from geo_infer_act.core.generative_model import GenerativeModel
 from geo_infer_act.core.active_inference import ActiveInferenceModel as Agent
 
 
-class UrbanModel(ActiveInferenceModel):
+class UrbanModel(BaseActiveInferenceModel):
     """
     Urban planning model using active inference.
 
@@ -180,13 +180,13 @@ class UrbanModel(ActiveInferenceModel):
             observation = [int(obs_loc), int(obs_res)]
 
             # 2. Agent Perceives and Acts
-            # We use the 'step' method of ActiveInferenceModel
-            # But wait, ActiveInferenceModel.step returns (beliefs, action)
+            # We use the 'step' method of Agent
+            # But wait, Agent.step returns (beliefs, action)
             # and 'action' might be an index.
 
-            # Note: ActiveInferenceModel 'step' runs perceive() then act()
+            # Note: Agent 'step' runs perceive() then act()
             # We need to make sure perceive() handles the list observation [int, int]
-            # My 'interface' update handled this, but 'ActiveInferenceModel._update_beliefs_direct'
+            # My 'interface' update handled this, but 'Agent._update_beliefs_direct'
             # handles list of ints for pymdp.
 
             beliefs, action = agent.step(observation)

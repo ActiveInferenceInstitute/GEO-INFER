@@ -386,31 +386,47 @@ class TestAPI(unittest.TestCase):
         self.client = TestClient(self.api.app)
 
     def test_health_check(self):
-        """Test API health check endpoint"""
-        _response = self.client.get("/api/health")
-        # In a real test, would check response status and content
+        """Test API health check endpoint."""
+        response = self.client.get("/api/health")
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertTrue(body["success"])
+        self.assertEqual(body["service"], "GEO-INFER-ECON API")
+        self.assertIn("component_health", body["data"])
 
     def test_model_execution_endpoint(self):
-        """Test model execution endpoint"""
-        # Mock request data
+        """Test model execution endpoint: auth works and schema is honored."""
         request_data = {
             "model_type": "sar_model",
-            "model_config": {},
+            "model_configuration": {},
             "data_source": "test_data",
             "parameters": {},
         }
 
-        # Mock authentication
         headers = {"Authorization": "Bearer test_key"}
 
-        _response = self.client.post(
+        response = self.client.post(
             "/api/models/execute", json=request_data, headers=headers
         )
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        for key in ("success", "execution_id", "model_type", "results", "diagnostics"):
+            self.assertIn(key, body)
+        self.assertEqual(body["model_type"], "sar_model")
 
-        # In a real test, would check response structure and content
+    def test_model_execution_requires_auth(self):
+        """Test model execution endpoint rejects unauthenticated requests."""
+        request_data = {
+            "model_type": "sar_model",
+            "model_configuration": {},
+            "data_source": "test_data",
+            "parameters": {},
+        }
+        response = self.client.post("/api/models/execute", json=request_data)
+        self.assertEqual(response.status_code, 403)
 
     def test_spatial_analysis_endpoint(self):
-        """Test spatial analysis endpoint"""
+        """Test spatial analysis endpoint returns the documented contract."""
         request_data = {
             "analysis_type": "spatial_autocorrelation",
             "data_source": "test_spatial_data",
@@ -418,9 +434,11 @@ class TestAPI(unittest.TestCase):
             "parameters": {},
         }
 
-        _response = self.client.post("/api/spatial/analyze", json=request_data)
-        # In a real test, would check response
-
+        response = self.client.post("/api/spatial/analyze", json=request_data)
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertIn("success", body)
+        self.assertIsInstance(body["success"], bool)
 
 class TestMicroeconomicsModule(unittest.TestCase):
     """Test cases for microeconomics functionality"""

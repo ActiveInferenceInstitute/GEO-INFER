@@ -1,6 +1,7 @@
 """Tests for collaboration networks and team formation."""
 
 import pytest
+import networkx as nx
 from geo_infer_org.core.collaboration import (
     CollaborationNetwork,
     TeamFormation,
@@ -125,3 +126,39 @@ class TestTeamFormation:
         result = team_formation.form_team(["python", "sql"])
         assert 0.0 <= result.overall_score <= 1.0
         assert 0.0 <= result.coordination_cost <= 1.0
+
+class TestBetweennessVsNetworkx:
+    def test_betweenness_matches_networkx_undirected(self, network):
+        """Undirected normalization must match networkx's convention
+        ((n-1)*(n-2)/2), not the directed factor."""
+        centrality = network.compute_betweenness_centrality()
+        graph = nx.Graph()
+        graph.add_edges_from([("A", "B"), ("B", "C"), ("A", "C"), ("C", "D")])
+        expected = nx.betweenness_centrality(graph, normalized=True)
+        for node, score in centrality.items():
+            assert score == pytest.approx(expected[node], abs=1e-4)
+
+
+class TestCapacityWeighting:
+    def test_higher_capacity_wins_equal_coverage(self):
+        """With identical skill coverage, the member with more remaining
+        capacity is selected first."""
+        tf = TeamFormation()
+        tf.add_members([
+            TeamMember("low", "Low Capacity", ["python"], capacity=0.1),
+            TeamMember("high", "High Capacity", ["python"], capacity=1.0),
+        ])
+        result = tf.form_team(required_skills=["python"], max_size=1, prefer_diverse_units=False)
+        assert result.team_members == ["high"]
+
+    def test_zero_capacity_member_is_not_selected(self):
+        """A member with zero remaining capacity contributes nothing and
+        is never chosen while alternatives exist."""
+        tf = TeamFormation()
+        tf.add_members([
+            TeamMember("empty", "Booked Out", ["python"], capacity=0.0),
+            TeamMember("free", "Available", ["java"], capacity=1.0),
+        ])
+        result = tf.form_team(required_skills=["python", "java"], max_size=2, prefer_diverse_units=False)
+        assert "empty" not in result.team_members
+        assert "free" in result.team_members

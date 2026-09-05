@@ -127,3 +127,39 @@ def sensor_network_gdf() -> gpd.GeoDataFrame:
         geometry=[Point(lng, lat) for lat, lng in zip(lats, lngs)],
         crs="EPSG:4326",
     )
+
+
+@pytest.fixture(autouse=True)
+def _close_stray_event_loops():
+    """Close any asyncio event loops a test leaves running.
+
+    Some IOT ingestion tests construct real event loops; if a test exits
+    before closing its loop (or a library task still holds it), pytest's
+    unraisable-exception collector turns the eventual ResourceWarning into
+    a hard failure.  This teardown cancels pending tasks, closes every open
+    loop, and clears the current-loop reference so nothing leaks between
+    tests.
+    """
+    import asyncio
+
+    yield
+
+    import warnings
+
+    with warnings.catch_warnings():
+        # In Python 3.12 policy.get_event_loop() warns when no current loop
+        # is set; that is exactly the stray-loop condition this teardown
+        # cleans up, so the deprecation noise is expected and suppressed.
+        warnings.simplefilter("ignore", DeprecationWarning)
+        try:
+            loop = asyncio.get_event_loop_policy().get_event_loop()
+        except RuntimeError:
+            loop = None
+    if loop is not None and not loop.is_closed():
+        try:
+            for task in asyncio.all_tasks(loop):
+                task.cancel()
+            loop.run_until_complete(loop.shutdown_asyncgens())
+        except RuntimeError:
+            pass
+        loop.close()

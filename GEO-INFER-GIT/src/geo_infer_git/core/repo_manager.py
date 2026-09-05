@@ -81,25 +81,28 @@ class RepoManager:
 
     def _get_base_dir(self) -> Path:
         """
-        Get and create (if needed) the base directory for repositories.
+        Resolve the base directory for repositories.
+
+        The directory is not created here; it is created lazily by
+        :meth:`_ensure_base_dir` on the first write operation so that merely
+        constructing a :class:`RepoManager` has no filesystem side effects.
 
         Returns:
             Path object for the base directory
         """
-        base_dir = Path(
+        return Path(
             self.config.get("repositories", {}).get("base_directory", "./repos")
         )
 
-        # Create directory if it doesn't exist
-        if not base_dir.exists():
+    def _ensure_base_dir(self) -> None:
+        """Create the base directory if it does not exist yet."""
+        if not self.base_dir.exists():
             try:
-                base_dir.mkdir(parents=True, exist_ok=True)
-                logger.info(f"Created base directory at {base_dir}")
+                self.base_dir.mkdir(parents=True, exist_ok=True)
+                logger.info(f"Created base directory at {self.base_dir}")
             except Exception as e:
-                logger.error(f"Failed to create base directory {base_dir}: {e}")
+                logger.error(f"Failed to create base directory {self.base_dir}: {e}")
                 raise
-
-        return base_dir
 
     def clone_repositories(self, repo_list: List[Dict], parallel: bool = True) -> Dict:
         """
@@ -188,6 +191,8 @@ class RepoManager:
         if target_dir.exists():
             logger.info(f"Repository {repo_name} already exists at {target_dir}")
             return True
+
+        self._ensure_base_dir()
 
         try:
             logger.info(f"Cloning {url} to {target_dir}")
@@ -306,6 +311,9 @@ class RepoManager:
             Dictionary mapping repository names to paths
         """
         repos = {}
+        if not self.base_dir.exists():
+            return repos
+
         for item in self.base_dir.iterdir():
             if item.is_dir() and (item / ".git").exists():
                 repos[item.name] = item
@@ -550,7 +558,7 @@ class RepoManager:
                     continue
 
                 # Create new branch from current HEAD
-                new_branch = repo.create_head(branch_name)
+                repo.create_head(branch_name)
                 logger.info(f"Created branch {branch_name} in {name}")
                 results[name] = True
             except Exception as e:

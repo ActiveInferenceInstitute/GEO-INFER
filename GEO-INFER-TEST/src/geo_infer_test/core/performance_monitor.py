@@ -40,27 +40,36 @@ class PerformanceMonitor:
     def __init__(self, logger: Optional[logging.Logger] = None):
         self.logger = logger or logging.getLogger(__name__)
         self._records: List[_TimingRecord] = []
-        self._active: Optional[_TimingRecord] = None
+        self._section_stack: List[_TimingRecord] = []
+        self._trace_depth: int = 0
 
     def start(self, label: str) -> None:
-        """Begin timing a section."""
-        tracemalloc.start()
-        self._active = _TimingRecord(label=label, start_time=time.perf_counter())
+        """Begin timing a section.
+
+        Nested sections are supported: ``tracemalloc`` is reference-counted,
+        so an inner section's ``stop()`` does not kill tracing for the outer
+        section. Overlapping sections each get their own record.
+        """
+        if self._trace_depth == 0:
+            tracemalloc.start()
+        self._trace_depth += 1
+        self._section_stack.append(_TimingRecord(label=label, start_time=time.perf_counter()))
         self.logger.debug("⏱ Start: %s", label)
 
     def stop(self) -> Dict[str, Any]:
         """Stop timing the active section and return metrics."""
-        if self._active is None:
+        if not self._section_stack:
             raise RuntimeError("No active timing section")
 
-        self._active.end_time = time.perf_counter()
+        rec = self._section_stack.pop()
+        rec.end_time = time.perf_counter()
         _, peak = tracemalloc.get_traced_memory()
-        tracemalloc.stop()
-        self._active.peak_memory_bytes = peak
+        rec.peak_memory_bytes = peak
+        self._trace_depth = max(self._trace_depth - 1, 0)
+        if self._trace_depth == 0:
+            tracemalloc.stop()
 
-        rec = self._active
         self._records.append(rec)
-        self._active = None
 
         metrics = {
             "label": rec.label,
@@ -87,7 +96,8 @@ class PerformanceMonitor:
 
     def reset(self) -> None:
         self._records.clear()
-        self._active = None
+        self._section_stack.clear()
+        self._trace_depth = 0
 
 
 class BenchmarkRunner:

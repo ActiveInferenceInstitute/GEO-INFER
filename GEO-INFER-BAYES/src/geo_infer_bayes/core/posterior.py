@@ -362,7 +362,7 @@ class PosteriorAnalysis:
             draws = model.posterior_predictive(
                 posterior=self, X=X, samples=samples, random_seed=random_seed
             )
-        except TypeError as exc:  # pragma: no cover - legacy signature fallback
+        except TypeError:  # pragma: no cover - legacy signature fallback
             draws = model.posterior_predictive(posterior=self, X=X, samples=samples)
         draws = np.asarray(draws, dtype=float)
         if draws.ndim == 1:

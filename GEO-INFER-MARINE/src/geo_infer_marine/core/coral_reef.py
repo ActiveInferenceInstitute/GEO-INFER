@@ -5,10 +5,12 @@ and biodiversity metrics specific to coral reef ecosystems.
 """
 
 import logging
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, Optional, cast
 
 import numpy as np
 import xarray as xr
+
+from geo_infer_marine.utils.biodiversity import biodiversity_metrics
 
 logger = logging.getLogger(__name__)
 
@@ -124,27 +126,18 @@ class CoralReefAssessor:
                 "evenness": 0.0,
             }
 
-        counts = np.array(list(species_counts.values()), dtype=float)
-        total = counts.sum()
-        richness = len(counts)
-
-        proportions = counts / total
-        shannon = -float(np.sum(proportions * np.log(proportions + 1e-10)))
-
-        simpson = 1.0 - float(np.sum(proportions**2))
-
+        metrics = biodiversity_metrics(species_counts)
+        richness = metrics["species_richness"]
+        total = metrics["total_abundance"]
         margalef = (richness - 1) / np.log(total) if total > 1 else 0.0
-
-        max_shannon = np.log(richness) if richness > 1 else 1.0
-        evenness = shannon / max_shannon if max_shannon > 0 else 0.0
 
         return {
             "species_richness": richness,
-            "total_abundance": int(total),
-            "shannon_index": float(shannon),
-            "simpson_index": float(simpson),
+            "total_abundance": total,
+            "shannon_index": metrics["shannon"],
+            "simpson_index": metrics["simpson"],
             "margalef_index": float(margalef),
-            "evenness": float(evenness),
+            "evenness": metrics["evenness"],
         }
 
     def assess_reef_health_composite(

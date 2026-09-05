@@ -37,7 +37,6 @@ appropriate in focused integration code and tests.
 valid hierarchy has ordered resolutions, real H3 cells, complete parent/child
 maps, no orphan children, and finite aggregation results.
 
-```
 ```python
 from geo_infer_space.nested import NestedH3Grid
 
@@ -69,14 +68,12 @@ use, and output schemas.
 The following v3 names are not supported in GEO-INFER documentation or runtime
 paths:
 
-```
 ```python
 # Removed v3 names: geo_to_h3, h3_to_geo, h3_to_geo_boundary, k_ring
 ```
 
 Use the v4 table above. The repository H3 contract gate is:
 
-```
 ```bash
 uv run python GEO-INFER-TEST/run_unified_tests.py --h3-migration
 uv run python GEO-INFER-TEST/validate_h3_active_inference_contract.py

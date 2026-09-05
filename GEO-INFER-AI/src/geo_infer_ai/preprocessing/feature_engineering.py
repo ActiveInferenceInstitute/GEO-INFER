@@ -30,7 +30,11 @@ class GeospatialFeatureEngineer:
 
         Args:
             normalize: Whether to normalize features
-            handle_spatial_autocorr: Whether to account for spatial autocorrelation
+            handle_spatial_autocorr: Accepted for API compatibility. Advisory
+                only: it is stored but does not alter feature computation.
+                Spatial autocorrelation is instead addressed downstream by
+                spatially aware models (e.g. ``SpatialPredictor``) and by
+                spatial block cross-validation during evaluation.
         """
         self.normalize = normalize
         self.handle_spatial_autocorr = handle_spatial_autocorr

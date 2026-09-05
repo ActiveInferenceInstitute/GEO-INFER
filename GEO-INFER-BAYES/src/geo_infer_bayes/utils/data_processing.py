@@ -251,6 +251,8 @@ def validate_spatial_data(
     """
     Validate spatial data for Bayesian inference.
 
+    Both latitude and longitude range violations are reported as errors.
+
     Args:
         spatial_coords: Spatial coordinates array
         values: Values array
@@ -286,9 +288,8 @@ def validate_spatial_data(
         validation_results["is_valid"] = False
 
     if np.any(lon_range < -180) or np.any(lon_range > 180):
-        warnings.append(
-            "Longitude values out of range [-180, 180]"
-        )
+        errors.append("Longitude values out of range [-180, 180]")
+        validation_results["is_valid"] = False
 
     # Check data consistency
     if len(spatial_coords) != len(values):

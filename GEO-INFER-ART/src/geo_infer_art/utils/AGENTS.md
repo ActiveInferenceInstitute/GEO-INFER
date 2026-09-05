@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `__init__.py`
+- `animation.py`
 - `validators.py`
 
 ## Validation

@@ -18,13 +18,6 @@ except ImportError:
     MATPLOTLIB_AVAILABLE = False
     warnings.warn("matplotlib not available. Visualization functions limited.")
 
-try:
-    import plotly.graph_objects as go
-
-    PLOTLY_AVAILABLE = True
-except ImportError:
-    PLOTLY_AVAILABLE = False
-
 from ..models.data_models import SPMResult
 
 
@@ -399,91 +392,3 @@ def _plot_model_diagnostics(
     }
 
 
-def create_interactive_map(
-    spm_result: SPMResult, contrast_idx: int = 0, **kwargs: Any
-) -> Optional[Any]:
-    """
-    Create interactive statistical map using plotly.
-
-    Args:
-        spm_result: SPM analysis results
-        contrast_idx: Index of contrast to visualize
-        **kwargs: Additional plotting parameters
-
-    Returns:
-        Plotly figure object or None if plotly not available
-    """
-    if not PLOTLY_AVAILABLE:
-        warnings.warn("plotly not available. Cannot create interactive map.")
-        return None
-
-    if not isinstance(contrast_idx, int) or contrast_idx < 0:
-        raise ValueError("contrast_idx must be a non-negative integer")
-    if contrast_idx >= len(spm_result.contrasts):
-        raise ValueError(f"Contrast index {contrast_idx} out of range")
-
-    contrast = spm_result.contrasts[contrast_idx]
-    coordinates = spm_result.spm_data.coordinates
-
-    # Get statistical values
-    stat_values = (
-        contrast.t_statistic.flatten()
-        if contrast.t_statistic.ndim > 1
-        else contrast.t_statistic
-    )
-    stat_values = np.asarray(stat_values, dtype=float).reshape(-1)
-    if len(stat_values) != len(coordinates):
-        raise ValueError("contrast statistics must align with coordinates")
-
-    # Create hover text
-    hover_text = []
-    for i in range(len(coordinates)):
-        hover_text.append(
-            f"Longitude: {coordinates[i, 0]:.4f}<br>"
-            f"Latitude: {coordinates[i, 1]:.4f}<br>"
-            f"T-statistic: {stat_values[i]:.3f}<br>"
-            f"P-value: {contrast.p_values[i]:.3f}"
-        )
-
-    # Determine colors based on significance
-    if (
-        hasattr(contrast, "significance_mask")
-        and contrast.significance_mask is not None
-    ):
-        colors: Any = ["red" if sig else "blue" for sig in contrast.significance_mask]
-        color_label = "Significant"
-    else:
-        colors = stat_values
-        color_label = "T-statistic"
-
-    # Create scatter plot
-    fig = go.Figure(
-        data=go.Scattergeo(
-            lon=coordinates[:, 0],
-            lat=coordinates[:, 1],
-            text=hover_text,
-            mode="markers",
-            marker=dict(
-                size=8,
-                color=colors,
-                colorscale="RdBu_r" if isinstance(colors[0], (int, float)) else None,
-                showscale=True if isinstance(colors[0], (int, float)) else False,
-                colorbar=(
-                    dict(title=color_label)
-                    if isinstance(colors[0], (int, float))
-                    else None
-                ),
-                line=dict(width=1, color="black"),
-            ),
-            hovertemplate="%{text}<extra></extra>",
-        )
-    )
-
-    # Update layout
-    fig.update_layout(
-        title=f"SPM Statistical Map - {getattr(contrast, 'name', f'Contrast {contrast_idx}')}",
-        geo=dict(showframe=False, showcoastlines=True, projection_type="natural earth"),
-        height=600,
-    )
-
-    return fig

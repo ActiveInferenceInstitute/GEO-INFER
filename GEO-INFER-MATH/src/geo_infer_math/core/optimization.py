@@ -6,13 +6,13 @@ in the GEO-INFER framework.
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Any, Callable, Union, Set, cast
-from dataclasses import dataclass, field
+from typing import Dict, List, Optional, Tuple, Any, Callable, Union, cast
+from dataclasses import dataclass
 import logging
 from abc import ABC, abstractmethod
 from scipy.optimize import minimize, differential_evolution, basinhopping
 
-from ..utils.rng import resolve_rng, SeedLike
+from ..utils.rng import resolve_rng
 
 logger = logging.getLogger(__name__)
 
@@ -109,7 +109,6 @@ class GradientDescentOptimizer(Optimizer):
         else:
             obj_fn = objective_function
 
-        n_params = len(bounds)
 
         if initial_guess is None:
             initial_guess = np.array([(b[0] + b[1]) / 2 for b in bounds])
@@ -444,7 +443,6 @@ class MultiObjectiveOptimizer(Optimizer):
             objective_functions = [objective_function]
 
         n_params = len(bounds)
-        n_objectives = len(objective_functions)
 
         # Initialize population
         population = self._initialize_population(n_params, bounds)

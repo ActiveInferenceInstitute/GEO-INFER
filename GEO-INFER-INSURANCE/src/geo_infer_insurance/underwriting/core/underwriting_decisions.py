@@ -166,7 +166,7 @@ class UnderwritingDecisionEngine:
             config: Decision engine configuration
         """
         self.config = config or {}
-        self.logger = logging.getLogger("geo_infer_risk.underwriting.decision_engine")
+        self.logger = logging.getLogger("geo_infer_insurance.underwriting.decision_engine")
 
         # Decision frameworks
         self.decision_frameworks: Dict[str, DecisionFramework] = {}

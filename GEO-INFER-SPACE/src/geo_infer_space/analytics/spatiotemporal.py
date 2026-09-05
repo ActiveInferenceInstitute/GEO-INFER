@@ -20,13 +20,7 @@ from collections import defaultdict
 
 logger = logging.getLogger(__name__)
 
-try:
-    import numpy as np
-
-    NUMPY_AVAILABLE = True
-except ImportError:
-    NUMPY_AVAILABLE = False
-    np = None  # type: ignore[assignment]
+import numpy as np
 
 
 class SpatioTemporalAnalyzer:
@@ -114,7 +108,7 @@ class SpatioTemporalAnalyzer:
                 analysis["trend"] = trend
 
             # Variability
-            if NUMPY_AVAILABLE and len(values) > 1:
+            if len(values) > 1:
                 analysis["std"] = float(np.std(values))
                 analysis["cv"] = (
                     analysis["std"] / analysis["mean"] if analysis["mean"] != 0 else 0
@@ -428,13 +422,7 @@ class SpatioTemporalAnalyzer:
 
             # Calculate threshold
             values = list(slice_data.values())
-            if NUMPY_AVAILABLE:
-                threshold = float(np.percentile(values, threshold_percentile))
-            else:
-                sorted_vals = sorted(values)
-                idx = int(len(sorted_vals) * threshold_percentile / 100)
-                threshold = sorted_vals[min(idx, len(sorted_vals) - 1)]
-
+            threshold = float(np.percentile(values, threshold_percentile))
             # Classify each cell
             for cell, value in slice_data.items():
                 is_hotspot = value >= threshold

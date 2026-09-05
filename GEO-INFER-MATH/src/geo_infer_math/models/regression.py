@@ -7,10 +7,9 @@ and other spatially-aware regression techniques.
 """
 
 import numpy as np
-from typing import Union, List, Tuple, Dict, Optional, Any, Callable
+from typing import List, Dict, Optional, Any
 from dataclasses import dataclass
 from scipy.optimize import minimize
-from scipy.spatial.distance import cdist
 import logging
 
 logger = logging.getLogger(__name__)

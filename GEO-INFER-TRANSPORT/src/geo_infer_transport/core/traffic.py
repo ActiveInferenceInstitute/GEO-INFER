@@ -8,7 +8,7 @@ and simulation capabilities.
 import logging
 import re
 from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 
@@ -139,32 +139,45 @@ class TrafficAnalyzer:
         logger.info(f"Flow analysis for {segment.get('id')}: LOS {los}")
         return result
     
-    def _seconds_per_interval(self) -> float:
-        """Convert ``self.time_resolution`` to seconds per count interval.
+    @staticmethod
+    def _parse_duration_seconds(duration: str) -> float:
+        """Parse a duration string to seconds.
 
-        Accepted formats combine a number with an s/m/h unit, e.g.
-        ``"15min"``, ``"5min"``, ``"1h"``, ``"60s"``.
-
-        Returns:
-            Seconds represented by one count interval
+        Accepted formats combine a number with an s/m/h/d unit, e.g.
+        ``"15min"``, ``"90m"``, ``"1h"``, ``"2 days"``.
 
         Raises:
-            ValueError: If ``time_resolution`` cannot be parsed.
+            ValueError: If the duration cannot be parsed.
         """
         match = re.fullmatch(
-            r"(\d+(?:\.\d+)?)\s*(s|sec|secs|seconds?|m|min|mins|minutes?|h|hr|hrs|hours?)",
-            self.time_resolution.strip(),
+            r"(\d+(?:\.\d+)?)\s*(s|sec|secs|seconds?|m|min|mins|minutes?|h|hr|hrs|hours?|d|days?)",
+            duration.strip(),
             re.IGNORECASE,
         )
         if not match:
-            raise ValueError(f"Unsupported time_resolution: {self.time_resolution!r}")
+            raise ValueError(f"Unsupported duration: {duration!r}")
         value = float(match.group(1))
         unit = match.group(2).lower()
         if unit.startswith("s"):
             return value
         if unit.startswith("m"):
             return value * 60.0
-        return value * 3600.0
+        if unit.startswith("h"):
+            return value * 3600.0
+        return value * 86400.0
+
+    def _seconds_per_interval(self) -> float:
+        """Convert ``self.time_resolution`` to seconds per count interval.
+
+        Raises:
+            ValueError: If ``time_resolution`` cannot be parsed.
+        """
+        try:
+            return self._parse_duration_seconds(self.time_resolution)
+        except ValueError as exc:
+            raise ValueError(
+                f"Unsupported time_resolution: {self.time_resolution!r}"
+            ) from exc
 
     def model_congestion(
         self,
@@ -403,19 +416,24 @@ class TrafficAnalyzer:
         
         Args:
             historical_data: Historical traffic data
-            forecast_horizon: Forecast time horizon
+            forecast_horizon: Forecast duration string (number + s/m/h/d unit,
+                e.g. ``"30m"``, ``"90m"``, ``"1h"``, ``"1d"``). Converted to a
+                number of ``self.time_resolution``-sized forecast steps.
+                Must span at least one full interval.
             model: Forecasting model
             
         Returns:
             Traffic forecast
         """
-        # Parse forecast horizon
-        if "h" in forecast_horizon:
-            steps = int(forecast_horizon.replace("h", "")) * 4  # 15-min intervals
-        elif "m" in forecast_horizon:
-            steps = int(forecast_horizon.replace("m", "")) // 15
-        else:
-            steps = 4
+        # Parse forecast horizon into time_resolution-sized steps
+        horizon_seconds = self._parse_duration_seconds(forecast_horizon)
+        interval_seconds = self._seconds_per_interval()
+        steps = int(horizon_seconds // interval_seconds)
+        if steps <= 0:
+            raise ValueError(
+                f"forecast_horizon {forecast_horizon!r} is shorter than one "
+                f"interval ({self.time_resolution!r})"
+            )
         
         # Exponentially Weighted Moving Average (EWMA) forecast
         alpha = 0.3  # Smoothing factor

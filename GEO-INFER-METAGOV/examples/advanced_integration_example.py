@@ -6,9 +6,6 @@ to create a complete governance system including organizational structures,
 governance rules, and accountability frameworks.
 """
 
-import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../src'))
 
 from geo_infer_metagov.core.multi_level import MultiLevelGovernanceFramework
 from geo_infer_metagov.core.stakeholder import StakeholderGovernanceCoordinator
@@ -28,7 +25,7 @@ def main():
     print("-" * 80)
     
     mlg_framework = MultiLevelGovernanceFramework(
-        governance_levels=['local', 'city', 'regional'],
+        governance_levels=['local', 'regional', 'national'],
         coordination_mechanisms=['vertical_alignment', 'horizontal_integration', 'subsidiarity'],
         domain_coverage=['climate_adaptation', 'environmental', 'civic', 'infrastructure']
     )

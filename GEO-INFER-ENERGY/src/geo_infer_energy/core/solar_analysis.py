@@ -5,10 +5,9 @@ and optimal panel tilt/azimuth determination.
 """
 
 import logging
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional
 
 import numpy as np
-import xarray as xr
 
 logger = logging.getLogger(__name__)
 

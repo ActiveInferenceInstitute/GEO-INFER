@@ -26,17 +26,14 @@ This guide provides documentation for integrating with GEO-INFER APIs across all
 http POST /auth/token Content-Type: application/x-www-form-urlencoded grant_type=client_credentials& client_id=your_client_id& client_secret=your_client_secret& scope=read:data write:analysis
 ```
  **Response:**
-```
 ```json
  { "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...", "token_type": "Bearer", "expires_in": 3600, "scope": "read:data write:analysis" }
 ```
  ### **JWT Token Usage**
-```
 ```http
  Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
  ## 📊 **Core API Endpoints** ### **DATA Module API** #### **Data Ingestion**
-```
 ```http
  POST /api/v1/data/ingest Content-Type: application/json { "source": "sensor_network", "format": "geojson", "data": { "type": "FeatureCollection", "features": [ { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-122.4194, 37.7749] }, "properties": { "sensor_id": "temp_001", "temperature": 22.5, "timestamp": "2025-06-20T15:30:00Z" } } ] } }
 ```

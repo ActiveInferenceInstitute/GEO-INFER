@@ -20,7 +20,7 @@ Examples workspace within `GEO-INFER-REQ`.
 
 ## Dependencies
 
-- `pydantic>=2.0.0`
+- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
 
 
 ## Validation

@@ -10,18 +10,13 @@ import logging
 import uuid
 from datetime import datetime
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Union, Tuple, Set
+from typing import Dict, List, Any, Optional, Tuple, Set
 from enum import Enum
 from collections import defaultdict, deque
 
 logger = logging.getLogger(__name__)
 
-try:
-    import numpy as np
-    NUMPY_AVAILABLE = True
-except ImportError:
-    NUMPY_AVAILABLE = False
-    logger.warning("NumPy not available. Some hierarchy analysis features will be limited.")
+import numpy as np  # hard dependency (numpy<2.0 pinned); no fallback path
 
 try:
     import h3
@@ -368,16 +363,15 @@ class H3HierarchyAnalyzer:
         # Balance metrics
         metrics.balance_factor = self._calculate_balance_factor(hierarchy)
         
-        if NUMPY_AVAILABLE:
-            heights = [node.height_to_leaves for node in hierarchy.values()]
-            breadths = list(level_counts.values())
-            
-            metrics.height_variance = (
-                np.var(heights) if heights else 0.0  # type: ignore[assignment]
-            )
-            metrics.breadth_variance = (
-                np.var(breadths) if breadths else 0.0  # type: ignore[assignment]
-            )
+        heights = [node.height_to_leaves for node in hierarchy.values()]
+        breadths = list(level_counts.values())
+        
+        metrics.height_variance = (
+            np.var(heights) if heights else 0.0  # type: ignore[assignment]
+        )
+        metrics.breadth_variance = (
+            np.var(breadths) if breadths else 0.0  # type: ignore[assignment]
+        )
         
         # Density metrics
         metrics.node_density = self._calculate_node_density(hierarchy)
@@ -457,17 +451,11 @@ class H3HierarchyAnalyzer:
                         child_sizes.append(self._calculate_subtree_size(hierarchy, child_id))
                 
                 if len(child_sizes) > 1:
-                    balance: float
-                    if NUMPY_AVAILABLE:
-                        balance = (
-                            1.0 / (  # type: ignore[assignment]
-                                1.0 + np.var(child_sizes)
-                            )
+                    balance: float = (
+                        1.0 / (  # type: ignore[assignment]
+                            1.0 + np.var(child_sizes)
                         )
-                    else:
-                        mean_size = sum(child_sizes) / len(child_sizes)
-                        variance = sum((size - mean_size) ** 2 for size in child_sizes) / len(child_sizes)
-                        balance = 1.0 / (1.0 + variance)
+                    )
                     
                     balance_scores.append(balance)
         
@@ -611,13 +599,9 @@ class H3HierarchyAnalyzer:
         
         level_complexity = len(levels) / len(hierarchy)
         
-        branching_complexity: float
-        if branching_factors and NUMPY_AVAILABLE:
-            branching_complexity = (
-                np.var(branching_factors)  # type: ignore[assignment]
-            )
-        else:
-            branching_complexity = 0.0
+        branching_complexity: float = (
+            np.var(branching_factors) if branching_factors else 0.0  # type: ignore[assignment]
+        )
         
         return level_complexity + branching_complexity
     
@@ -631,12 +615,7 @@ class H3HierarchyAnalyzer:
         if not branching_factors:
             return 0.0
         
-        if NUMPY_AVAILABLE:
-            return np.var(branching_factors)  # type: ignore[return-value]
-        else:
-            mean_branching = sum(branching_factors) / len(branching_factors)
-            variance = sum((bf - mean_branching) ** 2 for bf in branching_factors) / len(branching_factors)
-            return variance
+        return np.var(branching_factors)  # type: ignore[return-value]
     
     def _calculate_structural_stability(self, hierarchy: Dict[str, HierarchyNode]) -> float:
         """Calculate structural stability metric."""
@@ -794,7 +773,7 @@ class H3HierarchyAnalyzer:
         # Detect nodes with unusual branching factors
         branching_factors = [len(node.children_ids) for node in hierarchy.values() if not node.is_leaf()]
         
-        if branching_factors and NUMPY_AVAILABLE:
+        if branching_factors:
             mean_branching = np.mean(branching_factors)
             std_branching = np.std(branching_factors)
             

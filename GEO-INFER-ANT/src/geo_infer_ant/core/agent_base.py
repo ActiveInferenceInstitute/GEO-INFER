@@ -12,11 +12,28 @@ from typing import Dict, List, Any, Optional, cast
 from datetime import datetime
 from dataclasses import dataclass, field
 
-# Integration components are required workspace dependencies.
-from geo_infer_act.core.active_inference import ActiveInferenceModel
-from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
-from geo_infer_space.core.analytics import SpatialAnalyticsInterface
-from geo_infer_agent.core.agent_base import BaseAgent
+# Integration modules are optional; ANT degrades gracefully when they are
+# absent (the same pattern as aco.py, pso.py, population.py, stigmergy.py).
+try:
+    from geo_infer_act.core.active_inference import ActiveInferenceModel
+except ImportError as e:
+    logging.getLogger(__name__).debug("Optional active-inference integration unavailable: %s", e)
+    ActiveInferenceModel = None
+
+try:
+    from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+    from geo_infer_space.core.analytics import SpatialAnalyticsInterface
+except ImportError as e:
+    logging.getLogger(__name__).debug("Optional spatial integration unavailable: %s", e)
+    SpatialIndexingInterface = None
+    SpatialAnalyticsInterface = None
+
+try:
+    from geo_infer_agent.core.agent_base import BaseAgent
+except ImportError as e:
+    logging.getLogger(__name__).debug("Optional agent-framework integration unavailable: %s", e)
+    BaseAgent = None
+
 
 logger = logging.getLogger(__name__)
 
@@ -131,17 +148,21 @@ class ActionDecision:
             "expected_outcome": self.expected_outcome,
             "alternative_actions": self.alternative_actions,
             "timestamp": self.timestamp.isoformat(),
-            "execution_priority": self.execution_priority,
         }
 
 
-class SwarmAgent(BaseAgent):
+_SwarmAgentBase: type = BaseAgent if BaseAgent is not None else object
+
+
+class SwarmAgent(_SwarmAgentBase):
     """
     Base class for swarm intelligence agents.
 
     Integrates with Active Inference (ACT), spatial reasoning (SPACE),
-    and agent management (AGENT) to provide sophisticated individual
-    agent behaviors within collective intelligence systems.
+    and agent management (AGENT) when those optional workspace packages
+    are installed; without them the agent runs standalone with all
+    ANT-specific behavior intact (active-inference and spatial hooks
+    stay inert, and the AGENT belief state is simply absent).
 
     Key Features:
     - Active Inference decision making
@@ -184,7 +205,15 @@ class SwarmAgent(BaseAgent):
         if movement_speed < 0 or not np.isfinite(movement_speed):
             raise ValueError("movement_speed must be finite and non-negative")
 
-        super().__init__(agent_id, kwargs)
+        if BaseAgent is not None:
+            # Full AGENT-framework base: lifecycle, belief state, handlers.
+            super().__init__(agent_id, kwargs)
+        else:
+            # Standalone mode without geo-infer-agent: supply the two
+            # attributes SwarmAgent itself relies on. AGENT framework
+            # features (run loop, save_state, belief state) are simply absent.
+            self.agent_id = agent_id
+            self.config: Dict[str, Any] = dict(kwargs)
 
         # Swarm-specific attributes
         self.position = position_arr
@@ -960,7 +989,8 @@ class SwarmAgent(BaseAgent):
     async def initialize(self) -> None:
         """Initialize agent before running."""
         logger.info(f"SwarmAgent {self.agent_id} initializing")
-        self.state.update_belief("status", "initialized")
+        if hasattr(self, "state"):
+            self.state.update_belief("status", "initialized")
 
     async def perceive(self) -> Dict[str, Any]:
         """Default perception method."""
@@ -973,7 +1003,8 @@ class SwarmAgent(BaseAgent):
     def update_beliefs(self, perception: Dict[str, Any]) -> None:
         """Update beliefs based on perception."""
         for key, value in perception.items():
-            self.state.update_belief(key, value)
+            if hasattr(self, "state"):
+                self.state.update_belief(key, value)
 
     async def decide(self) -> Optional[Dict[str, Any]]:
         """Default decision method."""
@@ -996,8 +1027,9 @@ class SwarmAgent(BaseAgent):
             "movement_speed": self.movement_speed,
             "energy_level": self.energy_level,
             "active_inference_enabled": self.active_inference_enabled,
-            "task_memory": self.task_memory,
-            "performance_history": self.performance_history,
             "config": self.config,
-            "state": self.state.to_dict() if hasattr(self.state, "to_dict") else {},
+            "state": self.state.to_dict()
+            if getattr(self, "state", None) is not None
+            and hasattr(self.state, "to_dict")
+            else {},
         }

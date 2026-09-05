@@ -15,7 +15,7 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 
 ### Core Capabilities
 
-- **Unified test runner**: `run_unified_tests.py` for all 44 modules
+- **Unified test runner**: `run_unified_tests.py` for all 45 modules
 - **Category filtering**: unit, integration, system, performance
 - **Module filtering**: Test individual or groups of modules
 - **Result reporting**: JUnit XML + HTML reports per module
@@ -91,4 +91,4 @@ uv run python -m pytest GEO-INFER-ACT/tests/ -m "integration" -v --tb=short
 
 - **EXAMPLES** → Example code treated as integration tests
 - **OPS** → CI/CD test results feed monitoring
-- **All modules** → Unified test runner spans all 44 modules
+- **All modules** → Unified test runner spans all 45 modules

@@ -11,7 +11,6 @@ mermaid graph TD GIM[GEO-INFER-MATH] --> CORE[Core Mathematics] GIM --> MODELS[S
 mermaid flowchart LR RAW[Raw Geospatial Data] --> PREP[Data Preparation] PREP --> VALID[Validation] VALID --> PROC[Processing] PROC --> ANAL[Analysis] ANAL --> VIZ[Visualization] ANAL --> RES[Results] %% Details for each step subgraph Data_Flow PREP --> CONV1[Coordinate Conversion] PREP --> CLEAN[Data Cleaning] PREP --> STRUCT[Structure Definition] VALID --> BOUNDS[Boundary Checks] VALID --> TYPE[Type Validation] VALID --> TOPO[Topology Checks] PROC --> TRANS1[Transformations] PROC --> INTERP1[Interpolation] PROC --> AGGR[Aggregation] ANAL --> STATS[Statistics] ANAL --> MODEL[Modeling] ANAL --> CLUST1[Clustering] end style RAW fill:#f99,stroke:#333 style RES fill:#9f9,stroke:#333 style VIZ fill:#99f,stroke:#333
 ```
  ## Component Interactions
-```
 ```mermaid
  sequenceDiagram participant User participant API as API Interface participant Core as Core Mathematics participant Models as Statistical Models participant Utils as Utilities User->>API: Request spatial analysis API->>Core: Request core operations Core->>Utils: Validate inputs Utils-->>Core: Validation results Core->>Models: Apply statistical model Models-->>Core: Model results Core-->>API: Processing results API-->>User: Final results
 ```

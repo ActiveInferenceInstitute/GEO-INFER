@@ -10,7 +10,7 @@ Examples workspace within `GEO-INFER-PLACE`.
 
 ## Public Interface
 
-- `del_norte_county_demo.py:check_and_install_dependencies` (function)
+- `del_norte_county_demo.py:check_dependencies` (function)
 - `del_norte_county_demo.py:load_api_keys` (function)
 - `del_norte_county_demo.py:demonstrate_data_sources` (function)
 - `del_norte_county_demo.py:demonstrate_api_connections` (function)
@@ -39,8 +39,8 @@ Examples workspace within `GEO-INFER-PLACE`.
 - `folium>=0.14.0`
 - `plotly>=5.0.0`
 - `matplotlib>=3.5.0`
-- `seaborn>=0.12.0`
 - `branca>=0.6.0`
+- `requests>=2.28.0`
 
 
 ## Validation

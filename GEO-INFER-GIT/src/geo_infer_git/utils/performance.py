@@ -13,8 +13,7 @@ import time
 import psutil
 import threading
 import functools
-from typing import Dict, Any, Optional, Callable, List, Tuple, cast
-from pathlib import Path
+from typing import Dict, Any, Optional, Callable, List, cast
 from dataclasses import dataclass, field
 import gc
 import logging
@@ -627,7 +626,7 @@ def performance_optimized(func: Optional[Callable] = None, operation_name: Optio
             op_name = operation_name or f"{f.__module__}.{f.__name__}"
 
             # Start monitoring
-            metrics = monitor.start_operation(op_name)
+            monitor.start_operation(op_name)
 
             try:
                 # Trigger GC if memory pressure is high
@@ -644,7 +643,7 @@ def performance_optimized(func: Optional[Callable] = None, operation_name: Optio
 
                 return result
 
-            except Exception as e:
+            except Exception:
                 # End monitoring on error
                 monitor.end_operation(op_name)
                 raise
@@ -721,7 +720,7 @@ class PerformanceOptimizer:
             Function result
         """
         # Start performance monitoring
-        metrics = self.performance_monitor.start_operation(operation_name)
+        self.performance_monitor.start_operation(operation_name)
 
         try:
             # Check for memory pressure and optimize
@@ -744,7 +743,7 @@ class PerformanceOptimizer:
 
             return result
 
-        except Exception as e:
+        except Exception:
             self.performance_monitor.end_operation(operation_name)
             raise
 

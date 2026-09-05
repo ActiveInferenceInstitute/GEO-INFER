@@ -28,7 +28,8 @@ Models workspace within `GEO-INFER-COG`.
 ## Dependencies
 
 - `numpy>=1.20.0`
-- `pandas>=1.3.0`
+- `networkx>=2.6`
+- `pyyaml>=5.4`
 
 
 ## Validation

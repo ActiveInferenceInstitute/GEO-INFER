@@ -22,7 +22,6 @@
 ## Local Contents
 
 - `integration/`
-- `intra_utils/`
 - `performance/`
 - `system/`
 - `unit/`

@@ -4,7 +4,6 @@ import pytest
 from geo_infer_edu.core.professional import (
     ProfessionalDevelopment,
     ProfessionalProfile,
-    CertificationLevel,
     CertificationPathway,
     ContinuingEducationActivity,
 )
@@ -12,10 +11,6 @@ from geo_infer_edu.core.professional import (
 
 class TestProfessionalDataclasses:
     """Tests for professional dataclass creation."""
-
-    def test_certification_level_values(self) -> None:
-        assert CertificationLevel.ASSOCIATE.value == "associate"
-        assert CertificationLevel.MASTER.value == "master"
 
     def test_professional_profile_creation(self) -> None:
         profile = ProfessionalProfile(

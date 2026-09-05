@@ -3,11 +3,28 @@ Marine spatial planning module.
 """
 
 import logging
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 import numpy as np
 import xarray as xr
 
 logger = logging.getLogger(__name__)
+
+
+def _normalized(data: xr.DataArray) -> xr.DataArray:
+    """Scale a DataArray to [0, 1] by its finite maximum.
+
+    Args:
+        data: Input values.
+
+    Returns:
+        ``data / max``; uniform 1.0 when the maximum is zero,
+        negative, or not finite, so downstream division cannot
+        produce NaN priorities.
+    """
+    max_value = float(data.max())
+    if max_value <= 0.0 or not np.isfinite(max_value):
+        return xr.ones_like(data)
+    return data / max_value
 
 
 class MarineSpatialPlanner:
@@ -36,12 +53,13 @@ class MarineSpatialPlanner:
         Returns:
             MPA network design
         """
-        # Prioritize high biodiversity areas
-        priority = biodiversity_data / biodiversity_data.max()
-        
+        # Prioritize high biodiversity areas; uniform when data is flat,
+        # all-zero or non-finite so no NaN priorities are produced.
+        priority = _normalized(biodiversity_data)
+
         if threat_data is not None:
             # Also consider threat levels
-            priority = priority * (1 + threat_data / threat_data.max())
+            priority = priority * (1 + _normalized(threat_data))
         
         # Select top priority areas to meet coverage target
         threshold = priority.quantile(1 - target_coverage)
@@ -73,7 +91,7 @@ class MarineSpatialPlanner:
             Optimal siting analysis
         """
         # Suitability based on wind and depth
-        wind_suitability = wind_resource / wind_resource.max()
+        wind_suitability = _normalized(wind_resource)
         depth_suitability = xr.where(depth <= max_depth, 1 - depth / max_depth, 0)
         
         suitability = wind_suitability * depth_suitability

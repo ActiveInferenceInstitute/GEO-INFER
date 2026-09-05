@@ -11,7 +11,6 @@ Api workspace within `GEO-INFER-METAGOV`.
 
 - `rest_api.py:APIVersion` (class)
 - `rest_api.py:APIResponse` (class)
-- `rest_api.py:APIError` (class)
 - `rest_api.py:GovernanceAPI` (class)
 - `rest_api.py:StakeholderAPI` (class)
 
@@ -25,9 +24,7 @@ Api workspace within `GEO-INFER-METAGOV`.
 
 ## Dependencies
 
-- `numpy>=1.20`
-- `pyyaml>=6.0`
-- `typing_extensions>=4.0`
+- Dependencies are declared in `pyproject.toml` or inherited from the workspace.
 
 
 ## Validation

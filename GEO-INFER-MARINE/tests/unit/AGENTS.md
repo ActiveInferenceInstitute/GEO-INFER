@@ -24,8 +24,10 @@
 - `test_coastal_analysis.py`
 - `test_coral_reef.py`
 - `test_marine_ecosystems.py`
+- `test_marine_spatial_planning.py`
 - `test_ocean_currents.py`
 - `test_oceanographic_data.py`
+- `test_sea_level.py`
 - `test_water_quality_marine.py`
 
 ## Validation

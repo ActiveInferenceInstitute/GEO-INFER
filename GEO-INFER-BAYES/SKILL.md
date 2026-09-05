@@ -21,9 +21,10 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 - **Bayesian inference**: Full posterior computation via MCMC and variational methods
 - **Model comparison**: LOO-CV, WAIC, DIC, BIC, AIC (all real implementations)
 - **Gaussian processes**: Exact Cholesky and batched inducing-point variational GPs
-- **Hierarchical models**: Partial pooling via Cholesky LKJ decomposition
-- **Prior specification**: Jeffreys, reference, unit-information priors
 - **ELBO computation**: Real evidence lower bound (not placeholder)
+- Out of scope: partial pooling via Cholesky LKJ decomposition, and
+  Jeffreys / reference / unit-information priors. Implemented priors live in
+  `geo_infer_bayes.utils.priors` (ICAR, BYM, Leroux, AR1, RW1, RW2, GP).
 
 ### Key Imports
 
@@ -33,8 +34,7 @@ from geo_infer_bayes.core.model_comparison import ModelComparison
 from geo_infer_bayes.models.spatial_gp import SparseSpatialGP, SpatialGP
 from geo_infer_bayes.core.variational import VariationalInference
 from geo_infer_bayes.utils.diagnostics import mcmc_diagnostics
-from geo_infer_bayes.api.pymc_interface import PyMCInterface
-from geo_infer_bayes.api.tfp_interface import TFPInterface
+from geo_infer_bayes.api import PyMCInterface
 ```
 
 ## Examples

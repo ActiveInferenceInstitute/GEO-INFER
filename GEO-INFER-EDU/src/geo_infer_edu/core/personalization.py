@@ -6,7 +6,7 @@ and personalized content delivery.
 """
 
 import logging
-from typing import Dict, List, Optional, Any
+from typing import Callable, Dict, List, Optional, Any
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta
 
@@ -53,6 +53,49 @@ class LearningPathway:
     estimated_duration_weeks: int
     optimization_strategy: str
     created_at: datetime = field(default_factory=datetime.now)
+
+
+def compute_skill_gap_pathway(
+    target_competencies: List[str],
+    current_skills: List[str],
+    hours_per_week: float,
+    hours_per_competency: float,
+    resources_for: Optional[Callable[[str], List[Dict[str, Any]]]] = None,
+) -> Dict[str, Any]:
+    """
+    Compute the skill-gap -> sequence -> duration core shared by all
+    learning-pathway creators (PersonalizedLearning.create_pathway and
+    CurriculumDesigner.create_learning_pathway).
+
+    Args:
+        target_competencies: Competencies the learner is aiming for
+        current_skills: Competencies the learner already has
+        hours_per_week: Weekly study time available to the learner
+        hours_per_competency: Estimated study hours per skill gap
+        resources_for: Optional callable mapping a competency to its resources
+
+    Returns:
+        Dict with ``skill_gaps``, ``sequence``, ``total_estimated_hours`` and
+        ``estimated_duration_weeks`` keys.
+    """
+    current = set(current_skills)
+    skill_gaps = [c for c in target_competencies if c not in current]
+    total_hours = len(skill_gaps) * hours_per_competency
+    sequence = [
+        {
+            "order": i + 1,
+            "competency": skill,
+            "estimated_hours": hours_per_competency,
+            "resources": resources_for(skill) if resources_for else [],
+        }
+        for i, skill in enumerate(skill_gaps)
+    ]
+    return {
+        "skill_gaps": skill_gaps,
+        "sequence": sequence,
+        "total_estimated_hours": total_hours,
+        "estimated_duration_weeks": max(1, int(total_hours // hours_per_week)),
+    }
 
 
 class PersonalizedLearning:
@@ -141,47 +184,48 @@ class PersonalizedLearning:
 
         # Parse constraints
         time_constraint = constraints.get("time", "20_hours")
-        deadline = constraints.get("deadline")
-        total_hours = (
+        total_hours_budget = (
             int(time_constraint.split("_")[0])
             if isinstance(time_constraint, str)
             else time_constraint
         )
 
-        # Identify skill gaps
-        current_skills = set(profile.prior_knowledge)
-        target_skills = set(learning_goals)
-        skill_gaps = list(target_skills - current_skills)
+        current_skills = list(profile.prior_knowledge)
+        skill_gaps = [
+            c for c in learning_goals if c not in set(current_skills)
+        ]
+        hours_per_skill = (
+            total_hours_budget / len(skill_gaps) if skill_gaps else total_hours_budget
+        )
 
-        # Generate learning sequence
-        sequence = []
-        hours_per_skill = total_hours / len(skill_gaps) if skill_gaps else total_hours
-
-        for i, skill in enumerate(skill_gaps):
-            # Find appropriate resources
-            resources = self._find_resources_for_skill(skill, profile.learning_style)
-
-            sequence.append(
-                {
-                    "order": i + 1,
-                    "skill": skill,
-                    "estimated_hours": hours_per_skill,
-                    "resources": resources,
-                    "assessments": [f"assessment_{skill}"],
-                    "prerequisites": list(target_skills.intersection(current_skills)),
-                }
-            )
-
-        # Calculate duration
-        hours_per_week = profile.available_time_hours_week
-        estimated_weeks = max(1, int(total_hours / hours_per_week))
+        core = compute_skill_gap_pathway(
+            target_competencies=learning_goals,
+            current_skills=current_skills,
+            hours_per_week=profile.available_time_hours_week,
+            hours_per_competency=hours_per_skill,
+            resources_for=lambda skill: self._find_resources_for_skill(
+                skill, profile.learning_style
+            ),
+        )
+        shared_prerequisites = sorted(set(learning_goals).intersection(current_skills))
+        sequence = [
+            {
+                "order": step["order"],
+                "skill": step["competency"],
+                "estimated_hours": step["estimated_hours"],
+                "resources": step["resources"],
+                "assessments": [f"assessment_{step['competency']}"],
+                "prerequisites": shared_prerequisites,
+            }
+            for step in core["sequence"]
+        ]
 
         pathway = LearningPathway(
             pathway_id=f"pathway_{profile.learner_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}",
             learner_id=profile.learner_id,
             target_competencies=learning_goals,
             sequence=sequence,
-            estimated_duration_weeks=estimated_weeks,
+            estimated_duration_weeks=core["estimated_duration_weeks"],
             optimization_strategy=optimization,
         )
 

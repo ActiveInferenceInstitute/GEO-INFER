@@ -7,6 +7,7 @@ All functions use H3 4.x API directly.
 
 import logging
 import json
+import math
 from typing import Dict, List, Union, Any, Optional, Tuple, cast
 
 logger = logging.getLogger(__name__)
@@ -428,3 +429,32 @@ def are_neighbor_cells(h3_index1: str, h3_index2: str) -> bool:
         raise ImportError("h3-py package required for are_neighbor_cells")
 
     return cast(bool, h3.are_neighbor_cells(h3_index1, h3_index2))
+
+
+def haversine_distance(
+    point1: Tuple[float, float], point2: Tuple[float, float], radius_km: float = 6371.0
+) -> float:
+    """
+    Great-circle distance between two (lat, lng) points in kilometres.
+
+    Single canonical scalar implementation for GEO-INFER-SPACE. Batch /
+    GPU computation with chunking and validation is provided separately by
+    ``geo_infer_space.backends.gpu.gpu_acceleration.pairwise_haversine_kernel``.
+
+    Args:
+        point1: (latitude, longitude) in degrees
+        point2: (latitude, longitude) in degrees
+        radius_km: Sphere radius (default Earth mean radius)
+
+    Returns:
+        Distance in kilometres
+    """
+    lat1, lng1 = math.radians(point1[0]), math.radians(point1[1])
+    lat2, lng2 = math.radians(point2[0]), math.radians(point2[1])
+    dlat = lat2 - lat1
+    dlng = lng2 - lng1
+    a = (
+        math.sin(dlat / 2) ** 2
+        + math.cos(lat1) * math.cos(lat2) * math.sin(dlng / 2) ** 2
+    )
+    return 2 * radius_km * math.asin(math.sqrt(a))

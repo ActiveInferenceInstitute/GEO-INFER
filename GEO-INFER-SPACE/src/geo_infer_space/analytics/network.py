@@ -11,14 +11,13 @@ import numpy as np
 import pandas as pd
 import geopandas as gpd
 import networkx as nx
-from typing import Union, List, Dict, Any, Optional, Tuple
-from shapely.geometry import Point, LineString, Polygon
-from shapely.ops import nearest_points
+from typing import List, Dict, Any, Optional, Tuple
+from shapely.geometry import Point, LineString
 
 logger = logging.getLogger(__name__)
 
 try:
-    import osmnx as ox
+    import osmnx as osmnx
     OSMNX_AVAILABLE = True
 except ImportError:
     OSMNX_AVAILABLE = False
@@ -127,7 +126,6 @@ def service_area(
             raise ValueError("Could not find network node near center point")
         
         # Calculate shortest paths to all reachable nodes within distance
-        reachable_nodes: List[Any] = []
         distances = nx.single_source_dijkstra_path_length(
             G, center_node, cutoff=max_distance, weight=weight_column
         )

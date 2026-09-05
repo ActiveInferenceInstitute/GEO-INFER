@@ -67,7 +67,7 @@ from .applications.disaster import DisasterResponseSwarm
 from .applications.urban import UrbanTrafficSwarm
 from .analysis.patterns import SwarmPatternAnalyzer
 from .analysis.metrics import SwarmPerformanceMetrics
-from .utils.config import _config_to_dict, load_config, validate_config
+from .utils.config import config_to_dict, load_config, validate_config
 from .utils.logging import setup_logging
 from .utils.integration import IntegrationManager
 
@@ -89,7 +89,7 @@ def setup_ant_module(config_path: Optional[str] = None) -> Dict[str, Any]:
 
     if config_path:
         try:
-            config = _config_to_dict(load_config(config_path))
+            config = config_to_dict(load_config(config_path))
             validate_config(config)
             logger.info(f"Configuration loaded from {config_path}")
         except Exception as e:
@@ -137,7 +137,7 @@ def get_available_components() -> Dict[str, List[str]]:
     components["analysis"] = ["SwarmPatternAnalyzer", "SwarmPerformanceMetrics"]
     components["utils"] = [
         "load_config",
-        "validate_config",
+        "config_to_dict",
         "setup_logging",
         "IntegrationManager",
     ]
@@ -167,7 +167,7 @@ __all__ = [
     "setup_ant_module",
     "get_available_components",
     "load_config",
-    "validate_config",
+    "config_to_dict",
     "setup_logging",
     # Module metadata
     "__version__",

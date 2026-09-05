@@ -9,6 +9,10 @@ Examples workspace within `GEO-INFER-TRANSPORT`.
 
 ## Public Interface
 
+- `multimodal_analysis.py:build_sample_network` (function)
+- `multimodal_analysis.py:routing_example` (function)
+- `multimodal_analysis.py:traffic_example` (function)
+- `multimodal_analysis.py:transit_example` (function)
 - `multimodal_analysis.py:main` (function)
 - `traffic_simulation.py:main` (function)
 
@@ -22,12 +26,7 @@ Examples workspace within `GEO-INFER-TRANSPORT`.
 
 ## Dependencies
 
-- `numpy>=1.20.0`
-- `pandas>=1.3.0`
 - `networkx>=2.6.0`
-- `shapely>=1.8.0`
-- `scipy>=1.7.0`
-- `pyyaml>=6.0`
 
 
 ## Validation

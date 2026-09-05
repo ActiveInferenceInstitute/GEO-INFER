@@ -2,16 +2,15 @@
 GEO-INFER-BIO Climate Data Processing Module
 
 This module provides climate data processing capabilities for biological spatial analysis,
-designed to work with real-world climate datasets like WorldClim, NOAA, and other
-meteorological data sources with biological relevance.
+designed to work with real-world climate datasets like WorldClim bioclimatic rasters
+and other meteorological data sources with biological relevance.
 
 Key Features:
-- WorldClim bioclimatic variables processing
-- NOAA weather station data integration
-- Climate data spatial interpolation and resampling
-- Temporal climate data alignment
-- Integration with biological sampling coordinates
-- Support for climate change scenarios and projections
+- WorldClim bioclimatic variable sampling from local GeoTIFF rasters
+- Custom climate raster loading
+- Climate data sampling at biological sampling coordinates
+- Multi-variable climate data alignment
+- Support for user-supplied climate change scenario rasters
 """
 
 import logging
@@ -19,24 +18,18 @@ import pandas as pd
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
 
-# Geospatial and raster processing
+logger = logging.getLogger(__name__)
+
+# Raster processing (optional; required only for WorldClim/custom raster loading)
 try:
     import rasterio
-    import rasterio.mask
-    import rasterio.sample
-    from rasterio.warp import calculate_default_transform, reproject, Resampling
-    import geopandas as gpd
-    from shapely.geometry import Point, box
-    import xarray as xr
 
     HAS_RASTER_DEPS = True
 except ImportError:
     HAS_RASTER_DEPS = False
-    logging.warning(
-        "Raster processing dependencies not available. Install with: uv pip install rasterio xarray geopandas"
+    logger.warning(
+        "Raster processing dependencies not available. Install with: uv pip install rasterio"
     )
-
-logger = logging.getLogger(__name__)
 
 
 class ClimateDataProcessor:
@@ -44,8 +37,7 @@ class ClimateDataProcessor:
     Climate data processing for biological spatial analysis.
 
     Supports multiple climate data sources:
-    - WorldClim bioclimatic variables
-    - NOAA weather station data
+    - WorldClim bioclimatic variables (sampled from local GeoTIFF rasters)
     - Custom climate rasters
     """
 
@@ -359,15 +351,11 @@ class ClimateDataset:
         Returns:
             DataFrame with all variables and coordinates
         """
-        dfs: List[pd.DataFrame] = []
-        for variable in self.get_variables():
-            var_df = self.get_variable_data(variable)
-            var_df = var_df.rename(columns={"value": variable})
-            if not dfs:
-                dfs.append(var_df[["latitude", "longitude", variable]])
-            else:
-                # Merge on coordinates
-                dfs.append(var_df[["latitude", "longitude", variable]])
+        dfs: List[pd.DataFrame] = [
+            self.get_variable_data(variable)
+            .rename(columns={"value": variable})[["latitude", "longitude", variable]]
+            for variable in self.get_variables()
+        ]
 
         if not dfs:
             return pd.DataFrame()

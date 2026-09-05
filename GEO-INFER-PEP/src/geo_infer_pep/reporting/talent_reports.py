@@ -1,7 +1,7 @@
 """Talent Acquisition Reporting functions."""
 
+import logging
 from typing import List, Dict, Any, Optional
-from datetime import datetime
 
 from ..models.talent_models import (
     Candidate,
@@ -9,7 +9,10 @@ from ..models.talent_models import (
     CandidateStatus,
     JobRequisitionStatus,
 )
+
+logger = logging.getLogger(__name__)
 from ..talent.transformer import (
+
     convert_candidates_to_dataframe,
     convert_requisitions_to_dataframe,
 )
@@ -55,7 +58,7 @@ def generate_candidate_pipeline_report(
                 }
             report["pipeline_by_active_requisition"] = pipeline_by_req
 
-    print("Generated candidate pipeline report.")
+    logger.info("Generated candidate pipeline report.")
     return report
 
 
@@ -92,7 +95,7 @@ def calculate_time_to_hire(hired_candidates: List[Candidate]) -> Dict[str, Any]:
         "min_time_to_hire_days": min(durations) if durations else None,
         "max_time_to_hire_days": max(durations) if durations else None,
     }
-    print("Calculated time to hire report.")
+    logger.info("Calculated time to hire report.")
     return report
 
 

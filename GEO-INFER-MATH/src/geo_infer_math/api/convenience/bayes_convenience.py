@@ -6,7 +6,7 @@ including posterior helpers, prior builders, and MCMC wrappers.
 """
 
 import numpy as np
-from typing import Union, Optional, List, Tuple, Dict, Any, Callable, cast
+from typing import Optional, Tuple, Dict, Any, Callable, cast
 import logging
 
 from geo_infer_math.utils.rng import resolve_rng

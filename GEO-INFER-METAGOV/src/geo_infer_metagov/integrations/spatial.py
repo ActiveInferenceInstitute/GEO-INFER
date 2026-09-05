@@ -15,6 +15,60 @@ except ImportError:
     logger.warning("GEO-INFER-SPACE not available, spatial features disabled")
 
 
+def bounds_to_polygon(bounds: Dict[str, Any]) -> Dict[str, Any]:
+    """Convert a bounding-box definition to a GeoJSON Polygon.
+
+    Accepts a mapping with a latitude pair and a longitude pair drawn from:
+    ``min_lat``/``max_lat``, ``min_lng``/``max_lng``, ``min_lon``/``max_lon``,
+    or the compass aliases ``south``/``north``/``west``/``east``.
+
+    Parameters:
+    -----------
+    bounds : Dict[str, Any]
+        Bounding-box definition.
+
+    Returns:
+    --------
+    Dict[str, Any]
+        GeoJSON Polygon (coordinates as ``[lng, lat]`` pairs) covering the box.
+
+    Raises:
+    -------
+    ValueError
+        If required keys are missing or min/max values are inverted.
+    """
+    min_lat = next(
+        (float(bounds[k]) for k in ('min_lat', 'south', 'min_y') if k in bounds), None
+    )
+    max_lat = next(
+        (float(bounds[k]) for k in ('max_lat', 'north', 'max_y') if k in bounds), None
+    )
+    min_lng = next(
+        (float(bounds[k]) for k in ('min_lng', 'min_lon', 'west', 'min_x') if k in bounds),
+        None,
+    )
+    max_lng = next(
+        (float(bounds[k]) for k in ('max_lng', 'max_lon', 'east', 'max_x') if k in bounds),
+        None,
+    )
+    if None in (min_lat, max_lat, min_lng, max_lng):
+        raise ValueError(
+            f"Bounds mapping requires latitude and longitude extrema; got keys {sorted(bounds)}"
+        )
+    if min_lat > max_lat or min_lng > max_lng:  # type: ignore[operator]
+        raise ValueError(f"Invalid bounds (min exceeds max): {bounds}")
+    return {
+        'type': 'Polygon',
+        'coordinates': [[
+            [min_lng, min_lat],
+            [max_lng, min_lat],
+            [max_lng, max_lat],
+            [min_lng, max_lat],
+            [min_lng, min_lat],
+        ]]
+    }
+
+
 class SpatialGovernanceIntegration:
     """
     Integrate spatial indexing and analysis for governance boundaries.
@@ -94,11 +148,10 @@ class SpatialGovernanceIntegration:
                     indexed_boundary['cells'] = [cell]
                     indexed_boundary['cell_count'] = 1
             elif 'bounds' in boundary:
-                # Convert bounds to polygon and index
-                bounds = boundary['bounds']
-                # Simplified: would need proper bounds-to-polygon conversion
-                indexed_boundary['cells'] = []
-                indexed_boundary['cell_count'] = 0
+                polygon = bounds_to_polygon(boundary['bounds'])
+                cells = self.spatial_indexer.polygon_to_cells(polygon, resolution)
+                indexed_boundary['cells'] = cells
+                indexed_boundary['cell_count'] = len(cells)
             
             indexed_boundary['indexed'] = True
             return indexed_boundary

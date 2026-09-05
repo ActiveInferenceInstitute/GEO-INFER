@@ -12,17 +12,14 @@ python from geo_infer_math import ( shannon_entropy, spatial_entropy, mutual_inf
 python from geo_infer_math import TheoremProver, create_prover # Create theorem prover prover = create_prover(backend='z3') # Prove a theorem result = prover.prove("For all x: x + 0 = x") print(f"Status: {result.status}") print(f"Proof: {result.proof}")
 ```
  ### 3. Convenience APIs
-```
 ```python
  from geo_infer_math import ( ActiveInferenceConvenience, BayesianConvenience, AIConvenience ) # Active Inference act_conv = ActiveInferenceConvenience() free_energy = act_conv.calculate_free_energy(observations, beliefs) # Bayesian bayes_conv = BayesianConvenience() posterior = bayes_conv.calculate_posterior(prior, likelihood, data) # AI/ML ai_conv = AIConvenience() gradient = ai_conv.compute_gradient(objective_function, parameters)
 ```
  ### 4. Module Integration
-```
 ```python
  from geo_infer_math.integration.act import FreeEnergyCalculator from geo_infer_math.integration.bayes import PosteriorHelpers from geo_infer_math.integration.ai import AIGradientHelpers # Deep integration with other modules fe_calc = FreeEnergyCalculator() free_energy = fe_calc.calculate(observations, beliefs)
 ```
  ### 5. Configuration
-```
 ```python
  from geo_infer_math.config import configure, get_config # Configure module configure( theorem_proving_backend='z3', enable_caching=True, parallel_processing=True ) # Get configuration config = get_config() timeout = config.get('theorem_proving', 'timeout')
 ```

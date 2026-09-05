@@ -2,7 +2,7 @@
 Configuration for the Del Norte Dashboard.
 """
 from dataclasses import dataclass
-from typing import Optional, Dict
+from typing import Optional
 
 @dataclass
 class LayerConfig:

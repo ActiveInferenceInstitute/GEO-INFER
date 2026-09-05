@@ -7,9 +7,7 @@ support and real-time capabilities.
 """
 
 from __future__ import annotations
-from typing import Dict, List, Optional, Callable, Any, Set, cast
-import asyncio
-import json
+from typing import Dict, List, Optional, Callable, Any, Tuple, cast
 import logging
 import threading
 import time
@@ -26,8 +24,7 @@ from geo_infer_comms.models.spatial import (
     GeospatialMetadata, SpatialFilter, GeospatialPoint, SpatialIndex
 )
 from geo_infer_comms.utils.validation import (
-    validate_message_content, validate_message_recipients,
-    validate_spatial_filter, sanitize_message_content
+    validate_message_content, validate_message_recipients
 )
 
 
@@ -43,20 +40,40 @@ class MessageBroker:
         self,
         max_queue_size: int = 10000,
         enable_persistence: bool = True,
-        persistence_path: Optional[str] = None
+        persistence_path: Optional[str] = None,
+        recipient_resolver: Optional[Callable[[str, Dict[str, Any]], List[str]]] = None
     ):
+        """
+        Initialize the message broker.
+
+        Args:
+            max_queue_size: Maximum number of queued messages
+            enable_persistence: Whether persistence is enabled for this broker
+            persistence_path: Optional persistence location
+            recipient_resolver: Callback resolving broadcast recipients for
+                non-trivial target types (``channel``, ``role``,
+                ``location_based``). Called as
+                ``resolver(target_type, target_criteria)`` and must return the
+                list of recipient IDs. Broadcasts targeting these types raise
+                ``ValueError`` when no resolver is configured.
+        """
         self.max_queue_size = max_queue_size
         self.enable_persistence = enable_persistence
         self.persistence_path = persistence_path
+        self.recipient_resolver = recipient_resolver
 
         # Message storage and routing
         self.message_store: Dict[str, MessageResponse] = {}
         self.message_queue: queue.PriorityQueue = queue.PriorityQueue(maxsize=max_queue_size)
         self.spatial_index = SpatialIndex()
 
-        # Subscribers and routing
+        # Subscribers and routing. ``subscription_callbacks`` maps each
+        # subscription ID to its owning subscriber and callback;
+        # ``spatial_subscriptions`` maps subscription IDs that carry a spatial
+        # filter to their owner and filter.
         self.subscribers: Dict[str, List[Callable]] = {}
-        self.spatial_subscriptions: Dict[str, SpatialFilter] = {}
+        self.subscription_callbacks: Dict[str, Tuple[str, Callable]] = {}
+        self.spatial_subscriptions: Dict[str, Tuple[str, SpatialFilter]] = {}
 
         # Threading and concurrency
         self._lock = threading.RLock()
@@ -229,7 +246,10 @@ class MessageBroker:
             self.subscribers[subscriber_id].append(callback)
 
             if spatial_filter:
-                self.spatial_subscriptions[subscription_id] = spatial_filter
+                self.spatial_subscriptions[subscription_id] = (
+                    subscriber_id, spatial_filter
+                )
+            self.subscription_callbacks[subscription_id] = (subscriber_id, callback)
 
         self.logger.info(f"Subscriber {subscriber_id} subscribed: {subscription_id}")
         return subscription_id
@@ -249,22 +269,29 @@ class MessageBroker:
             if subscriber_id not in self.subscribers:
                 return False
 
-            if subscription_id:
-                # Remove specific subscription
-                if subscription_id in self.spatial_subscriptions:
-                    del self.spatial_subscriptions[subscription_id]
-                # Note: In a real implementation, would need to track which callback
-                # corresponds to which subscription ID
+            if subscription_id is not None:
+                # Remove a specific subscription: drop its callback (and any
+                # spatial filter) but keep the subscriber's other callbacks.
+                entry = self.subscription_callbacks.get(subscription_id)
+                if entry is None or entry[0] != subscriber_id:
+                    return False
+                del self.subscription_callbacks[subscription_id]
+                self.spatial_subscriptions.pop(subscription_id, None)
+                callbacks = self.subscribers.get(subscriber_id, [])
+                if entry[1] in callbacks:
+                    callbacks.remove(entry[1])
+                if not callbacks:
+                    del self.subscribers[subscriber_id]
             else:
                 # Remove all subscriptions for this subscriber
                 del self.subscribers[subscriber_id]
-                # Remove any spatial subscriptions for this subscriber
-                to_remove = [
-                    sid for sid in self.spatial_subscriptions.keys()
-                    if sid.startswith(f"sub_{subscriber_id}")
+                owned = [
+                    sid for sid, (owner, _) in self.subscription_callbacks.items()
+                    if owner == subscriber_id
                 ]
-                for sid in to_remove:
-                    del self.spatial_subscriptions[sid]
+                for sid in owned:
+                    del self.subscription_callbacks[sid]
+                    self.spatial_subscriptions.pop(sid, None)
 
         self.logger.info(f"Subscriber {subscriber_id} unsubscribed")
         return True
@@ -382,69 +409,48 @@ class MessageBroker:
             self.metrics.delivery_failures += 1
 
     def _find_matching_subscribers(self, message: MessageResponse) -> Dict[str, List[Callable]]:
-        """Find subscribers that should receive this message."""
-        matching = {}
+        """Find subscriber callbacks that should receive this message.
+
+        Each subscription is evaluated independently: subscriptions with a
+        spatial filter only receive messages carrying matching geospatial
+        data, while unfiltered subscriptions receive everything.
+        """
+        matching: Dict[str, List[Callable]] = {}
 
         with self._lock:
-            for subscriber_id, callbacks in self.subscribers.items():
-                should_receive = True
-
-                # Check spatial filters
-                for sub_id, spatial_filter in self.spatial_subscriptions.items():
-                    if sub_id.startswith(f"sub_{subscriber_id}"):
-                        if message.geospatial_data:
-                            if not spatial_filter.matches_location(message.geospatial_data.location):
-                                should_receive = False
-                                break
-                        else:
-                            # Message without geospatial data doesn't match spatial filters
-                            should_receive = False
-                            break
-
-                if should_receive:
-                    matching[subscriber_id] = callbacks
+            for sub_id, (owner_id, callback) in self.subscription_callbacks.items():
+                spatial = self.spatial_subscriptions.get(sub_id)
+                if spatial is not None:
+                    _, spatial_filter = spatial
+                    if not message.geospatial_data:
+                        # Message without geospatial data doesn't match spatial filters
+                        continue
+                    if not spatial_filter.matches_location(message.geospatial_data.location):
+                        continue
+                matching.setdefault(owner_id, []).append(callback)
 
         return matching
 
     def _resolve_broadcast_recipients(self, request: BroadcastRequest, sender_id: str) -> List[str]:
-        """Resolve broadcast recipients based on target criteria."""
-        recipients = []
+        """Resolve broadcast recipients based on target criteria.
 
+        ``all_users`` targets the broker's own subscriber registry. All other
+        target types require a ``recipient_resolver`` callback configured on
+        the broker; broadcasts without one raise ``ValueError``.
+        """
         if request.target_type == "all_users":
-            # Return all known subscriber IDs from the broker registry
-            recipients = list(self.subscribers.keys())
+            return list(self.subscribers.keys())
 
-        elif request.target_type == "channel":
-            channel_id = request.target_criteria.get("channel_id")
-            if channel_id:
-                # Return subscribers who have a subscription in this channel
-                recipients = [
-                    sid for sid, cbs in self.subscribers.items()
-                    if any(getattr(cb, 'channel_id', None) == channel_id for cb in cbs)
-                ] or list(self.subscribers.keys())
+        if request.target_type not in ("channel", "role", "location_based"):
+            raise ValueError(f"Unknown broadcast target_type: {request.target_type}")
 
-        elif request.target_type == "role":
-            # In a real implementation, would query users by role
-            role = request.target_criteria.get("role")
-            if role:
-                # Filter subscribers whose ID contains the role label
-                recipients = [sid for sid in self.subscribers if role in sid]
+        if self.recipient_resolver is None:
+            raise ValueError(
+                f"target_type '{request.target_type}' requires a recipient_resolver "
+                "configured on MessageBroker"
+            )
 
-        elif request.target_type == "location_based":
-            # Use spatial filtering to find users in area.
-            # Without a live user-location DB, generate stable pseudo-IDs based on
-            # the spatial bounds hash — allowing downstream systems to resolve them
-            # against a real user registry.
-            spatial_filter = request.geospatial_filter
-            if spatial_filter:
-                bounds = getattr(spatial_filter, 'parameters', {}) or {}
-                bbox_key = f"bbox_{bounds.get('min_lat',0):.2f}_{bounds.get('max_lat',0):.2f}_{bounds.get('min_lon',0):.2f}_{bounds.get('max_lon',0):.2f}"
-                import hashlib
-                cell_hash = hashlib.md5(bbox_key.encode()).hexdigest()[:8]
-                recipients = [f"user_spatial_{cell_hash}_1", f"user_spatial_{cell_hash}_2"]
-
-
-        return recipients
+        return list(self.recipient_resolver(request.target_type, request.target_criteria))
 
     def _get_priority_value(self, priority: MessagePriority) -> int:
         """Convert message priority to queue priority value (lower = higher priority)."""
@@ -608,9 +614,11 @@ class RoutingRule:
             max_km = cast(float, dist_cfg.get('max_km', float('inf')))
             ref = dist_cfg.get('reference', {})
             loc = geo_data.location
-            # Approximate Euclidean distance in km
-            d_km = ((loc.latitude - ref.get('latitude', 0)) ** 2
-                    + (loc.longitude - ref.get('longitude', 0)) ** 2) ** 0.5 * 111
+            reference = GeospatialPoint(
+                longitude=cast(float, ref.get('longitude', 0.0)),
+                latitude=cast(float, ref.get('latitude', 0.0)),
+            )
+            d_km = loc.distance_to(reference) / 1000.0
             return cast(bool, d_km <= max_km)
 
         return True

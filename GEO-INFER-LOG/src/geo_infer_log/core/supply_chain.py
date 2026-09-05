@@ -6,7 +6,6 @@ resilience analysis, facility location, and inventory management.
 """
 
 import logging
-import platform
 import math
 import numpy as np
 import pandas as pd
@@ -17,23 +16,12 @@ from typing import Dict, List, Optional, Tuple
 from shapely.geometry import LineString
 
 from geo_infer_log.models.schemas import SupplyChainNetwork
+from geo_infer_log.utils.geo import haversine_distance
 
 logger = logging.getLogger(__name__)
 
-_EARTH_RADIUS_KM = 6371.0
 
 
-def _haversine(lon1: float, lat1: float, lon2: float, lat2: float) -> float:
-    """Haversine distance in km between two (lon, lat) points."""
-    dlat = math.radians(lat2 - lat1)
-    dlon = math.radians(lon2 - lon1)
-    a = (
-        math.sin(dlat / 2) ** 2
-        + math.cos(math.radians(lat1))
-        * math.cos(math.radians(lat2))
-        * math.sin(dlon / 2) ** 2
-    )
-    return _EARTH_RADIUS_KM * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
 class SupplyChainModel:
@@ -404,9 +392,7 @@ class NetworkOptimizer:
             for j, loc in enumerate(locations):
                 dp_coord = dp.get("location", (0, 0))
                 loc_coord = loc.get("location", (0, 0))
-                dist[i][j] = _haversine(
-                    dp_coord[0], dp_coord[1], loc_coord[0], loc_coord[1]
-                )
+                dist[i][j] = haversine_distance(dp_coord, loc_coord)
 
         # Objective: minimize weighted distance
         model += pulp.lpSum(
@@ -551,7 +537,7 @@ class FacilityLocator:
             for j, cand in enumerate(candidates):
                 dp_loc = dp.get("location", (0, 0))
                 c_loc = cand.get("location", (0, 0))
-                dist[i][j] = _haversine(dp_loc[0], dp_loc[1], c_loc[0], c_loc[1])
+                dist[i][j] = haversine_distance(dp_loc, c_loc)
 
         # Objective: minimize demand-weighted distance
         model += pulp.lpSum(
@@ -572,10 +558,6 @@ class FacilityLocator:
 
         solver = pulp.PULP_CBC_CMD(msg=0)
         try:
-            if platform.machine().lower() in {"arm64", "aarch64"}:
-                raise OSError(
-                    "bundled CBC binary is not executable on this architecture"
-                )
             model.solve(solver)
             self.selected_facilities = [
                 candidates[j]
@@ -621,7 +603,7 @@ class FacilityLocator:
             min_dist = float("inf")
             for fac in facilities:
                 fac_loc = fac.get("location", (0, 0))
-                d = _haversine(dp_loc[0], dp_loc[1], fac_loc[0], fac_loc[1])
+                d = haversine_distance(dp_loc, fac_loc)
                 min_dist = min(min_dist, d)
             distances.append(min_dist)
             demand_qty = dp.get("demand", 1)

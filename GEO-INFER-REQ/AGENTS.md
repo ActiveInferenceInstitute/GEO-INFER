@@ -4,7 +4,7 @@
 
 - Owning module: `GEO-INFER-REQ`
 - Python package: `geo_infer_req`
-- Directory role: Requirements engineering using P3IF framework for geospatial systems, user stories, and specification management.
+- Directory role: Requirements analysis, dependency resolution, traceability, and validation for geospatial projects.
 
 ## Capabilities
 

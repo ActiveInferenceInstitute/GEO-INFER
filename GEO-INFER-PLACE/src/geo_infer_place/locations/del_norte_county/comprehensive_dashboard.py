@@ -122,8 +122,14 @@ class DelNorteComprehensiveDashboard:
         # Set up paths and configuration
         self.config_path = config_path
         self.h3_resolution = h3_resolution
+        # Default output lives beside the location package (locations/
+        # del_norte_county/output), never in the caller's cwd — a cwd default
+        # scatters stray dashboard directories into whatever directory the
+        # user happens to run from.
         self.output_dir = (
-            Path(output_dir) if output_dir else Path.cwd() / "del_norte_dashboard"
+            Path(output_dir)
+            if output_dir
+            else Path(__file__).resolve().parent / "output"
         )
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -1309,7 +1315,6 @@ by natural-hazard intent (from the crescent-city-intel contract).</p>
         """Add coastal resilience analysis layers."""
         # Add tide gauge data if available
         if "tide_data" in self.processed_data:
-            tide_data = self.processed_data["tide_data"]
 
             # Add tide gauge markers
             folium.Marker(

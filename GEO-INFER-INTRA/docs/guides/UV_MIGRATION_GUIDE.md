@@ -30,7 +30,6 @@ bash cd GEO-INFER-MODULE uv pip install -e .
 bash # From project root for module in GEO-INFER-*/; do cd "$module" uv pip install -e . cd .. done
 ```
  ### Installing with Optional Dependencies
-```
 ```bash
  uv pip install -e ".[dev,docs]"
 ```
@@ -39,7 +38,6 @@ bash # From project root for module in GEO-INFER-*/; do cd "$module" uv pip inst
  GEO-INFER-MODULE/ ├── pyproject.toml # Package configuration (REQUIRED) ├── setup.py # Removed (deprecated) ├── requirements.txt # Optional (dependencies in pyproject.toml) ├── src/ │ └── geo_infer_module/ ├── tests/ ├── docs/ └── README.md
 ```
  --- ## pyproject.toml Structure All modules use a standardized pyproject.toml format:
-```
 ```toml
  [build-system] requires = ["setuptools>=61.0", "wheel"] build-backend = "setuptools.build_meta" [project] name = "geo-infer-module" version = "0.1.0" description = "Module description" readme = "README.md" license = {text = "CC BY-ND-SA 4.0"} requires-python = ">=3.9" authors = [ {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"} ] keywords = ["geospatial", "active inference", "geoinformatics"] classifiers = [ "Development Status :: 3 - Alpha", # ... standard classifiers ] dependencies = [ "numpy>=1.20.0", "pandas>=1.3.0", # ... module-specific dependencies ] [project.optional-dependencies] dev = [ "pytest>=6.2.0", "pytest-cov>=2.12.0", # ... dev dependencies ] docs = [ "sphinx>=4.2.0", # ... doc dependencies ] [tool.setuptools] package-dir = {"" = "src"} [tool.setuptools.packages.find] where = ["src"] exclude = ["tests*"] [tool.black] line-length = 88 # ... black configuration [tool.isort] profile = "black" # ... isort configuration [tool.mypy] # ... mypy configuration [tool.pytest.ini_options] # ... pytest configuration
 ```

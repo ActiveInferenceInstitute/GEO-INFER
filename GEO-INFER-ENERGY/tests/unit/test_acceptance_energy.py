@@ -82,7 +82,7 @@ class TestOptimizeFacilitySiting:
         assert "suitability" in result.data_vars
         assert "optimal_sites" in result.data_vars
         assert "resource_suitability" in result.data_vars
-        assert "demand_proximity" in result.data_vars
+        assert "demand_density" in result.data_vars
 
     def test_suitability_is_normalized(self, planner, resource_potential, demand_centers):
         """Suitability values are in [0, 1] after normalization."""

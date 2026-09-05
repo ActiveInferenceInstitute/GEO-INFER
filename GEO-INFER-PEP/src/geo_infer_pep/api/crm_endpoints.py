@@ -1,40 +1,22 @@
 """CRM API Endpoints."""
-from typing import List, Optional, Dict, Any
-from fastapi import APIRouter, HTTPException, Query, Body, UploadFile, File, Depends
-from pathlib import Path
-import tempfile
+from typing import List, Dict, Any
+from fastapi import APIRouter, HTTPException, Query, UploadFile, File
 import logging
 
-logger = logging.getLogger(__name__)
-
 from ..models.crm_models import Customer
-from ..crm.importer import CSVCRMImporter # Assuming CSV importer
-from ..crm.transformer import clean_customer_data, enrich_customer_data, convert_customers_to_dataframe
+from ..core.data_store import pep_data_manager as store
+from ..crm.importer import CSVCRMImporter
+from ..crm.transformer import clean_customer_data, enrich_customer_data
 from ..reporting.crm_reports import generate_customer_segmentation_report, generate_lead_conversion_report
-from ..visualizations.crm_visuals import plot_customer_distribution_by_status, plot_customer_distribution_by_source
+from ..visualizations.crm_visuals import plot_customer_distribution_by_status
+from ..utils import save_upload_file_tmp
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/crm",
     tags=["CRM"],
 )
-
-# In-memory storage for simplicity for this example, replace with a database in a real app
-# This also means data is lost on server restart and not shared between workers if scaled.
-DB_CUSTOMERS: List[Customer] = []
-
-# --- Helper for file uploads ---
-async def save_upload_file_tmp(upload_file: UploadFile) -> Path:
-    try:
-        # Create a temporary file
-        with tempfile.NamedTemporaryFile(delete=False, suffix=upload_file.filename) as tmp:
-            contents = await upload_file.read()
-            tmp.write(contents)
-            tmp_path = Path(tmp.name)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Could not save uploaded file: {e}")
-    finally:
-        await upload_file.close()
-    return tmp_path
 
 
 @router.post("/upload/csv", response_model=Dict[str, Any])
@@ -45,7 +27,7 @@ async def upload_crm_csv(
 ) -> Dict[str, Any]:
     """
     Upload a CSV file with CRM data. Data will be imported, (optionally) cleaned and enriched,
-    and then stored in memory (for this example).
+    and then appended to the shared in-memory store (non-destructive).
     """
     if not file.filename or not file.filename.endswith('.csv'):
         raise HTTPException(status_code=400, detail="Invalid file type. Only CSV files are accepted.")
@@ -62,16 +44,15 @@ async def upload_crm_csv(
         if enrich_data:
             processed_customers = enrich_customer_data(processed_customers)
         
-        # For this example, we add to or replace the in-memory DB_CUSTOMERS
-        # In a real app, you'd save to a persistent database.
-        global DB_CUSTOMERS
-        DB_CUSTOMERS.clear() # Replace existing data for simplicity
-        DB_CUSTOMERS.extend(processed_customers)
+        # Appended to the shared in-memory store; in a real app you'd save
+        # to a persistent database.
+        store.customers.extend(processed_customers)
         
         return {
-            "message": f"Successfully imported and processed {len(DB_CUSTOMERS)} customers from {file.filename}",
+            "message": f"Successfully imported and processed {len(processed_customers)} customers from {file.filename}",
             "imported_count": len(imported_customers),
-            "processed_count": len(DB_CUSTOMERS),
+            "processed_count": len(processed_customers),
+            "total_customers_in_store": len(store.customers),
             "cleaning_applied": clean_data,
             "enrichment_applied": enrich_data
         }
@@ -94,21 +75,21 @@ async def get_all_customers(
     offset: int = Query(0, ge=0)
 ) -> List[Customer]:
     """Retrieve all customers from the in-memory store."""
-    return DB_CUSTOMERS[offset : offset + limit]
+    return store.customers[offset : offset + limit]
 
 @router.get("/customers/count", response_model=Dict[str, int])
 async def get_customers_count() -> Dict[str, int]:
     """Get the total number of customers in the in-memory store."""
-    return {"total_customers": len(DB_CUSTOMERS)}
+    return {"total_customers": len(store.customers)}
 
 @router.get("/reports/segmentation", response_model=Dict[str, Any])
 async def get_crm_segmentation_report() -> Dict[str, Any]:
     """
     Generate and return a customer segmentation report.
     """
-    if not DB_CUSTOMERS:
+    if not store.customers:
         raise HTTPException(status_code=404, detail="No customer data available to generate report. Please upload data first.")
-    report = generate_customer_segmentation_report(DB_CUSTOMERS)
+    report = generate_customer_segmentation_report(store.customers)
     return report
 
 @router.get("/reports/lead-conversion", response_model=Dict[str, Any])
@@ -116,9 +97,9 @@ async def get_crm_lead_conversion_report() -> Dict[str, Any]:
     """
     Generate and return a lead conversion report.
     """
-    if not DB_CUSTOMERS:
+    if not store.customers:
         raise HTTPException(status_code=404, detail="No customer data available to generate report. Please upload data first.")
-    report = generate_lead_conversion_report(DB_CUSTOMERS)
+    report = generate_lead_conversion_report(store.customers)
     return report
 
 @router.get("/visualizations/status-distribution", response_model=Dict[str, str])
@@ -127,12 +108,12 @@ async def get_status_distribution_plot() -> Dict[str, str]:
     Generate a customer status distribution plot and return its path.
     (In a real app, you might return the image directly or a URL).
     """
-    if not DB_CUSTOMERS:
+    if not store.customers:
         raise HTTPException(status_code=404, detail="No customer data available to generate visualization. Please upload data first.")
     
     # Create a temporary directory for this request's plot if needed, or use a shared one
     # For simplicity, using the default from crm_visuals
-    plot_path = plot_customer_distribution_by_status(DB_CUSTOMERS)
+    plot_path = plot_customer_distribution_by_status(store.customers)
     if plot_path:
         return {"message": "Plot generated successfully", "plot_file_path": plot_path}
     else:

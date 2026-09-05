@@ -1,39 +1,30 @@
 """
 Forecasting models for GEO-INFER-TIME.
 
-This module provides forecasting capabilities including ARIMA, LSTM,
-and Prophet models for temporal prediction.
+This module provides forecasting capabilities including linear regression,
+moving average, ARIMA, and Holt-Winters exponential smoothing for temporal
+prediction on TimeSeries objects. The statsmodels fitting itself is shared
+with AdvancedForecastingEngine via ``fit_arima_forecast`` and
+``fit_exponential_smoothing_forecast`` in ``core.advanced_forecasting``.
 """
 
 import logging
-import warnings
 from typing import Dict, Optional, Any, Tuple
 import pandas as pd
 import numpy as np
 
 logger = logging.getLogger(__name__)
 
-# scikit-learn is a declared dependency (see pyproject.toml), but we guard the
-# import so this module remains importable for tooling that inspects it before
-# the environment is fully installed.
+# scikit-learn and statsmodels are declared hard dependencies (pyproject.toml)
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
-HAS_SKLEARN = True
-
 # Import TimeSeries from models
 from geo_infer_time.models.timeseries import TimeSeries
-
-# Optional imports for advanced models
-try:
-    from statsmodels.tsa.arima.model import ARIMA
-    from statsmodels.tools.sm_exceptions import ConvergenceWarning
-
-    HAS_ARIMA = True
-except ImportError:
-    HAS_ARIMA = False
-    ConvergenceWarning = Warning
-    logger.warning("statsmodels not available. ARIMA forecasting disabled.")
+from geo_infer_time.core.advanced_forecasting import (
+    fit_arima_forecast,
+    fit_exponential_smoothing_forecast,
+)
 
 
 class ForecastingEngine:
@@ -60,12 +51,6 @@ class ForecastingEngine:
         Returns:
             Dictionary with forecast results
         """
-        if not HAS_SKLEARN:
-            raise RuntimeError(
-                "Linear-regression forecasting requires scikit-learn. "
-                "Install with: uv pip install scikit-learn>=1.6.1"
-            )
-
         data = timeseries.to_dataframe()
         values = data.iloc[:, 0].dropna().values
         time_points = np.arange(len(values)).reshape(-1, 1)
@@ -111,32 +96,12 @@ class ForecastingEngine:
         Returns:
             Dictionary with forecast results
         """
-        if not HAS_ARIMA:
-            raise ImportError("statsmodels required for ARIMA forecasting")
-
         data = timeseries.to_dataframe()
         values = data.iloc[:, 0].dropna().values
 
         try:
-            # Fit ARIMA model
-            model = ARIMA(values, order=order)
-            with warnings.catch_warnings():
-                warnings.filterwarnings(
-                    "ignore",
-                    message="Non-stationary starting autoregressive parameters found.*",
-                    category=UserWarning,
-                )
-                warnings.filterwarnings(
-                    "ignore",
-                    message="Non-invertible starting MA parameters found.*",
-                    category=UserWarning,
-                )
-                warnings.filterwarnings("ignore", category=ConvergenceWarning)
-                fitted_model = model.fit()
-
-            # Forecast
-            forecast_result = fitted_model.forecast(steps=horizon)
-            forecast = forecast_result.tolist()
+            result = fit_arima_forecast(values, order=order, forecast_steps=horizon)
+            forecast = np.asarray(result["forecast"]).tolist()
 
             # Generate future timestamps
             last_timestamp = timeseries.end_time
@@ -155,6 +120,7 @@ class ForecastingEngine:
         except Exception as e:
             logger.error(f"ARIMA forecasting failed: {e}")
             raise
+
 
     def forecast_moving_average(
         self, timeseries: TimeSeries, horizon: int = 10, window: int = 5
@@ -215,41 +181,19 @@ class ForecastingEngine:
         Returns:
             Dictionary with forecast results
         """
-        try:
-            from statsmodels.tsa.holtwinters import ExponentialSmoothing
-
-            HAS_EXP_SMOOTHING = True
-        except ImportError:
-            HAS_EXP_SMOOTHING = False
-            logger.warning("statsmodels not available. Exponential smoothing disabled.")
-
-        if not HAS_EXP_SMOOTHING:
-            raise ImportError(
-                "statsmodels required for exponential smoothing forecasting"
-            )
-
         data = timeseries.to_dataframe()
         values = data.iloc[:, 0].dropna().values
 
         try:
-            # Fit exponential smoothing model
-            if trend and seasonal and seasonal_periods:
-                model = ExponentialSmoothing(
-                    values,
-                    trend=trend,
-                    seasonal=seasonal,
-                    seasonal_periods=seasonal_periods,
-                )
-            elif trend:
-                model = ExponentialSmoothing(values, trend=trend)
-            else:
-                model = ExponentialSmoothing(values)
-
-            fitted_model = model.fit(smoothing_level=alpha)
-
-            # Forecast
-            forecast_result = fitted_model.forecast(steps=horizon)
-            forecast = forecast_result.tolist()
+            result = fit_exponential_smoothing_forecast(
+                values,
+                trend=trend,
+                seasonal=seasonal,
+                seasonal_periods=seasonal_periods,
+                alpha=alpha,
+                forecast_steps=horizon,
+            )
+            forecast = np.asarray(result["forecast"]).tolist()
 
             # Generate future timestamps
             last_timestamp = timeseries.end_time
@@ -265,6 +209,7 @@ class ForecastingEngine:
                 "alpha": alpha,
                 "trend": trend,
                 "seasonal": seasonal,
+                "seasonal_periods": seasonal_periods,
                 "horizon": horizon,
             }
         except Exception as e:
@@ -328,13 +273,9 @@ class ForecastingEngine:
 
             val_forecast_values = np.array(val_forecast["forecast"])
 
-            # Calculate validation metrics — prefer sklearn, fall back to numpy
-            if HAS_SKLEARN:
-                mse = float(mean_squared_error(test_values, val_forecast_values))
-                mae = float(mean_absolute_error(test_values, val_forecast_values))
-            else:
-                mse = float(np.mean((test_values - val_forecast_values) ** 2))
-                mae = float(np.mean(np.abs(test_values - val_forecast_values)))
+            # Calculate validation metrics
+            mse = float(mean_squared_error(test_values, val_forecast_values))
+            mae = float(mean_absolute_error(test_values, val_forecast_values))
             rmse = float(np.sqrt(mse))
             mape = float(
                 np.mean(

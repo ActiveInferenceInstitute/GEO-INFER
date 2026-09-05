@@ -23,6 +23,7 @@ retrieved payload safe to load.
 """
 
 import logging
+import os
 from typing import Dict, List, Optional, Any, Tuple, cast
 from datetime import datetime, timezone
 from dataclasses import dataclass, field
@@ -80,7 +81,6 @@ class IndexingStrategy(str, Enum):
     """Spatial indexing strategies."""
 
     H3 = "h3"
-    QUADTREE = "quadtree"
     R_TREE = "r_tree"
     GEOSPATIAL = "geospatial"
     SPATIAL_HASH = "spatial_hash"
@@ -707,7 +707,7 @@ class AdaptiveDataStorage:
         optimization_strategy: Storage optimization strategy ('access_pattern_based',
             'performance_focused', 'cost_optimized', 'balanced')
         compression_enabled: Whether to enable automatic data compression
-        indexing_strategy: Spatial indexing strategy ('h3', 'quadtree', 'r_tree',
+        indexing_strategy: Spatial indexing strategy ('h3', 'r_tree',
             'geospatial', 'spatial_hash')
         caching_enabled: Whether to enable caching for frequently accessed data
 
@@ -791,21 +791,32 @@ class AdaptiveDataStorage:
         )
 
     def _get_backend_configs(self) -> Dict[str, Dict[str, Any]]:
-        """Get backend configurations."""
+        """Get backend configurations.
+
+        Defaults describe local development services. Credentials are sourced
+        from the environment so real deployments never rely on the built-in
+        development defaults:
+
+        - PostgreSQL: ``GEO_INFER_POSTGRES_USER`` (default ``geo_infer``),
+          ``GEO_INFER_POSTGRES_PASSWORD`` (default ``password``).
+        - MinIO/S3: ``GEO_INFER_MINIO_ACCESS_KEY`` and
+          ``GEO_INFER_MINIO_SECRET_KEY`` (default ``minioadmin`` for a local
+          MinIO dev server).
+        """
         configs: Dict[str, Dict[str, Any]] = {
             "postgresql": {
                 "type": "postgresql",
                 "host": "localhost",
                 "port": 5432,
-                "user": "geo_infer",
-                "password": "password",
+                "user": os.environ.get("GEO_INFER_POSTGRES_USER", "geo_infer"),
+                "password": os.environ.get("GEO_INFER_POSTGRES_PASSWORD", "password"),
                 "database": "geo_infer_data",
             },
             "minio": {
                 "type": "minio",
                 "endpoint": "localhost:9000",
-                "access_key": "minioadmin",
-                "secret_key": "minioadmin",
+                "access_key": os.environ.get("GEO_INFER_MINIO_ACCESS_KEY", "minioadmin"),
+                "secret_key": os.environ.get("GEO_INFER_MINIO_SECRET_KEY", "minioadmin"),
                 "bucket": "geo-infer-data",
             },
             "redis": {"type": "redis", "host": "localhost", "port": 6379, "db": 0},
@@ -942,16 +953,9 @@ class AdaptiveDataStorage:
         reported rather than replaced with an unrelated query result.
         """
         if data_id in self._stored_data:
-            data = self._stored_data[data_id]
-            if isinstance(data, (pd.DataFrame, gpd.GeoDataFrame)):
-                if spatial_bounds and isinstance(data, gpd.GeoDataFrame):
-                    min_lon, min_lat, max_lon, max_lat = spatial_bounds
-                    data = data.cx[min_lon:max_lon, min_lat:max_lat]  # type: ignore[misc]
-                if temporal_range and "timestamp" in data.columns:
-                    start, end = temporal_range
-                    timestamps = pd.to_datetime(data["timestamp"], errors="coerce")
-                    data = data.loc[(timestamps >= start) & (timestamps <= end)]
-            return data
+            return self._filter_stored_data(
+                self._stored_data[data_id], spatial_bounds, temporal_range
+            )
 
         query: Dict[str, Any] = {}
         if spatial_bounds:
@@ -964,6 +968,28 @@ class AdaptiveDataStorage:
         except ValueError as exc:
             raise KeyError(f"Dataset {data_id!r} is not stored") from exc
 
+    @staticmethod
+    def _filter_stored_data(
+        data: Any,
+        spatial_bounds: Optional[List[float]] = None,
+        temporal_range: Optional[Tuple[datetime, datetime]] = None,
+    ) -> Any:
+        """Apply spatial and temporal filters to one stored dataset.
+
+        Non-tabular data is returned unchanged; (Geo)DataFrames are filtered
+        by WGS84 bounds (GeoDataFrame only) and by their ``timestamp`` column.
+        """
+        if not isinstance(data, (pd.DataFrame, gpd.GeoDataFrame)):
+            return data
+        if spatial_bounds and isinstance(data, gpd.GeoDataFrame):
+            min_lon, min_lat, max_lon, max_lat = spatial_bounds
+            data = data.cx[min_lon:max_lon, min_lat:max_lat]  # type: ignore[misc]
+        if temporal_range and "timestamp" in data.columns:
+            start, end = temporal_range
+            timestamps = pd.to_datetime(data["timestamp"], errors="coerce")
+            data = data.loc[(timestamps >= start) & (timestamps <= end)]
+        return data
+
     async def adaptive_query(
         self,
         spatial_bounds: Optional[List[float]] = None,
@@ -973,49 +999,36 @@ class AdaptiveDataStorage:
         """
         Execute adaptive query with automatic optimization.
 
-        This method performs intelligent querying by analyzing query parameters,
-        access patterns, and performance requirements to select the optimal
-        storage backend and query strategy. It automatically handles caching,
-        query optimization, and result formatting.
+        Query every dataset stored in this process, applying the spatial and
+        temporal filters to each one and merging the per-dataset results.
 
-        Query optimization features:
-        - Automatic backend selection based on query characteristics
-        - Cache lookup for frequently accessed data
-        - Spatial index utilization for efficient spatial queries
-        - Temporal index optimization for time-series queries
-        - Result formatting and coordinate system handling
-        - Query performance monitoring and statistics
+        Result merging:
+        - A single matching dataset is returned as-is (GeoDataFrame, DataFrame,
+          or any other stored object).
+        - Multiple matching datasets that are all (Geo)DataFrames are
+          concatenated into one frame.
+        - Mixed or non-tabular results are returned as a list, one entry per
+          stored dataset.
+        - An empty store returns an empty list.
+
+        Backend-resident datasets written by other processes are not scanned
+        here; retrieve them by identifier with ``retrieve_geospatial_data``.
 
         Args:
-            spatial_bounds: Spatial query bounds in the format [min_lon, min_lat, max_lon, max_lat].
-                If provided, queries will be filtered to only return data within these bounds.
-                Supports coordinate systems and can handle various spatial operations.
-            temporal_range: Temporal query range as (start_datetime, end_datetime). If provided,
-                queries will be filtered to only return data within this time range. Supports
-                timezone-aware datetime objects and various temporal resolutions.
-            optimization_hints: Additional optimization hints for query execution. Supported hints:
-                - frequent_queries: Boolean indicating if this is a frequently executed query
-                - real_time: Boolean indicating real-time query requirements
-                - batch_processing: Boolean indicating batch processing mode
-                - format: Desired output format ('geojson', 'csv', 'parquet', etc.)
-                - max_results: Maximum number of results to return
-                - sort_by: Field to sort results by
-                - group_by: Field to group results by
+            spatial_bounds: Spatial query bounds in the format
+                [min_lon, min_lat, max_lon, max_lat]. If provided, results are
+                filtered to only return data within these bounds.
+            temporal_range: Temporal query range as (start_datetime, end_datetime).
+                If provided, results are filtered by their ``timestamp`` column.
+            optimization_hints: Reserved for query-execution tuning. Currently
+                accepted but not interpreted.
 
         Returns:
-            Query results in the most appropriate format based on the data and optimization hints:
-            - GeoPandas GeoDataFrame for vector geospatial data
-            - Pandas DataFrame for tabular data
-            - NumPy array for raster data
-            - List of dictionaries for complex or mixed data types
-            - Cached results if available and valid
+            Filtered results as described above, or the cached result of a
+            previous identical query when caching is enabled.
 
         Raises:
-            QueryError: If query execution fails
-            BackendError: If selected backend is unavailable
-            CacheError: If caching operations fail
-            TimeoutError: If query exceeds timeout limits
-            ValueError: If query parameters are invalid
+            ValueError: If query parameters are invalid.
 
         Examples:
             >>> # Spatial query for environmental data
@@ -1070,28 +1083,23 @@ class AdaptiveDataStorage:
                 logger.debug("Returning cached query result")
                 return cached_result
 
-        # Build query
-        query: Dict[str, Any] = {}
-        if spatial_bounds:
-            query["spatial"] = spatial_bounds
-        if temporal_range:
-            query["temporal"] = temporal_range
+        # Scan every dataset stored in this process and filter each one.
+        # Cross-backend search by shape is not supported by the backends
+        # (they retrieve by concrete data_id); use retrieve_geospatial_data
+        # for backend-resident datasets.
+        filtered: List[Any] = [
+            self._filter_stored_data(data, spatial_bounds, temporal_range)
+            for data in self._stored_data.values()
+        ]
 
-        # Select optimal backend for query
-        optimal_backend = self._select_backend_for_query(query, optimization_hints)
-
-        # Execute query
-        if self._stored_data:
-            data_id = next(reversed(self._stored_data))
-            results = await self.retrieve_geospatial_data(
-                data_id,
-                spatial_bounds=spatial_bounds,
-                temporal_range=temporal_range,
-            )
+        if not filtered:
+            results: Any = []
+        elif len(filtered) == 1:
+            results = filtered[0]
+        elif all(isinstance(result, (pd.DataFrame, gpd.GeoDataFrame)) for result in filtered):
+            results = pd.concat(filtered, ignore_index=True)
         else:
-            results = await self.backend_manager.retrieve_data(
-                "all", query, optimal_backend
-            )
+            results = filtered
 
         # Cache result if caching enabled
         if self.cache_manager:

@@ -21,7 +21,7 @@
 
 ## Local Contents
 
-- `api_schema.yaml`
+- No direct tracked child entries.
 
 ## Validation
 

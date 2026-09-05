@@ -31,17 +31,14 @@ python # User interface optimization model UI_Score = Σ(w_i * f_i(x)) / Σ(w_i)
 python # Accessibility compliance score A_Score = Σ(c_i * w_i) / Σ(w_i) # Where: # c_i = compliance level for accessibility feature i # w_i = importance weight for feature i
 ```
  ### Key Concepts #### Application Architecture The module provides a framework for building geospatial applications:
-```
 ```python
  from geo_infer_app import ApplicationFramework # Initialize application framework app_framework = ApplicationFramework() # Create web application web_app = app_framework.create_web_application( app_type='dashboard', features=['interactive_maps', 'real_time_data', 'user_management'], deployment_target='cloud' ) # Configure application settings web_app.configure({ 'theme': 'modern_dark', 'responsive_design': True, 'accessibility_compliance': 'WCAG_2_1', 'performance_optimization': True })
 ```
  #### Interactive Visualization Enable rich, interactive geospatial visualizations:
-```
 ```python
  from geo_infer_app.visualization import InteractiveMap # Create interactive map interactive_map = InteractiveMap( map_type='satellite', center=[37.7749, -122.4194], zoom_level=12, interactive_features=['pan', 'zoom', 'click', 'hover'] ) # Add data layers interactive_map.add_layer( layer_type='geojson', data=spatial_data, styling={ 'fill_color': 'red', 'opacity': 0.7, 'stroke_width': 2 } ) # Enable real-time updates interactive_map.enable_real_time_updates( update_interval=30, # seconds data_source=real_time_feed )
 ```
  ## 📚 Core Features ### 1. Web Application Framework **Purpose**: Build full-stack geospatial web applications with AI integration and mathematical foundations.
-```
 ```python
  from geo_infer_app.web import WebApplicationBuilder # Initialize web application builder web_builder = WebApplicationBuilder() # Create dashboard application dashboard_app = web_builder.create_dashboard( title="Environmental Monitoring Dashboard", layout='responsive_grid', components=[ 'interactive_map', 'data_table', 'chart_panel', 'control_panel' ] ) # Add authentication dashboard_app.add_authentication( auth_type='oauth2', providers=['google', 'github'], role_based_access=True ) # Add API integration dashboard_app.integrate_api( api_endpoints=['spatial_data', 'analytics', 'reports'], real_time_updates=True )
 ```

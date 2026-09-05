@@ -105,12 +105,11 @@ class SustainabilityAssessment:
             "residue_management": 1.2,
         }
 
-        # Calculate carbon sequestration based on crop type
+        # Default carbon rate (t/ha/yr); refine per crop when the crop type
+        # column is available. Initializing unconditionally guarantees the
+        # column exists even when crop data is absent.
+        result_data["carbon_rate"] = 1.0
         if crop_type_column in result_data.columns:
-            # Create carbon rate column with default value
-            result_data["carbon_rate"] = 1.0
-
-            # Apply crop-specific carbon rates
             for crop, rate in carbon_rates.items():
                 mask = result_data[crop_type_column].str.lower() == crop
                 result_data.loc[mask, "carbon_rate"] = rate
@@ -145,13 +144,14 @@ class SustainabilityAssessment:
             "mean_carbon_sequestration_per_ha": (
                 result_data["carbon_sequestration"].sum() / result_data["area_ha"].sum()
             ),
-            "carbon_sequestration_by_crop": result_data.groupby(crop_type_column)[
-                "carbon_sequestration"
-            ]
-            .sum()
-            .to_dict(),
             "field_data": result_data,
         }
+        if crop_type_column in result_data.columns:
+            metrics["carbon_sequestration_by_crop"] = (
+                result_data.groupby(crop_type_column)["carbon_sequestration"]
+                .sum()
+                .to_dict()
+            )
 
         # Store results
         self.metrics["carbon_sequestration"] = metrics
@@ -206,12 +206,11 @@ class SustainabilityAssessment:
             "orchard": 800,
         }
 
-        # Calculate water requirements based on crop type
+        # Default water requirement (mm/yr); refine per crop when the crop
+        # type column is available. Initializing unconditionally guarantees
+        # the column exists even when crop data is absent.
+        result_data["water_requirement_mm"] = 500
         if crop_type_column in result_data.columns:
-            # Create water requirement column with default value
-            result_data["water_requirement_mm"] = 500  # Default value
-
-            # Apply crop-specific water requirements
             for crop, req in crop_water_requirements.items():
                 mask = result_data[crop_type_column].str.lower() == crop
                 result_data.loc[mask, "water_requirement_mm"] = req
@@ -259,13 +258,14 @@ class SustainabilityAssessment:
             "mean_water_requirement_per_ha": (
                 result_data["water_requirement_m3"].sum() / result_data["area_ha"].sum()
             ),
-            "water_requirement_by_crop": result_data.groupby(crop_type_column)[
-                "water_requirement_m3"
-            ]
-            .sum()
-            .to_dict(),
             "field_data": result_data,
         }
+        if crop_type_column in result_data.columns:
+            metrics["water_requirement_by_crop"] = (
+                result_data.groupby(crop_type_column)["water_requirement_m3"]
+                .sum()
+                .to_dict()
+            )
 
         # Add efficiency metrics if available
         if "water_efficiency" in result_data.columns:
@@ -585,17 +585,26 @@ class SustainabilityAssessment:
 
         # Check proximity to protected areas if provided
         if protected_areas is not None:
-            # Calculate distance to nearest protected area
-            # For simplicity, we'll calculate distance field by field
-            # In a real implementation, you would use spatial joins or optimized distance calculations
+            # Reproject to a local metric CRS (UTM) so distances are true
+            # meters; in a geographic CRS (e.g. EPSG:4326) shapely distances
+            # would be measured in degrees.
+            metric_crs = result_data.estimate_utm_crs()
+            fields_metric = (
+                result_data.to_crs(metric_crs) if metric_crs is not None else result_data
+            )
+            areas_metric = (
+                protected_areas.to_crs(metric_crs)
+                if metric_crs is not None and protected_areas.crs is not None
+                else protected_areas
+            )
+
             distances = []
-            for idx, field in result_data.iterrows():
+            for _, field in fields_metric.iterrows():
                 field_geom = field.geometry
                 min_distance = float("inf")
 
-                for _, area in protected_areas.iterrows():
-                    area_geom = area.geometry
-                    distance = field_geom.distance(area_geom)
+                for _, area in areas_metric.iterrows():
+                    distance = field_geom.distance(area.geometry)
                     min_distance = min(min_distance, distance)
 
                 distances.append(min_distance)

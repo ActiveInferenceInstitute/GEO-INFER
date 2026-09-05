@@ -19,6 +19,7 @@ Geo Infer Bayes workspace within `GEO-INFER-BAYES`.
 - `civic_intel.py:CrescentCityIntel` (class)
 - `civic_intel.py:HazardPriorEntry` (class)
 - `civic_intel.py:HazardCategoricalPrior` (class)
+- `civic_intel.py:load_crescent_city_contract` (function)
 - `civic_intel.py:load_crescent_city_intel` (function)
 - `civic_intel.py:build_hazard_prior_table` (function)
 - `civic_intel.py:build_hazard_categorical_prior` (function)
@@ -33,17 +34,13 @@ Geo Infer Bayes workspace within `GEO-INFER-BAYES`.
 
 ## Dependencies
 
-- `arviz`
-- `cmdstanpy`
-- `geopandas`
-- `matplotlib`
-- `numpy`
-- `pandas`
-- `pymc`
-- `rasterio`
-- `scipy`
-- `tensorflow-probability`
-- `xarray`
+- `arviz>=0.12.0`
+- `matplotlib>=3.5.0`
+- `numpy>=1.20.0,<2.0`
+- `pandas>=1.3.0`
+- `scipy>=1.7.0`
+- `tqdm>=4.60.0`
+- `xarray>=2022.3.0`
 
 
 ## Validation

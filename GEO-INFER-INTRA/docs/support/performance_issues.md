@@ -47,14 +47,12 @@ def profile_run(func, *args):
 
 Use `cProfile` for function-level profiling:
 
-```
 ```bash
 python -m cProfile -s cumulative my_analysis.py 2>&1 | head -30
 ```
 
 Use `line_profiler` for line-level profiling of the slow function:
 
-```
 ```bash
 uv pip install line_profiler
 kernprof -l -v my_analysis.py
@@ -77,7 +75,6 @@ H3 resolution directly controls the number of cells and thus computation time an
 
 ### Choosing the Right Resolution
 
-```
 ```python
 import h3
 
@@ -101,7 +98,6 @@ def recommend_resolution(n_points: int, target_cells: int = 100_000) -> int:
 
 ### Tracking Memory Usage Over Time
 
-```
 ```python
 import tracemalloc
 
@@ -129,7 +125,6 @@ for stat in top_stats[:10]:
 
 ### Reducing GeoDataFrame Memory
 
-```
 ```python
 import geopandas as gpd
 
@@ -149,7 +144,6 @@ gdf["value"] = gdf["value"].astype("float32")
 
 Always ensure a spatial index exists:
 
-```
 ```sql
 -- Check if index exists
 SELECT indexname FROM pg_indexes WHERE tablename = 'observations';
@@ -160,7 +154,6 @@ CREATE INDEX IF NOT EXISTS idx_obs_geom ON observations USING GIST (geom);
 
 ### Avoid ST_Distance for Filtering
 
-```
 ```sql
 -- Slow: computes distance for every row
 SELECT * FROM observations WHERE ST_Distance(geom, ST_MakePoint(-122.4, 37.7)) < 1000;
@@ -175,7 +168,6 @@ SELECT * FROM observations WHERE ST_DWithin(
 
 ### Limit Returned Data
 
-```
 ```sql
 -- Only return needed columns
 SELECT id, value, ST_AsText(geom) FROM observations
@@ -185,7 +177,6 @@ LIMIT 10000;
 
 ### Use EXPLAIN ANALYZE
 
-```
 ```sql
 EXPLAIN ANALYZE
 SELECT count(*) FROM observations
@@ -198,7 +189,6 @@ Check that the output shows "Index Scan" or "Bitmap Index Scan", not "Seq Scan".
 
 ### Return Only Necessary Fields
 
-```
 ```python
 # In GEO-INFER-API endpoint
 @app.get("/v1/observations")
@@ -215,7 +205,6 @@ async def get_observations(
 
 ### Use GeoJSON Precision Control
 
-```
 ```python
 import json
 
@@ -237,7 +226,6 @@ def truncate_coordinates(geojson: dict, precision: int = 6) -> dict:
 
 Enable gzip compression for spatial API responses:
 
-```
 ```python
 from fastapi import FastAPI
 from fastapi.middleware.gzip import GZipMiddleware
@@ -250,7 +238,6 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 ### Full Script Profiling
 
-```
 ```bash
 # Profile and sort by cumulative time
 python -m cProfile -s cumulative -o profile.prof my_analysis.py
@@ -266,7 +253,6 @@ p.print_stats(20)
 
 ### Targeted Line Profiling
 
-```
 ```python
 from line_profiler import profile
 
@@ -284,7 +270,6 @@ def spatial_analysis_pipeline(gdf):
 
 ### Anti-Pattern: Row-Wise Geometry Operations
 
-```
 ```python
 # SLOW: iterating over GeoDataFrame rows
 for idx, row in gdf.iterrows():
@@ -296,7 +281,6 @@ gdf["area"] = gdf.geometry.area
 
 ### Anti-Pattern: Repeated CRS Transformations
 
-```
 ```python
 # SLOW: transforming CRS inside a loop
 for chunk in chunks:
@@ -311,7 +295,6 @@ for chunk in np.array_split(gdf, n_chunks):
 
 ### Anti-Pattern: Building GeoDataFrame Row by Row
 
-```
 ```python
 # SLOW: appending rows one at a time
 gdf = gpd.GeoDataFrame()
@@ -327,7 +310,6 @@ gdf = gpd.GeoDataFrame(geometry=geometries, crs="EPSG:4326")
 
 ### Anti-Pattern: Using Shapely Where H3 Suffices
 
-```
 ```python
 # SLOW: point-in-polygon test with shapely for millions of points
 from shapely.geometry import Point

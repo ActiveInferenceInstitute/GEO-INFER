@@ -1,5 +1,6 @@
 """Talent Acquisition Data Visualization functions."""
 
+import logging
 from typing import List, Optional
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -7,6 +8,8 @@ from pathlib import Path
 
 from ..models.talent_models import Candidate, CandidateStatus
 from ..talent.transformer import convert_candidates_to_dataframe
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_TALENT_VISUALS_DIR = Path("visualizations_output/talent")
 DEFAULT_TALENT_VISUALS_DIR.mkdir(parents=True, exist_ok=True)
@@ -19,12 +22,12 @@ def plot_candidate_pipeline_by_status(
     Generates a bar chart of candidates by their current status in the pipeline.
     """
     if not candidates:
-        print("No candidate data for pipeline status plot.")
+        logger.info("No candidate data for pipeline status plot.")
         return None
 
     df = convert_candidates_to_dataframe(candidates)
     if df.empty or "status" not in df.columns:
-        print("Candidate data is empty or 'status' column missing.")
+        logger.info("Candidate data is empty or 'status' column missing.")
         return None
 
     plt.figure(figsize=(12, 7))
@@ -46,11 +49,11 @@ def plot_candidate_pipeline_by_status(
     file_path = output_dir / "candidate_pipeline_status.png"
     try:
         plt.savefig(file_path)
-        print(f"Saved candidate pipeline status plot to: {file_path}")
+        logger.info(f"Saved candidate pipeline status plot to: {file_path}")
         plt.close()
         return str(file_path)
     except Exception as e:
-        print(f"Error saving plot: {e}")
+        logger.error(f"Error saving plot: {e}")
         plt.close()
         return None
 
@@ -64,7 +67,7 @@ def plot_time_to_hire_distribution(
     Expects a list of integers representing TTH in days.
     """
     if not hired_candidates_with_tth_days:
-        print("No Time to Hire data for distribution plot.")
+        logger.info("No Time to Hire data for distribution plot.")
         return None
 
     plt.figure(figsize=(10, 6))
@@ -77,11 +80,11 @@ def plot_time_to_hire_distribution(
     file_path = output_dir / "time_to_hire_distribution.png"
     try:
         plt.savefig(file_path)
-        print(f"Saved Time to Hire distribution plot to: {file_path}")
+        logger.info(f"Saved Time to Hire distribution plot to: {file_path}")
         plt.close()
         return str(file_path)
     except Exception as e:
-        print(f"Error saving plot: {e}")
+        logger.error(f"Error saving plot: {e}")
         plt.close()
         return None
 

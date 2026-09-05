@@ -5,12 +5,25 @@ This module provides the core test execution engine that can run tests
 across all GEO-INFER modules with comprehensive logging and reporting.
 """
 
-import pytest
-from typing import Dict, List, Any, Optional
-from pathlib import Path
-from dataclasses import dataclass
-from concurrent.futures import ThreadPoolExecutor
+import logging
+import subprocess
+import sys
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
+
+from typing import Dict, List, Any, Optional
+from dataclasses import dataclass
+
+
+logger = logging.getLogger(__name__)
+
+# Module root (the GEO-INFER-TEST checkout); sibling module directories such as
+# GEO-INFER-SPACE live beside it. Anchoring discovery and execution here keeps
+# the runner independent of the current working directory, matching
+# run_unified_tests.py's PROJECT_ROOT behavior.
+_MODULE_ROOT = Path(__file__).resolve().parents[3]
+_REPO_ROOT = _MODULE_ROOT.parent
 
 from .log_integration import LogIntegration
 from .test_discoverer import ALL_MODULES
@@ -29,7 +42,9 @@ class TestConfiguration:
     coverage_enabled: bool = True
     performance_benchmarks: bool = True
     log_integration_enabled: bool = True
-
+    log_integration: Optional[LogIntegration] = None
+    """Pre-built log integration injected by the caller (constructor
+    injection preferred over post-construction attribute replacement)."""
 
 @dataclass
 class TestResult:
@@ -60,7 +75,9 @@ class GeoInferTestRunner:
         """Initialize the test runner."""
         self.config = config
         self.log_integration = (
-            LogIntegration() if config.log_integration_enabled else None
+            config.log_integration
+            if config.log_integration is not None
+            else (LogIntegration() if config.log_integration_enabled else None)
         )
         self.test_results: List[TestResult] = []
         self.discovered_tests: Dict[str, List[str]] = {}
@@ -105,7 +122,7 @@ class GeoInferTestRunner:
         tests: List[str] = []
 
         # Look for module test directory
-        module_test_dir = Path(f"GEO-INFER-{module}/tests")
+        module_test_dir = _REPO_ROOT / f"GEO-INFER-{module}/tests"
         if not module_test_dir.exists():
             return tests
 
@@ -159,24 +176,65 @@ class GeoInferTestRunner:
         return report
 
     def _run_tests_parallel(self) -> None:
-        """Execute tests in parallel using thread/process pools."""
-        with ThreadPoolExecutor(max_workers=self.config.max_workers) as executor:
-            futures = []
+        """Execute tests in parallel using a thread pool.
 
-            for module, tests in self.discovered_tests.items():
-                for test in tests:
-                    future = executor.submit(self._execute_single_test, module, test)
-                    futures.append(future)
+        Each test runs in its own subprocess (``_run_pytest_test``), so
+        concurrent execution is safe. ``as_completed`` applies a global wall
+        clock deadline instead of recharging the full per-test timeout for
+        every future, and worker failures are recorded as ERROR results
+        instead of being silently dropped from the report.
+        """
+        futures = {
+            executor.submit(self._execute_single_test, module, test): (
+                module,
+                test,
+            )
+            for executor in [ThreadPoolExecutor(max_workers=self.config.max_workers)]
+            for module, tests in self.discovered_tests.items()
+            for test in tests
+        }
 
-            # Wait for all tests to complete
-            for future in futures:
+        try:
+            for future in as_completed(
+                futures, timeout=self.config.timeout_seconds
+            ):
+                module, test = futures[future]
                 try:
-                    result = future.result(timeout=self.config.timeout_seconds)
-                    if result:
-                        self.test_results.append(result)
+                    result = future.result()
                 except Exception as e:
-                    if self.log_integration:
-                        self.log_integration.logger.error(f"Test execution error: {e}")
+                    logger.exception("Test execution error for %s/%s", module, test)
+                    result = TestResult(
+                        test_id=f"{module}_{test}_{int(time.time())}",
+                        module=module,
+                        test_name=test,
+                        status="ERROR",
+                        duration=0.0,
+                        message=f"Test execution failed: {e}",
+                        details={"error": str(e)},
+                    )
+                if result:
+                    self.test_results.append(result)
+        except TimeoutError:
+            logger.error(
+                "Parallel test run exceeded the global timeout of %ss; "
+                "remaining tests are recorded as ERROR",
+                self.config.timeout_seconds,
+            )
+            for future in futures:
+                if not future.done():
+                    module, test = futures[future]
+                    self.test_results.append(
+                        TestResult(
+                            test_id=f"{module}_{test}_{int(time.time())}",
+                            module=module,
+                            test_name=test,
+                            status="ERROR",
+                            duration=0.0,
+                            message="Test execution timed out",
+                            details={"timeout_seconds": self.config.timeout_seconds},
+                        )
+                    )
+                future.cancel()
 
     def _run_tests_sequential(self) -> None:
         """Execute tests sequentially."""
@@ -266,16 +324,33 @@ class GeoInferTestRunner:
             )
 
     def _run_pytest_test(self, module: str, test_type: str, test_file: str) -> bool:
-        """Execute a pytest test file."""
-        test_path = Path(f"GEO-INFER-{module}/tests/{test_type}/{test_file}.py")
+        """Execute a pytest test file in an isolated subprocess.
+
+        ``pytest.main`` mutates global plugin/config state and is not safe to
+        call concurrently (or repeatedly) in-process, so execution shells out
+        to ``sys.executable -m pytest`` — the same model run_unified_tests.py
+        uses per module.
+        """
+        test_path = _REPO_ROOT / f"GEO-INFER-{module}/tests/{test_type}/{test_file}.py"
 
         if not test_path.exists():
             return False
 
-        # Run pytest programmatically
-        exit_code = pytest.main([str(test_path), "-v", "--tb=short"])
+        try:
+            proc = subprocess.run(
+                [sys.executable, "-m", "pytest", str(test_path), "-v", "--tb=short"],
+                cwd=_REPO_ROOT,
+                timeout=self.config.timeout_seconds,
+                capture_output=True,
+            )
+        except subprocess.TimeoutExpired:
+            if self.log_integration:
+                self.log_integration.logger.warning(
+                    f"Test timed out after {self.config.timeout_seconds}s: {test_path}"
+                )
+            return False
 
-        return exit_code == 0
+        return proc.returncode == 0
 
     def _generate_execution_report(self, total_duration: float) -> Dict[str, Any]:
         """Generate comprehensive test execution report."""
@@ -363,14 +438,13 @@ class GeoInferTestRunner:
 
         Discovers and executes every test file located in a
         ``tests/integration/`` directory across all available GEO-INFER modules,
-        then returns a consolidated report.
+        then returns a consolidated report. Each file runs in an isolated
+        pytest subprocess anchored to the repository root (not the CWD).
         """
         if self.log_integration:
             self.log_integration.logger.info("Starting cross-module integration tests")
 
-        import time as _time
-
-        start_time = _time.time()
+        start_time = time.time()
 
         cross_results: Dict[str, Any] = {}
         total_tests = 0
@@ -378,7 +452,7 @@ class GeoInferTestRunner:
         total_failed = 0
 
         for module in self.AVAILABLE_MODULES:
-            integration_dir = Path(f"GEO-INFER-{module}/tests/integration")
+            integration_dir = _REPO_ROOT / f"GEO-INFER-{module}/tests/integration"
             if not integration_dir.exists():
                 continue
 
@@ -393,18 +467,26 @@ class GeoInferTestRunner:
 
             module_results = []
             for test_file in test_files:
-                t0 = _time.time()
-                exit_code = pytest.main(
-                    [
-                        str(test_file),
-                        "-v",
-                        "--tb=short",
-                        "--disable-warnings",
-                        "-q",
-                        "--no-header",
-                    ]
-                )
-                elapsed = _time.time() - t0
+                t0 = time.time()
+                try:
+                    proc = subprocess.run(
+                        [
+                            sys.executable,
+                            "-m",
+                            "pytest",
+                            str(test_file),
+                            "-q",
+                            "--no-header",
+                            "--disable-warnings",
+                        ],
+                        cwd=_REPO_ROOT,
+                        timeout=self.config.timeout_seconds,
+                        capture_output=True,
+                    )
+                    exit_code = proc.returncode
+                except subprocess.TimeoutExpired:
+                    exit_code = 1
+                elapsed = time.time() - t0
                 passed = exit_code == 0
                 module_results.append(
                     {
@@ -421,8 +503,7 @@ class GeoInferTestRunner:
 
             cross_results[module] = module_results
 
-        elapsed_total = _time.time() - start_time
-
+        elapsed_total = time.time() - start_time
         if self.log_integration:
             self.log_integration.logger.info(
                 f"Cross-module integration tests completed: {total_passed}/{total_tests} passed "

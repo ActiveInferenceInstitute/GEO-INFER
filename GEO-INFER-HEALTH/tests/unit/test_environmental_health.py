@@ -308,8 +308,10 @@ class TestEnvironmentalHealthIntegration:
             center_loc=target_location,
             radius_km=radius_km,
             parameter_name=parameter_name,
-            start_time=datetime.now(timezone.utc) - timedelta(days=time_window_days),
-            end_time=datetime.now(timezone.utc)
+            # Anchor to the latest reading, matching calculate_average_exposure
+            start_time=environmental_analyzer.readings[-1].timestamp
+            - timedelta(days=time_window_days),
+            end_time=environmental_analyzer.readings[-1].timestamp,
         )
 
         # Calculate average exposure
@@ -551,13 +553,12 @@ class TestEdgeCases:
         assert exposure[key] == pytest.approx(expected_avg)
 
     def test_time_window_edge_cases(self, sample_environmental_data):
-        """Test time window edge cases."""
+        """Test that the exposure window anchors to the latest reading."""
         analyzer = EnvironmentalHealthAnalyzer(environmental_readings=sample_environmental_data)
 
-        # Use a time window that should exclude all data
+        # Age all readings to 10 years ago; exposure is anchored to the
+        # latest reading, so a 1-day window still includes them.
         past_time = datetime.now(timezone.utc) - timedelta(days=365*10)  # 10 years ago
-
-        # Manually set reading timestamps to be very old
         for reading in analyzer.readings:
             reading.timestamp = past_time
 
@@ -568,9 +569,8 @@ class TestEdgeCases:
             time_window_days=1
         )
 
-        # Should return None since no recent data
         key = "34.0,-118.0"
-        assert exposure[key] is None
+        assert exposure[key] is not None
 
     def test_distance_calculation_helper(self, environmental_analyzer):
         """Test the internal distance calculation method."""

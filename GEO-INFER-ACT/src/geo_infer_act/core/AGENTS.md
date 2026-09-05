@@ -28,6 +28,7 @@
 - `dynamic_causal_model.py`
 - `free_energy.py`
 - `generative_model.py`
+- `gnn_contract.py`
 - `markov_decision_process.py`
 - `policy_selection.py`
 - `spatial_agent.py`

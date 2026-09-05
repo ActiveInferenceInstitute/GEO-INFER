@@ -9,6 +9,8 @@ import xarray as xr
 from dataclasses import dataclass
 from enum import Enum
 
+from geo_infer_marine.utils.biodiversity import biodiversity_metrics
+
 logger = logging.getLogger(__name__)
 
 
@@ -129,42 +131,16 @@ class MarineEcosystemModeler:
         Returns:
             Dictionary of biodiversity indices
         """
-        if not species_counts:
-            return {
-                'species_richness': 0,
-                'shannon_diversity': 0,
-                'simpson_diversity': 0,
-                'evenness': 0,
-                'species_density': 0
-            }
-        
-        counts = np.array(list(species_counts.values()))
-        total = counts.sum()
-        proportions = counts / total
-        
-        # Species richness (S)
-        richness = len(species_counts)
-        
-        # Shannon diversity index (H')
-        shannon = -np.sum(proportions * np.log(proportions + 1e-10))
-        
-        # Simpson diversity index (1 - D)
-        simpson = 1 - np.sum(proportions ** 2)
-        
-        # Evenness (Pielou's J)
-        max_shannon = np.log(richness) if richness > 1 else 1.0
-        evenness = shannon / max_shannon if max_shannon > 0 else 0
-        
-        # Species density
-        density = richness / area_km2
-        
+        metrics = biodiversity_metrics(species_counts)
+        density = metrics["species_richness"] / area_km2
+
         return {
-            'species_richness': richness,
-            'shannon_diversity': float(shannon),
-            'simpson_diversity': float(simpson),
-            'evenness': float(evenness),
+            'species_richness': metrics["species_richness"],
+            'shannon_diversity': metrics["shannon"],
+            'simpson_diversity': metrics["simpson"],
+            'evenness': metrics["evenness"],
             'species_density': float(density),
-            'total_abundance': int(total)
+            'total_abundance': metrics["total_abundance"]
         }
     
     def register_species(self, species: SpeciesData) -> None:

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "geo-infer-intra"
 version = "0.2.0"
-description = "Comprehensive project documentation, workflow management, and ontology systems for the GEO-INFER ecosystem"
+description = "Reproducible documentation previews and configuration utilities for the GEO-INFER ecosystem"
 readme = "README.md"
 license = {text = "CC BY-NC-SA 4.0"}
 requires-python = ">=3.11"
@@ -26,19 +26,10 @@ classifiers = [
 ]
 
 dependencies = [
-    "pillow>=10.0.0",
-    "celery>=5.2.0",
-    "elasticsearch>=8.0.0",
-    "fastapi>=0.100.0",
     "h3>=4.5.0,<5",
     "jsonschema>=4.0.0",
-    "mkdocs>=1.4.0",
-    "pydantic>=2.0.0",
+    "pillow>=10.0.0",
     "pyyaml>=6.0",
-    "rdflib>=6.0.0",
-    "rich>=12.0.0",
-    "sqlalchemy>=2.0.0",
-    "typer>=0.7.0"
 ]
 
 [project.optional-dependencies]
@@ -47,8 +38,8 @@ dev = [
     "pytest-cov>=2.12.0",
     "pytest-asyncio>=0.20.0",
     "black>=21.9.0",
-        "mypy>=0.910",
-    ]
+    "mypy>=0.910",
+]
 docs = [
     "sphinx>=4.2.0",
     "sphinx-rtd-theme>=1.0.0",
@@ -62,7 +53,6 @@ Documentation = "https://geo-infer.readthedocs.io/"
 Repository = "https://github.com/ActiveInferenceInstitute/GEO-INFER"
 "Bug Tracker" = "https://github.com/ActiveInferenceInstitute/GEO-INFER/issues"
 
-[project.scripts]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -72,7 +62,7 @@ where = ["src"]
 exclude = ["tests*"]
 
 [tool.setuptools.package-data]
-"*" = ["*.yaml", "*.yml", "*.json", "*.md", "*.txt"]
+geo_infer_intra = ["data/*.json"]
 
 [tool.black]
 line-length = 88

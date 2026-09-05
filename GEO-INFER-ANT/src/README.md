@@ -20,16 +20,13 @@ Src workspace within `GEO-INFER-ANT`.
 
 ## Dependencies
 
-- `aiomqtt>=2.4.0`
-- `geopandas>=0.10.0`
-- `h3>=4.5.0,<5`
 - `jsonschema>=4.0.0`
-- `matplotlib>=3.5.0`
 - `networkx>=2.8`
 - `numpy>=1.21.0`
 - `pyyaml>=6.0`
 - `scikit-learn>=1.1.0`
 - `scipy>=1.7.0`
+- `h3>=4.5.0,<5`
 
 
 ## Validation

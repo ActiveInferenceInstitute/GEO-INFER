@@ -26,15 +26,13 @@ Tests workspace within `GEO-INFER-API`.
 ## Dependencies
 
 - `fastapi>=0.100.0`
-- `uvicorn>=0.21.0,<0.22.0`
+- `httpx>=0.24.0`
 - `pydantic>=2.0.0`
-- `pydantic-settings>=2.0.0,<3.0.0`
-- `python-dotenv>=1.0.0,<2.0.0`
-- `python-multipart>=0.0.6,<0.1.0`
-- `httpx>=0.24.0,<0.25.0`
-- `pytest>=7.3.1,<7.4.0`
-- `pytest-cov>=4.1.0,<4.2.0`
-- `requests>=2.28.2,<2.29.0`
+- `pydantic-settings>=2.0.0`
+- `python-dotenv>=1.0.0`
+- `python-multipart>=0.0.6`
+- `requests>=2.28.2`
+- `uvicorn>=0.21.0`
 
 
 ## Strict Test Inventory

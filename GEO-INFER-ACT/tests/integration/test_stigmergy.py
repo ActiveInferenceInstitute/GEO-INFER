@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from geo_infer_act.models.multi_agent import MultiAgentModel
-from geo_infer_act.utils.geospatial_ai import EnvironmentalActiveInferenceEngine
+from geo_infer_ai.models.predictive.geospatial_ai import EnvironmentalActiveInferenceEngine
 
 
 class TestStigmergicCoordination(unittest.TestCase):

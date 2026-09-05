@@ -129,13 +129,13 @@ def main():
     
     # 7. Check Regulatory Compliance
     print("\n7. Checking Regulatory Compliance...")
-    
+    compliance_results = {}
     for regulation in ['EPA', 'WHO', 'EU']:
         compliance = assessor.check_regulatory_compliance(samples[:10], regulation)
-        
+        compliance_results[regulation] = compliance
+
         status = "✓ COMPLIANT" if compliance['overall_compliant'] else "✗ NON-COMPLIANT"
         print(f"   {regulation}: {status} ({compliance['compliance_rate']:.0%} parameters pass)")
-    
     # 8. Calculate Pollutant Load
     print("\n8. Calculating Pollutant Load...")
     
@@ -164,7 +164,7 @@ def main():
     
     print("\n   Key Findings:")
     print(f"   • Average WQI: {avg_wqi:.1f} ({wqi_results[0]['classification']})")
-    print(f"   • EPA Compliance: {'Pass' if compliance['overall_compliant'] else 'Fail'}")
+    print(f"   • EPA Compliance: {'Pass' if compliance_results['EPA']['overall_compliant'] else 'Fail'}")
     print(f"   • Daily nitrate load: {load['load_kg']:.0f} kg/day")
     print(f"   • Pollution plume extent: {plume['plume_area_km2']:.1f} km²")
     

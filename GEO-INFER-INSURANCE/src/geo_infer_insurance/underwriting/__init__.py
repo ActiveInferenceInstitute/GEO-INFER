@@ -1,5 +1,5 @@
 """
-GEO-INFER-RISK Underwriting Module
+GEO-INFER-INSURANCE Underwriting Module
 
 Comprehensive underwriting system for risk assessment, policy management,
 and insurance operations within the GEO-INFER framework.

@@ -11,14 +11,9 @@ Implements comprehensive growth models including:
 
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Tuple, Callable, Any, cast
+from typing import Dict, List, Optional, Tuple, Any, cast
 from dataclasses import dataclass
-from abc import ABC, abstractmethod
-import geopandas as gpd
-from scipy.integrate import odeint, solve_ivp
-from scipy.optimize import minimize, fsolve
-from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import KMeans
+from scipy.integrate import solve_ivp
 
 
 @dataclass

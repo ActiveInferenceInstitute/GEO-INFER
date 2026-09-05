@@ -18,7 +18,7 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 - **Documentation hub**: Central `docs/` directory with comprehensive guides
 - **Integration guides**: Cross-module data flow patterns and examples
 - **Architecture docs**: System design diagrams, module dependency graph
-- **API reference**: Consolidated API documentation for all 44 modules
+- **API reference**: Consolidated API documentation for all 45 modules
 - **Tutorials**: Step-by-step workflows spanning multiple modules
 
 ### Key Directories

@@ -35,36 +35,51 @@ class ClimateProjections:
     ) -> xr.DataArray:
         """
         Project future climate based on historical data and scenario.
-        
+
+        This is a simplified linear-scaling projection: the linear trend of
+        the historical series is extrapolated forward and scaled by a
+        scenario factor. It is NOT a climate model emulator, an ensemble
+        method, or a pattern-scaling approach based on CMIP6 response
+        patterns; treat results as illustrative, not predictive.
+
         Args:
-            historical_data: Historical climate data
+            historical_data: Historical climate data with a ``time``
+                coordinate (datetime or numeric year values)
             scenario: Climate scenario (ssp126, ssp245, ssp370, ssp585)
             years: List of future years to project
-            
+
         Returns:
             Projected climate data
         """
         if scenario not in self.scenarios:
             raise ValueError(f"Unknown scenario: {scenario}")
-        
+
         years = years or [2050, 2100]
-        
+
         # Calculate trend from historical data
         trend = self._calculate_trend(historical_data)
-        
+
         # Apply scenario-based scaling
         scenario_factor = self._get_scenario_factor(scenario)
-        
+
+        # Last year of the historical record (handles datetime or numeric
+        # year coordinates)
+        t_max = historical_data["time"].max().values
+        if np.issubdtype(np.asarray(t_max).dtype, np.datetime64):
+            last_year = int(np.asarray(t_max, dtype="datetime64[Y]").astype(int)) + 1970
+        else:
+            last_year = int(t_max)
+
         # Project future values
         projections = []
         for year in years:
-            years_ahead = year - historical_data.time.max().values.astype('datetime64[Y]').astype(int)
+            years_ahead = year - last_year
             projected = historical_data.mean(dim='time') + trend * years_ahead * scenario_factor
             projected = projected.expand_dims('time').assign_coords(
                 time=[np.datetime64(f'{year}-01-01')]
             )
             projections.append(projected)
-        
+
         return cast(xr.DataArray, xr.concat(projections, dim='time'))
     
     def _calculate_trend(self, data: xr.DataArray) -> xr.DataArray:

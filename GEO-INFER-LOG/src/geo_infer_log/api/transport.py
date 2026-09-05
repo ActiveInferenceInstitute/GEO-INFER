@@ -5,6 +5,8 @@ This module provides FastAPI endpoints for multimodal transportation planning,
 transportation network analysis, and emissions calculation.
 """
 
+from functools import lru_cache
+
 from fastapi import APIRouter, HTTPException, Depends, Query
 from typing import Any, List, Dict, Optional, Tuple
 from pydantic import ConfigDict, Field
@@ -178,25 +180,27 @@ class EmissionsComparisonRequest(BaseModel):
     )
 
 
-# Get a multimodal planner instance
+# Cached module-level singletons: loaded networks and simulation state must
+# survive across requests for the API to behave correctly.
+@lru_cache(maxsize=1)
 def get_multimodal_planner() -> MultiModalPlanner:
     """Dependency for multimodal planner."""
     return MultiModalPlanner()
 
 
-# Get a transportation network analyzer instance
+@lru_cache(maxsize=1)
 def get_network_analyzer() -> TransportationNetworkAnalyzer:
     """Dependency for transportation network analyzer."""
     return TransportationNetworkAnalyzer()
 
 
-# Get a traffic simulator instance
+@lru_cache(maxsize=1)
 def get_traffic_simulator() -> TrafficSimulator:
     """Dependency for traffic simulator."""
     return TrafficSimulator()
 
 
-# Get an emissions calculator instance
+@lru_cache(maxsize=1)
 def get_emissions_calculator() -> EmissionsCalculator:
     """Dependency for emissions calculator."""
     return EmissionsCalculator()

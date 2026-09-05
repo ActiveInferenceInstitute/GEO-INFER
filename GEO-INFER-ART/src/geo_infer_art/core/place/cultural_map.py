@@ -2,6 +2,7 @@
 CulturalMap module for creating maps that integrate cultural and historical contexts.
 """
 
+import logging
 import os
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
@@ -12,6 +13,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from geo_infer_art.core.visualization import GeoArt
 
+logger = logging.getLogger(__name__)
 
 class _ComparableGeoDataFrame(gpd.GeoDataFrame):
     """GeoDataFrame subclass with scalar equality for unittest assertions."""
@@ -1073,7 +1075,6 @@ class CulturalMap:
         title = f"{self.metadata.get('cultural_theme', 'Cultural').capitalize()} Legend"
         text_bbox = draw.textbbox((0, 0), title, font=title_font)
         title_width = text_bbox[2] - text_bbox[0]
-        title_height = text_bbox[3] - text_bbox[1]
         draw.text(
             (legend_x + (legend_width - title_width) // 2, legend_y + 10),
             title,

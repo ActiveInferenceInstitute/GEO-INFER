@@ -51,4 +51,11 @@ __all__ = [
     "CoverageReport",
     "ImpactReport",
     "RequirementValidator",
+    "RequirementSpec",
+    "ValidationIssue",
+    "ValidationSeverity",
+    "ConflictType",
+    "ConflictDetectionResult",
+    "ConsistencyReport",
+    "FeasibilityAssessment",
 ]

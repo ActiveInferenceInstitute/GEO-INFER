@@ -25,17 +25,14 @@ python from geo_infer_log import RouteOptimizationEngine # Create route optimiza
 python from geo_infer_log.supply_chain import SupplyChainAnalysisEngine # Create supply chain analysis engine supply_engine = SupplyChainAnalysisEngine( analysis_parameters={ 'network_analysis': True, 'performance_metrics': True, 'risk_assessment': True } ) # Analyze supply chain supply_result = supply_engine.analyze_supply_chain( supply_data=supply_chain_data, performance_data=performance_metrics, risk_data=risk_factors )
 ```
  ## 📚 Core Features ### 1. Route Optimization Engine **Purpose**: Optimize routes for transportation and delivery.
-```
 ```python
  from geo_infer_log.routing import RouteOptimizationEngine # Initialize route optimization engine route_engine = RouteOptimizationEngine() # Define route optimization parameters route_config = route_engine.configure_route_optimization({ 'algorithm': 'genetic_algorithm', 'constraints': ['time_windows', 'capacity_limits', 'vehicle_types'], 'objectives': ['minimize_distance', 'minimize_time', 'minimize_cost'], 'real_time_updates': True, 'dynamic_routing': True }) # Optimize routes route_result = route_engine.optimize_routes( origin_data=origin_locations, destination_data=destination_locations, vehicle_data=vehicle_capacity, route_config=route_config )
 ```
  ### 2. Supply Chain Modeling Engine **Purpose**: Model and optimize supply chain networks.
-```
 ```python
  from geo_infer_log.supply_chain import SupplyChainModelingEngine # Initialize supply chain modeling engine supply_chain_engine = SupplyChainModelingEngine() # Define supply chain modeling parameters supply_chain_config = supply_chain_engine.configure_supply_chain_modeling({ 'network_analysis': True, 'flow_optimization': True, 'capacity_planning': True, 'demand_forecasting': True, 'cost_optimization': True }) # Model supply chain supply_chain_result = supply_chain_engine.model_supply_chain( network_data=supply_chain_network, demand_data=customer_demand, supply_data=supplier_capacity, supply_chain_config=supply_chain_config )
 ```
  ### 3. Logistics Planning Engine **Purpose**: Plan and manage logistics operations.
-```
 ```python
  from geo_infer_log.planning import LogisticsPlanningEngine # Initialize logistics planning engine planning_engine = LogisticsPlanningEngine() # Define logistics planning parameters planning_config = planning_engine.configure_logistics_planning({ 'strategic_planning': True, 'tactical_planning': True, 'operational_planning': True, 'capacity_planning': True, 'resource_allocation': True }) # Plan logistics operations planning_result = planning_engine.plan_logistics_operations( demand_data=logistics_demand, capacity_data=available_capacity, planning_config=planning_config )
 ```

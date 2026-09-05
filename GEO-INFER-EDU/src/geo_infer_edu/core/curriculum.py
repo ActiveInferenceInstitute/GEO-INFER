@@ -9,7 +9,10 @@ import logging
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from enum import Enum
+
 import yaml
+
+from .personalization import compute_skill_gap_pathway
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +84,9 @@ class CurriculumDesigner:
     pedagogical approaches for comprehensive curriculum development.
     """
     
+    # Supported educational standards keys
+    _SUPPORTED_STANDARDS = ("bok", "gistbok", "ngss")
+
     # Standard competency areas from GIS Body of Knowledge
     COMPETENCY_AREAS = [
         "spatial_thinking",
@@ -108,6 +114,12 @@ class CurriculumDesigner:
             assessment_framework: Assessment approach to use
         """
         self.standards = standards or ["bok"]
+        unknown = [s for s in self.standards if s not in self._SUPPORTED_STANDARDS]
+        if unknown:
+            raise ValueError(
+                f"Unsupported standard(s): {unknown}. "
+                f"Supported standards: {sorted(self._SUPPORTED_STANDARDS)}"
+            )
         self.pedagogical_approach = PedagogicalApproach(pedagogical_approach)
         self.assessment_framework = assessment_framework
         self._standards_data = self._load_standards_data()
@@ -131,6 +143,21 @@ class CurriculumDesigner:
                     "OI": "Organizational and Institutional Aspects"
                 }
             },
+            "gistbok": {
+                "name": "UCGIS GIS&T Body of Knowledge (GISTBOK)",
+                "competencies": {
+                    "AM": "Analytical Methods",
+                    "CF": "Conceptual Foundations",
+                    "CV": "Cartography and Visualization",
+                    "DA": "Design Aspects",
+                    "DM": "Data Modeling",
+                    "DN": "Data Manipulation",
+                    "GC": "Geocomputation",
+                    "GD": "Geospatial Data",
+                    "GS": "GIS&T and Society",
+                    "OI": "Organizational and Institutional Aspects"
+                }
+            },
             "ngss": {
                 "name": "Next Generation Science Standards",
                 "competencies": {
@@ -140,7 +167,7 @@ class CurriculumDesigner:
                 }
             }
         }
-        return {s: standards_data.get(s, {}) for s in self.standards if s in standards_data}
+        return {s: standards_data[s] for s in self.standards}
     
     def design(
         self,
@@ -451,37 +478,28 @@ class CurriculumDesigner:
             Personalized learning pathway
         """
         hours_per_week = int(available_time.split('_')[0])
-        
-        # Identify skill gaps
-        current_skills = learner_profile.get("current_skills", [])
-        skill_gaps = [c for c in target_competencies if c not in current_skills]
-        
-        # Create pathway
+
+        core = compute_skill_gap_pathway(
+            target_competencies=target_competencies,
+            current_skills=learner_profile.get("current_skills", []),
+            hours_per_week=hours_per_week,
+            hours_per_competency=10 if optimization == "efficiency" else 20,
+            resources_for=self._generate_resources,
+        )
+
         pathway = {
             "learner_id": learner_profile.get("id", "anonymous"),
             "target_competencies": target_competencies,
-            "skill_gaps": skill_gaps,
+            "skill_gaps": core["skill_gaps"],
             "hours_per_week": hours_per_week,
             "optimization": optimization,
-            "recommended_sequence": [],
-            "estimated_duration_weeks": 0
+            "recommended_sequence": core["sequence"],
+            "estimated_duration_weeks": core["estimated_duration_weeks"],
         }
-        
-        # Calculate estimated duration
-        hours_per_competency = 10 if optimization == "efficiency" else 20
-        total_hours = len(skill_gaps) * hours_per_competency
-        pathway["estimated_duration_weeks"] = max(1, total_hours // hours_per_week)
-        
-        # Generate recommended sequence
-        for i, competency in enumerate(skill_gaps):
-            pathway["recommended_sequence"].append({
-                "order": i + 1,
-                "competency": competency,
-                "estimated_hours": hours_per_competency,
-                "resources": self._generate_resources(competency)
-            })
-        
-        logger.info(f"Created learning pathway with {len(skill_gaps)} competencies to develop")
+
+        logger.info(
+            f"Created learning pathway with {len(core['skill_gaps'])} competencies to develop"
+        )
         return pathway
     
     def export_curriculum(self, curriculum: Curriculum, format: str = "yaml") -> str:
@@ -518,7 +536,7 @@ class CurriculumDesigner:
         }
         
         if format == "yaml":
-            return str(yaml.dump(curriculum_dict, default_flow_style=False))
+            return yaml.dump(curriculum_dict, default_flow_style=False)
         elif format == "json":
             import json
             return json.dumps(curriculum_dict, indent=2)

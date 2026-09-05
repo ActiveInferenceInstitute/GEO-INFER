@@ -169,6 +169,7 @@ class DistributedCoordinator:
             s.close()
             return cast(str, ip)
         except Exception:
+            logger.debug("Local IP detection failed; defaulting to 127.0.0.1", exc_info=True)
             return "127.0.0.1"
 
     def _setup_message_handlers(self) -> None:

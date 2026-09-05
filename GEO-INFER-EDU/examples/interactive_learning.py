@@ -1,155 +1,126 @@
 #!/usr/bin/env python3
 """
-GEO-INFER-EDU Example: Interactive Learning Session
+GEO-INFER-EDU Example: Personalized Interactive Learning Session
 
-This example demonstrates how to create and run an interactive
-learning session with adaptive content and real-time feedback.
+Demonstrates the real personalization API: registering a learner and a small
+resource library, building an adaptive pathway, recommending resources,
+delivering adaptive content, and scheduling spaced reviews.
 """
 
 from geo_infer_edu import (
-    InteractiveLearning,
     ExerciseGenerator,
-    ProgressTracker,
-    FeedbackEngine,
-    GamificationEngine
+    PersonalizedLearning,
 )
+from geo_infer_edu.core.personalization import LearningResource
 
 
-def main():
+def main() -> None:
     print("=" * 60)
-    print("GEO-INFER-EDU: Interactive Learning Session")
+    print("1. Set up the personalization engine and resource library")
     print("=" * 60)
-    
-    # 1. Initialize Interactive Learning Session
-    print("\n1. Starting Interactive Learning Session...")
-    session = InteractiveLearning(
-        session_type='guided',
-        feedback_mode='immediate',
-        difficulty_adaptation=True
+    personalizer = PersonalizedLearning(
+        adaptation_method="knowledge_tracing",
+        recommendation_algorithm="collaborative_filtering",
     )
-    
-    # Start a new session
-    session_info = session.start_session(
-        learner_id='student_001',
-        topic='spatial_data_analysis',
-        estimated_duration_minutes=60
-    )
-    
-    print(f"   Session ID: {session_info['session_id']}")
-    print(f"   Topic: {session_info['topic']}")
-    print(f"   Initial difficulty: {session_info['initial_difficulty']}")
-    
-    # 2. Generate Adaptive Exercises
-    print("\n2. Generating Adaptive Exercises...")
-    exercise_gen = ExerciseGenerator(
-        difficulty_levels=['beginner', 'intermediate', 'advanced'],
-        exercise_types=['multiple_choice', 'coding', 'practical']
-    )
-    
-    exercises = exercise_gen.generate_adaptive(
-        learner_id='student_001',
-        topic='coordinate_systems',
-        count=5,
-        adapt_to_performance=True
-    )
-    
-    print(f"   Generated {len(exercises)} exercises")
-    for i, ex in enumerate(exercises[:3], 1):
-        print(f"   {i}. {ex.get('title', 'Exercise')} ({ex.get('difficulty', 'medium')})")
-    
-    # 3. Process Exercise Responses
-    print("\n3. Processing Exercise Responses...")
-    feedback_engine = FeedbackEngine(
-        feedback_type='constructive',
-        include_hints=True
-    )
-    
-    # Simulate student answering exercises
-    responses = [
-        {'exercise_id': 'ex_001', 'answer': 'WGS84', 'correct': True},
-        {'exercise_id': 'ex_002', 'answer': 'UTM Zone 10N', 'correct': True},
-        {'exercise_id': 'ex_003', 'answer': 'Geographic', 'correct': False},
+
+    resources = [
+        LearningResource(
+            resource_id="res_001",
+            title="Interactive Choropleth Mapping",
+            resource_type="tutorial",
+            topic="geovisualization",
+            difficulty="beginner",
+            duration_minutes=40,
+            format="interactive",
+        ),
+        LearningResource(
+            resource_id="res_002",
+            title="Designing Effective Map Symbology",
+            resource_type="reading",
+            topic="geovisualization",
+            difficulty="intermediate",
+            duration_minutes=25,
+            format="text",
+        ),
+        LearningResource(
+            resource_id="res_003",
+            title="Automate GIS Workflows with Python",
+            resource_type="exercise",
+            topic="geospatial_programming",
+            difficulty="intermediate",
+            duration_minutes=60,
+            format="notebook",
+        ),
     ]
-    
-    for response in responses:
-        feedback = feedback_engine.generate_feedback(
-            exercise_id=response['exercise_id'],
-            student_answer=response['answer'],
-            is_correct=response['correct'],
-            include_explanation=True
-        )
-        
-        status = "✓" if response['correct'] else "✗"
-        print(f"   {status} {response['exercise_id']}: {feedback.get('summary', 'N/A')}")
-    
-    # 4. Update Progress and Analytics
-    print("\n4. Updating Progress...")
-    tracker = ProgressTracker(
-        tracking_method='competency_based',
-        analytics_enabled=True
+    for resource in resources:
+        personalizer.register_resource(resource)
+    print(f"Registered {len(resources)} learning resources")
+
+    print()
+    print("=" * 60)
+    print("2. Create an adaptive learning pathway")
+    print("=" * 60)
+    profile = personalizer.register_learner(
+        {
+            "id": "student_042",
+            "learning_style": "visual",
+            "prior_knowledge": ["spatial_analysis"],
+            "interests": ["cartography"],
+            "hours_per_week": 8,
+        }
     )
-    
-    for response in responses:
-        tracker.record_exercise_attempt(
-            learner_id='student_001',
-            exercise_id=response['exercise_id'],
-            correct=response['correct'],
-            time_taken_seconds=120
-        )
-    
-    progress = tracker.get_learner_progress('student_001')
-    analytics = tracker.get_learning_analytics('student_001')
-    
-    print(f"   Completion: {progress.get('overall_completion', 0):.1f}%")
-    print(f"   Accuracy: {analytics.get('accuracy', 0):.1f}%")
-    print(f"   Average time per exercise: {analytics.get('avg_time_seconds', 0):.0f}s")
-    
-    # 5. Gamification Elements
-    print("\n5. Applying Gamification...")
-    gamification = GamificationEngine(
-        point_system='progressive',
-        badges_enabled=True,
-        leaderboard_enabled=True
+    pathway = personalizer.create_pathway(
+        learner_profile={"id": profile.learner_id, "prior_knowledge": ["spatial_analysis"]},
+        learning_goals=["geovisualization", "geospatial_programming"],
+        constraints={"time": "20_hours"},
     )
-    
-    # Award points for correct answers
-    points = gamification.award_points(
-        learner_id='student_001',
-        activity_type='exercise_completion',
-        performance_score=66.7  # 2/3 correct
+    print(f"Pathway {pathway.pathway_id} ({pathway.optimization_strategy}):")
+    for step in pathway.sequence:
+        print(f"  {step['order']}. {step['skill']} "
+              f"(~{step['estimated_hours']:.1f} hours, "
+              f"{len(step['resources'])} matching resources)")
+    print(f"Estimated duration: {pathway.estimated_duration_weeks} weeks")
+
+    print()
+    print("=" * 60)
+    print("3. Recommend resources for the next topic")
+    print("=" * 60)
+    recommendations = personalizer.recommend_resources(
+        learner_id="student_042",
+        current_topic="geovisualization",
     )
-    
-    print(f"   Points earned: {points.get('points_earned', 0)}")
-    print(f"   Total points: {points.get('total_points', 0)}")
-    
-    # Check for badges
-    badges = gamification.check_badges(learner_id='student_001')
-    if badges.get('new_badges'):
-        for badge in badges['new_badges']:
-            print(f"   🏆 New badge: {badge['name']}")
-    
-    # Get leaderboard position
-    position = gamification.get_leaderboard_position('student_001')
-    print(f"   Leaderboard rank: #{position.get('rank', 'N/A')}")
-    
-    # 6. Session Summary
-    print("\n6. Generating Session Summary...")
-    summary = session.end_session(
-        include_recommendations=True,
-        save_progress=True
+    for rec in recommendations:
+        print(f"- {rec['title']} [{rec['type']}] "
+              f"relevance={rec['relevance_score']:.2f} "
+              f"matches_style={rec['matches_style']}")
+
+    print()
+    print("=" * 60)
+    print("4. Adaptive delivery and spaced review")
+    print("=" * 60)
+    content = personalizer.deliver_adaptive_content(
+        learner_id="student_042",
+        topic="geovisualization",
     )
-    
-    print(f"   Duration: {summary.get('duration_minutes', 0):.1f} minutes")
-    print(f"   Exercises completed: {summary.get('exercises_completed', 0)}")
-    print(f"   Accuracy: {summary.get('accuracy', 0):.1f}%")
-    
-    if summary.get('recommendations'):
-        print("\n   Recommendations:")
-        for rec in summary['recommendations'][:3]:
-            print(f"   - {rec}")
-    
-    print("\n" + "=" * 60)
-    print("Interactive Learning Session Complete!")
+    print(f"Adaptive content keys: {sorted(content)}")
+
+    exercises = ExerciseGenerator().create(
+        concepts=["map_symbology"],
+        format="quiz",
+        difficulty="beginner",
+    )
+    for exercise in exercises:
+        print(f"Exercise: {exercise.title} - {exercise.concepts}")
+
+    schedule = personalizer.schedule_review(
+        learner_id="student_042",
+        mastered_topics=["spatial_analysis"],
+    )
+    print("Review schedule:")
+    for entry in schedule:
+        print(f"- {entry['topic']} in {entry['interval_days']} days")
+
+    print()
     print("=" * 60)
 
 

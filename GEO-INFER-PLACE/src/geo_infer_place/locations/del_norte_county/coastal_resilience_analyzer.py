@@ -324,7 +324,6 @@ class CoastalResilienceAnalyzer:
         """Analyze sea level rise impacts."""
         logger.info("Analyzing sea level rise impacts...")
 
-        tide_data = coastal_data["data_sources"].get("tide_gauges", {})
         elevation_data = coastal_data["data_sources"].get("elevation", {})
 
         sea_level_analysis: Dict[str, Any] = {
@@ -776,11 +775,6 @@ class CoastalResilienceAnalyzer:
             "data_type": "coastal_resilience",
         }
 
-        # Extract vulnerability data by H3 cell
-        vulnerability_assessment = analysis_results.get("vulnerability_assessment", {})
-        overall_vulnerability = vulnerability_assessment.get(
-            "overall_vulnerability_score", 0
-        )
 
         # Get coastal H3 cells from various analyses
         erosion_analysis = analysis_results.get("erosion_analysis", {})

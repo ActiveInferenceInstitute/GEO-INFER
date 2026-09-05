@@ -12,14 +12,12 @@ This module provides AI-driven security capabilities including:
 
 import logging
 import numpy as np
-import pandas as pd
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Dict, List, Optional, Tuple, Any, Union, Callable, cast
+from typing import Dict, List, Optional, Tuple, Any, Callable, cast
 from dataclasses import dataclass, field
 from collections import defaultdict, deque
 import json
-import asyncio
 import threading
 import time
 
@@ -28,15 +26,16 @@ try:
     from sklearn.ensemble import IsolationForest, RandomForestClassifier
     from sklearn.cluster import DBSCAN
     from sklearn.preprocessing import StandardScaler
-    from sklearn.metrics import classification_report
-    import joblib
+    from sklearn.metrics import classification_report as classification_report
+    import joblib as joblib
     ML_AVAILABLE = True
 except ImportError:
     ML_AVAILABLE = False
-    logging.warning("Machine learning libraries not available. Installing scikit-learn recommended.")
+    logging.getLogger(__name__).debug(
+        "Machine learning libraries not available. Installing scikit-learn recommended."
+    )
 
-from ..utils.security_utils import SecurityUtils
-from ..models.security_models import SecurityEvent, ThreatLevel, SecurityAlert
+from ..models.security_models import SecurityEvent
 
 
 class BehaviorType(Enum):

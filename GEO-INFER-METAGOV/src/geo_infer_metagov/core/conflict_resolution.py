@@ -1,7 +1,7 @@
 """Conflict resolution system for governance conflicts."""
 
 from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional
 from enum import Enum
 import logging
 import math
@@ -276,7 +276,6 @@ class ConflictResolver:
         
         # Calculate fairness of potential outcomes
         powers = [s.get('decision_power', 0.5) for s in stakeholders]
-        avg_power = sum(powers) / len(powers) if powers else 0.5
         
         # Arbitrator decision (simplified - in practice would use actual rules/evidence)
         # Tends to favor more balanced outcomes

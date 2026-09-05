@@ -35,12 +35,12 @@ except ImportError as e:
 # Raster operations (requires rasterio)
 try:
     from .raster import (
-        terrain_analysis,
-        map_algebra,
-        focal_statistics,
-        zonal_statistics,
-        raster_overlay,
-        image_processing
+        terrain_analysis as terrain_analysis,
+        map_algebra as map_algebra,
+        focal_statistics as focal_statistics,
+        zonal_statistics as zonal_statistics,
+        raster_overlay as raster_overlay,
+        image_processing as image_processing
     )
     RASTER_AVAILABLE = True
 except ImportError as e:
@@ -50,11 +50,11 @@ except ImportError as e:
 # Network operations
 try:
     from .network import (
-        shortest_path,
-        service_area,
-        network_connectivity,
-        routing_analysis,
-        accessibility_analysis
+        shortest_path as shortest_path,
+        service_area as service_area,
+        network_connectivity as network_connectivity,
+        routing_analysis as routing_analysis,
+        accessibility_analysis as accessibility_analysis
     )
     NETWORK_AVAILABLE = True
 except ImportError as e:
@@ -78,10 +78,10 @@ except ImportError as e:
 # Point cloud
 try:
     from .point_cloud import (
-        point_cloud_filtering,
-        feature_extraction,
-        classification,
-        surface_generation
+        point_cloud_filtering as point_cloud_filtering,
+        feature_extraction as feature_extraction,
+        classification as classification,
+        surface_generation as surface_generation
     )
     POINT_CLOUD_AVAILABLE = True
 except ImportError as e:

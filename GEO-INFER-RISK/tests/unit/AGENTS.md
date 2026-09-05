@@ -34,15 +34,14 @@
 - `test_hazard_model.py`
 - `test_insurance_models.py`
 - `test_package_exports.py`
-- `test_portfolio_management.py`
 - `test_reproducibility.py`
 - `test_risk_engine.py`
 - `test_risk_metrics.py`
 - `test_risk_models.py`
 - `test_rng.py`
-- `test_underwriting.py`
 - `test_validation.py`
 - `test_vulnerability_model.py`
+- `test_wheel_safety.py`
 
 ## Validation
 

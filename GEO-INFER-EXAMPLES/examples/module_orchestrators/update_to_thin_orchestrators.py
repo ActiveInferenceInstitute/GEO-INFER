@@ -44,6 +44,7 @@ MODULES = {
     'TEST': {'dependencies': ['All modules'], 'description': 'Testing framework'},
     'TIME': {'dependencies': ['DATA', 'MATH'], 'description': 'Temporal methods'},
     'LOG': {'dependencies': ['SPACE', 'TIME', 'DATA'], 'description': 'Logistics'},
+    'INSURANCE': {'dependencies': ['SPACE', 'TIME', 'DATA', 'RISK'], 'description': 'Insurance operations: underwriting, policy, claims, pricing'},
 }
 
 def create_thin_orchestrator_script(module_name: str, module_info: Dict):

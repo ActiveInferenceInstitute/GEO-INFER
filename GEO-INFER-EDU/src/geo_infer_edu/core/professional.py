@@ -9,17 +9,9 @@ import logging
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from enum import Enum
 
 logger = logging.getLogger(__name__)
 
-
-class CertificationLevel(Enum):
-    """Professional certification levels."""
-    ASSOCIATE = "associate"
-    PROFESSIONAL = "professional"
-    EXPERT = "expert"
-    MASTER = "master"
 
 
 @dataclass
@@ -426,7 +418,6 @@ class ProfessionalDevelopment:
         if professional_id not in self._professionals:
             return {"error": "Professional not found"}
         
-        profile = self._professionals[professional_id]
         records = self._ce_records.get(professional_id, [])
         
         cert_key = certification.lower().replace(" ", "_")

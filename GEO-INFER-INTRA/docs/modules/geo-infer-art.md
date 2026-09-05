@@ -25,17 +25,14 @@ python # Style loss function L_style = Σ(w_l * L_style^l) # Where: # w_l = weig
 python # Content loss function L_content = Σ(F_ij^l - P_ij^l)² # Where: # F_ij^l = feature map of generated image at layer l # P_ij^l = feature map of content image at layer l
 ```
  #### Aesthetic Quality Assessment For aesthetic evaluation:
-```
 ```python
  # Aesthetic quality score A_Score = Σ(w_i * f_i(x)) / Σ(w_i) # Where: # w_i = weight for aesthetic feature i # f_i(x) = aesthetic feature function i # x = artistic content parameters
 ```
  ### Key Concepts #### Generative Art The module provides generative art capabilities with mathematical foundations:
-```
 ```python
  from geo_infer_art import ArtFramework # Create art framework art_framework = ArtFramework( art_parameters={ 'generative_art': True, 'creative_visualization': True, 'aesthetic_analysis': True, 'interactive_art': True, 'artistic_data_representation': True } ) # Model artistic systems art_model = art_framework.model_artistic_systems( geospatial_data=artistic_spatial_data, aesthetic_data=aesthetic_information, creative_data=creative_characteristics, visual_data=visual_requirements )
 ```
  #### Creative Visualization Implement creative visualization for artistic representation:
-```
 ```python
  from geo_infer_art.visualization import CreativeVisualizationEngine # Create creative visualization engine visualization_engine = CreativeVisualizationEngine( visualization_parameters={ 'data_artistic_rendering': True, 'aesthetic_enhancement': True, 'creative_algorithms': True, 'interactive_elements': True, 'artistic_styles': True } ) # Create artistic visualizations visualization_result = visualization_engine.create_artistic_visualizations( geospatial_data=spatial_information, aesthetic_data=aesthetic_preferences, creative_data=creative_requirements, visual_data=visual_specifications )
 ```
@@ -123,7 +120,7 @@ python # Implement AI art security art_framework.enable_ai_art_security({ 'conte
 ```
 python # Implement content protection art_framework.enable_content_protection({ 'digital_watermarking': True, 'copyright_management': True, 'attribution_system': True, 'content_verification': True })
 ```
- ## 🔗 Related Documentation ### Tutorials - **[AI Art Basics](../getting_started/index.md)** - Learn AI art fundamentals - **[Generative Art Tutorial](../getting_started/index.md)** - Build generative art systems ### How-to Guides - **[Geospatial Art Installation](../examples_gallery.md)** - Create artistic installations from geospatial data - **[Creative Data Visualization](../examples_gallery.md)** - Create artistic data visualizations ### Technical Reference - **[AI Art API Reference](../api/reference.md)** - AI art API documentation - **[Generative Art Patterns](../api/reference.md)** - Generative art patterns and best practices ### Explanations - **AI Art Theory** - Deep dive into AI art concepts - **Creative Visualization Principles** - Understanding creative visualization foundations ### Related Modules - **[GEO-INFER-AI](../modules/geo-infer-ai.md)** - AI capabilities - **[GEO-INFER-SPACE](../modules/geo-infer-space.md)** - Spatial analysis capabilities - **[GEO-INFER-DATA](../modules/geo-infer-data.md)** - Data management capabilities - **GEO-INFER-VISUALIZATION** - Visualization capabilities --- **Ready to get started?** Check out the **[AI Art Basics Tutorial](../getting_started/index.md)** or explore **[Geospatial Art Installation Examples](../examples_gallery.md)**!
+ ## 🔗 Related Documentation ### Tutorials - **[AI Art Basics](../getting_started/index.md)** - Learn AI art fundamentals - **[Generative Art Tutorial](../getting_started/index.md)** - Build generative art systems ### How-to Guides - **[Geospatial Art Installation](../examples_gallery.md)** - Create artistic installations from geospatial data - **[Creative Data Visualization](../examples_gallery.md)** - Create artistic data visualizations ### Technical Reference - **[AI Art API Reference](../api/reference.md)** - AI art API documentation - **[Generative Art Patterns](../api/reference.md)** - Generative art patterns and best practices ### Explanations - **AI Art Theory** - Deep dive into AI art concepts - **Creative Visualization Principles** - Understanding creative visualization foundations ### Related Modules - **[GEO-INFER-AI](../modules/geo-infer-ai.md)** - AI capabilities - **[GEO-INFER-SPACE](../modules/geo-infer-space.md)** - Spatial analysis capabilities - **[GEO-INFER-DATA](../modules/geo-infer-data.md)** - Data management capabilities --- **Ready to get started?** Check out the **[AI Art Basics Tutorial](../getting_started/index.md)** or explore **[Geospatial Art Installation Examples](../examples_gallery.md)**!
 
 ## 🗺️ Interactive Spatial Preview
 

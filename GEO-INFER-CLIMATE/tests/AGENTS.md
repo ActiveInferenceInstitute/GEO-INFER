@@ -24,12 +24,11 @@
 - `integration/`
 - `unit/`
 - `conftest.py`
-- `test_extreme_events.py`
 
 ## Validation
 
 ```bash
-uv run python -m pytest GEO-INFER-CLIMATE/tests
+uv run python GEO-INFER-TEST/run_unified_tests.py --module CLIMATE
 ```
 
 

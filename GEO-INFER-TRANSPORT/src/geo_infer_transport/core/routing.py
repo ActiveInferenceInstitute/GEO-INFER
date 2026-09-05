@@ -6,11 +6,10 @@ for transportation networks.
 """
 
 import logging
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-import heapq
 
 logger = logging.getLogger(__name__)
 
@@ -76,15 +75,6 @@ class RoutingEngine:
         self.real_time_traffic = real_time_traffic
         self._traffic_data: Dict[str, float] = {}
 
-        # Optional LOG integration for emissions calculation
-        self._emissions_calculator = None
-        try:
-            from geo_infer_log.core.transport import EmissionsCalculator
-            self._emissions_calculator = EmissionsCalculator()
-            logger.debug("GEO-INFER-LOG EmissionsCalculator integration active")
-        except ImportError:
-            logger.debug("GEO-INFER-LOG not available; emissions estimates disabled")
-
         logger.info(f"Initialized RoutingEngine with {algorithm} algorithm")
     
     def set_network(self, network: Any) -> None:
@@ -112,7 +102,13 @@ class RoutingEngine:
             via: Intermediate waypoints
 
         Returns:
-            Computed Route object
+            Computed Route object. ``route.route_source`` records how the
+            route was produced: ``"network"`` when computed on the graph,
+            ``"estimated_fallback"`` when no network is available and the
+            route is a haversine estimate. Callers should check
+            ``route_source`` before treating metrics as exact. When no
+            path exists on the network the returned Route has an empty
+            ``path`` and zero distance/time.
         """
         origin_id = origin.get("node_id") or origin.get("id") or "origin"
         dest_id = destination.get("node_id") or destination.get("id") or "destination"
@@ -302,7 +298,7 @@ class RoutingEngine:
             row = []
             for j, dest in enumerate(destinations):
                 route = self.route(origin, dest, optimization=metric)
-                
+
                 if metric == "time":
                     value = route.total_time_s
                 else:
@@ -346,6 +342,7 @@ class RoutingEngine:
         # Calculate primary route
         primary = self.route(origin, destination)
         alternatives.append(primary)
+        seen_paths = {tuple(primary.path)}
         
         if self.network and hasattr(self.network, 'graph') and len(primary.path) > 2:
             import networkx as nx
@@ -384,7 +381,8 @@ class RoutingEngine:
                         total_time_s=total_time
                     )
                     
-                    if alt_path != primary.path:
+                    if tuple(alt_path) not in seen_paths:
+                        seen_paths.add(tuple(alt_path))
                         alternatives.append(alt_route)
                         
                 except nx.NetworkXNoPath:

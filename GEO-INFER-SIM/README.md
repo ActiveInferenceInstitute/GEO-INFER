@@ -29,8 +29,6 @@ Advanced simulation environments for geospatial hypothesis testing, policy evalu
 
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
-- `scipy>=1.7.0`
-- `mesa>=0.8.9`
 
 
 ## Validation

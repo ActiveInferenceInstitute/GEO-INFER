@@ -14,8 +14,8 @@ Active Inference principles for intelligent health analytics.
 """
 
 __version__ = "0.2.0"
-__author__ = "GEO-INFER Framework Team"
-__email__ = "health@geo-infer.org"
+__author__ = "GEO-INFER Development Team"
+__email__ = "geo-infer@activeinference.institute"
 
 # Import core components
 from .core import (

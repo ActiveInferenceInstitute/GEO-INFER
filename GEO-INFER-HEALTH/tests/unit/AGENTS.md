@@ -22,8 +22,10 @@
 ## Local Contents
 
 - `test_advanced_geospatial.py`
+- `test_api_routers.py`
 - `test_config.py`
 - `test_disease_surveillance.py`
+- `test_enhanced_disease_surveillance.py`
 - `test_environmental_health.py`
 - `test_geospatial_utils.py`
 - `test_healthcare_accessibility.py`

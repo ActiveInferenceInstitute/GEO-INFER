@@ -10,7 +10,7 @@ References:
 """
 
 import numpy as np
-from typing import Optional, Dict, Any, Union
+from typing import Optional, Dict, Any
 import logging
 
 logger = logging.getLogger(__name__)

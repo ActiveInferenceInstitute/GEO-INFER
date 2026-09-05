@@ -6,7 +6,7 @@ including gradient helpers, loss functions, and optimization wrappers.
 """
 
 import numpy as np
-from typing import Union, Optional, List, Tuple, Dict, Any, Callable
+from typing import Optional, Tuple, Dict, Any, Callable
 import logging
 
 logger = logging.getLogger(__name__)

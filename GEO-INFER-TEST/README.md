@@ -20,6 +20,7 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `validate_act_script_orchestration.py`
 - `validate_active_inference_contract.py`
 - `validate_documentation.py`
+- `validate_gnn_interchange.py`
 - `validate_h3_active_inference_contract.py`
 - `validate_logging_hygiene.py`
 - `validate_model_contracts.py`
@@ -27,6 +28,7 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `validate_repo_contracts.py`
 - `validate_skills.py`
 - `validate_test_contracts.py`
+- `.gitignore`
 - `SKILL.md`
 - `TESTING.md`
 - `pyproject.toml`
@@ -66,17 +68,17 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 ## Dependencies
 
 - `coverage[toml]>=7.0.0`
-- `factory-boy>=3.2.0`
-- `faker>=18.0.0`
 - `geopandas>=0.10.0`
 - `h3>=4.5.0,<5`
 - `hypothesis>=6.0.0`
-- `jinja2>=3.1.0`
-- `jsonschema>=4.0.0`
-- `locust>=2.0.0`
 - `matplotlib>=3.5.0`
-- `memory-profiler>=0.60.0`
 - `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `psutil>=5.9.0`
+- `pytest>=7.0.0`
+- `pytest-benchmark>=4.0.0`
+- `pytest-cov>=4.0.0`
+- `pytest-html>=3.1.0`
 
 
 ## Validation

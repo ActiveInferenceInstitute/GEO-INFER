@@ -35,8 +35,8 @@ Tl 2023 Us Zcta520 workspace within `GEO-INFER-PLACE`.
 - `folium>=0.14.0`
 - `plotly>=5.0.0`
 - `matplotlib>=3.5.0`
-- `seaborn>=0.12.0`
 - `branca>=0.6.0`
+- `requests>=2.28.0`
 
 
 ## Validation

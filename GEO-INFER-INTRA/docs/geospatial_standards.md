@@ -49,7 +49,6 @@ print(f"Resolution: {res}")  # 9
 | `grid_path_cells(a, b)` | str, str | list[str] | Ordered list of cells forming shortest path |
 | `are_neighbor_cells(a, b)` | str, str | bool | Whether two cells share an edge |
 
-```
 ```python
 import h3
 
@@ -83,7 +82,6 @@ print(f"Are neighbors: {is_neighbor}")  # True
 | `compact_cells(cells)` | iterable[str] | frozenset[str] | Compact a set of cells to mixed resolutions |
 | `uncompact_cells(cells, res)` | iterable[str], int | frozenset[str] | Expand compacted cells to uniform resolution |
 
-```
 ```python
 import h3
 
@@ -114,7 +112,6 @@ print(f"Original: {len(area_cells)}, Compacted: {len(compacted)}")
 
 Units: `"km^2"`, `"m^2"`, `"rads^2"` for area; `"km"`, `"m"`, `"rads"` for length.
 
-```
 ```python
 import h3
 
@@ -132,7 +129,6 @@ for res in [6, 8, 9, 10]:
 | `cells_to_geo(cells)` | set[str] | dict | Convert cells to GeoJSON geometry |
 | `geo_to_cells(geojson, res)` | dict, int | frozenset[str] | Fill a GeoJSON polygon with cells |
 
-```
 ```python
 import h3
 import json
@@ -216,7 +212,6 @@ GEO-INFER geometry types follow the OGC Simple Features specification:
 
 ### CRS Conversion
 
-```
 ```python
 import geopandas as gpd
 from shapely.geometry import Point
@@ -261,7 +256,6 @@ follows these conventions:
 **Rule**: always document the coordinate order in every function's docstring.
 When a function accepts coordinates, name parameters explicitly:
 
-```
 ```python
 # CORRECT: explicit parameter names
 def analyze_point(lat: float, lng: float, resolution: int = 9):
@@ -286,7 +280,6 @@ def analyze_point(lat: float, lng: float, resolution: int = 9):
 
 GeoJSON (RFC 7946) encodes geographic features as JSON objects.
 
-```
 ```json
 {
   "type": "Feature",
@@ -312,7 +305,6 @@ GeoJSON (RFC 7946) encodes geographic features as JSON objects.
 
 ### Creating GeoJSON from GeoDataFrame
 
-```
 ```python
 import geopandas as gpd
 import json
@@ -343,7 +335,6 @@ columnar compression, predicate pushdown, and standardized geometry metadata.
 
 ### Reading and Writing
 
-```
 ```python
 import geopandas as gpd
 
@@ -381,7 +372,6 @@ The standard georeferenced raster format. GEO-INFER conventions:
 - Use internal tiling (256x256 or 512x512 blocks) for files over 100 MB.
 - Band ordering: for multi-band imagery, document band assignments in metadata.
 
-```
 ```python
 import rasterio
 import numpy as np
@@ -424,7 +414,6 @@ Used for multi-dimensional scientific data, particularly climate and weather.
 - Coordinate variables must include `units` and `standard_name` attributes.
 - Follow CF (Climate and Forecast) conventions for variable naming.
 
-```
 ```python
 import xarray as xr
 
@@ -458,7 +447,6 @@ operations used across modules:
 
 ### Construction
 
-```
 ```python
 from shapely.geometry import Point, LineString, Polygon, MultiPolygon, box
 
@@ -481,7 +469,6 @@ bbox = box(-122.70, 45.50, -122.60, 45.55)  # (minx, miny, maxx, maxy)
 
 ### Spatial Predicates
 
-```
 ```python
 # Containment
 print(poly.contains(pt))      # True if pt is inside poly
@@ -497,7 +484,6 @@ dist = pt.distance(line)      # Euclidean distance in CRS units
 
 ### Spatial Operations
 
-```
 ```python
 # Buffer (in CRS units -- use projected CRS for metric buffers)
 buffer_zone = pt.buffer(0.01)  # ~1.1 km at 45 degrees latitude
@@ -524,7 +510,6 @@ simplified = poly.simplify(tolerance=0.001, preserve_topology=True)
 
 ### Coordinate Extraction
 
-```
 ```python
 # From a polygon
 exterior_coords = list(poly.exterior.coords)
@@ -541,7 +526,6 @@ minx, miny, maxx, maxy = poly.bounds
 
 ### Coordinate Validation
 
-```
 ```python
 def validate_wgs84_coordinates(lat: float, lng: float) -> None:
     """Validate that coordinates are within WGS84 bounds.
@@ -565,7 +549,6 @@ def validate_wgs84_coordinates(lat: float, lng: float) -> None:
 
 ### Geometry Validation
 
-```
 ```python
 from shapely.validation import make_valid
 

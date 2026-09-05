@@ -673,8 +673,10 @@ def save_workflow_to_file(workflow: WorkflowDefinition,
             raise ValueError(f"Unsupported format: {format}")
 
 
-# Pre-defined module specifications for all GEO-INFER modules
-GEO_INFER_MODULES = {
+# Partial registry of pre-defined module specifications. Only modules with a
+# verified spec (DATA, SPACE) are listed; treat this as sample data for the
+# models layer, not a complete catalogue of GEO-INFER modules.
+GEO_INFER_MODULES: dict = {
     "DATA": ModuleSpec(
         name="GEO-INFER-DATA",
         module_type=ModuleType.DATA_PROCESSING,
@@ -693,5 +695,4 @@ GEO_INFER_MODULES = {
         supported_formats=[DataFormat.GEOJSON, DataFormat.RASTER_ARRAY, DataFormat.SPATIAL_TEMPORAL_JSON],
         dependencies=["DATA", "MATH"]
     ),
-    # Add specifications for all other modules...
-} 
+}

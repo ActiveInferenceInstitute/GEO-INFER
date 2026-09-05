@@ -69,3 +69,32 @@ class TestAsymmetricEncryption:
         enc = AsymmetricEncryption()
         assert enc.private_key is None
         assert enc.public_key is None
+
+
+class TestDecryptGeodataframeFailureReporting:
+    """decrypt_geodataframe must not silently discard undecryptable rows."""
+
+    def test_corrupt_geometry_is_logged_and_collected(self, caplog):
+        import geopandas as gpd
+        from shapely.geometry import Point
+
+        enc = GeospatialEncryption()
+        gdf = gpd.GeoDataFrame(
+            {
+                "encrypted_geometry": [
+                    enc.encrypt_coordinates(34.05, -118.24),
+                    "not-valid-ciphertext",
+                ]
+            },
+            geometry=[Point(0, 0), Point(1, 1)],
+        )
+
+        import logging
+
+        with caplog.at_level(logging.WARNING, logger="geo_infer_sec.core.encryption"):
+            result = enc.decrypt_geodataframe(gdf, encrypted_columns=[])
+
+        assert result.attrs["decryption_failures"] == [1]
+        # The corrupt row keeps its original geometry instead of vanishing.
+        assert result.geometry.iloc[1].equals(Point(1, 1))
+        assert any("row 1" in message for message in caplog.messages)

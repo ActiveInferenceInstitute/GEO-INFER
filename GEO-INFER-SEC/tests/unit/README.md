@@ -10,8 +10,11 @@ Unit workspace within `GEO-INFER-SEC`.
 - `test_audit_logging.py`
 - `test_authentication.py`
 - `test_authorization.py`
+- `test_digital_indicators.py`
 - `test_encryption.py`
+- `test_geospatial_utils.py`
 - `test_input_validation.py`
+- `test_security_api.py`
 - `test_token_lifecycle.py`
 
 ## Public Interface
@@ -29,14 +32,14 @@ Unit workspace within `GEO-INFER-SEC`.
 ## Dependencies
 
 - `cryptography>=36.0.0`
-- `pyjwt>=2.3.0`
+- `flask>=2.0`
 - `geopandas>=0.10.0`
-- `shapely>=1.8.0`
-- `pandas>=1.3.0`
-- `numpy>=1.20.0`
-- `pyyaml>=6.0`
 - `h3>=4.5.0,<5`
-- `pyproj>=3.0.0`
+- `numpy>=1.20.0`
+- `pandas>=1.3.0`
+- `pyjwt>=2.3.0`
+- `pyyaml>=6.0`
+- `shapely>=1.8.0`
 
 
 ## Validation

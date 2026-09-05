@@ -323,8 +323,12 @@ class RenewableResourceAssessor:
             # Above cut-out: 0
             
         else:
-            # Default: linear relationship
-            power_fraction = resource_data / resource_data.max()
+            # Default: linear relationship, guarded against all-zero series
+            resource_max = float(resource_data.max())
+            power_fraction = (
+                resource_data / resource_max if resource_max > 0
+                else xr.zeros_like(resource_data)
+            )
         
         # Calculate statistics
         mean_cf = float(power_fraction.mean())
@@ -429,16 +433,19 @@ class RenewableResourceAssessor:
         self,
         generation_profile: xr.DataArray,
         demand_profile: xr.DataArray,
-        renewable_penetration: float = 0.5
+        renewable_penetration: float = 0.5,
+        duration_hours: float = 4.0
     ) -> Dict[str, Any]:
         """
         Analyze storage requirements for renewable integration.
-        
+
         Args:
             generation_profile: Hourly generation profile
             demand_profile: Hourly demand profile
-            renewable_penetration: Target renewable share
-            
+            renewable_penetration: Target renewable share of annual demand
+            duration_hours: Storage duration used to size energy capacity
+                from peak deficit
+
         Returns:
             Storage requirement analysis
         """
@@ -450,8 +457,11 @@ class RenewableResourceAssessor:
         scale_factor = target_generation / actual_generation if actual_generation > 0 else 1
         scaled_generation = generation_profile * scale_factor
         
-        # Calculate hourly surplus/deficit
-        net_balance = scaled_generation - demand_profile * renewable_penetration
+        # Calculate hourly mismatch against FULL demand: generation is scaled
+        # so its annual total meets the penetration target, and deficits are
+        # measured against total demand (not demand scaled by penetration,
+        # which would double-count the target and undersize storage).
+        net_balance = scaled_generation - demand_profile
         
         surplus = xr.where(net_balance > 0, net_balance, 0)
         deficit = xr.where(net_balance < 0, -net_balance, 0)
@@ -463,9 +473,9 @@ class RenewableResourceAssessor:
         max_deficit = float(deficit.max())
         
         # Estimate storage capacity needed (simplified)
-        # Storage should cover at least 4 hours of peak deficit
+        # Storage should cover at least `duration_hours` of peak deficit
         storage_power_mw = float(deficit.max())
-        storage_energy_mwh = storage_power_mw * 4
+        storage_energy_mwh = storage_power_mw * duration_hours
         
         # Calculate curtailment if no storage
         curtailment = total_surplus
@@ -482,7 +492,7 @@ class RenewableResourceAssessor:
             'recommended_storage': {
                 'power_capacity_mw': storage_power_mw,
                 'energy_capacity_mwh': storage_energy_mwh,
-                'duration_hours': 4.0
+                'duration_hours': duration_hours
             },
             'curtailment_without_storage_mwh': curtailment,
             'curtailment_rate_pct': float(curtailment_pct)

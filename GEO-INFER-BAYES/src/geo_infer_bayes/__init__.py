@@ -151,8 +151,12 @@ class GaussianProcess:
         jitter: float = 1e-6,
         covariance_function: Optional[dict[str, float | str]] = None,
         mean_function: str = "constant",
-        **_: object,
+        **kwargs: object,
     ) -> None:
+        if kwargs:
+            raise TypeError(
+                f"Unexpected keyword arguments for GaussianProcess: {sorted(kwargs)}"
+            )
         if covariance_function is not None:
             kernel_type = str(covariance_function.get("kernel_type", kernel_type))
             length_scale = float(covariance_function.get("length_scale", length_scale))
@@ -164,7 +168,13 @@ class GaussianProcess:
         self.signal_variance = signal_variance
         self.noise_variance = noise_variance
         self.jitter = jitter
+        if mean_function not in ("zero", "constant"):
+            raise ValueError(
+                f"Unsupported mean function: {mean_function!r} "
+                "(supported: 'zero', 'constant')"
+            )
         self.mean_function = mean_function
+        self._mean: Optional[float] = None
         self.X_train: Optional[np.ndarray] = None
         self.y_train: Optional[np.ndarray] = None
         self._L: Optional[np.ndarray] = None
@@ -265,9 +275,13 @@ class GaussianProcess:
         # Cholesky decomposition: K = L @ L^T
         self._L = np.linalg.cholesky(K)
 
-        # Solve for alpha: K alpha = y  =>  alpha = K^{-1} y
-        # Using forward/back substitution via the Cholesky factor
-        z = np.linalg.solve(self._L, y)
+        # Center targets on the mean function before solving: a constant mean
+        # is estimated from the training targets, "zero" leaves y untouched.
+        if self.mean_function == "constant":
+            self._mean = float(np.mean(y))
+        else:
+            self._mean = 0.0
+        z = np.linalg.solve(self._L, y - self._mean)
         self._alpha = np.linalg.solve(self._L.T, z)
 
         return self
@@ -312,8 +326,10 @@ class GaussianProcess:
         # Cross-covariance between training and new points
         K_star = self._compute_kernel(self.X_train, X_new)
 
-        # Predictive mean: mu_* = K_*^T @ alpha
+        # Predictive mean: mu_* = K_*^T @ alpha + m(x_*); for the constant
+        # mean function m is the training mean estimated during fit.
         mean: np.ndarray = np.asarray(K_star.T @ self._alpha)
+        mean = mean + self._mean
 
         if return_std:
             # v = L^{-1} @ K_*

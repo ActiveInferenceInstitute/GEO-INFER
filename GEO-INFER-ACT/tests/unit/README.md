@@ -15,9 +15,10 @@ Unit workspace within `GEO-INFER-ACT`.
 - `test_dynamic_causal_model.py`
 - `test_ecological_model.py`
 - `test_free_energy.py`
+- `test_gaussian_contract.py`
 - `test_generative_efe.py`
-- `test_geospatial_ai.py`
 - `test_geospatial_runner_outputs.py`
+- `test_gnn_contract.py`
 - `test_h3.py`
 - `test_h3_active_inference.py`
 - `test_h3_adapter.py`
@@ -53,17 +54,16 @@ Unit workspace within `GEO-INFER-ACT`.
 ## Dependencies
 
 - `matplotlib>=3.4.0`
-- `networkx>=2.6.0`
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
-- `pyro-ppl>=1.7.0`
 - `pyyaml>=6.0`
-- `scipy>=1.7.0`
-- `torch>=1.9.0`
-- `arviz>=0.11.0`
-- `bayeux-ml>=0.0.1`
+- `requests>=2.25.0`
+- `geo-infer-ai>=0.2.0`
+- `seaborn>=0.11.0`
+- `inferactively-pymdp==1.0.3`
 - `h3>=4.5.0,<5`
-- `imageio>=2.9.0`
+- `geo-infer-bayes>=0.2.0`
+- `scipy>=1.7.0`
 
 
 ## Validation

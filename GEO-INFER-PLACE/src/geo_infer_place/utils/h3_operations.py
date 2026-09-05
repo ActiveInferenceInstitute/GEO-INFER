@@ -14,7 +14,7 @@ Usage:
 """
 
 import logging
-from typing import List, Tuple, Any, Dict, Union, cast, Optional
+from typing import List, Tuple, Any, cast
 
 import h3
 

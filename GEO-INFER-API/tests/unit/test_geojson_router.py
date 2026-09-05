@@ -48,6 +48,14 @@ INVALID_POLYGON_FEATURE = {
 }
 
 
+ZERO_ID_FEATURE = {
+    "type": "Feature",
+    "id": 0,
+    "geometry": {"type": "Polygon", "coordinates": SAMPLE_POLYGON_COORDS},
+    "properties": {"name": "Zero ID"},
+}
+
+
 # Fixtures
 @pytest.fixture(autouse=True)
 def clear_polygon_features():
@@ -317,3 +325,12 @@ def test_check_polygon_contains_point():
     data = response.json()
     assert "contains" in data
     assert data["contains"] is False
+
+
+def test_create_feature_with_integer_zero_id():
+    """Regression: integer id 0 is a valid feature id and must be accepted."""
+    response = client.post("/api/v1/collections/polygons/items", json=ZERO_ID_FEATURE)
+    assert response.status_code == 201
+    stored = client.get("/api/v1/collections/polygons/items/0")
+    assert stored.status_code == 200
+    assert stored.json()["id"] == 0

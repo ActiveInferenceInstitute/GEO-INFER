@@ -21,6 +21,7 @@ from __future__ import annotations
 import json
 import logging
 from datetime import datetime
+from functools import lru_cache
 from importlib.resources import files
 from pathlib import Path
 from typing import Any, Dict, List, Optional, cast
@@ -43,7 +44,17 @@ def _load_presets() -> Dict[str, Any]:
     return data
 
 
-LOCATION_PRESETS = _load_presets()
+@lru_cache(maxsize=1)
+def _location_presets() -> Dict[str, Any]:
+    """Load (and cache) the location presets from the tracked YAML configuration."""
+    return _load_presets()
+
+
+def __getattr__(name: str) -> Any:
+    """PEP 562 lazy attribute: ``LOCATION_PRESETS`` loads YAML on first access."""
+    if name == "LOCATION_PRESETS":
+        return _location_presets()
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 class PlaceInterface:
@@ -70,13 +81,14 @@ class PlaceInterface:
         output_dir: Optional[str] = None,
         counties: Optional[List[str]] = None,
     ) -> None:
-        if location not in LOCATION_PRESETS:
+        presets = _location_presets()
+        if location not in presets:
             raise ValueError(
-                f"Unknown location '{location}'. Supported: {list(LOCATION_PRESETS.keys())}"
+                f"Unknown location '{location}'. Supported: {list(presets.keys())}"
             )
 
         self.location = location
-        preset = LOCATION_PRESETS[location]
+        preset = presets[location]
         self.location_name = preset["name"]
 
         # Build config
@@ -86,13 +98,9 @@ class PlaceInterface:
             "analyses": {a: {} for a in preset["analyzers"]},
         }
 
-        # Output directory
-        default_out = (
-            Path(__file__).resolve().parents[3]
-            / "locations"
-            / location.replace(" ", "_")
-            / "output"
-        )
+        # Output directory (cwd-relative so site-installed packages never
+        # write into their own installation tree)
+        default_out = Path.cwd() / f"{location}_output"
         self.output_dir = Path(output_dir) if output_dir else default_out
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -226,7 +234,7 @@ class PlaceInterface:
             Unified results dict with analysis outputs, temporal trends,
             data quality reports, and provenance log.
         """
-        preset = LOCATION_PRESETS[self.location]
+        preset = _location_presets()[self.location]
         analyzer_names = analyzers or preset["analyzers"]
 
         logger.info(
@@ -405,7 +413,7 @@ class PlaceInterface:
             "output_dir": str(self.output_dir),
             "data_module_available": self.data_manager.has_data_module,
             "time_module_available": self.temporal.has_time_module,
-            "available_analyzers": LOCATION_PRESETS[self.location]["analyzers"],
+            "available_analyzers": _location_presets()[self.location]["analyzers"],
             "initialized_analyzers": list(self._analyzers.keys()),
             "cache_stats": {
                 "calfire": self.integrator.calfire_client.cache_stats(),

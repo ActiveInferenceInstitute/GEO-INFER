@@ -19,11 +19,10 @@ Mathematical Foundations:
 """
 
 import itertools
-import json
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple, Any, Union, Set, cast
+from typing import Dict, List, Optional, Tuple, Any, Set, cast
 
 import networkx as nx
 import numpy as np
@@ -280,8 +279,7 @@ class CognitiveMap:
 
         complexity = min(1.0, (length / 1000.0) + (turns / 10.0))
 
-        # Adjust for route mode and difficulty
-        difficulty = properties.get('difficulty', 'easy')
+        # Adjust for route mode
         mode_multipliers = {
             'walking': 1.0,
             'driving': 0.8,

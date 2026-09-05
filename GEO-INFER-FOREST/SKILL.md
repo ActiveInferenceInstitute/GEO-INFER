@@ -18,8 +18,8 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 
 ### Core Capabilities
 
-- **Forest cover**: Change detection, canopy height models, NDVI analysis
-- **Timber inventory**: Volume estimation, growth modeling, harvest planning
+- **Forest cover**: Change detection, NDVI/EVI analysis, canopy cover, LAI, gap detection
+- **Timber inventory**: `ForestInventory` provides biomass estimation and forest area calculation.
 - **Deforestation**: Alert systems, historical trend analysis, driver attribution
 - **Carbon stocks**: Above/below-ground biomass, soil organic carbon
 - **Wildfire**: Risk mapping, fire spread modeling, post-fire recovery
@@ -27,20 +27,35 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 ### Key Imports
 
 ```python
-from geo_infer_forest.core.cover_analysis import ForestCoverAnalyzer
-from geo_infer_forest.core.carbon import CarbonStockEstimator
-from geo_infer_forest.core.fire_risk import WildfireRiskModel
-from geo_infer_forest.core.inventory import TimberInventory
+from geo_infer_forest import (
+    CanopyAnalyzer,
+    CarbonSequestrationModeler,
+    DeforestationDetector,
+    FireRiskAssessor,
+    ForestInventory,
+    WildfireRiskAnalyzer,
+)
 ```
 
 ## Examples
 
 ```python
-from geo_infer_forest.core.cover_analysis import ForestCoverAnalyzer
 
-analyzer = ForestCoverAnalyzer()
-change = analyzer.detect_change(t1_raster, t2_raster)
-loss_area_km2 = change.total_loss_area()
+import numpy as np
+import xarray as xr
+
+from geo_infer_forest import CanopyAnalyzer, ForestInventory
+
+analyzer = CanopyAnalyzer()
+ndvi = analyzer.calculate_ndvi(
+    red=xr.DataArray(np.full((4, 4), 0.05), dims=("y", "x")),
+    nir=xr.DataArray(np.full((4, 4), 0.45), dims=("y", "x")),
+)
+
+inventory = ForestInventory()
+biomass = inventory.estimate_biomass(
+    forest_cover=xr.DataArray(np.full((4, 4), 70.0), dims=("y", "x"))
+)
 ```
 
 ## Guidelines

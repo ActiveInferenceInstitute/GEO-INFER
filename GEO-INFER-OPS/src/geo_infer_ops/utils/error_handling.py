@@ -11,7 +11,7 @@ import logging
 import random
 import time
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 
 logger = logging.getLogger(__name__)
 
@@ -216,7 +216,6 @@ def classify_error(error: Exception) -> Tuple[ErrorCategory, ErrorSeverity, bool
     Returns:
         Tuple of (category, severity, recoverable)
     """
-    error_type = type(error)
 
     # Network errors
     try:

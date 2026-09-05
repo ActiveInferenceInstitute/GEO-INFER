@@ -8,12 +8,16 @@ conditions, and compliance landscapes. It aims to support decision-making by
 quantifying potential outcomes of proposed or implemented policies.
 """
 
+import logging
+
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import base
 
 from typing import Any, Dict, Optional
 
+
+logger = logging.getLogger(__name__)
 
 class PolicyImpactAnalyzer:
     """Analyzes the potential or actual impacts of a policy across various dimensions.
@@ -46,7 +50,7 @@ class PolicyImpactAnalyzer:
         self.policy = policy
         self.context_data = context_data
         self.spatial_extent = spatial_extent
-        print(f"Initialized PolicyImpactAnalyzer for policy: {policy}") # Basic logging
+        logger.info("Initialized PolicyImpactAnalyzer for policy: %s", policy)
 
     def analyze_economic_impact(self) -> pd.DataFrame:
         """Analyzes the economic consequences of the policy.
@@ -56,7 +60,7 @@ class PolicyImpactAnalyzer:
         Returns:
             DataFrame summarizing economic impacts.
         """
-        print("Analyzing economic impact...")
+        logger.info("Analyzing economic impact")
         
         # Check if we have the necessary data
         if not self.context_data.get('economic_data'):
@@ -626,7 +630,7 @@ class RegulatoryImpactAssessment:
         self.regulation = regulation
         self.affected_entities = affected_entities
         self.baseline_data = baseline_data
-        print(f"Initialized RegulatoryImpactAssessment for regulation: {regulation}")
+        logger.info("Initialized RegulatoryImpactAssessment for regulation: %s", regulation)
 
     def estimate_compliance_costs(self) -> pd.DataFrame:
         """Estimates the costs incurred by affected entities to comply.
@@ -828,7 +832,7 @@ class RegulatoryImpactAssessment:
         Returns:
             A string containing the assessment summary.
         """
-        print("Generating assessment summary...")
+        logger.info("Generating assessment summary")
         # Baseline implementation
         costs_df = self.estimate_compliance_costs()
         admin = self.assess_administrative_burden()

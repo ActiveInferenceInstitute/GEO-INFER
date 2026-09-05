@@ -8,6 +8,34 @@ import json
 logger = logging.getLogger(__name__)
 
 
+def entity_field(entity: Any, name: str, default: Any) -> Any:
+    """Read a field from either a mapping or an object entity.
+
+    Governance entities may be plain dicts (API payloads) or dataclass
+    instances (e.g. ``core.multi_level.GovernanceEntity``); this accessor
+    works for both.
+
+    Parameters:
+    -----------
+    entity : Any
+        Entity as a dict or object.
+    name : str
+        Field name to read.
+    default : Any
+        Value returned when the field is missing or ``None``.
+
+    Returns:
+    --------
+    Any
+        The field value, or ``default``.
+    """
+    if isinstance(entity, dict):
+        value = entity.get(name, default)
+    else:
+        value = getattr(entity, name, default)
+    return value if value is not None else default
+
+
 def validate_spatial_scope(spatial_scope: Any) -> bool:
     """
     Validate spatial scope dictionary.

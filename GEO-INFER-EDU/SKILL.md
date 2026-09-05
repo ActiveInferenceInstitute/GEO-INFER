@@ -2,10 +2,10 @@
 name: geo-infer-edu
 description: Educational technology for geospatial learning. Use when creating spatial analysis curricula, interactive GIS exercises, learning progression models, competency assessment for geographic concepts, or step-by-step spatial tutorials.
 prerequisites:
-  required:
+  required: []
+  recommended:
     - geo-infer-space
     - geo-infer-data
-  recommended: []
 difficulty: beginner
 estimated_time: 30min
 examples_dir: ../GEO-INFER-EXAMPLES/examples/
@@ -17,40 +17,59 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 
 ### Core Capabilities
 
-- **Curriculum design**: Learning progression modeling for GIS competencies
-- **Exercises**: Interactive spatial analysis exercises (template-based with student code)
-- **Assessment**: Competency evaluation and skill gap analysis
-- **Tutorials**: Step-by-step guided spatial analysis workflows with checkpoints
+- **Curriculum design**: Standards-aligned curriculum and module generation (`CurriculumDesigner`)
+- **Exercises**: Template-based interactive exercises with starter code and test cases (`ExerciseGenerator`)
+- **Progress tracking**: Competency tracking, gap identification, analytics, and privacy-aware exports (`ProgressTracker`)
+- **Personalized learning**: Adaptive pathways and resource recommendations (`PersonalizedLearning`)
+- **Professional development**: Certification pathways and continuing-education tracking (`ProfessionalDevelopment`)
 
 ### Key Imports
 
 ```python
-from geo_infer_edu.core.curriculum import CurriculumDesigner
-from geo_infer_edu.core.exercises import ExerciseGenerator
-from geo_infer_edu.core.assessment import CompetencyAssessor
-from geo_infer_edu.core.tutorials import TutorialBuilder
+from geo_infer_edu import (
+    CurriculumDesigner,
+    ExerciseGenerator,
+    ProgressTracker,
+    PersonalizedLearning,
+    ProfessionalDevelopment,
+)
+from geo_infer_edu.core.progress import CompetencyLevel
 ```
 
 ## Examples
 
 ```python
-from geo_infer_edu.core.exercises import ExerciseGenerator
+from geo_infer_edu import ExerciseGenerator, ProgressTracker
 
-generator = ExerciseGenerator(difficulty="intermediate")
-exercise = generator.create(
-    topic="spatial_autocorrelation",
-    dataset="crime_data",
-    expected_tool="MoranI"
+# Generate exercises for a set of concepts
+generator = ExerciseGenerator()
+exercises = generator.create(
+    concepts=["spatial_autocorrelation", "buffer_analysis"],
+    format="code",           # 'interactive_map', 'code', 'quiz', 'practical'
+    difficulty="progressive",
+    include_hints=True,
 )
-# Students fill in the `pass` block in the generated template
+
+# Track learner progress from activity logs and assessment scores
+tracker = ProgressTracker(privacy_compliance="ferpa")
+progress = tracker.track_progress(
+    learner_id="student_042",
+    activity_log=[
+        {"id": "act_1", "type": "exercise", "topic": "spatial_autocorrelation",
+         "score": 0.82, "duration_minutes": 45},
+    ],
+    assessments=[{"competency": "spatial_analysis", "score": 0.82}],
+)
+export = tracker.export_progress("student_042")  # JSON string, FERPA-pseudonymized
 ```
 
 ## Guidelines
 
-- `exercises.py` contains a `pass` inside a template string for student exercises — this is not production code, it is intentional
+- Competency levels are ordered (`NOT_STARTED` < `EMERGING` < `DEVELOPING` < `PROFICIENT` < `EXEMPLARY`); assessments never silently downgrade an achieved level.
+- `CurriculumDesigner` accepts only supported standards (`bok`, `gistbok`, `ngss`); unknown standards raise `ValueError`.
+- `ProgressTracker` exports embed `record.level.value` strings, so exports are always JSON-serializable.
 
 ### Integrations
 
-- Integrates with MATH for spatial statistics exercises
-- Integrates with SPACE for H3 indexing tutorials
+- Optional integration with SPACE and DATA for spatial exercise content (not imported at runtime)
 - Test: `uv run python -m pytest GEO-INFER-EDU/tests/ -v`

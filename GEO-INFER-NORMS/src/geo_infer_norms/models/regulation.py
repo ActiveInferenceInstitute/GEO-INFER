@@ -6,7 +6,7 @@ their relationships with jurisdictions and entities.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any, Set
+from typing import Dict, List, Optional, Any
 import datetime
 import uuid
 

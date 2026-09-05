@@ -7,10 +7,10 @@ available and uses direct H3 v4 calls for operations SPACE does not expose.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 import sys
-from typing import Any, Dict, Iterable, List, Optional, cast
-
+from typing import Any, Dict, Iterable, List, Optional
 
 class H3Adapter:
     """Adapter over SPACE H3 indexing and direct H3 v4."""
@@ -193,6 +193,15 @@ def get_nested_h3_grid_class() -> Any:
 
         return NestedH3Grid
     except ImportError:
+        # Monorepo-only fallback: extend sys.path with the sibling SPACE
+        # checkout. Opt-in via environment flag so installed (non-monorepo)
+        # deployments never depend on the checkout layout.
+        if os.environ.get("GEO_INFER_ACT_ALLOW_REPO_PATH_FALLBACK", "").lower() not in {
+            "1",
+            "true",
+            "yes",
+        }:
+            raise
         repo_root = Path(__file__).resolve().parents[4]
         space_src = repo_root / "GEO-INFER-SPACE" / "src"
         if space_src.exists() and str(space_src) not in sys.path:

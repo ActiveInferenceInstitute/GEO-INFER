@@ -10,13 +10,6 @@ Examples workspace within `GEO-INFER-COG`.
 
 ## Public Interface
 
-- `cognitive_processing_demo.py:create_sample_spatial_data` (function)
-- `cognitive_processing_demo.py:create_sample_user_profile` (function)
-- `cognitive_processing_demo.py:demonstrate_cognitive_processing` (function)
-- `cognitive_processing_demo.py:demonstrate_spatial_language_processing` (function)
-- `cognitive_processing_demo.py:demonstrate_cognitive_map_creation` (function)
-- `cognitive_processing_demo.py:demonstrate_user_profiling` (function)
-- `cognitive_processing_demo.py:create_visualization_demo` (function)
 - `cognitive_processing_demo.py:main` (function)
 - `cognitive_wayfinding.py:main` (function)
 
@@ -31,7 +24,8 @@ Examples workspace within `GEO-INFER-COG`.
 ## Dependencies
 
 - `numpy>=1.20.0`
-- `pandas>=1.3.0`
+- `networkx>=2.6`
+- `pyyaml>=5.4`
 
 
 ## Validation

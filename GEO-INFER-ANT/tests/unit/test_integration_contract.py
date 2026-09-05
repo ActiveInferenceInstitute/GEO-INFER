@@ -2,11 +2,48 @@
 
 import asyncio
 import logging
+import subprocess
+import sys
+import textwrap
 
 import numpy as np
 
 from geo_infer_ant.core.population import AgentPopulation
 from geo_infer_ant.core.agent_base import SwarmAgent
+
+
+def test_package_imports_without_optional_integrations():
+    """geo_infer_ant imports and works with no sibling workspace modules installed."""
+    probe = textwrap.dedent(
+        """
+        import sys
+
+        class _BlockIntegrations:
+            def find_spec(self, name, path=None, target=None):
+                if name.split(".")[0] in {
+                    "geo_infer_act",
+                    "geo_infer_space",
+                    "geo_infer_agent",
+                }:
+                    raise ImportError(f"{name} intentionally blocked")
+                return None
+
+        sys.meta_path.insert(0, _BlockIntegrations())
+
+        import geo_infer_ant
+
+        agent = geo_infer_ant.SwarmAgent("standalone", [37.7, -122.4])
+        assert agent.agent_id == "standalone"
+        assert agent.active_inference_model is None
+        assert agent.spatial_indexer is None
+        assert agent.spatial_analytics is None
+        assert agent.to_dict()["state"] == {}
+        """
+    )
+    result = subprocess.run(
+        [sys.executable, "-c", probe], capture_output=True, text=True, timeout=120
+    )
+    assert result.returncode == 0, result.stderr
 
 
 def test_perceive_environment_preserves_unconfigured_active_inference_context(

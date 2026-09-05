@@ -25,17 +25,14 @@ python # Pheromone update rule τ_ij(t+1) = (1-ρ) * τ_ij(t) + Σ_k Δτ_ij^k #
 python # Transition probability P_ij^k = [τ_ij^α * η_ij^β] / Σ_l∈N_i^k [τ_il^α * η_il^β] # Where: # τ_ij = pheromone level on edge (i,j) # η_ij = heuristic information (1/d_ij for TSP) # α = pheromone importance parameter # β = heuristic importance parameter # N_i^k = set of nodes not yet visited by ant k
 ```
  #### Multi-Objective ACO For multi-objective optimization problems:
-```
 ```python
  # Multi-objective pheromone update τ_ij(t+1) = (1-ρ) * τ_ij(t) + Σ_k Σ_m w_m * Δτ_ij^k,m # Where: # w_m = weight for objective m # Δτ_ij^k,m = pheromone contribution for objective m
 ```
  ### Key Concepts #### Ant Colony Optimization The module provides ant colony optimization capabilities with mathematical rigor:
-```
 ```python
  from geo_infer_ant import AntFramework # Create ant framework with mathematical foundations ant_framework = AntFramework( ant_parameters={ 'swarm_intelligence': 'advanced', 'optimization_algorithms': 'metaheuristic', 'pathfinding': 'intelligent', 'collective_behavior': 'emergent', 'metaheuristic_search': 'adaptive', 'pheromone_management': 'sophisticated', 'ant_communication': 'secure', 'uncertainty_quantification': True, 'multi_objective_optimization': True } ) # Model ant colony systems with mathematical precision ant_model = ant_framework.model_ant_colony_systems( geospatial_data=ant_spatial_data, optimization_data=optimization_information, swarm_data=swarm_characteristics, pheromone_data=pheromone_patterns, mathematical_config={ 'pheromone_evaporation_rate': 0.1, 'pheromone_importance': 1.0, 'heuristic_importance': 2.0, 'ant_population_size': 50, 'convergence_threshold': 0.001 } )
 ```
  #### Swarm Intelligence with Mathematical Foundations Implement swarm intelligence with mathematical rigor:
-```
 ```python
  from geo_infer_ant.swarm import SwarmIntelligenceEngine # Create swarm intelligence engine with mathematical foundations swarm_engine = SwarmIntelligenceEngine( swarm_parameters={ 'collective_behavior': 'mathematical', 'emergent_intelligence': 'advanced', 'swarm_coordination': 'sophisticated', 'behavior_patterns': 'adaptive', 'intelligence_emergence': 'dynamic', 'uncertainty_quantification': True, 'mathematical_modeling': True } ) # Implement swarm intelligence with mathematical precision swarm_result = swarm_engine.implement_swarm_intelligence( swarm_data=collective_agents, behavior_data=behavior_patterns, mathematical_config={ 'collective_decision_threshold': 0.7, 'emergent_behavior_threshold': 0.5, 'coordination_strength': 0.8, 'adaptation_rate': 0.1, 'uncertainty_model': 'bayesian' } )
 ```

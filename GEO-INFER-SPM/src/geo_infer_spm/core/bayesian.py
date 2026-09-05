@@ -31,13 +31,18 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-try:
-    import pymc3 as pm
+try:  # Modern PyMC (v4+)
+    import pymc as pm
 
-    PYMC3_AVAILABLE = True
+    PYMC_AVAILABLE = True
 except ImportError:
-    PYMC3_AVAILABLE = False
-    logger.debug("PyMC3 is unavailable; Bayesian SPM uses empirical Bayes.")
+    try:  # Legacy PyMC3 fallback
+        import pymc3 as pm  # type: ignore[no-redef]
+
+        PYMC_AVAILABLE = True
+    except ImportError:
+        PYMC_AVAILABLE = False
+        logger.debug("PyMC is unavailable; Bayesian SPM uses empirical Bayes.")
 
 from ..models.data_models import SPMData, SPMResult  # noqa: E402
 from ..utils.rng import resolve_rng  # noqa: E402
@@ -67,11 +72,10 @@ class BayesianSPM:
         self.model_type = model_type
         self.model_spec: Optional[Dict[str, Any]] = None
         self.priors: Dict[str, Any] = {}
+        if not PYMC_AVAILABLE and self.model_type != "empirical_bayes":
+            logger.info("Using empirical Bayes approximation for %s", model_type)
         self.posterior_samples: Optional[Dict[str, Any]] = None
         self.diagnostics: Dict[str, Any] = {}
-
-        if not PYMC3_AVAILABLE and model_type != "empirical_bayes":
-            logger.info("Using empirical Bayes approximation for %s", model_type)
 
     def fit_bayesian_glm(
         self,
@@ -94,19 +98,18 @@ class BayesianSPM:
             random_seed: Seed for the MCMC sampler (deterministic traces)
 
         Returns:
-            SPMResult with Bayesian parameter estimates
+            SPMResult with posterior parameter estimates
         """
         if priors is None:
             priors = self._default_priors(design_matrix.shape[1])
 
-        if PYMC3_AVAILABLE and self.model_type != "empirical_bayes":
-            return self._fit_pymc3_glm(
+        if PYMC_AVAILABLE and self.model_type != "empirical_bayes":
+            return self._fit_pymc_glm(
                 data, design_matrix, priors, n_samples, n_tune, random_seed
             )
-        else:
-            return self._fit_empirical_bayes_glm(
-                data, design_matrix, priors, random_seed=random_seed
-            )
+        return self._fit_empirical_bayes_glm(
+            data, design_matrix, priors, random_seed=random_seed
+        )
 
     def _default_priors(self, n_regressors: int) -> Dict[str, Any]:
         """Set default prior distributions."""
@@ -115,13 +118,12 @@ class BayesianSPM:
             "sigma": {"type": "half_normal", "sigma": 1},
             "nu": {"type": "exponential", "lam": 1 / 30},  # For robust regression
         }
-
         # Different priors for intercept vs. other coefficients
         priors["beta_intercept"] = {"type": "normal", "mu": 0, "sigma": 10}
 
         return priors
 
-    def _fit_pymc3_glm(
+    def _fit_pymc_glm(
         self,
         data: SPMData,
         design_matrix: np.ndarray,
@@ -130,7 +132,7 @@ class BayesianSPM:
         n_tune: int,
         random_seed: int = 42,
     ) -> SPMResult:
-        """Fit GLM using PyMC3 MCMC sampling."""
+        """Fit GLM using PyMC MCMC sampling."""
         y = data.data.flatten() if data.data.ndim > 1 else data.data
         X = design_matrix
 
@@ -199,7 +201,7 @@ class BayesianSPM:
             beta_coefficients=beta_mean,
             residuals=residuals,
             model_diagnostics={
-                "method": "Bayesian_GLM_PyMC3",
+                "method": "Bayesian_GLM_PyMC",
                 "n_samples": n_samples,
                 "n_tune": n_tune,
                 "beta_ci_lower": beta_ci_lower,
@@ -541,21 +543,37 @@ class BayesianSPM:
 
         return basis
 
+    @staticmethod
+    def _posterior_dim_sizes(posterior: Any) -> Dict[str, int]:
+        """Return posterior dimension sizes (xarray renamed ``.dims`` to ``.sizes``)."""
+        sizes = getattr(posterior, "sizes", None)
+        return sizes if sizes is not None else posterior.dims
+
     def _compute_r_hat(self, trace: Any) -> np.ndarray:
         """Compute R-hat convergence diagnostic."""
         # Simplified R-hat computation
         # In practice, would use proper Gelman-Rubin diagnostic
         try:
-            return np.array([1.0] * trace.posterior.dims["chain"])  # Baseline
+            return np.array([1.0] * self._posterior_dim_sizes(trace.posterior)["chain"])
         except Exception:
+            logger.warning(
+                "R-hat computation failed; reporting baseline 1.0 (not a real "
+                "convergence diagnostic)"
+            )
             return np.array([1.0])
 
     def _compute_ess(self, trace: Any) -> np.ndarray:
         """Compute effective sample size."""
         # Simplified ESS computation
         try:
-            return np.array([len(trace.posterior.draw) * trace.posterior.dims["chain"]])
+            n_draws = len(trace.posterior.draw)
+            n_chains = self._posterior_dim_sizes(trace.posterior)["chain"]
+            return np.array([n_draws * n_chains])
         except Exception:
+            logger.warning(
+                "ESS computation failed; reporting baseline of 1000 (not a real "
+                "effective sample size)"
+            )
             return np.array([1000])  # Baseline
 
     def variational_inference(

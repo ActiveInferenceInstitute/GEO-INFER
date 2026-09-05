@@ -28,90 +28,25 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Import GEO-INFER-ANT modules
-try:
-    from geo_infer_ant.core.agent_base import SwarmAgent
-    from geo_infer_ant.core.population import AgentPopulation
-    from geo_infer_ant.core.stigmergy import PheromoneSystem
-    from geo_infer_ant.core.digital_stigmergy import DigitalStigmergy
-    from geo_infer_ant.algorithms.aco import AntColonyOptimization
-    from geo_infer_ant.algorithms.pso import ParticleSwarmOptimization
-    from geo_infer_ant.algorithms.abc import ArtificialBeeColony
-    from geo_infer_ant.applications.environmental import EnvironmentalMonitoringSwarm
-    from geo_infer_ant.analysis.patterns import SwarmPatternAnalyzer
+# Import GEO-INFER-ANT modules. There is deliberately no mock fallback:
+# a broken environment must fail loudly instead of "demonstrating" with
+# simulated components.
+from geo_infer_ant.core.agent_base import SwarmAgent
+from geo_infer_ant.core.population import AgentPopulation
+from geo_infer_ant.core.stigmergy import PheromoneSystem
+from geo_infer_ant.core.digital_stigmergy import DigitalStigmergy
+from geo_infer_ant.algorithms.aco import AntColonyOptimization
+from geo_infer_ant.algorithms.pso import ParticleSwarmOptimization
+from geo_infer_ant.algorithms.abc import ArtificialBeeColony
+from geo_infer_ant.applications.environmental import EnvironmentalMonitoringSwarm
+from geo_infer_ant.analysis.patterns import SwarmPatternAnalyzer
 
-    logger.info("All GEO-INFER-ANT modules imported successfully")
+import geo_infer_ant
 
-except ImportError as e:
-    logger.error(f"Failed to import GEO-INFER-ANT modules: {e}")
-    logger.info("Running in demonstration mode with simulated components")
-
-    # Fallback classes for demonstration
-    class SwarmAgent:
-        def __init__(self, agent_id, position, **kwargs):
-            self.agent_id = agent_id
-            self.position = np.array(position)
-            self.energy_level = 1.0
-            self.task_memory = []
-
-        def __repr__(self):
-            return f"SwarmAgent({self.agent_id}, pos={self.position})"
-
-    class AgentPopulation:
-        def __init__(self, population_size, **kwargs):
-            self.population_size = population_size
-            self.agents = [
-                SwarmAgent(f"agent_{i}", np.random.uniform(-10, 10, 2))
-                for i in range(population_size)
-            ]
-
-    class PheromoneSystem:
-        def __init__(self, **kwargs):
-            self.pheromone_types = ["trail", "food", "alarm"]
-
-    class DigitalStigmergy:
-        def __init__(self, **kwargs):
-            self.information_types = ["sensor_data", "alerts"]
-
-    class AntColonyOptimization:
-        def __init__(self, number_of_ants=50, **kwargs):
-            self.number_of_ants = number_of_ants
-
-        def solve(self):
-            return type(
-                "Result", (), {"best_solution": [0, 1, 2], "best_fitness": 0.95}
-            )()
-
-    class ParticleSwarmOptimization:
-        def __init__(self, swarm_size=100, **kwargs):
-            self.swarm_size = swarm_size
-
-        def optimize(self, objective_function, bounds=None):
-            return np.array([1.0, 2.0])
-
-    class ArtificialBeeColony:
-        def __init__(self, colony_size=100, **kwargs):
-            self.colony_size = colony_size
-
-        def optimize(self, objective_function, **kwargs):
-            return np.array([0.5, 1.5])
-
-    class EnvironmentalMonitoringSwarm:
-        def __init__(self, swarm_size=200, **kwargs):
-            self.swarm_size = swarm_size
-
-    class SwarmPatternAnalyzer:
-        def __init__(self, **kwargs):
-            pass
-
-        def analyze_spatial_patterns(self, trajectories, **kwargs):
-            return {"patterns_detected": {"clustering": {"n_clusters": 3}}}
-
-        def detect_emergence(self, behaviors, outcomes, **kwargs):
-            return {
-                "emergence_detected": True,
-                "emergence_measures": {"complexity": 0.8},
-            }
+logger.info(
+    "GEO-INFER-ANT %s modules imported successfully",
+    getattr(geo_infer_ant, "__version__", "unknown"),
+)
 
 
 def generate_sample_data():
@@ -675,17 +610,7 @@ async def main():
     logger.info(
         "This demonstrates the complete functionality of the swarm intelligence framework"
     )
-
-    # Check if running in demonstration mode
-    try:
-        import geo_infer_ant
-
-        logger.info(
-            f"Using GEO-INFER-ANT version {getattr(geo_infer_ant, '__version__', 'unknown')}"
-        )
-    except ImportError:
-        logger.warning("Running in demonstration mode - some features may be simulated")
-
+    logger.info(f"Using GEO-INFER-ANT version {geo_infer_ant.__version__}")
     # Run complete demonstration
     results = await run_complete_demonstration()
 

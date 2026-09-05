@@ -6,7 +6,7 @@ distributions, spatial predictions, and uncertainty quantification.
 """
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Union
+from typing import Dict, List, Optional, Sequence, Union
 
 import matplotlib.pyplot as plt
 import numpy as np

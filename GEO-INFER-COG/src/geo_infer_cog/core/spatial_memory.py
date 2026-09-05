@@ -25,8 +25,8 @@ import itertools
 import logging
 import math
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple, Any, Union
+from datetime import datetime
+from typing import Dict, List, Optional, Any
 
 import numpy as np
 
@@ -34,7 +34,6 @@ import numpy as np
 # optional generator so IDs stay collision-free and reproducible.
 _ITEM_ID_SEQUENCE: "itertools.count[int]" = itertools.count(1)
 
-from ..models.user_profiles import UserCognitiveProfile
 from ..utils.rng import resolve_rng
 
 
@@ -389,7 +388,7 @@ class SpatialMemoryModel:
                     "attention_weight": element.get("attention_weight", 0.0),
                 }
 
-                item_id = self.store_spatial_memory(
+                self.store_spatial_memory(
                     content=element_content,
                     memory_type="working",
                     importance=element.get("visual_saliency", 0.5),
@@ -409,7 +408,7 @@ class SpatialMemoryModel:
                     "reasoning_path": conclusion.reasoning_path,
                 }
 
-                item_id = self.store_spatial_memory(
+                self.store_spatial_memory(
                     content=conclusion_content,
                     memory_type="working",
                     importance=conclusion.confidence,
@@ -460,10 +459,6 @@ class SpatialMemoryModel:
                 continue
 
             items_to_remove = []
-            decay_params = self.decay_parameters.get(
-                memory_type, {"rate": 0.1, "interval": 3600}
-            )
-
             for item_id, item in self.memory_storage[memory_type].items():
                 # Apply decay
                 item.decay_memory()

@@ -18,8 +18,6 @@ from typing import (
     List,
     Optional,
     Set,
-    Tuple,
-    Union,
     cast,
 )
 from enum import Enum
@@ -33,7 +31,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 try:
-    import h3
+    import h3 as h3
     H3_AVAILABLE = True
 except ImportError:
     H3_AVAILABLE = False

@@ -25,6 +25,7 @@
 - `examples/`
 - `src/`
 - `tests/`
+- `.gitignore`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`

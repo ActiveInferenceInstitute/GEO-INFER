@@ -16,17 +16,14 @@ bash # From source git clone https://github.com/zachasme/h3-pg.git cd h3-pg make
 sql CREATE EXTENSION h3;
 ```
  #### Core Functions
-```
 ```sql
  -- Convert points to H3 indices SELECT h3_lat_lng_to_cell(37.7749, -122.4194, 9); -- Get the boundary of an H3 cell as a PostGIS geometry SELECT h3_cell_to_boundary('8928308281fffff'::h3index); -- Get H3 indices within a PostGIS geometry SELECT h3_polygon_to_cells( ST_GeomFromText('POLYGON((-122.4089 37.8036, -122.4089 37.7096, -122.3599 37.7096, -122.3599 37.8036, -122.4089 37.8036))'), 9 );
 ```
  #### Creating an H3 Index
-```
 ```sql
  -- Create a table with H3 indices CREATE TABLE h3_data ( h3_index h3index PRIMARY KEY, value NUMERIC ); -- Create an index on the H3 column CREATE INDEX h3_idx ON h3_data (h3_index);
 ```
  #### Efficient Spatial Queries
-```
 ```sql
  -- K-ring query (finding neighboring cells) SELECT h3_grid_disk('8928308281fffff'::h3index, 1); -- Finding all cells within a given distance of a point SELECT h3_cell FROM h3_data WHERE h3_cell IN ( SELECT h3_grid_disk(h3_lat_lng_to_cell(37.7749, -122.4194, 9), 2) );
 ```

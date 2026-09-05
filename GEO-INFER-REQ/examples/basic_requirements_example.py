@@ -1,122 +1,145 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
 Basic requirements engineering example using GEO-INFER-REQ.
 
 This example demonstrates:
-- Requirements management
-- Geospatial user stories
-- Requirements traceability
-- Requirements validation
+- Requirements analysis with dependency graphs and critical paths
+- Traceability links, coverage, and change impact analysis
+- Requirement validation: consistency, conflicts, and feasibility
 """
 
-import sys
-import os
-
-# Add src directory to path
-project_root = os.path.dirname(os.path.dirname(__file__))
-src_path = os.path.join(project_root, 'src')
-if src_path not in sys.path:
-    sys.path.insert(0, src_path)
-
-try:
-    from geo_infer_req.core.requirements import RequirementsEngine
-    from geo_infer_req.models.user_stories import GeospatialUserStory
-    from geo_infer_req.core.traceability import TraceabilityMatrix
-    IMPORTS_AVAILABLE = True
-except ImportError as e:
-    print(f"⚠️  Some imports not available: {e}")
-    IMPORTS_AVAILABLE = False
+from geo_infer_req import (
+    RequirementsAnalyzer,
+    Requirement,
+    RequirementType,
+    PriorityLevel,
+    TraceabilityManager,
+    TraceLink,
+    ArtifactType,
+    RequirementValidator,
+    RequirementSpec,
+)
 
 
-def main():
-    """Run basic requirements engineering example."""
+def main() -> None:
+    """Run the basic requirements engineering example."""
     print("=" * 60)
     print("GEO-INFER-REQ: Basic Requirements Engineering Example")
     print("=" * 60)
-    
-    if not IMPORTS_AVAILABLE:
-        print("\n⚠️  Some required modules are not available.")
-        print("   This example requires full GEO-INFER-REQ installation.")
-        print("\n   GEO-INFER-REQ provides:")
-        print("   • Requirements elicitation and specification")
-        print("   • Geospatial user story management")
-        print("   • Requirements traceability")
-        print("   • Spatial context modeling")
-        print("   • Requirements validation")
-        return
-    
-    # Step 1: Requirements engine
-    print("\n📋 Step 1: Requirements management...")
-    try:
-        engine = RequirementsEngine()
-        print(f"   ✅ Requirements engine initialized")
-        
-        # Add sample requirement
-        requirement = engine.add_requirement(
-            id='REQ-001',
-            description='System shall support spatial data indexing using H3',
-            priority='high',
-            category='functional'
-        )
-        print(f"   ✅ Added requirement: {requirement.get('id', 'N/A')}")
-    except Exception as e:
-        print(f"   ⚠️  Requirements management: {e}")
-    
-    # Step 2: Geospatial user stories
-    print("\n🗺️  Step 2: Geospatial user stories...")
-    try:
-        story = GeospatialUserStory(
-            user_type='analyst',
-            action='analyze',
-            spatial_context='urban areas',
-            business_value='improve urban planning decisions'
-        )
-        print(f"   ✅ Created geospatial user story")
-        print(f"   User: {story.user_type}")
-        print(f"   Spatial context: {story.spatial_context}")
-    except Exception as e:
-        print(f"   ⚠️  User story creation: {e}")
-    
-    # Step 3: Traceability
-    print("\n🔗 Step 3: Requirements traceability...")
-    try:
-        matrix = TraceabilityMatrix()
-        print(f"   ✅ Traceability matrix initialized")
-        print(f"   Capabilities:")
-        print(f"      • Link requirements to design")
-        print(f"      • Track requirement changes")
-        print(f"      • Map requirements to tests")
-        print(f"      • Spatial requirement coverage")
-    except Exception as e:
-        print(f"   ⚠️  Traceability: {e}")
-    
-    # Step 4: Integration
-    print("\n🔗 Step 4: Integration capabilities...")
-    try:
-        print(f"   ✅ GEO-INFER-REQ integrates with:")
-        print(f"      • NORMS: Regulatory requirements")
-        print(f"      • SEC: Security requirements")
-        print(f"      • SPACE: Spatial requirements")
-        print(f"      • APP: Application requirements")
-        print(f"      • ORG: Organizational requirements")
-    except Exception as e:
-        print(f"   ⚠️  Integration info: {e}")
-    
-    # Summary
+
+    # ------------------------------------------------------------------
+    # Step 1: Requirements analysis
+    # ------------------------------------------------------------------
+    print("\nStep 1: Requirements analysis")
+    analyzer = RequirementsAnalyzer()
+    analyzer.add_requirements([
+        Requirement(
+            "R001", "H3 cell indexing",
+            "The system shall support H3 v4 cell indexing for spatial data",
+            RequirementType.FUNCTIONAL,
+            PriorityLevel.HIGH,
+            stakeholders=["platform_team"],
+            acceptance_criteria=["H3 v4 cells encode/decode correctly",
+                                 "API documented"],
+        ),
+        Requirement(
+            "R002", "Query latency",
+            "Spatial queries shall return within 200 ms at p95",
+            RequirementType.PERFORMANCE,
+            PriorityLevel.MEDIUM,
+            dependencies=["R001"],
+            acceptance_criteria=["p95 latency <= 200 ms under load test"],
+        ),
+        Requirement(
+            "R003", "Access control",
+            "All spatial query endpoints shall require authenticated access",
+            RequirementType.SECURITY,
+            PriorityLevel.CRITICAL,
+            stakeholders=["security_team", "platform_team"],
+            acceptance_criteria=["Unauthenticated requests rejected with 401"],
+        ),
+    ])
+
+    graph = analyzer.build_dependency_graph()
+    print(f"  Nodes: {graph.nodes}")
+    print(f"  Edges: {graph.edges}")
+    print(f"  Topological order: {graph.topological_order}")
+    print(f"  Critical path: {graph.critical_path} (depth {graph.depth})")
+    print(f"  Cycles: {graph.cycles}")
+
+    scores = analyzer.compute_priority_scores()
+    print(f"  Priority scores: {scores}")
+
+    completeness = analyzer.check_completeness()
+    print(f"  Completeness: {completeness.completeness_score:.0%}")
+    print(f"  Missing descriptions: {completeness.missing_descriptions}")
+
+    # ------------------------------------------------------------------
+    # Step 2: Traceability
+    # ------------------------------------------------------------------
+    print("\nStep 2: Traceability")
+    tm = TraceabilityManager()
+    tm.register_requirements(["R001", "R002", "R003"])
+    tm.add_trace_links([
+        TraceLink("R001", "src/h3_backend.py", ArtifactType.SOURCE_CODE),
+        TraceLink("R001", "tests/test_h3_backend.py", ArtifactType.TEST_CASE,
+                  verified=True),
+        TraceLink("R002", "tests/test_query_latency.py", ArtifactType.TEST_CASE),
+    ])
+    # R003 has no links yet -> untraced
+
+    coverage = tm.analyze_coverage()
+    print(f"  Coverage ratio: {coverage.coverage_ratio:.0%}")
+    print(f"  Untraced: {coverage.untraced_requirements}")
+
+    impact = tm.analyze_impact("R001")
+    print(f"  Changing R001 affects {impact.affected_count} elements:")
+    print(f"    indirect requirements: {impact.indirectly_affected_requirements}")
+
+    # ------------------------------------------------------------------
+    # Step 3: Validation
+    # ------------------------------------------------------------------
+    print("\nStep 3: Validation")
+    validator = RequirementValidator()
+    validator.add_specs([
+        RequirementSpec(
+            "R001", "H3 cell indexing",
+            "The system shall support H3 v4 cell indexing for spatial data",
+            priority=4, effort_estimate=10.0,
+            tags=["spatial", "backend"],
+            resources_required=["backend_dev"],
+        ),
+        RequirementSpec(
+            "R002", "Query latency",
+            "Spatial queries shall return within 200 ms at p95",
+            priority=2, effort_estimate=5.0,
+            dependencies=["R001"],
+            tags=["spatial", "performance"],
+            resources_required=["backend_dev"],
+        ),
+    ])
+    validator.set_resource_capacity({"backend_dev": 12.0})  # person-days
+
+    consistency = validator.check_consistency()
+    print(f"  Consistent: {consistency.is_consistent}")
+    print(f"  Issues: {consistency.total_issues} "
+          f"(errors: {len(consistency.errors)}, warnings: {len(consistency.warnings)}, "
+          f"info: {len(consistency.info_items)})")
+
+    conflicts = validator.detect_conflicts()
+    print(f"  Conflicts: {conflicts.total_conflicts}")
+    for conflict in conflicts.conflicts:
+        print(f"    [{conflict.severity.value}] {conflict.description}")
+
+    feasibility = validator.assess_feasibility(available_effort=20.0)
+    print(f"  Feasibility: {feasibility.overall_feasibility}")
+    print(f"  Resource utilization: {feasibility.resource_utilization}")
+
     print("\n" + "=" * 60)
-    print("✅ Requirements engineering example complete!")
-    print("=" * 60)
-    print("\nKey capabilities demonstrated:")
-    print("  • Requirements management")
-    print("  • Geospatial user stories")
-    print("  • Requirements traceability")
-    print("  • Spatial context modeling")
-    print("\nNext steps:")
-    print("  • Integrate with NORMS for regulatory compliance")
-    print("  • Connect with SEC for security requirements")
-    print("  • Use with SPACE for spatial requirement specification")
-    print("  • Combine with ORG for organizational requirements")
+    print("Requirements engineering example complete!")
 
 
 if __name__ == "__main__":
     main()
-

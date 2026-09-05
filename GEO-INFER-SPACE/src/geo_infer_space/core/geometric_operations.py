@@ -5,7 +5,7 @@ This module defines the generic interface for geometric operations
 that can be implemented by different backends (H3, SRAI, etc.).
 """
 
-from typing import Any, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, Dict, List, Optional, Tuple, cast
 import logging
 
 logger = logging.getLogger(__name__)

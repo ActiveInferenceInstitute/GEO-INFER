@@ -183,10 +183,9 @@ mk = analyzer.mann_kendall_test(annual_means, alpha=0.05)
 print("\n--- Annual Temperature Trend (Mann-Kendall) ---")
 print(f"Trend: {mk['trend']}")
 print(f"S statistic: {mk['s_statistic']:.0f}")
-print(f"Z-score: {mk['z_score']:.4f}")
+print(f"Z value: {mk['z_value']:.4f}")
 print(f"P-value: {mk['p_value']:.6f}")
-print(f"Sen's slope: {mk['sens_slope']:.5f} deg C/year")
-print(f"Sen's slope per decade: {mk['sens_slope'] * 10:.3f} deg C/decade")
+print(f"Significant: {mk['significant']}")
 ```
 
 ## Step 5: Decadal Comparison

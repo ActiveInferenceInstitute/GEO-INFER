@@ -225,7 +225,6 @@ Re-exported H3 v4 functions for convenience:
 
 Loaded from `config/location_presets.yaml` or hardcoded fallback:
 
-```
 ```yaml
 del_norte:
   name: "Del Norte County, California"

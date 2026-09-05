@@ -1,8 +1,7 @@
 """Energy infrastructure planning module."""
 
 import logging
-from typing import Dict, List, Optional, Tuple
-import numpy as np
+from typing import Dict, Optional
 import xarray as xr
 
 logger = logging.getLogger(__name__)
@@ -36,13 +35,14 @@ class EnergyInfrastructurePlanner:
         """
         # Resource suitability
         resource_suitability = resource_potential / resource_potential.max()
-        
-        # Distance to demand (simplified - would use actual distance calculation)
-        # For now, use inverse distance weighting
-        demand_proximity = demand_centers / (demand_centers.max() + 1e-10)
+
+        # Demand density index: demand_centers normalized by its own maximum.
+        # This is a demand-density proximity proxy, not a geographic distance;
+        # true distance-to-demand requires lat/lon coordinates on the grid.
+        demand_density = demand_centers / (demand_centers.max() + 1e-10)
         
         # Combined suitability
-        suitability = resource_suitability * 0.6 + demand_proximity * 0.4
+        suitability = resource_suitability * 0.6 + demand_density * 0.4
         
         if constraints is not None:
             suitability = suitability * constraints
@@ -55,7 +55,7 @@ class EnergyInfrastructurePlanner:
             'suitability': suitability,
             'optimal_sites': optimal_sites,
             'resource_suitability': resource_suitability,
-            'demand_proximity': demand_proximity
+            'demand_density': demand_density
         })
     
     def assess_infrastructure_capacity(

@@ -133,20 +133,27 @@ class TestAdaptiveDataStorage:
         assert data_id == "test_id_456"
 
     @pytest.mark.asyncio
-    async def test_adaptive_query(self, storage_system):
-        """Test adaptive querying."""
-        # Mock backend retrieve method
-        storage_system.backend_manager.backends["postgresql"].retrieve = AsyncMock(
-            return_value=pd.DataFrame({"id": [1, 2, 3]})
-        )
+    async def test_adaptive_query(self, storage_system, mock_metadata, mock_geodataframe):
+        """Test adaptive querying over datasets stored in this process."""
+        backend = storage_system.backend_manager.backends["postgresql"]
+        backend.store = AsyncMock(return_value="test_id_123")
+
+        await storage_system.store_geospatial_data(mock_geodataframe, mock_metadata)
 
         results = await storage_system.adaptive_query(
             spatial_bounds=[-122.5, 37.7, -122.3, 37.9],
-            temporal_range=(datetime(2023, 1, 1), datetime(2023, 1, 31)),
         )
 
-        assert isinstance(results, pd.DataFrame)
-        assert len(results) == 3
+        assert isinstance(results, gpd.GeoDataFrame)
+        assert len(results) > 0
+
+    @pytest.mark.asyncio
+    async def test_adaptive_query_empty_store(self, storage_system):
+        """An empty store returns an empty result instead of querying 'all'."""
+        results = await storage_system.adaptive_query(
+            spatial_bounds=[-122.5, 37.7, -122.3, 37.9],
+        )
+        assert results == []
 
     def test_backend_selection(self, storage_system, mock_geodataframe, mock_metadata):
         """Test optimal backend selection."""

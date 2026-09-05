@@ -31,17 +31,14 @@ python # Crop growth rate equation dW/dt = f(T, W, N, W) * PAR * LAI * RUE # Whe
 python # Water flow through SPAC ψ_soil - ψ_leaf = R * Q # Where: # ψ_soil = soil water potential (MPa) # ψ_leaf = leaf water potential (MPa) # R = hydraulic resistance (MPa·s/m³) # Q = water flow rate (m³/s)
 ```
  ### Key Concepts #### Crop Modeling The module provides crop modeling capabilities with physiological processes:
-```
 ```python
  from geo_infer_ag import AgriculturalFramework # Create agricultural framework ag_framework = AgriculturalFramework( agricultural_parameters={ 'crop_modeling': 'physiological', 'soil_analysis': 'spatial_variability', 'precision_agriculture': 'variable_rate', 'climate_assessment': 'adaptation_strategies', 'resource_optimization': 'sustainability', 'agricultural_ml': True, 'sustainable_agriculture': True } ) # Model agricultural systems ag_model = ag_framework.model_agricultural_systems( geospatial_data=agricultural_spatial_data, crop_data=crop_information, soil_data=soil_characteristics, climate_data=weather_conditions, management_practices=farming_operations )
 ```
  #### Precision Agriculture with ML Implement precision agriculture techniques with machine learning:
-```
 ```python
  from geo_infer_ag.precision import PrecisionAgricultureEngine # Create precision agriculture engine precision_engine = PrecisionAgricultureEngine( precision_parameters={ 'variable_rate_application': 'ml_optimized', 'soil_mapping': 'high_resolution', 'yield_monitoring': 'real_time', 'remote_sensing': 'multi_spectral', 'gps_guidance': 'autonomous', 'disease_detection': 'ai_based', 'nutrient_optimization': 'predictive' } ) # Implement precision agriculture precision_result = precision_engine.implement_precision_agriculture( agricultural_data=farming_data, soil_data=soil_information, crop_data=crop_characteristics, climate_data=weather_conditions, management_data=farming_operations )
 ```
  ## Core Features ### 1. Crop Modeling Engine **Purpose**: Model crop growth, development, and yield prediction with physiological processes.
-```
 ```python
  from geo_infer_ag.crops import CropModelingEngine # Initialize crop modeling engine crop_engine = CropModelingEngine( modeling_approach='physiological', stress_modeling=True, disease_modeling=True, pest_modeling=True, climate_adaptation=True ) # Define crop modeling parameters crop_config = crop_engine.configure_crop_modeling({ 'growth_model': 'physiological', 'yield_prediction': 'ml_enhanced', 'stress_modeling': 'comprehensive', 'disease_modeling': 'predictive', 'pest_modeling': 'integrated', 'climate_adaptation': 'adaptive', 'nutrient_uptake': 'dynamic', 'water_use_efficiency': True }) # Model crop systems crop_result = crop_engine.model_crop_systems( crop_data=crop_information, soil_data=soil_conditions, climate_data=weather_data, management_data=farming_practices, crop_config=crop_config ) # Get crop insights crop_insights = crop_engine.get_crop_insights( include_stress_analysis=True, include_disease_risk=True, include_yield_optimization=True )
 ```

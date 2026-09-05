@@ -2,10 +2,9 @@
 Soil health modeling and assessment functionality.
 """
 
-from typing import Dict, List, Optional, Union, Any, Tuple
+from typing import Dict, List, Optional, Any
 import numpy as np
 import pandas as pd
-import geopandas as gpd
 from sklearn.ensemble import RandomForestRegressor
 from datetime import datetime
 
@@ -190,7 +189,6 @@ class SoilHealthModel(AgricultureModel):
         self.validate_inputs(data)
         
         # Get field and soil data
-        field_data = data["field_data"]
         soil_data = data["soil_data"]
         
         # Generate predictions based on model type

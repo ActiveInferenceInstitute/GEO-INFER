@@ -9,7 +9,7 @@ import logging
 import uuid
 from datetime import datetime
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Union, Tuple, Set, Callable, cast
+from typing import Dict, List, Any, Optional, Callable, cast
 from enum import Enum
 from collections import defaultdict
 
@@ -22,16 +22,11 @@ except ImportError:
     H3_AVAILABLE = False
     logger.warning("h3-py package not available")
 
-try:
-    import numpy as np
-    NUMPY_AVAILABLE = True
-except ImportError:
-    NUMPY_AVAILABLE = False
-    logger.warning("NumPy not available. Some lumping features will be limited.")
+import numpy as np  # hard dependency (numpy<2.0 pinned); no fallback path
 
 try:
-    from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
-    from sklearn.metrics import silhouette_score
+    from sklearn.cluster import KMeans as KMeans, DBSCAN, AgglomerativeClustering
+    from sklearn.metrics import silhouette_score as silhouette_score
     SKLEARN_AVAILABLE = True
 except ImportError:
     SKLEARN_AVAILABLE = False
@@ -296,10 +291,6 @@ class H3LumpingEngine:
         metric = kwargs.get('metric', SimilarityMetric.EUCLIDEAN)
         attribute_fields = kwargs.get('attribute_fields', ['value'])
         
-        if not NUMPY_AVAILABLE:
-            logger.warning("NumPy required for similarity-based lumping")
-            return self._simple_proximity_lumping(cells)
-        
         # Extract features for similarity calculation
         features = []
         cell_indices = []
@@ -397,8 +388,8 @@ class H3LumpingEngine:
         self, cells: List[Any], **kwargs: Any
     ) -> Dict[str, List[str]]:
         """Lump cells using hierarchical clustering."""
-        if not SKLEARN_AVAILABLE or not NUMPY_AVAILABLE:
-            logger.warning("scikit-learn and NumPy required for hierarchical lumping")
+        if not SKLEARN_AVAILABLE:
+            logger.warning("scikit-learn required for hierarchical lumping")
             return self._simple_proximity_lumping(cells)
         
         n_clusters = kwargs.get('n_clusters', None)
@@ -493,8 +484,8 @@ class H3LumpingEngine:
         self, cells: List[Any], **kwargs: Any
     ) -> Dict[str, List[str]]:
         """Lump cells using density-based clustering."""
-        if not SKLEARN_AVAILABLE or not NUMPY_AVAILABLE:
-            logger.warning("scikit-learn and NumPy required for density-based lumping")
+        if not SKLEARN_AVAILABLE:
+            logger.warning("scikit-learn required for density-based lumping")
             return self._simple_proximity_lumping(cells)
         
         eps = kwargs.get('eps', 0.5)

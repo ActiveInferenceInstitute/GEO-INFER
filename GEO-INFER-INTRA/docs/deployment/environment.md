@@ -21,7 +21,6 @@ uv --version
 
 Create an isolated environment for GEO-INFER development:
 
-```
 ```bash
 # Navigate to the repository root
 cd /path/to/GEO-INFER
@@ -48,7 +47,6 @@ Each module is installed in editable mode (`-e`) so that source changes take eff
 
 ### Development Mode
 
-```
 ```bash
 # Single module
 uv pip install -e ./GEO-INFER-MATH
@@ -66,7 +64,6 @@ done
 
 In production, install without editable mode for smaller footprint:
 
-```
 ```bash
 uv pip install ./GEO-INFER-MATH ./GEO-INFER-SPACE ./GEO-INFER-ACT
 ```
@@ -75,7 +72,6 @@ uv pip install ./GEO-INFER-MATH ./GEO-INFER-SPACE ./GEO-INFER-ACT
 
 Each module has a `pyproject.toml` defining its metadata and dependencies. The root `pyproject.toml` configures shared tooling (Black, isort, mypy, flake8).
 
-```
 ```toml
 # Example: GEO-INFER-MATH/pyproject.toml
 [project]
@@ -154,7 +150,6 @@ GEO-INFER supports three configuration patterns. Use the one that fits your depl
 
 ### YAML Configuration
 
-```
 ```yaml
 # config/geo_infer.yaml
 environment: development
@@ -178,7 +173,6 @@ logging:
 
 Loading YAML configuration:
 
-```
 ```python
 from pathlib import Path
 import yaml
@@ -193,7 +187,6 @@ def load_config(config_path: str = "config/geo_infer.yaml") -> dict:
 
 ### Environment File (.env)
 
-```
 ```bash
 # .env (git-ignored)
 GEO_INFER_ENV=development
@@ -208,7 +201,6 @@ NOAA_API_TOKEN=your_token_here
 
 Loading with `python-dotenv`:
 
-```
 ```python
 from dotenv import load_dotenv
 import os
@@ -221,7 +213,6 @@ db_port = int(os.environ.get("GEO_INFER_DB_PORT", "5432"))
 
 ### JSON Configuration
 
-```
 ```json
 {
   "environment": "production",
@@ -244,7 +235,6 @@ db_port = int(os.environ.get("GEO_INFER_DB_PORT", "5432"))
 
 Use `.env` files (excluded from git via `.gitignore`):
 
-```
 ```bash
 echo ".env" >> .gitignore
 ```
@@ -255,7 +245,6 @@ Use a secrets manager rather than environment files on disk.
 
 **AWS Secrets Manager:**
 
-```
 ```python
 import boto3
 import json
@@ -271,7 +260,6 @@ db_password = db_creds["password"]
 
 **Kubernetes Secrets:**
 
-```
 ```yaml
 # k8s/secrets.yaml
 apiVersion: v1
@@ -287,7 +275,6 @@ stringData:
 
 Mount into pods:
 
-```
 ```yaml
 env:
   - name: GEO_INFER_DB_PASSWORD
@@ -301,7 +288,6 @@ env:
 
 ### Development
 
-```
 ```yaml
 environment: development
 database:
@@ -315,7 +301,6 @@ spatial:
 
 ### Staging
 
-```
 ```yaml
 environment: staging
 database:
@@ -329,7 +314,6 @@ spatial:
 
 ### Production
 
-```
 ```yaml
 environment: production
 database:
@@ -344,7 +328,6 @@ spatial:
 
 Select the configuration at startup:
 
-```
 ```python
 import os
 
@@ -360,7 +343,6 @@ All GEO-INFER modules share the same code quality configuration, defined in the 
 
 Line length 88. Runs on all source files.
 
-```
 ```bash
 # Format a single module
 black GEO-INFER-MATH/src/
@@ -376,7 +358,6 @@ black GEO-INFER-*/src/
 
 Profile set to "black" for compatibility.
 
-```
 ```bash
 # Sort imports for a module
 isort GEO-INFER-MATH/src/
@@ -389,7 +370,6 @@ isort --check-only GEO-INFER-MATH/src/
 
 Strict mode enabled. All function parameters and return values require type annotations.
 
-```
 ```bash
 # Type-check a module
 mypy GEO-INFER-MATH/src/
@@ -400,7 +380,6 @@ mypy --config-file pyproject.toml GEO-INFER-MATH/src/
 
 ### flake8 (Linting)
 
-```
 ```bash
 # Lint a module
 flake8 GEO-INFER-MATH/src/
@@ -408,7 +387,6 @@ flake8 GEO-INFER-MATH/src/
 
 ### Running All Quality Checks
 
-```
 ```bash
 # Full quality sweep for a module
 MODULE="GEO-INFER-MATH"
@@ -422,7 +400,6 @@ flake8 "$MODULE/src/"
 
 ### GitHub Actions Example
 
-```
 ```yaml
 # .github/workflows/test.yml
 name: Test Suite
@@ -494,7 +471,6 @@ jobs:
 
 ### Docker Development Environment
 
-```
 ```dockerfile
 # Dockerfile.dev
 FROM python:3.11-slim
@@ -522,7 +498,6 @@ CMD ["python", "-m", "pytest", "GEO-INFER-TEST/"]
 
 Build and run:
 
-```
 ```bash
 docker build -f Dockerfile.dev -t geo-infer-dev .
 docker run --rm geo-infer-dev

@@ -5,10 +5,8 @@ import time
 import random
 from typing import List, Dict, Any
 from pathlib import Path
-import sys
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from intra_utils.geospatial import (
+from geo_infer_intra.utils.geospatial_utils import (
     create_point,
     create_polygon,
     create_feature,

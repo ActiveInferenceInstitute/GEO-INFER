@@ -10,7 +10,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-from typing import Dict, List, Optional, Any, Set, cast
+from typing import Dict, Optional, Any, Set, cast
 from datetime import datetime, timezone
 
 import websockets
@@ -179,16 +179,48 @@ class WebSocketConnection:
             await self.send_error(f"Processing error: {str(e)}")
 
     async def _handle_authentication(self, data: Dict[str, Any]) -> None:
-        """Handle authentication message."""
+        """Handle authentication message.
+
+        When ``COMMS_JWT_SECRET`` is configured and PyJWT is installed, the
+        token is validated as an HS256 JWT and invalid tokens are rejected.
+        Without JWT validation configured, the user ID is derived from a
+        deterministic hash of the token (the token itself is not verified).
+        """
         token = data.get("token")
         if not token:
             await self.send_error("Authentication token required")
             return
 
-        # In a real implementation, would validate JWT token
-        # For now, accept any token and extract user ID
+        user_id: Optional[str] = None
+
+        try:
+            import jwt as pyjwt
+            import os
+
+            secret = os.environ.get("COMMS_JWT_SECRET", "")
+            if secret:
+                try:
+                    payload = pyjwt.decode(token, secret, algorithms=["HS256"])
+                except Exception as e:
+                    self.logger.warning("Rejected invalid JWT token: %s", e)
+                    await self.send_error("Invalid authentication token")
+                    return
+                user_id = payload.get("sub", payload.get("user_id"))
+                if not user_id:
+                    await self.send_error("Invalid authentication token")
+                    return
+                user_id = str(user_id)
+        except ImportError:
+            pass  # PyJWT unavailable; fall back to hash-derived identity
+
+        if user_id is None:
+            import hashlib
+
+            digest = hashlib.sha256(str(token).encode()).hexdigest()[:8]
+            user_id = f"user_{digest}"
+
         self.authenticated = True
-        self.user_id = f"user_{hash(token) % 10000}"
+        self.user_id = user_id
 
         await self.send_message({
             "type": "authenticated",

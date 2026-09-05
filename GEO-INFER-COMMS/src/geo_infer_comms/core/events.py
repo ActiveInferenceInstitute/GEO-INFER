@@ -12,7 +12,7 @@ from typing import Dict, List, Optional, Callable, Any, Set, cast
 import logging
 import threading
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass, field
 import uuid
 import queue
@@ -25,8 +25,22 @@ from geo_infer_comms.models.message import (
     MessagePriority,
 )
 from geo_infer_comms.models.spatial import GeospatialPoint, SpatialIndex
-from datetime import timedelta
 from geo_infer_comms.utils.validation import validate_event_type, validate_url
+
+
+def _extract_geospatial_coord(ctx: Any, key: str) -> Optional[float]:
+    """Extract a latitude/longitude from geospatial context.
+
+    Accepts either a flat dict ``{key: value}``, a dict with a nested
+    ``location`` dict, or an object exposing the coordinate as an attribute.
+    Returns ``None`` when the coordinate is not available.
+    """
+    if isinstance(ctx, dict):
+        value = ctx.get(key)
+        if value is None and isinstance(ctx.get("location"), dict):
+            value = ctx["location"].get(key)
+        return cast(Optional[float], value)
+    return cast(Optional[float], getattr(ctx, key, None))
 
 
 class EventManager:
@@ -55,6 +69,7 @@ class EventManager:
         # Subscription management
         self.subscriptions: Dict[str, EventSubscriptionResponse] = {}
         self.subscriber_callbacks: Dict[str, List[Callable]] = {}
+        self.subscription_callbacks: Dict[str, Callable] = {}
         self.event_type_subscribers: Dict[str, Set[str]] = {}
 
         # Event processing
@@ -183,7 +198,7 @@ class EventManager:
             if subscriber_id not in self.subscriber_callbacks:
                 self.subscriber_callbacks[subscriber_id] = []
             self.subscriber_callbacks[subscriber_id].append(callback)
-
+            self.subscription_callbacks[subscription_id] = callback
             # Update event type mappings
             for event_type in request.event_types:
                 if event_type not in self.event_type_subscribers:
@@ -210,21 +225,15 @@ class EventManager:
             if subscription_id not in self.subscriptions:
                 return False
 
-            subscription = self.subscriptions[subscription_id]
 
-            # Remove from subscriber callbacks
-            if subscriber_id in self.subscriber_callbacks:
-                # Find and remove the callback
+            # Remove the callback registered for this exact subscription
+            callback = self.subscription_callbacks.pop(subscription_id, None)
+            if callback is not None and subscriber_id in self.subscriber_callbacks:
                 callbacks = self.subscriber_callbacks[subscriber_id]
-                # In a real implementation, would need better callback tracking
-                if callbacks:
-                    callbacks.pop()  # Remove last callback (simplified)
-
-            # Remove from event type mappings
-            for event_type in subscription.event_types:
-                if event_type in self.event_type_subscribers:
-                    self.event_type_subscribers[event_type].discard(subscriber_id)
-
+                if callback in callbacks:
+                    callbacks.remove(callback)
+                if not callbacks:
+                    del self.subscriber_callbacks[subscriber_id]
             # Remove subscription
             del self.subscriptions[subscription_id]
 
@@ -588,19 +597,9 @@ class EventFilter:
             return not filter_config.get("require_location", False)
 
         ctx = event.geospatial_context
-        lat = (
-            getattr(ctx, "latitude", None) or ctx.get("latitude")
-            if isinstance(ctx, dict)
-            else None
+        lat, lon = _extract_geospatial_coord(ctx, "latitude"), _extract_geospatial_coord(
+            ctx, "longitude"
         )
-        lon = (
-            getattr(ctx, "longitude", None) or ctx.get("longitude")
-            if isinstance(ctx, dict)
-            else None
-        )
-
-        if lat is None or lon is None:
-            return cast(bool, filter_config.get("pass_on_missing_coords", True))
 
         # Bounding-box check
         bbox = filter_config.get("bbox")
@@ -611,22 +610,16 @@ class EventFilter:
             ):
                 return False
 
-        # Circular radius check (haversine approximation)
+        # Circular radius check via the shared haversine implementation
         radius_km = filter_config.get("radius_km")
         center = filter_config.get("center")
         if radius_km is not None and center:
-            import math
-
-            R = 6371.0
-            dlat = math.radians(lat - center["lat"])
-            dlon = math.radians(lon - center["lon"])
-            a = (
-                math.sin(dlat / 2) ** 2
-                + math.cos(math.radians(center["lat"]))
-                * math.cos(math.radians(lat))
-                * math.sin(dlon / 2) ** 2
+            point = GeospatialPoint(longitude=lon, latitude=lat)
+            center_point = GeospatialPoint(
+                longitude=cast(float, center["lon"]),
+                latitude=cast(float, center["lat"]),
             )
-            dist_km = R * 2 * math.asin(math.sqrt(a))
+            dist_km = point.distance_to(center_point) / 1000.0
             if dist_km > radius_km:
                 return False
 

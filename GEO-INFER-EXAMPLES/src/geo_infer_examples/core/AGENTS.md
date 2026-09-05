@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `__init__.py`
 - `module_orchestrator.py`
 
 ## Validation

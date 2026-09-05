@@ -6,7 +6,7 @@ including land cover classification, object detection, and semantic segmentation
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional
 
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin

@@ -39,14 +39,20 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# Full Bayesian MCMC path in core.bayesian (falls back to empirical Bayes without it)
+bayesian = [
+    "arviz>=0.12.0",
+    "pymc>=5.0.0",
+]
 dev = [
     "pytest>=6.2.0",
     "pytest-cov>=2.12.0",
     "pytest-asyncio>=0.20.0",
     "black>=21.9.0",
-        "mypy>=0.910",
-        "statsmodels>=0.13.0",
-    ]
+    "mypy>=0.910",
+    "psutil>=5.8.0",
+    "statsmodels>=0.13.0",
+]
 docs = [
     "sphinx>=4.2.0",
     "sphinx-rtd-theme>=1.0.0",

@@ -2,10 +2,9 @@
 Agricultural analysis core functionality providing methods for analyzing agricultural data.
 """
 
-from typing import Dict, List, Optional, Union, Any
+from typing import Dict, Optional, Any
 import pandas as pd
 import geopandas as gpd
-import numpy as np
 from datetime import datetime
 
 from geo_infer_ag.models.base import AgricultureModel

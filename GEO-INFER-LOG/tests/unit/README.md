@@ -4,9 +4,11 @@ Unit workspace within `GEO-INFER-LOG`.
 
 ## Contents
 
+- `test_api_state.py`
 - `test_core.py`
 - `test_delivery.py`
 - `test_geo_utils.py`
+- `test_observability.py`
 - `test_optimization.py`
 - `test_supply_chain.py`
 - `test_transport.py`
@@ -29,8 +31,13 @@ Unit workspace within `GEO-INFER-LOG`.
 - `pandas>=1.3.0`
 - `geopandas>=0.10.0`
 - `networkx>=2.6.0`
-- `pulp>=2.7.0`
+- `pulp>=2.7.0,<3`
 - `shapely>=1.8.0`
+- `pydantic>=2.0.0`
+- `fastapi>=0.100.0`
+- `scipy>=1.9.0`
+- `matplotlib>=3.5.0`
+- `folium>=0.14.0`
 
 
 ## Validation

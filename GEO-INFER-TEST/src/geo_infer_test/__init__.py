@@ -16,7 +16,7 @@ Key Features:
 """
 
 # Import core models
-from .models.types import TestResult, ValidationRule
+from .models.types import TestOutcome, ValidationRule
 
 # Import validators
 from .core.validators import (
@@ -54,7 +54,7 @@ __version__ = "0.2.0"
 __all__ = [
     "GeoInferTestRunner",
     "TestConfiguration",
-    "TestResult",
+    "TestOutcome",
     "ValidationRule",
     "BaseValidator",
     "DataQualityValidator",

@@ -292,14 +292,15 @@ class TestDiscoverer:
         for module, test_types in self.discovered_tests.items():
             for test_type, files in test_types.items():
                 for file_path in files:
-                    # Check if the test file mentions other modules
-                    full_path = (
-                        self.base_path
-                        / f"GEO-INFER-{module}"
-                        / "tests"
-                        / test_type
-                        / file_path
+                    # Check if the test file mentions other modules. Files
+                    # discovered directly under tests/ are stored under the
+                    # synthetic key "general"; reconstruct their real location
+                    # (tests/<file>) instead of the non-existent tests/general/.
+                    tests_dir = self.base_path / f"GEO-INFER-{module}" / "tests"
+                    base_dir = (
+                        tests_dir if test_type == "general" else tests_dir / test_type
                     )
+                    full_path = base_dir / file_path
 
                     if full_path.exists():
                         metadata = self.analyze_test_file(full_path)
