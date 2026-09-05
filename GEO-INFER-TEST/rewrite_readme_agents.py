@@ -1261,10 +1261,7 @@ def main() -> int:
 
     readme_count = sum(1 for path, _ in expected if path.name == "README.md")
     agents_count = sum(1 for path, _ in expected if path.name == "AGENTS.md")
-    print(
-        f"Rewrote {readme_count} README.md files and "
-        f"{agents_count} AGENTS.md files."
-    )
+    print(f"Rewrote {readme_count} README.md files and {agents_count} AGENTS.md files.")
     return 0
 
 
