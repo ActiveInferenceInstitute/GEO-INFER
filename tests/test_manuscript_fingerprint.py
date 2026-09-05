@@ -8,6 +8,7 @@ irreproducible by the procedure its own glossary describes.
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 from types import ModuleType
 
@@ -106,6 +107,64 @@ def _publish(generator: ModuleType, root: Path, **overrides: str) -> None:
     (data / "manuscript_variables.json").write_text(
         json.dumps(published), encoding="utf-8"
     )
+
+
+class TestConfigDateIsSettleable:
+    """Recording the refreshed config must not move the date it carries."""
+
+    def _commit(self, root: Path, message: str) -> None:
+        env = {
+            "GIT_AUTHOR_NAME": "test",
+            "GIT_AUTHOR_EMAIL": "test@example.invalid",
+            "GIT_COMMITTER_NAME": "test",
+            "GIT_COMMITTER_EMAIL": "test@example.invalid",
+            "PATH": "/usr/bin:/bin:/usr/local/bin:/opt/homebrew/bin",
+            "HOME": str(root.parent),
+        }
+        for args in (["add", "-A"], ["commit", "-q", "-m", message]):
+            subprocess.run(
+                ["git", "-C", str(root), *args],
+                check=True,
+                env=env,
+                capture_output=True,
+            )
+
+    def test_committing_the_refreshed_config_reaches_a_fixed_point(
+        self, generator: ModuleType, manuscript_tree: Path
+    ) -> None:
+        self._commit(manuscript_tree, "add manuscript")
+        generator.refresh_config_metadata(
+            manuscript_tree, generator.config_metadata_values(manuscript_tree)
+        )
+        self._commit(manuscript_tree, "record generated config")
+        # A second refresh after that commit must be a no-op, so a clean-tree
+        # publication build is reachable.
+        assert (
+            generator.refresh_config_metadata(
+                manuscript_tree, generator.config_metadata_values(manuscript_tree)
+            )
+            == ()
+        )
+        assert generator._dirty_file_count(manuscript_tree) == 0
+
+    def test_head_date_would_not_settle(
+        self, generator: ModuleType, manuscript_tree: Path
+    ) -> None:
+        # Why the source date excludes config.yaml: HEAD's date always moves
+        # when the refreshed config is recorded.
+        self._commit(manuscript_tree, "add manuscript")
+        head_before = generator._run_git(
+            manuscript_tree, "show", "-s", "--format=%cI"
+        )
+        source_before = generator._manuscript_source_date(manuscript_tree)
+        assert head_before == source_before
+        (manuscript_tree / "manuscript" / "config.yaml").write_text(
+            (manuscript_tree / "manuscript" / "config.yaml").read_text("utf-8")
+            + "# recorded\n",
+            encoding="utf-8",
+        )
+        self._commit(manuscript_tree, "record generated config")
+        assert generator._manuscript_source_date(manuscript_tree) == source_before
 
 
 class TestCheckMode:

@@ -179,6 +179,7 @@ class RepositoryInventory:
     commit: str
     branch: str
     commit_date: str
+    manuscript_source_date: str
     dirty_file_count: int
     source_hash: str
     modules: tuple[ModuleMetrics, ...]
@@ -213,6 +214,7 @@ class RepositoryInventory:
             "commit": self.commit,
             "branch": self.branch,
             "commit_date": self.commit_date,
+            "manuscript_source_date": self.manuscript_source_date,
             "dirty_file_count": self.dirty_file_count,
             "source_hash": self.source_hash,
             "modules": [asdict(module) for module in self.modules],
@@ -530,6 +532,7 @@ def collect_inventory(
         commit=commit + _dirty_marker(dirty_files),
         branch=_run_git(root, "branch", "--show-current"),
         commit_date=_run_git(root, "show", "-s", "--format=%cI", default="unavailable"),
+        manuscript_source_date=_manuscript_source_date(root),
         dirty_file_count=dirty_files,
         source_hash=_source_hash(root),
         modules=tuple(modules),
@@ -1036,6 +1039,8 @@ def build_variables(
             if inventory.commit_date[:4].isdigit()
             else "unavailable"
         ),
+        "MANUSCRIPT_SOURCE_DATE": inventory.manuscript_source_date,
+        "MANUSCRIPT_SOURCE_YEAR": _research_year(inventory.manuscript_source_date),
         "RESEARCH_SOURCE_HASH": inventory.source_hash,
         "PYTHON_VERSION": inventory.python_version,
         "FIGURE_COUNT": str(len(specs)),
@@ -1077,10 +1082,35 @@ def substitute_manuscript_text(
 
 _CONFIG_OWNED_FIELDS: tuple[tuple[str, str, str], ...] = (
     ("  version: ", "PROJECT_VERSION", "paper.version"),
-    ("  date: ", "RESEARCH_COMMIT_DATE", "paper.date"),
-    ("  year: ", "RESEARCH_YEAR", "publication.year"),
+    ("  date: ", "MANUSCRIPT_SOURCE_DATE", "paper.date"),
+    ("  year: ", "MANUSCRIPT_SOURCE_YEAR", "publication.year"),
     ("  license: ", "PROJECT_LICENSE", "metadata.license"),
 )
+
+
+def _manuscript_source_date(root: Path) -> str:
+    """Commit date of the last change to anything but the generator-owned config.
+
+    ``manuscript/config.yaml`` is tracked *and* generator-owned: it carries the
+    title-page date, derived from git.  Deriving it from ``HEAD`` makes the
+    value un-settleable — recording the refreshed file creates a newer commit
+    whose date the file no longer holds — so a clean-tree publication build
+    could never start.  Excluding the file from its own input reaches a fixed
+    point: committing the refreshed config does not move the date it carries.
+
+    ``RESEARCH_COMMIT_DATE`` is unaffected and still reports ``HEAD``, which is
+    what section 6.3 quotes beside ``RESEARCH_COMMIT``.
+    """
+    return _run_git(
+        root,
+        "log",
+        "-1",
+        "--format=%cI",
+        "--",
+        ":/",
+        ":(top,exclude)manuscript/config.yaml",
+        default="unavailable",
+    )
 
 
 def _research_year(commit_date: str) -> str:
@@ -1096,12 +1126,12 @@ def config_metadata_values(root: Path) -> dict[str, str]:
     ``git show``), which is what lets ``generate`` cross-check the two.
     """
     metadata = _project_metadata(root)
-    commit_date = _run_git(root, "show", "-s", "--format=%cI", default="unavailable")
+    source_date = _manuscript_source_date(root)
     return {
         "PROJECT_VERSION": metadata["version"],
         "PROJECT_LICENSE": metadata["license"],
-        "RESEARCH_COMMIT_DATE": commit_date,
-        "RESEARCH_YEAR": _research_year(commit_date),
+        "MANUSCRIPT_SOURCE_DATE": source_date,
+        "MANUSCRIPT_SOURCE_YEAR": _research_year(source_date),
     }
 
 
