@@ -1,22 +1,93 @@
 # Symbols and Glossary {#sec:symbols_glossary}
 
+## Symbols
+
+The symbols below are the ones this manuscript uses in the Composition
+Contract. Each names a quantity the checkout actually computes and returns;
+none is introduced only for exposition.
+
+- $q(s)$ — the agent's belief over hidden states, held as a probability vector
+  and coerced to one before any free-energy term is computed.
+- $p(s)$ — prior preferences over states, defaulting to the uniform
+  distribution when a caller supplies none.
+- $\hat{p}(o \mid s)$ — the coerced observation likelihood used in the accuracy
+  term.
+- $F$ — variational free energy for a single inference calculation, returned
+  with its `accuracy`, `complexity`, and `entropy` components.
+- $\pi$ — a candidate policy, evaluated and returned as a `PolicyEvaluation`.
+- $G(\pi)$ — expected free energy of a policy, returned with its pragmatic,
+  epistemic, risk, and ambiguity components.
+- $\tilde{q}$, $\tilde{q}^{+}$ — the policy-conditioned predictive
+  distribution and, where the policy supplies one, the expected posterior.
+- $D_{\mathrm{KL}}(\cdot \,\|\, \cdot)$ — Kullback-Leibler divergence, the
+  epistemic term of $G(\pi)$ when an expected posterior is available.
+- $\hat{R}$ — the between-chain convergence diagnostic, reported as `NaN` for a
+  single chain rather than replaced by a scalar.
+- $\alpha$ — the credible-interval significance level, required to satisfy
+  $0 < \alpha < 1$.
+- $z_{T}$ — the $T$-period return level of a fitted extreme-value model.
+
 ## GEO-INFER
 
-The repository-wide framework measured by the manuscript generator.
+The repository-wide framework measured by the manuscript generator: the set of
+`GEO-INFER-*` directories that ship an installable package under `src/`.
+
+## H3
+
+Uber's hexagonal hierarchical geospatial index [@h3_docs]. Cells at resolution
+0 through 15 tile the globe, and each cell has a parent at the next coarser
+resolution and children at the next finer one. GEO-INFER uses that hierarchy
+as an evidence surface for nesting and aggregation, not as a claim of exact
+geometric containment: hexagon children do not tile their parent exactly, so a
+value aggregated across resolutions carries the hierarchy's approximation with
+it.
 
 ## Active Inference
 
 The inference and decision-making methods implemented and tested in
-`GEO-INFER-ACT`.
+`GEO-INFER-ACT`, in which perception and action are both driven by minimizing
+a free-energy quantity rather than by separate objectives
+[@friston_free_energy_2010; @parr_active_inference_2022].
+
+## Free energy
+
+$F$, the scalar a single inference calculation minimizes. In the categorical
+implementation it is complexity minus accuracy: the divergence of the belief
+from the prior preference, less the expected log likelihood of the
+observation under that belief. It is returned as a `FreeEnergyBreakdown`
+carrying those components separately, so a consumer can see which term moved.
+
+## Expected free energy
+
+$G(\pi)$, the scalar used to rank candidate policies before acting. It sums a
+pragmatic term (expected cross-entropy against preferences), a negatively
+weighted epistemic term (information the policy is expected to yield, measured
+as $D_{\mathrm{KL}}(\tilde{q}^{+} \| \tilde{q})$ or, where no expected
+posterior is supplied, as the predictive entropy), and declared risk and
+ambiguity terms. It is distinct from $F$: $F$ scores a belief given an
+observation already received, $G$ scores a policy over observations not yet
+received.
 
 ## Bayesian inference
 
-Probabilistic inference methods implemented and tested in `GEO-INFER-BAYES`.
+Probabilistic inference methods implemented and tested in `GEO-INFER-BAYES`,
+covering approximate Bayesian computation, sequential Monte Carlo, MCMC,
+Hamiltonian Monte Carlo, variational inference, and spatio-temporal Gaussian
+processes [@gelman_bda_2014].
+
+## Posterior
+
+The distribution over parameters after conditioning on data, held in
+`GEO-INFER-BAYES` as a set of draws rather than as a closed form.
+Interval summaries are equal-tailed percentile intervals of those draws, and
+the module refuses to summarize a draw set that is empty or contains
+non-finite values.
 
 ## RISK
 
 Risk, hazard, uncertainty, and resource-lifecycle methods implemented and
-tested in `GEO-INFER-RISK`.
+tested in `GEO-INFER-RISK`, including seeded Monte Carlo propagation and
+fitted extreme-value return levels [@coles_extremes_2001].
 
 ## Evidence surface
 
