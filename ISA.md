@@ -268,7 +268,7 @@ Verification receipt: [space/time/GNN review](GEO-INFER-TEST/docs/gnn_space_time
   missing physical metadata fails visibly.
 - [ ] ISC-GNN-11: pinned paired CI and Windows import-probe workflows run on
   the published revisions; actual hosted results are recorded separately.
-- [ ] ISC-GNN-12: both informative PRs identify ancestry, validation and remaining
+- [x] ISC-GNN-12: both informative PRs identify ancestry, validation and remaining
   external dependencies; pushed branch SHAs match remote refs.
 - Anti: preserve concurrent original checkouts, reject silent matrix repair,
   do not equate CPU fallback with physical GPU validation, and never mark an

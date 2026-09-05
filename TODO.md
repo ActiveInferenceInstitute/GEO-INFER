@@ -32,6 +32,7 @@ this ledger does not authorize full-region downloads or a package release.
 | **TIME-01** | TIME | Real WebSocket/Kafka adapters, explicit replay, bounded event-time buffers, watermark/session/sliding windows, anomaly integration and commit-after-processing. Real local WebSocket and Kafka delivery/replay/resume checks passed. [Migration guide](GEO-INFER-TIME/docs/streaming_migration.md). |
 | **PLACE-01** | PLACE | Installable resumable USGS loader and checksummed 34-reach lower Smith River pilot, with native IDs and full topology before filtering. The expanded envelope is PLACE-02 below; full-region coverage is not claimed and the missing regional boundary remains PLACE-V14. |
 | **PLACE-02** | PLACE | Expanded bounded lower Smith envelope: 59 source reaches, native IDs, checksums and repeat-cache/topology receipts in [ACQUISITION.md](GEO-INFER-PLACE/src/geo_infer_place/hydrography/data/smith_expanded/ACQUISITION.md). Further scaling requires a new bounded acquisition plan. |
+| **GNN-04** | Cross-repository CI | Hosted pinned pairing passed on Python 3.11 and 3.12 at GEO `b0c07568` / GNN `89f3b5e79`, covering categorical/H3/Gaussian/factored artifacts in independent locked environments. [Run and receipts](https://github.com/ActiveInferenceInstitute/GEO-INFER/actions/runs/33938901328). |
 | **SPACE-01 implementation** | SPACE | Lazy device selection, bounded numeric distance joins, float64 CPU references, stable grouping and honest H3 host-topology reporting. Physical-device verification remains SPACE-01 above. |
 | **DOCS-01 implementation** | INTRA | All 44 deterministic HTML/SVG/PNG bundles show computed H3 geometry, illustrative-data labels, artifact checksums and offline fallback. Browser interaction remains DOCS-01 above. |
 
@@ -59,7 +60,6 @@ The [September review ledger](GEO-INFER-TEST/docs/hardening_2026_09.md) records 
 
 | ID | Scope | Acceptance evidence |
 | --- | --- | --- |
-| GNN-04 | Add a reviewed CI pairing of pinned GNN and GEO revisions using validate_gnn_interchange.py. | Both Python versions export and consume categorical/H3 models from independent locked environments; failures retain both revisions and artifact digests. |
 | TEST-GNN-01 | Investigate the observed Python 3.12 PROJ SQLite disk-I/O failure during the combined ACT/SPACE/TIME test process. A fresh integrity probe and all 587 SPACE tests passed separately. | Capture a minimal import/order reproduction, loaded PROJ/GDAL/SQLite versions and file-descriptor state; correct a reproducible cause without suppressing CRS tests or declaring an unverified environment fix. |
 | INTEGRATE-GNN-01 | Merge the GEO and GNN topic branches with their concurrently advancing main checkouts. GNN's topic starts from the existing local fleet baseline `64d49355`. | Preserve concurrent parser/security/module refactors, review ancestry, rerun the paired contract command at the merged revisions, and verify both remote SHAs. |
 
