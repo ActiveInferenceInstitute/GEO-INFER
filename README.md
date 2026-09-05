@@ -32,8 +32,8 @@ domain modeling, agent workflows, and reproducible repository validation in one
 | Modules | 44 |
 | Python source files | 925 |
 | Python test files | 570 |
-| Repository README.md files | 847 |
-| Repository AGENTS.md files | 845 |
+| Repository README.md files | 848 |
+| Repository AGENTS.md files | 846 |
 
 ## Quick Start
 
