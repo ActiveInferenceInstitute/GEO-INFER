@@ -71,6 +71,7 @@ class RepositoryInventory:
     source_hash: str
     modules: tuple[ModuleMetrics, ...]
     test_files_by_category: dict[str, int]
+    h3_test_files: int
     documentation_pages: int
     validator_files: int
     source_files: int
@@ -103,6 +104,7 @@ class RepositoryInventory:
             "source_hash": self.source_hash,
             "modules": [asdict(module) for module in self.modules],
             "test_files_by_category": dict(self.test_files_by_category),
+            "h3_test_files": self.h3_test_files,
             "documentation_pages": self.documentation_pages,
             "validator_files": self.validator_files,
             "source_files": self.source_files,
@@ -309,14 +311,31 @@ def _test_files(root: Path) -> tuple[Path, ...]:
     return tuple(sorted(set(paths)))
 
 
+TEST_CATEGORIES: tuple[str, ...] = ("unit", "integration", "performance", "other")
+
+
 def _test_category(path: Path) -> str:
+    """Classify a test file on the mutually-exclusive directory axis.
+
+    Every test lands in exactly one of :data:`TEST_CATEGORIES`, so the four
+    published category counts always sum to the published total.
+
+    Subject-matter tags such as H3 are deliberately *not* on this axis.  They
+    were, and the bucket was unreachable: an H3 test lives under ``tests/unit``
+    or ``tests/integration`` like any other, matched an earlier branch, and the
+    ``h3`` count published as zero while H3-named files existed.  H3 is now
+    counted orthogonally by :func:`_h3_test_files`.
+    """
     parts = {part.lower() for part in path.parts}
     for category in ("unit", "integration", "performance"):
         if category in parts:
             return category
-    if "h3" in path.name.lower() or "h3" in path.parent.name.lower():
-        return "h3"
     return "other"
+
+
+def _h3_test_files(paths: Iterable[Path]) -> int:
+    """Count H3-named test files, independently of their directory category."""
+    return sum("h3" in path.name.lower() for path in paths)
 
 
 def collect_inventory(
@@ -379,6 +398,7 @@ def collect_inventory(
         source_hash=_source_hash(root),
         modules=tuple(modules),
         test_files_by_category=dict(sorted(category_counts.items())),
+        h3_test_files=_h3_test_files(all_tests),
         documentation_pages=documentation_pages,
         validator_files=validator_files,
         source_files=len(source_files),
@@ -738,10 +758,29 @@ def build_variables(
     *,
     full_validation: bool = False,
 ) -> dict[str, str]:
-    """Return every manuscript replacement from measured inputs."""
+    """Return every manuscript replacement from measured inputs.
+
+    Raises:
+        ValueError: when the published per-category test counts do not sum to
+            the published total, so a distribution that silently loses a bucket
+            fails the build instead of shipping.
+    """
     verification_summary, passed, failed, unrun = _verification_summary(
         verification, full_validation=full_validation
     )
+    distribution = inventory.test_files_by_category
+    unnamed = set(distribution) - set(TEST_CATEGORIES)
+    if unnamed:
+        raise ValueError(
+            "test categories are published individually and must all be named; "
+            f"unnamed: {', '.join(sorted(unnamed))}"
+        )
+    categorised = sum(distribution.values())
+    if categorised != inventory.test_files:
+        raise ValueError(
+            f"test-file distribution sums to {categorised} against a total of "
+            f"{inventory.test_files}"
+        )
     variables: dict[str, str] = {
         "PROJECT_VERSION": inventory.project_version,
         "PROJECT_LICENSE": inventory.project_license,
@@ -758,7 +797,8 @@ def build_variables(
         "PERFORMANCE_TEST_FILE_COUNT": str(
             inventory.test_files_by_category.get("performance", 0)
         ),
-        "H3_TEST_FILE_COUNT": str(inventory.test_files_by_category.get("h3", 0)),
+        "OTHER_TEST_FILE_COUNT": str(inventory.test_files_by_category.get("other", 0)),
+        "H3_TEST_FILE_COUNT": str(inventory.h3_test_files),
         "DOCUMENTATION_PAGE_COUNT": str(inventory.documentation_pages),
         "VALIDATOR_FILE_COUNT": str(inventory.validator_files),
         "RESEARCH_COMMIT": inventory.commit,
