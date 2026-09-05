@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### September 5 GNN, space/time and acquisition integration
+
+- Add explicit GNN Gaussian and factored model contracts alongside categorical
+  and H3 interchange, with bounded validation, source digests and reproducible
+  inference traces. Preserve matrix axes, physical units and declared policies.
+- Correct repeated observation conditioning during legacy policy evaluation;
+  reject nonfinite policy scores and invalid covariance declarations.
+- Add bounded sparse H3 transitions and conservative resolution transfers,
+  including pentagons. Irregular temporal observations require explicit
+  intervening actions and exact prediction counts.
+- Extend source-backed regional display layers and the checksummed lower Smith
+  envelope to 59 reaches. Supervise regional HTTP acquisition in an isolated
+  process with a parent-enforced deadline and bounded cleanup.
+- Pin the merged GNN companion revision. Run paired-contract and Linux/Windows
+  import-probe checks on main pushes, and retain test-category artifacts before
+  the unified runner cleans its output directory.
+- Record verified main integration separately from physical GPU, complete browser,
+  licensed-boundary and Windows regional-worker verification in [TODO.md](TODO.md).
+
+
 
 ### September 4 hardening and integration
 

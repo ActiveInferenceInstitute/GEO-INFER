@@ -287,9 +287,9 @@ Verification: [continuation evidence](GEO-INFER-TEST/docs/gnn_continuation_2026_
   slow-drip request and reaps its worker; byte/feature caps and replay pass.
 - [x] ISC-MAIN-2: the merged GNN revision is pinned and both independent
   environments reproduce all four contracts at the integration revisions.
-- [ ] ISC-MAIN-3: required gates and hosted checks pass for the outgoing GEO
+- [x] ISC-MAIN-3: required gates and hosted checks pass for the outgoing GEO
   revision; paired and portability workflows also run on pushes to main.
-- [ ] ISC-MAIN-4: both PRs are merged and remote main contains the reviewed
+- [x] ISC-MAIN-4: both PRs are merged and remote main contains the reviewed
   commits; isolated local integration revisions match the remote refs.
 - Anti: original dirty checkouts remain untouched; do not force-push, weaken
   tests, publish packages or mark external verification complete.
@@ -297,3 +297,11 @@ Verification: [continuation evidence](GEO-INFER-TEST/docs/gnn_continuation_2026_
 - Worker review: 51 focused acquisition tests pass on Python 3.12. Independent
   review also verified real KeyboardInterrupt cleanup and connection closure.
   The installed-wheel and complete PLACE results are recorded in the PR.
+
+- Main integration verified: GNN `903b9c3391ce277292fd1f3d5626e5fbd66d354a` and GEO
+  `6f15c1000c258accdc765c6d05be7cd49ac0b285` are the actual PR merge commits and matched
+  remote refs. GEO's merge tree is identical to reviewed `2241e645`; its nine
+  hosted checks passed, with 8849 tests and both H3 validators per interpreter.
+  The 44-wheel workflow passed on that source tree. Subsequent documentation
+  closeout retains the same packaged source; exact-main workflow evidence is
+  retained by CI and linked from the merged PR.
