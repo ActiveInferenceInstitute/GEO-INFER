@@ -168,6 +168,7 @@ def test_fresh_build_replaces_same_name_stale_wheel(tmp_path):
     package.mkdir(parents=True)
     source = '__version__ = "0.0.1"\n'
     (package / "__init__.py").write_text(source)
+    source_bytes = (package / "__init__.py").read_bytes()
     (package / "data.json").write_text('{"value": 42}')
     (module / "pyproject.toml").write_text(
         '[build-system]\nrequires = ["setuptools>=61", "wheel"]\n'
@@ -184,7 +185,7 @@ def test_fresh_build_replaces_same_name_stale_wheel(tmp_path):
     assert result.ok, result.error
     assert result.wheel == stale
     with zipfile.ZipFile(result.wheel) as archive:
-        assert archive.read("geo_infer_probe/__init__.py").decode() == source
+        assert archive.read("geo_infer_probe/__init__.py") == source_bytes
         assert archive.read("geo_infer_probe/data.json") == b'{"value": 42}'
 
 

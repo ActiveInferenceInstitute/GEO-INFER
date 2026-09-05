@@ -94,3 +94,17 @@ releases and version tags are outside this change. Hosted GNN corrections add
 entity-safe XML parsing and make the CI matrix select the declared interpreter;
 183 targeted cases and 138 separate Python 3.12 cases passed, with Bandit clear
 of medium/high findings.
+
+Published GEO implementation: `b0c07568372191ffc71efd924e4f6c4525c9a4f2`,
+[PR 8](https://github.com/ActiveInferenceInstitute/GEO-INFER/pull/8). Both topic
+refs matched their remote SHAs. GNN hosted documentation, dependency, MCP,
+security and CodeQL checks passed after the CI corrections; its test jobs and
+GEO hosted jobs were still running when this publication receipt was written.
+The first Windows probe run established child-process cleanup but exposed two
+test-only Unix assumptions (path separators and line endings); the assertions
+now compare native paths and exact original source bytes.
+
+The [pinned paired run](https://github.com/ActiveInferenceInstitute/GEO-INFER/actions/runs/33938901328)
+passed on hosted Linux Python 3.11 and 3.12, exporting all four contracts from
+GNN `89f3b5e79` and consuming them at GEO `b0c07568`. Both checkout identities
+and artifact digests are retained in the workflow artifacts.
