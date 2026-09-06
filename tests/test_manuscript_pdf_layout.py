@@ -174,3 +174,98 @@ class TestBoxWarnings:
             line for line in text.splitlines() if line.startswith("Overfull \\hbox")
         ]
         assert not offenders, "\n".join(offenders)
+
+
+# Physical page 22 of 27 once held the single word "section." plus the folio:
+# the last line of a paragraph stranded by a section break.  The sparsest
+# legitimate page in this manuscript is a section tail before the template's
+# inter-section \newpage, and those hold several hundred characters.  The
+# floor sits well below them and well above a runt line, so it names the
+# defect without pinning the layout.
+MINIMUM_PAGE_CHARACTERS = 200
+
+
+def _page_characters(pdf: Path, page: int) -> int:
+    """Non-whitespace characters on a page, folio excluded."""
+    text = _page_text(pdf, page)
+    return len(re.sub(r"\s+", "", re.sub(r"^\s*\d+\s*$", "", text, flags=re.M)))
+
+
+class TestNoStrandedLines:
+    """A page may not be given over to the tail of a paragraph."""
+
+    def test_no_page_is_nearly_empty(self, rendered_pdf: Path) -> None:
+        completed = subprocess.run(
+            [_tool("pdfinfo"), str(rendered_pdf)],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        pages = next(
+            int(line.split(":", 1)[1])
+            for line in completed.stdout.splitlines()
+            if line.startswith("Pages:")
+        )
+        figure_pages = _figure_pages(rendered_pdf)
+        sparse = [
+            (page, _page_characters(rendered_pdf, page))
+            # Page 1 is the title page, which is sparse by design; a page
+            # carrying a figure is measured by TestFloatPlacement instead.
+            for page in range(2, pages + 1)
+            if page not in figure_pages
+            and _page_characters(rendered_pdf, page) < MINIMUM_PAGE_CHARACTERS
+        ]
+        assert not sparse, (
+            "pages carry fewer than "
+            f"{MINIMUM_PAGE_CHARACTERS} characters: {sparse}"
+        )
+
+
+class TestMonospaceSpansBreakOnlyWhenTheyMustBreak:
+    """A `\\seqsplit` break is invisible, so it may not happen in prose.
+
+    ``research_inv`` / ``entory.json``, ``geo_infer_sp`` / ``ace.nested`` and
+    ``GEO-INFER-R`` / ``ISK`` all shipped split across a line boundary with
+    no hyphen and nothing else to mark the join.  All three fit a 430pt
+    measure several times over; they were split because the threshold was a
+    sixth of the line rather than the line.
+    """
+
+    # Every literal the manuscript sets in prose, drawn from the tokens and
+    # authored spans that were observed to break.  A fragment pair is a
+    # violation only when the two halves are adjacent lines of body text.
+    def test_no_manuscript_literal_is_split_across_lines(
+        self, repo_root: Path, rendered_pdf: Path
+    ) -> None:
+        literals = sorted(
+            {
+                match
+                for source in (repo_root / "output" / "manuscript").glob("*.md")
+                for match in re.findall(
+                    r"`([A-Za-z0-9][A-Za-z0-9_./-]{6,})`",
+                    source.read_text(encoding="utf-8"),
+                )
+            }
+        )
+        assert literals, "the resolved manuscript contains no code spans"
+        completed = subprocess.run(
+            [_tool("pdftotext"), "-layout", str(rendered_pdf), "-"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        lines = [line.rstrip() for line in completed.stdout.splitlines()]
+        offenders: list[str] = []
+        for index in range(len(lines) - 1):
+            tail = re.search(r"[A-Za-z0-9_./-]+$", lines[index])
+            head = re.match(r"[A-Za-z0-9_./-]+", lines[index + 1].lstrip())
+            if tail is None or head is None:
+                continue
+            joined = tail.group(0) + head.group(0)
+            for literal in literals:
+                if joined == literal and tail.group(0) != literal:
+                    offenders.append(
+                        f"{literal!r} split as {tail.group(0)!r} / "
+                        f"{head.group(0)!r}"
+                    )
+        assert not offenders, "\n".join(sorted(set(offenders)))

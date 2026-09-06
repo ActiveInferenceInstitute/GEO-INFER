@@ -43,6 +43,33 @@ are held in agreement rather than one being tuned against the other.
 \renewcommand{\floatpagefraction}{0.85}
 ```
 
+## Widow and orphan lines
+
+TeX's default `\widowpenalty` and `\clubpenalty` are 150, which is cheap
+enough that the page builder will strand a single line of a paragraph across
+a page boundary to balance the page it came from. The template puts a
+`\newpage` between every section file, so a stranded line does not merely sit
+awkwardly at the top of the next page — it gets that whole page to itself.
+Measured on this manuscript: physical page 22 of 27 carried the word
+`section.` and the folio, ten extracted characters against 1,800-3,200 on an
+ordinary page, because the last line of section 7.3's closing paragraph did
+not fit above it.
+
+10000 is the value that forbids the split outright rather than pricing it,
+so a paragraph is either broken with at least two lines on each side of the
+boundary or moved whole. `\brokenpenalty` covers the same case for a
+paragraph whose stranded line is also hyphenated. This is a global setting,
+not a fix aimed at one page: the page it was found on is only where the
+default first became visible, and `test_no_page_is_nearly_empty` reads the
+shipped PDF so the class stays closed.
+
+```latex
+\widowpenalty=10000
+\clubpenalty=10000
+\displaywidowpenalty=10000
+\brokenpenalty=10000
+```
+
 ## Breakable monospace spans
 
 Pandoc emits inline code as `\texttt{...}`, which cannot break. The renderer
@@ -53,23 +80,44 @@ stays unbreakable. Six of the seven commands in the verification table carry a
 `--` flag, and all six ran into the neighbouring Status column; the seventh,
 which has no such flag, was rewritten by the renderer and broke cleanly.
 
-Measuring first keeps the change to the spans that need it: a span narrower
-than a sixth of the line is boxed once and shipped unchanged, and only a wide
-one is re-typeset through `\seqsplit`, which adds break opportunities without
-inserting a character, so the printed command still copies as one string. At
-the full 430pt line that threshold is about twelve monospace characters, close
-to the sixteen-character threshold the renderer applies to the spans it can
-decode; inside a narrow table column it scales down with the column, which is
-where the unbreakable spans actually overflow.
+`\seqsplit` adds break opportunities without inserting a character, so the
+printed command still copies as one string — but for the same reason a break
+it takes is invisible: the reader sees `research_inv` ending a line and
+`entory.json` beginning the next with nothing to mark the join. That is
+acceptable for a span that cannot fit its measure by any other means, and it
+is a defect for one that can. The threshold decides which is which, and a
+sixth of the line was far too low: at the full 430pt measure it is about
+twelve monospace characters, so ordinary prose literals — `GEO-INFER-RISK`,
+`research_inventory.json`, `geo_infer_space.nested` — were all re-typeset
+character by character and all three shipped broken mid-token in the running
+text.
+
+The threshold is now the measure itself. A span no wider than `\linewidth`
+always fits on a line of its own, so it can be shipped unbroken and left to
+the ordinary interword break before it; a span wider than `\linewidth` fits
+nowhere and must be given break opportunities or it overflows. `\linewidth`
+is the *local* measure, so inside Table 3's Command column it is that
+column's width and the long validator commands — several times the column —
+are still split there, which is what the split was introduced for. The bound
+is exact rather than tuned: nothing narrower than its measure can produce an
+overfull box, and `test_the_final_pass_reports_no_overfull_hbox` reads the
+render log to keep that honest.
+
+The renderer's own `\breaktt` is redefined through the same test. It is
+defined ahead of this preamble and splits unconditionally, which is what
+broke `research_inventory.json` in prose — a span the renderer could decode,
+so the `\texttt` threshold above never saw it. One rule now governs both.
 
 ```latex
 \IfFileExists{seqsplit.sty}{\usepackage{seqsplit}}{\newcommand{\seqsplit}[1]{#1}}
 \newsavebox{\GIttbox}
-\protected\def\texttt#1{%
+\protected\def\GIfitorsplit#1{%
   \begingroup\ttfamily
   \sbox\GIttbox{#1}%
-  \ifdim\wd\GIttbox>0.15\linewidth\seqsplit{#1}\else\usebox\GIttbox\fi
+  \ifdim\wd\GIttbox>\linewidth\seqsplit{#1}\else\usebox\GIttbox\fi
   \endgroup}
+\protected\def\texttt#1{\GIfitorsplit{#1}}
+\AtBeginDocument{\protected\def\breaktt#1{\GIfitorsplit{#1}}}
 ```
 
 ## Multi-page tables
