@@ -89,8 +89,13 @@ is reused whenever it still names them. Reuse is the default at every tier,
 including a build that was not asked to verify: a stored record that still
 describes this tree is this build's evidence, and overwriting it with an empty
 one would delete a measured result and republish `not run` in its place. A
-record that names a different tree is never reused, and
-`--rerun-verification` forces the commands to run again.
+record that names a different tree is not this build's measurement, but it is
+not discarded either: a build that ran no command carries it forward with its
+own stamps and publishes the provenance gap, because a stated gap is worth
+more than a deleted measurement. Only an absent, unreadable, or command-free
+record can be replaced by an empty one. `--rerun-verification` declines the
+shortcut and runs the commands again; it does not license deleting a record it
+does not replace.
 
 ## Generated Figures
 

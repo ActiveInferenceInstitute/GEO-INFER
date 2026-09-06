@@ -34,6 +34,8 @@ verification summary.
   before marking this manuscript publication-ready.
 - Treat `passed`, `failed`, and `not run` as distinct states; never convert an
   absent verification record into a passing claim.
+- Never delete an executed-command record a build did not re-measure; carry it
+  forward with its own commit and source hash and publish the gap instead.
 
 ## Generator-Owned Tracked Source
 
@@ -64,4 +66,7 @@ uncommitted working-tree entries when these values were measured was
 `{{RESEARCH_TREE_DIRTY_FILE_COUNT}}`; anything other than zero means the
 measurements describe files on disk rather than the named commit, and the
 commit stamp above carries a `-dirty` or `-unverified` suffix to say so. The
-recorded verification summary is `{{VERIFICATION_STATUS}}`.
+recorded verification summary is `{{VERIFICATION_STATUS}}`. That record is
+{{VERIFICATION_RECORD_PROVENANCE}}: a build that runs no verification command
+republishes the stored record rather than emptying it, so the tree the
+evidence names is stated here and need not be the commit above.
