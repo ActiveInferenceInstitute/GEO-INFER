@@ -42,3 +42,32 @@ are held in agreement rather than one being tuned against the other.
 \renewcommand{\textfraction}{0.08}
 \renewcommand{\floatpagefraction}{0.85}
 ```
+
+## Breakable monospace spans
+
+Pandoc emits inline code as `\texttt{...}`, which cannot break. The renderer
+rewrites long monospace spans to a breakable macro, but only when it can
+decode Pandoc's serialised body: a span containing `--` reaches the `.tex` as
+`-\/-`, whose backslash puts it outside that decoder's contract, and the span
+stays unbreakable. Six of the seven commands in the verification table carry a
+`--` flag, and all six ran into the neighbouring Status column; the seventh,
+which has no such flag, was rewritten by the renderer and broke cleanly.
+
+Measuring first keeps the change to the spans that need it: a span narrower
+than a sixth of the line is boxed once and shipped unchanged, and only a wide
+one is re-typeset through `\seqsplit`, which adds break opportunities without
+inserting a character, so the printed command still copies as one string. At
+the full 430pt line that threshold is about twelve monospace characters, close
+to the sixteen-character threshold the renderer applies to the spans it can
+decode; inside a narrow table column it scales down with the column, which is
+where the unbreakable spans actually overflow.
+
+```latex
+\IfFileExists{seqsplit.sty}{\usepackage{seqsplit}}{\newcommand{\seqsplit}[1]{#1}}
+\newsavebox{\GIttbox}
+\protected\def\texttt#1{%
+  \begingroup\ttfamily
+  \sbox\GIttbox{#1}%
+  \ifdim\wd\GIttbox>0.15\linewidth\seqsplit{#1}\else\usebox\GIttbox\fi
+  \endgroup}
+```
