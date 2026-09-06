@@ -126,6 +126,18 @@ status markers; the fix table above is the resolution evidence. `_BACKLOG`'s ope
 rows (SPACE-01 hardware, DOCS-01 browser, TEST-02 Windows, CI-01 hosted CI,
 PLACE-02/-V14 acquisitions) remain tracked in TODO.md.
 
+**Hosted verification (CI-01) executed at `e87c7703`.** The GNN interchange
+merge initially broke all three hosted workflows; each attributable failure was
+diagnosed and fixed in-flight: `uv.lock` resolved against the consolidated
+dependencies (`c4586205`), companion docs regenerated post-merge (`1655b7b1`),
+the post-reorg INSURANCE governance pin committed into the generator
+(`24c4bf81`), the generator canonicalized under ruff format (`da9c9453`), and
+INTRA package-data aligned with the repo-wide resource-glob convention
+(`e87c7703`). GEO-INFER CI (quality gate, repository contracts including
+packaging, full per-module pytest battery on Python 3.11/3.12 Linux x86),
+import-probe portability, paired GNN interchange and dependency-graph jobs all
+pass at that SHA.
+
 ### September 5 hygiene, completion and report-cleanup wave
 
 - HYG-01 executed as a cleanup wave: repo-wide F401/F841/F811 hygiene sweep,
