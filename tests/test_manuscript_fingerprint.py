@@ -101,6 +101,16 @@ def _publish(generator: ModuleType, root: Path, **overrides: str) -> None:
     generator.refresh_config_metadata(root, generator.config_metadata_values(root))
     published = dict(generator.config_metadata_values(root))
     published["RESEARCH_SOURCE_HASH"] = generator._source_hash(root)
+    # A published bundle carries the verification summary too, and --check
+    # compares it to the record on disk.  There is no record in these trees,
+    # so the only coherent summary is "every defined group unrun".
+    defined = generator.defined_command_groups(full_validation=False)
+    published["VERIFICATION_DEFINED_COUNT"] = str(len(defined))
+    published["VERIFICATION_PASS_COUNT"] = "0"
+    published["VERIFICATION_FAIL_COUNT"] = "0"
+    published["VERIFICATION_UNRUN_COUNT"] = str(len(defined))
+    published["VERIFICATION_STATUS"] = "not run"
+    published["VERIFICATION_RECORD_TIER"] = "default"
     published.update(overrides)
     data = root / "output" / "data"
     data.mkdir(parents=True, exist_ok=True)

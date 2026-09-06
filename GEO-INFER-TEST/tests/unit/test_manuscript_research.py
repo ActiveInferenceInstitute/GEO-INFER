@@ -59,7 +59,9 @@ def test_inventory_counts_live_modules_and_test_files():
 def test_every_authored_variable_has_a_generated_value(tmp_path):
     inventory = collect_inventory(REPO_ROOT)
     specs = generate_figures(inventory, tmp_path / "figures")
-    variables = build_variables(inventory, specs, ())
+    variables = build_variables(
+        inventory, specs, MANUSCRIPT.VerificationRecord.unmeasured()
+    )
 
     tokens: set[str] = set()
     for source in (REPO_ROOT / "manuscript").iterdir():

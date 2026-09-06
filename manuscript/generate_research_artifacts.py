@@ -275,6 +275,39 @@ class VerificationRecord:
         """A record is truthy when it holds at least one executed command."""
         return bool(self.results)
 
+    @property
+    def defined_groups(self) -> tuple[str, ...]:
+        """The command groups this record's own tier defines.
+
+        The denominator every published verification count is taken against.
+        It is read from the record rather than from the build's request
+        because the two diverge routinely: a build that carries a
+        full-validation record forward asked for the default tier, and
+        counting eleven measured outcomes against a seven-group definition is
+        how the manuscript came to publish "9 of 7".  The tier travels with
+        the results, so there is no argument by which a caller can pair them
+        with a definition they were not measured against.
+        """
+        return defined_command_groups(
+            full_validation=self.full_validation_requested
+        )
+
+    @classmethod
+    def unmeasured(cls, *, full_validation: bool = False) -> "VerificationRecord":
+        """A record holding no executed command and naming no tree.
+
+        The stamps are empty rather than borrowed from a build: an unmeasured
+        record has no tree to name, and ``build_variables`` falls back to the
+        inventory's own commit and fingerprint for the fields that must still
+        print something.
+        """
+        return cls(
+            results=(),
+            source_commit="",
+            source_hash="",
+            full_validation_requested=full_validation,
+        )
+
 
 VERIFICATION_COMMANDS: tuple[tuple[str, str], ...] = (
     (
@@ -321,6 +354,12 @@ FULL_VALIDATION_COMMANDS: tuple[tuple[str, str], ...] = (
         "h3-contracts",
         "uv run python GEO-INFER-TEST/run_unified_tests.py --h3-migration",
     ),
+)
+
+
+FULL_VALIDATION_GROUPS = frozenset(name for name, _ in FULL_VALIDATION_COMMANDS)
+ALL_COMMAND_GROUPS = frozenset(
+    name for name, _ in (*VERIFICATION_COMMANDS, *FULL_VALIDATION_COMMANDS)
 )
 
 
@@ -1083,6 +1122,72 @@ def load_matching_verification(
     return stored.results
 
 
+def _prune_undefined_groups(
+    record: VerificationRecord | None,
+) -> VerificationRecord | None:
+    """Drop results for groups no tier defines any more, and say which.
+
+    A result whose group name is outside both command tables cannot be
+    counted against any denominator, so publishing it is the ``9 of 7``
+    arithmetic by another route.  Dropping it is not the deletion
+    :func:`resolve_verification` exists to prevent: that rule protects
+    evidence a build declined to re-measure, and a group the generator no
+    longer defines cannot be re-measured at all.  The names are printed so
+    the removal is never silent.
+
+    Returns:
+        The record with only defined groups kept, or ``None`` when nothing
+        interpretable survives — the same answer a missing record gives, so
+        the caller treats both alike.
+    """
+    if record is None:
+        return None
+    kept = tuple(
+        result for result in record.results if result.name in ALL_COMMAND_GROUPS
+    )
+    dropped = sorted(
+        result.name
+        for result in record.results
+        if result.name not in ALL_COMMAND_GROUPS
+    )
+    if dropped:
+        print(
+            "dropping stored verification results for command groups no tier "
+            f"defines: {', '.join(dropped)}",
+            file=sys.stderr,
+        )
+    if not kept:
+        return None
+    return replace(record, results=kept)
+
+
+def _effective_tier(
+    stored: VerificationRecord | None, *, full_validation: bool
+) -> bool:
+    """Return the tier a build must work at so it narrows no stored record.
+
+    Section 6.2's rule is that a build never deletes an executed-command
+    result it did not re-measure.  A verifying build replaces the record
+    wholesale, so running the default tier over a stored full-validation
+    record deleted the unit and integration results — the two failures — and
+    republished "7 passed, 0 failed".  Widening the run is what makes the
+    replacement lossless: every group the stored record covers is measured
+    again, so nothing is dropped and every published result names this
+    build's own tree.
+
+    A build that is not verifying is unaffected in substance — it replaces
+    nothing — but it publishes at the same tier, so the denominator matches
+    the record it carries forward.
+    """
+    if stored is None:
+        return full_validation
+    if full_validation:
+        return True
+    if stored.full_validation_requested:
+        return True
+    return any(result.name in FULL_VALIDATION_GROUPS for result in stored.results)
+
+
 def resolve_verification(
     root: Path,
     inventory: RepositoryInventory,
@@ -1124,11 +1229,12 @@ def resolve_verification(
         another tree, and an empty record only when there is no stored
         evidence at all.
     """
-    stored = _load_stored_verification(root)
+    stored = _prune_undefined_groups(_load_stored_verification(root))
+    tier = _effective_tier(stored, full_validation=full_validation)
     if reuse_verification and stored is not None and (
         stored.source_hash == inventory.source_hash
         and stored.source_commit == inventory.commit
-        and stored.full_validation_requested == full_validation
+        and stored.full_validation_requested == tier
     ):
         print(
             "reusing the stored verification record for source hash "
@@ -1137,11 +1243,24 @@ def resolve_verification(
         )
         return stored
     if verify:
+        if tier != full_validation:
+            widened = sorted(
+                set(defined_command_groups(full_validation=tier))
+                - set(defined_command_groups(full_validation=full_validation))
+            )
+            print(
+                "widening this run to the full-validation tier: the stored "
+                "record covers "
+                f"{', '.join(widened)}, which this tier does not define. "
+                "Re-measuring them is the only way to replace the record "
+                "without dropping results this build did not re-run.",
+                file=sys.stderr,
+            )
         return VerificationRecord(
-            results=run_verification(root, full_validation=full_validation),
+            results=run_verification(root, full_validation=tier),
             source_commit=inventory.commit,
             source_hash=inventory.source_hash,
-            full_validation_requested=full_validation,
+            full_validation_requested=tier,
         )
     if stored is not None:
         print(
@@ -1156,7 +1275,7 @@ def resolve_verification(
         results=(),
         source_commit=inventory.commit,
         source_hash=inventory.source_hash,
-        full_validation_requested=full_validation,
+        full_validation_requested=tier,
     )
 
 
@@ -1238,6 +1357,11 @@ def _verification_table(
             f"| `{name}` | `{result.command}` | {result.status} | "
             f"{result.return_code} | {result.duration_seconds} |"
         )
+    # A result for a group this tier does not define is an incoherent
+    # record: ``build_variables`` refuses it, because counting it as a pass
+    # against this tier's denominator is exactly the "9 of 7" arithmetic.
+    # These rows exist so a caller inspecting the table directly can see what
+    # the refusal is about rather than seeing the group vanish.
     unrecorded = sorted(set(recorded) - {name for name, _ in commands})
     for name in unrecorded:
         result = recorded[name]
@@ -1323,34 +1447,46 @@ def _verification_provenance(
 def build_variables(
     inventory: RepositoryInventory,
     specs: Sequence[FigureSpec],
-    verification: Sequence[VerificationResult],
-    *,
-    full_validation: bool = False,
-    record_commit: str | None = None,
-    record_source_hash: str | None = None,
+    verification: VerificationRecord,
 ) -> dict[str, str]:
     """Return every manuscript replacement from measured inputs.
 
-    ``record_commit`` and ``record_source_hash`` name the tree the supplied
-    verification results were measured on.  They default to this build's own
-    inventory, which is correct whenever the caller ran the commands or reused
-    a record that still describes this tree; a caller that carried a record
-    forward from another tree passes that record's stamps instead, and the
-    published provenance sentence says so rather than letting the numbers
-    imply they were measured here.
+    The verification evidence arrives as one record rather than as results
+    plus a separately-supplied tier and a separately-supplied pair of stamps.
+    That is the point: the tier the counts are taken against, the results
+    counted, and the tree they were measured on are three views of one
+    measurement, and every published incoherence in this area came from a
+    caller pairing them differently.  There is now no argument by which a
+    caller can hand this function eleven results and a seven-group
+    definition.
 
     Raises:
         ValueError: when the published per-category test counts do not sum to
             the published total, so a distribution that silently loses a bucket
-            fails the build instead of shipping.
+            fails the build instead of shipping; and when the published
+            verification counts do not sum to the published defined-group
+            count, so an incoherent evidence summary fails the build instead
+            of being printed in the abstract.
     """
+    full_validation = verification.full_validation_requested
+    results = verification.results
+    defined = verification.defined_groups
     verification_summary, passed, failed, unrun = _verification_summary(
-        verification, full_validation=full_validation
+        results, full_validation=full_validation
     )
-    measured_commit = record_commit or inventory.commit
-    measured_hash = record_source_hash or inventory.source_hash
+    if passed + failed + unrun != len(defined):
+        raise ValueError(
+            "verification outcomes must partition the defined command groups: "
+            f"{passed} passed + {failed} failed + {unrun} unrun = "
+            f"{passed + failed + unrun} against {len(defined)} defined at the "
+            f"{'full-validation' if full_validation else 'default'} tier "
+            f"({', '.join(defined)}); the record holds "
+            f"{', '.join(sorted(result.name for result in results)) or 'no group'}"
+        )
+    measured_commit = verification.source_commit or inventory.commit
+    measured_hash = verification.source_hash or inventory.source_hash
     verification_provenance = _verification_provenance(
-        verification,
+        results,
         inventory=inventory,
         measured_commit=measured_commit,
         measured_hash=measured_hash,
@@ -1414,11 +1550,12 @@ def build_variables(
         "VERIFICATION_PASS_COUNT": str(passed),
         "VERIFICATION_FAIL_COUNT": str(failed),
         "VERIFICATION_UNRUN_COUNT": str(unrun),
-        "VERIFICATION_DEFINED_COUNT": str(
-            len(defined_command_groups(full_validation=full_validation))
+        "VERIFICATION_DEFINED_COUNT": str(len(defined)),
+        "VERIFICATION_RECORD_TIER": (
+            "full-validation" if full_validation else "default"
         ),
         "VERIFICATION_TABLE": _verification_table(
-            verification, full_validation=full_validation
+            results, full_validation=full_validation
         ),
         "VERIFICATION_RECORD_COMMIT": measured_commit,
         "VERIFICATION_RECORD_SOURCE_HASH": measured_hash,
@@ -1691,6 +1828,14 @@ def generate(
     record; it requests no measurement of its own, and it does not license
     deleting a record this build did not replace.
 
+    ``full_validation`` is a floor, not a ceiling.  A verifying build is
+    widened to cover every command group the stored record already holds,
+    because replacing an eleven-group record with a seven-group one deletes
+    four measured outcomes — which is how ``--verify`` turned a record
+    holding two failures into a published "7 passed, 0 failed".  The tier the
+    build actually measured at travels with the record and is the
+    denominator every published verification count is taken against.
+
     Raises:
         RuntimeError: when the checkout is dirty (or git cannot say) and
             ``allow_dirty`` is not set.  A publication build must not attribute
@@ -1738,14 +1883,7 @@ def generate(
     )
     verification = record.results
     _write_json(_verification_record_path(root), _verification_payload(record))
-    variables = build_variables(
-        inventory,
-        specs,
-        verification,
-        full_validation=full_validation,
-        record_commit=record.source_commit,
-        record_source_hash=record.source_hash,
-    )
+    variables = build_variables(inventory, specs, record)
     _write_json(data_dir / "manuscript_variables.json", variables)
     stale_config = refresh_config_metadata(root, variables, dry_run=True)
     if stale_config:
@@ -1790,7 +1928,7 @@ def generate(
     if publication and not verification:
         raise RuntimeError(
             "refusing to publish an empty evidence record: "
-            f"{len(defined_command_groups(full_validation=full_validation))} "
+            f"{len(record.defined_groups)} "
             "verification command groups are defined and none ran"
         )
     if publication and failed_groups:
@@ -1801,14 +1939,98 @@ def generate(
     return manifest
 
 
+def _published_verification_problems(
+    root: Path, published: Mapping[str, Any]
+) -> list[str]:
+    """Return every way the published counts disagree with the stored record.
+
+    The published summary and the record it summarises are two files, and
+    nothing compared them.  That is how a bundle could ship an abstract
+    reading "of the 7 command groups this build defines, 9 passed" beside a
+    record holding eleven results: both files were internally well-formed and
+    ``--check`` only ever looked at the source hash and four config-owned
+    fields.
+
+    The counts are recomputed here from the record on disk, at the record's
+    own tier, and compared to what the bundle publishes.  A bundle whose
+    denominator was taken at a different tier from the record it republishes
+    is stale in exactly the sense this function exists to detect.
+    """
+    problems: list[str] = []
+    numeric: dict[str, int] = {}
+    for key in (
+        "VERIFICATION_DEFINED_COUNT",
+        "VERIFICATION_PASS_COUNT",
+        "VERIFICATION_FAIL_COUNT",
+        "VERIFICATION_UNRUN_COUNT",
+    ):
+        raw = published.get(key)
+        if not isinstance(raw, str) or not raw.lstrip("-").isdigit():
+            problems.append(f"published variables omit a usable {key}: {raw!r}")
+            continue
+        numeric[key] = int(raw)
+    if len(numeric) == 4:
+        total = (
+            numeric["VERIFICATION_PASS_COUNT"]
+            + numeric["VERIFICATION_FAIL_COUNT"]
+            + numeric["VERIFICATION_UNRUN_COUNT"]
+        )
+        if total != numeric["VERIFICATION_DEFINED_COUNT"]:
+            problems.append(
+                "published verification counts do not partition the defined "
+                f"groups: {numeric['VERIFICATION_PASS_COUNT']} passed + "
+                f"{numeric['VERIFICATION_FAIL_COUNT']} failed + "
+                f"{numeric['VERIFICATION_UNRUN_COUNT']} unrun = {total} "
+                f"against {numeric['VERIFICATION_DEFINED_COUNT']} defined"
+            )
+    stored = _load_stored_verification(root)
+    if stored is None:
+        if numeric.get("VERIFICATION_PASS_COUNT") or numeric.get(
+            "VERIFICATION_FAIL_COUNT"
+        ):
+            problems.append(
+                "published variables report executed command groups but "
+                f"{_verification_record_path(root).relative_to(root).as_posix()} "
+                "holds no record"
+            )
+        return problems
+    tier = stored.full_validation_requested
+    summary, passed, failed, unrun = _verification_summary(
+        stored.results, full_validation=tier
+    )
+    expected: tuple[tuple[str, str], ...] = (
+        ("VERIFICATION_DEFINED_COUNT", str(len(stored.defined_groups))),
+        ("VERIFICATION_PASS_COUNT", str(passed)),
+        ("VERIFICATION_FAIL_COUNT", str(failed)),
+        ("VERIFICATION_UNRUN_COUNT", str(unrun)),
+        ("VERIFICATION_STATUS", summary),
+        ("VERIFICATION_RECORD_TIER", "full-validation" if tier else "default"),
+        ("VERIFICATION_RECORD_COMMIT", stored.source_commit),
+        ("VERIFICATION_RECORD_SOURCE_HASH", stored.source_hash),
+    )
+    for key, want in expected:
+        got = published.get(key)
+        if got != want:
+            problems.append(
+                f"{key} disagrees with the stored verification record: "
+                f"published {got!r}, record says {want!r}"
+            )
+    return problems
+
+
 def check_published_artifacts(root: Path) -> tuple[str, ...]:
     """Return every reason the published artifacts no longer describe the tree.
 
-    Two comparisons, both of which were missing.
+    Three comparisons, all of which were missing.
 
     ``RESEARCH_SOURCE_HASH`` is computed on every run and published in four
     places, but nothing ever compared it to anything: a render that skipped
     regeneration would republish stale counts and exit 0.
+
+    The published verification counts are compared to the record they
+    summarise, at that record's own tier.  Without it a bundle could
+    republish an eleven-result record under a seven-group denominator and
+    exit 0.
 
     ``manuscript/config.yaml`` supplies the title page and is generator-owned.
     It is checked against the *published variables*, not against a fresh read
@@ -1848,6 +2070,7 @@ def check_published_artifacts(root: Path) -> tuple[str, ...]:
             f"manuscript/config.yaml disagrees with the published build: {field}"
             for field in refresh_config_metadata(root, published, dry_run=True)
         )
+    problems.extend(_published_verification_problems(root, published))
     return tuple(problems)
 
 
@@ -1878,8 +2101,10 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         "--check",
         action="store_true",
         help=(
-            "write nothing; exit non-zero when the published source hash or "
-            "the generator-owned config.yaml metadata no longer match the tree"
+            "write nothing; exit non-zero when the published source hash, the "
+            "generator-owned config.yaml metadata, or the published "
+            "verification counts no longer match the tree and the stored "
+            "evidence record"
         ),
     )
     parser.add_argument(

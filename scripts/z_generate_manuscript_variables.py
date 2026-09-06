@@ -23,8 +23,9 @@ Modes:
         ordinary development must work, but it must not claim to be a clean
         commit.  This mode runs no verification command, but it does not
         destroy the record of commands that did run: a stored record naming
-        this source hash, commit, and tier is reused and republished, and only
-        a record describing a different tree is replaced.  Without that, every
+        this source hash, commit, and tier is reused and republished, and a
+        record describing a different tree is carried forward with its own
+        provenance rather than replaced.  Without that, every
         default render — which is what ``stage_03_render.py --project
         GEO-INFER`` performs — would overwrite the evidence bundle with an
         empty one and publish ``not run``.
@@ -35,20 +36,22 @@ Modes:
         renderer's bounded hydration timeout — pre-run
         ``python manuscript/generate_research_artifacts.py --verify`` on a
         clean tree first.  A failing group is published with its return code
-        and does not abort the render; only a publication build refuses.
+        and does not abort the render; only a publication build refuses.  The
+        run is widened to cover every group the stored record already holds,
+        because replacing an eleven-group record with a seven-group one would
+        delete measured outcomes this build never re-ran.
     ``GEO_INFER_MANUSCRIPT_FULL_VALIDATION=1``
-        Publish at the full-validation tier without asking for a publication
-        build.  This selects the *denominator* only: it defines all eleven
-        command groups instead of the default seven, and it requests no
-        measurement of its own, so a stored eleven-group record is republished
-        (reused when it names this tree, carried forward with its own
-        provenance when it does not) and no command is ever run inside the
-        renderer's bounded hydration timeout.  Without it, a render that
-        republishes an eleven-group record would count nine passes and two
-        failures against a defined-group count of seven and publish an
-        impossible ``9 of 7``.  It does not relax ``--publication``: a build
-        that carries a failed group is still refused when publication is
-        requested.
+        Request the second tier of command groups without asking for a
+        publication build.  It selects which commands a verifying build
+        *runs*; it does not select the denominator the manuscript publishes
+        against.  That denominator is read from the record itself — from the
+        tier its results were measured at — so a render that republishes an
+        eleven-group record publishes eleven defined groups whether or not
+        this variable is set.  It used to be the only thing standing between
+        the shipped abstract and an impossible ``9 of 7``, which made a
+        correct build depend on an operator remembering an environment
+        variable.  It does not relax ``--publication``: a build that carries
+        a failed group is still refused when publication is requested.
     ``GEO_INFER_MANUSCRIPT_PUBLICATION=1``
         Publication build.  Requires a clean checkout, a non-empty verification
         record with no failures, and runs the full validation suite.
@@ -98,14 +101,19 @@ def _verify_requested() -> bool:
 
 
 def _full_validation_requested() -> bool:
-    """Whether this build defines the second tier of command groups.
+    """Whether this build asks for the second tier of command groups.
 
-    Deliberately does not imply :func:`_verify_requested`.  The tier decides
-    which groups are *defined*, and the summary the manuscript publishes
-    counts recorded outcomes against that definition; asking for the wider
-    definition is not asking to run anything.  Coupling the two would make a
-    render either re-run eleven suites inside a 300-second hydration timeout
-    or publish a record whose pass count exceeds its own denominator.
+    Deliberately does not imply :func:`_verify_requested`: asking for the
+    wider tier is not asking to run anything, and coupling the two would make
+    an ordinary render re-run eleven suites inside a 300-second hydration
+    timeout.
+
+    It is also not the denominator.  The manuscript counts recorded outcomes
+    against the tier the *record* was measured at, which travels with the
+    record, so a render that carries an eleven-group record forward publishes
+    eleven defined groups with this variable unset.  A flag whose absence
+    could publish more passes than defined groups was a denominator in the
+    wrong place.
     """
     return _enabled(FULL_VALIDATION_ENV) or _publication_requested()
 

@@ -45,7 +45,9 @@ class TestH3TestFiles:
         self, generator: ModuleType, repo_inventory
     ) -> None:
         variables = generator.build_variables(
-            repo_inventory, _figure_specs(generator), (), full_validation=False
+            repo_inventory,
+            _figure_specs(generator),
+            generator.VerificationRecord.unmeasured(),
         )
         assert int(variables["H3_TEST_FILE_COUNT"]) > 0
 
@@ -76,7 +78,9 @@ class TestCategoryDistribution:
         self, generator: ModuleType, repo_inventory
     ) -> None:
         variables = generator.build_variables(
-            repo_inventory, _figure_specs(generator), (), full_validation=False
+            repo_inventory,
+            _figure_specs(generator),
+            generator.VerificationRecord.unmeasured(),
         )
         parts = sum(
             int(variables[f"{name.upper()}_TEST_FILE_COUNT"])
@@ -89,7 +93,9 @@ class TestCategoryDistribution:
         self, generator: ModuleType, repo_inventory
     ) -> None:
         variables = generator.build_variables(
-            repo_inventory, _figure_specs(generator), (), full_validation=False
+            repo_inventory,
+            _figure_specs(generator),
+            generator.VerificationRecord.unmeasured(),
         )
         assert variables["OTHER_TEST_FILE_COUNT"] == str(
             repo_inventory.test_files_by_category.get("other", 0)
@@ -107,7 +113,9 @@ class TestCategoryDistribution:
         )
         with pytest.raises(ValueError, match="distribution sums to"):
             generator.build_variables(
-                broken, _figure_specs(generator), (), full_validation=False
+                broken,
+                _figure_specs(generator),
+                generator.VerificationRecord.unmeasured(),
             )
 
     def test_an_unnamed_category_fails_the_build(
@@ -124,7 +132,9 @@ class TestCategoryDistribution:
         )
         with pytest.raises(ValueError, match="unnamed"):
             generator.build_variables(
-                broken, _figure_specs(generator), (), full_validation=False
+                broken,
+                _figure_specs(generator),
+                generator.VerificationRecord.unmeasured(),
             )
 
 

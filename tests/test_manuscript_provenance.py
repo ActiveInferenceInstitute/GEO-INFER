@@ -81,7 +81,9 @@ class TestVerificationUnrunCount:
         self, generator: ModuleType, repo_inventory
     ) -> None:
         variables = generator.build_variables(
-            repo_inventory, _figure_specs(generator), (), full_validation=False
+            repo_inventory,
+            _figure_specs(generator),
+            generator.VerificationRecord.unmeasured(),
         )
         assert variables["VERIFICATION_UNRUN_COUNT"] == str(
             len(generator.VERIFICATION_COMMANDS)
@@ -142,7 +144,9 @@ class TestWorkingTreeProvenance:
         self, generator: ModuleType, repo_inventory
     ) -> None:
         variables = generator.build_variables(
-            repo_inventory, _figure_specs(generator), (), full_validation=False
+            repo_inventory,
+            _figure_specs(generator),
+            generator.VerificationRecord.unmeasured(),
         )
         published = variables["RESEARCH_TREE_DIRTY_FILE_COUNT"]
         if repo_inventory.dirty_file_count < 0:

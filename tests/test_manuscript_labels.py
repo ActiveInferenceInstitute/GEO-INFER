@@ -45,7 +45,9 @@ class TestValidatorCount:
         self, generator: ModuleType, repo_inventory
     ) -> None:
         variables = generator.build_variables(
-            repo_inventory, _figure_specs(generator), (), full_validation=False
+            repo_inventory,
+            _figure_specs(generator),
+            generator.VerificationRecord.unmeasured(),
         )
         assert variables["VALIDATOR_FILE_COUNT"] == str(repo_inventory.validator_files)
         assert variables["TEST_TOOLING_FILE_COUNT"] == str(
