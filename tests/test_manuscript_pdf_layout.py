@@ -285,10 +285,10 @@ class TestPreambleDoesNotLeakIntoTheBody:
 
     ``\\language=\\l@nohyphenation`` was injected into a context where ``@`` is
     not a letter, so it parsed as the command ``\\l`` followed by the text
-    ``@nohyphenation`` and that string was typeset in front of all 298
-    monospace spans in the build.  The render exited 0: there was no ``!``
-    error and no missing character, only wrong output, so the template's
-    fail-closed LaTeX gate had nothing to fail on.
+    ``@nohyphenation`` and that string was typeset in front of every monospace
+    span in the build, 298 occurrences in the extracted text.  The render
+    exited 0: there was no ``!`` error and no missing character, only wrong
+    output, so the template's fail-closed LaTeX gate had nothing to fail on.
     """
 
     def test_no_preamble_token_reaches_the_page(

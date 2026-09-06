@@ -157,9 +157,10 @@ The block is wrapped in `\makeatletter`. This file is injected verbatim into
 the document preamble but after the point where `@` is a letter, so
 `\language=\l@nohyphenation` parsed as the command `\l` followed by the text
 `@nohyphenation`: the assignment silently took a different number and the
-string `@nohyphenation` was typeset in front of all 298 monospace spans in
-the build. The template's LaTeX gate did not catch it — there was no `!`
-error and no missing character, only wrong output — which is why
+string `@nohyphenation` was typeset in front of every monospace span in the
+build, 298 occurrences in the extracted text. The template's LaTeX gate did
+not catch it — there was no `!` error and no missing character, only wrong
+output — which is why
 `test_no_preamble_token_reaches_the_page` reads the PDF for the names this
 block defines.
 
