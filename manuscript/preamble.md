@@ -107,15 +107,26 @@ is the *local* measure, so inside Table 3's Command column it is that
 column's width and the long validator commands — several times the column —
 are still split there, which is what the split was introduced for.
 
-The fitting branch sets the span rather than shipping the measuring box. The
-difference is that a box is atomic and a span is not: TeX inserts a
-discretionary after every explicit hyphen, so `GEO-INFER-RISK` can break as
-`GEO-` / `INFER-RISK` with the hyphen printed at the line end. Shipping the
-box instead put a 70pt unbreakable word at the end of a nearly full line and
-produced a 6.9pt overfull box on page 26 — trading an invisible break for a
-word in the margin, which is the same defect wearing different clothes. A
-hyphen break is the one break in an identifier that costs the reader nothing,
-because the character that marks it is already part of the string.
+The fitting branch sets the span rather than shipping the measuring box, and
+opens the one break in an identifier that costs the reader nothing: the
+explicit hyphen, whose own character marks the join. A box is atomic, so
+shipping it put a 70pt unbreakable `GEO-INFER-RISK` at the end of a nearly
+full line on page 26 and produced a 6.9pt overfull box — an invisible break
+traded for a word in the margin, the same defect wearing different clothes.
+
+Setting the span is not enough on its own. TeX inserts the discretionary
+after an explicit hyphen only when the current font declares a hyphen
+character, and `\hyphenchar` is `-1` for the typewriter font while it is `45`
+for the roman: `resource-lifecycle` breaks in prose and `GEO-INFER-RISK` does
+not, measured with `\showthe\hyphenchar\font` in each. Declaring it for the
+monospace font is what makes the break available, and it brings pattern
+hyphenation with it — with the declaration alone and nothing else,
+`documentation` set in a narrow measure came out as `documen-` / `tation`,
+a hyphen inserted into a literal that does not contain one. `\language` set
+to babel's `nohyphenation` inside the same group removes the patterns without
+removing the explicit-hyphen break: measured at a 62pt measure,
+`GEO-INFER-RISK` breaks after a hyphen it already has and `documentation`
+does not break at all.
 
 The renderer's own `\breaktt` is redefined through the same test. It is
 defined ahead of this preamble and splits unconditionally, which is what
@@ -129,16 +140,35 @@ unbreakable when it needed a break, and
 `test_no_manuscript_literal_is_split_across_lines` fails if one was broken
 where no character marks the join.
 
+The block is wrapped in `\makeatletter`. This file is injected verbatim into
+the document preamble but after the point where `@` is a letter, so
+`\language=\l@nohyphenation` parsed as the command `\l` followed by the text
+`@nohyphenation`: the assignment silently took a different number and the
+string `@nohyphenation` was typeset in front of all 298 monospace spans in
+the build. The template's LaTeX gate did not catch it — there was no `!`
+error and no missing character, only wrong output — which is why
+`test_no_preamble_token_reaches_the_page` reads the PDF for the names this
+block defines.
+
 ```latex
 \IfFileExists{seqsplit.sty}{\usepackage{seqsplit}}{\newcommand{\seqsplit}[1]{#1}}
+\makeatletter
 \newsavebox{\GIttbox}
+\newcount\GInohyph
+\GInohyph=\@cclv
+\AtBeginDocument{%
+  \@ifundefined{l@nohyphenation}{}%
+    {\GInohyph=\csname l@nohyphenation\endcsname}}
 \protected\def\GIfitorsplit#1{%
   \begingroup\ttfamily
+  \language=\GInohyph
+  \hyphenchar\font=`\-\relax
   \sbox\GIttbox{#1}%
   \ifdim\wd\GIttbox>\linewidth\seqsplit{#1}\else#1\fi
   \endgroup}
 \protected\def\texttt#1{\GIfitorsplit{#1}}
 \AtBeginDocument{\protected\def\breaktt#1{\GIfitorsplit{#1}}}
+\makeatother
 ```
 
 ## Multi-page tables

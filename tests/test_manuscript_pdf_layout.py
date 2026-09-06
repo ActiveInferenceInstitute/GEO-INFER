@@ -277,3 +277,44 @@ class TestMonospaceSpansBreakOnlyWhenTheyMustBreak:
                         f"{head.group(0)!r}"
                     )
         assert not offenders, "\n".join(sorted(set(offenders)))
+
+
+class TestPreambleDoesNotLeakIntoTheBody:
+    """A preamble macro name in the typeset text means the preamble misparsed.
+
+    ``\\language=\\l@nohyphenation`` was injected into a context where ``@`` is
+    not a letter, so it parsed as the command ``\\l`` followed by the text
+    ``@nohyphenation`` and that string was typeset in front of all 298
+    monospace spans in the build.  The render exited 0: there was no ``!``
+    error and no missing character, only wrong output, so the template's
+    fail-closed LaTeX gate had nothing to fail on.
+    """
+
+    def test_no_preamble_token_reaches_the_page(
+        self, repo_root: Path, rendered_pdf: Path
+    ) -> None:
+        preamble = (repo_root / "manuscript" / "preamble.md").read_text(
+            encoding="utf-8"
+        )
+        names = sorted(
+            {
+                name
+                for name in re.findall(r"\\([A-Za-z@]{4,})", preamble)
+                # A control-sequence name that is also an ordinary English
+                # word would flag the prose that uses it.
+                if not name.isalpha() or name.lower() != name
+            }
+            | {"nohyphenation", "makeatletter", "makeatother"}
+        )
+        assert names, "the preamble defines or calls no control sequences"
+        text = subprocess.run(
+            [_tool("pdftotext"), str(rendered_pdf), "-"],
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout
+        found = sorted({name for name in names if name in text})
+        assert not found, (
+            "preamble control-sequence names appear in the typeset body: "
+            f"{found}"
+        )
