@@ -341,14 +341,20 @@ VERIFICATION_COMMANDS: tuple[tuple[str, str], ...] = (
 )
 
 FULL_VALIDATION_COMMANDS: tuple[tuple[str, str], ...] = (
-    ("unit-tests", "uv run python GEO-INFER-TEST/run_unified_tests.py --category unit"),
+    (
+        "unit-tests",
+        "uv run python GEO-INFER-TEST/run_unified_tests.py "
+        "--category unit --timeout 600",
+    ),
     (
         "integration-tests",
-        "uv run python GEO-INFER-TEST/run_unified_tests.py --category integration",
+        "uv run python GEO-INFER-TEST/run_unified_tests.py "
+        "--category integration --timeout 600",
     ),
     (
         "performance-tests",
-        "uv run python GEO-INFER-TEST/run_unified_tests.py --category performance",
+        "uv run python GEO-INFER-TEST/run_unified_tests.py "
+        "--category performance --timeout 600",
     ),
     (
         "h3-contracts",
