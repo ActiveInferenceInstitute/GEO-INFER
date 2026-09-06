@@ -792,6 +792,7 @@ def render_root_readme(
         (
             "🏛️ Governance, Risk & Domain",
             [
+                "INSURANCE",
                 "RISK",
                 "METAGOV",
                 "NORMS",
@@ -811,6 +812,19 @@ def render_root_readme(
         ),
     ]
     name_set = {m.name for m in modules.values()}
+    themed = {f"GEO-INFER-{n}" for _icon, group in theme_groups for n in group}
+    # The table is read as a map of the whole framework, so a module with no
+    # theme used to vanish from it silently: GEO-INFER-INSURANCE was created by
+    # the RISK-underwriting rename and never added here, and the six rows then
+    # covered 44 of 45 modules while the paragraph above them said 45.
+    unthemed = sorted(name_set - themed)
+    if unthemed:
+        raise SystemExit(
+            "modules with no theme in render_root_readme: "
+            + ", ".join(unthemed)
+            + " -- add them to theme_groups so the table still covers the "
+            "whole framework"
+        )
     theme_rows = []
     for icon, group in theme_groups:
         present = [f"GEO-INFER-{n}" for n in group if f"GEO-INFER-{n}" in name_set]

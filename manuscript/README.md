@@ -29,12 +29,18 @@ Manuscript workspace within GEO-INFER.
 - `generate_research_artifacts.py:collect_inventory` (function)
 - `generate_research_artifacts.py:generate_figures` (function)
 - `generate_research_artifacts.py:write_figure_registry` (function)
+- `generate_research_artifacts.py:load_matching_verification` (function)
 - `generate_research_artifacts.py:run_verification` (function)
+- `generate_research_artifacts.py:defined_command_groups` (function)
 - `generate_research_artifacts.py:build_variables` (function)
 - `generate_research_artifacts.py:substitute_manuscript_text` (function)
+- `generate_research_artifacts.py:config_metadata_values` (function)
 - `generate_research_artifacts.py:refresh_config_metadata` (function)
 - `generate_research_artifacts.py:write_resolved_manuscript` (function)
+- `generate_research_artifacts.py:bibliography_policy` (function)
+- `generate_research_artifacts.py:audit_bibliography` (function)
 - `generate_research_artifacts.py:generate` (function)
+- `generate_research_artifacts.py:check_published_artifacts` (function)
 - `generate_research_artifacts.py:main` (function)
 
 
