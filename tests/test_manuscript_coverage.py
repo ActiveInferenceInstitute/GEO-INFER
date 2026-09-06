@@ -106,6 +106,70 @@ class TestPublicationGate:
         ) + len(generator.FULL_VALIDATION_COMMANDS)
 
 
+class TestHydrationTierSelection:
+    """The published denominator must match the tier the record was measured at."""
+
+    @staticmethod
+    def _shim(repo_root: Path) -> ModuleType:
+        import importlib.util
+
+        path = repo_root / "scripts" / "z_generate_manuscript_variables.py"
+        spec = importlib.util.spec_from_file_location("_shim_under_test", path)
+        assert spec is not None and spec.loader is not None
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def test_a_default_tier_summary_of_a_full_record_reports_more_passes_than_groups(
+        self, generator: ModuleType
+    ) -> None:
+        # This is the arithmetic the tier flag exists to prevent: an
+        # eleven-group record summarised against the seven-group definition
+        # reports more passes than there are defined groups.
+        results = tuple(
+            generator.VerificationResult(
+                name=name,
+                command="x",
+                status="passed",
+                return_code=0,
+                duration_seconds=0.0,
+                output_tail="",
+            )
+            for name in generator.defined_command_groups(full_validation=True)
+        )
+        _status, passed, _failed, _unrun = generator._verification_summary(
+            results, full_validation=False
+        )
+        assert passed > len(generator.defined_command_groups(full_validation=False))
+        _status, passed, _failed, unrun = generator._verification_summary(
+            results, full_validation=True
+        )
+        assert passed == len(generator.defined_command_groups(full_validation=True))
+        assert unrun == 0
+
+    def test_the_tier_flag_selects_the_denominator_without_requesting_a_run(
+        self, repo_root: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        # Asking for the wider definition must not ask the renderer to execute
+        # eleven suites inside its 300-second bounded hydration timeout.
+        shim = self._shim(repo_root)
+        monkeypatch.setenv(shim.FULL_VALIDATION_ENV, "1")
+        monkeypatch.delenv(shim.VERIFY_ENV, raising=False)
+        monkeypatch.delenv(shim.PUBLICATION_ENV, raising=False)
+        assert shim._full_validation_requested() is True
+        assert shim._verify_requested() is False
+        assert shim._publication_requested() is False
+
+    def test_a_publication_build_still_implies_the_full_tier(
+        self, repo_root: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        shim = self._shim(repo_root)
+        monkeypatch.delenv(shim.FULL_VALIDATION_ENV, raising=False)
+        monkeypatch.setenv(shim.PUBLICATION_ENV, "1")
+        assert shim._full_validation_requested() is True
+        assert shim._verify_requested() is True
+
+
 class TestRenderHydrationShim:
     """The template hydrates through ``scripts/z_generate_manuscript_variables.py``."""
 

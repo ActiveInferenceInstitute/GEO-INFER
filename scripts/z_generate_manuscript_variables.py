@@ -36,6 +36,19 @@ Modes:
         ``python manuscript/generate_research_artifacts.py --verify`` on a
         clean tree first.  A failing group is published with its return code
         and does not abort the render; only a publication build refuses.
+    ``GEO_INFER_MANUSCRIPT_FULL_VALIDATION=1``
+        Publish at the full-validation tier without asking for a publication
+        build.  This selects the *denominator* only: it defines all eleven
+        command groups instead of the default seven, and it requests no
+        measurement of its own, so a stored eleven-group record is republished
+        (reused when it names this tree, carried forward with its own
+        provenance when it does not) and no command is ever run inside the
+        renderer's bounded hydration timeout.  Without it, a render that
+        republishes an eleven-group record would count nine passes and two
+        failures against a defined-group count of seven and publish an
+        impossible ``9 of 7``.  It does not relax ``--publication``: a build
+        that carries a failed group is still refused when publication is
+        requested.
     ``GEO_INFER_MANUSCRIPT_PUBLICATION=1``
         Publication build.  Requires a clean checkout, a non-empty verification
         record with no failures, and runs the full validation suite.
@@ -55,6 +68,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 GENERATOR_PATH = PROJECT_ROOT / "manuscript" / "generate_research_artifacts.py"
 PUBLICATION_ENV = "GEO_INFER_MANUSCRIPT_PUBLICATION"
 VERIFY_ENV = "GEO_INFER_MANUSCRIPT_VERIFY"
+FULL_VALIDATION_ENV = "GEO_INFER_MANUSCRIPT_FULL_VALIDATION"
 _TRUTHY = frozenset({"1", "true", "yes", "on"})
 
 
@@ -83,6 +97,19 @@ def _verify_requested() -> bool:
     return _enabled(VERIFY_ENV) or _publication_requested()
 
 
+def _full_validation_requested() -> bool:
+    """Whether this build defines the second tier of command groups.
+
+    Deliberately does not imply :func:`_verify_requested`.  The tier decides
+    which groups are *defined*, and the summary the manuscript publishes
+    counts recorded outcomes against that definition; asking for the wider
+    definition is not asking to run anything.  Coupling the two would make a
+    render either re-run eleven suites inside a 300-second hydration timeout
+    or publish a record whose pass count exceeds its own denominator.
+    """
+    return _enabled(FULL_VALIDATION_ENV) or _publication_requested()
+
+
 def main() -> int:
     if not GENERATOR_PATH.is_file():
         print(f"manuscript generator is missing: {GENERATOR_PATH}", file=sys.stderr)
@@ -90,11 +117,12 @@ def main() -> int:
     generator = _load_generator()
     publication = _publication_requested()
     verify = _verify_requested()
+    full_validation = _full_validation_requested()
     try:
         manifest = generator.generate(
             PROJECT_ROOT,
             verify=verify,
-            full_validation=publication,
+            full_validation=full_validation,
             allow_dirty=not publication,
             publication=publication,
             reuse_verification=True,
