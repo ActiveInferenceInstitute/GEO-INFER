@@ -28,12 +28,14 @@ from pathlib import Path
 import pytest
 
 PDF = Path("output/pdf/GEO-INFER_combined.pdf")
-# A page that carries a figure plus this many words that are not part of any
-# figure caption is a text page with a figure on it, which is what the float
-# parameters exist to produce.  A float page carries the caption and the folio
-# and nothing else, so its count is zero or close to it; an ordinary text page
-# in this manuscript carries 250-350 words.
-MINIMUM_NON_CAPTION_WORDS = 40
+# A float page carries its figure's caption and the folio and nothing else; the
+# page this test was written for held one word besides the caption.  A page
+# that carries a figure and at least a line of body text besides is a text page
+# with a figure on it, which is what the float parameters exist to produce.
+# Measured on this manuscript: the float page held 1, the sparsest legitimate
+# figure page holds 32 (a figure plus a short closing subsection), and an
+# ordinary text page holds 250-350.  The floor sits in that gap.
+MINIMUM_NON_CAPTION_WORDS = 15
 
 
 def _words(text: str) -> list[str]:
