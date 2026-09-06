@@ -78,9 +78,12 @@ Splitting a `longtable` across a page prints one `ignored: Infinite glue
 shrinkage found in box being split` line per split into the render log. It is
 informational — TeX says it ignored the glue, the output is unaffected — and
 it is intrinsic to `longtable`, not to anything this manuscript does. A
-fourteen-line document reproduces it exactly:
+fourteen-line document reproduces it exactly. It is fenced as `tex` on
+purpose: the renderer concatenates every latex-fenced block in this file into
+the document preamble, so an illustrative whole document must never carry that
+fence.
 
-```latex
+```tex
 \documentclass{article}
 \usepackage{booktabs}
 \usepackage{longtable}
