@@ -71,3 +71,33 @@ where the unbreakable spans actually overflow.
   \ifdim\wd\GIttbox>0.15\linewidth\seqsplit{#1}\else\usebox\GIttbox\fi
   \endgroup}
 ```
+
+## Multi-page tables
+
+Splitting a `longtable` across a page prints one `ignored: Infinite glue
+shrinkage found in box being split` line per split into the render log. It is
+informational — TeX says it ignored the glue, the output is unaffected — and
+it is intrinsic to `longtable`, not to anything this manuscript does. A
+fourteen-line document reproduces it exactly:
+
+```latex
+\documentclass{article}
+\usepackage{booktabs}
+\usepackage{longtable}
+\begin{document}
+\begin{longtable}[]{@{}ll@{}}
+\caption{A long table.}\label{tbl:x}\tabularnewline
+\toprule\noalign{}
+Group & Status \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+% 80 rows
+\end{longtable}
+\end{document}
+```
+
+The count therefore tracks how many of the manuscript's tables happen to cross
+a page boundary. Do not shorten a table to lower it: the tables are evidence,
+and the message costs the reader nothing.
