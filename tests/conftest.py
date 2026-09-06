@@ -8,6 +8,7 @@ need their defining module to be importable while the class body executes).
 
 from __future__ import annotations
 
+import hashlib
 import importlib.util
 import subprocess
 import sys
@@ -74,3 +75,45 @@ def git_repo(tmp_path: Path) -> Path:
             ["git", "-C", str(root), *args], check=True, env=env, capture_output=True
         )
     return root
+
+
+def _output_tree_digest(root: Path) -> str:
+    """A fingerprint of the shipped artifact tree, path and content."""
+    output = root / "output"
+    if not output.is_dir():
+        return "absent"
+    digest = hashlib.sha256()
+    for path in sorted(output.rglob("*")):
+        if not path.is_file():
+            continue
+        digest.update(path.relative_to(root).as_posix().encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(hashlib.sha256(path.read_bytes()).digest())
+    return digest.hexdigest()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def shipped_artifacts_are_read_only(repo_root: Path):
+    """Fail the session if any test rewrites the shipped ``output/`` tree.
+
+    ``output/`` is what the repository publishes: the resolved manuscript, the
+    figures, and the evidence record whose commands take minutes to produce.
+    A test that runs the real generator or the real render shim against the
+    real checkout rewrites all three, and a later assertion then certifies
+    whatever it wrote.  Reproduced twice: ``pytest tests/`` replaced the
+    eleven-group evidence bundle with a seven-group one and the suite passed.
+
+    Every test that needs a generator run has a checkout of its own — a
+    synthetic tree, ``git_repo``, or ``shim_checkout``.  This fixture is the
+    gate that keeps it that way, so the rule holds for tests not yet written.
+    """
+    before = _output_tree_digest(repo_root)
+    yield
+    after = _output_tree_digest(repo_root)
+    if before != after:
+        pytest.fail(
+            "the test session rewrote the shipped output/ tree: digest "
+            f"{before[:16]} -> {after[:16]}. Run the generator against a "
+            "checkout of the test's own (see the shim_checkout fixture), "
+            "never against repo_root."
+        )
