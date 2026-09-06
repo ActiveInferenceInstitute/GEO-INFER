@@ -94,8 +94,9 @@ not discarded either: a build that ran no command carries it forward with its
 own stamps and publishes the provenance gap, because a stated gap is worth
 more than a deleted measurement. Only an absent, unreadable, or command-free
 record can be replaced by an empty one. `--rerun-verification` declines the
-shortcut and runs the commands again; it does not license deleting a record it
-does not replace.
+shortcut, so a build that was asked to verify runs the commands again rather
+than reusing a matching record; on its own it asks for no measurement, and it
+never licenses deleting a record it does not replace.
 
 ## Generated Figures
 

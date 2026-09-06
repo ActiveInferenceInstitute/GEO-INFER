@@ -1111,8 +1111,11 @@ def resolve_verification(
     different tree.  A build that ran no command can now only ever add
     provenance to the record; it can never empty it.  The carry-forward is
     not gated on ``reuse_verification``: that flag chooses whether a matching
-    record may stand in for a run, and declining that shortcut is not a
-    licence to delete the measurement.
+    record may stand in for a run this build was already asked to make, and
+    declining that shortcut is not a licence to delete the measurement.  A
+    caller that passes ``reuse_verification=False`` with ``verify=False`` has
+    asked for no measurement at all, and gets the stored record carried
+    forward.
 
     Returns:
         The reused record when a stored one still describes this tree, the
@@ -1683,9 +1686,10 @@ def generate(
     empty record over a populated one at all.  The stored record is carried
     forward with its own commit and source hash, and
     ``{{VERIFICATION_RECORD_PROVENANCE}}`` publishes that it was measured
-    elsewhere.  Pass ``reuse_verification=False`` (``--rerun-verification``)
-    to force the commands to run again; it does not license deleting a record
-    this build did not replace.
+    elsewhere.  ``reuse_verification=False`` (``--rerun-verification``) makes a
+    verifying build run the commands again instead of accepting a matching
+    record; it requests no measurement of its own, and it does not license
+    deleting a record this build did not replace.
 
     Raises:
         RuntimeError: when the checkout is dirty (or git cannot say) and
