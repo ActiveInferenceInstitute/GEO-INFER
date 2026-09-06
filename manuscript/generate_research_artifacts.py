@@ -254,6 +254,28 @@ class VerificationResult:
     output_tail: str
 
 
+@dataclass(frozen=True)
+class VerificationRecord:
+    """The executed-command evidence a build publishes, and the tree it names.
+
+    The results alone are not publishable: a record is only interpretable
+    against the checkout whose commands produced it.  Carrying the commit and
+    source fingerprint alongside the results is what lets a build that ran no
+    command republish a measured record without claiming to have measured this
+    tree — and what lets the manuscript say which tree the numbers came from.
+    """
+
+    results: tuple[VerificationResult, ...]
+    source_commit: str
+    source_hash: str
+    full_validation_requested: bool
+    measured_elsewhere: bool = False
+
+    def __bool__(self) -> bool:
+        """A record is truthy when it holds at least one executed command."""
+        return bool(self.results)
+
+
 VERIFICATION_COMMANDS: tuple[tuple[str, str], ...] = (
     (
         "compile",
@@ -965,27 +987,77 @@ def write_figure_registry(
     )
 
 
-def _verification_payload(
-    results: Sequence[VerificationResult],
-    full_validation: bool,
-    inventory: RepositoryInventory | None = None,
-) -> dict[str, Any]:
+def _verification_payload(record: VerificationRecord) -> dict[str, Any]:
     """Serialise a verification record, stamped with the tree it describes.
 
     The commit and source fingerprint are part of the record because the
     commands are expensive: a later build has to be able to tell whether an
     existing record still describes the checkout in front of it, and an
-    unstamped record cannot answer that.
+    unstamped record cannot answer that.  They are the record's own, never the
+    writing build's: a carried-forward record that got restamped with the
+    commit of the build that merely republished it would look measured here
+    and would never be recognisable as carried forward again.
     """
-    payload: dict[str, Any] = {
+    return {
         "schema_version": RESEARCH_SCHEMA,
-        "full_validation_requested": full_validation,
-        "results": [asdict(result) for result in results],
+        "full_validation_requested": record.full_validation_requested,
+        "results": [asdict(result) for result in record.results],
+        "source_commit": record.source_commit,
+        "source_hash": record.source_hash,
     }
-    if inventory is not None:
-        payload["source_commit"] = inventory.commit
-        payload["source_hash"] = inventory.source_hash
-    return payload
+
+
+UNSTAMPED = "unstamped"
+
+
+def _stamp(value: object) -> str:
+    """Return a record's provenance stamp, or ``UNSTAMPED`` when it has none.
+
+    Records written before the stamps existed hold results and no provenance.
+    Rejecting them would put them back in the class of evidence a
+    non-verifying build may delete, which is the defect.  ``UNSTAMPED`` is not
+    a commit and never equals one, so such a record can never be mistaken for
+    a match — it can only be carried forward and published as unattributed.
+    """
+    return value if isinstance(value, str) and value else UNSTAMPED
+
+
+def _verification_record_path(root: Path) -> Path:
+    """Return the one path the verification record is read from and written to."""
+    return root / "output" / "data" / "research_verification.json"
+
+
+def _load_stored_verification(root: Path) -> VerificationRecord | None:
+    """Return the stored verification record, whatever tree it describes.
+
+    Provenance is reported, not filtered: the caller decides whether a record
+    naming another tree is this build's evidence.  ``None`` means there is no
+    evidence on disk to lose — the file is absent, unreadable, malformed, or
+    holds no executed command — and only then may a build write an empty
+    record over it.
+    """
+    path = _verification_record_path(root)
+    if not path.is_file():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    if not isinstance(payload, Mapping):
+        return None
+    raw = payload.get("results")
+    if not isinstance(raw, list) or not raw:
+        return None
+    try:
+        results = tuple(VerificationResult(**entry) for entry in raw)
+    except TypeError:
+        return None
+    return VerificationRecord(
+        results=results,
+        source_commit=_stamp(payload.get("source_commit")),
+        source_hash=_stamp(payload.get("source_hash")),
+        full_validation_requested=bool(payload.get("full_validation_requested")),
+    )
 
 
 def load_matching_verification(
@@ -999,28 +1071,16 @@ def load_matching_verification(
     was produced at the same tier; anything else returns ``None`` and the
     caller runs the commands.
     """
-    path = root / "output" / "data" / "research_verification.json"
-    if not path.is_file():
+    stored = _load_stored_verification(root)
+    if stored is None:
         return None
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+    if stored.source_hash != inventory.source_hash:
         return None
-    if not isinstance(payload, Mapping):
+    if stored.source_commit != inventory.commit:
         return None
-    if payload.get("source_hash") != inventory.source_hash:
+    if stored.full_validation_requested != full_validation:
         return None
-    if payload.get("source_commit") != inventory.commit:
-        return None
-    if bool(payload.get("full_validation_requested")) != full_validation:
-        return None
-    raw = payload.get("results")
-    if not isinstance(raw, list) or not raw:
-        return None
-    try:
-        return tuple(VerificationResult(**entry) for entry in raw)
-    except TypeError:
-        return None
+    return stored.results
 
 
 def resolve_verification(
@@ -1030,37 +1090,71 @@ def resolve_verification(
     verify: bool,
     full_validation: bool,
     reuse_verification: bool,
-) -> tuple[VerificationResult, ...]:
-    """Return the verification results this build publishes.
+) -> VerificationRecord:
+    """Return the verification record this build publishes.
 
     The reuse lookup runs at every tier, not only when this build was asked to
     verify.  A stored record names the tree it describes, so while it still
     describes this one it is this build's evidence too.  Gating the lookup on
     ``verify`` made a default render — which is what the supported render path
     performs — overwrite a measured record with an empty one and republish
-    "not run" in its place: an absent record converted into a claim, which is
-    exactly what the manuscript's own contract forbids.
+    "not run" in its place.
+
+    Matching on identity alone was not enough.  ``inventory.commit`` carries a
+    ``-dirty`` suffix the moment ``git status --porcelain`` prints a line, so a
+    single untracked file, or any commit made after the evidence was measured,
+    made the lookup miss and the empty record win again.  That is not a rare
+    state: it is every render taken during ordinary development.  So a record
+    that does not match is still not discarded — it is carried forward with
+    its own commit and source hash intact, and the manuscript publishes those
+    alongside this build's, so a reader can see the evidence was measured on a
+    different tree.  A build that ran no command can now only ever add
+    provenance to the record; it can never empty it.  The carry-forward is
+    not gated on ``reuse_verification``: that flag chooses whether a matching
+    record may stand in for a run, and declining that shortcut is not a
+    licence to delete the measurement.
 
     Returns:
-        The reused record when one still describes this tree, the freshly run
-        commands when this build was asked to verify, and an empty tuple
-        otherwise.  The caller publishes whatever comes back, so an empty
-        tuple only ever replaces a record that describes some other tree.
+        The reused record when a stored one still describes this tree, the
+        freshly run commands when this build was asked to verify, the stored
+        record marked ``measured_elsewhere`` when one exists but describes
+        another tree, and an empty record only when there is no stored
+        evidence at all.
     """
-    if reuse_verification:
-        reused = load_matching_verification(
-            root, inventory, full_validation=full_validation
+    stored = _load_stored_verification(root)
+    if reuse_verification and stored is not None and (
+        stored.source_hash == inventory.source_hash
+        and stored.source_commit == inventory.commit
+        and stored.full_validation_requested == full_validation
+    ):
+        print(
+            "reusing the stored verification record for source hash "
+            f"{inventory.source_hash}",
+            file=sys.stderr,
         )
-        if reused is not None:
-            print(
-                "reusing the stored verification record for source hash "
-                f"{inventory.source_hash}",
-                file=sys.stderr,
-            )
-            return reused
+        return stored
     if verify:
-        return run_verification(root, full_validation=full_validation)
-    return ()
+        return VerificationRecord(
+            results=run_verification(root, full_validation=full_validation),
+            source_commit=inventory.commit,
+            source_hash=inventory.source_hash,
+            full_validation_requested=full_validation,
+        )
+    if stored is not None:
+        print(
+            "carrying the stored verification record forward: it was measured "
+            f"at commit {stored.source_commit} (source hash "
+            f"{stored.source_hash}), not at this build's {inventory.commit} "
+            f"(source hash {inventory.source_hash})",
+            file=sys.stderr,
+        )
+        return replace(stored, measured_elsewhere=True)
+    return VerificationRecord(
+        results=(),
+        source_commit=inventory.commit,
+        source_hash=inventory.source_hash,
+        full_validation_requested=full_validation,
+    )
 
 
 def run_verification(
@@ -1184,14 +1278,63 @@ def _verification_summary(
     return f"{passed} passed", passed, failed, unrun
 
 
+def _verification_provenance(
+    results: Sequence[VerificationResult],
+    *,
+    inventory: RepositoryInventory,
+    measured_commit: str,
+    measured_hash: str,
+) -> str:
+    """State which tree the published verification results were measured on.
+
+    A record can outlive the tree it describes: the commands take minutes, the
+    render is bounded, and the commit stamp gains a ``-dirty`` suffix as soon
+    as one file in the checkout differs.  Discarding the record in that state
+    deleted real evidence; republishing it silently would attribute measured
+    outcomes to a tree they never ran against.  This sentence is the third
+    option — publish the evidence and name its tree — and it is generated, so
+    the manuscript cannot drift from what the record actually says.
+    """
+    if not results:
+        return (
+            "holding no executed command: none ran for this build and no "
+            "stored record was available, so every defined group is published "
+            "as not run"
+        )
+    same_tree = (
+        measured_commit == inventory.commit and measured_hash == inventory.source_hash
+    )
+    if same_tree:
+        return (
+            f"measured on this build's own tree, commit `{measured_commit}` "
+            f"(source hash `{measured_hash}`)"
+        )
+    return (
+        f"carried forward from commit `{measured_commit}` (source hash "
+        f"`{measured_hash}`); the commands were not re-run against this "
+        f"build's tree, whose commit is `{inventory.commit}` (source hash "
+        f"`{inventory.source_hash}`)"
+    )
+
+
 def build_variables(
     inventory: RepositoryInventory,
     specs: Sequence[FigureSpec],
     verification: Sequence[VerificationResult],
     *,
     full_validation: bool = False,
+    record_commit: str | None = None,
+    record_source_hash: str | None = None,
 ) -> dict[str, str]:
     """Return every manuscript replacement from measured inputs.
+
+    ``record_commit`` and ``record_source_hash`` name the tree the supplied
+    verification results were measured on.  They default to this build's own
+    inventory, which is correct whenever the caller ran the commands or reused
+    a record that still describes this tree; a caller that carried a record
+    forward from another tree passes that record's stamps instead, and the
+    published provenance sentence says so rather than letting the numbers
+    imply they were measured here.
 
     Raises:
         ValueError: when the published per-category test counts do not sum to
@@ -1200,6 +1343,14 @@ def build_variables(
     """
     verification_summary, passed, failed, unrun = _verification_summary(
         verification, full_validation=full_validation
+    )
+    measured_commit = record_commit or inventory.commit
+    measured_hash = record_source_hash or inventory.source_hash
+    verification_provenance = _verification_provenance(
+        verification,
+        inventory=inventory,
+        measured_commit=measured_commit,
+        measured_hash=measured_hash,
     )
     distribution = inventory.test_files_by_category
     unnamed = set(distribution) - set(TEST_CATEGORIES)
@@ -1266,6 +1417,9 @@ def build_variables(
         "VERIFICATION_TABLE": _verification_table(
             verification, full_validation=full_validation
         ),
+        "VERIFICATION_RECORD_COMMIT": measured_commit,
+        "VERIFICATION_RECORD_SOURCE_HASH": measured_hash,
+        "VERIFICATION_RECORD_PROVENANCE": verification_provenance,
     }
     for module in inventory.focused_modules:
         key = module.name.removeprefix("GEO-INFER-")
@@ -1524,17 +1678,23 @@ def generate(
     ``reuse_verification`` defaults to ``True`` and is honoured at every tier,
     including a build that was not asked to verify.  The stored record names
     the source hash, commit, and tier it describes, so when it still describes
-    this tree it is this build's evidence; discarding it would delete a
-    measured result and republish "not run" in its place.  Pass
-    ``reuse_verification=False`` (``--rerun-verification``) only to force the
-    commands to run again.
+    this tree it is this build's evidence.  When it describes a different tree
+    it is still not discarded: a build with ``verify=False`` cannot write an
+    empty record over a populated one at all.  The stored record is carried
+    forward with its own commit and source hash, and
+    ``{{VERIFICATION_RECORD_PROVENANCE}}`` publishes that it was measured
+    elsewhere.  Pass ``reuse_verification=False`` (``--rerun-verification``)
+    to force the commands to run again; it does not license deleting a record
+    this build did not replace.
 
     Raises:
         RuntimeError: when the checkout is dirty (or git cannot say) and
             ``allow_dirty`` is not set.  A publication build must not attribute
             uncommitted work to a commit that does not contain it.  Also when
-            ``publication`` is set and the evidence record is empty or contains
-            a failed group.
+            ``publication`` is set and the evidence record is empty or
+            contains a failed group.  A publication build cannot carry a
+            record forward: it is refused unless it verifies, and a build that
+            verifies publishes what it measured.
     """
     dirty_files = _dirty_file_count(root)
     if dirty_files != 0 and not allow_dirty:
@@ -1565,19 +1725,22 @@ def generate(
     _write_json(data_dir / "research_inventory.json", inventory.to_dict())
     specs = generate_figures(inventory, figures_dir)
     write_figure_registry(figures_dir / "figure_registry.json", specs, inventory)
-    verification = resolve_verification(
+    record = resolve_verification(
         root,
         inventory,
         verify=verify,
         full_validation=full_validation,
         reuse_verification=reuse_verification,
     )
-    _write_json(
-        data_dir / "research_verification.json",
-        _verification_payload(verification, full_validation, inventory),
-    )
+    verification = record.results
+    _write_json(_verification_record_path(root), _verification_payload(record))
     variables = build_variables(
-        inventory, specs, verification, full_validation=full_validation
+        inventory,
+        specs,
+        verification,
+        full_validation=full_validation,
+        record_commit=record.source_commit,
+        record_source_hash=record.source_hash,
     )
     _write_json(data_dir / "manuscript_variables.json", variables)
     stale_config = refresh_config_metadata(root, variables, dry_run=True)
@@ -1609,6 +1772,9 @@ def generate(
         "dirty_file_count": inventory.dirty_file_count,
         "source_hash": inventory.source_hash,
         "verification_failures": failed_groups,
+        "verification_source_commit": record.source_commit,
+        "verification_source_hash": record.source_hash,
+        "verification_measured_elsewhere": record.measured_elsewhere,
         "resolved_manuscript_files": [
             path.relative_to(root).as_posix() for path in written
         ],

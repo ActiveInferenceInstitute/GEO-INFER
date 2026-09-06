@@ -41,7 +41,15 @@ manuscript's only source of executed-command evidence. It is a schema-versioned
 object holding whether full validation was requested and one result entry per
 command group that ran, each carrying the group name, the exact command line,
 a `passed` / `failed` / `not-run` status, the process return code, the wall
-duration in seconds, and a tail of captured output.
+duration in seconds, and a tail of captured output. The record also carries
+the commit and source fingerprint of the checkout its commands ran against,
+because those commands take minutes while a render is bounded: a build that
+executes none of them republishes the stored record rather than emptying it,
+and the record's own stamps are what keep that republication honest. This
+build publishes a verification record {{VERIFICATION_RECORD_PROVENANCE}}. A
+build that runs no verification command cannot write an empty record over a
+populated one, so a render taken mid-development degrades to a stated
+provenance gap rather than to deleted evidence.
 
 The generator defines command groups in two tiers, and this build defines
 `{{VERIFICATION_DEFINED_COUNT}}` of them in total. The default tier

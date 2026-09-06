@@ -208,9 +208,14 @@ class TestVerificationResolutionTier:
     def _store(self, generator: ModuleType, root: Path, inventory, results) -> None:
         data = root / "output" / "data"
         data.mkdir(parents=True, exist_ok=True)
+        record = generator.VerificationRecord(
+            results=tuple(results),
+            source_commit=inventory.commit,
+            source_hash=inventory.source_hash,
+            full_validation_requested=False,
+        )
         (data / "research_verification.json").write_text(
-            json.dumps(generator._verification_payload(results, False, inventory)),
-            encoding="utf-8",
+            json.dumps(generator._verification_payload(record)), encoding="utf-8"
         )
 
     def _result(self, generator: ModuleType, name: str):
@@ -236,33 +241,33 @@ class TestVerificationResolutionTier:
             full_validation=False,
             reuse_verification=True,
         )
-        assert [result.name for result in resolved] == [name]
+        assert [result.name for result in resolved.results] == [name]
+        assert resolved.measured_elsewhere is False
         status, passed, failed, unrun = generator._verification_summary(
-            resolved, full_validation=False
+            resolved.results, full_validation=False
         )
         assert (status, passed, failed) == ("1 passed", 1, 0)
         assert unrun == len(generator.VERIFICATION_COMMANDS) - 1
 
-    def test_a_record_describing_another_tree_is_not_republished(
+    def test_a_record_describing_another_tree_is_carried_not_deleted(
         self, generator: ModuleType, tmp_path: Path, repo_inventory
     ) -> None:
+        # Discarding it was the defect.  The record is the only copy of a
+        # measurement that costs minutes, and the build replacing it measured
+        # nothing, so it is republished with its own provenance instead.
         other = dataclasses.replace(repo_inventory, source_hash="0" * 16)
-        self._store(
-            generator,
+        name = generator.VERIFICATION_COMMANDS[0][0]
+        self._store(generator, tmp_path, other, (self._result(generator, name),))
+        resolved = generator.resolve_verification(
             tmp_path,
-            other,
-            (self._result(generator, generator.VERIFICATION_COMMANDS[0][0]),),
+            repo_inventory,
+            verify=False,
+            full_validation=False,
+            reuse_verification=True,
         )
-        assert (
-            generator.resolve_verification(
-                tmp_path,
-                repo_inventory,
-                verify=False,
-                full_validation=False,
-                reuse_verification=True,
-            )
-            == ()
-        )
+        assert [result.name for result in resolved.results] == [name]
+        assert resolved.measured_elsewhere is True
+        assert resolved.source_hash == "0" * 16
 
     def test_reuse_is_the_default_for_the_command_line(
         self, generator: ModuleType
@@ -279,13 +284,12 @@ class TestVerificationResolutionTier:
             raise AssertionError("a non-verifying build ran a verification command")
 
         monkeypatch.setattr(generator, "run_verification", _fail)
-        assert (
-            generator.resolve_verification(
-                tmp_path,
-                repo_inventory,
-                verify=False,
-                full_validation=False,
-                reuse_verification=True,
-            )
-            == ()
+        resolved = generator.resolve_verification(
+            tmp_path,
+            repo_inventory,
+            verify=False,
+            full_validation=False,
+            reuse_verification=True,
         )
+        assert resolved.results == ()
+        assert resolved.source_commit == repo_inventory.commit

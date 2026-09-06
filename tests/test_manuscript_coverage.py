@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 import subprocess
 import sys
@@ -116,7 +117,17 @@ class TestRenderHydrationShim:
         shim = repo_root / "scripts" / "z_generate_manuscript_variables.py"
         assert shim.is_file()
 
-    def test_the_shim_regenerates_and_then_verifies(self, repo_root: Path) -> None:
+    def test_the_shim_regenerates_and_then_verifies(
+        self, generator: ModuleType, repo_root: Path
+    ) -> None:
+        # This test runs the real shim against the real checkout, so it writes
+        # the shipped output/ tree as a side effect.  That is how the last
+        # verifier destroyed the evidence bundle by accident: on a tree with
+        # any uncommitted entry the shim used to republish an empty record and
+        # still exit 0.  The before/after count below is the guard, and it is
+        # the reason this test can be run without losing a measurement.
+        record = generator._verification_record_path(repo_root)
+        before = json.loads(record.read_text(encoding="utf-8"))["results"]
         completed = subprocess.run(
             [sys.executable, "scripts/z_generate_manuscript_variables.py"],
             cwd=repo_root,
@@ -128,6 +139,10 @@ class TestRenderHydrationShim:
         assert "hydrated" in completed.stdout
         variables = repo_root / "output" / "data" / "manuscript_variables.json"
         assert variables.is_file()
+        after = json.loads(record.read_text(encoding="utf-8"))["results"]
+        assert [entry["name"] for entry in after] == [
+            entry["name"] for entry in before
+        ], "the shim discarded executed-command evidence it did not re-measure"
 
     def test_a_stale_tree_is_reported_after_hydration(
         self, generator: ModuleType, repo_root: Path
