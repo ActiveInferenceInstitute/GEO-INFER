@@ -26,6 +26,7 @@ build/
 *.ovr
 
 /venv
+/.venv/
 GEO-INFER-PLACE/data/improvements/OR.geojson
 GEO-INFER-PLACE/data/improvements/CA.geojson
 GEO-INFER-PLACE/data/improvements/Zip_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv
