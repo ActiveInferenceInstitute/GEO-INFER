@@ -30,6 +30,7 @@ Manuscript workspace within GEO-INFER.
 - `generate_research_artifacts.py:generate_figures` (function)
 - `generate_research_artifacts.py:write_figure_registry` (function)
 - `generate_research_artifacts.py:load_matching_verification` (function)
+- `generate_research_artifacts.py:resolve_verification` (function)
 - `generate_research_artifacts.py:run_verification` (function)
 - `generate_research_artifacts.py:defined_command_groups` (function)
 - `generate_research_artifacts.py:build_variables` (function)
@@ -41,7 +42,6 @@ Manuscript workspace within GEO-INFER.
 - `generate_research_artifacts.py:audit_bibliography` (function)
 - `generate_research_artifacts.py:generate` (function)
 - `generate_research_artifacts.py:check_published_artifacts` (function)
-- `generate_research_artifacts.py:main` (function)
 
 
 ## Validation
