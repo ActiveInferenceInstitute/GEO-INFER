@@ -567,9 +567,15 @@ def _module_table(inventory: RepositoryInventory) -> str:
     missing = sorted(set(declared) - set(measured))
     if missing:
         raise ValueError(f"themed modules absent from the checkout: {missing}")
+    # Pandoc derives each column's relative width from the dash count in the
+    # separator row.  Equal dashes gave the Module column less width than
+    # ``GEO-INFER-INSURANCE`` needs, and the template's breakable-monospace
+    # macro then split module names mid-word ("GEO-INFER-IN / SURANCE") or ran
+    # them into the Package column.  The proportions below are sized from the
+    # longest value each column actually holds.
     rows = [
         "| Theme | Module | Package | Source files | Test files |",
-        "| --- | --- | --- | ---: | ---: |",
+        "| " + " | ".join(("-" * 16, "-" * 21, "-" * 21, "-" * 7 + ":", "-" * 7 + ":")) + " |",
     ]
     for theme, names in MODULE_THEMES:
         ordered = sorted(

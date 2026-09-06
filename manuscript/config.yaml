@@ -61,6 +61,7 @@ render:
 bibliography:
   references_path: "manuscript/references.bib"
   fail_on_missing: true
-  # Set to true once every entry in references.bib is cited. As of this
-  # commit gelman_bda_2014 is not, and the generator warns on every run.
-  fail_on_unused: false
+  # Every entry in references.bib is now cited by the manuscript, so an
+  # orphaned entry is a defect rather than a known state: audit_bibliography
+  # raises instead of warning.
+  fail_on_unused: true
