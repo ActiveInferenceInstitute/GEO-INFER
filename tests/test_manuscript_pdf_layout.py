@@ -151,3 +151,26 @@ class TestTextBlock:
                 if value > right_edge:
                     offenders.append(f"page {page}: {stripped} at {value:.1f}pt")
         assert not offenders, "\n".join(offenders)
+
+
+class TestBoxWarnings:
+    """TeX's own report that content did not fit the measure it was given.
+
+    Six ``Overfull \\hbox`` lines were once emitted by Table 3's Command
+    column, where a long unbreakable command ran past its cell.  Nothing pins
+    that: the shared template's LaTeX gate is fatal on ``! `` errors and
+    ``Missing character`` and deliberately leaves box warnings advisory, and
+    the right-margin test above cannot see a box that overflows a table cell
+    without leaving the text block.  This reads the final pass's log, which is
+    the only place the overflow is reported at all.
+    """
+
+    def test_the_final_pass_reports_no_overfull_hbox(self, repo_root: Path) -> None:
+        log = repo_root / "output" / "pdf" / "_combined_manuscript.log"
+        if not log.is_file():
+            pytest.skip("output/pdf/_combined_manuscript.log has not been rendered")
+        text = log.read_text(encoding="utf-8", errors="replace")
+        offenders = [
+            line for line in text.splitlines() if line.startswith("Overfull \\hbox")
+        ]
+        assert not offenders, "\n".join(offenders)
