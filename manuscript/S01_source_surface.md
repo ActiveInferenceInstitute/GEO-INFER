@@ -52,12 +52,16 @@ uv run python manuscript/generate_research_artifacts.py \
     --full-validation --publication
 ```
 
-That invocation refuses to proceed against a dirty working tree, runs both
-tiers of verification command group, and refuses to finish while the evidence
-record is empty. Dropping `--publication` produces a working-tree build whose
-commit stamp is suffixed to record that it is not a clean checkout. Adding
-`--check` to a plain invocation verifies the published token map against the
-measured checkout without writing anything.
+That invocation runs both tiers of verification command group, and
+`--publication` refuses to finish while the evidence record is empty or holds
+a failed group. Refusing a dirty working tree is not what `--publication`
+adds: every invocation raises rather than attribute uncommitted work to a
+commit that does not contain it, and produces no build at all. Only
+`--allow-dirty` overrides that refusal, and it is what suffixes the commit
+stamp `-dirty` and publishes the uncommitted-entry count; the render shim
+passes it on every build that is not a publication build. Adding `--check` to
+a plain invocation verifies the published token map against the measured
+checkout without writing anything.
 
 ## External References
 
