@@ -51,19 +51,32 @@ build that runs no verification command cannot write an empty record over a
 populated one, so a render taken mid-development degrades to a stated
 provenance gap rather than to deleted evidence.
 
-The generator defines command groups in two tiers, and this build defines
-`{{VERIFICATION_DEFINED_COUNT}}` of them in total. The default tier
+The generator defines command groups in two tiers. The default tier
 byte-compiles every module source tree, example tree, and the manuscript
 package, then runs the strict repository-contract, documentation, skills,
 test-contract, model-contract, and reproducibility validators in
 `GEO-INFER-TEST`. Passing `--full-validation` adds a second tier — the unit,
 integration, performance, and H3-migration suites driven through the unified
-test runner — and raises the defined-group count accordingly.
+test runner.
 
-For this build the record reports `{{VERIFICATION_STATUS}}`:
+Which tier a record was measured at is a property of the record, not of the
+build that republishes it, and it travels with the results for that reason.
+The record published here was measured at the `{{VERIFICATION_RECORD_TIER}}`
+tier, which defines `{{VERIFICATION_DEFINED_COUNT}}` command groups in total,
+and every count below is taken against that definition. Reading the
+denominator from the build's own request instead was what let this manuscript
+publish nine passes and two failures against seven defined groups: the
+numerator was counted over the whole record and the denominator over the tier
+the build happened to ask for. `build_variables` now refuses to render a
+record whose outcomes do not sum to its own defined-group count, and
+`--check` refuses a published bundle whose counts disagree with the record
+it republishes.
+
+The record reports `{{VERIFICATION_STATUS}}`:
 `{{VERIFICATION_PASS_COUNT}}` groups passed, `{{VERIFICATION_FAIL_COUNT}}`
 failed, and `{{VERIFICATION_UNRUN_COUNT}}` of the
-`{{VERIFICATION_DEFINED_COUNT}}` defined groups produced no recorded outcome.
+`{{VERIFICATION_DEFINED_COUNT}}` groups its tier defines produced no recorded
+outcome.
 The unrun count is derived from the record and the command definitions
 together, so a group that is defined and skipped is counted as skipped rather
 than silently disappearing from the denominator. A build invoked with
@@ -74,10 +87,10 @@ invoked without it publishes whatever the record holds, including failures.
 
 {{VERIFICATION_TABLE}}
 
-: Per-group verification record for this build. Every command group the build
-defines has a row: `Exit` is the process return code and `Seconds` the wall
-duration observed, and a group that did not run is printed as `not run`
-rather than omitted. {#tbl:verification_record}
+: Per-group verification record for this build. Every command group the
+record's tier defines has a row: `Exit` is the process return code and
+`Seconds` the wall duration observed, and a group that did not run is printed
+as `not run` rather than omitted. {#tbl:verification_record}
 
 [@tbl:verification_record] is the command-level evidence behind the summary
 above. A failed group is published with its return code instead of being

@@ -11,8 +11,9 @@
   the generation that produced it, and that generation is not necessarily this
   one: a build that requests none republishes the stored record instead of
   emptying it. This build reports `{{VERIFICATION_STATUS}}` with
-  `{{VERIFICATION_UNRUN_COUNT}}` of `{{VERIFICATION_DEFINED_COUNT}}` defined
-  command groups unrun, from a record {{VERIFICATION_RECORD_PROVENANCE}}, and
+  `{{VERIFICATION_UNRUN_COUNT}}` of the `{{VERIFICATION_DEFINED_COUNT}}`
+  command groups its `{{VERIFICATION_RECORD_TIER}}` tier defines unrun, from a
+  record {{VERIFICATION_RECORD_PROVENANCE}}, and
   exposes the command-level record for audit.
 - The composition contract constrains interfaces, provenance, and refusal
   behavior. It is not a proof of correctness: no clause in it establishes that

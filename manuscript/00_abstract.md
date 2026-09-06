@@ -20,10 +20,14 @@ and the bounds a risk result must satisfy before it is reported. Figures,
 captions, and quantitative statements in this manuscript are produced from
 the same repository inventory and source fingerprint used to render it.
 
-Of the `{{VERIFICATION_DEFINED_COUNT}}` verification command groups this build
-defines, `{{VERIFICATION_PASS_COUNT}}` passed, `{{VERIFICATION_FAIL_COUNT}}`
-failed, and `{{VERIFICATION_UNRUN_COUNT}}` did not run; the record summarises
-as `{{VERIFICATION_STATUS}}`, and every group is published with its own
-outcome. A build invoked with `--publication` refuses an empty or failing
-record, so unrun and failed checks are never represented as evidence of
-success.
+The published evidence record was measured at the
+`{{VERIFICATION_RECORD_TIER}}` tier, which defines
+`{{VERIFICATION_DEFINED_COUNT}}` verification command groups. Of those,
+`{{VERIFICATION_PASS_COUNT}}` passed, `{{VERIFICATION_FAIL_COUNT}}` failed,
+and `{{VERIFICATION_UNRUN_COUNT}}` did not run; the record summarises as
+`{{VERIFICATION_STATUS}}`, and every group is published with its own
+outcome. The three counts are taken against the record's own tier and are
+checked to sum to it, so the summary cannot report more outcomes than the
+definition it is measured against admits. A build invoked with
+`--publication` refuses an empty or failing record, so unrun and failed
+checks are never represented as evidence of success.
