@@ -55,8 +55,8 @@ uv run python manuscript/generate_research_artifacts.py \
 That invocation runs both tiers of verification command group, and
 `--publication` refuses to finish while the evidence record is empty or holds
 a failed group. Refusing a dirty working tree is not what `--publication`
-adds: every invocation raises rather than attribute uncommitted work to a
-commit that does not contain it, and produces no build at all. Only
+adds: every build raises rather than attribute uncommitted work to a commit
+that does not contain it, and writes nothing at all. Only
 `--allow-dirty` overrides that refusal, and it is what suffixes the commit
 stamp `-dirty` and publishes the uncommitted-entry count; the render shim
 passes it on every build that is not a publication build. Adding `--check` to
