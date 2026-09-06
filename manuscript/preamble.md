@@ -55,18 +55,26 @@ Measured on this manuscript: physical page 22 of 27 carried the word
 ordinary page, because the last line of section 7.3's closing paragraph did
 not fit above it.
 
-10000 is the value that forbids the split outright rather than pricing it,
-so a paragraph is either broken with at least two lines on each side of the
-boundary or moved whole. `\brokenpenalty` covers the same case for a
-paragraph whose stranded line is also hyphenated. This is a global setting,
-not a fix aimed at one page: the page it was found on is only where the
-default first became visible, and `test_no_page_is_nearly_empty` reads the
-shipped PDF so the class stays closed.
+10000 is the value that forbids the split outright rather than pricing it.
+Setting the scalar `\widowpenalty` alone was not enough here: the stranded
+line belonged to a four-line paragraph, so forbidding a one-line remainder
+simply moved two lines instead of one and left the page carrying 96
+characters rather than 8. The eTeX plural forms take a penalty per remainder
+length, which is what states the rule directly — at least three lines on each
+side of a split, so a paragraph of five lines or fewer is moved whole rather
+than divided at all, and a longer one is still divided where division does
+not produce a runt. `\brokenpenalty` covers the same case for a remainder
+whose first line is also hyphenated.
+
+This is a global setting, not a fix aimed at one page: the page it was found
+on is only where the default first became visible, and
+`test_no_page_is_nearly_empty` reads the shipped PDF so the class stays
+closed wherever it next appears.
 
 ```latex
-\widowpenalty=10000
-\clubpenalty=10000
-\displaywidowpenalty=10000
+\clubpenalties 3 10000 10000 150
+\widowpenalties 3 10000 10000 150
+\displaywidowpenalties 3 10000 10000 150
 \brokenpenalty=10000
 ```
 
