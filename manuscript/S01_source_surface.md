@@ -48,7 +48,8 @@ resolved manuscript copy in this document, and that a publication build must
 use, is:
 
 ```bash
-uv run python manuscript/generate_research_artifacts.py --full-validation --publication
+uv run python manuscript/generate_research_artifacts.py \
+    --full-validation --publication
 ```
 
 That invocation refuses to proceed against a dirty working tree, runs both

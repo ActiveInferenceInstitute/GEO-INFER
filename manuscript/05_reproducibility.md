@@ -9,7 +9,8 @@ and resolved manuscript copies directly from the checkout:
 uv run python manuscript/generate_research_artifacts.py
 uv run python manuscript/generate_research_artifacts.py --verify
 uv run python manuscript/generate_research_artifacts.py --full-validation
-uv run python manuscript/generate_research_artifacts.py --full-validation --publication
+uv run python manuscript/generate_research_artifacts.py \
+    --full-validation --publication
 uv run python manuscript/generate_research_artifacts.py --check
 ```
 
