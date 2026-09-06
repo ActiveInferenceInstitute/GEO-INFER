@@ -90,3 +90,105 @@ class TestFailureIsPublishedNotFatal:
         source = Path(generator.__file__ or "").read_text(encoding="utf-8")
         assert "if publication and failed_groups:" in source
         assert "research verification failed: " not in source
+
+
+class TestVerificationRecordReuse:
+    """A stored record is reused only when it still describes the tree."""
+
+    def _write(self, generator: ModuleType, root, payload) -> None:
+        data = root / "output" / "data"
+        data.mkdir(parents=True, exist_ok=True)
+        (data / "research_verification.json").write_text(
+            __import__("json").dumps(payload), encoding="utf-8"
+        )
+
+    def test_missing_record_is_not_reused(
+        self, generator: ModuleType, tmp_path, repo_inventory
+    ) -> None:
+        assert (
+            generator.load_matching_verification(
+                tmp_path, repo_inventory, full_validation=False
+            )
+            is None
+        )
+
+    def test_matching_record_is_reused(
+        self, generator: ModuleType, tmp_path, repo_inventory
+    ) -> None:
+        name = generator.VERIFICATION_COMMANDS[0][0]
+        self._write(
+            generator,
+            tmp_path,
+            {
+                "schema_version": generator.RESEARCH_SCHEMA,
+                "full_validation_requested": False,
+                "source_commit": repo_inventory.commit,
+                "source_hash": repo_inventory.source_hash,
+                "results": [
+                    {
+                        "name": name,
+                        "command": "run it",
+                        "status": "passed",
+                        "return_code": 0,
+                        "duration_seconds": 1.0,
+                        "output_tail": "",
+                    }
+                ],
+            },
+        )
+        reused = generator.load_matching_verification(
+            tmp_path, repo_inventory, full_validation=False
+        )
+        assert reused is not None
+        assert [result.name for result in reused] == [name]
+
+    def test_a_different_source_hash_is_not_reused(
+        self, generator: ModuleType, tmp_path, repo_inventory
+    ) -> None:
+        self._write(
+            generator,
+            tmp_path,
+            {
+                "schema_version": generator.RESEARCH_SCHEMA,
+                "full_validation_requested": False,
+                "source_commit": repo_inventory.commit,
+                "source_hash": "0" * 16,
+                "results": [
+                    {
+                        "name": "compile",
+                        "command": "run it",
+                        "status": "passed",
+                        "return_code": 0,
+                        "duration_seconds": 1.0,
+                        "output_tail": "",
+                    }
+                ],
+            },
+        )
+        assert (
+            generator.load_matching_verification(
+                tmp_path, repo_inventory, full_validation=False
+            )
+            is None
+        )
+
+    def test_an_empty_record_is_not_reused(
+        self, generator: ModuleType, tmp_path, repo_inventory
+    ) -> None:
+        self._write(
+            generator,
+            tmp_path,
+            {
+                "schema_version": generator.RESEARCH_SCHEMA,
+                "full_validation_requested": False,
+                "source_commit": repo_inventory.commit,
+                "source_hash": repo_inventory.source_hash,
+                "results": [],
+            },
+        )
+        assert (
+            generator.load_matching_verification(
+                tmp_path, repo_inventory, full_validation=False
+            )
+            is None
+        )

@@ -23,10 +23,13 @@ Modes:
         ordinary development must work, but it must not claim to be a clean
         commit.
     ``GEO_INFER_MANUSCRIPT_VERIFY=1``
-        Evidence build.  Runs the default-tier verification commands so the
-        rendered manuscript carries a real per-group record instead of an
-        empty one.  A failing group is published with its return code and does
-        not abort the render; only a publication build refuses.
+        Evidence build.  Publishes a real per-group record instead of an empty
+        one.  A stored record is reused when it names the same source hash,
+        commit, and tier; otherwise the commands run here, which can exceed the
+        renderer's bounded hydration timeout — pre-run
+        ``python manuscript/generate_research_artifacts.py --verify`` on a
+        clean tree first.  A failing group is published with its return code
+        and does not abort the render; only a publication build refuses.
     ``GEO_INFER_MANUSCRIPT_PUBLICATION=1``
         Publication build.  Requires a clean checkout, a non-empty verification
         record with no failures, and runs the full validation suite.
@@ -88,6 +91,7 @@ def main() -> int:
             full_validation=publication,
             allow_dirty=not publication,
             publication=publication,
+            reuse_verification=True,
         )
     except (OSError, RuntimeError, ValueError) as exc:
         print(f"manuscript variable hydration failed: {exc}", file=sys.stderr)

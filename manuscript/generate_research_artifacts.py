@@ -902,13 +902,61 @@ def write_figure_registry(
 
 
 def _verification_payload(
-    results: Sequence[VerificationResult], full_validation: bool
+    results: Sequence[VerificationResult],
+    full_validation: bool,
+    inventory: RepositoryInventory | None = None,
 ) -> dict[str, Any]:
-    return {
+    """Serialise a verification record, stamped with the tree it describes.
+
+    The commit and source fingerprint are part of the record because the
+    commands are expensive: a later build has to be able to tell whether an
+    existing record still describes the checkout in front of it, and an
+    unstamped record cannot answer that.
+    """
+    payload: dict[str, Any] = {
         "schema_version": RESEARCH_SCHEMA,
         "full_validation_requested": full_validation,
         "results": [asdict(result) for result in results],
     }
+    if inventory is not None:
+        payload["source_commit"] = inventory.commit
+        payload["source_hash"] = inventory.source_hash
+    return payload
+
+
+def load_matching_verification(
+    root: Path, inventory: RepositoryInventory, *, full_validation: bool
+) -> tuple[VerificationResult, ...] | None:
+    """Return a stored verification record that still describes this tree.
+
+    Verification takes minutes, and the render hydrates on a bounded
+    subprocess timeout, so re-running it on every render is not viable.
+    Reuse is only safe when the record names the same source fingerprint and
+    was produced at the same tier; anything else returns ``None`` and the
+    caller runs the commands.
+    """
+    path = root / "output" / "data" / "research_verification.json"
+    if not path.is_file():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    if not isinstance(payload, Mapping):
+        return None
+    if payload.get("source_hash") != inventory.source_hash:
+        return None
+    if payload.get("source_commit") != inventory.commit:
+        return None
+    if bool(payload.get("full_validation_requested")) != full_validation:
+        return None
+    raw = payload.get("results")
+    if not isinstance(raw, list) or not raw:
+        return None
+    try:
+        return tuple(VerificationResult(**entry) for entry in raw)
+    except TypeError:
+        return None
 
 
 def run_verification(
@@ -1342,6 +1390,7 @@ def generate(
     full_validation: bool = False,
     allow_dirty: bool = False,
     publication: bool = False,
+    reuse_verification: bool = False,
 ) -> dict[str, Any]:
     """Generate the complete evidence bundle and resolved manuscript.
 
@@ -1392,12 +1441,27 @@ def generate(
     _write_json(data_dir / "research_inventory.json", inventory.to_dict())
     specs = generate_figures(inventory, figures_dir)
     write_figure_registry(figures_dir / "figure_registry.json", specs, inventory)
-    verification = (
-        run_verification(root, full_validation=full_validation) if verify else ()
-    )
+    verification: tuple[VerificationResult, ...] = ()
+    if verify:
+        reused = (
+            load_matching_verification(
+                root, inventory, full_validation=full_validation
+            )
+            if reuse_verification
+            else None
+        )
+        if reused is None:
+            verification = run_verification(root, full_validation=full_validation)
+        else:
+            verification = reused
+            print(
+                "reusing the stored verification record for source hash "
+                f"{inventory.source_hash}",
+                file=sys.stderr,
+            )
     _write_json(
         data_dir / "research_verification.json",
-        _verification_payload(verification, full_validation),
+        _verification_payload(verification, full_validation, inventory),
     )
     variables = build_variables(
         inventory, specs, verification, full_validation=full_validation
@@ -1536,6 +1600,14 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--reuse-verification",
+        action="store_true",
+        help=(
+            "reuse the stored verification record when it names this source "
+            "hash, commit, and tier, instead of re-running the commands"
+        ),
+    )
+    parser.add_argument(
         "--allow-dirty",
         action="store_true",
         help=(
@@ -1564,6 +1636,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             full_validation=args.full_validation,
             allow_dirty=args.allow_dirty,
             publication=args.publication,
+            reuse_verification=args.reuse_verification,
         )
     except (OSError, RuntimeError, ValueError) as exc:
         print(f"research artifact generation failed: {exc}", file=sys.stderr)
