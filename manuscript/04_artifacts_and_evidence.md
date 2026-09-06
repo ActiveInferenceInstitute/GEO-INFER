@@ -31,7 +31,8 @@ their filename, and they are distributed across the categories above.
 
 These are evidence-surface counts, not estimates of scientific validity. The
 verification record currently reports `{{VERIFICATION_STATUS}}`; its exact
-command-level outcomes are available in the generated JSON artifact.
+command-level outcomes are published per group in
+[@tbl:verification_record].
 
 ## Verification Record
 

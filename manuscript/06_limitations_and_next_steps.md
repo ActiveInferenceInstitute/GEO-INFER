@@ -28,11 +28,12 @@
 
 ## Next Steps
 
-1. Run the full validation pipeline with fixed data seeds under
-   `--full-validation --publication` and archive
-   `research_verification.json`, `research_inventory.json`, and the figure
-   registry alongside rendered outputs, so the record this manuscript reports
-   as `not run` becomes a populated one.
+1. Extend the recorded evidence to the second tier: run
+   `--full-validation --publication` with fixed data seeds so the unit,
+   integration, performance, and H3-migration suites enter the record
+   alongside the default tier, and archive `research_verification.json`,
+   `research_inventory.json`, and the figure registry beside the rendered
+   outputs.
 2. Extend the inventory with domain datasets and benchmark results only when
    their producers emit machine-readable provenance and uncertainty.
 3. Add preregistered comparisons for the Active Inference, Bayesian, and RISK

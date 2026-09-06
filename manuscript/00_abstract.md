@@ -20,9 +20,10 @@ and the bounds a risk result must satisfy before it is reported. Figures,
 captions, and quantitative statements in this manuscript are produced from
 the same repository inventory and source fingerprint used to render it.
 
-The current verification record is `{{VERIFICATION_STATUS}}` across
-`{{VERIFICATION_PASS_COUNT}}` passing and `{{VERIFICATION_FAIL_COUNT}}`
-failing commands: of the `{{VERIFICATION_DEFINED_COUNT}}` command groups this
-build defines, `{{VERIFICATION_UNRUN_COUNT}}` did not run. A fresh
-publication build must regenerate this section and refuse to represent unrun
-or failed checks as evidence of success.
+Of the `{{VERIFICATION_DEFINED_COUNT}}` verification command groups this build
+defines, `{{VERIFICATION_PASS_COUNT}}` passed, `{{VERIFICATION_FAIL_COUNT}}`
+failed, and `{{VERIFICATION_UNRUN_COUNT}}` did not run; the record summarises
+as `{{VERIFICATION_STATUS}}`, and every group is published with its own
+outcome. A build invoked with `--publication` refuses an empty or failing
+record, so unrun and failed checks are never represented as evidence of
+success.
