@@ -51,9 +51,9 @@ a page boundary to balance the page it came from. The template puts a
 `\newpage` between every section file, so a stranded line does not merely sit
 awkwardly at the top of the next page — it gets that whole page to itself.
 Measured on this manuscript: physical page 22 of 27 carried the word
-`section.` and the folio, ten extracted characters against 1,800-3,200 on an
-ordinary page, because the last line of section 7.3's closing paragraph did
-not fit above it.
+`section.` and the folio — eight characters once the folio is discounted,
+against 1,800-3,200 on an ordinary page — because the last line of section
+7.3's closing paragraph did not fit above it.
 
 10000 is the value that forbids the split outright rather than pricing it.
 Setting the scalar `\widowpenalty` alone was not enough here: the stranded
@@ -133,6 +133,16 @@ defined ahead of this preamble and splits unconditionally, which is what
 broke `research_inventory.json` in prose — a span the renderer could decode,
 so the `\texttt` threshold above never saw it. One rule now governs both.
 
+Where a span genuinely has to be split, the split should still land on a
+character the reader can see. `\seqsplit` inserts its break opportunities
+between every pair of characters at penalty zero, which is cheaper than the
+`\exhyphenpenalty` of 50 that an explicit hyphen carries, so the hyphen
+breaks were never taken and Table 3's Command column read `GEO-INFE` /
+`R-*/src`. Pricing the character break above the hyphen makes the hyphen
+win wherever one is available and leaves the character break in place for
+where none is: the longest hyphen-delimited fragment in that column,
+`TEST/validate_repo_contracts.py`, is 163pt against a 168pt column.
+
 Three tests hold the two failure modes apart, all of them reading the
 artifact rather than the settings: `test_the_final_pass_reports_no_overfull_hbox`
 and `test_no_word_is_set_past_the_right_margin` fail if a span was left
@@ -153,6 +163,11 @@ block defines.
 ```latex
 \IfFileExists{seqsplit.sty}{\usepackage{seqsplit}}{\newcommand{\seqsplit}[1]{#1}}
 \makeatletter
+\newcount\GIsplitcost
+\GIsplitcost=200
+\def\seqinsert{%
+  \ifmmode\allowbreak
+  \else\penalty\GIsplitcost\hspace{0pt plus 0.02em}\fi}
 \newsavebox{\GIttbox}
 \newcount\GInohyph
 \GInohyph=\@cclv
