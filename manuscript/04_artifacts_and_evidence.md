@@ -67,9 +67,10 @@ failed, and `{{VERIFICATION_UNRUN_COUNT}}` of the
 The unrun count is derived from the record and the command definitions
 together, so a group that is defined and skipped is counted as skipped rather
 than silently disappearing from the denominator. A build invoked with
-`--publication` refuses to produce artifacts while that record is empty or
-while any group in it failed; a build invoked without it publishes whatever
-the record holds, including failures.
+`--publication` writes the artifacts it measured and then exits non-zero
+rather than certify a record that is empty or that contains a failed group, so
+the measurement survives on disk while the build does not pass; a build
+invoked without it publishes whatever the record holds, including failures.
 
 {{VERIFICATION_TABLE}}
 

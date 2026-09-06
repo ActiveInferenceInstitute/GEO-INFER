@@ -27,7 +27,8 @@ This manuscript makes four concrete contributions:
    copies.
 4. A fail-closed evidence record that distinguishes available source surfaces
    from commands that were actually executed and passed, and a publication
-   mode that refuses to build when that record is empty.
+   mode that fails rather than certify a build whose record is empty or
+   contains a failed group.
 
 ## Reader Orientation
 

@@ -16,13 +16,15 @@ uv run python manuscript/generate_research_artifacts.py --check
 
 The first command performs the source inventory and artifact generation. The
 second records strict repository and research-model checks. The third adds the
-full unit, integration, performance, and H3 suites. The fourth is the
-publication build: it refuses to run against a dirty working tree, refuses to
-run without verification, and refuses to finish while the evidence record is
-empty. The fifth writes nothing and exits non-zero when the published token
-map no longer matches the measured checkout, so a render either regenerates or
-refuses. The generated JSON record is the only source for the manuscript's
-verification summary.
+full unit, integration, performance, and H3 suites. All four refuse to run
+against a dirty working tree unless `--allow-dirty` is passed; that refusal is
+not the publication build's alone. What the fourth adds is the publication
+gate: it refuses to run without verification, and it writes the artifacts it
+measured and then exits non-zero rather than certify a build whose evidence
+record is empty or contains a failed group. The fifth writes nothing and exits
+non-zero when the published token map no longer matches the measured checkout,
+so a render either regenerates or refuses. The generated JSON record is the
+only source for the manuscript's verification summary.
 
 ## Reproducibility Contract
 
