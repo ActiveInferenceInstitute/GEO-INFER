@@ -63,6 +63,7 @@ exclude = ["tests*"]
 
 [tool.setuptools.package-data]
 geo_infer_intra = ["data/*.json"]
+"*" = ["*.yaml", "*.yml", "*.json", "*.md", "*.txt"]
 
 [tool.black]
 line-length = 88
