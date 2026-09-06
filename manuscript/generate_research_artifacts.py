@@ -954,6 +954,47 @@ def defined_command_groups(*, full_validation: bool) -> tuple[str, ...]:
     return tuple(name for name, _command in commands)
 
 
+def _verification_table(
+    results: Sequence[VerificationResult],
+    *,
+    full_validation: bool,
+) -> str:
+    """Render one row per defined command group, run or not.
+
+    The manuscript previously described the verification record in prose and
+    left the per-command outcomes inside a JSON file no reader of the PDF
+    opens.  Every group this build defines gets a row here, so a skipped group
+    is a visible "not run" line rather than an absence, and a failed group is
+    published with its return code instead of being summarised away.
+    """
+    commands = (
+        *VERIFICATION_COMMANDS,
+        *(FULL_VALIDATION_COMMANDS if full_validation else ()),
+    )
+    recorded = {result.name: result for result in results}
+    rows = [
+        "| Group | Command | Status | Return code | Duration (s) |",
+        "| " + " | ".join(("-" * 14, "-" * 40, "-" * 8, "-" * 6 + ":", "-" * 8 + ":")) + " |",
+    ]
+    for name, command in commands:
+        result = recorded.get(name)
+        if result is None:
+            rows.append(f"| `{name}` | `{command}` | not run | -- | -- |")
+            continue
+        rows.append(
+            f"| `{name}` | `{result.command}` | {result.status} | "
+            f"{result.return_code} | {result.duration_seconds} |"
+        )
+    unrecorded = sorted(set(recorded) - {name for name, _ in commands})
+    for name in unrecorded:
+        result = recorded[name]
+        rows.append(
+            f"| `{name}` | `{result.command}` | {result.status} | "
+            f"{result.return_code} | {result.duration_seconds} |"
+        )
+    return "\n".join(rows)
+
+
 def _verification_summary(
     results: Sequence[VerificationResult],
     *,
@@ -1057,6 +1098,9 @@ def build_variables(
         "VERIFICATION_UNRUN_COUNT": str(unrun),
         "VERIFICATION_DEFINED_COUNT": str(
             len(defined_command_groups(full_validation=full_validation))
+        ),
+        "VERIFICATION_TABLE": _verification_table(
+            verification, full_validation=full_validation
         ),
     }
     for module in inventory.focused_modules:
@@ -1305,10 +1349,19 @@ def generate(
     so the commit stamp describes the state that was actually measured and the
     generator's own outputs are never counted against it.
 
+    A failing verification command is recorded and published, not swallowed
+    and not fatal: ``VERIFICATION_STATUS`` reports ``N passed, M failed`` and
+    ``{{VERIFICATION_TABLE}}`` prints the per-group return codes.  Aborting the
+    build on the first failure made that summary branch unreachable, which is
+    the same defect class as a hardcoded count — the manuscript could only ever
+    say "not run" or "all passed".  ``publication=True`` still refuses.
+
     Raises:
         RuntimeError: when the checkout is dirty (or git cannot say) and
             ``allow_dirty`` is not set.  A publication build must not attribute
-            uncommitted work to a commit that does not contain it.
+            uncommitted work to a commit that does not contain it.  Also when
+            ``publication`` is set and the evidence record is empty or contains
+            a failed group.
     """
     dirty_files = _dirty_file_count(root)
     if dirty_files != 0 and not allow_dirty:
@@ -1370,11 +1423,15 @@ def generate(
         if policy["fail_on_unused"]:
             raise ValueError(message)
         print(f"warning: {message}", file=sys.stderr)
+    failed_groups = [
+        result.name for result in verification if result.status != "passed"
+    ]
     manifest = {
         "schema_version": RESEARCH_SCHEMA,
         "source_commit": inventory.commit,
         "dirty_file_count": inventory.dirty_file_count,
         "source_hash": inventory.source_hash,
+        "verification_failures": failed_groups,
         "resolved_manuscript_files": [
             path.relative_to(root).as_posix() for path in written
         ],
@@ -1389,13 +1446,11 @@ def generate(
             f"{len(defined_command_groups(full_validation=full_validation))} "
             "verification command groups are defined and none ran"
         )
-    if verify:
-        failures = [result for result in verification if result.status != "passed"]
-        if failures:
-            raise RuntimeError(
-                "research verification failed: "
-                + ", ".join(result.name for result in failures)
-            )
+    if publication and failed_groups:
+        raise RuntimeError(
+            "refusing to publish a build whose verification record contains "
+            "failures: " + ", ".join(failed_groups)
+        )
     return manifest
 
 
@@ -1514,6 +1569,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"research artifact generation failed: {exc}", file=sys.stderr)
         return 1
     print(json.dumps(manifest, indent=2, sort_keys=True))
+    failures = manifest.get("verification_failures") or ()
+    if failures:
+        # The artifacts are written and publish the failure honestly; the
+        # non-zero exit is the CI signal, not a refusal to build. Only
+        # ``--publication`` refuses.
+        print(
+            "verification command groups did not pass: " + ", ".join(failures),
+            file=sys.stderr,
+        )
+        return 1
     return 0
 
 

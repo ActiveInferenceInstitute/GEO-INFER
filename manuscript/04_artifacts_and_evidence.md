@@ -58,9 +58,22 @@ failed, and `{{VERIFICATION_UNRUN_COUNT}}` of the
 The unrun count is derived from the record and the command definitions
 together, so a group that is defined and skipped is counted as skipped rather
 than silently disappearing from the denominator. A build invoked with
-`--publication` refuses to produce artifacts while that record is empty; the
-present build was not invoked that way, and the absence of executed evidence
-is stated rather than repaired.
+`--publication` refuses to produce artifacts while that record is empty or
+while any group in it failed; a build invoked without it publishes whatever
+the record holds, including failures.
+
+{{VERIFICATION_TABLE}}
+
+: Per-group verification record for this build, written from
+`output/data/research_verification.json`. Every command group the build
+defines has a row: one that ran carries the status, process return code, and
+wall duration actually observed, and one that did not is printed as `not run`
+rather than omitted. {#tbl:verification_record}
+
+[@tbl:verification_record] is the command-level evidence behind the summary
+above. A failed group is published with its return code instead of being
+summarised away, which is what makes `passed`, `failed`, and `not run` three
+distinct published states rather than two.
 
 ## Generated Figures
 

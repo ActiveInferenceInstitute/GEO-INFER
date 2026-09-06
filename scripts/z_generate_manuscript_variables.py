@@ -22,9 +22,14 @@ Modes:
         published as ``RESEARCH_TREE_DIRTY_FILE_COUNT`` — a render during
         ordinary development must work, but it must not claim to be a clean
         commit.
+    ``GEO_INFER_MANUSCRIPT_VERIFY=1``
+        Evidence build.  Runs the default-tier verification commands so the
+        rendered manuscript carries a real per-group record instead of an
+        empty one.  A failing group is published with its return code and does
+        not abort the render; only a publication build refuses.
     ``GEO_INFER_MANUSCRIPT_PUBLICATION=1``
-        Publication build.  Requires a clean checkout and a non-empty
-        verification record, and runs the full validation suite.
+        Publication build.  Requires a clean checkout, a non-empty verification
+        record with no failures, and runs the full validation suite.
 
 Runs standalone as well: ``python scripts/z_generate_manuscript_variables.py``.
 """
@@ -40,6 +45,7 @@ from types import ModuleType
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 GENERATOR_PATH = PROJECT_ROOT / "manuscript" / "generate_research_artifacts.py"
 PUBLICATION_ENV = "GEO_INFER_MANUSCRIPT_PUBLICATION"
+VERIFY_ENV = "GEO_INFER_MANUSCRIPT_VERIFY"
 _TRUTHY = frozenset({"1", "true", "yes", "on"})
 
 
@@ -56,8 +62,16 @@ def _load_generator() -> ModuleType:
     return module
 
 
+def _enabled(name: str) -> bool:
+    return os.environ.get(name, "").strip().lower() in _TRUTHY
+
+
 def _publication_requested() -> bool:
-    return os.environ.get(PUBLICATION_ENV, "").strip().lower() in _TRUTHY
+    return _enabled(PUBLICATION_ENV)
+
+
+def _verify_requested() -> bool:
+    return _enabled(VERIFY_ENV) or _publication_requested()
 
 
 def main() -> int:
@@ -66,10 +80,11 @@ def main() -> int:
         return 1
     generator = _load_generator()
     publication = _publication_requested()
+    verify = _verify_requested()
     try:
-        generator.generate(
+        manifest = generator.generate(
             PROJECT_ROOT,
-            verify=publication,
+            verify=verify,
             full_validation=publication,
             allow_dirty=not publication,
             publication=publication,
@@ -77,13 +92,21 @@ def main() -> int:
     except (OSError, RuntimeError, ValueError) as exc:
         print(f"manuscript variable hydration failed: {exc}", file=sys.stderr)
         return 1
+    # A failed verification group is evidence, not a hydration error: the
+    # generator has already written it into the record the manuscript
+    # publishes. Report it and keep rendering, so the PDF states the failure
+    # instead of the render hiding it behind an exit code.
+    for name in manifest.get("verification_failures") or ():
+        print(f"verification group recorded as failed: {name}", file=sys.stderr)
     problems = generator.check_published_artifacts(PROJECT_ROOT)
     for problem in problems:
         print(f"manuscript artifacts are stale after hydration: {problem}",
               file=sys.stderr)
     if problems:
         return 1
-    mode = "publication" if publication else "working-tree"
+    mode = (
+        "publication" if publication else "evidence" if verify else "working-tree"
+    )
     print(f"manuscript variables hydrated ({mode} build)")
     return 0
 
