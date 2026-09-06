@@ -177,11 +177,12 @@ class TestBoxWarnings:
 
 
 # Physical page 22 of 27 once held the single word "section." plus the folio:
-# the last line of a paragraph stranded by a section break.  The sparsest
-# legitimate page in this manuscript is a section tail before the template's
-# inter-section \newpage, and those hold several hundred characters.  The
-# floor sits well below them and well above a runt line, so it names the
-# defect without pinning the layout.
+# the last line of a paragraph stranded by a section break, eight characters
+# once the folio is discounted.  The sparsest legitimate page in this
+# manuscript is a section tail before the template's inter-section \newpage,
+# and those run into the hundreds of characters.  The floor sits well below
+# them and well above a runt line, so it names the defect without pinning the
+# layout.
 MINIMUM_PAGE_CHARACTERS = 200
 
 

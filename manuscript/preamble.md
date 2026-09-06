@@ -58,8 +58,8 @@ against 1,800-3,200 on an ordinary page — because the last line of section
 10000 is the value that forbids the split outright rather than pricing it.
 Setting the scalar `\widowpenalty` alone was not enough here: the stranded
 line belonged to a four-line paragraph, so forbidding a one-line remainder
-simply moved two lines instead of one and left the page carrying 96
-characters rather than 8. The eTeX plural forms take a penalty per remainder
+simply moved two lines instead of one and left the page carrying 94
+characters rather than 8, both counted without the folio. The eTeX plural forms take a penalty per remainder
 length, which is what states the rule directly — at least three lines on each
 side of a split, so a paragraph of five lines or fewer is moved whole rather
 than divided at all, and a longer one is still divided where division does
@@ -84,9 +84,9 @@ Pandoc emits inline code as `\texttt{...}`, which cannot break. The renderer
 rewrites long monospace spans to a breakable macro, but only when it can
 decode Pandoc's serialised body: a span containing `--` reaches the `.tex` as
 `-\/-`, whose backslash puts it outside that decoder's contract, and the span
-stays unbreakable. Six of the seven commands in the verification table carry a
-`--` flag, and all six ran into the neighbouring Status column; the seventh,
-which has no such flag, was rewritten by the renderer and broke cleanly.
+stays unbreakable. Six of the seven default-tier commands carry a `--` flag,
+and all six ran into the neighbouring Status column; the seventh, which has
+no such flag, was rewritten by the renderer and broke cleanly.
 
 `\seqsplit` adds break opportunities without inserting a character, so the
 printed command still copies as one string — but for the same reason a break
@@ -128,20 +128,23 @@ removing the explicit-hyphen break: measured at a 62pt measure,
 `GEO-INFER-RISK` breaks after a hyphen it already has and `documentation`
 does not break at all.
 
-The renderer's own `\breaktt` is redefined through the same test. It is
+The renderer's own `\breaktt` is redefined through the same rule. It is
 defined ahead of this preamble and splits unconditionally, which is what
 broke `research_inventory.json` in prose — a span the renderer could decode,
 so the `\texttt` threshold above never saw it. One rule now governs both.
 
-Where a span genuinely has to be split, the split should still land on a
-character the reader can see. `\seqsplit` inserts its break opportunities
-between every pair of characters at penalty zero, which is cheaper than the
-`\exhyphenpenalty` of 50 that an explicit hyphen carries, so the hyphen
-breaks were never taken and Table 3's Command column read `GEO-INFE` /
-`R-*/src`. Pricing the character break above the hyphen makes the hyphen
-win wherever one is available and leaves the character break in place for
-where none is: the longest hyphen-delimited fragment in that column,
-`TEST/validate_repo_contracts.py`, is 163pt against a 168pt column.
+Where a span genuinely has to be split, the split should still land where it
+costs least. `\seqsplit` inserts its break opportunities at penalty zero,
+which is no more expensive than the interword glue a command line already
+carries and cheaper than the `\exhyphenpenalty` of 50 an explicit hyphen
+carries, so a break inside a token was never the last option — Table 3's
+Command column read `python -m compileall -q GEO-INFE` / `R-*/src`. Pricing
+the character break at 200 puts it above both, so the breaks the material
+already offers are taken first and the same column now reads
+`python -m compileall -q GEO-` / `INFER-*/src`. Where the column leaves no
+such break — `uv run python GEO-INFER-TEST/val` / `idate_repo_contracts.py`
+— the character break is still there to take, which is the point of keeping
+it rather than removing it.
 
 Three tests hold the two failure modes apart, all of them reading the
 artifact rather than the settings: `test_the_final_pass_reports_no_overfull_hbox`
