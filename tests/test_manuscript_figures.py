@@ -98,6 +98,48 @@ class TestFigureLegibility:
                 f"\\renewcommand{{\\{command}}}{{{value}}}" in preamble
             ), f"preamble.md no longer sets \\{command}"
 
+    def test_no_figure_would_be_granted_a_float_page(
+        self, generator: ModuleType, rendered_figures
+    ) -> None:
+        # \floatpagefraction is measured against the whole float, image plus
+        # caption.  Asserting the preamble sets it proves nothing about the
+        # figures drawn against it: the two smaller figures cleared 0.85 and
+        # the module inventory, at 0.90 of the text block, did not.
+        output_dir, specs = rendered_figures
+        limit = generator.TEXT_BLOCK_HEIGHT_IN * generator.FLOAT_PAGE_FRACTION
+        for spec in specs:
+            _width, height = generator._png_size_inches(
+                output_dir / spec.filename, generator.FIGURE_DPI
+            )
+            float_height = height + generator.FIGURE_CAPTION_HEIGHT_IN
+            assert float_height <= limit, (
+                f"{spec.filename} would be a {float_height:.2f}in float against "
+                f"a {limit:.2f}in threshold"
+            )
+
+    def test_the_guard_refuses_a_figure_that_would_claim_a_page(
+        self, generator: ModuleType
+    ) -> None:
+        limit = generator.TEXT_BLOCK_HEIGHT_IN * generator.FLOAT_PAGE_FRACTION
+        generator._assert_leaves_room_for_text(
+            limit - generator.FIGURE_CAPTION_HEIGHT_IN, "fits.png"
+        )
+        with pytest.raises(ValueError, match="page of its own"):
+            generator._assert_leaves_room_for_text(
+                limit - generator.FIGURE_CAPTION_HEIGHT_IN + 0.01, "tall.png"
+            )
+
+    def test_the_float_page_bound_matches_the_preamble(
+        self, generator: ModuleType, repo_root: Path
+    ) -> None:
+        # The generator refuses a figure the preamble would send to a float
+        # page, so the two have to name the same fraction.
+        preamble = (repo_root / "manuscript" / "preamble.md").read_text("utf-8")
+        assert (
+            f"\\renewcommand{{\\floatpagefraction}}{{{generator.FLOAT_PAGE_FRACTION}}}"
+            in preamble
+        )
+
     def test_the_height_bound_matches_the_render_config(
         self, generator: ModuleType, repo_root: Path
     ) -> None:
