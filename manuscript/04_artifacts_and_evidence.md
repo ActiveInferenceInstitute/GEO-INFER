@@ -75,6 +75,15 @@ above. A failed group is published with its return code instead of being
 summarised away, which is what makes `passed`, `failed`, and `not run` three
 distinct published states rather than two.
 
+The commands are minutes long and a render hydrates on a bounded timeout, so
+the record is stamped with the source hash, commit, and tier it describes and
+is reused whenever it still names them. Reuse is the default at every tier,
+including a build that was not asked to verify: a stored record that still
+describes this tree is this build's evidence, and overwriting it with an empty
+one would delete a measured result and republish `not run` in its place. A
+record that names a different tree is never reused, and
+`--rerun-verification` forces the commands to run again.
+
 ## Generated Figures
 
 The registry declares `{{FIGURE_COUNT}}` publication figures:

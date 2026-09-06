@@ -26,6 +26,7 @@ import sys
 import tomllib
 from dataclasses import asdict, dataclass, replace
 from datetime import datetime, timezone
+from math import ceil
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
@@ -134,9 +135,20 @@ TEXT_BLOCK_HEIGHT_IN = 7.70
 FIGURE_HEIGHT_FRACTION = 0.9
 MAX_FIGURE_HEIGHT_IN = TEXT_BLOCK_HEIGHT_IN * FIGURE_HEIGHT_FRACTION
 FIGURE_DPI = 220
-# Inches of vertical space per module row in the inventory figure.  At 8pt type
-# this is about 11pt of leading per label.
-INVENTORY_ROW_HEIGHT_IN = 0.153
+# Inches of vertical space per module row in the inventory figure.  A row now
+# carries both bars for one module, so at 8pt type this is about 12pt of
+# leading per label.
+INVENTORY_ROW_HEIGHT_IN = 0.17
+# Inches the inventory figure spends on everything that is not a module row:
+# the title, the two axis labels, the legend, and the surrounding padding.
+INVENTORY_FIGURE_CHROME_IN = 1.0
+# A float is granted a page of its own once it fills this fraction of the text
+# block, and such a page prints a caption and a folio and nothing else.  The
+# value is the ``\floatpagefraction`` set in manuscript/preamble.md; the
+# inventory figure is laid out to stay under it once its caption is added.
+FLOAT_PAGE_FRACTION = 0.85
+# Inches a three-line figure caption occupies under the float at 10pt/12pt.
+FIGURE_CAPTION_HEIGHT_IN = 0.55
 
 
 @dataclass(frozen=True)
@@ -598,9 +610,10 @@ def _format_count(value: int) -> str:
 def _caption_module_inventory(inventory: RepositoryInventory) -> str:
     return (
         f"Repository-derived inventory of {inventory.module_count} src/-bearing GEO-INFER modules at "
-        f"commit {inventory.commit}. Horizontal bars show Python source-file and test-file counts "
-        "for every module, with modules ordered by source-file count; values are measured from the "
-        "checkout rather than entered manually."
+        f"commit {inventory.commit}. Each row pairs one module's Python source-file and test-file "
+        "counts; modules are ordered by source-file count and split across two panels that share a "
+        "single count axis, the larger half on the left. Values are measured from the checkout "
+        "rather than entered manually."
     )
 
 
@@ -632,8 +645,9 @@ def _alt_module_inventory(inventory: RepositoryInventory) -> str:
     return (
         f"Horizontal grouped bar chart with one row per module for "
         f"{inventory.module_count} modules, sorted with the largest source-file "
-        "count at the top. Each row carries two bars, Python source files and "
-        "test files, on a shared count axis."
+        "count at the top of the left panel and continuing into the right "
+        "panel. Each row carries two bars, Python source files and test files, "
+        "and both panels share one count axis."
     )
 
 
@@ -717,6 +731,29 @@ def _save_figure(fig: Any, path: Path, caption: str, source_hash: str) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _assert_leaves_room_for_text(height_in: float, filename: str) -> None:
+    """Refuse a float tall enough to claim a page of its own.
+
+    ``\floatpagefraction`` decides this at typeset time, and it measures the
+    whole float — image plus caption.  A figure that clears it is moved to a
+    float page carrying the caption and the folio and nothing else, which is
+    the defect this bound exists to prevent.  Checking it here means the
+    generator fails rather than the PDF quietly growing a near-empty page.
+
+    Raises:
+        ValueError: when the float would fill more of the text block than
+            ``FLOAT_PAGE_FRACTION`` allows.
+    """
+    float_height = height_in + FIGURE_CAPTION_HEIGHT_IN
+    limit = TEXT_BLOCK_HEIGHT_IN * FLOAT_PAGE_FRACTION
+    if float_height > limit:
+        raise ValueError(
+            f"{filename} would be typeset as a {float_height:.2f}in float "
+            f"against a {limit:.2f}in float-page threshold, so LaTeX would "
+            "give it a page of its own; shorten the figure"
+        )
+
+
 def generate_figures(
     inventory: RepositoryInventory, output_dir: Path
 ) -> tuple[FigureSpec, ...]:
@@ -763,24 +800,51 @@ def generate_figures(
             "axes.titleweight": "bold",
         }
     ):
+        # One column of 45 module rows cannot be both legible and short: at a
+        # readable row height it fills nine tenths of the text block, LaTeX
+        # grants it a float page, and that page carries a caption and a folio
+        # and nothing else.  Splitting the same rows across two panels halves
+        # the height at unchanged row spacing, so the figure sits at the top of
+        # an ordinary text page with the section's prose beneath it.
+        split = ceil(len(labels) / 2)
+        panels = ((0, split), (split, len(labels)))
         inventory_height = min(
             MAX_FIGURE_HEIGHT_IN,
-            max(4.0, len(labels) * INVENTORY_ROW_HEIGHT_IN),
+            max(3.0, INVENTORY_FIGURE_CHROME_IN + split * INVENTORY_ROW_HEIGHT_IN),
         )
+        _assert_leaves_room_for_text(inventory_height, "module_inventory.png")
         fig, axes = plt.subplots(
-            1, 2, figsize=(TEXT_BLOCK_WIDTH_IN, inventory_height), sharey=True
+            1, 2, figsize=(TEXT_BLOCK_WIDTH_IN, inventory_height)
         )
-        y = list(range(len(labels)))
-        axes[0].barh(y, source_counts, color="#2f6f9f", alpha=0.9)
-        axes[1].barh(y, test_counts, color="#d17a2f", alpha=0.9)
-        axes[0].set_title("Python source files")
-        axes[1].set_title("Test files")
-        axes[0].set_xlabel("Files")
-        axes[1].set_xlabel("Files")
-        axes[0].set_yticks(y, labels)
-        axes[0].invert_yaxis()
-        axes[0].set_axisbelow(True)
-        axes[1].set_axisbelow(True)
+        # Both panels share one count axis, so a bar in the right panel is
+        # directly comparable with a bar in the left one.
+        count_limit = max((*source_counts, *test_counts, 1)) * 1.08
+        bar_height = 0.38
+        for axis, (start, stop) in zip(axes, panels):
+            panel_labels = labels[start:stop]
+            y = list(range(len(panel_labels)))
+            axis.barh(
+                [position - bar_height / 2 for position in y],
+                source_counts[start:stop],
+                bar_height,
+                color="#2f6f9f",
+                alpha=0.9,
+                label="Source files",
+            )
+            axis.barh(
+                [position + bar_height / 2 for position in y],
+                test_counts[start:stop],
+                bar_height,
+                color="#d17a2f",
+                alpha=0.9,
+                label="Test files",
+            )
+            axis.set_yticks(y, panel_labels)
+            axis.set_ylim(len(panel_labels) - 0.5, -0.5)
+            axis.set_xlim(0, count_limit)
+            axis.set_xlabel("Files")
+            axis.set_axisbelow(True)
+        axes[0].legend(frameon=False, loc="lower right", fontsize=7)
         fig.suptitle(
             "GEO-INFER module evidence inventory", fontsize=11, fontweight="bold"
         )
@@ -959,6 +1023,46 @@ def load_matching_verification(
         return None
 
 
+def resolve_verification(
+    root: Path,
+    inventory: RepositoryInventory,
+    *,
+    verify: bool,
+    full_validation: bool,
+    reuse_verification: bool,
+) -> tuple[VerificationResult, ...]:
+    """Return the verification results this build publishes.
+
+    The reuse lookup runs at every tier, not only when this build was asked to
+    verify.  A stored record names the tree it describes, so while it still
+    describes this one it is this build's evidence too.  Gating the lookup on
+    ``verify`` made a default render — which is what the supported render path
+    performs — overwrite a measured record with an empty one and republish
+    "not run" in its place: an absent record converted into a claim, which is
+    exactly what the manuscript's own contract forbids.
+
+    Returns:
+        The reused record when one still describes this tree, the freshly run
+        commands when this build was asked to verify, and an empty tuple
+        otherwise.  The caller publishes whatever comes back, so an empty
+        tuple only ever replaces a record that describes some other tree.
+    """
+    if reuse_verification:
+        reused = load_matching_verification(
+            root, inventory, full_validation=full_validation
+        )
+        if reused is not None:
+            print(
+                "reusing the stored verification record for source hash "
+                f"{inventory.source_hash}",
+                file=sys.stderr,
+            )
+            return reused
+    if verify:
+        return run_verification(root, full_validation=full_validation)
+    return ()
+
+
 def run_verification(
     root: Path, *, full_validation: bool = False
 ) -> tuple[VerificationResult, ...]:
@@ -1054,17 +1158,25 @@ def _verification_summary(
 ) -> tuple[str, int, int, int]:
     """Summarise a verification record against the command groups it defines.
 
-    ``unrun`` is measured, never assumed: it is the number of defined command
-    groups with no recorded outcome, plus any group explicitly recorded as
-    ``not-run``.  An empty record therefore reports every defined group as
-    skipped rather than a constant, and a full pass reports zero.
+    ``unrun`` is measured, never assumed: it counts the defined command groups
+    that this record leaves without an outcome — no entry at all, or an entry
+    whose status is ``not-run``.  Both cases are counted once, over the defined
+    groups, so a record cannot inflate the count by carrying a ``not-run``
+    entry for a group this tier does not define.  ``run_verification`` only
+    ever writes ``passed`` or ``failed``; ``not-run`` reaches this function
+    from a stored record, which is deserialised straight from JSON.  An empty
+    record therefore reports every defined group as skipped rather than a
+    constant, and a full pass reports zero.
     """
     defined = defined_command_groups(full_validation=full_validation)
     passed = sum(result.status == "passed" for result in results)
     failed = sum(result.status == "failed" for result in results)
-    recorded = {result.name for result in results}
-    missing = sum(name not in recorded for name in defined)
-    unrun = missing + sum(result.status == "not-run" for result in results)
+    recorded = {result.name: result for result in results}
+    unrun = sum(
+        1
+        for name in defined
+        if name not in recorded or recorded[name].status == "not-run"
+    )
     if not results:
         return "not run", passed, failed, unrun
     if failed:
@@ -1394,7 +1506,7 @@ def generate(
     full_validation: bool = False,
     allow_dirty: bool = False,
     publication: bool = False,
-    reuse_verification: bool = False,
+    reuse_verification: bool = True,
 ) -> dict[str, Any]:
     """Generate the complete evidence bundle and resolved manuscript.
 
@@ -1408,6 +1520,14 @@ def generate(
     build on the first failure made that summary branch unreachable, which is
     the same defect class as a hardcoded count — the manuscript could only ever
     say "not run" or "all passed".  ``publication=True`` still refuses.
+
+    ``reuse_verification`` defaults to ``True`` and is honoured at every tier,
+    including a build that was not asked to verify.  The stored record names
+    the source hash, commit, and tier it describes, so when it still describes
+    this tree it is this build's evidence; discarding it would delete a
+    measured result and republish "not run" in its place.  Pass
+    ``reuse_verification=False`` (``--rerun-verification``) only to force the
+    commands to run again.
 
     Raises:
         RuntimeError: when the checkout is dirty (or git cannot say) and
@@ -1445,24 +1565,13 @@ def generate(
     _write_json(data_dir / "research_inventory.json", inventory.to_dict())
     specs = generate_figures(inventory, figures_dir)
     write_figure_registry(figures_dir / "figure_registry.json", specs, inventory)
-    verification: tuple[VerificationResult, ...] = ()
-    if verify:
-        reused = (
-            load_matching_verification(
-                root, inventory, full_validation=full_validation
-            )
-            if reuse_verification
-            else None
-        )
-        if reused is None:
-            verification = run_verification(root, full_validation=full_validation)
-        else:
-            verification = reused
-            print(
-                "reusing the stored verification record for source hash "
-                f"{inventory.source_hash}",
-                file=sys.stderr,
-            )
+    verification = resolve_verification(
+        root,
+        inventory,
+        verify=verify,
+        full_validation=full_validation,
+        reuse_verification=reuse_verification,
+    )
     _write_json(
         data_dir / "research_verification.json",
         _verification_payload(verification, full_validation, inventory),
@@ -1604,11 +1713,13 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
-        "--reuse-verification",
+        "--rerun-verification",
         action="store_true",
         help=(
-            "reuse the stored verification record when it names this source "
-            "hash, commit, and tier, instead of re-running the commands"
+            "run the verification commands even when the stored record already "
+            "names this source hash, commit, and tier; reuse is the default so "
+            "that a build which measures nothing cannot overwrite a record that "
+            "still describes the tree"
         ),
     )
     parser.add_argument(
@@ -1640,7 +1751,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             full_validation=args.full_validation,
             allow_dirty=args.allow_dirty,
             publication=args.publication,
-            reuse_verification=args.reuse_verification,
+            reuse_verification=not args.rerun_verification,
         )
     except (OSError, RuntimeError, ValueError) as exc:
         print(f"research artifact generation failed: {exc}", file=sys.stderr)

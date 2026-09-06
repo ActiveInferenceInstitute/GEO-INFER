@@ -9,6 +9,8 @@ defined group gets a row, and a failed group is published rather than fatal.
 
 from __future__ import annotations
 
+import dataclasses
+import json
 from pathlib import Path
 from types import ModuleType
 
@@ -191,4 +193,99 @@ class TestVerificationRecordReuse:
                 tmp_path, repo_inventory, full_validation=False
             )
             is None
+        )
+
+
+class TestVerificationResolutionTier:
+    """A build that measures nothing must not discard a record that stands.
+
+    The reuse lookup used to sit inside ``if verify:``.  Every default render —
+    the only render the supported pipeline performs — therefore replaced a
+    measured record with an empty one and republished ``not run``.  These tests
+    drive the decision seam itself rather than asserting on source text.
+    """
+
+    def _store(self, generator: ModuleType, root: Path, inventory, results) -> None:
+        data = root / "output" / "data"
+        data.mkdir(parents=True, exist_ok=True)
+        (data / "research_verification.json").write_text(
+            json.dumps(generator._verification_payload(results, False, inventory)),
+            encoding="utf-8",
+        )
+
+    def _result(self, generator: ModuleType, name: str):
+        return generator.VerificationResult(
+            name=name,
+            command="run it",
+            status="passed",
+            return_code=0,
+            duration_seconds=1.0,
+            output_tail="",
+        )
+
+    def test_a_non_verifying_build_republishes_a_record_that_still_stands(
+        self, generator: ModuleType, tmp_path: Path, repo_inventory
+    ) -> None:
+        name = generator.VERIFICATION_COMMANDS[0][0]
+        stored = (self._result(generator, name),)
+        self._store(generator, tmp_path, repo_inventory, stored)
+        resolved = generator.resolve_verification(
+            tmp_path,
+            repo_inventory,
+            verify=False,
+            full_validation=False,
+            reuse_verification=True,
+        )
+        assert [result.name for result in resolved] == [name]
+        status, passed, failed, unrun = generator._verification_summary(
+            resolved, full_validation=False
+        )
+        assert (status, passed, failed) == ("1 passed", 1, 0)
+        assert unrun == len(generator.VERIFICATION_COMMANDS) - 1
+
+    def test_a_record_describing_another_tree_is_not_republished(
+        self, generator: ModuleType, tmp_path: Path, repo_inventory
+    ) -> None:
+        other = dataclasses.replace(repo_inventory, source_hash="0" * 16)
+        self._store(
+            generator,
+            tmp_path,
+            other,
+            (self._result(generator, generator.VERIFICATION_COMMANDS[0][0]),),
+        )
+        assert (
+            generator.resolve_verification(
+                tmp_path,
+                repo_inventory,
+                verify=False,
+                full_validation=False,
+                reuse_verification=True,
+            )
+            == ()
+        )
+
+    def test_reuse_is_the_default_for_the_command_line(
+        self, generator: ModuleType
+    ) -> None:
+        # ``--rerun-verification`` is the opt-out.  A default invocation that
+        # opted out of reuse is what deleted the record in the first place.
+        assert generator._parse_args([]).rerun_verification is False
+        assert generator._parse_args(["--rerun-verification"]).rerun_verification
+
+    def test_a_non_verifying_build_runs_no_command(
+        self, generator: ModuleType, tmp_path: Path, repo_inventory, monkeypatch
+    ) -> None:
+        def _fail(*_args, **_kwargs):  # pragma: no cover - must not be reached
+            raise AssertionError("a non-verifying build ran a verification command")
+
+        monkeypatch.setattr(generator, "run_verification", _fail)
+        assert (
+            generator.resolve_verification(
+                tmp_path,
+                repo_inventory,
+                verify=False,
+                full_validation=False,
+                reuse_verification=True,
+            )
+            == ()
         )

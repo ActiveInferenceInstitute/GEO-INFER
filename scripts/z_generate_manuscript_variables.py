@@ -21,7 +21,13 @@ Modes:
         but is stamped ``<sha>-dirty`` and its uncommitted-entry count is
         published as ``RESEARCH_TREE_DIRTY_FILE_COUNT`` — a render during
         ordinary development must work, but it must not claim to be a clean
-        commit.
+        commit.  This mode runs no verification command, but it does not
+        destroy the record of commands that did run: a stored record naming
+        this source hash, commit, and tier is reused and republished, and only
+        a record describing a different tree is replaced.  Without that, every
+        default render — which is what ``stage_03_render.py --project
+        GEO-INFER`` performs — would overwrite the evidence bundle with an
+        empty one and publish ``not run``.
     ``GEO_INFER_MANUSCRIPT_VERIFY=1``
         Evidence build.  Publishes a real per-group record instead of an empty
         one.  A stored record is reused when it names the same source hash,
