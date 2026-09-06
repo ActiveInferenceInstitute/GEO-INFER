@@ -8,7 +8,7 @@ needed. `gnn-geo-infer/1` supports one categorical state factor, one observation
 modality and one control factor, with one-step policies.
 
 The producer and normative format description are in GNN's
-`src/export/geo_infer.py` and `src/export/geo_infer_contract.md`. ACT's
+`src/gnn/export/geo_infer.py` and `src/gnn/export/geo_infer_contract.md` (GNN revisions before its 2026-09 package reorganization, including pinned pairing commit 903b9c339, use `src/export/geo_infer.py`). ACT's
 `geo_infer_act.core.gnn_contract.GNNArtifact` validates the consumer boundary.
 The contract version must change when axis meanings or inference timing change.
 
@@ -41,7 +41,7 @@ In the GNN checkout, install its optional H3 support when exporting spatial IDs:
 
 ```bash
 uv sync --extra dev --extra geo-infer
-PYTHONPATH=src uv run --no-sync python -m export.geo_infer \
+uv run --no-sync python -m gnn.export.geo_infer \  # `gnn` package at src/gnn/, installed editable; pre-reorg revisions use `PYTHONPATH=src python -m export.geo_infer`
   input/gnn_files/pomdp_gridworld/pomdp_gridworld_3x3.md \
   /tmp/gridworld.geo-infer.json --step-seconds 60
 ```
@@ -123,7 +123,7 @@ or Step 7 support. Nonlinear models and implicit resampling remain unsupported.
 The artifact declares `gnn-geo-infer/2`, `linear_gaussian`, dimensions
 `states`, `observations`, `controls`; explicit F/G/H/Q/R matrices; initial belief;
 physical coordinate units; discrete step seconds; and original-source digest.
-GNN owns extraction and serialization in `export.geo_infer_gaussian`.
+GNN owns extraction and serialization in `gnn.export.geo_infer_gaussian` (pre-reorg revisions: `export.geo_infer_gaussian`).
 
 F is `(state,state)`, G `(state,control)`, H `(observation,state)`; Q and R are
 process and observation covariance. Q may be positive semidefinite; R and the

@@ -59,7 +59,8 @@ provide the evidence above; indexed impact analysis remains unavailable.
 
 See [the ACT integration guide](../../GEO-INFER-ACT/docs/gnn_interchange.md) for
 setup and the executable two-environment conformance command. GNN's producer
-contract is `src/export/geo_infer_contract.md` in its repository.
+contract is `src/gnn/export/geo_infer_contract.md` in its repository
+(GNN revisions before its 2026-09 package reorganization, including pinned pairing commit 903b9c339, use `src/export/geo_infer_contract.md`).
 
 The topic branches are `codex/gnn-space-time` (GEO) and
 `codex/geo-infer-interchange` (GNN). Main-branch integration must reconcile

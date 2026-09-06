@@ -9,8 +9,8 @@ from the Step 7 Markdown pipeline. Run the export command from the GNN checkout;
 run the consumer example from the GEO-INFER environment.
 
 ```bash
-PYTHONPATH=src uv run python -m export.geo_infer_factored \
-  src/tests/export/factored_example.json /tmp/factored.geo-infer.json \
+uv run python -m gnn.export.geo_infer_factored \  # `gnn` package at src/gnn/, installed editable; pre-reorg revisions (e.g. pinned commit 903b9c339) use `PYTHONPATH=src python -m export.geo_infer_factored`
+  tests/export/factored_example.json /tmp/factored.geo-infer.json \
   --step-seconds 60
 ```
 

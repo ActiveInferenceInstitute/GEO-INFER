@@ -31,12 +31,46 @@ def revision_receipt(root: Path) -> dict:
     }
 
 
+def detect_export_module_prefix(root: Path, interpreter: Path) -> str:
+    """Probe the GNN checkout layout once and return the exporter module prefix.
+
+    GNN revisions after its 2026-09 package reorganization ship the editable
+    `gnn` package (`src/gnn/`), so the exporter is `gnn.export.geo_infer`.
+    Earlier revisions expose `export.geo_infer` directly under `src/`. The
+    probe is deterministic and runs exactly once; a non-zero exit selects the
+    pre-reorg layout explicitly.
+    """
+    environment = os.environ.copy()
+    environment["PYTHONPATH"] = str(root / "src")
+    probe = subprocess.run(
+        [str(interpreter), "-c", "import gnn.export.geo_infer"],
+        env=environment,
+        capture_output=True,
+        timeout=60,
+    )
+    if probe.returncode == 0:
+        print("GNN layout: post-reorg (gnn.export.geo_infer)")
+        return "gnn.export"
+    print("GNN layout: pre-reorg (export.geo_infer)")
+    return "export"
+
+
 def validate_interchange(gnn_repo: Path, gnn_python: Path) -> dict:
     """Export the tracked gridworld, validate provenance, and verify real replay."""
     root = gnn_repo.resolve(strict=True)
     interpreter = gnn_python.absolute()
     if not interpreter.is_file():
         raise ValueError("GNN interpreter must be an existing file")
+    export_module_prefix = detect_export_module_prefix(root, interpreter)
+    # Fixture location follows the same layout: post-reorg checkouts keep
+    # interchange fixtures under tests/export/, pre-reorg ones under
+    # src/tests/export/. Derived from the probe above, never re-probed.
+    if export_module_prefix == "gnn.export":
+        tests_root = "tests"
+        print("GNN layout: post-reorg (fixtures under tests/export/)")
+    else:
+        tests_root = "src/tests"
+        print("GNN layout: pre-reorg (fixtures under src/tests/export/)")
     source = root / "input/gnn_files/pomdp_gridworld/pomdp_gridworld_3x3.md"
     with tempfile.TemporaryDirectory(prefix="gnn-geo-contract-") as temp:
         artifact_path = Path(temp) / "model.json"
@@ -46,7 +80,7 @@ def validate_interchange(gnn_repo: Path, gnn_python: Path) -> dict:
             [
                 str(interpreter),
                 "-m",
-                "export.geo_infer",
+                f"{export_module_prefix}.geo_infer",
                 str(source),
                 str(artifact_path),
                 "--step-seconds",
@@ -144,7 +178,7 @@ DiscreteTime=t
             [
                 str(interpreter),
                 "-m",
-                "export.geo_infer",
+                f"{export_module_prefix}.geo_infer",
                 str(h3_source),
                 str(spatial_path),
                 "--step-seconds",
@@ -170,7 +204,7 @@ DiscreteTime=t
             run_gaussian_gnn_inference,
         )
 
-        gaussian_source = root / "src/tests/export/gaussian_rectangular.md"
+        gaussian_source = root / f"{tests_root}/export/gaussian_rectangular.md"
         units_path = Path(temp) / "units.json"
         units_path.write_text(
             json.dumps(
@@ -187,7 +221,7 @@ DiscreteTime=t
             [
                 str(interpreter),
                 "-m",
-                "export.geo_infer",
+                f"{export_module_prefix}.geo_infer",
                 str(gaussian_source),
                 str(gaussian_path),
                 "--step-seconds",
@@ -238,7 +272,7 @@ DiscreteTime=t
             infer_factored_step,
         )
 
-        factored_source = root / "src/tests/export/factored_example.json"
+        factored_source = root / f"{tests_root}/export/factored_example.json"
         assert (
             factored_source.read_bytes()
             == (
@@ -251,7 +285,7 @@ DiscreteTime=t
             [
                 str(interpreter),
                 "-m",
-                "export.geo_infer_factored",
+                f"{export_module_prefix}.geo_infer_factored",
                 str(factored_source),
                 str(factored_path),
                 "--step-seconds",
