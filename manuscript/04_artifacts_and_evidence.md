@@ -65,10 +65,9 @@ the record holds, including failures.
 
 {{VERIFICATION_TABLE}}
 
-: Per-group verification record for this build, written from
-`output/data/research_verification.json`. Every command group the build
-defines has a row: one that ran carries the status, process return code, and
-wall duration actually observed, and one that did not is printed as `not run`
+: Per-group verification record for this build. Every command group the build
+defines has a row: `Exit` is the process return code and `Seconds` the wall
+duration observed, and a group that did not run is printed as `not run`
 rather than omitted. {#tbl:verification_record}
 
 [@tbl:verification_record] is the command-level evidence behind the summary

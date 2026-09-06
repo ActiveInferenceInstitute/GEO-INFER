@@ -1020,9 +1020,13 @@ def _verification_table(
         *(FULL_VALIDATION_COMMANDS if full_validation else ()),
     )
     recorded = {result.name: result for result in results}
+    # Column widths are proportional to the dash counts pandoc reads from the
+    # separator row.  The Group column has to hold the longest group name
+    # without breaking mid-word, and single-word headers keep the header from
+    # wrapping and stealing rows from the body.
     rows = [
-        "| Group | Command | Status | Return code | Duration (s) |",
-        "| " + " | ".join(("-" * 14, "-" * 40, "-" * 8, "-" * 6 + ":", "-" * 8 + ":")) + " |",
+        "| Group | Command | Status | Exit | Seconds |",
+        "| " + " | ".join(("-" * 21, "-" * 33, "-" * 8, "-" * 4 + ":", "-" * 7 + ":")) + " |",
     ]
     for name, command in commands:
         result = recorded.get(name)
