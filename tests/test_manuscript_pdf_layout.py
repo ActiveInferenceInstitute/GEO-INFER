@@ -262,6 +262,14 @@ class TestMonospaceSpansBreakOnlyWhenTheyMustBreak:
             if tail is None or head is None:
                 continue
             joined = tail.group(0) + head.group(0)
+            # A break after an explicit hyphen prints the hyphen, so the
+            # reader can see where the string was divided.  That is the one
+            # division in an identifier that costs nothing, and TeX makes it
+            # available without `\seqsplit`.  Every other position divides
+            # the string with no character marking the join, which is the
+            # defect this test exists for.
+            if tail.group(0).endswith("-"):
+                continue
             for literal in literals:
                 if joined == literal and tail.group(0) != literal:
                     offenders.append(

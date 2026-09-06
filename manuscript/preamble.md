@@ -100,21 +100,34 @@ twelve monospace characters, so ordinary prose literals — `GEO-INFER-RISK`,
 character by character and all three shipped broken mid-token in the running
 text.
 
-The threshold is now the measure itself. A span no wider than `\linewidth`
-always fits on a line of its own, so it can be shipped unbroken and left to
-the ordinary interword break before it; a span wider than `\linewidth` fits
-nowhere and must be given break opportunities or it overflows. `\linewidth`
+The threshold is now the measure itself. A span wider than `\linewidth` fits
+on no line at all and has to be given break opportunities somewhere; a span
+narrower than it does not, and is set the way LaTeX would set it. `\linewidth`
 is the *local* measure, so inside Table 3's Command column it is that
 column's width and the long validator commands — several times the column —
-are still split there, which is what the split was introduced for. The bound
-is exact rather than tuned: nothing narrower than its measure can produce an
-overfull box, and `test_the_final_pass_reports_no_overfull_hbox` reads the
-render log to keep that honest.
+are still split there, which is what the split was introduced for.
+
+The fitting branch sets the span rather than shipping the measuring box. The
+difference is that a box is atomic and a span is not: TeX inserts a
+discretionary after every explicit hyphen, so `GEO-INFER-RISK` can break as
+`GEO-` / `INFER-RISK` with the hyphen printed at the line end. Shipping the
+box instead put a 70pt unbreakable word at the end of a nearly full line and
+produced a 6.9pt overfull box on page 26 — trading an invisible break for a
+word in the margin, which is the same defect wearing different clothes. A
+hyphen break is the one break in an identifier that costs the reader nothing,
+because the character that marks it is already part of the string.
 
 The renderer's own `\breaktt` is redefined through the same test. It is
 defined ahead of this preamble and splits unconditionally, which is what
 broke `research_inventory.json` in prose — a span the renderer could decode,
 so the `\texttt` threshold above never saw it. One rule now governs both.
+
+Three tests hold the two failure modes apart, all of them reading the
+artifact rather than the settings: `test_the_final_pass_reports_no_overfull_hbox`
+and `test_no_word_is_set_past_the_right_margin` fail if a span was left
+unbreakable when it needed a break, and
+`test_no_manuscript_literal_is_split_across_lines` fails if one was broken
+where no character marks the join.
 
 ```latex
 \IfFileExists{seqsplit.sty}{\usepackage{seqsplit}}{\newcommand{\seqsplit}[1]{#1}}
@@ -122,7 +135,7 @@ so the `\texttt` threshold above never saw it. One rule now governs both.
 \protected\def\GIfitorsplit#1{%
   \begingroup\ttfamily
   \sbox\GIttbox{#1}%
-  \ifdim\wd\GIttbox>\linewidth\seqsplit{#1}\else\usebox\GIttbox\fi
+  \ifdim\wd\GIttbox>\linewidth\seqsplit{#1}\else#1\fi
   \endgroup}
 \protected\def\texttt#1{\GIfitorsplit{#1}}
 \AtBeginDocument{\protected\def\breaktt#1{\GIfitorsplit{#1}}}
