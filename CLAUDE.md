@@ -62,8 +62,8 @@ Pytest markers: `unit`, `integration`, `system`, `performance`, `geospatial`, `a
 
 ```bash
 # Lint and format changed Python files with the repository's preferred tool
-uv run --with 'ruff>=0.3.0' ruff check GEO-INFER-MODULE/src/
-uv run --with 'ruff>=0.3.0' ruff format --check GEO-INFER-MODULE/src/
+uv run --with 'ruff>=0.15.6,<0.16' ruff check GEO-INFER-MODULE/src/
+uv run --with 'ruff>=0.15.6,<0.16' ruff format --check GEO-INFER-MODULE/src/
 
 # Type check when the owning module provides a mypy contract
 uv run mypy GEO-INFER-MODULE/src/

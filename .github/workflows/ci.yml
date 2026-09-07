@@ -32,12 +32,12 @@ jobs:
           persist-credentials: false
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           version: "0.10.7"
           enable-cache: true
@@ -86,10 +86,10 @@ jobs:
           # source hygiene contract below owns the repository-wide critical
           # rules, while Ruff provides the deterministic formatting gate.
           git diff --name-only -z --diff-filter=ACMRTUXB "$base_sha" "$HEAD_SHA" -- '*.py' | \
-            xargs -0 uv run --with 'ruff>=0.3.0' ruff check \
+            xargs -0 uv run --with 'ruff>=0.15.6,<0.16' ruff check \
               --select F821,F823,E721,E722
           git diff --name-only -z --diff-filter=ACMRTUXB "$base_sha" "$HEAD_SHA" -- '*.py' | \
-            xargs -0 uv run --with 'ruff>=0.3.0' ruff format --check
+            xargs -0 uv run --with 'ruff>=0.15.6,<0.16' ruff format --check
 
       - name: Validate repository contracts
         run: |
@@ -113,7 +113,7 @@ jobs:
 
       - name: Run source runtime hygiene
         run: |
-          uv run --with 'ruff>=0.3.0' ruff check \
+          uv run --with 'ruff>=0.15.6,<0.16' ruff check \
             GEO-INFER-*/src --select F821,F823,E721,E722
 
       - name: Run unit tests
@@ -127,7 +127,7 @@ jobs:
 
       - name: Retain unit test reports
         if: always() && steps.unit_tests.outcome != 'skipped' && steps.unit_tests.outcome != ''
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: geo-infer-unit-reports-py${{ matrix.python-version }}
           path: .geo-infer-test-results/
@@ -143,7 +143,7 @@ jobs:
 
       - name: Retain integration test reports
         if: always() && steps.integration_tests.outcome != 'skipped' && steps.integration_tests.outcome != ''
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: geo-infer-integration-reports-py${{ matrix.python-version }}
           path: .geo-infer-test-results/
@@ -164,7 +164,7 @@ jobs:
             --timeout 600
       - name: Retain system test reports
         if: always() && steps.system_tests.outcome != 'skipped' && steps.system_tests.outcome != ''
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: geo-infer-system-reports-py${{ matrix.python-version }}
           path: .geo-infer-test-results/
@@ -173,7 +173,7 @@ jobs:
           retention-days: 14
       - name: Retain performance test reports
         if: always() && steps.performance_tests.outcome != 'skipped' && steps.performance_tests.outcome != ''
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: geo-infer-performance-reports-py${{ matrix.python-version }}
           path: .geo-infer-test-results/
@@ -188,7 +188,7 @@ jobs:
 
       - name: Retain H3 contract reports
         if: always() && steps.h3_contracts.outcome != 'skipped' && steps.h3_contracts.outcome != ''
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: geo-infer-h3-reports-py${{ matrix.python-version }}
           path: .geo-infer-test-results/summary.json
@@ -216,12 +216,12 @@ jobs:
           persist-credentials: false
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.11"
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           version: "0.10.7"
           enable-cache: true

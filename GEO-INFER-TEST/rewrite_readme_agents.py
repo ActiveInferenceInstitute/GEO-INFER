@@ -936,7 +936,7 @@ the exact reproducible exception list.
 - Test contract: `uv run python GEO-INFER-TEST/validate_test_contracts.py --strict`
 - Model contract: `uv run python GEO-INFER-TEST/validate_model_contracts.py --strict --seed 42`
 - Reproducible model audit: `uv run python GEO-INFER-TEST/run_model_audit.py --seed 42 --reproducible`
-- Source runtime hygiene: `uv run --with 'ruff>=0.3.0' ruff check GEO-INFER-*/src --select F821,F823,E721,E722`
+- Source runtime hygiene: `uv run --with 'ruff>=0.15.6,<0.16' ruff check GEO-INFER-*/src --select F821,F823,E721,E722`
 - Manuscript variables, figures, captions, and resolved copies: `uv run python manuscript/generate_research_artifacts.py`
 
 ## Repo-wide Change Workflow
@@ -1029,7 +1029,7 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --h3-migration
 uv run python GEO-INFER-TEST/validate_test_contracts.py --strict
 uv run python GEO-INFER-TEST/validate_model_contracts.py --strict --seed 42
 uv run python GEO-INFER-TEST/run_model_audit.py --seed 42 --reproducible
-uv run --with 'ruff>=0.3.0' ruff check GEO-INFER-*/src --select F821,F823,E721,E722
+uv run --with 'ruff>=0.15.6,<0.16' ruff check GEO-INFER-*/src --select F821,F823,E721,E722
 uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check
 ```
 
