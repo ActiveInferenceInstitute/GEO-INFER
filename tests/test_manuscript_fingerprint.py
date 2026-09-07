@@ -163,9 +163,7 @@ class TestConfigDateIsSettleable:
         # Why the source date excludes config.yaml: HEAD's date always moves
         # when the refreshed config is recorded.
         self._commit(manuscript_tree, "add manuscript")
-        head_before = generator._run_git(
-            manuscript_tree, "show", "-s", "--format=%cI"
-        )
+        head_before = generator._run_git(manuscript_tree, "show", "-s", "--format=%cI")
         source_before = generator._manuscript_source_date(manuscript_tree)
         assert head_before == source_before
         (manuscript_tree / "manuscript" / "config.yaml").write_text(
@@ -187,9 +185,7 @@ class TestCheckMode:
     def test_stale_source_hash_is_detected(
         self, generator: ModuleType, manuscript_tree: Path
     ) -> None:
-        _publish(
-            generator, manuscript_tree, RESEARCH_SOURCE_HASH="0000000000000000"
-        )
+        _publish(generator, manuscript_tree, RESEARCH_SOURCE_HASH="0000000000000000")
         problems = generator.check_published_artifacts(manuscript_tree)
         assert any("RESEARCH_SOURCE_HASH is stale" in p for p in problems)
 

@@ -22,18 +22,14 @@ class TestValidatorCount:
         assert expected > 0
         assert repo_inventory.validator_files == expected
 
-    def test_non_validators_are_excluded(
-        self, repo_root: Path, repo_inventory
-    ) -> None:
+    def test_non_validators_are_excluded(self, repo_root: Path, repo_inventory) -> None:
         all_top_level = [
             path
             for path in (repo_root / "GEO-INFER-TEST").glob("*.py")
             if path.is_file()
         ]
         non_validators = {
-            path.name
-            for path in all_top_level
-            if not path.name.startswith("validate_")
+            path.name for path in all_top_level if not path.name.startswith("validate_")
         }
         assert non_validators, "fixture assumption: the directory holds non-validators"
         assert repo_inventory.validator_files == len(all_top_level) - len(
@@ -53,9 +49,7 @@ class TestValidatorCount:
         assert variables["TEST_TOOLING_FILE_COUNT"] == str(
             repo_inventory.test_tooling_files
         )
-        assert variables["VALIDATOR_FILE_COUNT"] != variables[
-            "TEST_TOOLING_FILE_COUNT"
-        ]
+        assert variables["VALIDATOR_FILE_COUNT"] != variables["TEST_TOOLING_FILE_COUNT"]
 
 
 class TestModuleCountLabel:

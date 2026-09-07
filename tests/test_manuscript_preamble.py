@@ -34,9 +34,7 @@ class TestPreambleBlocks:
         )
         assert blocks, "no latex-fenced block would be extracted from preamble.md"
 
-    def test_no_extracted_block_carries_a_whole_document(
-        self, repo_root: Path
-    ) -> None:
+    def test_no_extracted_block_carries_a_whole_document(self, repo_root: Path) -> None:
         blocks = LATEX_BLOCK.findall(
             (repo_root / "manuscript" / "preamble.md").read_text(encoding="utf-8")
         )
