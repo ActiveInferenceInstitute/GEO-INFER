@@ -179,9 +179,9 @@ class TestRecordSurvivesANonVerifyingBuild:
         )
         assert manifest["source_commit"] == f"{clean.commit}-dirty"
         assert manifest["verification_measured_elsewhere"] is True
-        assert _published(generator, generatable_checkout)["results"] == stored[
-            "results"
-        ]
+        assert (
+            _published(generator, generatable_checkout)["results"] == stored["results"]
+        )
 
     def test_a_record_written_before_the_stamps_existed_survives(
         self, generator: ModuleType, generatable_checkout: Path
@@ -226,12 +226,10 @@ class TestRecordSurvivesANonVerifyingBuild:
             commit=FOREIGN_COMMIT,
             source_hash=FOREIGN_HASH,
         )
-        generator.generate(
-            generatable_checkout, verify=False, reuse_verification=False
+        generator.generate(generatable_checkout, verify=False, reuse_verification=False)
+        assert (
+            _published(generator, generatable_checkout)["results"] == stored["results"]
         )
-        assert _published(generator, generatable_checkout)["results"] == stored[
-            "results"
-        ]
 
     def test_a_verifying_build_does_replace_the_record(
         self, generator: ModuleType, generatable_checkout: Path, monkeypatch

@@ -39,9 +39,7 @@ class TestVerificationTable:
         for name, _command in generator.VERIFICATION_COMMANDS:
             assert f"| `{name}` |" in table
 
-    def test_full_validation_adds_the_second_tier(
-        self, generator: ModuleType
-    ) -> None:
+    def test_full_validation_adds_the_second_tier(self, generator: ModuleType) -> None:
         table = generator._verification_table([], full_validation=True)
         rows = [line for line in table.splitlines() if line.startswith("| `")]
         assert len(rows) == len(generator.VERIFICATION_COMMANDS) + len(
@@ -55,7 +53,9 @@ class TestVerificationTable:
         table = generator._verification_table(
             [_result(generator, name, "failed", 1)], full_validation=False
         )
-        row = next(line for line in table.splitlines() if line.startswith(f"| `{name}`"))
+        row = next(
+            line for line in table.splitlines() if line.startswith(f"| `{name}`")
+        )
         assert "failed" in row
         assert "| 1 |" in row
 

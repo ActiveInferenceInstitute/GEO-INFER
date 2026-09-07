@@ -57,9 +57,11 @@ class TestFigurePathLiterals:
         offenders = {
             path.name: lines
             for path in _published_sources(repo_root)
-            if (lines := _outside_image_targets(
-                path.read_text(encoding="utf-8"), REWRITTEN_PREFIX
-            ))
+            if (
+                lines := _outside_image_targets(
+                    path.read_text(encoding="utf-8"), REWRITTEN_PREFIX
+                )
+            )
         }
         assert not offenders, (
             f"{REWRITTEN_PREFIX!r} outside an image target is rewritten to "
@@ -72,7 +74,9 @@ class TestFigurePathLiterals:
     ) -> None:
         combined = repo_root / "output" / "pdf" / "_combined_manuscript.md"
         if not combined.is_file():
-            pytest.skip("the combined document has not been rendered")
+            pytest.fail(
+                "the combined document has not been rendered (skips become failures)"
+            )
         offenders = _outside_image_targets(
             combined.read_text(encoding="utf-8"), REWRITE_RESULT
         )

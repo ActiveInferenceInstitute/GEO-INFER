@@ -94,9 +94,9 @@ class TestFigureLegibility:
             ("textfraction", "0.08"),
             ("floatpagefraction", "0.85"),
         ):
-            assert (
-                f"\\renewcommand{{\\{command}}}{{{value}}}" in preamble
-            ), f"preamble.md no longer sets \\{command}"
+            assert f"\\renewcommand{{\\{command}}}{{{value}}}" in preamble, (
+                f"preamble.md no longer sets \\{command}"
+            )
 
     def test_no_figure_would_be_granted_a_float_page(
         self, generator: ModuleType, rendered_figures
@@ -151,9 +151,9 @@ class TestFigureLegibility:
         assert float(rendering["figure_height_fraction"]) == pytest.approx(
             generator.FIGURE_HEIGHT_FRACTION
         )
-        assert float(
-            rendering["front_matter_figure_height_fraction"]
-        ) == pytest.approx(generator.FIGURE_HEIGHT_FRACTION)
+        assert float(rendering["front_matter_figure_height_fraction"]) == pytest.approx(
+            generator.FIGURE_HEIGHT_FRACTION
+        )
 
 
 class TestFigureProvenance:
@@ -185,9 +185,7 @@ class TestFigureProvenance:
         import dataclasses
 
         output_dir, specs = rendered_figures
-        undigested = tuple(
-            dataclasses.replace(spec, sha256="") for spec in specs[:1]
-        )
+        undigested = tuple(dataclasses.replace(spec, sha256="") for spec in specs[:1])
         with pytest.raises(ValueError, match="no content digest"):
             generator.write_figure_registry(
                 output_dir / "broken_registry.json", undigested, repo_inventory

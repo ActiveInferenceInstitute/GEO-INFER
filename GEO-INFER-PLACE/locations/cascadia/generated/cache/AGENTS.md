@@ -21,7 +21,7 @@
 
 ## Local Contents
 
-- `region_cache_4e2b5626c8c4ca7a05c736003fae87ed.json`
+- No direct tracked child entries.
 
 ## Validation
 

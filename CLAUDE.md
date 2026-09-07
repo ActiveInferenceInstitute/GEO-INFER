@@ -62,8 +62,8 @@ Pytest markers: `unit`, `integration`, `system`, `performance`, `geospatial`, `a
 
 ```bash
 # Lint and format changed Python files with the repository's preferred tool
-uv run --with 'ruff>=0.3.0' ruff check GEO-INFER-MODULE/src/
-uv run --with 'ruff>=0.3.0' ruff format --check GEO-INFER-MODULE/src/
+uv run --with 'ruff>=0.15.6,<0.16' ruff check GEO-INFER-MODULE/src/
+uv run --with 'ruff>=0.15.6,<0.16' ruff format --check GEO-INFER-MODULE/src/
 
 # Type check when the owning module provides a mypy contract
 uv run mypy GEO-INFER-MODULE/src/
@@ -104,11 +104,11 @@ GEO-INFER-MODULE/
 - **Analytical Core**: MATH, ACT, BAYES, AI, COG, AGENT, SPM
 - **Spatial-Temporal**: SPACE, TIME, IOT
 - **Infrastructure**: DATA, API, SEC, OPS, METAGOV
-- **Domain-Specific**: AG, HEALTH, ECON, RISK, LOG, BIO, CLIMATE, ENERGY, FOREST, MARINE, EMERGENCY, EDU, TRANSPORT, WATER
+- **Domain-Specific**: AG, HEALTH, ECON, RISK, INSURANCE, LOG, BIO, CLIMATE, ENERGY, FOREST, MARINE, EMERGENCY, EDU, TRANSPORT, WATER
 - **Agent & Simulation**: AGENT, ANT, SIM
 - **Community & Applications**: CIV, PEP, ORG, COMMS, APP, ART
 - **Governance**: NORMS, REQ
-- **Operations**: OPS, INTRA, GIT, TEST, EXAMPLES, PLACE
+- **Operations**: INTRA, GIT, TEST, EXAMPLES, PLACE
 
 ### Data Flow
 

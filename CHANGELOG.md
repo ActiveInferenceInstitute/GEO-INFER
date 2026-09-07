@@ -7,10 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### September 7 history re-attribution
+### September 7 root health and CI integration
+
+- Run the root manuscript regression suite (102 of 109 tests) in the CI
+  manuscript job after artifact verification; the render-dependent files stay
+  scoped to the render lane (ROOT-01 in TODO.md). Convert the remaining
+  `pytest.skip` calls in the root suites to explicit failures, matching the
+  suite's no-skip policy.
+- Harden declared dependency floors to post-CVE minima (urllib3>=2.0.6,
+  requests>=2.31.0, aiohttp>=3.9.0, jinja2>=3.1.3) without moving the locked
+  versions, add `pydocstyle` to the `all` extra, and drop its weaker duplicate
+  `pymc>=4.0.0` pin.
+- Retain system-test reports in CI and raise the test-job timeout to 60
+  minutes; record the recurring CI-01 verification at `24c6741d`.
+- Correct the module count (44 -> 45) left in SKILL.md, the INTRA developer
+  and integration docs, the maintenance-script taxonomy comment and the `.aii`
+  sidecar, and add INSURANCE to the SKILL.md and CLAUDE.md module tables.
+- Stop tracking the three committed PLACE runtime region caches (root `cache/`
+  and two `GEO-INFER-PLACE/locations/cascadia/**/cache/` copies, same cache
+  key, all offline-regenerable); refresh the
+  TODO.md ledger (dead ledger link, CODE-01 due note, new CI-02 and ROOT-01
+  rows, HYG-03 receipt).
 - Re-attribute all hum-side personal commit identities to docxology via a
   published-history rewrite across all branches; commit SHAs cited anywhere in
   the documentation before this date are pre-rewrite historical identifiers.
+- Bound the CI ruff gate to `>=0.15.6,<0.16` across the workflow, the package
+  extras and every documented command surface, reformat the six drifted
+  manuscript suites, and land the safe action majors (setup-python v7.0.0,
+  setup-uv v10.0.1, upload-artifact v7.0.1) after release-note review.
+- Attribute the root package to docxology in the pyproject metadata.
+- Re-render the manuscript via the docxology lane for this checkout (27
+  pages, fail-closed green) and record receipts: all 109 root tests pass
+  locally, including the 7 render-dependent ones.
 
 ### September 5 GNN, space/time and acquisition integration
 

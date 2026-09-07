@@ -72,7 +72,7 @@ From the repository root, run the focused gates first:
 uv run pytest GEO-INFER-ACT/tests/unit GEO-INFER-ACT/tests/integration -q
 uv run pytest GEO-INFER-BAYES/tests/unit GEO-INFER-BAYES/tests/integration -q
 uv run pytest GEO-INFER-RISK/tests/unit -q
-uv run --with 'ruff>=0.3.0' ruff check GEO-INFER-*/src --select F821,F823,E721,E722
+uv run --with 'ruff>=0.15.6,<0.16' ruff check GEO-INFER-*/src --select F821,F823,E721,E722
 python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
 ```
 
