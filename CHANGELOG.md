@@ -23,9 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Correct the module count (44 -> 45) left in SKILL.md, the INTRA developer
   and integration docs, the maintenance-script taxonomy comment and the `.aii`
   sidecar, and add INSURANCE to the SKILL.md and CLAUDE.md module tables.
-- Stop tracking the PLACE runtime region cache (`cache/`); refresh the
+- Stop tracking the three committed PLACE runtime region caches (root `cache/`
+  and two `GEO-INFER-PLACE/locations/cascadia/**/cache/` copies, same cache
+  key, all offline-regenerable); refresh the
   TODO.md ledger (dead ledger link, CODE-01 due note, new CI-02 and ROOT-01
-  rows).
+  rows, HYG-03 receipt).
 
 ### September 5 GNN, space/time and acquisition integration
 
