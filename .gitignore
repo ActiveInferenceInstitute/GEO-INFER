@@ -50,6 +50,9 @@ GEO-INFER-INTRA/assessment_results/DEPENDENCY_VALIDATION_REPORT.md
 /.hypothesis
 config/
 
-# PLACE UnifiedBackend runtime region caches. Written next to the CWD when a
-# demo runs with enable_caching; regenerated on demand, never published.
-cache/
+# PLACE UnifiedBackend runtime region caches. Written next to the CWD (root
+# /cache/) or under the PLACE location tree when a demo runs with
+# enable_caching; regenerated on demand, never published.
+/cache/
+GEO-INFER-PLACE/locations/cascadia/generated/cache/region_cache_*.json
+GEO-INFER-PLACE/locations/cascadia/output/data/cache/region_cache_*.json
