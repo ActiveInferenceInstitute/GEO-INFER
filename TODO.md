@@ -1,8 +1,15 @@
 # GEO-INFER Open Task & Backlog Ledger
 
-> Last reviewed: 2026-09-05
+> Last reviewed: 2026-09-07
 > Scope: Multi-package repository (`GEO-INFER`) across workspace packages and 45 domain modules.
 > Centralization Rule: All planned, open, or deferred engineering work across all modules is tracked exclusively in this ledger. Module source code and tests must never carry local task markers (`TODO`, `FIXME`, `XXX`, `HACK`).
+> History note (2026-09-07): the published history was rewritten to re-attribute
+> hum-side personal commit identities to docxology
+> <docxology@users.noreply.github.com>. Every commit SHA recorded in this
+> ledger, in CHANGELOG.md and in ISA.md before that rewrite refers to
+> pre-rewrite history and no longer resolves; the recorded evidence and run
+> results remain valid, only the identifiers changed. Future contributions
+> from this checkout are authored as docxology.
 
 ---
 

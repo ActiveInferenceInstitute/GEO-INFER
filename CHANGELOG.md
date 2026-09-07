@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### September 7 history re-attribution
+- Re-attribute all hum-side personal commit identities to docxology via a
+  published-history rewrite across all branches; commit SHAs cited anywhere in
+  the documentation before this date are pre-rewrite historical identifiers.
+
 ### September 5 GNN, space/time and acquisition integration
 
 - Add explicit GNN Gaussian and factored model contracts alongside categorical
