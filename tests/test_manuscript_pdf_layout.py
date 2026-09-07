@@ -41,11 +41,7 @@ MINIMUM_NON_CAPTION_WORDS = 15
 def _words(text: str) -> list[str]:
     """Normalised word list: ligatures folded, punctuation and folios dropped."""
     folded = unicodedata.normalize("NFKD", text).casefold()
-    return [
-        word
-        for word in re.findall(r"[a-z0-9]+", folded)
-        if not word.isdigit()
-    ]
+    return [word for word in re.findall(r"[a-z0-9]+", folded) if not word.isdigit()]
 
 
 def _remaining(page_words: list[str], caption_words: list[str]) -> list[str]:
@@ -63,7 +59,7 @@ def _remaining(page_words: list[str], caption_words: list[str]) -> list[str]:
 def _tool(name: str) -> str:
     path = shutil.which(name)
     if path is None:
-        pytest.skip(f"{name} is not installed")
+        pytest.fail(f"{name} is not installed (skips become failures)")
     return path
 
 
@@ -71,7 +67,7 @@ def _tool(name: str) -> str:
 def rendered_pdf(repo_root: Path) -> Path:
     pdf = repo_root / PDF
     if not pdf.is_file():
-        pytest.skip(f"{PDF.as_posix()} has not been rendered")
+        pytest.fail(f"{PDF.as_posix()} has not been rendered (skips become failures)")
     return pdf
 
 
@@ -168,7 +164,10 @@ class TestBoxWarnings:
     def test_the_final_pass_reports_no_overfull_hbox(self, repo_root: Path) -> None:
         log = repo_root / "output" / "pdf" / "_combined_manuscript.log"
         if not log.is_file():
-            pytest.skip("output/pdf/_combined_manuscript.log has not been rendered")
+            pytest.fail(
+                "output/pdf/_combined_manuscript.log has not been rendered"
+                " (skips become failures)"
+            )
         text = log.read_text(encoding="utf-8", errors="replace")
         offenders = [
             line for line in text.splitlines() if line.startswith("Overfull \\hbox")
@@ -217,8 +216,7 @@ class TestNoStrandedLines:
             and _page_characters(rendered_pdf, page) < MINIMUM_PAGE_CHARACTERS
         ]
         assert not sparse, (
-            "pages carry fewer than "
-            f"{MINIMUM_PAGE_CHARACTERS} characters: {sparse}"
+            f"pages carry fewer than {MINIMUM_PAGE_CHARACTERS} characters: {sparse}"
         )
 
 
@@ -274,8 +272,7 @@ class TestMonospaceSpansBreakOnlyWhenTheyMustBreak:
             for literal in literals:
                 if joined == literal and tail.group(0) != literal:
                     offenders.append(
-                        f"{literal!r} split as {tail.group(0)!r} / "
-                        f"{head.group(0)!r}"
+                        f"{literal!r} split as {tail.group(0)!r} / {head.group(0)!r}"
                     )
         assert not offenders, "\n".join(sorted(set(offenders)))
 
@@ -316,6 +313,5 @@ class TestPreambleDoesNotLeakIntoTheBody:
         ).stdout
         found = sorted({name for name in names if name in text})
         assert not found, (
-            "preamble control-sequence names appear in the typeset body: "
-            f"{found}"
+            f"preamble control-sequence names appear in the typeset body: {found}"
         )

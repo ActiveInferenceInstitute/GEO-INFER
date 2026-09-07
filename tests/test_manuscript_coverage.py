@@ -37,9 +37,7 @@ class TestModuleTable:
         rows = table.splitlines()[2:]
         assert len(rows) == repo_inventory.module_count
         named = re.findall(r"\| `(GEO-INFER-[A-Z0-9]+)` \|", table)
-        assert sorted(named) == sorted(
-            module.name for module in repo_inventory.modules
-        )
+        assert sorted(named) == sorted(module.name for module in repo_inventory.modules)
 
     def test_rows_carry_the_measured_counts(
         self, generator: ModuleType, repo_inventory
@@ -167,9 +165,7 @@ class TestPublishedCountsPartitionTheDefinition:
         self, generator: ModuleType, repo_inventory
     ) -> None:
         for full_validation in (False, True):
-            names = generator.defined_command_groups(
-                full_validation=full_validation
-            )
+            names = generator.defined_command_groups(full_validation=full_validation)
             record = generator.VerificationRecord(
                 results=self._results(generator, names[:1], status="failed"),
                 source_commit="abc1234",
@@ -183,9 +179,7 @@ class TestPublishedCountsPartitionTheDefinition:
                 int(variables[f"VERIFICATION_{key}_COUNT"])
                 for key in ("PASS", "FAIL", "UNRUN")
             )
-            assert total == int(variables["VERIFICATION_DEFINED_COUNT"]) == len(
-                names
-            )
+            assert total == int(variables["VERIFICATION_DEFINED_COUNT"]) == len(names)
 
     def test_a_record_wider_than_its_tier_fails_the_build(
         self, generator: ModuleType, repo_inventory
@@ -201,9 +195,7 @@ class TestPublishedCountsPartitionTheDefinition:
             full_validation_requested=False,
         )
         with pytest.raises(ValueError, match="must partition the defined"):
-            generator.build_variables(
-                repo_inventory, _figure_specs(generator), record
-            )
+            generator.build_variables(repo_inventory, _figure_specs(generator), record)
 
     def test_a_group_no_tier_defines_fails_the_build(
         self, generator: ModuleType, repo_inventory
@@ -215,9 +207,7 @@ class TestPublishedCountsPartitionTheDefinition:
             full_validation_requested=False,
         )
         with pytest.raises(ValueError, match="must partition the defined"):
-            generator.build_variables(
-                repo_inventory, _figure_specs(generator), record
-            )
+            generator.build_variables(repo_inventory, _figure_specs(generator), record)
 
 
 class TestHydrationTierSelection:
@@ -317,15 +307,14 @@ def shim_checkout(
     copy = tmp_path_factory.mktemp("shim") / "checkout"
     add = _git(repo_root, "worktree", "add", "--detach", str(copy), "HEAD")
     if add.returncode != 0:  # pragma: no cover - environment without git
-        pytest.skip(f"git worktree add failed: {add.stderr.strip()}")
+        pytest.fail(f"git worktree add failed: {add.stderr.strip()}")
     try:
         _mirror_working_tree(repo_root, copy)
         shutil.copytree(repo_root / "output", copy / "output")
         yield copy
     finally:
         subprocess.run(
-            ["git", "-C", str(repo_root), "worktree", "remove", "--force",
-             str(copy)],
+            ["git", "-C", str(repo_root), "worktree", "remove", "--force", str(copy)],
             capture_output=True,
             check=False,
         )

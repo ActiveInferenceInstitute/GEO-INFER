@@ -17,7 +17,7 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     env:
       UV_PYTHON: ${{ matrix.python-version }}
     strategy:
@@ -158,9 +158,19 @@ jobs:
             --timeout 600
 
       - name: Run system tests
+        id: system_tests
         run: |
           uv run python GEO-INFER-TEST/run_unified_tests.py --category system \
             --timeout 600
+      - name: Retain system test reports
+        if: always() && steps.system_tests.outcome != 'skipped' && steps.system_tests.outcome != ''
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: geo-infer-system-reports-py${{ matrix.python-version }}
+          path: .geo-infer-test-results/
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 14
       - name: Retain performance test reports
         if: always() && steps.performance_tests.outcome != 'skipped' && steps.performance_tests.outcome != ''
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -226,3 +236,16 @@ jobs:
       - name: Generate research artifacts
         run: |
           uv run python manuscript/generate_research_artifacts.py --verify
+
+      - name: Run root manuscript regression tests
+        # run_unified_tests.py only enumerates GEO-INFER-* module
+        # directories, so the root tests/ suite never ran in CI. These 100+
+        # tests guard the generator, its verification record and the
+        # shipped-bundle contract. The render-dependent files need the
+        # docxology LaTeX pass (output/pdf/*), which this repository's CI
+        # does not produce, so they are excluded here with their own
+        # receipts; pytest is layered on because the locked env omits it.
+        run: |
+          uv run --with pytest python -m pytest tests/ \
+            --ignore=tests/test_manuscript_pdf_layout.py \
+            --deselect "tests/test_manuscript_paths.py::TestFigurePathLiterals::test_the_combined_document_keeps_the_rewrite_inside_image_targets"
