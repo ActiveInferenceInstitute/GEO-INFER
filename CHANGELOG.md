@@ -28,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   key, all offline-regenerable); refresh the
   TODO.md ledger (dead ledger link, CODE-01 due note, new CI-02 and ROOT-01
   rows, HYG-03 receipt).
+- Re-attribute all hum-side personal commit identities to docxology via a
+  published-history rewrite across all branches; commit SHAs cited anywhere in
+  the documentation before this date are pre-rewrite historical identifiers.
 
 ### September 5 GNN, space/time and acquisition integration
 
