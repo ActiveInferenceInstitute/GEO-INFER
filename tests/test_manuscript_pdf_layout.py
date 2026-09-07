@@ -8,9 +8,10 @@ visible in the PDF: the parameters were relaxed enough for two of the three
 figures and the third still cleared ``\\floatpagefraction``.  These tests read
 the artifact.
 
-The PDF is a build product under the ignored ``output/`` tree, so the suite
-skips when it has not been rendered.  Nothing here is a substitute for the
-generator-side bound in ``_assert_leaves_room_for_text``; that one fails
+The PDF is a build product under the ignored ``output/`` tree, so these tests
+fail when it has not been rendered: the suite's no-skip policy treats an
+unavailable render as a failure, not a pass.  Nothing here is a substitute for
+the generator-side bound in ``_assert_leaves_room_for_text``; that one fails
 before a figure is written, this one fails after a render that shipped one
 anyway.
 """
