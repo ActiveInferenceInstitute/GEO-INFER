@@ -5,7 +5,7 @@ automation.
 
 ## Scope and ownership
 
-- The root is a uv workspace with 44 GEO-INFER-* modules.
+- The root is a uv workspace with 45 GEO-INFER-* modules.
 - Importable behavior belongs under a module's src/ package.
 - Tests belong to the owning module unless they validate a repository-wide
   contract, in which case they belong in GEO-INFER-TEST.

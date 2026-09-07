@@ -5,7 +5,7 @@ import glob
 
 ROOT_DIR = "."
 
-# Module Categories (matching the canonical 44-module taxonomy in
+# Module Categories (matching the canonical 45-module taxonomy in
 # geo_infer_intra.core.documentation.visual_preview.MODULE_PROFILES)
 CORE_AGENT_MODULES = ["GEO-INFER-AGENT", "GEO-INFER-ACT", "GEO-INFER-ANT", "GEO-INFER-SIM", "GEO-INFER-COG"]
 

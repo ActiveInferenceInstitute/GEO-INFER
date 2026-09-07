@@ -1,11 +1,11 @@
 # AII sidecar — InstituteOS metadata. Schema: instituteos.platform.aii_sidecar
 meta:
-  updated: '2026-06-30'
+  updated: '2026-09-07'
 repo:
   name: GEO-INFER
   slug: geo-infer
   full_name: ActiveInferenceInstitute/GEO-INFER
-  description: GEO-INFER is a 44-module geospatial inference monorepo for spatial
+  description: GEO-INFER is a 45-module geospatial inference monorepo for spatial
     analysis, active inference, domain modeling, agent workflows, and repository validation.
 institute:
   category: research-software

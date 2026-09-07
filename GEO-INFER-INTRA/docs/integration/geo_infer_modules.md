@@ -1,6 +1,6 @@
 # GEO-INFER Module Integration
 
-This document describes how the 44 GEO-INFER modules communicate, share data, and compose into analysis pipelines.
+This document describes how the 45 GEO-INFER modules communicate, share data, and compose into analysis pipelines.
 
 ## Data Flow Architecture
 

@@ -104,11 +104,11 @@ GEO-INFER-MODULE/
 - **Analytical Core**: MATH, ACT, BAYES, AI, COG, AGENT, SPM
 - **Spatial-Temporal**: SPACE, TIME, IOT
 - **Infrastructure**: DATA, API, SEC, OPS, METAGOV
-- **Domain-Specific**: AG, HEALTH, ECON, RISK, LOG, BIO, CLIMATE, ENERGY, FOREST, MARINE, EMERGENCY, EDU, TRANSPORT, WATER
+- **Domain-Specific**: AG, HEALTH, ECON, RISK, INSURANCE, LOG, BIO, CLIMATE, ENERGY, FOREST, MARINE, EMERGENCY, EDU, TRANSPORT, WATER
 - **Agent & Simulation**: AGENT, ANT, SIM
 - **Community & Applications**: CIV, PEP, ORG, COMMS, APP, ART
 - **Governance**: NORMS, REQ
-- **Operations**: OPS, INTRA, GIT, TEST, EXAMPLES, PLACE
+- **Operations**: INTRA, GIT, TEST, EXAMPLES, PLACE
 
 ### Data Flow
 

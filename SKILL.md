@@ -1,11 +1,11 @@
 ---
 name: geo-infer
-description: Geospatial Active Inference framework with 44 modules for ecological, civic, and commercial spatial analysis. Use when working with geospatial data, Active Inference, Bayesian modeling, H3 hexagonal indexing, spatial statistics, or any domain-specific geographic analysis (agriculture, health, economics, risk, climate, energy, transport, marine, forestry, water).
+description: Geospatial Active Inference framework with 45 modules for ecological, civic, and commercial spatial analysis. Use when working with geospatial data, Active Inference, Bayesian modeling, H3 hexagonal indexing, spatial statistics, or any domain-specific geographic analysis (agriculture, health, economics, risk, climate, energy, transport, marine, forestry, water).
 ---
 
 # GEO-INFER
 
-A 44-module Python monorepo implementing Active Inference principles for geospatial analysis.
+A 45-module Python monorepo implementing Active Inference principles for geospatial analysis.
 
 ## Instructions
 
@@ -82,6 +82,7 @@ Modules are in `GEO-INFER-{NAME}/` directories. Each has its own `SKILL.md` for 
 | ART | `geo_infer_art` | Generative geo-art, cartographic design |
 | EDU | `geo_infer_edu` | Curricula, exercises, assessment |
 | PLACE | `geo_infer_place` | Geocoding, catchment analysis, H3 |
+| INSURANCE | `geo_infer_insurance` | Exposure assessment, underwriting, premium and claim flow |
 | GIT | `geo_infer_git` | Spatial data versioning, lineage |
 | TEST | `geo_infer_test` | Unified test runner, fixtures, markers |
 | EXAMPLES | `geo_infer_examples` | Orchestration patterns, workflows |
