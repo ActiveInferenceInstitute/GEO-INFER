@@ -7,7 +7,7 @@ name = "geo-infer-framework"
 version = "0.2.0"
 description = "Comprehensive geospatial inference framework for ecological, civic, and commercial applications"
 authors = [
-    {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"}
+    {name = "docxology", email = "docxology@users.noreply.github.com"}
 ]
 readme = "README.md"
 license = {text = "CC BY-NC-SA 4.0"}
