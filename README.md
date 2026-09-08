@@ -31,7 +31,7 @@ domain modeling, agent workflows, and reproducible repository validation in one
 | --- | ---: |
 | Modules | 45 |
 | Python source files | 917 |
-| Python test files | 615 |
+| Python test files | 616 |
 | Repository README.md files | 823 |
 | Repository AGENTS.md files | 820 |
 
@@ -142,7 +142,7 @@ the exact reproducible exception list.
 | `GEO-INFER-TEST` | `geo_infer_test` | 12 | 32 |
 | `GEO-INFER-TIME` | `geo_infer_time` | 18 | 19 |
 | `GEO-INFER-TRANSPORT` | `geo_infer_transport` | 7 | 8 |
-| `GEO-INFER-WATER` | `geo_infer_water` | 10 | 7 |
+| `GEO-INFER-WATER` | `geo_infer_water` | 10 | 8 |
 
 ## Modular Hygiene
 
