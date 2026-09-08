@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Deep horizon 2026-09-07 - maintenance-script conformance
+
+- Close the HYG-05 drift: canonicalize the 10 non-canonical scripts under
+  `GEO-INFER-INTRA/scripts/` with one bounded `ruff format` pass
+  (`>=0.15.6,<0.16`), verified semantics-preserving by AST-dump equality on
+  all 13 files in the scope.
+- Convert the three E722 bare `except:` handlers (`audit_agents_docs.py`,
+  `migrate_to_uv.py`) to `except BaseException:` — identical runtime
+  semantics to a bare except, so no behavior change.
+- Settle DOCS-04: `.aii/config.yaml` `tasks.test.cmd` now runs
+  `uv run python GEO-INFER-TEST/run_unified_tests.py --category unit`
+  instead of bare `python -m pytest`, matching the AGENTS.md test-command
+  surfaces and the CI unit lane.
 ### Deep horizon 2026-09-07 - geo-code01 index refresh
 
 - Refreshed the CODE-01 GitNexus index in the geo-code01 worktree: `gitnexus

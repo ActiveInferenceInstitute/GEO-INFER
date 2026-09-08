@@ -129,3 +129,25 @@ The physical GPU, full native keyboard/browser checks, missing licensed
 bioregion boundary, controlled import-performance investigation and unexplained
 historical PROJ failure remain open; implementation is not substituted for
 those empirical checks. Hosted CI and PR merge status are tracked separately.
+
+## Deep horizon 2026-09-07 - maintenance-script conformance
+
+Receipts for two open-work rows delivered by this workstream (rows are left
+in the tables above for the standing ledger re-tier pass):
+
+- **HYG-05 delivered**: `ruff format --check GEO-INFER-INTRA/scripts/` is
+  clean — 13/13 files canonical after one bounded `ruff format` pass under
+  `ruff>=0.15.6,<0.16` (10 files rewritten, 3 already canonical).
+  AST-dump equality holds for every file across the format pass; the only
+  semantic edits are three E722 conversions `except:` to
+  `except BaseException:` (audit_agents_docs.py, migrate_to_uv.py), which
+  are runtime-identical to a bare except. The CI ruff gates (diff-scoped
+  format + F821-class lint) now cover all 10 files because this PR touches
+  them; the gates in ci.yml are purely diff-scoped and expose no
+  scoped-glob config to extend without widening repo-wide.
+- **DOCS-04 delivered**: `.aii/config.yaml` `tasks.test.cmd` changed from
+  bare `python -m pytest` to
+  `uv run python GEO-INFER-TEST/run_unified_tests.py --category unit`
+  (the AGENTS.md/CI canonical invocation). The runner without `--category`
+  executes every module across all categories (`run_all_modules`) and is
+  therefore not a suitable sidecar default.
