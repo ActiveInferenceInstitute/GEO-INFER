@@ -1,0 +1,221 @@
+{
+  "schema": "crescent-city-geo-observations/v1",
+  "anchor": {
+    "name": "Crescent City",
+    "guid": "CR4919",
+    "municipality": "Crescent City, CA",
+    "county": "Del Norte County",
+    "state": "California",
+    "latitude": 41.76,
+    "longitude": -124.2
+  },
+  "generatedAt": "2026-09-08T19:08:21.965Z",
+  "composite": {
+    "level": "WARNING",
+    "reason": "Drought: 🔴 Extreme drought (D3): 100.0% severe-extreme",
+    "assessedAt": "2026-09-08T18:59:22.225Z",
+    "hasUnavailableMonitors": false
+  },
+  "monitors": [
+    {
+      "id": "noaa-tsunami",
+      "label": "NOAA Tsunami",
+      "status": "empty",
+      "checkedAt": "2026-09-08T18:59:22.226Z",
+      "itemCount": 0,
+      "ageMs": 7539,
+      "url": "https://api.weather.gov/alerts/active?area=CA"
+    },
+    {
+      "id": "usgs-earthquake",
+      "label": "USGS Earthquake",
+      "status": "empty",
+      "checkedAt": "2026-09-08T18:59:22.226Z",
+      "itemCount": 0,
+      "ageMs": 7539,
+      "url": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_hour.geojson"
+    },
+    {
+      "id": "nws-weather",
+      "label": "NWS Weather",
+      "status": "empty",
+      "checkedAt": "2026-09-08T18:59:22.226Z",
+      "itemCount": 0,
+      "ageMs": 7539,
+      "url": "https://api.weather.gov/alerts/active?zone=CAZ006"
+    },
+    {
+      "id": "noaa-tides",
+      "label": "NOAA Tides",
+      "status": "ok",
+      "checkedAt": "2026-09-08T18:59:22.226Z",
+      "itemCount": 72,
+      "ageMs": 7435,
+      "url": "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?station=9419750"
+    },
+    {
+      "id": "cdfw-fishing",
+      "label": "CDFW Fishing",
+      "status": "empty",
+      "checkedAt": "2026-09-08T18:59:22.226Z",
+      "itemCount": 0,
+      "ageMs": 7229,
+      "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Bulletins"
+    },
+    {
+      "id": "epa-airnow",
+      "label": "EPA AirNow",
+      "status": "ok",
+      "checkedAt": "2026-09-08T18:59:22.226Z",
+      "itemCount": 1,
+      "ageMs": 7287,
+      "url": "https://files.airnowtech.org/airnow/today/airnowlatest_pm25aqi.kml"
+    },
+    {
+      "id": "cal-fire-wildfire",
+      "label": "CAL FIRE Wildfire",
+      "status": "empty",
+      "checkedAt": "2026-09-08T18:59:22.226Z",
+      "itemCount": 0,
+      "ageMs": 7406,
+      "url": "https://incidents.fire.ca.gov/umbraco/api/IncidentApi/List?inactive=false"
+    },
+    {
+      "id": "ndbc-marine",
+      "label": "NDBC Marine",
+      "status": "ok",
+      "checkedAt": "2026-09-08T18:59:22.226Z",
+      "itemCount": 3,
+      "ageMs": 7474,
+      "url": "https://www.ndbc.noaa.gov/data/realtime2/"
+    },
+    {
+      "id": "usdm-drought",
+      "label": "USDM Drought",
+      "status": "ok",
+      "checkedAt": "2026-09-08T18:59:22.226Z",
+      "itemCount": 1,
+      "ageMs": 7450,
+      "url": "https://usdmdataservices.unl.edu/api/CountyStatistics/GetDSCI?aoi=06015&startdate={START}&enddate={END}&statisticsType=3"
+    },
+    {
+      "id": "pg-e-psps",
+      "label": "PG&E PSPS",
+      "status": "empty",
+      "checkedAt": "2026-09-08T18:59:22.226Z",
+      "itemCount": 0,
+      "ageMs": 3,
+      "url": "https://pge-psps-updates.us-east-1.linodeobjects.com/psps_events.json"
+    },
+    {
+      "id": "hrrr-smoke",
+      "label": "HRRR Smoke",
+      "status": "empty",
+      "checkedAt": "2026-09-08T18:59:22.226Z",
+      "itemCount": 0,
+      "ageMs": 7544,
+      "url": "https://airfire.org/data/smoke2/forecast/pm25.nc.json"
+    },
+    {
+      "id": "caltrans-roads",
+      "label": "Caltrans Roads",
+      "status": "ok",
+      "checkedAt": "2026-09-08T18:59:22.226Z",
+      "itemCount": 2,
+      "ageMs": 7543,
+      "url": "https://quickmap.dot.ca.gov/api/v1/incidents?district=1&format=json&status=active"
+    },
+    {
+      "id": "dusd-schools",
+      "label": "DUSD Schools",
+      "status": "empty",
+      "checkedAt": "2026-09-08T18:59:22.226Z",
+      "itemCount": 0,
+      "ageMs": 7478,
+      "url": "https://www.dnusd.org/news"
+    },
+    {
+      "id": "nws-marine-forecast",
+      "label": "NWS Marine Forecast",
+      "status": "stale",
+      "checkedAt": "2026-09-08T18:59:22.226Z",
+      "itemCount": 10,
+      "url": "https://api.weather.gov/products/types/CWF/locations/EKA"
+    },
+    {
+      "id": "uscg-broadcast-notice-to-mariners",
+      "label": "USCG Broadcast Notice to Mariners",
+      "status": "empty",
+      "checkedAt": "2026-09-08T18:59:22.226Z",
+      "itemCount": 0,
+      "ageMs": 7107,
+      "url": "https://www.navcen.uscg.gov/broadcast-notice-to-mariners-search-results?district=11&sector=0&date-range={START}--{END}&items_per_page=50"
+    }
+  ],
+  "hazardSummary": [
+    {
+      "tag": "climate adaptation",
+      "domainCount": 1,
+      "topicCount": 1
+    },
+    {
+      "tag": "climate change",
+      "domainCount": 1,
+      "topicCount": 1
+    },
+    {
+      "tag": "earthquake",
+      "domainCount": 1,
+      "topicCount": 1
+    },
+    {
+      "tag": "erosion",
+      "domainCount": 1,
+      "topicCount": 1
+    },
+    {
+      "tag": "flood zone",
+      "domainCount": 2,
+      "topicCount": 2
+    },
+    {
+      "tag": "sea level rise",
+      "domainCount": 1,
+      "topicCount": 1
+    },
+    {
+      "tag": "seismic",
+      "domainCount": 1,
+      "topicCount": 2
+    },
+    {
+      "tag": "tsunami",
+      "domainCount": 1,
+      "topicCount": 1
+    },
+    {
+      "tag": "tsunami drill",
+      "domainCount": 1,
+      "topicCount": 1
+    },
+    {
+      "tag": "tsunami museum",
+      "domainCount": 1,
+      "topicCount": 1
+    },
+    {
+      "tag": "tsunami zone",
+      "domainCount": 1,
+      "topicCount": 1
+    },
+    {
+      "tag": "wildfire smoke",
+      "domainCount": 2,
+      "topicCount": 2
+    }
+  ],
+  "freshness": {
+    "contractSchema": "crescent-city-geo-intel/v1",
+    "contractGeneratedAt": "2026-09-08T18:53:47.569Z"
+  }
+}

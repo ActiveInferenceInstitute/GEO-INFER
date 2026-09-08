@@ -112,6 +112,10 @@ from .civic_intel import (  # noqa: E402
     build_hazard_prior_table,
     load_crescent_city_intel,
 )
+from .geo_observations import (  # noqa: E402
+    CRESCENT_CITY_OBSERVATIONS_SCHEMA,
+    load_crescent_city_geo_observations,
+)
 
 try:
     from .core.posterior import PosteriorAnalysis

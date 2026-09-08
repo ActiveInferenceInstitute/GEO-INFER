@@ -28,13 +28,25 @@ try:
         CRESCENT_CITY_INTEL_SCHEMA,
         load_crescent_city_contract,
     )
+    from geo_infer_bayes.geo_observations import (
+        CRESCENT_CITY_OBSERVATIONS_SCHEMA,
+        load_crescent_city_geo_observations,
+    )
 except ImportError:  # pragma: no cover - sibling-absent degradation path
     CRESCENT_CITY_INTEL_SCHEMA = "crescent-city-geo-intel/v1"
+    CRESCENT_CITY_OBSERVATIONS_SCHEMA = "crescent-city-geo-observations/v1"
 
     def load_crescent_city_contract():
         raise ImportError(
             "load_crescent_city_contract requires geo-infer-bayes; the canonical"
             " crescent-city-geo-intel.json copy ships with geo-infer-bayes"
+        )
+
+    def load_crescent_city_geo_observations(source=None):
+        raise ImportError(
+            "load_crescent_city_geo_observations requires geo-infer-bayes; the"
+            " canonical crescent-city-geo-observations.json copy ships with"
+            " geo-infer-bayes"
         )
 
 CRESCENT_CITY_GEO_INTEL_SCHEMA = CRESCENT_CITY_INTEL_SCHEMA
