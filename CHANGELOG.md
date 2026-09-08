@@ -101,6 +101,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `GEO-INFER-TEST/tests_lint_metric.py`) with the HYG-04 instrument:
   `tests_lint_hits` plus per-rule and top-file ASI diagnostics.
 
+### Deep horizon 2026-09-08 - secret-scan gate (SEC-02)
+
+- Added the fail-closed secret-scanning gate to ci.yml: gitleaks 8.30.1
+  (sha256-pinned release tarball) scans the full git history on every pull
+  request and every push to `main`; any non-allowlisted finding fails the
+  job.
+- Audited the 29 default-rule baseline findings (426 commits) site by
+  site — none is a live credential: documented API examples, synthetic
+  test-fixture credentials, and one historical untracked egg-info
+  artifact. The committed `.gitleaks.toml` allowlists exactly those sites,
+  file-path- and rule-scoped, each with a written justification.
+- Documented the scan policy and the pre-rewrite-object rule in
+  `GEO-INFER-TEST/docs/secret_scan_policy.md` (surfaced pre-rewrite
+  objects are treated as historical, revoke-first, and recorded).
+- Extended the autoresearch harness
+  (`GEO-INFER-TEST/secret_scan_metric.py`) with the instrument:
+  `secret_scan_findings` (29 → 0 after policy).
+
 ### September 7 root health and CI integration
 
 - Run the root manuscript regression suite (102 of 109 tests) in the CI

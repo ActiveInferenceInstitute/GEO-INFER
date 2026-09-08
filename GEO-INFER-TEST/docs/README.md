@@ -10,6 +10,7 @@ Docs workspace within `GEO-INFER-TEST`.
 - `gnn_continuation_2026_09.md`
 - `gnn_space_time_2026_09.md`
 - `index.md`
+- `secret_scan_policy.md`
 
 ## Public Interface
 
