@@ -20,6 +20,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `uv run python GEO-INFER-TEST/run_unified_tests.py --category unit`
   instead of bare `python -m pytest`, matching the AGENTS.md test-command
   surfaces and the CI unit lane.
+- Close HYG-06: delete the obsolete generator
+  `update_documentation_signposts.py` (uninvoked dynamic orphan — CI runs
+  only the canonical `rewrite_readme_agents.py --check`) and regenerate its
+  generated README/AGENTS listings; no dangling references remain.
+
 ### Deep horizon 2026-09-07 - geo-code01 index refresh
 
 - Refreshed the CODE-01 GitNexus index in the geo-code01 worktree: `gitnexus

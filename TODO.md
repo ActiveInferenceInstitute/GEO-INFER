@@ -151,3 +151,9 @@ in the tables above for the standing ledger re-tier pass):
   (the AGENTS.md/CI canonical invocation). The runner without `--category`
   executes every module across all categories (`run_all_modules`) and is
   therefore not a suitable sidecar default.
+- **HYG-06 delivered**: the obsolete generator
+  `update_documentation_signposts.py` is deleted (dynamic-orphan check:
+  invoked by nothing — ci.yml runs only the canonical
+  `rewrite_readme_agents.py --check`) and its generated README/AGENTS
+  listings regenerated via the canonical generator; the repository has one
+  fewer obsolete maintenance module and no dangling references.
