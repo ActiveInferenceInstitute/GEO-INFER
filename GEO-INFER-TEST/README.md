@@ -37,6 +37,7 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `validate_repo_contracts.py`
 - `validate_skills.py`
 - `validate_test_contracts.py`
+- `water_surface_metric.py`
 - `.gitignore`
 - `SKILL.md`
 - `TESTING.md`

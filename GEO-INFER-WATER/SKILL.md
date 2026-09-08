@@ -13,12 +13,12 @@ estimated_time: 45min
 
 - **Watershed delineation**: D8 flow direction, topological-sort flow accumulation, upstream basin tracing, stream network extraction, slope calculation, and a full delineation pipeline
 - **Water quality**: WQI calculation, pollution hotspot identification (with optional D8 upstream tracing), advection-diffusion plume tracking, trend analysis, risk assessment, regulatory compliance (EPA/WHO/EU), pollutant load estimation
-- **Hydrology**: Rainfall-runoff split (mass-conserving, soil-moisture adjusted), groundwater recharge estimate, water balance (delegates to WaterBalanceModeler)
+- **Hydrology**: Rainfall-runoff split (mass-conserving, soil-moisture adjusted), Green-Ampt infiltration (physically based, implicit ponding-time solver, mass-exact), groundwater recharge estimate, water balance (delegates to WaterBalanceModeler)
 - **Water balance**: Thornthwaite and Hargreaves PET, SCS Curve Number runoff, monthly soil-moisture accounting, canonical water-balance closure
 - **Flood & drought**: Equal-weight composite flood-risk screening (extreme precipitation + low elevation + optional soil saturation); drought risk from precipitation deficit
 - **Infrastructure**: Priority-weighted water allocation (supply split by demand × priority, capped at demand, surplus redistributed) and capacity-gap assessment
 
-Not implemented: Green-Ampt infiltration, aquifer/well-drawdown modeling, flood-frequency (return-period) analysis, inundation mapping. Groundwater is limited to a trivial recharge estimate.
+Not implemented: aquifer/well-drawdown modeling, flood-frequency (return-period) analysis, inundation mapping. Groundwater is limited to a trivial recharge estimate. Green-Ampt infiltration is implemented; the remaining three surfaces stay explicitly not-implemented.
 
 ### Key Imports
 
@@ -44,6 +44,11 @@ from geo_infer_water import HydrologicalModeler, WatershedDelineator, WaterQuali
 hydro = HydrologicalModeler()
 precip = xr.DataArray(np.full((5, 5), 100.0), dims=("y", "x"))
 result = hydro.rainfall_runoff_model(precip, infiltration_rate=0.6)
+
+# Green-Ampt infiltration (physically based, implicit ponding solver)
+ga_precip = xr.DataArray(np.array([[5.0], [40.0], [80.0], [80.0], [3.0]]), dims=("time", "y"))
+ga = hydro.green_ampt_infiltration(ga_precip, ks=10.0, suction_head=50.0, delta_theta=0.34, dt=1.0)
+# ga['infiltration'] + ga['runoff'] == ga_precip (mass-exact)
 
 # Watershed delineation (D8 flow direction + accumulation)
 delineator = WatershedDelineator()

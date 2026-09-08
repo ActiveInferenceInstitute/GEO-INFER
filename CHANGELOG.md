@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Deep horizon 2026-09-08 - Green-Ampt infiltration (WATER-01)
+
+- Implemented physically based Green-Ampt infiltration in
+  `HydrologicalModeler.green_ampt_infiltration`: capacity
+  `f = Ks*(1 + S/F)` with `S = suction_head * delta_theta`; pre-ponding
+  steps absorb all rain; ponded steps advance cumulative infiltration
+  with the implicit Green-Ampt relation
+  `F' = F + Ks*dt + S*ln((F'+S)/(F+S))` solved by Newton iteration
+  (unconditionally stable); the partition is mass-exact
+  (`runoff + infiltration == precipitation`).
+- Shipped 10 physics tests (`tests/unit/test_green_ampt.py`): S=0
+  degenerate capacity, capacity declining toward Ks, implicit-equation
+  residual < 1e-8, mass balance exact, wet-vs-dry soil ordering,
+  ponding flags, first-contact absorption, runoff feeding
+  `water_balance_closure` with zero residual, invalid-parameter
+  rejection. Full WATER suite green (94 tests); diff-scoped coverage
+  gate: WATER 96.0% vs floor 90%.
+- Re-scoped `GEO-INFER-WATER/SKILL.md`: Green-Ampt moved to capabilities
+  with a usage snippet; the remaining three surfaces
+  (aquifer/well-drawdown, flood-frequency, inundation mapping) stay
+  explicitly not-implemented.
+- Extended the autoresearch harness
+  (`GEO-INFER-TEST/water_surface_metric.py`) with the instrument:
+  `water_not_implemented_surfaces` (4 → 3).
+
+
 ### Deep horizon 2026-09-07 - maintenance-script conformance
 
 - Close the HYG-05 drift: canonicalize the 10 non-canonical scripts under

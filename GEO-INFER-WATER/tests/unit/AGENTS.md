@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `test_flood_drought.py`
+- `test_green_ampt.py`
 - `test_hydrology.py`
 - `test_water_balance.py`
 - `test_water_infrastructure.py`
