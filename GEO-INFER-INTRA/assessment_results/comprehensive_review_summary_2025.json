@@ -1,4 +1,6 @@
 {
+  "_historical_artifact": "unmaintained point-in-time snapshot (policy: TODO.md DOCS-03, 2026-09-08)",
+
   "total_modules": 41,
   "structure": {
     "has_requirements_txt": 41,

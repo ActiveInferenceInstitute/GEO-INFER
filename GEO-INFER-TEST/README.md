@@ -18,6 +18,7 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `run_unified_tests.py`
 - `secret_scan_metric.py`
 - `setup.py`
+- `stale_assessment_metric.py`
 - `tests_lint_metric.py`
 - `validate_act_geospatial_contract.py`
 - `validate_act_script_orchestration.py`
