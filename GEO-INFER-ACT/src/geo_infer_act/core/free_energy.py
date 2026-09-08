@@ -3,6 +3,19 @@ Free energy calculation for active inference models.
 
 This module implements variational free energy calculations for different
 types of active inference models, including categorical and Gaussian models.
+
+References:
+    - Friston, K. (2010). The free-energy principle: a unified brain theory?
+    - Parr, T., Pezzulo, G., & Friston, K. (2022). Active Inference
+    - Formal analogue: fep_lean topic fep-001 (variational free energy bound),
+      fep-002 (variational evidence bound via KL divergence)
+
+The fep_lean topic ids are correspondence-of-constructs references into a
+separate Lean formalization catalogue, canonically mapped in
+`fep_lean/specs/geo-infer-notation-bridge/data/notation-map.yaml` and
+documented in `GEO-INFER-ACT/docs/fep_lean_notation_bridge.md`. They state
+no verification relationship between this numerical implementation and the
+Lean proofs.
 """
 
 from typing import Dict, Any, Optional, Union, cast
@@ -53,6 +66,11 @@ class FreeEnergyCalculator:
 
     The free energy serves as a cost function that agents minimize through
     perception (belief updating) and action (policy selection).
+
+    References:
+        - Friston, K. (2010). The free-energy principle: a unified brain theory?
+        - Formal analogue: fep_lean topic fep-002 (variational evidence bound
+          via KL divergence)
     """
 
     def __init__(self) -> None:
@@ -270,9 +288,7 @@ class FreeEnergyCalculator:
             expected_posterior = _coerce_probability_vector(
                 cast(
                     Any,
-                    policy.get(
-                        "expected_posterior", policy.get("posterior_beliefs")
-                    ),
+                    policy.get("expected_posterior", policy.get("posterior_beliefs")),
                 ),
                 len(beliefs),
             )
