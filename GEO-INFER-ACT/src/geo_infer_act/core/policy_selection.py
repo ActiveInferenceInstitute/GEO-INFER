@@ -3,6 +3,20 @@ Policy selection for active inference models.
 
 This module implements policy selection mechanisms based on expected
 free energy minimization and other active inference principles.
+
+References:
+    - Friston, K. (2010). The free-energy principle: a unified brain theory?
+    - Friston, K., FitzGerald, T., Rigoli, F., Schwartenbeck, P., &
+      Pezzulo, G. (2017). Active inference: a process theory
+    - Formal analogue: fep_lean topic fep-021 (EFE epistemic-pragmatic
+      balance), fep-008 (finite policy objective minimizer)
+
+The fep_lean topic ids are correspondence-of-constructs references into a
+separate Lean formalization catalogue, canonically mapped in
+`fep_lean/specs/geo-infer-notation-bridge/data/notation-map.yaml` and
+documented in `GEO-INFER-ACT/docs/fep_lean_notation_bridge.md`. They state
+no verification relationship between this numerical implementation and the
+Lean proofs.
 """
 
 from typing import Dict, List, Any, Optional, Union
@@ -64,6 +78,12 @@ class PolicySelector:
 
     Selects actions/policies based on expected free energy minimization,
     balancing exploration (epistemic value) and exploitation (pragmatic value).
+
+    References:
+        - Parr, T., Pezzulo, G., & Friston, K. (2022). Active Inference
+        - Formal analogue: fep_lean topic fep-028 (support-aware finite softmax
+          policy), fep-031 (finite Boltzmann-Gibbs weights for the inverse
+          temperature), fep-008 (finite policy objective minimizer)
     """
 
     def __init__(
@@ -401,9 +421,11 @@ class PolicySelector:
                 if breakdown.epistemic_value >= abs(breakdown.pragmatic_value)
                 else "pragmatic"
             )
-        exploration_share = float(
-            np.mean([int(item == "epistemic") for item in dominance])
-        ) if dominance else 0.0
+        exploration_share = (
+            float(np.mean([int(item == "epistemic") for item in dominance]))
+            if dominance
+            else 0.0
+        )
         return {
             "policies": policies,
             "efe_scores": efe_scores,
