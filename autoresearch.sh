@@ -45,15 +45,21 @@ for f in "${LEDGER_FILES[@]}"; do
   [[ -f $f ]] || err "ledger file missing: $f"
 done
 
+sha_tmp=$(mktemp) || err "mktemp failed"
+row_tmp=$(mktemp) || err "mktemp failed"
+trap 'rm -f "$sha_tmp" "$row_tmp"' EXIT
+
+# extract_shas <input> <output>: write unique commit-SHA-like tokens (7-40
+# hex chars, whole words, at least one [a-f], not ellipsis-truncated — a
+# trailing `…`/`...` marks a content-digest prefix, not a commit) to
+# <output>. The pipeline status propagates via pipefail so a broken
+# extraction can never be mistaken for a clean ledger.
 extract_shas() {
-  # Commit-SHA-like tokens: 7-40 hex chars, whole words, at least one [a-f],
-  # not ellipsis-truncated (a trailing `…`/`...` marks a content-digest
-  # prefix, not a commit), lowercased, unique.
   perl -ne 'while (/\b([0-9a-fA-F]{7,40})\b(?!\xe2\x80\xa6|\.{3})/g) {
     my $t = lc $1;
     next unless $t =~ /[a-f]/;
     print "$t\n";
-  }' "$1" | sort -u
+  }' "$1" | sort -u > "$2"
 }
 
 # Current identifier = reachable from the local origin/main remote-tracking
@@ -77,6 +83,9 @@ for f in "${LEDGER_FILES[@]}"; do
   grep -qiE 'pre-rewrite' "$f" && grep -q '2026-09-07' "$f" && note=1
   notes_present=$((notes_present + note))
   file_unresolved=0
+  if ! extract_shas "$f" "$sha_tmp"; then
+    err "SHA extraction failed for $f"
+  fi
   while IFS= read -r sha; do
     [[ -n $sha ]] || continue
     if on_origin "$sha"; then
@@ -86,7 +95,7 @@ for f in "${LEDGER_FILES[@]}"; do
       unresolved_total=$((unresolved_total + 1))
       file_unresolved=$((file_unresolved + 1))
     fi
-  done < <(extract_shas "$f")
+  done < "$sha_tmp"
   if (( file_unresolved > 0 && note == 0 )); then
     echo "gap: $f carries $file_unresolved pre-rewrite identifier(s) without the history note"
     gaps=$((gaps + file_unresolved))
@@ -97,6 +106,10 @@ done
 receipt=0
 row=$(grep -m 1 -E '^\| \*\*CODE-01\*\*' TODO.md) || err "CODE-01 row not found in TODO.md"
 if [[ $row != *BLOCKED-EXTERN* && $row == *REFRESHED* && $row == *2026-09-07* && $row == *'.gitnexus'* ]]; then
+  printf '%s\n' "$row" > "$row_tmp"
+  if ! extract_shas "$row_tmp" "$sha_tmp"; then
+    err "CODE-01 row SHA extraction failed"
+  fi
   while IFS= read -r sha; do
     [[ -n $sha ]] || continue
     if on_head "$sha"; then
@@ -104,7 +117,7 @@ if [[ $row != *BLOCKED-EXTERN* && $row == *REFRESHED* && $row == *2026-09-07* &&
       receipt=1
       break
     fi
-  done < <(extract_shas <(printf '%s\n' "$row"))
+  done < "$sha_tmp"
 fi
 
 cli=0
