@@ -136,6 +136,21 @@ jobs:
         run: |
           gitleaks detect --source . --config .gitleaks.toml --redact --verbose
 
+      - name: Enforce module coverage floors
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          # TEST-03: modules whose src or tests changed in this event are
+          # re-measured and must meet their recorded floor
+          # (GEO-INFER-TEST/coverage_baseline.json).
+          base_sha="$BASE_SHA"
+          if ! [[ "$base_sha" =~ ^[0-9a-f]{40}$ ]] || ! git cat-file -e "$base_sha^{commit}" 2>/dev/null; then
+            base_sha="$(git rev-parse --verify "$HEAD_SHA^" 2>/dev/null || echo "$HEAD_SHA")"
+          fi
+          uv run --with pytest-cov python GEO-INFER-TEST/check_coverage_floor.py \
+            --base "$base_sha" --head "$HEAD_SHA"
+
       - name: Run unit tests
         id: unit_tests
         run: |

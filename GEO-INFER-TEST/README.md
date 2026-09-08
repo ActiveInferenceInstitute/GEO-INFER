@@ -11,7 +11,10 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `src/`
 - `tests/`
 - `build_package_wheels.py`
+- `check_coverage_floor.py`
+- `coverage_baseline_metric.py`
 - `import_probe.py`
+- `measure_module_coverage.py`
 - `render_lane_metric.py`
 - `rewrite_readme_agents.py`
 - `run_model_audit.py`
@@ -35,6 +38,7 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `.gitignore`
 - `SKILL.md`
 - `TESTING.md`
+- `coverage_baseline.json`
 - `pyproject.toml`
 - `requirements.txt`
 
@@ -47,7 +51,11 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `build_package_wheels.py:verify_wheels` (function)
 - `build_package_wheels.py:install_and_verify` (function)
 - `build_package_wheels.py:main` (function)
+- `check_coverage_floor.py:main` (function)
+- `coverage_baseline_metric.py:main` (function)
 - `import_probe.py:run_import_probe` (function)
+- `measure_module_coverage.py:measure_module` (function)
+- `measure_module_coverage.py:main` (function)
 - `rewrite_readme_agents.py:ModuleInfo` (class)
 - `rewrite_readme_agents.py:git_ls_files` (function)
 - `rewrite_readme_agents.py:tracked_files` (function)
@@ -56,10 +64,6 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `rewrite_readme_agents.py:discover_modules` (function)
 - `rewrite_readme_agents.py:module_for` (function)
 - `rewrite_readme_agents.py:repository_doc_files` (function)
-- `rewrite_readme_agents.py:direct_contents` (function)
-- `rewrite_readme_agents.py:public_symbols` (function)
-- `rewrite_readme_agents.py:purpose_for` (function)
-- `rewrite_readme_agents.py:test_command` (function)
 
 ## Module Metadata
 
