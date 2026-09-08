@@ -29,6 +29,7 @@
 - `tests/`
 - `build_package_wheels.py`
 - `import_probe.py`
+- `render_lane_metric.py`
 - `rewrite_readme_agents.py`
 - `run_model_audit.py`
 - `run_unified_tests.py`

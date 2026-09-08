@@ -4,7 +4,7 @@ paper:
   title: "GEO-INFER: Geospatial Inference Framework"
   subtitle: "An evidence-backed manuscript for a modular spatial inference monorepo"
   version: "0.2.0"  # generator-owned (PROJECT_VERSION)
-  date: "2026-09-07T12:27:52-07:00"  # generator-owned (MANUSCRIPT_SOURCE_DATE)
+  date: "2026-09-07T18:35:36-07:00"  # generator-owned (MANUSCRIPT_SOURCE_DATE)
 
 authors:
   - name: "Daniel Ari Friedman"

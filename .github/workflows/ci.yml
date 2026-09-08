@@ -206,7 +206,9 @@ jobs:
     # it is kept out of the fast test lane so a slow or broken render cannot
     # fail or delay the per-matrix validation jobs.
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # The render stage adds an apt LaTeX toolchain install and a full
+    # pandoc + XeLaTeX build to the existing verification run.
+    timeout-minutes: 45
     env:
       UV_PYTHON: "3.11"
     steps:
@@ -237,14 +239,70 @@ jobs:
         run: |
           uv run python manuscript/generate_research_artifacts.py --verify
 
+      - name: Install the LaTeX render toolchain
+        # Minimal fail-closed set: xelatex plus the packages the preamble
+        # and pandoc's defaults need (seqsplit, fvextra, cleveref,
+        # longtable), and poppler for the layout tests' pdftotext and
+        # pdfinfo.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            texlive-xetex texlive-latex-recommended texlive-latex-extra \
+            texlive-fonts-recommended lmodern poppler-utils
+
+      - name: Install pinned pandoc and pandoc-crossref
+        # pandoc-crossref is built against one pandoc version, so the pair
+        # is installed from pinned release tarballs rather than from apt.
+        run: |
+          curl -fsSL -o /tmp/pandoc.tar.gz \
+            https://github.com/jgm/pandoc/releases/download/3.11/pandoc-3.11-linux-amd64.tar.gz
+          echo "37edb3bbcf722f921a009941bf5874e2e0c09263226c9b4a2d980788cb062ab6  /tmp/pandoc.tar.gz" | sha256sum -c -
+          sudo tar -xzf /tmp/pandoc.tar.gz -C /usr/local --strip-components=1 \
+            --no-same-owner pandoc-3.11/bin
+          curl -fsSL -o /tmp/pandoc-crossref.tar.xz \
+            https://github.com/lierdakil/pandoc-crossref/releases/download/v0.3.25/pandoc-crossref-Linux-X64.tar.xz
+          echo "2319816e3545ee78e44e4a97c2174c72eedf4b51d436b32721b48f43458eb0f6  /tmp/pandoc-crossref.tar.xz" | sha256sum -c -
+          sudo tar -xJf /tmp/pandoc-crossref.tar.xz -C /usr/local/bin --no-same-owner \
+            pandoc-crossref
+          pandoc --version | head -1
+          pandoc-crossref --version | head -1
+
+      - name: Render the manuscript PDF
+        # The in-repo render stage ROOT-01 deferred: it hydrates the
+        # evidence bundle, combines the published sections, and runs pandoc
+        # and XeLaTeX fail-closed. Its artifacts are the receipts the
+        # render-dependent tests read.
+        run: |
+          uv run python scripts/render_manuscript_pdf.py
+
+      - name: Run render-dependent root tests
+        run: |
+          uv run --with pytest python -m pytest \
+            tests/test_manuscript_pdf_layout.py \
+            "tests/test_manuscript_paths.py::TestFigurePathLiterals::test_the_combined_document_keeps_the_rewrite_inside_image_targets"
+
+      - name: Retain render receipts
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: geo-infer-manuscript-render-receipts
+          path: |
+            output/pdf/GEO-INFER_combined.pdf
+            output/pdf/_combined_manuscript.md
+            output/pdf/_combined_manuscript.tex
+            output/pdf/_combined_manuscript.log
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Run root manuscript regression tests
         # run_unified_tests.py only enumerates GEO-INFER-* module
         # directories, so the root tests/ suite never ran in CI. These 100+
         # tests guard the generator, its verification record and the
-        # shipped-bundle contract. The render-dependent files need the
-        # docxology LaTeX pass (output/pdf/*), which this repository's CI
-        # does not produce, so they are excluded here with their own
-        # receipts; pytest is layered on because the locked env omits it.
+        # shipped-bundle contract. The 7 render-dependent tests (6 in
+        # test_manuscript_pdf_layout.py and the deselected paths test) run
+        # in this same workflow's manuscript job above, which renders
+        # output/pdf/* first; pytest is layered on because the locked env
+        # omits it.
         run: |
           uv run --with pytest python -m pytest tests/ \
             --ignore=tests/test_manuscript_pdf_layout.py \
