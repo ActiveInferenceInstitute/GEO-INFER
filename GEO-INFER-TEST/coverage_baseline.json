@@ -1,0 +1,189 @@
+{
+ "floor_rationale": "per-module floor = measured line coverage rounded DOWN to the nearest 5 percent: coarse floors catch a coverage collapse (a touched module losing more than the rounding gap) without red-turning ordinary refactor churn; the diff-scoped gate re-measures only modules whose src or tests changed in a PR",
+ "measured_at": "2026-09-08",
+ "modules": {
+  "GEO-INFER-ACT": {
+   "coverage_percent": 32.0,
+   "floor_percent": 30
+  },
+  "GEO-INFER-AG": {
+   "coverage_percent": 54.4,
+   "floor_percent": 50
+  },
+  "GEO-INFER-AGENT": {
+   "coverage_percent": 62.7,
+   "floor_percent": 60
+  },
+  "GEO-INFER-AI": {
+   "coverage_percent": 87.4,
+   "floor_percent": 85
+  },
+  "GEO-INFER-ANT": {
+   "coverage_percent": 43.8,
+   "floor_percent": 40
+  },
+  "GEO-INFER-API": {
+   "coverage_percent": 74.4,
+   "floor_percent": 70
+  },
+  "GEO-INFER-APP": {
+   "coverage_percent": 63.2,
+   "floor_percent": 60
+  },
+  "GEO-INFER-ART": {
+   "coverage_percent": 45.2,
+   "floor_percent": 45
+  },
+  "GEO-INFER-BAYES": {
+   "coverage_percent": 72.5,
+   "floor_percent": 70
+  },
+  "GEO-INFER-BIO": {
+   "coverage_percent": 30.5,
+   "floor_percent": 30
+  },
+  "GEO-INFER-CIV": {
+   "coverage_percent": 96.9,
+   "floor_percent": 95
+  },
+  "GEO-INFER-CLIMATE": {
+   "coverage_percent": 64.8,
+   "floor_percent": 60
+  },
+  "GEO-INFER-COG": {
+   "coverage_percent": 60.3,
+   "floor_percent": 60
+  },
+  "GEO-INFER-COMMS": {
+   "coverage_percent": 51.3,
+   "floor_percent": 50
+  },
+  "GEO-INFER-DATA": {
+   "coverage_percent": 53.1,
+   "floor_percent": 50
+  },
+  "GEO-INFER-ECON": {
+   "coverage_percent": 21.5,
+   "floor_percent": 20
+  },
+  "GEO-INFER-EDU": {
+   "coverage_percent": 98.0,
+   "floor_percent": 95
+  },
+  "GEO-INFER-EMERGENCY": {
+   "coverage_percent": 31.8,
+   "floor_percent": 30
+  },
+  "GEO-INFER-ENERGY": {
+   "coverage_percent": 50.7,
+   "floor_percent": 50
+  },
+  "GEO-INFER-EXAMPLES": {
+   "coverage_percent": 52.4,
+   "floor_percent": 50
+  },
+  "GEO-INFER-FOREST": {
+   "coverage_percent": 68.2,
+   "floor_percent": 65
+  },
+  "GEO-INFER-GIT": {
+   "coverage_percent": 16.7,
+   "floor_percent": 15
+  },
+  "GEO-INFER-HEALTH": {
+   "coverage_percent": 34.0,
+   "floor_percent": 30
+  },
+  "GEO-INFER-INSURANCE": {
+   "coverage_percent": 51.7,
+   "floor_percent": 50
+  },
+  "GEO-INFER-INTRA": {
+   "coverage_percent": 81.5,
+   "floor_percent": 80
+  },
+  "GEO-INFER-IOT": {
+   "coverage_percent": 27.0,
+   "floor_percent": 25
+  },
+  "GEO-INFER-LOG": {
+   "coverage_percent": 52.4,
+   "floor_percent": 50
+  },
+  "GEO-INFER-MARINE": {
+   "coverage_percent": 92.9,
+   "floor_percent": 90
+  },
+  "GEO-INFER-MATH": {
+   "coverage_percent": 22.6,
+   "floor_percent": 20
+  },
+  "GEO-INFER-METAGOV": {
+   "coverage_percent": 58.1,
+   "floor_percent": 55
+  },
+  "GEO-INFER-NORMS": {
+   "coverage_percent": 57.2,
+   "floor_percent": 55
+  },
+  "GEO-INFER-OPS": {
+   "coverage_percent": 45.8,
+   "floor_percent": 45
+  },
+  "GEO-INFER-ORG": {
+   "coverage_percent": 96.9,
+   "floor_percent": 95
+  },
+  "GEO-INFER-PEP": {
+   "coverage_percent": 35.6,
+   "floor_percent": 35
+  },
+  "GEO-INFER-PLACE": {
+   "coverage_percent": 34.4,
+   "floor_percent": 30
+  },
+  "GEO-INFER-REQ": {
+   "coverage_percent": 98.6,
+   "floor_percent": 95
+  },
+  "GEO-INFER-RISK": {
+   "coverage_percent": 49.9,
+   "floor_percent": 45
+  },
+  "GEO-INFER-SEC": {
+   "coverage_percent": 44.9,
+   "floor_percent": 40
+  },
+  "GEO-INFER-SIM": {
+   "coverage_percent": 38.8,
+   "floor_percent": 35
+  },
+  "GEO-INFER-SPACE": {
+   "coverage_percent": 50.5,
+   "floor_percent": 50
+  },
+  "GEO-INFER-SPM": {
+   "coverage_percent": 41.7,
+   "floor_percent": 40
+  },
+  "GEO-INFER-TEST": {
+   "coverage_percent": 87.7,
+   "floor_percent": 85
+  },
+  "GEO-INFER-TIME": {
+   "coverage_percent": 91.6,
+   "floor_percent": 90
+  },
+  "GEO-INFER-TRANSPORT": {
+   "coverage_percent": 91.4,
+   "floor_percent": 90
+  },
+  "GEO-INFER-WATER": {
+   "coverage_percent": 93.3,
+   "floor_percent": 90
+  }
+ },
+ "schema": "geo-infer-coverage-baseline/v1",
+ "selection": "each module's own unit + integration test categories under pytest-cov (performance and system suites excluded); line coverage of the module's src package",
+ "tool": "GEO-INFER-TEST/measure_module_coverage.py (pytest-cov, xdist -n 4)"
+}

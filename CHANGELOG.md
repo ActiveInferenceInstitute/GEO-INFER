@@ -135,6 +135,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`GEO-INFER-TEST/stale_assessment_metric.py`) with the instrument:
   `stale_assessment_artifacts` (27 → 0).
 
+### Deep horizon 2026-09-08 - coverage floors (TEST-03)
+
+- Measured per-module line coverage across all 45 modules (each module's
+  unit and integration suites under pytest-cov, xdist -n 4; performance
+  and system suites excluded and noted) and committed the baseline as
+  `GEO-INFER-TEST/coverage_baseline.json` with a per-module floor =
+  measured rounded down to the nearest 5 percent (rationale: floors catch
+  coverage collapses, not refactor churn; sweep range 16.7-98.6).
+- Enforcement is diff-scoped: `GEO-INFER-TEST/check_coverage_floor.py`
+  re-measures only modules whose src or tests changed in the event and
+  fails below the recorded floor; wired into ci.yml after the
+  secret-scan step and proven both ways locally (raised floor exits 1,
+  real floor exits 0).
+- Extended the autoresearch harness
+  (`GEO-INFER-TEST/coverage_baseline_metric.py`) with the instrument:
+  `modules_missing_coverage_baseline` (45 → 0). The sweep script
+  (`measure_module_coverage.py`) uses pytest-cov because plain
+  `coverage run` cannot see xdist's execnet workers.
+
 ### September 7 root health and CI integration
 
 - Run the root manuscript regression suite (102 of 109 tests) in the CI
