@@ -4,7 +4,9 @@ Unit tests for healthcare accessibility functionality.
 
 import pytest
 
-from geo_infer_health.core.healthcare_accessibility import HealthcareAccessibilityAnalyzer
+from geo_infer_health.core.healthcare_accessibility import (
+    HealthcareAccessibilityAnalyzer,
+)
 from geo_infer_health.models import HealthFacility, Location, PopulationData
 
 
@@ -14,8 +16,7 @@ class TestHealthcareAccessibilityAnalyzer:
     def test_analyzer_creation(self, sample_health_facilities, sample_population_data):
         """Test creating a HealthcareAccessibilityAnalyzer instance."""
         analyzer = HealthcareAccessibilityAnalyzer(
-            facilities=sample_health_facilities,
-            population_data=sample_population_data
+            facilities=sample_health_facilities, population_data=sample_population_data
         )
 
         assert len(analyzer.facilities) == len(sample_health_facilities)
@@ -23,10 +24,7 @@ class TestHealthcareAccessibilityAnalyzer:
 
     def test_analyzer_creation_empty_data(self):
         """Test creating analyzer with empty data."""
-        analyzer = HealthcareAccessibilityAnalyzer(
-            facilities=[],
-            population_data=[]
-        )
+        analyzer = HealthcareAccessibilityAnalyzer(facilities=[], population_data=[])
 
         assert len(analyzer.facilities) == 0
         assert len(analyzer.population_data) == 0
@@ -34,8 +32,7 @@ class TestHealthcareAccessibilityAnalyzer:
     def test_analyzer_creation_no_population_data(self, sample_health_facilities):
         """Test creating analyzer without population data."""
         analyzer = HealthcareAccessibilityAnalyzer(
-            facilities=sample_health_facilities,
-            population_data=None
+            facilities=sample_health_facilities, population_data=None
         )
 
         assert len(analyzer.facilities) == len(sample_health_facilities)
@@ -51,48 +48,51 @@ class TestFacilitySearch:
         radius_km = 10.0
 
         facilities = healthcare_analyzer.find_facilities_in_radius(
-            center_loc=center,
-            radius_km=radius_km
+            center_loc=center, radius_km=radius_km
         )
 
         assert isinstance(facilities, list)
 
         # All returned facilities should be within radius
         for facility in facilities:
-            distance = healthcare_analyzer._calculate_distance(center, facility.location)
+            distance = healthcare_analyzer._calculate_distance(
+                center, facility.location
+            )
             assert distance <= radius_km
 
-    def test_find_facilities_with_type_filter(self, healthcare_analyzer, sample_locations):
+    def test_find_facilities_with_type_filter(
+        self, healthcare_analyzer, sample_locations
+    ):
         """Test finding facilities with type filter."""
         center = sample_locations[0]
         radius_km = 1000.0  # Large radius to include all facilities
         facility_type = "Hospital"
 
         facilities = healthcare_analyzer.find_facilities_in_radius(
-            center_loc=center,
-            radius_km=radius_km,
-            facility_type=facility_type
+            center_loc=center, radius_km=radius_km, facility_type=facility_type
         )
 
         # All returned facilities should match the type
         for facility in facilities:
             assert facility.facility_type.lower() == facility_type.lower()
 
-    def test_find_facilities_with_service_filter(self, healthcare_analyzer, sample_locations):
+    def test_find_facilities_with_service_filter(
+        self, healthcare_analyzer, sample_locations
+    ):
         """Test finding facilities with service filter."""
         center = sample_locations[0]
         radius_km = 1000.0
         required_services = ["Emergency"]
 
         facilities = healthcare_analyzer.find_facilities_in_radius(
-            center_loc=center,
-            radius_km=radius_km,
-            required_services=required_services
+            center_loc=center, radius_km=radius_km, required_services=required_services
         )
 
         # All returned facilities should offer the required services
         for facility in facilities:
-            assert all(service in facility.services_offered for service in required_services)
+            assert all(
+                service in facility.services_offered for service in required_services
+            )
 
     def test_find_facilities_zero_radius(self, healthcare_analyzer, sample_locations):
         """Test finding facilities with zero radius."""
@@ -100,8 +100,7 @@ class TestFacilitySearch:
         radius_km = 0.0
 
         facilities = healthcare_analyzer.find_facilities_in_radius(
-            center_loc=center,
-            radius_km=radius_km
+            center_loc=center, radius_km=radius_km
         )
 
         # Should find facilities at exact location (within floating point precision)
@@ -114,8 +113,7 @@ class TestFacilitySearch:
         radius_km = 10000.0  # Very large radius
 
         facilities = healthcare_analyzer.find_facilities_in_radius(
-            center_loc=center,
-            radius_km=radius_km
+            center_loc=center, radius_km=radius_km
         )
 
         # Should find all facilities
@@ -128,8 +126,7 @@ class TestFacilitySearch:
         radius_km = 1.0
 
         facilities = analyzer.find_facilities_in_radius(
-            center_loc=center,
-            radius_km=radius_km
+            center_loc=center, radius_km=radius_km
         )
 
         assert facilities == []
@@ -142,9 +139,7 @@ class TestNearestFacility:
         """Test finding nearest facility to a location."""
         test_location = sample_locations[0]
 
-        result = healthcare_analyzer.get_nearest_facility(
-            loc=test_location
-        )
+        result = healthcare_analyzer.get_nearest_facility(loc=test_location)
 
         if result is not None:
             facility, distance = result
@@ -160,7 +155,9 @@ class TestNearestFacility:
                     )
                     assert distance <= other_distance
 
-    def test_get_nearest_facility_with_filters(self, healthcare_analyzer, sample_locations):
+    def test_get_nearest_facility_with_filters(
+        self, healthcare_analyzer, sample_locations
+    ):
         """Test finding nearest facility with type and service filters."""
         test_location = sample_locations[0]
         facility_type = "Hospital"
@@ -169,16 +166,20 @@ class TestNearestFacility:
         result = healthcare_analyzer.get_nearest_facility(
             loc=test_location,
             facility_type=facility_type,
-            required_services=required_services
+            required_services=required_services,
         )
 
         if result is not None:
             facility, distance = result
             assert isinstance(facility, HealthFacility)
             assert facility.facility_type.lower() == facility_type.lower()
-            assert all(service in facility.services_offered for service in required_services)
+            assert all(
+                service in facility.services_offered for service in required_services
+            )
 
-    def test_get_nearest_facility_no_matches(self, healthcare_analyzer, sample_locations):
+    def test_get_nearest_facility_no_matches(
+        self, healthcare_analyzer, sample_locations
+    ):
         """Test finding nearest facility with impossible filters."""
         test_location = sample_locations[0]
 
@@ -186,7 +187,7 @@ class TestNearestFacility:
         result = healthcare_analyzer.get_nearest_facility(
             loc=test_location,
             facility_type="NonExistentType",
-            required_services=["ImpossibleService"]
+            required_services=["ImpossibleService"],
         )
 
         assert result is None
@@ -214,8 +215,12 @@ class TestNearestFacility:
         assert distance < 0.001  # Less than 1 meter
 
         # Should find the facility at that location
-        assert facility.location.latitude == pytest.approx(facility_location.latitude, abs=1e-6)
-        assert facility.location.longitude == pytest.approx(facility_location.longitude, abs=1e-6)
+        assert facility.location.latitude == pytest.approx(
+            facility_location.latitude, abs=1e-6
+        )
+        assert facility.location.longitude == pytest.approx(
+            facility_location.longitude, abs=1e-6
+        )
 
 
 class TestFacilityPopulationRatio:
@@ -250,8 +255,7 @@ class TestFacilityPopulationRatio:
         facility_type = "Hospital"
 
         result = healthcare_analyzer.calculate_facility_to_population_ratio(
-            area_id=area_id,
-            facility_type=facility_type
+            area_id=area_id, facility_type=facility_type
         )
 
         if result is not None:
@@ -270,35 +274,27 @@ class TestFacilityPopulationRatio:
     def test_calculate_ratio_zero_population(self, healthcare_analyzer):
         """Test calculating ratio with zero population."""
         # Create analyzer with zero population
-        zero_pop_data = [
-            PopulationData(area_id="zero_area", population_count=0)
-        ]
+        zero_pop_data = [PopulationData(area_id="zero_area", population_count=0)]
 
         analyzer = HealthcareAccessibilityAnalyzer(
-            facilities=healthcare_analyzer.facilities,
-            population_data=zero_pop_data
+            facilities=healthcare_analyzer.facilities, population_data=zero_pop_data
         )
 
-        result = analyzer.calculate_facility_to_population_ratio(
-            area_id="zero_area"
-        )
+        result = analyzer.calculate_facility_to_population_ratio(area_id="zero_area")
 
         if result is not None:
             assert result["population"] == 0
             # Ratio should be infinity or handled appropriately
-            assert result["ratio_per_1000_pop"] == float('inf')
+            assert result["ratio_per_1000_pop"] == float("inf")
 
     def test_calculate_ratio_no_facilities(self):
         """Test calculating ratio when no facilities exist."""
         pop_data = [PopulationData(area_id="test_area", population_count=1000)]
         analyzer = HealthcareAccessibilityAnalyzer(
-            facilities=[],
-            population_data=pop_data
+            facilities=[], population_data=pop_data
         )
 
-        result = analyzer.calculate_facility_to_population_ratio(
-            area_id="test_area"
-        )
+        result = analyzer.calculate_facility_to_population_ratio(area_id="test_area")
 
         if result is not None:
             assert result["facility_count"] == 0
@@ -308,21 +304,20 @@ class TestFacilityPopulationRatio:
 class TestAccessibilityIntegration:
     """Test integration of accessibility analysis components."""
 
-    def test_facility_search_and_nearest_consistency(self, healthcare_analyzer, sample_locations):
+    def test_facility_search_and_nearest_consistency(
+        self, healthcare_analyzer, sample_locations
+    ):
         """Test consistency between facility search and nearest facility methods."""
         test_location = sample_locations[0]
         radius_km = 50.0
 
         # Find facilities within radius
         nearby_facilities = healthcare_analyzer.find_facilities_in_radius(
-            center_loc=test_location,
-            radius_km=radius_km
+            center_loc=test_location, radius_km=radius_km
         )
 
         # Find nearest facility
-        nearest_result = healthcare_analyzer.get_nearest_facility(
-            loc=test_location
-        )
+        nearest_result = healthcare_analyzer.get_nearest_facility(loc=test_location)
 
         if nearest_result is not None and nearby_facilities:
             nearest_facility, nearest_distance = nearest_result
@@ -345,14 +340,14 @@ class TestAccessibilityIntegration:
             center_loc=test_location,
             radius_km=1000.0,
             facility_type=facility_type,
-            required_services=required_services
+            required_services=required_services,
         )
 
         # Test get_nearest_facility with same filters
         nearest_result = healthcare_analyzer.get_nearest_facility(
             loc=test_location,
             facility_type=facility_type,
-            required_services=required_services
+            required_services=required_services,
         )
 
         if nearest_result is not None and filtered_facilities:
@@ -398,11 +393,15 @@ class TestPerformance:
                 facility_type="Clinic" if i % 2 == 0 else "Hospital",
                 location=location,
                 capacity=50 + i * 10,
-                services_offered=["General Checkup", "Emergency"] if i % 3 == 0 else ["General Checkup"]
+                services_offered=["General Checkup", "Emergency"]
+                if i % 3 == 0
+                else ["General Checkup"],
             )
             facilities.append(facility)
 
-        analyzer = HealthcareAccessibilityAnalyzer(facilities=facilities, population_data=[])
+        analyzer = HealthcareAccessibilityAnalyzer(
+            facilities=facilities, population_data=[]
+        )
 
         # Time nearest facility search
         test_location = Location(latitude=35.0, longitude=-115.0)
@@ -431,11 +430,13 @@ class TestPerformance:
                 facility_type="Hospital" if i % 2 == 0 else "Clinic",
                 location=Location(latitude=34.0 + i * 0.1, longitude=-118.0 + i * 0.1),
                 capacity=100,
-                services_offered=["Emergency"] if i % 3 == 0 else ["General Checkup"]
+                services_offered=["Emergency"] if i % 3 == 0 else ["General Checkup"],
             )
             facilities.append(facility)
 
-        analyzer = HealthcareAccessibilityAnalyzer(facilities=facilities, population_data=[])
+        analyzer = HealthcareAccessibilityAnalyzer(
+            facilities=facilities, population_data=[]
+        )
 
         # Time search with filters
         test_location = Location(latitude=34.0, longitude=-118.0)
@@ -445,7 +446,7 @@ class TestPerformance:
             center_loc=test_location,
             radius_km=10.0,
             facility_type="Hospital",
-            required_services=["Emergency"]
+            required_services=["Emergency"],
         )
         end_time = time.time()
 
@@ -472,9 +473,7 @@ class TestEdgeCases:
         )
         assert facilities == []
 
-        nearest = analyzer.get_nearest_facility(
-            Location(latitude=0, longitude=0)
-        )
+        nearest = analyzer.get_nearest_facility(Location(latitude=0, longitude=0))
         assert nearest is None
 
     def test_single_facility_analysis(self):
@@ -486,10 +485,12 @@ class TestEdgeCases:
             facility_type="Hospital",
             location=location,
             capacity=100,
-            services_offered=["Emergency", "Surgery"]
+            services_offered=["Emergency", "Surgery"],
         )
 
-        analyzer = HealthcareAccessibilityAnalyzer(facilities=[facility], population_data=[])
+        analyzer = HealthcareAccessibilityAnalyzer(
+            facilities=[facility], population_data=[]
+        )
 
         # Test various operations
         facilities = analyzer.find_facilities_in_radius(location, 1.0)
@@ -512,11 +513,13 @@ class TestEdgeCases:
                 facility_type="Clinic",
                 location=location,  # Same location
                 capacity=50,
-                services_offered=["General Checkup"]
+                services_offered=["General Checkup"],
             )
             facilities.append(facility)
 
-        analyzer = HealthcareAccessibilityAnalyzer(facilities=facilities, population_data=[])
+        analyzer = HealthcareAccessibilityAnalyzer(
+            facilities=facilities, population_data=[]
+        )
 
         # Should find all facilities
         found_facilities = analyzer.find_facilities_in_radius(location, 0.1)

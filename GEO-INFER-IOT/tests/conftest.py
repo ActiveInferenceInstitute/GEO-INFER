@@ -4,6 +4,7 @@ Pytest fixtures for GEO-INFER-IOT tests.
 Provides sensor readings, IoT configurations, sensor network
 GeoDataFrames, and standard spatial fixtures.
 """
+
 import pytest
 import numpy as np
 import geopandas as gpd
@@ -59,15 +60,17 @@ def sensor_readings() -> List[Dict[str, Any]]:
     for i in range(15):
         dev_idx = i % 3
         hour = i
-        readings.append({
-            "device_id": devices[dev_idx],
-            "lat": base_lats[dev_idx] + rng.uniform(-0.001, 0.001),
-            "lng": base_lngs[dev_idx] + rng.uniform(-0.001, 0.001),
-            "timestamp": f"2024-06-15T{hour:02d}:00:00Z",
-            "value": float(18.0 + rng.normal(0, 2)),
-            "unit": "celsius",
-            "battery_level": float(rng.uniform(0.3, 1.0)),
-        })
+        readings.append(
+            {
+                "device_id": devices[dev_idx],
+                "lat": base_lats[dev_idx] + rng.uniform(-0.001, 0.001),
+                "lng": base_lngs[dev_idx] + rng.uniform(-0.001, 0.001),
+                "timestamp": f"2024-06-15T{hour:02d}:00:00Z",
+                "value": float(18.0 + rng.normal(0, 2)),
+                "unit": "celsius",
+                "battery_level": float(rng.uniform(0.3, 1.0)),
+            }
+        )
 
     return readings
 

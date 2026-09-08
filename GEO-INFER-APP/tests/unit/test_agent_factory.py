@@ -8,12 +8,16 @@ from geo_infer_app.models.agent_interface import AgentType
 class TestAgentFactory:
     def test_bdi_interface_registered(self):
         """BDI interface should be auto-registered on import."""
-        from geo_infer_app.models.interfaces.bdi_interface import BDIAgentInterface as BDIAgentInterface
+        from geo_infer_app.models.interfaces.bdi_interface import (
+            BDIAgentInterface as BDIAgentInterface,
+        )
+
         types = AgentFactory.get_available_agent_types()
         assert "bdi" in types
 
     def test_create_bdi_interface(self):
         from geo_infer_app.models.interfaces.bdi_interface import BDIAgentInterface
+
         interface = AgentFactory.create_interface(AgentType.BDI)
         assert isinstance(interface, BDIAgentInterface)
 
@@ -30,11 +34,13 @@ class TestAgentFactory:
         # the bundled interfaces with the factory.
         import importlib
         import geo_infer_app.models.interfaces as interfaces_pkg
+
         importlib.reload(interfaces_pkg)
         assert "bdi" in AgentFactory.get_available_agent_types()
 
     def test_register_invalid_class_raises(self):
         class NotAnInterface:
             pass
+
         with pytest.raises(TypeError):
             AgentFactory.register_interface(AgentType.HYBRID, NotAnInterface)

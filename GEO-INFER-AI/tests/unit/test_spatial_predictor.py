@@ -43,7 +43,9 @@ class TestSpatialPredictor:
     def test_fit_predict_numpy(self, regression_data: tuple) -> None:
         """Test fit and predict with numpy arrays."""
         X, y, coordinates = regression_data
-        predictor = SpatialPredictor(model_type="random_forest", include_spatial_features=True)
+        predictor = SpatialPredictor(
+            model_type="random_forest", include_spatial_features=True
+        )
         predictor.fit(X, y, coordinates=coordinates)
 
         predictions = predictor.predict(X, coordinates=coordinates)
@@ -55,7 +57,9 @@ class TestSpatialPredictor:
         X, y, coordinates = regression_data
         X_df = pd.DataFrame(X, columns=[f"feature_{i}" for i in range(X.shape[1])])
 
-        predictor = SpatialPredictor(model_type="random_forest", include_spatial_features=False)
+        predictor = SpatialPredictor(
+            model_type="random_forest", include_spatial_features=False
+        )
         predictor.fit(X_df, y)
 
         predictions = predictor.predict(X_df)
@@ -64,7 +68,9 @@ class TestSpatialPredictor:
     def test_feature_importance(self, regression_data: tuple) -> None:
         """Test feature importance extraction."""
         X, y, coordinates = regression_data
-        predictor = SpatialPredictor(model_type="random_forest", include_spatial_features=False)
+        predictor = SpatialPredictor(
+            model_type="random_forest", include_spatial_features=False
+        )
         predictor.fit(X, y)
 
         importance = predictor.get_feature_importance()
@@ -96,7 +102,7 @@ class TestSpatialPredictor:
     def test_predict_before_fit(self, regression_data: tuple) -> None:
         """Test that prediction fails before training."""
         from sklearn.exceptions import NotFittedError
-        
+
         X, y, coordinates = regression_data
         predictor = SpatialPredictor(model_type="random_forest")
 
@@ -105,13 +111,12 @@ class TestSpatialPredictor:
             predictor.predict(X)
 
 
-
 def test_interpolators_exported_publicly() -> None:
     """IDWInterpolator and OrdinaryKriging are part of the public surface."""
     assert geo_infer_ai.IDWInterpolator is IDWInterpolator
     assert geo_infer_ai.OrdinaryKriging is OrdinaryKriging
     assert geo_infer_ai.models.IDWInterpolator is IDWInterpolator
     assert geo_infer_ai.models.OrdinaryKriging is OrdinaryKriging
-    assert set(
-        ["IDWInterpolator", "OrdinaryKriging", "SpatialPredictor"]
-    ).issubset(set(geo_infer_ai.models.__all__))
+    assert set(["IDWInterpolator", "OrdinaryKriging", "SpatialPredictor"]).issubset(
+        set(geo_infer_ai.models.__all__)
+    )

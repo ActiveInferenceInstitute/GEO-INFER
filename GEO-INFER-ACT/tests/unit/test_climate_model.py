@@ -52,12 +52,8 @@ class TestClimateModelMatrices:
         # For each state combination, observations should sum to ~1
         for i_temp in range(3):
             for i_co2 in range(3):
-                np.testing.assert_allclose(
-                    A[0][:, i_temp, i_co2].sum(), 1.0, atol=1e-6
-                )
-                np.testing.assert_allclose(
-                    A[1][:, i_temp, i_co2].sum(), 1.0, atol=1e-6
-                )
+                np.testing.assert_allclose(A[0][:, i_temp, i_co2].sum(), 1.0, atol=1e-6)
+                np.testing.assert_allclose(A[1][:, i_temp, i_co2].sum(), 1.0, atol=1e-6)
 
     def test_transition_b_normalization(self) -> None:
         """Test B matrix columns sum to 1 for each state-action pair."""
@@ -119,6 +115,6 @@ class TestClimateModelStep:
 
     def test_config_override(self) -> None:
         """Test that custom config can be provided."""
-        config = {'exploration_bonus': 0.5}
+        config = {"exploration_bonus": 0.5}
         model = ClimateModel(config=config)
         assert model is not None

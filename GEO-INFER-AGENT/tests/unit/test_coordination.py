@@ -45,9 +45,7 @@ class TestAgentRegistry(unittest.TestCase):
     def test_duplicate_agent_id_raises(self) -> None:
         """Creating an agent with a duplicate ID raises ValueError."""
         self._run(
-            self.registry.create_agent(
-                agent_type="default", config={}, agent_id="dup"
-            )
+            self.registry.create_agent(agent_type="default", config={}, agent_id="dup")
         )
         with self.assertRaises(ValueError):
             self._run(
@@ -60,9 +58,7 @@ class TestAgentRegistry(unittest.TestCase):
         """Creating an agent with unknown type raises ValueError."""
         with self.assertRaises((ValueError, ImportError)):
             self._run(
-                self.registry.create_agent(
-                    agent_type="nonexistent_type", config={}
-                )
+                self.registry.create_agent(agent_type="nonexistent_type", config={})
             )
 
     def test_get_agent(self) -> None:
@@ -100,14 +96,10 @@ class TestAgentRegistry(unittest.TestCase):
     def test_list_agents(self) -> None:
         """list_agents returns JSON-safe info for all registered agents."""
         self._run(
-            self.registry.create_agent(
-                agent_type="default", config={}, agent_id="a1"
-            )
+            self.registry.create_agent(agent_type="default", config={}, agent_id="a1")
         )
         self._run(
-            self.registry.create_agent(
-                agent_type="default", config={}, agent_id="a2"
-            )
+            self.registry.create_agent(agent_type="default", config={}, agent_id="a2")
         )
         listed = self.registry.list_agents()
         self.assertEqual({item["agent_id"] for item in listed}, {"a1", "a2"})
@@ -167,9 +159,7 @@ class TestMultiAgentCoordination(unittest.TestCase):
             )
         )
         with self.assertRaises(KeyError):
-            self._run(
-                self.registry.send_message("unknown", "target", {})
-            )
+            self._run(self.registry.send_message("unknown", "target", {}))
 
     def test_send_message_unknown_receiver_raises(self) -> None:
         """Sending to unknown agent raises KeyError."""
@@ -179,9 +169,7 @@ class TestMultiAgentCoordination(unittest.TestCase):
             )
         )
         with self.assertRaises(KeyError):
-            self._run(
-                self.registry.send_message("origin", "unknown", {})
-            )
+            self._run(self.registry.send_message("origin", "unknown", {}))
 
     def test_region_passed_to_agent_config(self) -> None:
         """Region parameter is included in agent config."""
@@ -194,7 +182,9 @@ class TestMultiAgentCoordination(unittest.TestCase):
             )
         )
         agent = self.registry.get_agent("geo-agent")
-        self.assertEqual(agent.config.get("region"), "POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))")
+        self.assertEqual(
+            agent.config.get("region"), "POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))"
+        )
 
 
 if __name__ == "__main__":

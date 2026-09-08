@@ -38,6 +38,7 @@ from geo_infer_bayes import load_crescent_city_intel
 from geo_infer_act.core import civic_intel as act_civic
 from geo_infer_bayes import civic_intel as bayes_civic
 from geo_infer_risk import civic_intel as risk_civic
+
 _SCHEMA = "crescent-city-geo-intel/v1"
 
 _ANCHOR = {
@@ -255,9 +256,7 @@ def test_bayes_per_domain_tags_match_risk_weighted_hazards() -> None:
     bayes_intel = load_crescent_city_intel(source=contract)
 
     bayes_tags = {
-        tag
-        for domain in bayes_intel["hazardDomains"]
-        for tag in domain["hazardTags"]
+        tag for domain in bayes_intel["hazardDomains"] for tag in domain["hazardTags"]
     }
     expected_raw = {
         "seismic",
@@ -314,7 +313,10 @@ def test_shared_core_resolves_to_canonical_bayes_objects() -> None:
     assert act_civic.load_crescent_city_contract is canonical
     assert risk_civic.load_crescent_city_contract is canonical
     assert act_civic.SUPPORTED_SCHEMA is bayes_civic.CRESCENT_CITY_INTEL_SCHEMA
-    assert risk_civic.CRESCENT_CITY_GEO_INTEL_SCHEMA is bayes_civic.CRESCENT_CITY_INTEL_SCHEMA
+    assert (
+        risk_civic.CRESCENT_CITY_GEO_INTEL_SCHEMA
+        is bayes_civic.CRESCENT_CITY_INTEL_SCHEMA
+    )
     assert (
         str(act_civic.SUPPORTED_SCHEMA)
         == str(risk_civic.CRESCENT_CITY_GEO_INTEL_SCHEMA)

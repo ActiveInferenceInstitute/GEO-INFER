@@ -4,6 +4,7 @@ Pytest fixtures for GEO-INFER-FOREST tests.
 Provides forest stand GeoDataFrames, biomass allometric parameters,
 forest management configurations, and standard spatial fixtures.
 """
+
 import pytest
 import numpy as np
 import geopandas as gpd
@@ -59,12 +60,16 @@ def forest_stand_gdf() -> gpd.GeoDataFrame:
         col = i % 3
         lat0 = base_lat + row * 0.05
         lng0 = base_lng + col * 0.05
-        stands.append(Polygon([
-            (lng0, lat0),
-            (lng0 + 0.04, lat0),
-            (lng0 + 0.04, lat0 + 0.04),
-            (lng0, lat0 + 0.04),
-        ]))
+        stands.append(
+            Polygon(
+                [
+                    (lng0, lat0),
+                    (lng0 + 0.04, lat0),
+                    (lng0 + 0.04, lat0 + 0.04),
+                    (lng0, lat0 + 0.04),
+                ]
+            )
+        )
 
     species = [
         "Pseudotsuga menziesii",

@@ -49,7 +49,9 @@ class TestPlanLibrary(unittest.TestCase):
                 "actions": [{"type": "log", "message": "monitoring", "level": "info"}],
             }
         ]
-        desires = [{"name": "monitor", "description": "Monitor sources", "priority": 0.8}]
+        desires = [
+            {"name": "monitor", "description": "Monitor sources", "priority": 0.8}
+        ]
         agent = self._make_agent(plans=plans, desires=desires)
 
         plan = agent._find_plan_for_desire("monitor")

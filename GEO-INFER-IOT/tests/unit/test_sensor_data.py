@@ -1,4 +1,5 @@
 """Tests for IoT sensor data models and measurements."""
+
 from datetime import datetime, timezone
 
 from geo_infer_iot.core.ingestion import SensorMeasurement, SpatialInferenceConfig

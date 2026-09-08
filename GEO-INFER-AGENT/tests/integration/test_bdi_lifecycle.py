@@ -11,12 +11,10 @@ import asyncio
 from geo_infer_agent.models.bdi.agent import BDIAgent
 
 
-
-
-
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
+
 
 class TestBDIAgentLifecycle:
     """Full lifecycle tests: initialize → perceive → update_beliefs → decide → act."""
@@ -66,8 +64,16 @@ class TestBDIAgentLifecycle:
             },
         ]
         desires = [
-            {"name": "low_priority_goal", "description": "Low priority", "priority": 0.2},
-            {"name": "high_priority_goal", "description": "High priority", "priority": 0.9},
+            {
+                "name": "low_priority_goal",
+                "description": "Low priority",
+                "priority": 0.2,
+            },
+            {
+                "name": "high_priority_goal",
+                "description": "High priority",
+                "priority": 0.9,
+            },
         ]
         agent = make_agent("lifecycle-3", plans=plans, desires=desires)
         await agent.initialize()
@@ -87,7 +93,11 @@ class TestBDIAgentLifecycle:
             }
         ]
         desires = [
-            {"name": "simple_goal", "description": "A simple one-step goal", "priority": 0.8}
+            {
+                "name": "simple_goal",
+                "description": "A simple one-step goal",
+                "priority": 0.8,
+            }
         ]
         agent = make_agent("lifecycle-4", plans=plans, desires=desires)
         await agent.initialize()
@@ -117,7 +127,11 @@ class TestBDIAgentLifecycle:
             }
         ]
         desires = [
-            {"name": "monitor_region", "description": "Monitor region continuously", "priority": 1.0}
+            {
+                "name": "monitor_region",
+                "description": "Monitor region continuously",
+                "priority": 1.0,
+            }
         ]
         agent = make_agent("lifecycle-5", plans=plans, desires=desires)
         await agent.initialize()
@@ -202,8 +216,10 @@ class TestMultiAgentCoordination:
 # Helpers
 # ---------------------------------------------------------------------------
 
-def make_agent(agent_id: str, *, plans=None, beliefs=None, desires=None,
-               config_override=None) -> BDIAgent:  # type: ignore[override]
+
+def make_agent(
+    agent_id: str, *, plans=None, beliefs=None, desires=None, config_override=None
+) -> BDIAgent:  # type: ignore[override]
     """Create a BDIAgent with optional pre-loaded config."""
     config = {
         "plans": plans or [],

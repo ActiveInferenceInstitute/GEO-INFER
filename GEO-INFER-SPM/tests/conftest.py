@@ -4,6 +4,7 @@ Pytest fixtures for GEO-INFER-SPM tests.
 Provides spatial model parameters, latent variables, SPM configurations,
 synthetic SPM data, and standard spatial fixtures.
 """
+
 import pytest
 import numpy as np
 import geopandas as gpd

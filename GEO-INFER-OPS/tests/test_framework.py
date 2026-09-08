@@ -21,12 +21,17 @@ def _discover_module_packages() -> list[str]:
     packages: list[str] = []
     for src_dir in ROOT.glob("GEO-INFER-*/src"):
         for pkg in src_dir.iterdir():
-            if pkg.is_dir() and pkg.name.startswith("geo_infer_") and "egg-info" not in pkg.name:
+            if (
+                pkg.is_dir()
+                and pkg.name.startswith("geo_infer_")
+                and "egg-info" not in pkg.name
+            ):
                 packages.append(pkg.name)
     return sorted(packages)
 
 
 # --- Tests ---
+
 
 def test_module_count() -> None:
     """At least 44 GEO-INFER module packages are discoverable."""
@@ -38,9 +43,17 @@ def test_module_count() -> None:
 
 @pytest.mark.parametrize(
     "module_name",
-    ["geo_infer_space", "geo_infer_place", "geo_infer_math",
-     "geo_infer_bayes", "geo_infer_act", "geo_infer_iot",
-     "geo_infer_sec", "geo_infer_agent", "geo_infer_sim"],
+    [
+        "geo_infer_space",
+        "geo_infer_place",
+        "geo_infer_math",
+        "geo_infer_bayes",
+        "geo_infer_act",
+        "geo_infer_iot",
+        "geo_infer_sec",
+        "geo_infer_agent",
+        "geo_infer_sim",
+    ],
 )
 def test_core_modules_import(module_name: str) -> None:
     """Core modules import without error."""

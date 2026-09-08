@@ -22,7 +22,9 @@ import h3
 # Module Imports
 import geo_infer_space as geo_infer_space
 from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
-from geo_infer_space.core.analytics import SpatialAnalyticsInterface as SpatialAnalyticsInterface
+from geo_infer_space.core.analytics import (
+    SpatialAnalyticsInterface as SpatialAnalyticsInterface,
+)
 from geo_infer_space.nested import NestedH3Grid, HierarchyManager as HierarchyManager
 from geo_infer_space.backends.h3.h3_backend import H3Backend as H3Backend
 
@@ -39,9 +41,14 @@ from geo_infer_bayes.utils.rng import resolve_rng as resolve_bayes_rng
 import geo_infer_risk as geo_infer_risk
 from geo_infer_risk.core.exposure_model import EnhancedExposureModel
 from geo_infer_risk.core.hazard_model import EnhancedHazardModel as EnhancedHazardModel
-from geo_infer_risk.core.vulnerability_model import EnhancedVulnerabilityModel as EnhancedVulnerabilityModel
+from geo_infer_risk.core.vulnerability_model import (
+    EnhancedVulnerabilityModel as EnhancedVulnerabilityModel,
+)
 from geo_infer_risk.core.risk_engine import EnhancedRiskEngine as EnhancedRiskEngine
-from geo_infer_risk.utils.risk_metrics import calculate_ep_curve, calculate_aal as calculate_aal
+from geo_infer_risk.utils.risk_metrics import (
+    calculate_ep_curve,
+    calculate_aal as calculate_aal,
+)
 
 import geo_infer_act as geo_infer_act
 from geo_infer_act.utils.h3_adapter import get_h3_adapter
@@ -88,7 +95,7 @@ def test_space_time_spatiotemporal_stream_composition(h3_spatial_domain):
     """Test composition of H3 spatial cells with TIME stream processor and TimeSeries."""
     cells = h3_spatial_domain["disk_cells"][:5]
     base_time = datetime.datetime(2026, 1, 1, 12, 0, 0)
-    
+
     cell_streams: Dict[str, StreamProcessor] = {}
     for cell in cells:
         # Window size large enough to hold all 12 hourly readings
@@ -123,7 +130,11 @@ def test_space_bayes_spatial_gaussian_process_composition(h3_spatial_domain):
     """Test fitting Bayesian SpatialGP over H3 cell centroids."""
     coords = np.array(h3_spatial_domain["coords"])
     rng = resolve_bayes_rng(42)
-    y = np.sin(coords[:, 0] * 5.0) + np.cos(coords[:, 1] * 5.0) + rng.normal(0, 0.05, size=len(coords))
+    y = (
+        np.sin(coords[:, 0] * 5.0)
+        + np.cos(coords[:, 1] * 5.0)
+        + rng.normal(0, 0.05, size=len(coords))
+    )
 
     model = SpatialGP(kernel_type="rbf", random_seed=42)
     model.fit(coords, y)
@@ -144,21 +155,25 @@ def test_space_bayes_spatial_gaussian_process_composition(h3_spatial_domain):
 def test_space_risk_catastrophe_modeling_composition(h3_spatial_domain):
     """Test GEO-INFER-RISK catastrophe and exposure modeling over H3 indexed assets."""
     cells = h3_spatial_domain["disk_cells"]
-    
+
     # Create exposure table distributed over H3 cells
     portfolio = []
     for idx, cell in enumerate(cells):
         lat, lng = h3.cell_to_latlng(cell)
-        portfolio.append({
-            "asset_id": f"AST_{idx:04d}",
-            "h3_cell": cell,
-            "latitude": lat,
-            "longitude": lng,
-            "total_value": 1_000_000.0 + (idx * 50_000.0),
-            "construction_type": "reinforced_concrete" if idx % 2 == 0 else "wood_frame",
-            "occupancy_type": "commercial",
-            "hazard_zone": "coastal_flood",
-        })
+        portfolio.append(
+            {
+                "asset_id": f"AST_{idx:04d}",
+                "h3_cell": cell,
+                "latitude": lat,
+                "longitude": lng,
+                "total_value": 1_000_000.0 + (idx * 50_000.0),
+                "construction_type": "reinforced_concrete"
+                if idx % 2 == 0
+                else "wood_frame",
+                "occupancy_type": "commercial",
+                "hazard_zone": "coastal_flood",
+            }
+        )
     _exposure_df = pd.DataFrame(portfolio)
 
     exposure_model = EnhancedExposureModel(
@@ -168,15 +183,21 @@ def test_space_risk_catastrophe_modeling_composition(h3_spatial_domain):
     assert exposure_model.exposure_type == "property"
 
     # Simulate event losses and verify monotonic empirical exceedance probability
-    event_losses = np.array([10_000, 25_000, 50_000, 100_000, 250_000, 500_000, 750_000, 1_000_000])
-    loss_table = pd.DataFrame({
-        "event_id": [f"EV_{i}" for i in range(len(event_losses))],
-        "hazard_type": ["earthquake"] * len(event_losses),
-        "loss": event_losses,
-        "rate": [0.01] * len(event_losses),
-    })
+    event_losses = np.array(
+        [10_000, 25_000, 50_000, 100_000, 250_000, 500_000, 750_000, 1_000_000]
+    )
+    loss_table = pd.DataFrame(
+        {
+            "event_id": [f"EV_{i}" for i in range(len(event_losses))],
+            "hazard_type": ["earthquake"] * len(event_losses),
+            "loss": event_losses,
+            "rate": [0.01] * len(event_losses),
+        }
+    )
 
-    ep_curve = calculate_ep_curve(loss_table, exceedance_probs=[0.5, 0.2, 0.1, 0.05], exposure_years=100)
+    ep_curve = calculate_ep_curve(
+        loss_table, exceedance_probs=[0.5, 0.2, 0.1, 0.05], exposure_years=100
+    )
     assert "return_period" in ep_curve
     assert "exceedance_probability" in ep_curve
     assert "loss" in ep_curve
@@ -189,7 +210,9 @@ def test_space_act_active_inference_spatial_belief_propagation(h3_spatial_domain
     adapter = get_h3_adapter()
 
     # Verify adapter wraps SPACE indexing cleanly
-    assert str(adapter.latlng_to_cell(37.7749, -122.4194, 8)) == str(h3_spatial_domain["center_cell"])
+    assert str(adapter.latlng_to_cell(37.7749, -122.4194, 8)) == str(
+        h3_spatial_domain["center_cell"]
+    )
 
     # Initialize Active Inference Generative Model over discrete spatial states
     n_states = len(cells)
@@ -222,7 +245,7 @@ def test_full_cross_module_end_to_end_pipeline(h3_spatial_domain):
     5. ACT: Active Inference agent prioritizes cell
     """
     cells = h3_spatial_domain["disk_cells"]
-    
+
     # 1. Spatial indexing
     indexer = SpatialIndexingInterface(backend="h3")
     coords = [indexer.cell_to_latlng(c) for c in cells]
@@ -233,31 +256,37 @@ def test_full_cross_module_end_to_end_pipeline(h3_spatial_domain):
     rng = np.random.default_rng(123)
     for day in range(7):
         for idx, cell in enumerate(cells):
-            telemetry_records.append({
-                "timestamp": base_date + pd.Timedelta(days=day),
-                "cell": cell,
-                "lat": coords[idx][0],
-                "lng": coords[idx][1],
-                "risk_metric": 10.0 + (idx * 0.5) + rng.normal(0, 0.2),
-            })
+            telemetry_records.append(
+                {
+                    "timestamp": base_date + pd.Timedelta(days=day),
+                    "cell": cell,
+                    "lat": coords[idx][0],
+                    "lng": coords[idx][1],
+                    "risk_metric": 10.0 + (idx * 0.5) + rng.normal(0, 0.2),
+                }
+            )
     telemetry_df = pd.DataFrame(telemetry_records)
     assert len(telemetry_df) == 7 * len(cells)
 
     # 3. Bayesian Spatial prediction
-    train_points = np.array([[r["lat"], r["lng"]] for r in telemetry_records[:len(cells)]])
-    train_vals = np.array([r["risk_metric"] for r in telemetry_records[:len(cells)]])
+    train_points = np.array(
+        [[r["lat"], r["lng"]] for r in telemetry_records[: len(cells)]]
+    )
+    train_vals = np.array([r["risk_metric"] for r in telemetry_records[: len(cells)]])
     gp = SpatialGP(kernel_type="rbf", random_seed=42)
     gp.fit(train_points, train_vals)
     preds = gp.predict(train_points)
     assert len(preds) == len(cells)
 
     # 4. Risk assessment
-    loss_data = pd.DataFrame({
-        "event_id": [f"E_{i}" for i in range(len(cells))],
-        "hazard_type": ["wildfire"] * len(cells),
-        "loss": preds * 10_000.0,
-        "rate": [0.05] * len(cells),
-    })
+    loss_data = pd.DataFrame(
+        {
+            "event_id": [f"E_{i}" for i in range(len(cells))],
+            "hazard_type": ["wildfire"] * len(cells),
+            "loss": preds * 10_000.0,
+            "rate": [0.05] * len(cells),
+        }
+    )
     ep = calculate_ep_curve(loss_data, exceedance_probs=[0.5, 0.1], exposure_years=50)
     assert len(ep["loss"]) == 2
 

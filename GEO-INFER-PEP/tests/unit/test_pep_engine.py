@@ -37,10 +37,12 @@ class TestPEPDataManager:
 
     def test_get_employees_filter_department(self):
         mgr = PEPDataManager()
-        mgr.add_employees([
-            _make_employee("emp-001", "Engineering"),
-            _make_employee("emp-002", "Marketing"),
-        ])
+        mgr.add_employees(
+            [
+                _make_employee("emp-001", "Engineering"),
+                _make_employee("emp-002", "Marketing"),
+            ]
+        )
         result = mgr.get_employees({"department": "Engineering"})
         assert len(result) == 1
         assert result[0].department == "Engineering"
@@ -53,7 +55,9 @@ class TestPEPDataManager:
 
     def test_get_data_summary_with_data(self):
         mgr = PEPDataManager()
-        mgr.add_employees([_make_employee("emp-001"), _make_employee("emp-002", "Marketing")])
+        mgr.add_employees(
+            [_make_employee("emp-001"), _make_employee("emp-002", "Marketing")]
+        )
         summary = mgr.get_data_summary()
         assert summary["employees"]["total"] == 2
         assert summary["employees"]["active"] == 2

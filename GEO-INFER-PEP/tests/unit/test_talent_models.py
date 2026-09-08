@@ -1,4 +1,5 @@
 """Tests for PEP talent/recruitment data models."""
+
 from datetime import date
 
 from geo_infer_pep.models.talent_models import (

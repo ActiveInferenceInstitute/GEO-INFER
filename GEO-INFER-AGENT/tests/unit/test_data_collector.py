@@ -83,8 +83,18 @@ class TestDataCollectorConfig(unittest.TestCase):
 
         # Simulate what DataCollectorAgent._initialize_data_source_beliefs does
         sources = [
-            {"id": "weather_api", "name": "Weather", "type": "api", "url": "http://example.com"},
-            {"id": "sensor_net", "name": "Sensors", "type": "sensor", "sensor_id": "s1"},
+            {
+                "id": "weather_api",
+                "name": "Weather",
+                "type": "api",
+                "url": "http://example.com",
+            },
+            {
+                "id": "sensor_net",
+                "name": "Sensors",
+                "type": "sensor",
+                "sensor_id": "s1",
+            },
         ]
         for source in sources:
             sid = source["id"]
@@ -113,8 +123,16 @@ class TestDataCollectorConfig(unittest.TestCase):
                     "name": "collect_plan",
                     "desire_name": "collect",
                     "actions": [
-                        {"type": "log", "message": "Starting collection", "level": "info"},
-                        {"type": "update_belief", "belief_name": "last_collection", "belief_value": "done"},
+                        {
+                            "type": "log",
+                            "message": "Starting collection",
+                            "level": "info",
+                        },
+                        {
+                            "type": "update_belief",
+                            "belief_name": "last_collection",
+                            "belief_value": "done",
+                        },
                     ],
                 }
             ],
@@ -147,7 +165,9 @@ class TestDataCollectorConfig(unittest.TestCase):
                 {
                     "name": "process_plan",
                     "desire_name": "process",
-                    "actions": [{"type": "log", "message": "processing", "level": "info"}],
+                    "actions": [
+                        {"type": "log", "message": "processing", "level": "info"}
+                    ],
                     "context_conditions": {"has_unprocessed_data": True},
                 },
             ],
@@ -170,7 +190,9 @@ class TestDataCollectorConfig(unittest.TestCase):
                 {
                     "name": "process_plan",
                     "desire_name": "process",
-                    "actions": [{"type": "log", "message": "processing", "level": "info"}],
+                    "actions": [
+                        {"type": "log", "message": "processing", "level": "info"}
+                    ],
                     "context_conditions": {"has_unprocessed_data": True},
                 },
             ],

@@ -24,7 +24,9 @@ class TestAwarenessDataclasses:
 
     def test_layer_config_creation(self) -> None:
         layer = LayerConfig(
-            layer_id="l1", name="Hazard", source="wms",
+            layer_id="l1",
+            name="Hazard",
+            source="wms",
         )
         assert layer.visible is True
         assert layer.refresh_rate_seconds == 60
@@ -62,10 +64,19 @@ class TestSensorIntegration:
         result = sa.integrate_sensors(
             sensor_network={
                 "sensors": [
-                    {"id": "s1", "type": "temperature", "location": {"lat": 34.0, "lon": -118.0},
-                     "readings": {"temperature": 45.0}, "confidence": 0.9},
-                    {"id": "s2", "type": "wind", "location": {"lat": 34.1, "lon": -118.1},
-                     "readings": {"wind_speed": 25.0}},
+                    {
+                        "id": "s1",
+                        "type": "temperature",
+                        "location": {"lat": 34.0, "lon": -118.0},
+                        "readings": {"temperature": 45.0},
+                        "confidence": 0.9,
+                    },
+                    {
+                        "id": "s2",
+                        "type": "wind",
+                        "location": {"lat": 34.1, "lon": -118.1},
+                        "readings": {"wind_speed": 25.0},
+                    },
                 ]
             },
             data_types=["temperature", "wind"],
@@ -84,10 +95,21 @@ class TestBuildCOP:
         sa = SituationalAwareness()
         cop = sa.build_cop(
             layers=[
-                {"id": "l1", "name": "Hazard", "source": "wms", "type": "hazard", "visible": True},
+                {
+                    "id": "l1",
+                    "name": "Hazard",
+                    "source": "wms",
+                    "type": "hazard",
+                    "visible": True,
+                },
                 {"id": "l2", "name": "Resources", "source": "api", "type": "resource"},
             ],
-            extent={"min_lat": 33.0, "max_lat": 35.0, "min_lon": -119.0, "max_lon": -117.0},
+            extent={
+                "min_lat": 33.0,
+                "max_lat": 35.0,
+                "min_lon": -119.0,
+                "max_lon": -117.0,
+            },
             symbology={"hazard": {"color": "red"}, "resource": {"color": "blue"}},
             refresh_rate=15,
         )
@@ -190,8 +212,18 @@ class TestDashboard:
         sa = SituationalAwareness()
         dashboard = sa.generate_dashboard(
             widgets=[
-                {"id": "w1", "type": "map", "title": "Incident Map", "data_source": "cop"},
-                {"id": "w2", "type": "chart", "title": "Resources", "data_source": "resources"},
+                {
+                    "id": "w1",
+                    "type": "map",
+                    "title": "Incident Map",
+                    "data_source": "cop",
+                },
+                {
+                    "id": "w2",
+                    "type": "chart",
+                    "title": "Resources",
+                    "data_source": "resources",
+                },
             ],
             layout="standard",
             update_frequency=15,

@@ -30,13 +30,19 @@ class TestMeasurementQualityChecks:
             assert not (0 <= h <= 100)
 
     def test_coordinate_validation(self):
-        valid_coords = [(0.0, 0.0), (90.0, 180.0), (-90.0, -180.0), (37.7749, -122.4194)]
+        valid_coords = [
+            (0.0, 0.0),
+            (90.0, 180.0),
+            (-90.0, -180.0),
+            (37.7749, -122.4194),
+        ]
         for lat, lon in valid_coords:
             assert -90 <= lat <= 90
             assert -180 <= lon <= 180
 
     def test_nan_detection(self):
         import math
+
         assert math.isnan(float("nan"))
         assert not math.isnan(22.5)
         assert not math.isnan(0.0)

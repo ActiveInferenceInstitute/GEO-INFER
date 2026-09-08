@@ -11,7 +11,9 @@ from geo_infer_health.models import DiseaseReport, Location
 from geo_infer_health.core.disease_surveillance import DiseaseHotspotAnalyzer
 
 
-def _make_report(lat: float, lon: float, case_count: int, report_date: datetime, idx: int = 0) -> DiseaseReport:
+def _make_report(
+    lat: float, lon: float, case_count: int, report_date: datetime, idx: int = 0
+) -> DiseaseReport:
     """Create a real DiseaseReport using the Pydantic model."""
     return DiseaseReport(
         report_id=f"RPT-{idx:04d}",
@@ -57,14 +59,15 @@ class TestDiseaseHotspotAnalyzer:
     def test_calculate_local_incidence_rate(self, analyzer):
         """Test incidence rate calculation."""
         center = Location(latitude=34.0, longitude=-118.0)
-        rate, cases, pop, population_estimated = analyzer.calculate_local_incidence_rate(center, 10.0)
+        rate, cases, pop, population_estimated = (
+            analyzer.calculate_local_incidence_rate(center, 10.0)
+        )
         assert cases >= 0
 
     def test_identify_simple_hotspots(self, analyzer):
         """Test hotspot identification."""
         hotspots = analyzer.identify_simple_hotspots(
-            threshold_case_count=5,
-            scan_radius_km=10.0
+            threshold_case_count=5, scan_radius_km=10.0
         )
         assert isinstance(hotspots, list)
 
@@ -81,11 +84,7 @@ class TestSIRModel:
     def test_simulate_sir_model(self, analyzer):
         """Test SIR model simulation."""
         result = analyzer.simulate_sir_model(
-            initial_infected=10,
-            population=10000,
-            beta=0.3,
-            gamma=0.1,
-            days=100
+            initial_infected=10, population=10000, beta=0.3, gamma=0.1, days=100
         )
 
         assert "susceptible" in result
@@ -97,11 +96,7 @@ class TestSIRModel:
     def test_sir_model_peak(self, analyzer):
         """Test that SIR model produces a peak."""
         result = analyzer.simulate_sir_model(
-            initial_infected=100,
-            population=100000,
-            beta=0.4,
-            gamma=0.1,
-            days=200
+            initial_infected=100, population=100000, beta=0.4, gamma=0.1, days=200
         )
 
         # Peak should be greater than initial
@@ -120,7 +115,9 @@ class TestContactTracing:
             _make_report(34.0, -118.0, 1, base_date, 0),
             _make_report(34.0001, -118.0001, 1, base_date + timedelta(hours=2), 1),
             _make_report(34.0002, -118.0001, 1, base_date + timedelta(hours=5), 2),
-            _make_report(35.0, -119.0, 1, base_date + timedelta(hours=1), 3),  # Far away
+            _make_report(
+                35.0, -119.0, 1, base_date + timedelta(hours=1), 3
+            ),  # Far away
         ]
 
     @pytest.fixture
@@ -133,9 +130,7 @@ class TestContactTracing:
         index_case = reports_with_contacts[0]
 
         contacts = analyzer.find_potential_contacts(
-            case_report=index_case,
-            search_radius_km=1.0,
-            time_window_hours=24
+            case_report=index_case, search_radius_km=1.0, time_window_hours=24
         )
 
         assert isinstance(contacts, list)
@@ -147,10 +142,7 @@ class TestContactTracing:
     def test_contact_risk_calculation(self, analyzer):
         """Test contact risk score calculation."""
         risk = analyzer._calculate_contact_risk(
-            distance_km=0.05,
-            time_diff_hours=2.0,
-            max_distance=1.0,
-            max_time=48
+            distance_km=0.05, time_diff_hours=2.0, max_distance=1.0, max_time=48
         )
 
         assert 0 <= risk <= 100
@@ -174,7 +166,9 @@ class TestTemporalAnalysis:
         # Increasing trend
         for i in range(30):
             case_count = 5 + i // 5  # Gradually increasing
-            reports.append(_make_report(34.0, -118.0, case_count, base_date + timedelta(days=i), i))
+            reports.append(
+                _make_report(34.0, -118.0, case_count, base_date + timedelta(days=i), i)
+            )
 
         return reports
 
@@ -190,7 +184,11 @@ class TestTemporalAnalysis:
         assert "time_periods" in result
         assert "case_counts" in result
         assert "statistics" in result
-        assert result["statistics"]["trend_direction"] in ["increasing", "decreasing", "stable"]
+        assert result["statistics"]["trend_direction"] in [
+            "increasing",
+            "decreasing",
+            "stable",
+        ]
 
     def test_analyze_temporal_trends_weekly(self, analyzer):
         """Test weekly temporal trend analysis."""
@@ -211,14 +209,17 @@ class TestReproductionNumber:
         # Exponential-like growth
         idx = 0
         for i in range(30):
-            case_count = int(10 * 1.1 ** i)  # Exponential growth
+            case_count = int(10 * 1.1**i)  # Exponential growth
             for _ in range(max(1, case_count // 10)):
-                reports.append(_make_report(
-                    34.0 + i * 0.01, -118.0,
-                    min(case_count, 100),
-                    base_date + timedelta(days=i),
-                    idx
-                ))
+                reports.append(
+                    _make_report(
+                        34.0 + i * 0.01,
+                        -118.0,
+                        min(case_count, 100),
+                        base_date + timedelta(days=i),
+                        idx,
+                    )
+                )
                 idx += 1
 
         return reports
@@ -231,8 +232,7 @@ class TestReproductionNumber:
     def test_calculate_reproduction_number(self, analyzer):
         """Test Rt calculation."""
         result = analyzer.calculate_reproduction_number(
-            serial_interval_days=5.0,
-            window_days=7
+            serial_interval_days=5.0, window_days=7
         )
 
         assert "rt_time_series" in result
@@ -257,19 +257,15 @@ class TestRiskMapping:
 
         # Cluster 1 - high risk
         for i in range(15):
-            reports.append(_make_report(
-                34.0 + i * 0.001,
-                -118.0 + i * 0.001,
-                2, base_date, i
-            ))
+            reports.append(
+                _make_report(34.0 + i * 0.001, -118.0 + i * 0.001, 2, base_date, i)
+            )
 
         # Cluster 2 - medium risk
         for i in range(5):
-            reports.append(_make_report(
-                34.1 + i * 0.001,
-                -118.1 + i * 0.001,
-                1, base_date, 15 + i
-            ))
+            reports.append(
+                _make_report(34.1 + i * 0.001, -118.1 + i * 0.001, 1, base_date, 15 + i)
+            )
 
         return reports
 
@@ -288,16 +284,8 @@ class TestRiskMapping:
 
     def test_risk_map_with_bbox(self, analyzer):
         """Test risk map with custom bounding box."""
-        bbox = {
-            "min_lat": 33.9,
-            "max_lat": 34.2,
-            "min_lon": -118.2,
-            "max_lon": -117.9
-        }
+        bbox = {"min_lat": 33.9, "max_lat": 34.2, "min_lon": -118.2, "max_lon": -117.9}
 
-        result = analyzer.generate_risk_map_data(
-            grid_resolution_km=10.0,
-            bbox=bbox
-        )
+        result = analyzer.generate_risk_map_data(grid_resolution_km=10.0, bbox=bbox)
 
         assert result["bounding_box"] == bbox

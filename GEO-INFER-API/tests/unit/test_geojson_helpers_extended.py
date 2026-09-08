@@ -1,6 +1,7 @@
 """
 Extended unit tests for geojson_helpers covering buffer, intersection, union, and distance.
 """
+
 import pytest
 
 from geo_infer_api.models.geojson import GeoJSONType, Polygon
@@ -50,6 +51,7 @@ def make_polygon(coords) -> Polygon:
 # ---------------------------------------------------------------------------
 # create_buffer tests
 # ---------------------------------------------------------------------------
+
 
 class TestCreateBuffer:
     def test_buffer_is_larger_than_source(self):
@@ -126,6 +128,7 @@ class TestCreateBuffer:
 # calculate_intersection tests
 # ---------------------------------------------------------------------------
 
+
 class TestCalculateIntersection:
     def test_intersection_of_overlapping_polygons(self):
         """Intersection of overlapping polygons must be smaller than both inputs."""
@@ -186,6 +189,7 @@ class TestCalculateIntersection:
 # ---------------------------------------------------------------------------
 # calculate_union tests
 # ---------------------------------------------------------------------------
+
 
 class TestCalculateUnion:
     def test_union_spans_both_polygons(self):
@@ -253,6 +257,7 @@ class TestCalculateUnion:
 # calculate_distance tests
 # ---------------------------------------------------------------------------
 
+
 class TestCalculateDistance:
     def test_distance_sf_to_nyc_approximate(self):
         """SF-NYC centroid distance should be roughly 4,100–4,200 km."""
@@ -273,7 +278,9 @@ class TestCalculateDistance:
         """Distance must be symmetric."""
         p1 = make_polygon(SF_POLYGON_COORDS)
         p2 = make_polygon(NYC_POLYGON_COORDS)
-        assert calculate_distance(p1, p2) == pytest.approx(calculate_distance(p2, p1), rel=1e-9)
+        assert calculate_distance(p1, p2) == pytest.approx(
+            calculate_distance(p2, p1), rel=1e-9
+        )
 
     def test_distance_dict_input(self):
         """calculate_distance must accept dict inputs."""

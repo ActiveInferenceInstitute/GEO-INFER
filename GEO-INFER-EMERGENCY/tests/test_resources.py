@@ -70,10 +70,20 @@ class TestOptimizeAllocation:
         deployer = ResourceDeployer()
         result = deployer.optimize_allocation(
             resources=[
-                {"id": "r1", "type": "engine", "name": "Engine 1",
-                 "location": {"lat": 34.05, "lon": -118.25}, "status": "available"},
-                {"id": "r2", "type": "ambulance", "name": "Ambulance 1",
-                 "location": {"lat": 34.06, "lon": -118.24}, "status": "available"},
+                {
+                    "id": "r1",
+                    "type": "engine",
+                    "name": "Engine 1",
+                    "location": {"lat": 34.05, "lon": -118.25},
+                    "status": "available",
+                },
+                {
+                    "id": "r2",
+                    "type": "ambulance",
+                    "name": "Ambulance 1",
+                    "location": {"lat": 34.06, "lon": -118.24},
+                    "status": "available",
+                },
             ],
             demand_points=[
                 {"id": "d1", "location": {"lat": 34.05, "lon": -118.25}},
@@ -89,8 +99,13 @@ class TestOptimizeAllocation:
         deployer = ResourceDeployer()
         result = deployer.optimize_allocation(
             resources=[
-                {"id": "r1", "type": "engine", "name": "Engine 1",
-                 "location": {"lat": 34.05, "lon": -118.25}, "status": "available"},
+                {
+                    "id": "r1",
+                    "type": "engine",
+                    "name": "Engine 1",
+                    "location": {"lat": 34.05, "lon": -118.25},
+                    "status": "available",
+                },
             ],
             demand_points=[
                 {"id": "d1", "location": {"lat": 34.05, "lon": -118.25}},
@@ -136,7 +151,9 @@ class TestDynamicRedeploy:
         deployer.register_resource(resource)
 
         result = deployer.dynamic_redeploy(
-            current_positions=[{"resource_id": "r1", "location": {"lat": 34.05, "lon": -118.25}}],
+            current_positions=[
+                {"resource_id": "r1", "location": {"lat": 34.05, "lon": -118.25}}
+            ],
             pending_incidents=[],
             predicted_demand={"high_risk_areas": [{"lat": 34.1, "lon": -118.3}]},
             strategy="move_up",
@@ -152,7 +169,11 @@ class TestStagingManagement:
         deployer = ResourceDeployer()
         result = deployer.manage_staging(
             staging_areas=[
-                {"id": "stg1", "location": {"lat": 34.0, "lon": -118.0}, "capacity": 50},
+                {
+                    "id": "stg1",
+                    "location": {"lat": 34.0, "lon": -118.0},
+                    "capacity": 50,
+                },
             ],
             incoming_resources=[{"id": "r1"}, {"id": "r2"}],
             assignment_queue=[
@@ -173,8 +194,18 @@ class TestResourceTracking:
         deployer = ResourceDeployer()
         result = deployer.track_resources(
             resources=[
-                {"id": "r1", "type": "engine", "status": "available", "location": {"lat": 34.0, "lon": -118.0}},
-                {"id": "r2", "type": "ambulance", "status": "en_route", "location": {"lat": 34.1, "lon": -118.1}},
+                {
+                    "id": "r1",
+                    "type": "engine",
+                    "status": "available",
+                    "location": {"lat": 34.0, "lon": -118.0},
+                },
+                {
+                    "id": "r2",
+                    "type": "ambulance",
+                    "status": "en_route",
+                    "location": {"lat": 34.1, "lon": -118.1},
+                },
                 {"id": "r3", "type": "rescue_unit", "status": "on_scene"},
             ],
         )

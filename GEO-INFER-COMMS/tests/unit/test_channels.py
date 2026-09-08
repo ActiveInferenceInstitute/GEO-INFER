@@ -83,7 +83,9 @@ class TestGeospatialPermission:
         permissions = ChannelPermissionManager(manager)
 
         allowed = permissions.check_geospatial_permission(
-            channel.channel_id, "creator", "read",
+            channel.channel_id,
+            "creator",
+            "read",
             GeospatialPoint(longitude=-122.4, latitude=37.7),
         )
 
@@ -94,7 +96,9 @@ class TestGeospatialPermission:
         permissions = ChannelPermissionManager(manager)
 
         allowed = permissions.check_geospatial_permission(
-            channel.channel_id, "creator", "read",
+            channel.channel_id,
+            "creator",
+            "read",
             GeospatialPoint(longitude=0.0, latitude=0.0),
         )
 

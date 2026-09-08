@@ -1,4 +1,5 @@
 """Tests for IoT data ingestion engine."""
+
 import pytest
 from datetime import datetime, timezone
 

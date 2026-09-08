@@ -125,9 +125,7 @@ class TestCloudConnectorBase:
         assert data_footer == b"PAR1"
 
         with pytest.raises(ValueError):
-            _run(
-                connector.read_byte_range(str(file_path), start_byte=-1, end_byte=5)
-            )
+            _run(connector.read_byte_range(str(file_path), start_byte=-1, end_byte=5))
 
 
 # ---------------------------------------------------------------------------

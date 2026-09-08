@@ -10,7 +10,7 @@ import pytest
 import sys
 import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
 from geo_infer_math.core.interpolation import (
     InterpolationConfig,
@@ -39,11 +39,13 @@ def sample_data():
 @pytest.fixture
 def prediction_coords():
     """Create prediction coordinates."""
-    return np.array([
-        [5.0, 5.0],
-        [2.0, 8.0],
-        [7.0, 3.0],
-    ])
+    return np.array(
+        [
+            [5.0, 5.0],
+            [2.0, 8.0],
+            [7.0, 3.0],
+        ]
+    )
 
 
 class TestIDWInterpolator:
@@ -93,7 +95,7 @@ class TestKrigingInterpolator:
     def test_fit_and_predict(self, sample_data, prediction_coords):
         coords, values = sample_data
         config = InterpolationConfig(
-            variogram_model='spherical',
+            variogram_model="spherical",
             sill=1.0,
             range_param=10.0,
             nugget=0.0,
@@ -106,7 +108,7 @@ class TestKrigingInterpolator:
 
     def test_exponential_variogram(self, sample_data, prediction_coords):
         coords, values = sample_data
-        config = InterpolationConfig(variogram_model='exponential', range_param=5.0)
+        config = InterpolationConfig(variogram_model="exponential", range_param=5.0)
         kriging = KrigingInterpolator(config)
         kriging.fit(coords, values)
         predictions = kriging.predict(prediction_coords)
@@ -114,7 +116,7 @@ class TestKrigingInterpolator:
 
     def test_linear_variogram(self, sample_data, prediction_coords):
         coords, values = sample_data
-        config = InterpolationConfig(variogram_model='linear', range_param=5.0)
+        config = InterpolationConfig(variogram_model="linear", range_param=5.0)
         kriging = KrigingInterpolator(config)
         kriging.fit(coords, values)
         predictions = kriging.predict(prediction_coords)
@@ -124,7 +126,7 @@ class TestKrigingInterpolator:
         """OK weights solve: prediction at a training point equals its value."""
         coords, values = sample_data
         config = InterpolationConfig(
-            variogram_model='spherical', sill=1.0, range_param=10.0, nugget=0.0
+            variogram_model="spherical", sill=1.0, range_param=10.0, nugget=0.0
         )
         kriging = KrigingInterpolator(config)
         kriging.fit(coords, values)
@@ -178,29 +180,29 @@ class TestInterpolationManager:
 
     def test_create_manager(self):
         manager = create_interpolation_manager()
-        assert 'idw' in manager.interpolators
-        assert 'kriging' in manager.interpolators
-        assert 'linear' in manager.interpolators
+        assert "idw" in manager.interpolators
+        assert "kriging" in manager.interpolators
+        assert "linear" in manager.interpolators
 
     def test_interpolate_with_manager(self, sample_data, prediction_coords):
         coords, values = sample_data
         config = InterpolationConfig(max_distance=20.0)
         manager = InterpolationManager(config)
-        result = manager.interpolate(coords, values, prediction_coords, method='idw')
+        result = manager.interpolate(coords, values, prediction_coords, method="idw")
         assert len(result) == 3
 
     def test_unknown_method_raises(self, sample_data, prediction_coords):
         coords, values = sample_data
         manager = InterpolationManager()
         with pytest.raises(ValueError, match="Unknown interpolation method"):
-            manager.interpolate(coords, values, prediction_coords, method='nonexistent')
+            manager.interpolate(coords, values, prediction_coords, method="nonexistent")
 
     def test_create_interpolation_grid_function(self):
         bounds = {
-            'lat_min': 0.0,
-            'lat_max': 1.0,
-            'lon_min': 0.0,
-            'lon_max': 1.0,
+            "lat_min": 0.0,
+            "lat_max": 1.0,
+            "lon_min": 0.0,
+            "lon_max": 1.0,
         }
         grid = create_interpolation_grid(bounds, resolution=0.5)
         assert grid.shape[1] == 2
@@ -208,16 +210,16 @@ class TestInterpolationManager:
 
     def test_interpolation_grid_metadata(self):
         bounds = {
-            'lat_min': 0.0,
-            'lat_max': 1.0,
-            'lon_min': 0.0,
-            'lon_max': 1.0,
+            "lat_min": 0.0,
+            "lat_max": 1.0,
+            "lon_min": 0.0,
+            "lon_max": 1.0,
         }
         manager = InterpolationManager()
         grid, meta = manager.create_interpolation_grid(bounds, resolution=0.5)
-        assert 'n_points' in meta
-        assert 'shape' in meta
-        assert meta['resolution'] == 0.5
+        assert "n_points" in meta
+        assert "shape" in meta
+        assert meta["resolution"] == 0.5
 
 
 class TestConvenienceFunctions:
@@ -225,6 +227,8 @@ class TestConvenienceFunctions:
 
     def test_interpolate_spatial_data(self, sample_data, prediction_coords):
         coords, values = sample_data
-        result = interpolate_spatial_data(coords, values, prediction_coords, method='idw')
+        result = interpolate_spatial_data(
+            coords, values, prediction_coords, method="idw"
+        )
         assert len(result) == 3
         assert np.all(np.isfinite(result))

@@ -25,6 +25,7 @@ from geo_infer_test.core.validators import (
 # Helper: generate large parameter sets
 # ============================================================================
 
+
 def _ts(delta_hours: float = 0) -> str:
     """ISO timestamp shifted by *delta_hours* from now."""
     return (datetime.now(timezone.utc) - timedelta(hours=delta_hours)).isoformat()
@@ -35,80 +36,99 @@ _DQ_SCENARIOS = []
 
 # Valid rows
 for n in (0, 1, 5, 50):
-    _DQ_SCENARIOS.append(pytest.param(
-        [{"timestamp": _ts(), "value": float(i)} for i in range(n)],
-        id=f"valid_{n}rows",
-    ))
+    _DQ_SCENARIOS.append(
+        pytest.param(
+            [{"timestamp": _ts(), "value": float(i)} for i in range(n)],
+            id=f"valid_{n}rows",
+        )
+    )
 
 # Missing timestamp
 for n in (1, 10, 25):
-    _DQ_SCENARIOS.append(pytest.param(
-        [{"value": float(i)} for i in range(n)],
-        id=f"missing_ts_{n}rows",
-    ))
+    _DQ_SCENARIOS.append(
+        pytest.param(
+            [{"value": float(i)} for i in range(n)],
+            id=f"missing_ts_{n}rows",
+        )
+    )
 
 # Missing value
 for n in (1, 10, 25):
-    _DQ_SCENARIOS.append(pytest.param(
-        [{"timestamp": _ts()} for _ in range(n)],
-        id=f"missing_val_{n}rows",
-    ))
+    _DQ_SCENARIOS.append(
+        pytest.param(
+            [{"timestamp": _ts()} for _ in range(n)],
+            id=f"missing_val_{n}rows",
+        )
+    )
 
 # Null values
-_DQ_SCENARIOS.append(pytest.param(
-    [{"timestamp": None, "value": None}], id="all_null"
-))
-_DQ_SCENARIOS.append(pytest.param(
-    [{"timestamp": _ts(), "value": None}], id="null_value_only"
-))
-_DQ_SCENARIOS.append(pytest.param(
-    [{"timestamp": None, "value": 1.0}], id="null_ts_only"
-))
+_DQ_SCENARIOS.append(pytest.param([{"timestamp": None, "value": None}], id="all_null"))
+_DQ_SCENARIOS.append(
+    pytest.param([{"timestamp": _ts(), "value": None}], id="null_value_only")
+)
+_DQ_SCENARIOS.append(
+    pytest.param([{"timestamp": None, "value": 1.0}], id="null_ts_only")
+)
 
 # Non-numeric value fields
 for v in ("abc", True, False, [], {}, "123"):
-    _DQ_SCENARIOS.append(pytest.param(
-        [{"timestamp": _ts(), "value": v}],
-        id=f"value_type_{type(v).__name__}_{str(v)[:10]}",
-    ))
+    _DQ_SCENARIOS.append(
+        pytest.param(
+            [{"timestamp": _ts(), "value": v}],
+            id=f"value_type_{type(v).__name__}_{str(v)[:10]}",
+        )
+    )
 
 # Large numeric values
 for v in (0, -1, 1e15, -1e15, float("inf"), float("-inf"), float("nan")):
-    _DQ_SCENARIOS.append(pytest.param(
-        [{"timestamp": _ts(), "value": v}],
-        id=f"value_extreme_{v}",
-    ))
+    _DQ_SCENARIOS.append(
+        pytest.param(
+            [{"timestamp": _ts(), "value": v}],
+            id=f"value_extreme_{v}",
+        )
+    )
 
 # Bad timestamp formats
 for ts in ("not-a-date", "2020/01/01", "01-01-2020", ""):
-    _DQ_SCENARIOS.append(pytest.param(
-        [{"timestamp": ts, "value": 1.0}],
-        id=f"bad_ts_{ts[:10]}",
-    ))
+    _DQ_SCENARIOS.append(
+        pytest.param(
+            [{"timestamp": ts, "value": 1.0}],
+            id=f"bad_ts_{ts[:10]}",
+        )
+    )
 
 # Extra columns
-_DQ_SCENARIOS.append(pytest.param(
-    [{"timestamp": _ts(), "value": 1.0, "extra1": "x", "extra2": 99}],
-    id="extra_columns",
-))
+_DQ_SCENARIOS.append(
+    pytest.param(
+        [{"timestamp": _ts(), "value": 1.0, "extra1": "x", "extra2": 99}],
+        id="extra_columns",
+    )
+)
 
 # Mix of good and bad rows
-_DQ_SCENARIOS.append(pytest.param(
-    [{"timestamp": _ts(), "value": 1.0}] * 40 + [{"timestamp": None, "value": None}] * 10,
-    id="mixed_40good_10bad",
-))
+_DQ_SCENARIOS.append(
+    pytest.param(
+        [{"timestamp": _ts(), "value": 1.0}] * 40
+        + [{"timestamp": None, "value": None}] * 10,
+        id="mixed_40good_10bad",
+    )
+)
 
 # Single dict input
-_DQ_SCENARIOS.append(pytest.param(
-    {"timestamp": _ts(), "value": 42.0},
-    id="single_dict_input",
-))
+_DQ_SCENARIOS.append(
+    pytest.param(
+        {"timestamp": _ts(), "value": 42.0},
+        id="single_dict_input",
+    )
+)
 
 # DataFrame input
-_DQ_SCENARIOS.append(pytest.param(
-    pd.DataFrame({"timestamp": [_ts()] * 5, "value": [1.0, 2.0, 3.0, 4.0, 5.0]}),
-    id="dataframe_input",
-))
+_DQ_SCENARIOS.append(
+    pytest.param(
+        pd.DataFrame({"timestamp": [_ts()] * 5, "value": [1.0, 2.0, 3.0, 4.0, 5.0]}),
+        id="dataframe_input",
+    )
+)
 
 
 class TestDataQualityParametric:
@@ -136,34 +156,34 @@ _COORD_LONS = [-180.0, -90.0, 0.0, 90.0, 180.0, -181.0, 181.0, 360.0, -0.001]
 _SPATIAL_SCENARIOS = []
 for lat in _COORD_LATS:
     for lon in _COORD_LONS:
-        _SPATIAL_SCENARIOS.append(pytest.param(
-            [{"latitude": lat, "longitude": lon}],
-            id=f"coord_lat{lat}_lon{lon}",
-        ))
+        _SPATIAL_SCENARIOS.append(
+            pytest.param(
+                [{"latitude": lat, "longitude": lon}],
+                id=f"coord_lat{lat}_lon{lon}",
+            )
+        )
 
 # Special types in coordinates
 for v in (None, "abc", True, [], {}):
-    _SPATIAL_SCENARIOS.append(pytest.param(
-        [{"latitude": v, "longitude": 0.0}],
-        id=f"lat_type_{type(v).__name__}",
-    ))
+    _SPATIAL_SCENARIOS.append(
+        pytest.param(
+            [{"latitude": v, "longitude": 0.0}],
+            id=f"lat_type_{type(v).__name__}",
+        )
+    )
 
 # Multiple points
-_SPATIAL_SCENARIOS.append(pytest.param(
-    [{"latitude": float(i), "longitude": float(i)} for i in range(-5, 6)],
-    id="multi_point_range",
-))
+_SPATIAL_SCENARIOS.append(
+    pytest.param(
+        [{"latitude": float(i), "longitude": float(i)} for i in range(-5, 6)],
+        id="multi_point_range",
+    )
+)
 
-# Missing columns  
-_SPATIAL_SCENARIOS.append(pytest.param(
-    [{"latitude": 0.0}], id="missing_longitude"
-))
-_SPATIAL_SCENARIOS.append(pytest.param(
-    [{"longitude": 0.0}], id="missing_latitude"
-))
-_SPATIAL_SCENARIOS.append(pytest.param(
-    [{"other": "data"}], id="no_spatial_columns"
-))
+# Missing columns
+_SPATIAL_SCENARIOS.append(pytest.param([{"latitude": 0.0}], id="missing_longitude"))
+_SPATIAL_SCENARIOS.append(pytest.param([{"longitude": 0.0}], id="missing_latitude"))
+_SPATIAL_SCENARIOS.append(pytest.param([{"other": "data"}], id="no_spatial_columns"))
 
 
 class TestSpatialParametric:
@@ -183,56 +203,110 @@ _IOT_SCENARIOS = []
 for n_sensors in (1, 3, 10, 25):
     rows = []
     for i in range(n_sensors):
-        rows.append({
-            "sensor_id": f"sensor_{i}",
-            "timestamp": _ts(float(i)),
-            "radiation_level": float(i * 5),
-            "value": float(i * 10),
-        })
+        rows.append(
+            {
+                "sensor_id": f"sensor_{i}",
+                "timestamp": _ts(float(i)),
+                "radiation_level": float(i * 5),
+                "value": float(i * 10),
+            }
+        )
     _IOT_SCENARIOS.append(pytest.param(rows, id=f"valid_{n_sensors}sensors"))
 
 # Radiation edge cases
 for rad in (0.0, 50.0, 100.0, -1.0, 101.0, 999.0, float("nan"), float("inf")):
-    _IOT_SCENARIOS.append(pytest.param(
-        [{"sensor_id": "sensor_0", "timestamp": _ts(), "radiation_level": rad, "value": 1.0}],
-        id=f"radiation_{rad}",
-    ))
+    _IOT_SCENARIOS.append(
+        pytest.param(
+            [
+                {
+                    "sensor_id": "sensor_0",
+                    "timestamp": _ts(),
+                    "radiation_level": rad,
+                    "value": 1.0,
+                }
+            ],
+            id=f"radiation_{rad}",
+        )
+    )
 
 # String radiation values
 for rad_str in ("0", "50.5", "high", ""):
-    _IOT_SCENARIOS.append(pytest.param(
-        [{"sensor_id": "sensor_0", "timestamp": _ts(), "radiation_level": rad_str, "value": 1.0}],
-        id=f"radiation_str_{rad_str[:5]}",
-    ))
+    _IOT_SCENARIOS.append(
+        pytest.param(
+            [
+                {
+                    "sensor_id": "sensor_0",
+                    "timestamp": _ts(),
+                    "radiation_level": rad_str,
+                    "value": 1.0,
+                }
+            ],
+            id=f"radiation_str_{rad_str[:5]}",
+        )
+    )
 
 # Bad sensor IDs
 for sid in ("sensor_0", "SENSOR-001", "s", "", "abc_123"):
-    _IOT_SCENARIOS.append(pytest.param(
-        [{"sensor_id": sid, "timestamp": _ts(), "radiation_level": 5.0, "value": 1.0}],
-        id=f"sensor_id_{sid[:10]}",
-    ))
+    _IOT_SCENARIOS.append(
+        pytest.param(
+            [
+                {
+                    "sensor_id": sid,
+                    "timestamp": _ts(),
+                    "radiation_level": 5.0,
+                    "value": 1.0,
+                }
+            ],
+            id=f"sensor_id_{sid[:10]}",
+        )
+    )
 
 # Missing fields
-_IOT_SCENARIOS.append(pytest.param(
-    [{"timestamp": _ts(), "value": 1.0}], id="missing_sensor_id_rad"
-))
-_IOT_SCENARIOS.append(pytest.param(
-    [{"sensor_id": "sensor_0", "value": 1.0}], id="missing_timestamp_rad"
-))
+_IOT_SCENARIOS.append(
+    pytest.param([{"timestamp": _ts(), "value": 1.0}], id="missing_sensor_id_rad")
+)
+_IOT_SCENARIOS.append(
+    pytest.param([{"sensor_id": "sensor_0", "value": 1.0}], id="missing_timestamp_rad")
+)
 
 # Old timestamps
-_IOT_SCENARIOS.append(pytest.param(
-    [{"sensor_id": "sensor_0", "timestamp": "2000-01-01T00:00:00", "radiation_level": 5.0, "value": 1.0}],
-    id="old_timestamp",
-))
+_IOT_SCENARIOS.append(
+    pytest.param(
+        [
+            {
+                "sensor_id": "sensor_0",
+                "timestamp": "2000-01-01T00:00:00",
+                "radiation_level": 5.0,
+                "value": 1.0,
+            }
+        ],
+        id="old_timestamp",
+    )
+)
 
 # Anomaly detection (z-score)
-_IOT_SCENARIOS.append(pytest.param(
-    [{"sensor_id": f"sensor_{i}", "timestamp": _ts(float(i)), "radiation_level": 5.0, "value": float(i)}
-     for i in range(20)] +
-    [{"sensor_id": "sensor_99", "timestamp": _ts(), "radiation_level": 500.0, "value": 99.0}],
-    id="anomaly_outlier",
-))
+_IOT_SCENARIOS.append(
+    pytest.param(
+        [
+            {
+                "sensor_id": f"sensor_{i}",
+                "timestamp": _ts(float(i)),
+                "radiation_level": 5.0,
+                "value": float(i),
+            }
+            for i in range(20)
+        ]
+        + [
+            {
+                "sensor_id": "sensor_99",
+                "timestamp": _ts(),
+                "radiation_level": 500.0,
+                "value": 99.0,
+            }
+        ],
+        id="anomaly_outlier",
+    )
+)
 
 
 class TestIoTParametric:
@@ -257,9 +331,12 @@ _BAYES_SCENARIOS = []
 
 # Convergence states
 for conv in (True, False, None, 0, 1, "yes"):
-    _BAYES_SCENARIOS.append(pytest.param(
-        {"converged": conv}, id=f"converged_{conv}",
-    ))
+    _BAYES_SCENARIOS.append(
+        pytest.param(
+            {"converged": conv},
+            id=f"converged_{conv}",
+        )
+    )
 
 # Prediction arrays
 for preds in (
@@ -274,10 +351,12 @@ for preds in (
     [0.0] * 20,
     [1.0] * 20,
 ):
-    _BAYES_SCENARIOS.append(pytest.param(
-        {"converged": True, "predictions": preds},
-        id=f"preds_{len(preds)}_{str(preds[:2])}",
-    ))
+    _BAYES_SCENARIOS.append(
+        pytest.param(
+            {"converged": True, "predictions": preds},
+            id=f"preds_{len(preds)}_{str(preds[:2])}",
+        )
+    )
 
 # Uncertainty arrays
 for unc in (
@@ -289,29 +368,33 @@ for unc in (
     [10.0] * 10,
     [float("nan"), 0.1],
 ):
-    _BAYES_SCENARIOS.append(pytest.param(
-        {"converged": True, "predictions": [0.5, 0.5, 0.5], "uncertainty": unc},
-        id=f"unc_{len(unc)}",
-    ))
+    _BAYES_SCENARIOS.append(
+        pytest.param(
+            {"converged": True, "predictions": [0.5, 0.5, 0.5], "uncertainty": unc},
+            id=f"unc_{len(unc)}",
+        )
+    )
 
 # Combined valid
-_BAYES_SCENARIOS.append(pytest.param(
-    {
-        "converged": True,
-        "predictions": list(np.random.uniform(0, 1, 20)),
-        "uncertainty": list(np.random.uniform(0, 0.5, 20)),
-        "model_info": {"iterations": 1000, "burn_in": 500},
-    },
-    id="full_valid_result",
-))
+_BAYES_SCENARIOS.append(
+    pytest.param(
+        {
+            "converged": True,
+            "predictions": list(np.random.uniform(0, 1, 20)),
+            "uncertainty": list(np.random.uniform(0, 0.5, 20)),
+            "model_info": {"iterations": 1000, "burn_in": 500},
+        },
+        id="full_valid_result",
+    )
+)
 
 # Empty dict
 _BAYES_SCENARIOS.append(pytest.param({}, id="empty_dict"))
 
 # Only model info
-_BAYES_SCENARIOS.append(pytest.param(
-    {"model_info": {"iterations": 100}}, id="model_info_only"
-))
+_BAYES_SCENARIOS.append(
+    pytest.param({"model_info": {"iterations": 100}}, id="model_info_only")
+)
 
 
 class TestBayesianParametric:
@@ -322,7 +405,13 @@ class TestBayesianParametric:
         result = BayesianValidator().validate(data)
         assert "inference_validation" in result
         assert "overall_quality" in result
-        assert result["overall_quality"] in ("excellent", "good", "acceptable", "poor", "unknown")
+        assert result["overall_quality"] in (
+            "excellent",
+            "good",
+            "acceptable",
+            "poor",
+            "unknown",
+        )
 
     @pytest.mark.parametrize("data", _BAYES_SCENARIOS)
     def test_bayesian_has_convergence(self, data):
@@ -335,15 +424,21 @@ _PERF_SCENARIOS = []
 
 # Timing variations
 for t in (0.0, 0.5, 1.0, 10.0, 29.9, 30.0, 30.1, 60.0, 100.0):
-    _PERF_SCENARIOS.append(pytest.param(
-        {"inference_time": t}, id=f"time_{t}s",
-    ))
+    _PERF_SCENARIOS.append(
+        pytest.param(
+            {"inference_time": t},
+            id=f"time_{t}s",
+        )
+    )
 
 # Accuracy variations
 for a in (0.0, 0.5, 0.84, 0.85, 0.86, 0.95, 1.0):
-    _PERF_SCENARIOS.append(pytest.param(
-        {"accuracy": a}, id=f"accuracy_{a}",
-    ))
+    _PERF_SCENARIOS.append(
+        pytest.param(
+            {"accuracy": a},
+            id=f"accuracy_{a}",
+        )
+    )
 
 # Memory variations
 for m, label in [
@@ -354,19 +449,26 @@ for m, label in [
     (5 * 1024**3, "5GB"),
     (0, "zero"),
 ]:
-    _PERF_SCENARIOS.append(pytest.param(
-        {"memory_usage": m}, id=f"memory_{label}",
-    ))
+    _PERF_SCENARIOS.append(
+        pytest.param(
+            {"memory_usage": m},
+            id=f"memory_{label}",
+        )
+    )
 
 # Combined metrics
-_PERF_SCENARIOS.append(pytest.param(
-    {"inference_time": 10.0, "accuracy": 0.95, "memory_usage": 1024**3},
-    id="combined_good",
-))
-_PERF_SCENARIOS.append(pytest.param(
-    {"inference_time": 60.0, "accuracy": 0.5, "memory_usage": 10 * 1024**3},
-    id="combined_bad",
-))
+_PERF_SCENARIOS.append(
+    pytest.param(
+        {"inference_time": 10.0, "accuracy": 0.95, "memory_usage": 1024**3},
+        id="combined_good",
+    )
+)
+_PERF_SCENARIOS.append(
+    pytest.param(
+        {"inference_time": 60.0, "accuracy": 0.5, "memory_usage": 10 * 1024**3},
+        id="combined_bad",
+    )
+)
 
 # Empty dict
 _PERF_SCENARIOS.append(pytest.param({}, id="empty"))
@@ -374,11 +476,18 @@ _PERF_SCENARIOS.append(pytest.param({}, id="empty"))
 # Config threshold overrides
 _PERF_CONFIGS = []
 for max_t, min_a in [("5s", 0.9), ("60s", 0.5), ("1m", 0.7)]:
-    _PERF_CONFIGS.append(pytest.param(
-        {"validation": {"max_inference_time": max_t, "min_prediction_accuracy": min_a}},
-        {"inference_time": 10.0, "accuracy": 0.8},
-        id=f"config_t{max_t}_a{min_a}",
-    ))
+    _PERF_CONFIGS.append(
+        pytest.param(
+            {
+                "validation": {
+                    "max_inference_time": max_t,
+                    "min_prediction_accuracy": min_a,
+                }
+            },
+            {"inference_time": 10.0, "accuracy": 0.8},
+            id=f"config_t{max_t}_a{min_a}",
+        )
+    )
 
 
 class TestPerformanceParametric:
@@ -398,29 +507,48 @@ class TestPerformanceParametric:
         result = PerformanceValidator(config).validate_performance(metrics)
         assert "performance_validation" in result
 
-    @pytest.mark.parametrize("time_str, expected", [
-        ("1s", 1.0), ("30s", 30.0), ("1m", 60.0), ("2h", 7200.0),
-        ("0.5s", 0.5), ("100", 100.0),
-    ])
+    @pytest.mark.parametrize(
+        "time_str, expected",
+        [
+            ("1s", 1.0),
+            ("30s", 30.0),
+            ("1m", 60.0),
+            ("2h", 7200.0),
+            ("0.5s", 0.5),
+            ("100", 100.0),
+        ],
+    )
     def test_parse_time_string(self, time_str, expected):
         pv = PerformanceValidator()
         assert pv._parse_time_string(time_str) == expected
 
-    @pytest.mark.parametrize("mem_str, expected", [
-        ("1KB", 1024.0), ("1MB", 1024**2), ("1GB", 1024**3),
-        ("4GB", 4 * 1024**3), ("512MB", 512 * 1024**2),
-    ])
+    @pytest.mark.parametrize(
+        "mem_str, expected",
+        [
+            ("1KB", 1024.0),
+            ("1MB", 1024**2),
+            ("1GB", 1024**3),
+            ("4GB", 4 * 1024**3),
+            ("512MB", 512 * 1024**2),
+        ],
+    )
     def test_parse_memory_string(self, mem_str, expected):
         pv = PerformanceValidator()
         assert pv._parse_memory_string(mem_str) == expected
 
 
 # ---- QualityController scenarios -------------------------------------------
-_QC_SENSOR_DATA = pd.DataFrame([
-    {"sensor_id": f"sensor_{i}", "timestamp": _ts(float(i)),
-     "radiation_level": float(i * 2), "value": float(i)}
-    for i in range(10)
-])
+_QC_SENSOR_DATA = pd.DataFrame(
+    [
+        {
+            "sensor_id": f"sensor_{i}",
+            "timestamp": _ts(float(i)),
+            "radiation_level": float(i * 2),
+            "value": float(i),
+        }
+        for i in range(10)
+    ]
+)
 
 _QC_INFERENCE = {
     "converged": True,
@@ -449,7 +577,11 @@ class TestQualityControllerParametric:
         assert "overall_results" in result
         assert "total_validation_time" in result
         assert result["overall_results"]["system_quality"] in (
-            "excellent", "good", "acceptable", "poor", "unknown"
+            "excellent",
+            "good",
+            "acceptable",
+            "poor",
+            "unknown",
         )
 
     def test_qc_full_pipeline(self):
@@ -463,7 +595,9 @@ class TestQualityControllerParametric:
         assert len(result["components_validated"]) == 3
         assert result["overall_results"]["components_tested"] == 3
 
-    @pytest.mark.parametrize("quality", ["excellent", "good", "acceptable", "poor", "unknown"])
+    @pytest.mark.parametrize(
+        "quality", ["excellent", "good", "acceptable", "poor", "unknown"]
+    )
     def test_qc_recommendation_text(self, quality):
         qc = QualityController()
         rec = qc._get_quality_recommendation(quality)

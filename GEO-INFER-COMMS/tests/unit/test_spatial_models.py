@@ -1,4 +1,5 @@
 """Tests for COMMS spatial data models."""
+
 import pytest
 
 from geo_infer_comms.models.spatial import (

@@ -17,6 +17,7 @@ from geo_infer_time.models.timeseries import TimeSeries
 # Fixtures
 # ---------------------------------------------------------------------------
 
+
 def _make_ts_with_gaps(n: int = 100, gap_indices: list = None) -> TimeSeries:
     """Create a TimeSeries with NaN gaps at specified indices."""
     index = pd.date_range("2023-01-01", periods=n, freq="h")
@@ -43,6 +44,7 @@ def _make_seasonal_ts(periods: int = 120, period: int = 12) -> TimeSeries:
 # ---------------------------------------------------------------------------
 # Tests for interpolate()
 # ---------------------------------------------------------------------------
+
 
 class TestInterpolate:
     def test_linear_fills_gaps(self):
@@ -95,9 +97,7 @@ class TestInterpolate:
         ts = _make_ts_with_gaps(20, gap_indices=[])
         interp = TemporalInterpolator()
         result = interp.interpolate(ts, method="linear")
-        pd.testing.assert_frame_equal(
-            ts.to_dataframe(), result.to_dataframe()
-        )
+        pd.testing.assert_frame_equal(ts.to_dataframe(), result.to_dataframe())
 
     def test_interpolation_log_recorded(self):
         ts = _make_ts_with_gaps(30, gap_indices=[5])
@@ -112,6 +112,7 @@ class TestInterpolate:
 # ---------------------------------------------------------------------------
 # Tests for impute()
 # ---------------------------------------------------------------------------
+
 
 class TestImpute:
     def test_forward_fill(self):
@@ -166,6 +167,7 @@ class TestImpute:
 # Tests for interpolate_seasonal()
 # ---------------------------------------------------------------------------
 
+
 class TestInterpolateSeasonal:
     def test_seasonal_fills_gaps(self):
         ts = _make_seasonal_ts(periods=120, period=12)
@@ -199,6 +201,7 @@ class TestInterpolateSeasonal:
 # ---------------------------------------------------------------------------
 # Tests for interpolate_gap_aware()
 # ---------------------------------------------------------------------------
+
 
 class TestInterpolateGapAware:
     def test_small_gaps_filled_large_gaps_remain(self):
@@ -236,6 +239,7 @@ class TestInterpolateGapAware:
 # ---------------------------------------------------------------------------
 # Tests for resample_interpolate()
 # ---------------------------------------------------------------------------
+
 
 class TestResampleInterpolate:
     def test_upsample(self):
@@ -284,6 +288,7 @@ class TestResampleInterpolate:
 # ---------------------------------------------------------------------------
 # Tests for interpolation_quality()
 # ---------------------------------------------------------------------------
+
 
 class TestInterpolationQuality:
     def test_quality_returns_expected_keys(self):

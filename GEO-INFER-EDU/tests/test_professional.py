@@ -33,14 +33,16 @@ class TestProfessionalDevelopmentInit:
 
     def test_register_professional(self) -> None:
         pd = ProfessionalDevelopment()
-        profile = pd.register_professional({
-            "id": "p1",
-            "name": "John Smith",
-            "role": "GIS Developer",
-            "experience_years": 8,
-            "skills": ["python", "javascript"],
-            "certifications": ["gisp"],
-        })
+        profile = pd.register_professional(
+            {
+                "id": "p1",
+                "name": "John Smith",
+                "role": "GIS Developer",
+                "experience_years": 8,
+                "skills": ["python", "javascript"],
+                "certifications": ["gisp"],
+            }
+        )
         assert profile.professional_id == "p1"
         assert profile.years_experience == 8
         assert "gisp" in profile.certifications
@@ -56,10 +58,22 @@ class TestContinuingEducation:
         result = pd.track_continuing_education(
             professional_id="p1",
             activities=[
-                {"id": "ce1", "title": "GIS Workshop", "type": "workshop",
-                 "provider": "Esri", "credits": 8, "category": "technical"},
-                {"id": "ce2", "title": "Ethics Course", "type": "course",
-                 "provider": "URISA", "credits": 4, "category": "ethics"},
+                {
+                    "id": "ce1",
+                    "title": "GIS Workshop",
+                    "type": "workshop",
+                    "provider": "Esri",
+                    "credits": 8,
+                    "category": "technical",
+                },
+                {
+                    "id": "ce2",
+                    "title": "Ethics Course",
+                    "type": "course",
+                    "provider": "URISA",
+                    "credits": 4,
+                    "category": "ethics",
+                },
             ],
         )
         assert result["activities_tracked"] == 2
@@ -127,8 +141,13 @@ class TestCareerSkillsAnalysis:
         pd = ProfessionalDevelopment()
         analysis = pd.analyze_career_skills(
             current_skills=[
-                "spatial_analysis", "machine_learning", "python",
-                "statistics", "big_data", "cloud_computing", "deep_learning"
+                "spatial_analysis",
+                "machine_learning",
+                "python",
+                "statistics",
+                "big_data",
+                "cloud_computing",
+                "deep_learning",
             ],
             target_role="Geospatial Data Scientist",
         )
@@ -141,7 +160,9 @@ class TestCareerSkillsAnalysis:
             current_skills=["python"],
             target_role="Unknown Role",
         )
-        assert analysis["match_percentage"] == 100.0  # No required skills for unknown role
+        assert (
+            analysis["match_percentage"] == 100.0
+        )  # No required skills for unknown role
 
 
 class TestPortfolioDevelopment:
@@ -151,10 +172,19 @@ class TestPortfolioDevelopment:
         pd = ProfessionalDevelopment()
         portfolio = pd.develop_portfolio(
             projects=[
-                {"id": "p1", "title": "Flood Analysis", "description": "GIS flood mapping",
-                 "technologies": ["arcgis", "python"], "outcomes": ["flood risk map"]},
-                {"id": "p2", "title": "Transit Study", "description": "Transit optimization",
-                 "technologies": ["python", "networkx"]},
+                {
+                    "id": "p1",
+                    "title": "Flood Analysis",
+                    "description": "GIS flood mapping",
+                    "technologies": ["arcgis", "python"],
+                    "outcomes": ["flood risk map"],
+                },
+                {
+                    "id": "p2",
+                    "title": "Transit Study",
+                    "description": "Transit optimization",
+                    "technologies": ["python", "networkx"],
+                },
             ],
             competencies_demonstrated={
                 "p1": ["spatial_analysis", "cartography"],
@@ -164,7 +194,9 @@ class TestPortfolioDevelopment:
         assert portfolio["project_count"] == 2
         assert len(portfolio["sections"]) >= 3
         assert "spatial_analysis" in portfolio["competency_summary"]
-        assert portfolio["competency_summary"]["spatial_analysis"]["demonstrated"] is True
+        assert (
+            portfolio["competency_summary"]["spatial_analysis"]["demonstrated"] is True
+        )
 
 
 class TestRecertificationStatus:

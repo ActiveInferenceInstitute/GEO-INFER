@@ -48,7 +48,9 @@ class TestAidsEstimation:
         """q = income/p implies unit expenditure elasticity."""
         df = _demand_frame()
         result = DemandFunctions().estimate_demand_system(df, method="aids")
-        assert result["elasticities"]["good_1"]["expenditure"] == pytest.approx(1.0, abs=0.05)
+        assert result["elasticities"]["good_1"]["expenditure"] == pytest.approx(
+            1.0, abs=0.05
+        )
 
     def test_aids_rejects_zero_total_expenditure(self) -> None:
         df = _demand_frame(20)
@@ -75,7 +77,9 @@ class TestSurEstimation:
         assert result["system_results"]["good_1"]["r_squared"] > 0.5
 
     def test_sur_insufficient_goods(self) -> None:
-        df = pd.DataFrame({"quantity_good_1": [1.0], "price_good_1": [1.0], "income": [1.0]})
+        df = pd.DataFrame(
+            {"quantity_good_1": [1.0], "price_good_1": [1.0], "income": [1.0]}
+        )
         result = DemandFunctions().estimate_demand_system(df, method="sur")
         assert result["status"] == "insufficient_goods"
 
@@ -129,8 +133,9 @@ class TestSacModel:
         engine = SpatialEconometricsEngine({})
         engine.fit(X, y, W, model_type="sac")
         pred = engine.predict(X, W)
-        expected = np.linalg.solve(np.eye(len(X)) - engine.coefficients_[0] * W,
-                                   X @ engine.coefficients_[1:-1])
+        expected = np.linalg.solve(
+            np.eye(len(X)) - engine.coefficients_[0] * W, X @ engine.coefficients_[1:-1]
+        )
         assert np.allclose(pred, expected)
 
     def test_sac_prediction_requires_weights(self) -> None:
@@ -161,9 +166,18 @@ class TestSacModel:
 
     def test_result_contains_documented_keys(self) -> None:
         engine = SpatialEconometricsEngine({})
-        result = engine.spatial_diagnostics(np.random.default_rng(0).normal(size=20), np.eye(20))
-        for key in ("morans_i", "expected_morans_i", "z_morans", "p_value_morans",
-                    "significant_autocorr", "geary_c", "getis_ord_g_star_z"):
+        result = engine.spatial_diagnostics(
+            np.random.default_rng(0).normal(size=20), np.eye(20)
+        )
+        for key in (
+            "morans_i",
+            "expected_morans_i",
+            "z_morans",
+            "p_value_morans",
+            "significant_autocorr",
+            "geary_c",
+            "getis_ord_g_star_z",
+        ):
             assert key in result
 
 
@@ -175,7 +189,10 @@ class TestSpatialCovarianceDocumentation:
         rng = np.random.default_rng(0)
         W = _contiguity_weights(n)
         X = np.column_stack([np.ones(n), rng.normal(size=n)])
-        y = np.linalg.solve(np.eye(n) - 0.5 * W, X @ np.array([1.0, 2.0])) + rng.normal(size=n) * 0.1
+        y = (
+            np.linalg.solve(np.eye(n) - 0.5 * W, X @ np.array([1.0, 2.0]))
+            + rng.normal(size=n) * 0.1
+        )
         engine = SpatialEconometricsEngine({})
         results = engine._fit_sar_model(y, X, W)
         assert "covariance" in results.convergence_info

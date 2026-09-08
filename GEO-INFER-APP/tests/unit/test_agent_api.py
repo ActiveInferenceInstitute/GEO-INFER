@@ -11,13 +11,16 @@ def api_client():
 
 @pytest.fixture
 def manager():
-    return AgentManager(config={"api_config": {"agents_config_path": "/tmp/test_mgr_agents.json"}})
+    return AgentManager(
+        config={"api_config": {"agents_config_path": "/tmp/test_mgr_agents.json"}}
+    )
 
 
 class TestAgentAPIClient:
     @pytest.mark.asyncio
     async def test_create_agent(self, api_client):
         import uuid
+
         agent_id = await api_client.create_agent("bdi", {"name": "Test"})
         assert agent_id is not None
         # IDs are UUIDs — validate format
@@ -82,10 +85,10 @@ class TestAgentAPIClient:
     async def test_send_update_command(self, api_client):
         agent_id = await api_client.create_agent("bdi", {"name": "Test"})
         await api_client.start_agent(agent_id)
-        result = await api_client.send_command(agent_id, {
-            "command_type": "update",
-            "parameters": {"config": {"priority": "high"}}
-        })
+        result = await api_client.send_command(
+            agent_id,
+            {"command_type": "update", "parameters": {"config": {"priority": "high"}}},
+        )
         assert result is not None
         assert result["status"] == "success"
         status = await api_client.get_agent_status(agent_id)
@@ -114,7 +117,9 @@ class TestAgentAPIClient:
     async def test_status_callback(self, api_client):
         agent_id = await api_client.create_agent("bdi", {"name": "Test"})
         callback_data = []
-        api_client.register_status_callback(agent_id, lambda aid, s: callback_data.append(s))
+        api_client.register_status_callback(
+            agent_id, lambda aid, s: callback_data.append(s)
+        )
         await api_client.start_agent(agent_id)
         assert "running" in callback_data
 

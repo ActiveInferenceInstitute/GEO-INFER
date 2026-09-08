@@ -26,7 +26,11 @@ class TestReqImports:
         assert analyzer is not None
 
     def test_import_traceability(self):
-        from geo_infer_req import TraceabilityManager, TraceLink, ArtifactType as ArtifactType
+        from geo_infer_req import (
+            TraceabilityManager,
+            TraceLink,
+            ArtifactType as ArtifactType,
+        )
 
         assert TraceabilityManager is not None
         assert TraceLink is not None

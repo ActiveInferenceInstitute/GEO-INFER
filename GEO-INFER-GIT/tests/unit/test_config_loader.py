@@ -14,8 +14,13 @@ from pathlib import Path
 from unittest.mock import patch
 
 from geo_infer_git.utils.config_loader import (
-    ConfigLoader, CloneConfig, TargetRepository, TargetUser,
-    load_clone_config, load_target_repos_config, load_target_users_config
+    ConfigLoader,
+    CloneConfig,
+    TargetRepository,
+    TargetUser,
+    load_clone_config,
+    load_target_repos_config,
+    load_target_users_config,
 )
 
 
@@ -44,9 +49,9 @@ class TestCloneConfig:
 
     def test_environment_token(self):
         """Test GitHub token from environment."""
-        with patch.dict(os.environ, {'GITHUB_TOKEN': 'test_token'}):
+        with patch.dict(os.environ, {"GITHUB_TOKEN": "test_token"}):
             config = CloneConfig()
-            assert config.github_token == 'test_token'
+            assert config.github_token == "test_token"
 
 
 class TestTargetRepository:
@@ -116,11 +121,11 @@ class TestConfigLoader:
         """Test YAML configuration loading."""
         # Create a temporary config directory with test file
         with tempfile.TemporaryDirectory() as temp_dir:
-            config_dir = Path(temp_dir) / 'config'
+            config_dir = Path(temp_dir) / "config"
             config_dir.mkdir()
 
             # Create test YAML file
-            test_yaml = config_dir / 'test.yaml'
+            test_yaml = config_dir / "test.yaml"
             test_yaml.write_text("""
 test:
   key: value
@@ -130,25 +135,25 @@ test:
             loader = ConfigLoader(str(config_dir))
 
             # Test with valid YAML
-            config = loader.load_yaml_config('test.yaml')
-            assert config == {'test': {'key': 'value', 'number': 42}}
+            config = loader.load_yaml_config("test.yaml")
+            assert config == {"test": {"key": "value", "number": 42}}
 
     def test_load_json_config(self):
         """Test JSON configuration loading."""
         # Create a temporary config directory with test file
         with tempfile.TemporaryDirectory() as temp_dir:
-            config_dir = Path(temp_dir) / 'config'
+            config_dir = Path(temp_dir) / "config"
             config_dir.mkdir()
 
             # Create test JSON file
-            test_json = config_dir / 'test.json'
+            test_json = config_dir / "test.json"
             test_json.write_text('{"test": {"key": "value", "number": 42}}')
 
             loader = ConfigLoader(str(config_dir))
 
             # Test with valid JSON
-            config = loader.load_json_config('test.json')
-            assert config == {'test': {'key': 'value', 'number': 42}}
+            config = loader.load_json_config("test.json")
+            assert config == {"test": {"key": "value", "number": 42}}
 
     def test_validate_config(self):
         """Test configuration validation."""
@@ -156,18 +161,18 @@ test:
 
         # Valid config
         valid_config = {
-            'general': {'output_dir': '/tmp/test'},
-            'github': {'token': 'test_token'}
+            "general": {"output_dir": "/tmp/test"},
+            "github": {"token": "test_token"},
         }
-        errors = loader.validate_config(valid_config, 'clone_config')
+        errors = loader.validate_config(valid_config, "clone_config")
         assert len(errors) == 0
 
         # Invalid config
         invalid_config = {
-            'general': {'output_dir': ''},  # Empty string should fail
-            'github': {'max_retries': 0}   # Zero should fail
+            "general": {"output_dir": ""},  # Empty string should fail
+            "github": {"max_retries": 0},  # Zero should fail
         }
-        errors = loader.validate_config(invalid_config, 'clone_config')
+        errors = loader.validate_config(invalid_config, "clone_config")
         assert len(errors) > 0
 
     def test_load_clone_config(self):
@@ -176,17 +181,17 @@ test:
 
         # Mock example.yaml file
         config_data = {
-            'general': {'output_dir': '/tmp/test_output'},
-            'github': {'token': 'test_token'},
-            'concurrency': {'max_workers': 8}
+            "general": {"output_dir": "/tmp/test_output"},
+            "github": {"token": "test_token"},
+            "concurrency": {"max_workers": 8},
         }
 
-        with patch.object(loader, 'load_yaml_config') as mock_load:
+        with patch.object(loader, "load_yaml_config") as mock_load:
             mock_load.return_value = config_data
             clone_config = loader.load_clone_config()
 
-            assert clone_config.output_dir == '/tmp/test_output'
-            assert clone_config.github_token == 'test_token'
+            assert clone_config.output_dir == "/tmp/test_output"
+            assert clone_config.github_token == "test_token"
             assert clone_config.max_workers == 8
 
     def test_load_target_repos_config(self):
@@ -195,24 +200,24 @@ test:
 
         # Mock target_repos.yaml file
         repos_data = {
-            'repositories': [
+            "repositories": [
                 {
-                    'owner': 'testuser',
-                    'repo': 'testrepo',
-                    'branch': 'develop',
-                    'enabled': True
+                    "owner": "testuser",
+                    "repo": "testrepo",
+                    "branch": "develop",
+                    "enabled": True,
                 }
             ]
         }
 
-        with patch.object(loader, 'load_yaml_config') as mock_load:
+        with patch.object(loader, "load_yaml_config") as mock_load:
             mock_load.return_value = repos_data
             repos = loader.load_target_repos_config()
 
             assert len(repos) == 1
-            assert repos[0].owner == 'testuser'
-            assert repos[0].repo == 'testrepo'
-            assert repos[0].branch == 'develop'
+            assert repos[0].owner == "testuser"
+            assert repos[0].repo == "testrepo"
+            assert repos[0].branch == "develop"
 
     def test_load_target_users_config(self):
         """Test target users configuration loading."""
@@ -220,21 +225,15 @@ test:
 
         # Mock target_users.yaml file
         users_data = {
-            'users': [
-                {
-                    'username': 'testuser',
-                    'max_repos': 5,
-                    'enabled': True
-                }
-            ]
+            "users": [{"username": "testuser", "max_repos": 5, "enabled": True}]
         }
 
-        with patch.object(loader, 'load_yaml_config') as mock_load:
+        with patch.object(loader, "load_yaml_config") as mock_load:
             mock_load.return_value = users_data
             users = loader.load_target_users_config()
 
             assert len(users) == 1
-            assert users[0].username == 'testuser'
+            assert users[0].username == "testuser"
             assert users[0].max_repos == 5
 
     def test_save_config(self):
@@ -242,14 +241,14 @@ test:
         with tempfile.TemporaryDirectory() as temp_dir:
             loader = ConfigLoader(temp_dir)
 
-            test_config = {'test': {'key': 'value'}}
-            loader.save_config(test_config, 'test.json')
+            test_config = {"test": {"key": "value"}}
+            loader.save_config(test_config, "test.json")
 
             # Verify file was created and contains correct data
-            config_file = Path(temp_dir) / 'test.json'
+            config_file = Path(temp_dir) / "test.json"
             assert config_file.exists()
 
-            with open(config_file, 'r') as f:
+            with open(config_file, "r") as f:
                 saved_config = json.load(f)
                 assert saved_config == test_config
 
@@ -259,11 +258,13 @@ class TestConvenienceFunctions:
 
     def test_load_clone_config_function(self):
         """Test load_clone_config convenience function."""
-        with patch('geo_infer_git.utils.config_loader.ConfigLoader') as mock_loader_class:
+        with patch(
+            "geo_infer_git.utils.config_loader.ConfigLoader"
+        ) as mock_loader_class:
             mock_loader = mock_loader_class.return_value
             mock_loader.load_clone_config.return_value = CloneConfig()
 
-            config = load_clone_config('/tmp/test')
+            config = load_clone_config("/tmp/test")
 
             mock_loader_class.assert_called_once()
             mock_loader.load_clone_config.assert_called_once_with()
@@ -271,11 +272,13 @@ class TestConvenienceFunctions:
 
     def test_load_target_repos_config_function(self):
         """Test load_target_repos_config convenience function."""
-        with patch('geo_infer_git.utils.config_loader.ConfigLoader') as mock_loader_class:
+        with patch(
+            "geo_infer_git.utils.config_loader.ConfigLoader"
+        ) as mock_loader_class:
             mock_loader = mock_loader_class.return_value
             mock_loader.load_target_repos_config.return_value = []
 
-            repos = load_target_repos_config('/tmp/test')
+            repos = load_target_repos_config("/tmp/test")
 
             mock_loader_class.assert_called_once()
             mock_loader.load_target_repos_config.assert_called_once_with()
@@ -283,11 +286,13 @@ class TestConvenienceFunctions:
 
     def test_load_target_users_config_function(self):
         """Test load_target_users_config convenience function."""
-        with patch('geo_infer_git.utils.config_loader.ConfigLoader') as mock_loader_class:
+        with patch(
+            "geo_infer_git.utils.config_loader.ConfigLoader"
+        ) as mock_loader_class:
             mock_loader = mock_loader_class.return_value
             mock_loader.load_target_users_config.return_value = []
 
-            users = load_target_users_config('/tmp/test')
+            users = load_target_users_config("/tmp/test")
 
             mock_loader_class.assert_called_once()
             mock_loader.load_target_users_config.assert_called_once_with()
@@ -302,17 +307,17 @@ class TestErrorHandling:
         loader = ConfigLoader()
 
         with pytest.raises(FileNotFoundError):
-            loader.load_yaml_config('nonexistent.yaml')
+            loader.load_yaml_config("nonexistent.yaml")
 
     def test_invalid_yaml(self):
         """Test handling of invalid YAML."""
         # Create a temporary config directory with invalid YAML file
         with tempfile.TemporaryDirectory() as temp_dir:
-            config_dir = Path(temp_dir) / 'config'
+            config_dir = Path(temp_dir) / "config"
             config_dir.mkdir()
 
             # Create invalid YAML file
-            test_yaml = config_dir / 'test.yaml'
+            test_yaml = config_dir / "test.yaml"
             test_yaml.write_text("""
 invalid: yaml: content: [
 """)
@@ -320,20 +325,20 @@ invalid: yaml: content: [
             loader = ConfigLoader(str(config_dir))
 
             with pytest.raises(yaml.YAMLError):
-                loader.load_yaml_config('test.yaml')
+                loader.load_yaml_config("test.yaml")
 
     def test_invalid_json(self):
         """Test handling of invalid JSON."""
         # Create a temporary config directory with invalid JSON file
         with tempfile.TemporaryDirectory() as temp_dir:
-            config_dir = Path(temp_dir) / 'config'
+            config_dir = Path(temp_dir) / "config"
             config_dir.mkdir()
 
             # Create invalid JSON file
-            test_json = config_dir / 'test.json'
+            test_json = config_dir / "test.json"
             test_json.write_text('{"invalid": json}')
 
             loader = ConfigLoader(str(config_dir))
 
             with pytest.raises(json.JSONDecodeError):
-                loader.load_json_config('test.json')
+                loader.load_json_config("test.json")

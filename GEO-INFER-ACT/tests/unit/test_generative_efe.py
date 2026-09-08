@@ -76,8 +76,10 @@ def test_efe_breakdown_objects_are_typed() -> None:
     # The public API returns numeric lists; re-run one policy through the
     # calculator to confirm the underlying objects remain typed.
     breakdown = model.free_energy_calculator.compute_expected_free_energy(
-        model._categorical_belief_vector(), _policies()[0],
-        model._categorical_preference_vector(4), return_breakdown=True,
+        model._categorical_belief_vector(),
+        _policies()[0],
+        model._categorical_preference_vector(4),
+        return_breakdown=True,
     )
     assert isinstance(breakdown, FreeEnergyBreakdown)
 

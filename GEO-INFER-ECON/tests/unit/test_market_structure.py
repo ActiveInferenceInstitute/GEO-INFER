@@ -17,11 +17,13 @@ class TestCompetitionAnalysis:
 
     def test_price_correlation_matrix_shape(self) -> None:
         np.random.seed(42)
-        data = pd.DataFrame({
-            "product_A": np.random.randn(50) + 10,
-            "product_B": np.random.randn(50) + 10,
-            "product_C": np.random.randn(50) + 5,
-        })
+        data = pd.DataFrame(
+            {
+                "product_A": np.random.randn(50) + 10,
+                "product_B": np.random.randn(50) + 10,
+                "product_C": np.random.randn(50) + 5,
+            }
+        )
         corr = self.ca.calculate_price_correlation_matrix(data)
         assert corr.shape == (3, 3)
         assert np.allclose(np.diag(corr), 1.0)
@@ -29,31 +31,37 @@ class TestCompetitionAnalysis:
     def test_market_definition_test_correlated(self) -> None:
         np.random.seed(42)
         base = np.random.randn(100)
-        data = pd.DataFrame({
-            "A": base + np.random.randn(100) * 0.1,
-            "B": base + np.random.randn(100) * 0.1,
-            "C": np.random.randn(100) * 5,
-        })
+        data = pd.DataFrame(
+            {
+                "A": base + np.random.randn(100) * 0.1,
+                "B": base + np.random.randn(100) * 0.1,
+                "C": np.random.randn(100) * 5,
+            }
+        )
         result = self.ca.test_market_definition(data, ["A", "B"])
         assert result["internal_correlation"] > 0.5
         assert "is_relevant_market" in result
 
     def test_analyze_entry_barriers(self) -> None:
-        data = pd.DataFrame({
-            "capital_intensity": [0.7, 0.8],
-            "minimum_efficient_scale": [0.4, 0.5],
-            "advertising_intensity": [0.2, 0.3],
-            "regulatory_burden": [0.6, 0.7],
-        })
+        data = pd.DataFrame(
+            {
+                "capital_intensity": [0.7, 0.8],
+                "minimum_efficient_scale": [0.4, 0.5],
+                "advertising_intensity": [0.2, 0.3],
+                "regulatory_burden": [0.6, 0.7],
+            }
+        )
         barriers = self.ca.analyze_entry_barriers(data)
         assert barriers["capital_requirements"] == "high"
         assert barriers["regulatory_barriers"] == "high"
 
     def test_analyze_entry_barriers_low(self) -> None:
-        data = pd.DataFrame({
-            "capital_intensity": [0.1, 0.2],
-            "minimum_efficient_scale": [0.1, 0.1],
-        })
+        data = pd.DataFrame(
+            {
+                "capital_intensity": [0.1, 0.2],
+                "minimum_efficient_scale": [0.1, 0.1],
+            }
+        )
         barriers = self.ca.analyze_entry_barriers(data)
         assert barriers["capital_requirements"] == "low"
 
@@ -67,11 +75,13 @@ class TestSpatialMarketAnalysis:
     def test_delineate_geographic_markets(self) -> None:
         np.random.seed(42)
         base = np.random.randn(100)
-        data = pd.DataFrame({
-            "loc_A": base + np.random.randn(100) * 0.05,
-            "loc_B": base + np.random.randn(100) * 0.05,
-            "loc_C": np.random.randn(100) * 3,
-        })
+        data = pd.DataFrame(
+            {
+                "loc_A": base + np.random.randn(100) * 0.05,
+                "loc_B": base + np.random.randn(100) * 0.05,
+                "loc_C": np.random.randn(100) * 3,
+            }
+        )
         result = self.sma.delineate_geographic_markets(
             data, ["loc_A", "loc_B", "loc_C"]
         )

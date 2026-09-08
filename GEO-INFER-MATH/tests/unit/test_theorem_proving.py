@@ -8,7 +8,7 @@ and proof strategy classes.
 import sys
 import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
 from geo_infer_math.core.theorem_proving.prover import (
     ProofResult,
@@ -40,7 +40,7 @@ class TestProofResult:
             status=ProofStatus.PROVEN,
             theorem="x + y = y + x",
             proof="By commutativity of addition.",
-            backend='sympy'
+            backend="sympy",
         )
         assert result.status == ProofStatus.PROVEN
         assert result.theorem == "x + y = y + x"
@@ -51,7 +51,7 @@ class TestProofResult:
             status=ProofStatus.UNKNOWN,
             theorem="P = NP",
             error_message="Cannot determine",
-            backend='numpy'
+            backend="numpy",
         )
         assert result.status == ProofStatus.UNKNOWN
         assert result.error_message is not None
@@ -68,19 +68,19 @@ class TestTheoremProver:
     """Tests for TheoremProver."""
 
     def test_create_prover(self):
-        prover = create_prover(backend='numpy')
+        prover = create_prover(backend="numpy")
         assert prover is not None
 
     def test_prover_with_numpy_backend(self):
-        prover = create_prover(backend='numpy')
+        prover = create_prover(backend="numpy")
         result = prover.prove("2 + 2 == 4")
         assert isinstance(result, ProofResult)
         assert result.status in [ProofStatus.PROVEN, ProofStatus.UNKNOWN]
 
     def test_prover_backend_attribute(self):
-        prover = create_prover(backend='numpy')
-        assert hasattr(prover, 'backend')
-        assert prover.backend == 'numpy'
+        prover = create_prover(backend="numpy")
+        assert hasattr(prover, "backend")
+        assert prover.backend == "numpy"
 
 
 class TestTheoremDatabase:
@@ -170,9 +170,9 @@ class TestProofVerifier:
     """Tests for proof verification."""
 
     def test_verifier_creation(self):
-        verifier = ProofVerifier(backend='numpy')
+        verifier = ProofVerifier(backend="numpy")
         assert verifier is not None
-        assert verifier.backend == 'numpy'
+        assert verifier.backend == "numpy"
 
 
 class TestProofStrategies:

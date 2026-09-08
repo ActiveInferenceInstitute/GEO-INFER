@@ -157,7 +157,11 @@ class TestPBLScenario:
         exercise = gen.create_pbl_scenario(
             context="urban_planning",
             problem="optimize_fire_station_locations",
-            data_provided=["road_network.shp", "population_grid.tif", "fire_incidents.csv"],
+            data_provided=[
+                "road_network.shp",
+                "population_grid.tif",
+                "fire_incidents.csv",
+            ],
             expected_deliverables=["Location analysis map", "Optimization report"],
         )
         assert exercise.exercise_type == ExerciseType.PROJECT
@@ -177,8 +181,14 @@ class TestAssessmentCreation:
         gen = ExerciseGenerator()
         assessment = gen.create_assessment(
             learning_objectives=[
-                {"concept": "gis_basics", "description": "Demonstrate GIS fundamentals"},
-                {"concept": "spatial_analysis", "description": "Apply spatial analysis"},
+                {
+                    "concept": "gis_basics",
+                    "description": "Demonstrate GIS fundamentals",
+                },
+                {
+                    "concept": "spatial_analysis",
+                    "description": "Apply spatial analysis",
+                },
                 {"concept": "cartography", "description": "Create professional maps"},
             ],
             item_types=["multiple_choice", "practical"],

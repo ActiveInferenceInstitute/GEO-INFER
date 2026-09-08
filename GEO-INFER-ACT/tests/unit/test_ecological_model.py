@@ -86,16 +86,16 @@ class TestEcologicalModelDynamics:
         """Test that a step returns beliefs, action, and observation."""
         model = EcologicalModel()
         result = model.step([1, 0])
-        assert 'beliefs' in result
-        assert 'action' in result
-        assert 'observation' in result
-        assert result['observation'] == [1, 0]
+        assert "beliefs" in result
+        assert "action" in result
+        assert "observation" in result
+        assert result["observation"] == [1, 0]
 
     def test_step_default_observation(self) -> None:
         """Test that step works with default observation."""
         model = EcologicalModel()
         result = model.step()
-        assert result['observation'] == [0, 0]
+        assert result["observation"] == [0, 0]
 
     def test_multiple_steps_produce_different_beliefs(self) -> None:
         """Test that sequential observations lead to belief evolution."""
@@ -105,7 +105,7 @@ class TestEcologicalModelDynamics:
         result2 = model.step([0, 1])  # No food, threat noise
         # Different observations should produce different belief states
         # (the exact values depend on the inference engine, but they should differ)
-        assert result1['observation'] != result2['observation']
+        assert result1["observation"] != result2["observation"]
 
 
 class TestEcologicalModelEdgeCases:
@@ -117,7 +117,7 @@ class TestEcologicalModelEdgeCases:
             np.ones((3, 6)) / 3.0,
             np.ones((2, 6)) / 2.0,
         ]
-        config = {'A': custom_A}
+        config = {"A": custom_A}
         model = EcologicalModel(config=config)
         # Model should still initialize without error
         assert model.num_states == [3, 2]
@@ -130,4 +130,4 @@ class TestEcologicalModelEdgeCases:
             results.append(model.step([2, 0]))
         # Model should remain stable (no NaN, no crashes)
         for r in results:
-            assert r['action'] is not None
+            assert r["action"] is not None

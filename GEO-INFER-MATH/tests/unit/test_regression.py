@@ -5,9 +5,14 @@ Tests for the regression models module.
 import numpy as np
 import pytest
 from geo_infer_math.models.regression import (
-    OrdinaryLeastSquares, SpatialLagModel, GeographicallyWeightedRegression,
-    SpatialErrorModel, SpatialDurbinModel, spatial_regression_analysis
+    OrdinaryLeastSquares,
+    SpatialLagModel,
+    GeographicallyWeightedRegression,
+    SpatialErrorModel,
+    SpatialDurbinModel,
+    spatial_regression_analysis,
 )
+
 
 class TestOrdinaryLeastSquares:
     """Test Ordinary Least Squares regression."""
@@ -54,6 +59,7 @@ class TestOrdinaryLeastSquares:
         assert 0 <= r_squared <= 1
         assert r_squared > 0.8  # Should be high for synthetic data
 
+
 class TestSpatialLagModel:
     """Test Spatial Lag (SAR) regression model."""
 
@@ -67,8 +73,9 @@ class TestSpatialLagModel:
 
         # Generate spatial weights matrix
         from geo_infer_math.core.linalg_tensor import MatrixOperations
+
         self.weights_matrix = MatrixOperations.spatial_weights_matrix(
-            self.coords, method='knn', k=5
+            self.coords, method="knn", k=5
         )
 
         # Generate synthetic data with spatial lag
@@ -104,6 +111,7 @@ class TestSpatialLagModel:
 
         assert len(predictions) == len(self.y)
         assert predictions.shape == self.y.shape
+
 
 class TestGeographicallyWeightedRegression:
     """Test Geographically Weighted Regression."""
@@ -149,6 +157,7 @@ class TestGeographicallyWeightedRegression:
         assert len(predictions) == len(test_indices)
         assert all(np.isfinite(pred) for pred in predictions)
 
+
 class TestSpatialErrorModel:
     """Test Spatial Error Model."""
 
@@ -160,8 +169,9 @@ class TestSpatialErrorModel:
         # Create coordinates and weights
         self.coords = np.random.rand(n_samples, 2) * 10
         from geo_infer_math.core.linalg_tensor import MatrixOperations
+
         self.weights_matrix = MatrixOperations.spatial_weights_matrix(
-            self.coords, method='knn', k=5
+            self.coords, method="knn", k=5
         )
 
         # Generate data
@@ -194,6 +204,7 @@ class TestSpatialErrorModel:
 
         assert len(predictions) == len(self.y)
 
+
 class TestSpatialDurbinModel:
     """Test Spatial Durbin Model."""
 
@@ -205,8 +216,9 @@ class TestSpatialDurbinModel:
         # Create coordinates and weights
         self.coords = np.random.rand(n_samples, 2) * 10
         from geo_infer_math.core.linalg_tensor import MatrixOperations
+
         self.weights_matrix = MatrixOperations.spatial_weights_matrix(
-            self.coords, method='knn', k=5
+            self.coords, method="knn", k=5
         )
 
         # Generate data
@@ -219,7 +231,9 @@ class TestSpatialDurbinModel:
         beta = np.array([1.0, 0.5])
         Wy = self.weights_matrix @ (self.X @ beta + WX @ theta)
 
-        self.y = rho * Wy + self.X @ beta + WX @ theta + 0.1 * np.random.randn(n_samples)
+        self.y = (
+            rho * Wy + self.X @ beta + WX @ theta + 0.1 * np.random.randn(n_samples)
+        )
 
     def test_sdm_fit(self):
         """Test SDM model fitting."""
@@ -243,6 +257,7 @@ class TestSpatialDurbinModel:
 
         assert len(predictions) == len(self.y)
 
+
 class TestSpatialRegressionAnalysis:
     """Test comprehensive spatial regression analysis."""
 
@@ -260,63 +275,76 @@ class TestSpatialRegressionAnalysis:
 
     def test_ols_analysis(self):
         """Test OLS regression analysis."""
-        result = spatial_regression_analysis(self.X, self.y, self.coords, model_type='ols')
+        result = spatial_regression_analysis(
+            self.X, self.y, self.coords, model_type="ols"
+        )
 
-        assert 'model' in result
-        assert 'coefficients' in result
-        assert 'intercept' in result
-        assert 'r_squared' in result
+        assert "model" in result
+        assert "coefficients" in result
+        assert "intercept" in result
+        assert "r_squared" in result
 
-        assert len(result['coefficients']) == self.X.shape[1]
-        assert 0 <= result['r_squared'] <= 1
+        assert len(result["coefficients"]) == self.X.shape[1]
+        assert 0 <= result["r_squared"] <= 1
 
     def test_sar_analysis(self):
         """Test SAR regression analysis."""
-        result = spatial_regression_analysis(self.X, self.y, self.coords, model_type='sar')
+        result = spatial_regression_analysis(
+            self.X, self.y, self.coords, model_type="sar"
+        )
 
-        assert 'model' in result
-        assert 'rho' in result
-        assert 'coefficients' in result
+        assert "model" in result
+        assert "rho" in result
+        assert "coefficients" in result
 
-        assert isinstance(result['rho'], (int, float))
-        assert len(result['coefficients']) == self.X.shape[1]
+        assert isinstance(result["rho"], (int, float))
+        assert len(result["coefficients"]) == self.X.shape[1]
 
     def test_gwr_analysis(self):
         """Test GWR regression analysis."""
-        result = spatial_regression_analysis(self.X, self.y, self.coords, model_type='gwr')
+        result = spatial_regression_analysis(
+            self.X, self.y, self.coords, model_type="gwr"
+        )
 
-        assert 'model' in result
-        assert 'bandwidth' in result
+        assert "model" in result
+        assert "bandwidth" in result
 
-        assert result['bandwidth'] > 0
+        assert result["bandwidth"] > 0
 
     def test_sem_analysis(self):
         """Test SEM regression analysis."""
-        result = spatial_regression_analysis(self.X, self.y, self.coords, model_type='sem')
+        result = spatial_regression_analysis(
+            self.X, self.y, self.coords, model_type="sem"
+        )
 
-        assert 'model' in result
-        assert 'lambda' in result
-        assert 'coefficients' in result
+        assert "model" in result
+        assert "lambda" in result
+        assert "coefficients" in result
 
-        assert isinstance(result['lambda'], (int, float))
-        assert len(result['coefficients']) == self.X.shape[1]
+        assert isinstance(result["lambda"], (int, float))
+        assert len(result["coefficients"]) == self.X.shape[1]
 
     def test_sdm_analysis(self):
         """Test SDM regression analysis."""
-        result = spatial_regression_analysis(self.X, self.y, self.coords, model_type='sdm')
+        result = spatial_regression_analysis(
+            self.X, self.y, self.coords, model_type="sdm"
+        )
 
-        assert 'model' in result
-        assert 'rho' in result
-        assert 'direct_effects' in result
-        assert 'indirect_effects' in result
+        assert "model" in result
+        assert "rho" in result
+        assert "direct_effects" in result
+        assert "indirect_effects" in result
 
-        assert len(result['direct_effects']) == self.X.shape[1]
-        assert len(result['indirect_effects']) == self.X.shape[1]
+        assert len(result["direct_effects"]) == self.X.shape[1]
+        assert len(result["indirect_effects"]) == self.X.shape[1]
 
     def test_invalid_model_type(self):
         """Test handling of invalid model type."""
         with pytest.raises(ValueError):
-            spatial_regression_analysis(self.X, self.y, self.coords, model_type='invalid')
+            spatial_regression_analysis(
+                self.X, self.y, self.coords, model_type="invalid"
+            )
+
 
 class TestRegressionRobustness:
     """Test regression model robustness."""

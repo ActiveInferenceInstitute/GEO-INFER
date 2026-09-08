@@ -82,9 +82,7 @@ class TestAgentMessagePassing(unittest.TestCase):
                 )
             )
             sender = ExampleAgent(agent_id="sender-x")
-            result = self._run(
-                sender.send_message("receiver-x", {"command": "start"})
-            )
+            result = self._run(sender.send_message("receiver-x", {"command": "start"}))
             self.assertTrue(result)
             receiver = registry.get_agent("receiver-x")
             self.assertFalse(receiver.message_queue.empty())

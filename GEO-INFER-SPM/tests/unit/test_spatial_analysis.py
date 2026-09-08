@@ -18,17 +18,17 @@ class TestSpatialAnalyzer:
         n_points = 100
 
         # Create test coordinates and data with proper lat/lon ranges
-        self.coordinates = np.column_stack([
-            np.random.uniform(-180, 180, n_points),  # longitude
-            np.random.uniform(-90, 90, n_points)     # latitude
-        ])
+        self.coordinates = np.column_stack(
+            [
+                np.random.uniform(-180, 180, n_points),  # longitude
+                np.random.uniform(-90, 90, n_points),  # latitude
+            ]
+        )
         self.data = np.random.randn(n_points)
 
         # Create SPMData
         self.spm_data = SPMData(
-            data=self.data,
-            coordinates=self.coordinates,
-            crs='EPSG:4326'
+            data=self.data, coordinates=self.coordinates, crs="EPSG:4326"
         )
 
         self.analyzer = SpatialAnalyzer(self.coordinates)
@@ -46,15 +46,15 @@ class TestSpatialAnalyzer:
 
         variogram = self.analyzer.estimate_variogram(residuals, n_bins=10)
 
-        assert 'distances' in variogram
-        assert 'variogram' in variogram
-        assert 'counts' in variogram
-        assert 'model' in variogram
-        assert len(variogram['distances']) == 10
-        assert len(variogram['variogram']) == 10
+        assert "distances" in variogram
+        assert "variogram" in variogram
+        assert "counts" in variogram
+        assert "model" in variogram
+        assert len(variogram["distances"]) == 10
+        assert len(variogram["variogram"]) == 10
 
         # Check that variogram increases with distance (spatial dependence)
-        assert variogram['variogram'][-1] >= variogram['variogram'][0]
+        assert variogram["variogram"][-1] >= variogram["variogram"][0]
 
     def test_spatial_weights_creation(self):
         """Test spatial weights matrix creation."""
@@ -77,20 +77,24 @@ class TestSpatialAnalyzer:
         cluster1_indices = np.arange(10, 20)
         cluster2_indices = np.arange(50, 60)
         stat_map[cluster1_indices] = 3.0 + np.random.randn(10)  # Significant cluster
-        stat_map[cluster2_indices] = 2.5 + np.random.randn(10)  # Another significant cluster
+        stat_map[cluster2_indices] = 2.5 + np.random.randn(
+            10
+        )  # Another significant cluster
 
-        clusters = self.analyzer.detect_clusters(stat_map, threshold=2.0, min_cluster_size=5)
+        clusters = self.analyzer.detect_clusters(
+            stat_map, threshold=2.0, min_cluster_size=5
+        )
 
-        assert 'n_clusters' in clusters
-        assert 'clusters' in clusters
-        assert clusters['n_clusters'] >= 2  # Should detect at least 2 clusters
+        assert "n_clusters" in clusters
+        assert "clusters" in clusters
+        assert clusters["n_clusters"] >= 2  # Should detect at least 2 clusters
 
         # Check cluster properties
-        for cluster in clusters['clusters']:
-            assert 'size' in cluster
-            assert 'max_statistic' in cluster
-            assert 'center_of_mass' in cluster
-            assert cluster['size'] >= 5
+        for cluster in clusters["clusters"]:
+            assert "size" in cluster
+            assert "max_statistic" in cluster
+            assert "center_of_mass" in cluster
+            assert cluster["size"] >= 5
 
     def test_geographically_weighted_regression(self):
         """Test GWR implementation."""
@@ -104,34 +108,42 @@ class TestSpatialAnalyzer:
         test_data = SPMData(
             data=response,
             coordinates=self.coordinates,
-            covariates={'x': x_coord, 'y': y_coord}
+            covariates={"x": x_coord, "y": y_coord},
         )
 
-        result = self.analyzer.geographically_weighted_regression(test_data, bandwidth=20.0)
+        result = self.analyzer.geographically_weighted_regression(
+            test_data, bandwidth=20.0
+        )
 
         assert result is not None
-        assert hasattr(result, 'beta_coefficients')
+        assert hasattr(result, "beta_coefficients")
         assert result.beta_coefficients.shape[1] > 0  # Should have coefficients
 
     def test_spatial_basis_functions(self):
         """Test spatial basis function generation."""
         # Test Gaussian basis functions
-        gaussian_basis = self.analyzer.spatial_basis_functions(n_basis=5, basis_type='gaussian')
+        gaussian_basis = self.analyzer.spatial_basis_functions(
+            n_basis=5, basis_type="gaussian"
+        )
         assert gaussian_basis.shape == (100, 5)
         assert np.all(gaussian_basis >= 0)  # Gaussian basis should be non-negative
 
         # Test polynomial basis functions
-        poly_basis = self.analyzer.spatial_basis_functions(n_basis=3, basis_type='polynomial')
+        poly_basis = self.analyzer.spatial_basis_functions(
+            n_basis=3, basis_type="polynomial"
+        )
         assert poly_basis.shape == (100, 3)
 
         # Test another Gaussian basis with different n_basis
-        gaussian_basis2 = self.analyzer.spatial_basis_functions(n_basis=6, basis_type='gaussian')
+        gaussian_basis2 = self.analyzer.spatial_basis_functions(
+            n_basis=6, basis_type="gaussian"
+        )
         assert gaussian_basis2.shape == (100, 6)
 
     def test_invalid_method(self):
         """Test error handling for invalid methods."""
         with pytest.raises(ValueError, match="Unknown basis type"):
-            self.analyzer.spatial_basis_functions(basis_type='invalid')
+            self.analyzer.spatial_basis_functions(basis_type="invalid")
 
 
 class TestSpatialAnalysisEdgeCases:
@@ -153,12 +165,14 @@ class TestSpatialAnalysisEdgeCases:
         # Variogram should still work
         data = np.random.randn(10)
         variogram = analyzer.estimate_variogram(data, n_bins=5)
-        assert len(variogram['variogram']) == 5
+        assert len(variogram["variogram"]) == 5
 
     def test_large_distance_matrix(self):
         """Test with larger coordinate set."""
         np.random.seed(42)
-        coordinates = np.column_stack([np.random.uniform(-179, 179, 50), np.random.uniform(-89, 89, 50)])  # Larger area
+        coordinates = np.column_stack(
+            [np.random.uniform(-179, 179, 50), np.random.uniform(-89, 89, 50)]
+        )  # Larger area
         analyzer = SpatialAnalyzer(coordinates)
 
         assert analyzer.distance_matrix.shape == (50, 50)
@@ -166,7 +180,7 @@ class TestSpatialAnalysisEdgeCases:
         # Should handle large matrices
         data = np.random.randn(50)
         variogram = analyzer.estimate_variogram(data)
-        assert 'model' in variogram
+        assert "model" in variogram
 
 
 class TestSpatialWeights:
@@ -179,13 +193,13 @@ class TestSpatialWeights:
 
         # Create mock variogram model
         analyzer.variogram_model = {
-            'nugget': 0.0,
-            'sill': 1.0,
-            'range': 2.0,
-            'model': 'exponential'
+            "nugget": 0.0,
+            "sill": 1.0,
+            "range": 2.0,
+            "model": "exponential",
         }
 
-        weights = analyzer.create_spatial_weights(model_type='exponential')
+        weights = analyzer.create_spatial_weights(model_type="exponential")
         assert weights.shape == (4, 4)
         assert np.allclose(weights.diagonal(), 1.0)
 
@@ -198,34 +212,38 @@ class TestSpatialWeights:
         analyzer = SpatialAnalyzer(coordinates)
 
         analyzer.variogram_model = {
-            'nugget': 0.1,
-            'sill': 1.0,
-            'range': 1.0,
-            'model': 'gaussian'
+            "nugget": 0.1,
+            "sill": 1.0,
+            "range": 1.0,
+            "model": "gaussian",
         }
 
-        weights = analyzer.create_spatial_weights(model_type='gaussian')
+        weights = analyzer.create_spatial_weights(model_type="gaussian")
         assert weights.shape == (3, 3)
 
         # Gaussian weights should decay faster than exponential
-        exp_weights = analyzer.create_spatial_weights(model_type='exponential')
+        exp_weights = analyzer.create_spatial_weights(model_type="exponential")
         assert weights[0, 2] < exp_weights[0, 2]  # Gaussian decays faster
 
     def test_spherical_weights(self):
         """Test spherical variogram weights."""
-        coordinates = np.column_stack([np.random.uniform(-179, 179, 20), np.random.uniform(-89, 89, 20)])
+        coordinates = np.column_stack(
+            [np.random.uniform(-179, 179, 20), np.random.uniform(-89, 89, 20)]
+        )
         analyzer = SpatialAnalyzer(coordinates)
 
         analyzer.variogram_model = {
-            'nugget': 0.0,
-            'sill': 1.0,
-            'range': 5.0,
-            'model': 'spherical'
+            "nugget": 0.0,
+            "sill": 1.0,
+            "range": 5.0,
+            "model": "spherical",
         }
 
-        weights = analyzer.create_spatial_weights(model_type='spherical')
+        weights = analyzer.create_spatial_weights(model_type="spherical")
         assert weights.shape == (20, 20)
-        assert np.all(weights <= 1.01)  # Spherical model max correlation is 1 (+ small regularization)
+        assert np.all(
+            weights <= 1.01
+        )  # Spherical model max correlation is 1 (+ small regularization)
         assert np.all(weights >= 0.0)
 
 
@@ -234,7 +252,9 @@ class TestClusterAnalysis:
 
     def test_no_clusters(self):
         """Test when no clusters meet threshold."""
-        coordinates = np.column_stack([np.random.uniform(-179, 179, 50), np.random.uniform(-89, 89, 50)])
+        coordinates = np.column_stack(
+            [np.random.uniform(-179, 179, 50), np.random.uniform(-89, 89, 50)]
+        )
         analyzer = SpatialAnalyzer(coordinates)
 
         # Random data below threshold
@@ -242,32 +262,42 @@ class TestClusterAnalysis:
 
         clusters = analyzer.detect_clusters(stat_map, threshold=2.0)
 
-        assert clusters['n_clusters'] == 0
-        assert len(clusters['clusters']) == 0
+        assert clusters["n_clusters"] == 0
+        assert len(clusters["clusters"]) == 0
 
     def test_single_large_cluster(self):
         """Test detection of single large cluster."""
-        coordinates = np.column_stack([np.random.uniform(-179, 179, 100), np.random.uniform(-89, 89, 100)])
+        coordinates = np.column_stack(
+            [np.random.uniform(-179, 179, 100), np.random.uniform(-89, 89, 100)]
+        )
         analyzer = SpatialAnalyzer(coordinates)
 
         stat_map = np.random.randn(100) * 0.5  # Mostly below threshold
         # Make first 30 points deterministically significant
         stat_map[:30] = 5.0
 
-        clusters = analyzer.detect_clusters(stat_map, threshold=2.0, min_cluster_size=10)
+        clusters = analyzer.detect_clusters(
+            stat_map, threshold=2.0, min_cluster_size=10
+        )
 
-        assert clusters['n_clusters'] >= 1
+        assert clusters["n_clusters"] >= 1
 
         # Largest cluster should contain most significant points
-        largest_cluster = max(clusters['clusters'], key=lambda x: x['size'])
-        assert largest_cluster['size'] >= 20
+        largest_cluster = max(clusters["clusters"], key=lambda x: x["size"])
+        assert largest_cluster["size"] >= 20
 
     def test_multiple_clusters(self):
         """Test detection of multiple distinct clusters."""
         # Create coordinates in three distinct groups
-        coords1 = np.column_stack([np.random.uniform(-179, 179, 20), np.random.uniform(-89, 89, 20)])
-        coords2 = np.column_stack([np.random.uniform(-179, 179, 20), np.random.uniform(-89, 89, 20)]) + np.array([50, 0])
-        coords3 = np.column_stack([np.random.uniform(-179, 179, 20), np.random.uniform(-89, 89, 20)]) + np.array([0, 50])
+        coords1 = np.column_stack(
+            [np.random.uniform(-179, 179, 20), np.random.uniform(-89, 89, 20)]
+        )
+        coords2 = np.column_stack(
+            [np.random.uniform(-179, 179, 20), np.random.uniform(-89, 89, 20)]
+        ) + np.array([50, 0])
+        coords3 = np.column_stack(
+            [np.random.uniform(-179, 179, 20), np.random.uniform(-89, 89, 20)]
+        ) + np.array([0, 50])
         coordinates = np.vstack([coords1, coords2, coords3])
 
         analyzer = SpatialAnalyzer(coordinates)
@@ -280,4 +310,4 @@ class TestClusterAnalysis:
 
         clusters = analyzer.detect_clusters(stat_map, threshold=2.0, min_cluster_size=5)
 
-        assert clusters['n_clusters'] >= 2  # Should detect at least 2 clusters
+        assert clusters["n_clusters"] >= 2  # Should detect at least 2 clusters

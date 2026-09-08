@@ -49,4 +49,6 @@ def test_vectorized_geometry_load_throughput():
     assert len(inside) == n_points
     assert np.any(inside)
     throughput = n_points / elapsed
-    assert throughput > 50_000, f"Vectorized PIP throughput too low: {throughput:.2f} pts/sec"
+    assert throughput > 50_000, (
+        f"Vectorized PIP throughput too low: {throughput:.2f} pts/sec"
+    )

@@ -1,4 +1,5 @@
 """Tests for the audit logging module."""
+
 import json
 from datetime import datetime
 
@@ -102,5 +103,7 @@ class TestAuditLogger:
         logger.log_event(event_type=AuditEventType.AUTHENTICATION, action="login")
         logger.log_event(event_type=AuditEventType.DATA_ACCESS, action="read")
         logger.log_event(event_type=AuditEventType.AUTHENTICATION, action="logout")
-        auth_events = [e for e in logger.events if e.event_type == AuditEventType.AUTHENTICATION]
+        auth_events = [
+            e for e in logger.events if e.event_type == AuditEventType.AUTHENTICATION
+        ]
         assert len(auth_events) == 2

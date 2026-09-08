@@ -28,6 +28,7 @@ from geo_infer_ops.core.monitoring import (
 # is_port_in_use
 # ---------------------------------------------------------------------------
 
+
 class TestIsPortInUse:
     """Acceptance: port availability checking works correctly."""
 
@@ -58,6 +59,7 @@ class TestIsPortInUse:
 # start_metrics_server port auto-selection
 # ---------------------------------------------------------------------------
 
+
 class TestMetricsServerPortSelection:
     """Acceptance: start_metrics_server uses is_port_in_use to find a free port."""
 
@@ -75,6 +77,7 @@ class TestMetricsServerPortSelection:
         # We verify the server object is cleaned up by checking the port
         # is eventually available
         import time
+
         time.sleep(0.2)
         assert is_port_in_use(port) is False
 
@@ -95,6 +98,7 @@ class TestMetricsServerPortSelection:
 # ---------------------------------------------------------------------------
 # record_request / get_metric_value integration
 # ---------------------------------------------------------------------------
+
 
 class TestMetricRecordingIntegration:
     """Acceptance: metric recording and retrieval work together."""

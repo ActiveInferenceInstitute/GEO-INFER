@@ -60,25 +60,29 @@ class TestSearchAndRescueInit:
 
     def test_register_subject(self) -> None:
         sar = SearchAndRescue()
-        subject = sar.register_subject({
-            "id": "sub1",
-            "type": "hiker",
-            "name": "Jane Smith",
-            "age": 28,
-            "experience": "intermediate",
-        })
+        subject = sar.register_subject(
+            {
+                "id": "sub1",
+                "type": "hiker",
+                "name": "Jane Smith",
+                "age": 28,
+                "experience": "intermediate",
+            }
+        )
         assert subject.name == "Jane Smith"
         assert subject.subject_type == SubjectType.HIKER
         assert subject.age == 28
 
     def test_register_team(self) -> None:
         sar = SearchAndRescue()
-        team = sar.register_team({
-            "id": "t1",
-            "name": "Bravo",
-            "size": 4,
-            "capabilities": ["ground"],
-        })
+        team = sar.register_team(
+            {
+                "id": "t1",
+                "name": "Bravo",
+                "size": 4,
+                "capabilities": ["ground"],
+            }
+        )
         assert team.team_id == "t1"
         assert team.size == 4
 
@@ -136,12 +140,16 @@ class TestProbabilityOfDetection:
     def test_pod_easy_terrain_higher(self) -> None:
         sar = SearchAndRescue()
         easy = sar.calculate_pod(
-            subject={}, search_area={"center": {"lat": 0, "lon": 0}, "radius_km": 1},
-            search_effort=1.0, terrain_coverable="easy",
+            subject={},
+            search_area={"center": {"lat": 0, "lon": 0}, "radius_km": 1},
+            search_effort=1.0,
+            terrain_coverable="easy",
         )
         hard = sar.calculate_pod(
-            subject={}, search_area={"center": {"lat": 0, "lon": 0}, "radius_km": 1},
-            search_effort=1.0, terrain_coverable="difficult",
+            subject={},
+            search_area={"center": {"lat": 0, "lon": 0}, "radius_km": 1},
+            search_effort=1.0,
+            terrain_coverable="difficult",
         )
         assert easy["pod"] > hard["pod"]
 

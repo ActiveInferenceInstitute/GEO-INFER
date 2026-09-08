@@ -1,4 +1,5 @@
 """Tests for the access control module (RBAC and spatial permissions)."""
+
 from shapely.geometry import Polygon
 
 from geo_infer_sec.core.access_control import (

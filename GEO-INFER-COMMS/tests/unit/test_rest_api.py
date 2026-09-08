@@ -34,7 +34,6 @@ def test_invalid_message_content_preserves_http_400() -> None:
     assert error.value.detail == "Invalid message content"
 
 
-
 class TestCredentialValidation:
     def _credentials(self, token: str):
         return SimpleNamespace(credentials=token)
@@ -42,7 +41,9 @@ class TestCredentialValidation:
     def test_valid_jwt_returns_subject(self, monkeypatch: pytest.MonkeyPatch) -> None:
         import jwt as pyjwt
 
-        monkeypatch.setenv("COMMS_JWT_SECRET", "unit-test-secret-0123456789abcdef-0123456789abcdef")
+        monkeypatch.setenv(
+            "COMMS_JWT_SECRET", "unit-test-secret-0123456789abcdef-0123456789abcdef"
+        )
         api = _api()
         token = pyjwt.encode(
             {"sub": "alice", "exp": int(time.time()) + 60},
@@ -59,7 +60,9 @@ class TestCredentialValidation:
     ) -> None:
         import jwt as pyjwt
 
-        monkeypatch.setenv("COMMS_JWT_SECRET", "correct-secret-0123456789abcdef-0123456789abcdef")
+        monkeypatch.setenv(
+            "COMMS_JWT_SECRET", "correct-secret-0123456789abcdef-0123456789abcdef"
+        )
         api = _api()
         # Signed with the wrong secret → decode fails → must be rejected
         bad_token = pyjwt.encode(
@@ -78,7 +81,9 @@ class TestCredentialValidation:
     ) -> None:
         import jwt as pyjwt
 
-        monkeypatch.setenv("COMMS_JWT_SECRET", "correct-secret-0123456789abcdef-0123456789abcdef")
+        monkeypatch.setenv(
+            "COMMS_JWT_SECRET", "correct-secret-0123456789abcdef-0123456789abcdef"
+        )
         api = _api()
         expired = pyjwt.encode(
             {"sub": "alice", "exp": int(time.time()) - 60},

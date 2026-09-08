@@ -1,6 +1,5 @@
 """Tests for GIT repo analyzer module."""
 
-
 from geo_infer_git.core.repo_analyzer import DependencyAnalyzer
 
 

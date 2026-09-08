@@ -11,6 +11,7 @@ from geo_infer_app.models.agent_interface import AgentType, AgentState
 from geo_infer_app.models.agent_factory import AgentFactory
 from geo_infer_app.models.interfaces.bdi_interface import BDIAgentInterface
 
+
 class TestBDIAgentInterface(unittest.TestCase):
     """Test cases for the BDI agent interface."""
 
@@ -23,10 +24,10 @@ class TestBDIAgentInterface(unittest.TestCase):
             "name": "Test BDI Agent",
             "beliefs": {
                 "location": {"lat": 40.7128, "lng": -74.0060},
-                "weather": "sunny"
+                "weather": "sunny",
             },
             "desires": ["explore", "collect_data"],
-            "initial_location": {"lat": 40.7128, "lng": -74.0060}
+            "initial_location": {"lat": 40.7128, "lng": -74.0060},
         }
 
         self.agent_id = self.interface.create_agent(AgentType.BDI, self.agent_config)
@@ -38,9 +39,9 @@ class TestBDIAgentInterface(unittest.TestCase):
         self.assertTrue(len(self.agent_id) > 0)
 
         # Create another agent
-        another_agent_id = self.interface.create_agent(AgentType.BDI, {
-            "name": "Another Agent"
-        })
+        another_agent_id = self.interface.create_agent(
+            AgentType.BDI, {"name": "Another Agent"}
+        )
 
         # Verify it's a different agent
         self.assertNotEqual(self.agent_id, another_agent_id)
@@ -92,28 +93,22 @@ class TestBDIAgentInterface(unittest.TestCase):
         self.assertEqual(len(active_agents), 0)
 
         # Test filtering by location
-        nearby_agents = self.interface.list_agents({
-            "location": {
-                "center": {"lat": 40.7128, "lng": -74.0060},
-                "radius": 10
-            }
-        })
+        nearby_agents = self.interface.list_agents(
+            {"location": {"center": {"lat": 40.7128, "lng": -74.0060}, "radius": 10}}
+        )
         self.assertTrue(len(nearby_agents) > 0)
 
-        far_agents = self.interface.list_agents({
-            "location": {
-                "center": {"lat": 0, "lng": 0},
-                "radius": 0.1
-            }
-        })
+        far_agents = self.interface.list_agents(
+            {"location": {"center": {"lat": 0, "lng": 0}, "radius": 0.1}}
+        )
         self.assertEqual(len(far_agents), 0)
 
     def test_send_command(self):
         """Test sending commands to an agent."""
         # Test adding a belief
-        response = self.interface.send_command(self.agent_id, "add_belief", {
-            "belief": {"temperature": 25}
-        })
+        response = self.interface.send_command(
+            self.agent_id, "add_belief", {"belief": {"temperature": 25}}
+        )
         self.assertTrue(response["success"])
 
         # Verify the belief was added
@@ -122,9 +117,9 @@ class TestBDIAgentInterface(unittest.TestCase):
         self.assertEqual(state.beliefs["temperature"], 25)
 
         # Test adding a desire
-        response = self.interface.send_command(self.agent_id, "add_desire", {
-            "desire": "go_home"
-        })
+        response = self.interface.send_command(
+            self.agent_id, "add_desire", {"desire": "go_home"}
+        )
         self.assertTrue(response["success"])
 
         # Verify the desire was added
@@ -145,9 +140,9 @@ class TestBDIAgentInterface(unittest.TestCase):
 
         # Test moving
         new_location = {"lat": 41.0, "lng": -75.0}
-        response = self.interface.send_command(self.agent_id, "move", {
-            "location": new_location
-        })
+        response = self.interface.send_command(
+            self.agent_id, "move", {"location": new_location}
+        )
         self.assertTrue(response["success"])
 
         # Verify the location was updated
@@ -164,10 +159,12 @@ class TestBDIAgentInterface(unittest.TestCase):
 
     def test_event_handlers(self):
         """Test event handlers with a real recorder."""
+
         # Real event recorder instead of mock
         class EventRecorder:
             def __init__(self):
                 self.calls = []
+
             def __call__(self, event_data):
                 self.calls.append(event_data)
 
@@ -177,9 +174,9 @@ class TestBDIAgentInterface(unittest.TestCase):
         self.interface.register_event_handler("agent_updated", handler)
 
         # Send a command to trigger the event
-        self.interface.send_command(self.agent_id, "move", {
-            "location": {"lat": 42.0, "lng": -76.0}
-        })
+        self.interface.send_command(
+            self.agent_id, "move", {"location": {"lat": 42.0, "lng": -76.0}}
+        )
 
         # Verify the handler was called exactly once
         self.assertEqual(len(handler.calls), 1)
@@ -211,7 +208,9 @@ class TestBDIAgentInterface(unittest.TestCase):
             return original_import(name, *args, **kwargs)
 
         try:
-            with unittest.mock.patch("builtins.__import__", side_effect=blocking_import):
+            with unittest.mock.patch(
+                "builtins.__import__", side_effect=blocking_import
+            ):
                 spec.loader.exec_module(module)
         finally:
             AgentFactory._registry = original_registry
@@ -228,6 +227,7 @@ class TestBDIAgentInterface(unittest.TestCase):
         self.assertEqual(beliefs["humidity"], 0.4)
         self.assertEqual(desires, ["explore", "report"])
         self.assertEqual(intentions, ["sample", "return"])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -60,6 +60,4 @@ class TestCachedDependencies:
         )
 
         # A fresh dependency call must observe the registered vehicle.
-        assert (
-            get_fleet_manager().get_fleet_status()["total_vehicles"] == before + 1
-        )
+        assert get_fleet_manager().get_fleet_status()["total_vehicles"] == before + 1

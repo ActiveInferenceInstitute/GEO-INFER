@@ -82,7 +82,11 @@ class TestSpatialGpUncertainty:
             gp_posterior, X[:3], level=0.9, samples=200, random_seed=0
         )
         far = model.predictive_interval(
-            gp_posterior, X=np.tile([[50.0, 50.0]], (50, 1)), level=0.9, samples=200, random_seed=0
+            gp_posterior,
+            X=np.tile([[50.0, 50.0]], (50, 1)),
+            level=0.9,
+            samples=200,
+            random_seed=0,
         )
         assert (far[2] - far[1]).mean() > (near[2] - near[1]).mean()
 
@@ -113,9 +117,7 @@ class TestSpatialGpUncertainty:
         assert far["aleatoric"].mean() > near["aleatoric"].mean()
         assert far["total"].mean() > near["total"].mean()
 
-    def test_interval_is_calibrated_on_heldout(
-        self, gp_posterior: _Posterior
-    ) -> None:
+    def test_interval_is_calibrated_on_heldout(self, gp_posterior: _Posterior) -> None:
         rng = np.random.default_rng(5)
         X = rng.uniform(0, 10, size=(140, 2))
         sq_dist = np.sum((X[:, None, :] - X[None, :, :]) ** 2, axis=-1)
@@ -157,7 +159,9 @@ class TestHierarchicalUncertainty:
         )
 
     def test_predictive_interval_respects_group_levels(
-        self, hierarchical: HierarchicalBayesianModel, hierarchical_posterior: _Posterior
+        self,
+        hierarchical: HierarchicalBayesianModel,
+        hierarchical_posterior: _Posterior,
     ) -> None:
         groups = [[0], [1], [0], [1]]
         mean, lower, upper = hierarchical.predictive_interval(
@@ -169,7 +173,9 @@ class TestHierarchicalUncertainty:
         assert mean[0] < mean[1]
 
     def test_decomposition_recovers_total(
-        self, hierarchical: HierarchicalBayesianModel, hierarchical_posterior: _Posterior
+        self,
+        hierarchical: HierarchicalBayesianModel,
+        hierarchical_posterior: _Posterior,
     ) -> None:
         groups = [[0], [1], [0], [1]]
         dec = hierarchical.uncertainty_decomposition(
@@ -179,7 +185,9 @@ class TestHierarchicalUncertainty:
         np.testing.assert_allclose(dec["total"], re, atol=1e-6)
 
     def test_predictive_draws_reflect_group_uncertainty(
-        self, hierarchical: HierarchicalBayesianModel, hierarchical_posterior: _Posterior
+        self,
+        hierarchical: HierarchicalBayesianModel,
+        hierarchical_posterior: _Posterior,
     ) -> None:
         """The fixed posterior_predictive spreads with alpha · noise, not just noise."""
         groups = [[0], [1]]
@@ -190,7 +198,9 @@ class TestHierarchicalUncertainty:
         assert draws.std() > 0.7
 
     def test_posterior_predictive_is_replayable(
-        self, hierarchical: HierarchicalBayesianModel, hierarchical_posterior: _Posterior
+        self,
+        hierarchical: HierarchicalBayesianModel,
+        hierarchical_posterior: _Posterior,
     ) -> None:
         groups = [[0], [1], [0]]
         a = hierarchical.posterior_predictive(
@@ -212,7 +222,9 @@ class TestPosteriorAnalysisUncertainty:
         )
 
     def test_epistemic_uncertainty_missing_parameter(self) -> None:
-        posterior = PosteriorAnalysis(SpatialGP(kernel="rbf"), {"a": np.zeros(4)}, None, "mcmc")
+        posterior = PosteriorAnalysis(
+            SpatialGP(kernel="rbf"), {"a": np.zeros(4)}, None, "mcmc"
+        )
         with pytest.raises(KeyError, match="does not contain"):
             posterior.epistemic_uncertainty("definitely_not_here")
 
@@ -225,7 +237,9 @@ class TestPosteriorAnalysisUncertainty:
         # A posterior is normally built by inference; here the model holds the
         # training data and the fake posterior supplies draws.
         posterior = PosteriorAnalysis(model, gp_posterior.samples, None, "mcmc")
-        cov = posterior.predictive_interval(X[:6], level=0.9, samples=100, random_seed=0)
+        cov = posterior.predictive_interval(
+            X[:6], level=0.9, samples=100, random_seed=0
+        )
         assert cov[0].shape == (6,)
         assert np.all(cov[1] <= cov[0]) and np.all(cov[0] <= cov[2])
 

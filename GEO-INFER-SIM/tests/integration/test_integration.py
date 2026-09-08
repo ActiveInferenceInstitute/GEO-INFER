@@ -81,9 +81,7 @@ class TestSimIntegration:
         good = manager.create_scenario(
             name="good", initial_conditions={}, parameters={}
         )
-        bad = manager.create_scenario(
-            name="bad", initial_conditions={}, parameters={}
-        )
+        bad = manager.create_scenario(name="bad", initial_conditions={}, parameters={})
 
         def sim_func(scenario):
             if scenario.name == "bad":

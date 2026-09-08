@@ -4,6 +4,7 @@ Pytest fixtures for GEO-INFER-SEC tests.
 Provides sample credentials, security configurations, audit log
 entries, and standard spatial fixtures.
 """
+
 import pytest
 import numpy as np
 import geopandas as gpd

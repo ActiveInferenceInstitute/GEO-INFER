@@ -2,7 +2,6 @@
 Unit tests for GEO-INFER-CIV core functionality.
 """
 
-
 from geo_infer_civ import __version__
 
 
@@ -12,6 +11,7 @@ class TestCivicModule:
     def test_module_import(self) -> None:
         """Test that the module can be imported."""
         import geo_infer_civ
+
         assert geo_infer_civ is not None
 
     def test_module_version(self) -> None:
@@ -24,7 +24,6 @@ class TestCivicModule:
         import geo_infer_civ
 
         # Check that core classes are available
-        assert hasattr(geo_infer_civ, 'ParticipationAnalyzer')
-        assert hasattr(geo_infer_civ, 'AttendanceTracker')
-        assert hasattr(geo_infer_civ, 'CostBenefitAnalyzer')
-
+        assert hasattr(geo_infer_civ, "ParticipationAnalyzer")
+        assert hasattr(geo_infer_civ, "AttendanceTracker")
+        assert hasattr(geo_infer_civ, "CostBenefitAnalyzer")

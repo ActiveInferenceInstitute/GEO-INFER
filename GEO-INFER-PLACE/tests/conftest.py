@@ -1,4 +1,5 @@
 """Shared pytest fixtures for GEO-INFER-PLACE tests."""
+
 from pathlib import Path
 from typing import Dict, Any, List
 
@@ -16,6 +17,7 @@ def sample_h3_cells() -> List[str]:
     """A small set of valid H3 resolution-8 cells over Del Norte County."""
     try:
         import h3
+
         center_lat, center_lon = 41.75, -124.2
         center_cell = h3.latlng_to_cell(center_lat, center_lon, 8)
         return list(h3.grid_disk(center_cell, 1))

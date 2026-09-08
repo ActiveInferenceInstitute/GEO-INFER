@@ -3,12 +3,16 @@ Tests for GeoJSON visualization capabilities.
 
 Verifies export of GeoJSON data to formats usable for visualization.
 """
+
 import json
 import os
 from tempfile import NamedTemporaryFile
 
 from geo_infer_api.models.geojson import (
-    GeoJSONType, Polygon, PolygonFeature, PolygonFeatureCollection
+    GeoJSONType,
+    Polygon,
+    PolygonFeature,
+    PolygonFeatureCollection,
 )
 
 
@@ -135,7 +139,13 @@ def test_feature_dict_conversion():
 
     for i in range(len(new_feature.geometry.coordinates)):
         for j in range(len(new_feature.geometry.coordinates[i])):
-            assert new_feature.geometry.coordinates[i][j][0] == feature.geometry.coordinates[i][j][0]
-            assert new_feature.geometry.coordinates[i][j][1] == feature.geometry.coordinates[i][j][1]
+            assert (
+                new_feature.geometry.coordinates[i][j][0]
+                == feature.geometry.coordinates[i][j][0]
+            )
+            assert (
+                new_feature.geometry.coordinates[i][j][1]
+                == feature.geometry.coordinates[i][j][1]
+            )
 
     assert new_feature.properties == feature.properties

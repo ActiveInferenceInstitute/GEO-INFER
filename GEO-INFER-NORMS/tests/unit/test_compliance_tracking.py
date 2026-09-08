@@ -1,4 +1,5 @@
 """Tests for the compliance tracking module."""
+
 import datetime
 import uuid
 
@@ -8,7 +9,13 @@ from geo_infer_norms.models.regulation import Regulation
 from geo_infer_norms.models.legal_entity import LegalEntity
 
 
-def _make_status(entity_id: str, regulation_id: str, is_compliant: bool, level: float = 1.0, days_ago: int = 0) -> ComplianceStatus:
+def _make_status(
+    entity_id: str,
+    regulation_id: str,
+    is_compliant: bool,
+    level: float = 1.0,
+    days_ago: int = 0,
+) -> ComplianceStatus:
     ts = datetime.datetime.now() - datetime.timedelta(days=days_ago)
     return ComplianceStatus(
         id=str(uuid.uuid4()),
@@ -40,7 +47,9 @@ def _make_entity(ent_id: str = "ent-1") -> LegalEntity:
     )
 
 
-def _make_metric(reg_id: str = "reg-1", eval_type: str = "threshold") -> ComplianceMetric:
+def _make_metric(
+    reg_id: str = "reg-1", eval_type: str = "threshold"
+) -> ComplianceMetric:
     return ComplianceMetric.create(
         name="Test Metric",
         description="A test metric",
