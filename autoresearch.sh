@@ -2,11 +2,12 @@
 # autoresearch.sh — GEO-INFER CODE-01 index-refresh benchmark harness.
 #
 # Deterministic, fully offline workload measuring the state of the repository
-# ledger surfaces (TODO.md, CHANGELOG.md, ISA.md) with respect to the
-# 2026-09-07 published-history rewrite and the CODE-01 GitNexus index receipt:
+# ledger surfaces (root TODO.md, CHANGELOG.md, ISA.md plus the two
+# GEO-INFER-TEST GNN receipt files) with respect to the 2026-09-07
+# published-history rewrite and the CODE-01 GitNexus index receipt:
 #
 #   1. Pre-rewrite SHA annotation audit — every commit-SHA-like token
-#      (7-40 hex chars, at least one [a-f], not all digits) in the three
+#      (7-40 hex chars, at least one [a-f], not ellipsis-truncated) in the
 #      ledger files is checked against the published history: a token is a
 #      current identifier only when reachable from refs/remotes/origin/main
 #      (`git merge-base --is-ancestor`). Everything else — pre-rewrite GEO
@@ -15,9 +16,10 @@
 #      note. Historical tokens in a file without the note are annotation
 #      gaps.
 #   2. CODE-01 receipt check — the CODE-01 ledger row must record a fresh
-#      GitNexus receipt: non-BLOCKED status, a dated entry, an index SHA
-#      that resolves to a local commit and the `.gitnexus` artifact
-#      location.
+#      GitNexus receipt: a REFRESHED-style non-blocked status with the
+#      2026-09-07 date, the `.gitnexus` artifact location and an index SHA
+#      that is an ancestor of HEAD (never a stale object-database
+#      identifier).
 #   3. gitnexus CLI availability probe (local evidence, no network).
 #
 #   Note: requires refs/remotes/origin/main (run `git fetch origin main`
@@ -31,17 +33,24 @@ err() { echo "HARNESS_ERROR: $*" >&2; exit 1; }
 
 git rev-parse --verify --quiet refs/remotes/origin/main >/dev/null 2>&1 \
   || err "refs/remotes/origin/main missing; run 'git fetch origin main' first"
-LEDGER_FILES=(TODO.md CHANGELOG.md ISA.md)
+command -v perl >/dev/null 2>&1 || err "perl not available"
+LEDGER_FILES=(
+  TODO.md
+  CHANGELOG.md
+  ISA.md
+  GEO-INFER-TEST/docs/gnn_continuation_2026_09.md
+  GEO-INFER-TEST/docs/gnn_space_time_2026_09.md
+)
 for f in "${LEDGER_FILES[@]}"; do
   [[ -f $f ]] || err "ledger file missing: $f"
 done
 
 extract_shas() {
   # Commit-SHA-like tokens: 7-40 hex chars, whole words, at least one [a-f],
-  # not all digits (filters dates/counts like 20260907), lowercased, unique.
-  perl -ne 'while (/\b([0-9a-fA-F]{7,40})\b/g) {
+  # not ellipsis-truncated (a trailing `…`/`...` marks a content-digest
+  # prefix, not a commit), lowercased, unique.
+  perl -ne 'while (/\b([0-9a-fA-F]{7,40})\b(?!\xe2\x80\xa6|\.{3})/g) {
     my $t = lc $1;
-    next if $t =~ /^[0-9]+$/;
     next unless $t =~ /[a-f]/;
     print "$t\n";
   }' "$1" | sort -u
@@ -52,9 +61,10 @@ extract_shas() {
 on_origin() {
   git merge-base --is-ancestor "$1" refs/remotes/origin/main >/dev/null 2>&1
 }
-# Local commit identity = object exists in this clone's object database.
-local_commit() {
-  git rev-parse --verify --quiet "${1}^{commit}" >/dev/null 2>&1
+# Branch-history identity = ancestor of HEAD; rejects stale pre-rewrite
+# objects that survive in the local object database.
+on_head() {
+  git merge-base --is-ancestor "$1" HEAD >/dev/null 2>&1
 }
 
 gaps=0
@@ -62,8 +72,9 @@ unresolved_total=0
 notes_present=0
 
 for f in "${LEDGER_FILES[@]}"; do
+  # Annotation coverage = the file carries the dated pre-rewrite note.
   note=0
-  grep -qiE 'pre-rewrite' "$f" && note=1
+  grep -qiE 'pre-rewrite' "$f" && grep -q '2026-09-07' "$f" && note=1
   notes_present=$((notes_present + note))
   file_unresolved=0
   while IFS= read -r sha; do
@@ -84,12 +95,12 @@ done
 
 # --- CODE-01 receipt --------------------------------------------------------
 receipt=0
-row=$(grep -E '^\| \*\*CODE-01\*\*' TODO.md) || err "CODE-01 row not found in TODO.md"
-if [[ $row != *BLOCKED-EXTERN* && $row == *2026-09-* && $row == *'.gitnexus'* ]]; then
+row=$(grep -m 1 -E '^\| \*\*CODE-01\*\*' TODO.md) || err "CODE-01 row not found in TODO.md"
+if [[ $row != *BLOCKED-EXTERN* && $row == *REFRESHED* && $row == *2026-09-07* && $row == *'.gitnexus'* ]]; then
   while IFS= read -r sha; do
     [[ -n $sha ]] || continue
-    if local_commit "$sha"; then
-      echo "receipt: CODE-01 row records local index SHA $sha"
+    if on_head "$sha"; then
+      echo "receipt: CODE-01 row records index SHA $sha (ancestor of HEAD)"
       receipt=1
       break
     fi
