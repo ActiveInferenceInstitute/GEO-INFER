@@ -3,6 +3,13 @@ phase: verifying
 ---
 # GEO-INFER Ideal State Artifact
 
+> History note (2026-09-07): the published history was rewritten to re-attribute
+> hum-side personal commit identities to docxology
+> <docxology@users.noreply.github.com>. Every commit SHA recorded in this
+> artifact before that rewrite refers to pre-rewrite history and no longer
+> resolves; the recorded evidence and run results remain valid, only the
+> identifiers changed.
+
 ## Problem
 
 At fc62502c, streaming adapters emit generated records without opening network
