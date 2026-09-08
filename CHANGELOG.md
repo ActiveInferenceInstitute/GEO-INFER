@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Deep horizon 2026-09-07 - geo-code01 index refresh
+
+- Refreshed the CODE-01 GitNexus index in the geo-code01 worktree: `gitnexus
+  analyze` (GitNexus 1.6.9) indexed the tree at
+  `61f697fc84f3070edeab8da80a3db7212bb086fd` (4,162 files, 64,530 nodes,
+  90,952 edges, 1,623 clusters, 300 flows, no embeddings), wrote the local
+  `.gitnexus/` store (now gitignored) and registered the repository in
+  `~/.gitnexus/registry.json`. Indexed/current-commit parity and the
+  explicit-file Gaussian-contract (`validate_gaussian_artifact`) and
+  sparse-transition (`SparseTransitionArtifact`) lookups verified through
+  `gitnexus context -r GEO-INFER`. `analyze` rewrites the AGENTS.md/CLAUDE.md
+  context sections and creates `.claude/`; both were restored to the canonical
+  generator output.
+- Added the dated pre-rewrite history note to ISA.md: its recorded SHAs
+  (including `fc62502c`, `cee1b5f0…`, `b45f108…` and the GNN-side
+  identifiers) are historical after the published-history identity rewrite,
+  and TODO.md and CHANGELOG.md already carried the note while ISA.md did not.
+  All 12 historical identifiers in ISA.md are now covered by a file-level
+  note, consistent with the other two ledger surfaces.
+
 ### September 7 root health and CI integration
 
 - Run the root manuscript regression suite (102 of 109 tests) in the CI

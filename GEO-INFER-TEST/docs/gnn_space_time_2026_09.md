@@ -8,6 +8,13 @@ checkouts. Both original checkouts were changing concurrently; this receipt does
 not describe their evolving uncommitted trees. The GNN baseline includes existing
 fleet commits `3f2694d3a` and `64d49355a`; its topic branch retains that ancestry.
 
+> History note (2026-09-07): the published history was rewritten to re-attribute
+> hum-side personal commit identities to docxology
+> <docxology@users.noreply.github.com>. Every commit SHA recorded in this
+> receipt before that rewrite refers to pre-rewrite history and no longer
+> resolves; the recorded evidence and run results remain valid, only the
+> identifiers changed.
+
 ## Delivered behavior
 
 - GNN exports an opt-in `gnn-geo-infer/1` categorical JSON contract with explicit
