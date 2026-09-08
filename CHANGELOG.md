@@ -27,6 +27,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   All 12 historical identifiers in ISA.md are now covered by a file-level
   note, consistent with the other two ledger surfaces.
 
+### Deep horizon 2026-09-07 - geo-render-lane
+
+- Delivered the permanent in-repo CI render lane (ROOT-01): the manuscript
+  job renders the manuscript in-runner through the repository's own render
+  path (`scripts/render_manuscript_pdf.py`: generator hydration,
+  published-section combine with the image-target-scoped figure-prefix
+  rewrite, preamble injection, pandoc, XeLaTeX to a clean final pass) and
+  then runs the 7 render-dependent root tests the main job excludes
+  (6 × `test_manuscript_pdf_layout.py` plus the deselected paths test);
+  receipts (PDF, combined document, LaTeX source, final log) upload as
+  artifacts. The union of the tracked CI selections covers all 109 root
+  tests per PR.
+- The render pins the template text block to the measured geometry
+  (430.00462 × 556.47656 pt), wraps code-block lines at spaces via fvextra,
+  forbids 1-3-line widow/orphan remainders, and raises tolerance with 8em
+  emergency stretch for the runner TeX's denser line breaking of
+  machine-token paragraphs; LaTeX `!` errors, `Missing character` reports,
+  and missing artifacts fail the build. The runner toolchain is a minimal
+  fail-closed apt set plus a sha256-pinned pandoc 3.11 / pandoc-crossref
+  0.3.25 pair.
+- Added the ROOT-01 benchmark harness (`autoresearch.sh` +
+  `GEO-INFER-TEST/render_lane_metric.py`): it collects the root battery,
+  replays every tracked workflow's pytest selection through real pytest
+  collection, and reports the union of collected test ids
+  (`ci_root_tests_covered`, 102 → 109) plus local render-path health
+  (`render_dependent_tests_local_passing`, 0 → 7).
+
 ### September 7 root health and CI integration
 
 - Run the root manuscript regression suite (102 of 109 tests) in the CI
