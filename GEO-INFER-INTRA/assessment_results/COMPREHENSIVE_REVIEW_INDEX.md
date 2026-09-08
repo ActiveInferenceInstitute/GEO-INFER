@@ -1,3 +1,8 @@
+> **Historical artifact — unmaintained snapshot.** This file records a
+> point-in-time assessment and is not maintained; it may contradict the
+> delivered state of the repository. Current facts live in the generated
+> `README.md`/`AGENTS.md` surfaces. Policy: TODO.md DOCS-03 (2026-09-08).
+
 # GEO-INFER Repository Review - Index **Review Date**: 2025-11-07 **Review Scope**: All 41 GEO-INFER modules **Review Dimensions**: Code Quality, Architecture, Testing, Documentation, Security, Dependencies --
 -
 

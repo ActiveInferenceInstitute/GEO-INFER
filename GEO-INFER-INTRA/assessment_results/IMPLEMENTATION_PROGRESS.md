@@ -1,3 +1,8 @@
+> **Historical artifact — unmaintained snapshot.** This file records a
+> point-in-time assessment and is not maintained; it may contradict the
+> delivered state of the repository. Current facts live in the generated
+> `README.md`/`AGENTS.md` surfaces. Policy: TODO.md DOCS-03 (2026-09-08).
+
 # GEO-INFER Module Improvement Implementation Progress
 **Last Updated**: 2025-01-19 **Status**: All Phases (Phases 1-6: 100% Complete)
 
