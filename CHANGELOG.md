@@ -171,6 +171,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`GEO-INFER-TEST/orchestrator_coverage_metric.py`) with the instrument:
   `modules_without_orchestrator_example` (8 → 0).
 
+### Deep horizon 2026-09-08 - preview browser verification (DOCS-01)
+
+- Executed the deferred browser verification of the 45 spatial preview
+  cards with real Chromium (headless, Puppeteer) against a local server:
+  all 45 pages load with Leaflet online, the map rendered, the static SVG
+  fallback present, and zero console errors; accessible labels verified on
+  every page.
+- Cold-cache incognito CDN failure (unpkg.com and openstreetmap.org
+  blocked at the CDP Fetch layer) degrades to the always-present
+  `details#static-preview` SVG — the map container stays `display:none`
+  via the page's own guard, zero page errors — and Enter on the details
+  summary toggles the preview online and offline; the 375×667 viewport
+  shows no horizontal overflow.
+- Asset receipts recomputed from disk against all 45 manifests:
+  180/180 artifacts match (sha256+bytes). The committed receipt lives at
+  `GEO-INFER-INTRA/docs/modules/previews/verification/` (JSON + markdown +
+  six printToPDF page versions; raster captureScreenshot is unavailable in
+  the hidden headless browser, documented in the receipt).
+- Extended the autoresearch harness
+  (`GEO-INFER-TEST/preview_receipt_metric.py`) with the instruments:
+  `docs01_verification_checks_open` (9 → 0) and
+  `preview_receipt_mismatches`.
+
 ### September 7 root health and CI integration
 
 - Run the root manuscript regression suite (102 of 109 tests) in the CI
