@@ -26,6 +26,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and TODO.md and CHANGELOG.md already carried the note while ISA.md did not.
   All 12 historical identifiers in ISA.md are now covered by a file-level
   note, consistent with the other two ledger surfaces.
+- Extended the dated pre-rewrite history notes to the two GEO-INFER-TEST GNN
+  receipt files (`gnn_continuation_2026_09.md`, `gnn_space_time_2026_09.md`;
+  22 further historical identifiers now covered), hardened the
+  `autoresearch.sh` benchmark (ellipsis-truncated content digests excluded,
+  receipt SHA must be a HEAD ancestor, dated-note requirement), and recorded
+  the indexed branch name in the CODE-01 receipt.
+- CODE-01 acceptance reconciliation: the Gaussian exporter lives in the GNN
+  repository (artifacts are exported in a separate GNN environment per the
+  continuation receipt), so the GEO-side explicit-file lookup target is the
+  Gaussian contract surface (`validate_gaussian_artifact` /
+  `GaussianGNNArtifact`), verified through the index receipt.
 
 ### September 7 root health and CI integration
 
