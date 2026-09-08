@@ -1,0 +1,34 @@
+title = "GEO-INFER secret-scan policy (SEC-02)"
+
+[extend]
+useDefault = true
+
+# Allowlists are file-path-scoped and rule-scoped, never glob-wide: a new
+# file holding a real credential still trips the gate.  Every entry is
+# justified in GEO-INFER-TEST/docs/secret_scan_policy.md, which also records
+# the audit of every finding the default rules produced (2026-09-08: 29
+# findings over 426 commits, all audited; none is a live credential).
+
+[[allowlists]]
+description = "documentation-examples: documented curl/API examples whose credentials are placeholders (INTRA api index, EXAMPLES integration guide, h3 interface guide, DATA/REQ READMEs) plus the historical untracked egg-info PKG-INFO artifact"
+paths = [
+  'GEO-INFER-INTRA/docs/api/index\.md',
+  'GEO-INFER-INTRA/docs/geospatial/data_formats/h3/h3_programming_interfaces\.md',
+  'GEO-INFER-EXAMPLES/docs/API_INTEGRATION_GUIDE\.md',
+  'GEO-INFER-DATA/README\.md',
+  'GEO-INFER-REQ/README\.md',
+  'GEO-INFER-DATA/src/geo_infer_data\.egg-info/PKG-INFO',
+]
+rules = ["generic-api-key", "curl-auth-header"]
+
+[[allowlists]]
+description = "synthetic-test-credentials: synthetic credentials in test fixtures and monkeypatched environments (COMMS rest-api tests, DATA compression tests, OPS conftest/config/security tests, SEC conftest)"
+paths = [
+  'GEO-INFER-COMMS/tests/unit/test_rest_api\.py',
+  'GEO-INFER-DATA/tests/unit/test_compression\.py',
+  'GEO-INFER-OPS/tests/conftest\.py',
+  'GEO-INFER-OPS/tests/test_config\.py',
+  'GEO-INFER-OPS/tests/test_security\.py',
+  'GEO-INFER-SEC/tests/conftest\.py',
+]
+rules = ["generic-api-key", "curl-auth-header"]

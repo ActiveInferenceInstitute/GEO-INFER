@@ -33,6 +33,7 @@
 - `rewrite_readme_agents.py`
 - `run_model_audit.py`
 - `run_unified_tests.py`
+- `secret_scan_metric.py`
 - `setup.py`
 - `tests_lint_metric.py`
 - `validate_act_geospatial_contract.py`
