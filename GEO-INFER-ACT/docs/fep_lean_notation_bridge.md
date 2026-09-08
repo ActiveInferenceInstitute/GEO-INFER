@@ -38,7 +38,10 @@ path only; cross-repository references are never Markdown links):
 The canonical machine-readable mapping artifact lives in the `fep_lean`
 checkout at `fep_lean/specs/geo-infer-notation-bridge/data/notation-map.yaml`
 (prose path; it is owned and versioned by the `fep_lean` slice). This page
-is the human-readable GEO-INFER-side view of the same mapping.
+is the human-readable GEO-INFER-side view of that mapping's machine-checked
+core subset: the YAML carries the rows that have landed in the `fep_lean`
+slice so far and is not exhaustive of the tables below, which cover the
+implemented constructs this module actually uses.
 
 ## Notation correspondence
 
