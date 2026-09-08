@@ -119,6 +119,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`GEO-INFER-TEST/secret_scan_metric.py`) with the instrument:
   `secret_scan_findings` (29 → 0 after policy).
 
+### Deep horizon 2026-09-08 - assessment-artifact banners (DOCS-03)
+
+- Banner-marked all 27 tracked assessment artifacts (INTRA/EXAMPLES
+  assessment_results plus the EXAMPLES documentation analysis) with a
+  visible dated historical-artifact banner (markdown blockquote; JSON
+  `_historical_artifact` key), so stale point-in-time snapshots —
+  DEPENDENCY_ANALYSIS.md's wrong dependency counts,
+  COMPREHENSIVE_DOCUMENTATION_ANALYSIS.md's contradicted claims — can no
+  longer read as live guidance. The generated README/AGENTS pairs inside
+  those directories are canonical generator output and are excluded.
+- Recorded the recurring drift review: the per-commit
+  `rewrite_readme_agents.py --check` in ci.yml is the cadence.
+- Extended the autoresearch harness
+  (`GEO-INFER-TEST/stale_assessment_metric.py`) with the instrument:
+  `stale_assessment_artifacts` (27 → 0).
+
 ### September 7 root health and CI integration
 
 - Run the root manuscript regression suite (102 of 109 tests) in the CI
