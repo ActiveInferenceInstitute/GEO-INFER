@@ -32,9 +32,7 @@ TARGETS = (
     "GEO-INFER-INTRA/assessment_results",
     "GEO-INFER-EXAMPLES/assessment_results",
 )
-EXTRA_FILES = (
-    "GEO-INFER-EXAMPLES/docs/COMPREHENSIVE_DOCUMENTATION_ANALYSIS.md",
-)
+EXTRA_FILES = ("GEO-INFER-EXAMPLES/docs/COMPREHENSIVE_DOCUMENTATION_ANALYSIS.md",)
 
 
 def _fail(message: str) -> None:
