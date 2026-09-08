@@ -18,7 +18,9 @@
 # 7. measure the TEST-03 coverage-baseline completeness
 #    (modules lacking an entry in coverage_baseline.json);
 # 8. measure the EXAMPLES-01 orchestrator coverage
-#    (ledger-named modules lacking scripts/run_orchestrator.py).
+#    (ledger-named modules lacking scripts/run_orchestrator.py);
+# 9. measure the DOCS-01 preview-verification acceptance
+#    (open checks in the committed receipt + recomputed artifact hashes).
 #
 # Metrics are printed as "METRIC name=value" lines; diagnostics as
 # "ASI key=value" lines.  Prerequisite: the shared uv workspace is synced
@@ -32,3 +34,4 @@ uv run --no-sync python GEO-INFER-TEST/secret_scan_metric.py "$@"
 uv run --no-sync python GEO-INFER-TEST/stale_assessment_metric.py "$@"
 uv run --no-sync python GEO-INFER-TEST/coverage_baseline_metric.py "$@"
 uv run --no-sync python GEO-INFER-TEST/orchestrator_coverage_metric.py "$@"
+uv run --no-sync python GEO-INFER-TEST/preview_receipt_metric.py "$@"
