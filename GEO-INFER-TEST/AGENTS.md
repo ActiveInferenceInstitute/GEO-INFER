@@ -32,6 +32,7 @@
 - `coverage_baseline_metric.py`
 - `import_probe.py`
 - `measure_module_coverage.py`
+- `orchestrator_coverage_metric.py`
 - `render_lane_metric.py`
 - `rewrite_readme_agents.py`
 - `run_model_audit.py`

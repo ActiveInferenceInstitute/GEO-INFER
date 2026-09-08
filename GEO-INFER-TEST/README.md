@@ -15,6 +15,7 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `coverage_baseline_metric.py`
 - `import_probe.py`
 - `measure_module_coverage.py`
+- `orchestrator_coverage_metric.py`
 - `render_lane_metric.py`
 - `rewrite_readme_agents.py`
 - `run_model_audit.py`
@@ -56,6 +57,7 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `import_probe.py:run_import_probe` (function)
 - `measure_module_coverage.py:measure_module` (function)
 - `measure_module_coverage.py:main` (function)
+- `orchestrator_coverage_metric.py:main` (function)
 - `rewrite_readme_agents.py:ModuleInfo` (class)
 - `rewrite_readme_agents.py:git_ls_files` (function)
 - `rewrite_readme_agents.py:tracked_files` (function)
@@ -63,7 +65,6 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `rewrite_readme_agents.py:requirement_lines` (function)
 - `rewrite_readme_agents.py:discover_modules` (function)
 - `rewrite_readme_agents.py:module_for` (function)
-- `rewrite_readme_agents.py:repository_doc_files` (function)
 
 ## Module Metadata
 

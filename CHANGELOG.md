@@ -154,6 +154,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`measure_module_coverage.py`) uses pytest-cov because plain
   `coverage run` cannot see xdist's execnet workers.
 
+### Deep horizon 2026-09-08 - orchestrator coverage (EXAMPLES-01)
+
+- Added the eight missing thin orchestrators (CLIMATE, EDU, EMERGENCY,
+  ENERGY, FOREST, MARINE, TRANSPORT, WATER) on the delivered INSURANCE
+  exemplar: `examples/module_orchestrators/<MOD>/scripts/run_orchestrator.py`
+  plus `config/orchestrator_config.yaml` on the ACT pattern. Each drives
+  one documented end-to-end operation through the module's real public API
+  on deterministic synthetic data and was executed twice with exit 0 and
+  byte-identical results; FOREST/MARINE real-data upgrades stay gated on
+  the acquisition rule.
+- Registry entries added to `generate_orchestrators.py`;
+  `docs/index.md` gallery table and Examples-by-Module cross-reference
+  updated — all 45 modules are now listed.
+- Extended the autoresearch harness
+  (`GEO-INFER-TEST/orchestrator_coverage_metric.py`) with the instrument:
+  `modules_without_orchestrator_example` (8 → 0).
+
 ### September 7 root health and CI integration
 
 - Run the root manuscript regression suite (102 of 109 tests) in the CI

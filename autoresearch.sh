@@ -16,7 +16,9 @@
 # 6. measure the DOCS-03 stale assessment artifacts
 #    (tracked assessment files missing their historical-artifact banner);
 # 7. measure the TEST-03 coverage-baseline completeness
-#    (modules lacking an entry in coverage_baseline.json).
+#    (modules lacking an entry in coverage_baseline.json);
+# 8. measure the EXAMPLES-01 orchestrator coverage
+#    (ledger-named modules lacking scripts/run_orchestrator.py).
 #
 # Metrics are printed as "METRIC name=value" lines; diagnostics as
 # "ASI key=value" lines.  Prerequisite: the shared uv workspace is synced
@@ -29,3 +31,4 @@ uv run --no-sync python GEO-INFER-TEST/tests_lint_metric.py "$@"
 uv run --no-sync python GEO-INFER-TEST/secret_scan_metric.py "$@"
 uv run --no-sync python GEO-INFER-TEST/stale_assessment_metric.py "$@"
 uv run --no-sync python GEO-INFER-TEST/coverage_baseline_metric.py "$@"
+uv run --no-sync python GEO-INFER-TEST/orchestrator_coverage_metric.py "$@"

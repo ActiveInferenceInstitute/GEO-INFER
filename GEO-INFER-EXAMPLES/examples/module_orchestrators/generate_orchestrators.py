@@ -11,67 +11,111 @@ from typing import Dict, List
 # Module metadata
 MODULES = {
     # Core modules (Phase 1)
-    'MATH': {'dependencies': [], 'description': 'Mathematical foundations'},
-    'SPACE': {'dependencies': ['DATA', 'MATH'], 'description': 'Spatial methods with H3 v4'},
-    'TIME': {'dependencies': ['DATA', 'MATH'], 'description': 'Temporal methods'},
-    'DATA': {'dependencies': ['OPS', 'SEC'], 'description': 'Data management and ETL'},
-    'BAYES': {'dependencies': ['MATH'], 'description': 'Bayesian inference'},
-    'ACT': {'dependencies': ['MATH', 'BAYES'], 'description': 'Active Inference'},
-    
+    "MATH": {"dependencies": [], "description": "Mathematical foundations"},
+    "SPACE": {
+        "dependencies": ["DATA", "MATH"],
+        "description": "Spatial methods with H3 v4",
+    },
+    "TIME": {"dependencies": ["DATA", "MATH"], "description": "Temporal methods"},
+    "DATA": {"dependencies": ["OPS", "SEC"], "description": "Data management and ETL"},
+    "BAYES": {"dependencies": ["MATH"], "description": "Bayesian inference"},
+    "ACT": {"dependencies": ["MATH", "BAYES"], "description": "Active Inference"},
     # Analytical modules (Phase 2)
-    'AI': {'dependencies': ['DATA', 'SPACE'], 'description': 'Artificial Intelligence'},
-    'COG': {'dependencies': ['SPACE', 'AI'], 'description': 'Cognitive modeling'},
-    'AGENT': {'dependencies': ['ACT', 'AI'], 'description': 'Intelligent agents'},
-    'SPM': {'dependencies': ['MATH', 'SPACE'], 'description': 'Statistical mapping'},
-    'SIM': {'dependencies': ['SPACE', 'TIME'], 'description': 'Simulation'},
-    'ANT': {'dependencies': ['ACT', 'SIM'], 'description': 'Complex systems'},
-    
+    "AI": {"dependencies": ["DATA", "SPACE"], "description": "Artificial Intelligence"},
+    "COG": {"dependencies": ["SPACE", "AI"], "description": "Cognitive modeling"},
+    "AGENT": {"dependencies": ["ACT", "AI"], "description": "Intelligent agents"},
+    "SPM": {"dependencies": ["MATH", "SPACE"], "description": "Statistical mapping"},
+    "SIM": {"dependencies": ["SPACE", "TIME"], "description": "Simulation"},
+    "ANT": {"dependencies": ["ACT", "SIM"], "description": "Complex systems"},
     # Domain modules (Phase 3)
-    'AG': {'dependencies': ['SPACE', 'TIME', 'DATA'], 'description': 'Agriculture'},
-    'HEALTH': {'dependencies': ['SPACE', 'TIME', 'DATA'], 'description': 'Health applications'},
-    'ECON': {'dependencies': ['SPACE', 'TIME', 'DATA'], 'description': 'Economics'},
-    'RISK': {'dependencies': ['SPACE', 'TIME', 'DATA'], 'description': 'Risk management'},
-    'LOG': {'dependencies': ['SPACE', 'TIME', 'DATA'], 'description': 'Logistics'},
-    'INSURANCE': {'dependencies': ['SPACE', 'TIME', 'DATA', 'RISK'], 'description': 'Insurance operations: underwriting, policy, claims, pricing'},
-    'BIO': {'dependencies': ['SPACE', 'TIME', 'DATA'], 'description': 'Bioinformatics'},
-    
+    "AG": {"dependencies": ["SPACE", "TIME", "DATA"], "description": "Agriculture"},
+    "HEALTH": {
+        "dependencies": ["SPACE", "TIME", "DATA"],
+        "description": "Health applications",
+    },
+    "ECON": {"dependencies": ["SPACE", "TIME", "DATA"], "description": "Economics"},
+    "RISK": {
+        "dependencies": ["SPACE", "TIME", "DATA"],
+        "description": "Risk management",
+    },
+    "LOG": {"dependencies": ["SPACE", "TIME", "DATA"], "description": "Logistics"},
+    "INSURANCE": {
+        "dependencies": ["SPACE", "TIME", "DATA", "RISK"],
+        "description": "Insurance operations: underwriting, policy, claims, pricing",
+    },
+    "BIO": {"dependencies": ["SPACE", "TIME", "DATA"], "description": "Bioinformatics"},
+    "CLIMATE": {
+        "dependencies": ["SPACE", "TIME", "DATA"],
+        "description": "Climate operations: validation, SPI and extreme indices, heatwaves, droughts, trends",
+    },
+    "EDU": {
+        "dependencies": [],
+        "description": "Education operations: curriculum design, exercises, progress tracking, personalized pathways",
+    },
+    "EMERGENCY": {
+        "dependencies": [],
+        "description": "Emergency operations: situational awareness, ICS coordination, resource allocation, evacuation, SAR",
+    },
+    "ENERGY": {
+        "dependencies": [],
+        "description": "Energy operations: wind and solar site resource assessment",
+    },
+    "FOREST": {
+        "dependencies": [],
+        "description": "Forest operations: fire weather, wildfire risk, drought indices, biomass inventory",
+    },
+    "MARINE": {
+        "dependencies": [],
+        "description": "Marine operations: water quality and coral reef health",
+    },
+    "TRANSPORT": {
+        "dependencies": [],
+        "description": "Transport operations: network analysis, routing, traffic flow, isochrones",
+    },
+    "WATER": {
+        "dependencies": [],
+        "description": "Water operations: rainfall-runoff, recharge, water balance, water quality",
+    },
     # Infrastructure modules (Phase 4)
-    'API': {'dependencies': ['All modules'], 'description': 'API services'},
-    'APP': {'dependencies': ['API', 'SPACE'], 'description': 'Applications'},
-    'SEC': {'dependencies': [], 'description': 'Security'},
-    'OPS': {'dependencies': ['SEC'], 'description': 'Operations'},
-    'GIT': {'dependencies': ['OPS'], 'description': 'Version control'},
-    'TEST': {'dependencies': ['All modules'], 'description': 'Testing framework'},
-    
+    "API": {"dependencies": ["All modules"], "description": "API services"},
+    "APP": {"dependencies": ["API", "SPACE"], "description": "Applications"},
+    "SEC": {"dependencies": [], "description": "Security"},
+    "OPS": {"dependencies": ["SEC"], "description": "Operations"},
+    "GIT": {"dependencies": ["OPS"], "description": "Version control"},
+    "TEST": {"dependencies": ["All modules"], "description": "Testing framework"},
     # Community & Governance (Phase 5)
-    'CIV': {'dependencies': ['SPACE', 'APP'], 'description': 'Civic engagement'},
-    'PEP': {'dependencies': ['ORG', 'COMMS'], 'description': 'People management'},
-    'ORG': {'dependencies': ['PEP', 'COMMS'], 'description': 'Organizations'},
-    'COMMS': {'dependencies': ['INTRA', 'APP'], 'description': 'Communications'},
-    'NORMS': {'dependencies': ['SPACE', 'DATA'], 'description': 'Compliance'},
-    'REQ': {'dependencies': ['NORMS', 'SEC'], 'description': 'Requirements'},
-    'INTRA': {'dependencies': ['All modules'], 'description': 'Documentation'},
-    'ART': {'dependencies': ['SPACE', 'APP'], 'description': 'Artistic expression'},
-    'PLACE': {'dependencies': ['SPACE', 'TIME', 'DATA', 'ALL'], 'description': 'Place-based analysis'},
+    "CIV": {"dependencies": ["SPACE", "APP"], "description": "Civic engagement"},
+    "PEP": {"dependencies": ["ORG", "COMMS"], "description": "People management"},
+    "ORG": {"dependencies": ["PEP", "COMMS"], "description": "Organizations"},
+    "COMMS": {"dependencies": ["INTRA", "APP"], "description": "Communications"},
+    "NORMS": {"dependencies": ["SPACE", "DATA"], "description": "Compliance"},
+    "REQ": {"dependencies": ["NORMS", "SEC"], "description": "Requirements"},
+    "INTRA": {"dependencies": ["All modules"], "description": "Documentation"},
+    "ART": {"dependencies": ["SPACE", "APP"], "description": "Artistic expression"},
+    "PLACE": {
+        "dependencies": ["SPACE", "TIME", "DATA", "ALL"],
+        "description": "Place-based analysis",
+    },
 }
+
 
 def create_orchestrator_structure(module_name: str, module_info: Dict):
     """Create orchestrator structure for a module."""
     base_path = Path(__file__).parent / module_name
-    
+
     # Create directories
-    (base_path / 'scripts').mkdir(parents=True, exist_ok=True)
-    (base_path / 'config').mkdir(parents=True, exist_ok=True)
-    (base_path / 'output').mkdir(parents=True, exist_ok=True)
-    
+    (base_path / "scripts").mkdir(parents=True, exist_ok=True)
+    (base_path / "config").mkdir(parents=True, exist_ok=True)
+    (base_path / "output").mkdir(parents=True, exist_ok=True)
+
     # Create README.md
     readme_content = f"""# {module_name} Module Orchestrator
 
-**GEO-INFER-{module_name}: {module_info['description']} Orchestrator**
+**GEO-INFER-{module_name}: {module_info["description"]} Orchestrator**
 
 ## Overview
 
-This orchestrator demonstrates the core capabilities of GEO-INFER-{module_name}, showcasing {module_info['description'].lower()} for geospatial analysis.
+This orchestrator demonstrates the core capabilities of GEO-INFER-{module_name}, showcasing {module_info["description"].lower()} for geospatial analysis.
 
 ## Learning Objectives
 
@@ -89,18 +133,21 @@ After running this orchestrator, you will:
 pip install -e ../../../../GEO-INFER-{module_name}
 """
 
-    if module_info['dependencies']:
+    if module_info["dependencies"]:
         readme_content += "\n### Dependencies\n"
-        for dep in module_info['dependencies']:
-            if dep != 'All modules':
+        for dep in module_info["dependencies"]:
+            if dep != "All modules":
                 readme_content += f"- GEO-INFER-{dep}\n"
-    
-    readme_content += """
+
+    readme_content += (
+        """
 ## Quick Start
 
 ```bash
 # Navigate to orchestrator directory
-cd GEO-INFER-EXAMPLES/examples/module_orchestrators/""" + module_name + """
+cd GEO-INFER-EXAMPLES/examples/module_orchestrators/"""
+        + module_name
+        + """
 
 # Run the orchestrator
 python scripts/run_orchestrator.py
@@ -117,16 +164,20 @@ python scripts/run_orchestrator.py
 ## Module Dependencies
 
 """
-    
-    if module_info['dependencies']:
+    )
+
+    if module_info["dependencies"]:
         readme_content += f"**{module_name} depends on:**\n"
-        for dep in module_info['dependencies']:
-            if dep != 'All modules':
+        for dep in module_info["dependencies"]:
+            if dep != "All modules":
                 readme_content += f"- GEO-INFER-{dep}\n"
     else:
-        readme_content += f"**{module_name} has no dependencies** - it is a foundational module.\n"
-    
-    readme_content += """
+        readme_content += (
+            f"**{module_name} has no dependencies** - it is a foundational module.\n"
+        )
+
+    readme_content += (
+        """
 ## Integration Patterns
 
 This module integrates with other GEO-INFER modules to provide comprehensive geospatial analysis capabilities.
@@ -156,7 +207,9 @@ The orchestrator generates:
 ### Import Errors
 ```bash
 # Ensure module is installed
-pip install -e ../../../../GEO-INFER-""" + module_name + """
+pip install -e ../../../../GEO-INFER-"""
+        + module_name
+        + """
 ```
 
 ## Next Steps
@@ -169,15 +222,16 @@ pip install -e ../../../../GEO-INFER-""" + module_name + """
 
 **Success Indicator**: You should now understand how {module_name} works and integrates with other GEO-INFER modules!
 """
-    
-    with open(base_path / 'README.md', 'w') as f:
+    )
+
+    with open(base_path / "README.md", "w") as f:
         f.write(readme_content)
-    
+
     # Create run_orchestrator.py
     script_content = f'''#!/usr/bin/env python3
 """
 {module_name} Module Orchestrator - GEO-INFER Examples
-Demonstrates: {module_info['description']}
+Demonstrates: {module_info["description"]}
 """
 
 import sys
@@ -234,7 +288,7 @@ class {module_name}Orchestrator:
     def run_orchestrator(self):
         """Run the complete {module_name} module demonstration."""
         self.logger.info("🚀 Starting {module_name} Module Orchestrator")
-        self.logger.info("Demonstrating: {module_info['description']}")
+        self.logger.info("Demonstrating: {module_info["description"]}")
         
         start_time = time.time()
         results = {{
@@ -313,7 +367,7 @@ class {module_name}Orchestrator:
     
     def _demonstrate_integration(self):
         """Demonstrate integration with dependencies."""
-        deps = {module_info['dependencies']}
+        deps = {module_info["dependencies"]}
         return {{
             'dependencies': deps if deps != ['All modules'] else 'all_modules',
             'integration_status': 'demonstrated'
@@ -375,7 +429,7 @@ class {module_name}Orchestrator:
 def main():
     """Main function."""
     print(f"🌟 GEO-INFER-{module_name} Module Orchestrator")
-    print(f"Demonstrating: {module_info['description']}")
+    print(f"Demonstrating: {module_info["description"]}")
     
     try:
         config_path = Path(__file__).parent.parent / 'config' / 'orchestrator_config.yaml'
@@ -389,20 +443,20 @@ def main():
 if __name__ == "__main__":
     sys.exit(main())
 '''
-    
-    with open(base_path / 'scripts' / 'run_orchestrator.py', 'w') as f:
+
+    with open(base_path / "scripts" / "run_orchestrator.py", "w") as f:
         f.write(script_content)
-    
+
     # Make script executable
-    os.chmod(base_path / 'scripts' / 'run_orchestrator.py', 0o755)
-    
+    os.chmod(base_path / "scripts" / "run_orchestrator.py", 0o755)
+
     # Create config file
     config_content = f"""# {module_name} Module Orchestrator Configuration
 
 # Module-specific configuration
 module:
   name: "{module_name}"
-  description: "{module_info['description']}"
+  description: "{module_info["description"]}"
 
 # Operations configuration
 operations:
@@ -421,22 +475,23 @@ performance:
   enable_profiling: false
   timeout_seconds: 300
 """
-    
-    with open(base_path / 'config' / 'orchestrator_config.yaml', 'w') as f:
+
+    with open(base_path / "config" / "orchestrator_config.yaml", "w") as f:
         f.write(config_content)
-    
+
     print(f"✅ Created orchestrator for {module_name}")
+
 
 def main():
     """Generate all orchestrators."""
     print("🚀 Generating orchestrators for all GEO-INFER modules...")
-    
+
     for module_name, module_info in MODULES.items():
         create_orchestrator_structure(module_name, module_info)
-    
+
     print(f"\n✅ Generated {len(MODULES)} orchestrators successfully!")
     print("📁 Orchestrators created in: examples/module_orchestrators/")
 
+
 if __name__ == "__main__":
     main()
-
