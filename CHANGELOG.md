@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Deep horizon 2026-09-07 - maintenance-script conformance
+
+- Close the HYG-05 drift: canonicalize the 10 non-canonical scripts under
+  `GEO-INFER-INTRA/scripts/` with one bounded `ruff format` pass
+  (`>=0.15.6,<0.16`), verified semantics-preserving by AST-dump equality on
+  all 13 files in the scope.
+- Convert the three E722 bare `except:` handlers (`audit_agents_docs.py`,
+  `migrate_to_uv.py`) to `except BaseException:` — identical runtime
+  semantics to a bare except, so no behavior change.
+- Settle DOCS-04: `.aii/config.yaml` `tasks.test.cmd` now runs
+  `uv run python GEO-INFER-TEST/run_unified_tests.py --category unit`
+  instead of bare `python -m pytest`, matching the AGENTS.md test-command
+  surfaces and the CI unit lane.
+- Close HYG-06: delete the obsolete generator
+  `update_documentation_signposts.py` (uninvoked dynamic orphan — CI runs
+  only the canonical `rewrite_readme_agents.py --check`) and regenerate its
+  generated README/AGENTS listings; no dangling references remain.
+
 ### Deep horizon 2026-09-07 - geo-code01 index refresh
 
 - Refreshed the CODE-01 GitNexus index in the geo-code01 worktree: `gitnexus
@@ -26,6 +44,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and TODO.md and CHANGELOG.md already carried the note while ISA.md did not.
   All 12 historical identifiers in ISA.md are now covered by a file-level
   note, consistent with the other two ledger surfaces.
+- Extended the dated pre-rewrite history notes to the two GEO-INFER-TEST GNN
+  receipt files (`gnn_continuation_2026_09.md`, `gnn_space_time_2026_09.md`;
+  22 further historical identifiers now covered), hardened the
+  `autoresearch.sh` benchmark (ellipsis-truncated content digests excluded,
+  receipt SHA must be a HEAD ancestor, dated-note requirement), and recorded
+  the indexed branch name in the CODE-01 receipt.
+- CODE-01 acceptance reconciliation: the Gaussian exporter lives in the GNN
+  repository (artifacts are exported in a separate GNN environment per the
+  continuation receipt), so the GEO-side explicit-file lookup target is the
+  Gaussian contract surface (`validate_gaussian_artifact` /
+  `GaussianGNNArtifact`), verified through the index receipt.
 
 ### Deep horizon 2026-09-07 - geo-render-lane
 

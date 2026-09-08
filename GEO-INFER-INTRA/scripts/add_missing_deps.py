@@ -80,34 +80,39 @@ def add_dependencies(module_path: Path, module_name: str):
     pyproject_path = module_path / "pyproject.toml"
     if not pyproject_path.exists():
         return False
-    
+
     content = pyproject_path.read_text()
-    
+
     # Check if dependencies section is empty
-    deps_match = re.search(r'dependencies\s*=\s*\[(.*?)\]', content, re.DOTALL)
+    deps_match = re.search(r"dependencies\s*=\s*\[(.*?)\]", content, re.DOTALL)
     if not deps_match:
         return False
-    
+
     deps_content = deps_match.group(1).strip()
-    
+
     # Check if it's empty or just has comments
-    if deps_content and not all(line.strip().startswith('#') or not line.strip() for line in deps_content.split('\n')):
+    if deps_content and not all(
+        line.strip().startswith("#") or not line.strip()
+        for line in deps_content.split("\n")
+    ):
         # Has dependencies, skip
         return False
-    
+
     # Get dependencies for this module
     deps = MODULE_DEPS.get(module_name, [])
     if not deps:
         return False
-    
+
     # Build new dependencies section
     deps_text = ",\n    ".join([f'"{dep}"' for dep in deps])
-    new_deps_section = f'dependencies = [\n    {deps_text}\n]'
-    
+    new_deps_section = f"dependencies = [\n    {deps_text}\n]"
+
     # Replace
-    new_content = content[:deps_match.start()] + new_deps_section + content[deps_match.end():]
+    new_content = (
+        content[: deps_match.start()] + new_deps_section + content[deps_match.end() :]
+    )
     pyproject_path.write_text(new_content)
-    
+
     print(f"  ✅ Added {len(deps)} dependencies to {module_name}")
     return True
 
@@ -115,16 +120,15 @@ def add_dependencies(module_path: Path, module_name: str):
 def main():
     """Add missing dependencies to all modules."""
     print("Adding missing dependencies...\n")
-    
+
     for item in PROJECT_ROOT.iterdir():
         if item.is_dir() and item.name.startswith("GEO-INFER-"):
-            module_name = item.name[len("GEO-INFER-"):]
+            module_name = item.name[len("GEO-INFER-") :]
             if module_name in MODULE_DEPS:
                 add_dependencies(item, module_name)
-    
+
     print("\n✅ Complete")
 
 
 if __name__ == "__main__":
     main()
-

@@ -34,7 +34,7 @@ next steps.
 | **DOCS-01** | INTRA / deferred browser verification | [DEFERRED-VERIFY] With a connected Interceptor browser, exercise the 45-preview index and representative module pages: online Leaflet map, tile/CDN failure, offline SVG fallback, narrow viewport, keyboard navigation and accessible labels. | Save browser/viewport versions, screenshots and observed interaction results; link/map controls and fallback remain usable, no relevant console errors, and asset receipts still match all 45 bundles. Extend checks to any page-specific failures. |
 | **PLACE-V14** | PLACE / regional layer acquisition open | Three source-backed layers are delivered (13 HU4 display polygons, 24 volcanoes, one convergent boundary). Obtain the remaining complete licensed `cascadia_bioregion_boundary.geojson`; retain the documented per-layer extent and interpretation. | Validate WGS84, required geometry types, stable feature identifiers, provenance and checksums; run actual-data renderer/integration checks (missing-layer behavior is fail-closed and pinned at `test_regional_layer_acquisition.py:73,81`). Keep missing-layer behavior explicit until data exists. Do not restore the former 12-volcano or earthquake-probability claims without evidence. |
 | **PLACE-04** | PLACE / deferred Windows verification | [DEFERRED-VERIFY] Run the real regional download-worker loopback tests on Windows with the locked PLACE runtime. | Prove stalled-header/slow-drip deadlines, native process termination, pipe closure, batch failure preservation and exact replay on Windows; retain interpreter/OS versions. POSIX termination is verified and the worker starts no child processes. |
-| **CODE-01** | Repository / recurring index refresh | [REFRESHED 2026-09-07] Fresh `gitnexus analyze` run in this worktree at `61f697fc84f3070edeab8da80a3db7212bb086fd` (GitNexus 1.6.9, 105 s): index written to the worktree `.gitnexus/` store (gitignored; 4,162 files, 64,530 nodes, 90,952 edges, 1,623 clusters, 300 flows, no embeddings) and registered in `~/.gitnexus/registry.json` as `GEO-INFER` (indexed 2026-09-08T00:41:07Z, branch `autoresearch/goal-workflowz-ultrathink-deep-horizon-session-m-20260907-2` at index time). Indexed/current-commit parity holds (`gitnexus status` reports up-to-date at the receipt commit); `gitnexus context -r GEO-INFER` resolves `validate_gaussian_artifact` ([GEO-INFER-ACT/src/geo_infer_act/core/gnn_gaussian_contract.py:29](GEO-INFER-ACT/src/geo_infer_act/core/gnn_gaussian_contract.py)) and `SparseTransitionArtifact` ([GEO-INFER-SPACE/src/geo_infer_space/core/sparse_transition.py:29](GEO-INFER-SPACE/src/geo_infer_space/core/sparse_transition.py)) exactly, with correct caller/callee edges. `analyze` also rewrites the AGENTS.md/CLAUDE.md GitNexus context sections and creates `.claude/`: restore both files to the canonical generator output and drop `.claude/` after every run. The GNN checkout keeps its own live-checkout run: GitNexus writes its index inside the target checkout and the GNN sibling worktrees are owned by concurrent sessions, so this session did not run it there. | Indexed/current-commit parity plus correct explicit-file Gaussian-contract and sparse-transition lookups verified at the receipt SHA as recorded; direct source/caller review remains the documented fallback while no index exists. Recurring cadence: re-run `gitnexus analyze .` after major refactors or when `gitnexus status` reports stale, restoring generator-owned AGENTS.md/CLAUDE.md afterwards. |
+| **CODE-01** | Repository / recurring index refresh | [REFRESHED 2026-09-07] Fresh `gitnexus analyze` run in this worktree at `61f697fc84f3070edeab8da80a3db7212bb086fd` (GitNexus 1.6.9, 105 s): index written to the worktree `.gitnexus/` store (gitignored; 4,162 files, 64,530 nodes, 90,952 edges, 1,623 clusters, 300 flows, no embeddings) and registered in `~/.gitnexus/registry.json` as `GEO-INFER` (indexed 2026-09-08T00:41:07Z, branch `autoresearch/goal-workflowz-ultrathink-deep-horizon-session-m-20260907-2` at index time). Indexed/current-commit parity holds (`gitnexus status` reports up-to-date at the receipt commit); `gitnexus context -r GEO-INFER` resolves `validate_gaussian_artifact` ([GEO-INFER-ACT/src/geo_infer_act/core/gnn_gaussian_contract.py:29](GEO-INFER-ACT/src/geo_infer_act/core/gnn_gaussian_contract.py)) and `SparseTransitionArtifact` ([GEO-INFER-SPACE/src/geo_infer_space/core/sparse_transition.py:29](GEO-INFER-SPACE/src/geo_infer_space/core/sparse_transition.py)) exactly, with correct caller/callee edges. `analyze` also rewrites the AGENTS.md/CLAUDE.md GitNexus context sections and creates `.claude/`: restore both files to the canonical generator output and drop `.claude/` after every run. The GNN checkout keeps its own live-checkout run: GitNexus writes its index inside the target checkout and the GNN sibling worktrees are owned by concurrent sessions, so this session did not run it there. | Indexed/current-commit parity plus correct explicit-file Gaussian-contract (the GNN-repo exporter is outside this index) and sparse-transition lookups verified at the receipt SHA as recorded; direct source/caller review remains the documented fallback while no index exists. Recurring cadence: re-run `gitnexus analyze .` after major refactors or when `gitnexus status` reports stale, restoring generator-owned AGENTS.md/CLAUDE.md afterwards. |
 | **REL-01** | Repository / release authorization and execution | Fold the two dated `[Unreleased]` sections into a `## [0.2.0]` release section, decide GEO-INFER-INSURANCE 0.1.0→0.2.0 promotion (pyproject `version` + Development Status classifier, `validate_packaging --strict` re-run), then tag `v0.2.0` — the tag push alone fires `release.yml` (45-wheel build; no other wiring exists). | This row is the go/no-go record: criteria = all CI green at the release SHA, wheel receipts current, SEC-02 scan in place. The ledger header continues to withhold release authorization until this row is checked off deliberately. |
 
 ### Medium — self-serve, multi-session
@@ -129,3 +129,31 @@ The physical GPU, full native keyboard/browser checks, missing licensed
 bioregion boundary, controlled import-performance investigation and unexplained
 historical PROJ failure remain open; implementation is not substituted for
 those empirical checks. Hosted CI and PR merge status are tracked separately.
+
+## Deep horizon 2026-09-07 - maintenance-script conformance
+
+Receipts for two open-work rows delivered by this workstream (rows are left
+in the tables above for the standing ledger re-tier pass):
+
+- **HYG-05 delivered**: `ruff format --check GEO-INFER-INTRA/scripts/` is
+  clean — 13/13 files canonical after one bounded `ruff format` pass under
+  `ruff>=0.15.6,<0.16` (10 files rewritten, 3 already canonical).
+  AST-dump equality holds for every file across the format pass; the only
+  semantic edits are three E722 conversions `except:` to
+  `except BaseException:` (audit_agents_docs.py, migrate_to_uv.py), which
+  are runtime-identical to a bare except. The CI ruff gates (diff-scoped
+  format + F821-class lint) now cover all 10 files because this PR touches
+  them; the gates in ci.yml are purely diff-scoped and expose no
+  scoped-glob config to extend without widening repo-wide.
+- **DOCS-04 delivered**: `.aii/config.yaml` `tasks.test.cmd` changed from
+  bare `python -m pytest` to
+  `uv run python GEO-INFER-TEST/run_unified_tests.py --category unit`
+  (the AGENTS.md/CI canonical invocation). The runner without `--category`
+  executes every module across all categories (`run_all_modules`) and is
+  therefore not a suitable sidecar default.
+- **HYG-06 delivered**: the obsolete generator
+  `update_documentation_signposts.py` is deleted (dynamic-orphan check:
+  invoked by nothing — ci.yml runs only the canonical
+  `rewrite_readme_agents.py --check`) and its generated README/AGENTS
+  listings regenerated via the canonical generator; the repository has one
+  fewer obsolete maintenance module and no dangling references.
