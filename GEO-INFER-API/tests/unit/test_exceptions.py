@@ -1,6 +1,5 @@
 """Tests for API custom exceptions."""
 
-import pytest
 from geo_infer_api.core.exceptions import (
     APIError,
     ValidationError,

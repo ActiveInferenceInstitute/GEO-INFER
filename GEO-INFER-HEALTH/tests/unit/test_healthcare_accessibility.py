@@ -3,7 +3,6 @@ Unit tests for healthcare accessibility functionality.
 """
 
 import pytest
-from typing import List, Tuple, Optional
 
 from geo_infer_health.core.healthcare_accessibility import HealthcareAccessibilityAnalyzer
 from geo_infer_health.models import HealthFacility, Location, PopulationData

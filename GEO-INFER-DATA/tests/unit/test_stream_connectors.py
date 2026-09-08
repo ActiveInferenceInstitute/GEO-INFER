@@ -5,7 +5,6 @@ Tests for stream connectors in geo_infer_data.connectors.stream.
 import asyncio
 
 import aiohttp
-import aiomqtt
 import pytest
 from aiohttp import web
 

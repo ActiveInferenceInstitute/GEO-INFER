@@ -1,7 +1,6 @@
 """Unit tests for oceanographic data processing."""
 
 import numpy as np
-import pytest
 import xarray as xr
 
 from geo_infer_marine.core.oceanographic_data import OceanographicDataProcessor

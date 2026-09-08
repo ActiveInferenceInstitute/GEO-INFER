@@ -6,7 +6,7 @@ data storage, health checks, and system lifecycle operations.
 """
 
 import pytest
-from datetime import date, datetime
+from datetime import date
 
 pytestmark = [pytest.mark.integration]
 

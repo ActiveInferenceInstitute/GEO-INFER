@@ -1,6 +1,5 @@
 """Tests for resource deployment module."""
 
-import pytest
 from geo_infer_emergency.core.resources import (
     ResourceDeployer,
     Resource,

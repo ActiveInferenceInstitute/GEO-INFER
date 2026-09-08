@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 
 import geo_infer_ai
-from geo_infer_ai.models import IDWInterpolator, OrdinaryKriging, SpatialPredictor
+from geo_infer_ai.models import IDWInterpolator, OrdinaryKriging
 from geo_infer_ai.models.predictive.spatial_predictor import SpatialPredictor
 
 

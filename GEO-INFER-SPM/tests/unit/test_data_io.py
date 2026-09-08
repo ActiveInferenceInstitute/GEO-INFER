@@ -14,7 +14,6 @@ from geo_infer_spm.utils.data_io import (
     load_data, save_spm, load_csv_with_coords,
     load_json_data, _save_spm_json, _save_spm_csv
 )
-from geo_infer_spm.core.glm import fit_glm
 from geo_infer_spm.models.data_models import DesignMatrix
 
 

@@ -2,8 +2,6 @@
 Unit tests for GEO-INFER-COG core functionality.
 """
 
-import pytest
-import numpy as np
 
 from geo_infer_cog import __version__
 from geo_infer_cog.core.cognitive_engine import CognitiveProcessingEngine, CognitiveState

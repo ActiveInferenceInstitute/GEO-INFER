@@ -5,7 +5,7 @@ Validates schema construction, field validation, serialization,
 and constraint enforcement for all core data models.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime
 import pytest
 
 from geo_infer_data.models.schemas import (
@@ -18,7 +18,6 @@ from geo_infer_data.models.schemas import (
     DataType,
     Dataset,
     DatasetMetadata,
-    DatasetSummary,
     ETLPipeline,
     ExecutionState,
     ExecutionStatus,

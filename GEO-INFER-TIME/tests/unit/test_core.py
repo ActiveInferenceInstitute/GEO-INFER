@@ -2,10 +2,9 @@
 Unit tests for GEO-INFER-TIME core functionality.
 """
 
-import pytest
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta
+
 
 from geo_infer_time import __version__
 from geo_infer_time.core.analysis import TemporalAnalyzer

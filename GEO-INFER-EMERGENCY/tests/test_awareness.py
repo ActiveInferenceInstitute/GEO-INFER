@@ -5,7 +5,6 @@ from geo_infer_emergency.core.awareness import (
     SituationalAwareness,
     ThreatLevel,
     DataSource,
-    SensoryInput,
     LayerConfig,
 )
 

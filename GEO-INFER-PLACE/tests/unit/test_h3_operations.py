@@ -7,7 +7,6 @@ grid_disk, is_valid_cell, and GeoDataFrame conversion.
 """
 
 import pytest
-import numpy as np
 import h3
 
 from geo_infer_place.utils.h3_operations import (

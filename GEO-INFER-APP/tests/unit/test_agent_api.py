@@ -1,7 +1,6 @@
 """Tests for agent API client and manager."""
 
 import pytest
-import asyncio
 from geo_infer_app.api.agent_api import AgentAPIClient, AgentManager
 
 

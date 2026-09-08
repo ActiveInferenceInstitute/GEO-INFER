@@ -5,7 +5,6 @@ from geo_infer_org.core.organization import (
     OrganizationModel,
     OrgUnit,
     Role,
-    OrgStructureType,
     RoleLevel,
 )
 

@@ -93,7 +93,7 @@ class TestFieldBoundaryManagerPerformance:
         """Test initialization performance with a large dataset."""
         start_time = time.time()
         
-        fbm = FieldBoundaryManager(fields=large_field_dataset)
+        FieldBoundaryManager(fields=large_field_dataset)
         
         elapsed_time = time.time() - start_time
         print(f"\nInitialization with {len(large_field_dataset)} fields: {elapsed_time:.4f} seconds")
@@ -138,7 +138,7 @@ class TestFieldBoundaryManagerPerformance:
         # Find neighbors for 50 random fields
         for _ in range(50):
             field_id = np.random.choice(fbm.fields["field_id"])
-            neighbors = fbm.get_neighboring_fields(field_id, buffer_distance=20.0)
+            fbm.get_neighboring_fields(field_id, buffer_distance=20.0)
         
         elapsed_time = time.time() - start_time
         print(f"\nFinding neighbors for 50 fields among {len(large_field_dataset)}: {elapsed_time:.4f} seconds")
@@ -154,7 +154,7 @@ class TestFieldBoundaryManagerPerformance:
         start_time = time.time()
         
         for crop_type in ["corn", "wheat", "soybean", "cotton", "rice"]:
-            crop_fields = fbm.get_fields_by_crop(crop_type)
+            fbm.get_fields_by_crop(crop_type)
         
         elapsed_time = time.time() - start_time
         print(f"\nFiltering by 5 crop types among {len(large_field_dataset)} fields: {elapsed_time:.4f} seconds")

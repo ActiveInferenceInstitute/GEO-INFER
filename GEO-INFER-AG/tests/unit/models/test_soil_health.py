@@ -1,6 +1,5 @@
 """Tests for soil health model."""
 
-import pytest
 from geo_infer_ag.models.soil_health import SoilHealthModel
 
 

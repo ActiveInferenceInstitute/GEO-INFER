@@ -10,7 +10,7 @@ deserialized. The cross-module security contract lives in
 """
 import json
 import pickle
-from unittest.mock import Mock, patch, MagicMock, call
+from unittest.mock import Mock, patch, MagicMock
 import pytest
 from redis.exceptions import RedisError
 

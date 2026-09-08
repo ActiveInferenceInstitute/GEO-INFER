@@ -2,13 +2,13 @@
 
 import pytest
 from geo_infer_app.models.agent_factory import AgentFactory
-from geo_infer_app.models.agent_interface import AgentInterface, AgentType
+from geo_infer_app.models.agent_interface import AgentType
 
 
 class TestAgentFactory:
     def test_bdi_interface_registered(self):
         """BDI interface should be auto-registered on import."""
-        from geo_infer_app.models.interfaces.bdi_interface import BDIAgentInterface
+        from geo_infer_app.models.interfaces.bdi_interface import BDIAgentInterface as BDIAgentInterface
         types = AgentFactory.get_available_agent_types()
         assert "bdi" in types
 

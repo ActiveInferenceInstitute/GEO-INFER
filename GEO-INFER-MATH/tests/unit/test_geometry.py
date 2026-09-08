@@ -6,7 +6,6 @@ bearing calculations, point-in-polygon, line intersection, and spherical area.
 """
 
 import numpy as np
-import pytest
 import sys
 import os
 
@@ -25,7 +24,6 @@ from geo_infer_math.core.geometry import (
     line_intersection,
     polygon_area_spherical,
     great_circle_distance,
-    EARTH_RADIUS_KM,
 )
 
 

@@ -8,11 +8,7 @@ predictive environmental dynamics.
 
 import unittest
 import numpy as np
-import tempfile
-import json
-from pathlib import Path
 
-import h3
 import logging
 
 # Set matplotlib backend before any imports that might use it

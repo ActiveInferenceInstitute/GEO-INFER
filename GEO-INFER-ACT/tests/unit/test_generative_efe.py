@@ -72,7 +72,7 @@ def test_efe_scalar_best_matches_decomposed() -> None:
 def test_efe_breakdown_objects_are_typed() -> None:
     """The decomposed collection is derived from typed breakdowns."""
     model = _categorical_model()
-    result = cast(dict, model.compute_expected_free_energy(_policies(), return_breakdowns=True))
+    cast(dict, model.compute_expected_free_energy(_policies(), return_breakdowns=True))
     # The public API returns numeric lists; re-run one policy through the
     # calculator to confirm the underlying objects remain typed.
     breakdown = model.free_energy_calculator.compute_expected_free_energy(

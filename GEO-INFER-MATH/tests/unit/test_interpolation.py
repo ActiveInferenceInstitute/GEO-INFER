@@ -225,7 +225,6 @@ class TestConvenienceFunctions:
 
     def test_interpolate_spatial_data(self, sample_data, prediction_coords):
         coords, values = sample_data
-        config_override = InterpolationConfig(max_distance=20.0)
         result = interpolate_spatial_data(coords, values, prediction_coords, method='idw')
         assert len(result) == 3
         assert np.all(np.isfinite(result))

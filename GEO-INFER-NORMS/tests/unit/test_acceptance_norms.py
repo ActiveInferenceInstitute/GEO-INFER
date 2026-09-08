@@ -20,7 +20,6 @@ No mocks, stubs, or placeholders: every assertion exercises actual code paths.
 """
 
 import datetime
-import uuid
 
 import pytest
 from shapely.geometry import Point, Polygon
@@ -32,7 +31,7 @@ from geo_infer_norms.core.normative_inference import (
 )
 from geo_infer_norms.core.legal_frameworks import LegalFramework
 from geo_infer_norms.core.zoning_analysis import ZoningAnalyzer
-from geo_infer_norms.models.compliance_status import ComplianceStatus, ComplianceMetric
+from geo_infer_norms.models.compliance_status import ComplianceMetric
 from geo_infer_norms.models.legal_entity import LegalEntity, Jurisdiction
 from geo_infer_norms.models.regulation import Regulation
 from geo_infer_norms.models.zoning import ZoningCode, ZoningDistrict

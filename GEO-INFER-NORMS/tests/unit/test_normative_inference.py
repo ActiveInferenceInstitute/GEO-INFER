@@ -5,7 +5,6 @@ This module tests the NormativeInference class and its methods for probabilistic
 reasoning about norms and regulations.
 """
 
-import pytest
 import datetime
 from shapely.geometry import Point, Polygon
 import numpy as np
@@ -323,8 +322,8 @@ class TestNormativeInference:
                 assert suggestion["current_compliance"] < 0.7
             
             # Check for specific norm suggestions if they exist
-            speed_suggestion = next((s for s in suggestions if s["norm_id"] == self.speed_limit_id), None)
-            helmet_suggestion = next((s for s in suggestions if s["norm_id"] == self.helmet_id), None)
+            _speed_suggestion = next((s for s in suggestions if s["norm_id"] == self.speed_limit_id), None)
+            _helmet_suggestion = next((s for s in suggestions if s["norm_id"] == self.helmet_id), None)
             
             # Removed specific assertions that these must exist
             # Original assertions removed:

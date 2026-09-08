@@ -2,8 +2,7 @@
 Unit tests for TestOrchestrator using standard and property-based testing.
 """
 
-import pytest
-from hypothesis import given, settings, strategies as st
+from hypothesis import given, strategies as st
 # Alias imports to avoid pytest collection warnings
 from geo_infer_test.core.test_orchestrator import (
     TestOrchestrator as _TestOrchestrator,

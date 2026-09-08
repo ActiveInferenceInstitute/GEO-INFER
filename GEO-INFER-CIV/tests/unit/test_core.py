@@ -2,7 +2,6 @@
 Unit tests for GEO-INFER-CIV core functionality.
 """
 
-import pytest
 
 from geo_infer_civ import __version__
 

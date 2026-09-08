@@ -2,7 +2,6 @@
 Unit tests for CognitiveMap and SpatialKnowledgeGraph.
 """
 
-import numpy as np
 import pytest
 
 from geo_infer_cog.models.cognitive_models import (

@@ -2,9 +2,6 @@
 Unit tests for the CognitiveProcessingEngine and CognitiveState.
 """
 
-import numpy as np
-import pytest
-from datetime import datetime
 
 from geo_infer_cog.core.cognitive_engine import CognitiveState, CognitiveProcessingEngine
 

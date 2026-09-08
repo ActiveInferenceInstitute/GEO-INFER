@@ -12,12 +12,10 @@ previously lacked focused acceptance tests:
 No mocks, stubs, or placeholders: every assertion exercises actual code paths.
 """
 
-import numpy as np
 import pytest
 
 from geo_infer_cog.core.spatial_reasoning import (
     SpatialReasoningEngine,
-    SpatialRelation,
 )
 from geo_infer_cog.core.cognitive_engine import CognitiveProcessingEngine
 from geo_infer_cog.models.user_profiles import UserCognitiveProfile

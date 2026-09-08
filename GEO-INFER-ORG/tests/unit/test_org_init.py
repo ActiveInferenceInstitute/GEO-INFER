@@ -16,10 +16,10 @@ class TestOrgImports:
     def test_import_organization(self):
         from geo_infer_org import (
             OrganizationModel,
-            OrgUnit,
-            Role,
-            OrgStructureType,
-            RoleLevel,
+            OrgUnit as OrgUnit,
+            Role as Role,
+            OrgStructureType as OrgStructureType,
+            RoleLevel as RoleLevel,
         )
 
         assert OrganizationModel is not None
@@ -30,9 +30,9 @@ class TestOrgImports:
         from geo_infer_org import (
             VotingEngine,
             ConsensusModel,
-            VotingMethod,
-            Vote,
-            Proposal,
+            VotingMethod as VotingMethod,
+            Vote as Vote,
+            Proposal as Proposal,
         )
 
         assert VotingEngine is not None
@@ -42,8 +42,8 @@ class TestOrgImports:
         from geo_infer_org import (
             CollaborationNetwork,
             TeamFormation,
-            TeamMember,
-            CollaborationEdge,
+            TeamMember as TeamMember,
+            CollaborationEdge as CollaborationEdge,
         )
 
         assert CollaborationNetwork is not None

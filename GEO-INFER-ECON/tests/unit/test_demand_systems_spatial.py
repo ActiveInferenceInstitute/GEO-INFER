@@ -104,7 +104,7 @@ class TestSacModel:
         rng = np.random.default_rng(seed)
         W = _contiguity_weights(n)
         X = np.column_stack([np.ones(n), rng.normal(size=n)])
-        rho, lam, beta = 0.5, 0.4, np.array([1.0, 2.0])
+        rho, _lam, beta = 0.5, 0.4, np.array([1.0, 2.0])
         u = np.linalg.solve(np.eye(n) - 0.4 * W, rng.normal(size=n))
         y = np.linalg.solve(np.eye(n) - rho * W, X @ beta) + u
         return X, y, W, rho

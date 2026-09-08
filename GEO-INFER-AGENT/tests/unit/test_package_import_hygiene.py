@@ -11,7 +11,6 @@ state is captured cleanly regardless of pytest's own logging configuration.
 """
 
 import json
-import logging
 import subprocess
 import sys
 import unittest

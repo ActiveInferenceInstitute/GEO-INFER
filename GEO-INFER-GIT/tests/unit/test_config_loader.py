@@ -11,7 +11,7 @@ import json
 import yaml
 import pytest
 from pathlib import Path
-from unittest.mock import patch, mock_open
+from unittest.mock import patch
 
 from geo_infer_git.utils.config_loader import (
     ConfigLoader, CloneConfig, TargetRepository, TargetUser,

@@ -3,7 +3,6 @@ Unit tests for TrafficAnalyzer, AccessibilityAnalyzer, and TransitOptimizer.
 """
 
 import pytest
-from datetime import datetime
 from geo_infer_transport.core.traffic import (
     TrafficAnalyzer,
     TrafficCondition,

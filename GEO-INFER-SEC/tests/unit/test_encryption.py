@@ -1,5 +1,4 @@
 """Tests for the encryption module."""
-import pytest
 
 from geo_infer_sec.core.encryption import (
     GeospatialEncryption,

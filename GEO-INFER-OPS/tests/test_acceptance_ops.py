@@ -13,7 +13,6 @@ No mocks, stubs, or placeholders: every assertion exercises actual code paths.
 """
 
 import socket
-import pytest
 
 from geo_infer_ops.core.monitoring import (
     is_port_in_use,

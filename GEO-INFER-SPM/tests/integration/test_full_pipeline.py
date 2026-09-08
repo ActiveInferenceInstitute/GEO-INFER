@@ -3,7 +3,6 @@ Integration tests for complete SPM analysis pipeline
 """
 
 import numpy as np
-import pytest
 import tempfile
 import json
 

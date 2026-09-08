@@ -23,7 +23,6 @@ from __future__ import annotations
 
 from typing import Iterable
 
-import pytest
 
 from geo_infer_risk import (
     crescent_city_hazard_weights,
@@ -33,10 +32,8 @@ from geo_infer_act import (
     hazard_policy_prior,
     parse_crescent_city_intel,
 )
-from geo_infer_bayes import (
-    build_hazard_prior_table,
-    load_crescent_city_intel,
-)
+from geo_infer_bayes import load_crescent_city_intel
+
 
 from geo_infer_act.core import civic_intel as act_civic
 from geo_infer_bayes import civic_intel as bayes_civic

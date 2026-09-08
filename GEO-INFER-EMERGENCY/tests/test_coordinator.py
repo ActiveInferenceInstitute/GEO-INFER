@@ -3,7 +3,6 @@ Unit tests for EmergencyCoordinator and ResourceDeployer.
 """
 
 import pytest
-from datetime import datetime
 from geo_infer_emergency.core.coordinator import (
     EmergencyCoordinator,
     Incident,

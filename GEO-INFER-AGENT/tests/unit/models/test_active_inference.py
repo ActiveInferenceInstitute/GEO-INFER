@@ -10,13 +10,9 @@ This module contains unit tests for:
 - ActiveInferenceAgent
 """
 
-import os
-import json
 import unittest
 import numpy as np
-import asyncio
 
-from datetime import datetime
 from copy import deepcopy
 
 from geo_infer_agent.models.active_inference import (

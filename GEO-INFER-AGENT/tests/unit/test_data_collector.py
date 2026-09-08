@@ -10,12 +10,9 @@ without external dependencies making network calls.
 """
 
 import asyncio
-import os
-import tempfile
 import unittest
 
-from geo_infer_agent.models.bdi import Belief, Desire, Plan
-from geo_infer_agent.models import BDIAgent, BDIState
+from geo_infer_agent.models import BDIAgent
 
 
 class TestDataCollectorConfig(unittest.TestCase):

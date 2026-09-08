@@ -1,9 +1,7 @@
 """Tests for WorkflowDefinition, ExecutionContext, and IntegrationPatterns."""
 
 import pytest
-import json
 import tempfile
-from pathlib import Path
 
 from geo_infer_examples.models.integration_models import (
     WorkflowDefinition,

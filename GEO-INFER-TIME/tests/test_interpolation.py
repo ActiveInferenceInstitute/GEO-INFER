@@ -185,7 +185,6 @@ class TestInterpolateSeasonal:
         interp = TemporalInterpolator()
         result = interp.interpolate_seasonal(ts, period=12, limit=1)
         # With limit=1 and consecutive gaps at 55,56,57, not all should be filled
-        df = result.to_dataframe()
         # At least some gaps should remain
         assert len(result) == len(ts)
 

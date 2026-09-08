@@ -1,11 +1,9 @@
 """Tests for professional development module."""
 
-import pytest
 from geo_infer_edu.core.professional import (
     ProfessionalDevelopment,
     ProfessionalProfile,
     CertificationPathway,
-    ContinuingEducationActivity,
 )
 
 

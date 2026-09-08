@@ -2,7 +2,6 @@
 Unit tests for validation utilities.
 """
 
-import pytest
 
 from geo_infer_cog.utils.validation import (
     validate_spatial_data,
@@ -12,7 +11,6 @@ from geo_infer_cog.utils.validation import (
     validate_polygon_coordinates,
     validate_cognitive_model,
     validate_user_profile,
-    validate_configuration,
     do_edges_intersect,
     check_data_completeness,
     generate_default_config,

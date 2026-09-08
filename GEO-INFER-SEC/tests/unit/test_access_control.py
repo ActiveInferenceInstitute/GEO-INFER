@@ -1,7 +1,5 @@
 """Tests for the access control module (RBAC and spatial permissions)."""
-import pytest
-from shapely.geometry import Polygon, Point
-import geopandas as gpd
+from shapely.geometry import Polygon
 
 from geo_infer_sec.core.access_control import (
     SpatialPermission,

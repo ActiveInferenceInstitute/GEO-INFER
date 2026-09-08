@@ -6,10 +6,8 @@ Validates caching behaviour: write/read, TTL expiry,
 key generation, cache stats, and clear_cache.
 """
 
-import json
 import time
 from datetime import timedelta
-from pathlib import Path
 
 import pytest
 

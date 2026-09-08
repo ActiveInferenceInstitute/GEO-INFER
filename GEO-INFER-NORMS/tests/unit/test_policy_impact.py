@@ -1,5 +1,4 @@
 """Tests for the policy impact analysis module."""
-import pytest
 import pandas as pd
 import geopandas as gpd
 from types import SimpleNamespace

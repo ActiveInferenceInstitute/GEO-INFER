@@ -2,7 +2,6 @@
 Unit tests for GEO-INFER-REQ core functionality.
 """
 
-import pytest
 
 
 class TestReqModule:

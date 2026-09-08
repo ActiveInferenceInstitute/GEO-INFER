@@ -1,7 +1,6 @@
 """Unit tests for the Agricultural Analysis core functionality."""
 
 import pytest
-import numpy as np
 import pandas as pd
 import geopandas as gpd
 

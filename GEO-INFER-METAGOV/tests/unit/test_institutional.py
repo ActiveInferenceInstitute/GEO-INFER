@@ -149,14 +149,14 @@ class TestInstitutionalDesigner:
     
     def test_multiple_analyses(self, designer, institutions, stakeholders):
         """Test creating multiple institutional analyses."""
-        analysis1 = designer.analyze_institutions(
+        designer.analyze_institutions(
             current_institutions=institutions,
             stakeholder_groups=stakeholders,
             resource_system={'name': 'Resource 1', 'id': 'r1'},
             decision_outcomes=[]
         )
         
-        analysis2 = designer.analyze_institutions(
+        designer.analyze_institutions(
             current_institutions=institutions,
             stakeholder_groups=stakeholders,
             resource_system={'name': 'Resource 2', 'id': 'r2'},

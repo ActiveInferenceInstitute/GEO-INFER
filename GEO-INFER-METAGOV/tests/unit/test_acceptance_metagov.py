@@ -42,7 +42,6 @@ from geo_infer_metagov.core.accountability import (
 from geo_infer_metagov.core.multi_level import (
     MultiLevelGovernanceFramework,
 )
-from geo_infer_metagov.core.institutional import InstitutionalDesigner
 
 
 # ---------------------------------------------------------------------------

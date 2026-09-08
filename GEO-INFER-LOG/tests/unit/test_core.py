@@ -2,10 +2,6 @@
 Unit tests for GEO-INFER-LOG core functionality.
 """
 
-import pytest
-import geopandas as gpd
-from shapely.geometry import Point
-
 from geo_infer_log import __version__
 
 

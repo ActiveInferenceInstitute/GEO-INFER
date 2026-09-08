@@ -3,7 +3,6 @@ Tests for the graph_theory module.
 """
 
 import numpy as np
-import pytest
 from geo_infer_math.core.graph_theory import (
     GraphNode, GraphEdge, SpatialGraph, NetworkFlow
 )

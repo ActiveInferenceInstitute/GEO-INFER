@@ -1,8 +1,6 @@
 """Tests for the audit logging module."""
-import pytest
 import json
 from datetime import datetime
-from pathlib import Path
 
 from geo_infer_sec.core.audit import (
     AuditEvent,

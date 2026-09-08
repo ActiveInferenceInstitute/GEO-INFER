@@ -1,7 +1,5 @@
 """Tests for optimization utilities."""
 
-import numpy as np
-import pytest
 from geo_infer_log.utils.geo import haversine_distance
 
 

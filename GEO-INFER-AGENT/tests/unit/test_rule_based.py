@@ -6,7 +6,6 @@ Tests for the rule-based agent: Rule matching, RuleSet, RuleBasedState.
 """
 
 import unittest
-from datetime import datetime
 
 from geo_infer_agent.models.rule_based import Rule, RuleBasedState, RuleSet
 

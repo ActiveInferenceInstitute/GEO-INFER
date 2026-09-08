@@ -2,7 +2,7 @@
 batch filtering, config key paths, candidate derivation, meter distances,
 and streaming API catalog honesty."""
 import asyncio
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 import h3
 import numpy as np
@@ -18,7 +18,6 @@ from geo_infer_iot import (
     StreamingAPI,
 )
 from geo_infer_iot.core.quality_control import QualityController
-from geo_infer_iot.core.registry import SensorRegistry
 
 
 def _measurement(sensor_id: str, score: float) -> Measurement:

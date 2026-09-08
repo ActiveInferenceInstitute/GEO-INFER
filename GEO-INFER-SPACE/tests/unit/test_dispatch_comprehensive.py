@@ -6,14 +6,12 @@ are correctly routed to the appropriate backend.
 """
 
 import pytest
-from typing import Dict, Any, List
 
 from geo_infer_space.core.dispatcher import (
     SpatialBackendDispatcher,
     get_backend_dispatcher,
     reset_dispatcher,
 )
-from geo_infer_space.backends.h3.h3_backend import H3Backend
 from geo_infer_space.core.analytics import SpatialAnalyticsInterface
 from geo_infer_space.core.geometric_operations import GeometricOperationsInterface
 from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface

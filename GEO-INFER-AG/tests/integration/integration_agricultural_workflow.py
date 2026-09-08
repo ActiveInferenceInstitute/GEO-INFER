@@ -1,10 +1,7 @@
 """Integration test for a complete agricultural analysis workflow."""
 
-import pytest
 import os
 import numpy as np
-import pandas as pd
-import geopandas as gpd
 import tempfile
 from shapely.geometry import Polygon
 import matplotlib.pyplot as plt
@@ -28,14 +25,14 @@ class TestAgriculturalWorkflow:
         fbm = FieldBoundaryManager(fields=sample_field_data)
         
         # Add a new field
-        new_field_id = fbm.add_field(
+        fbm.add_field(
             geometry=Polygon([(50, 0), (50, 10), (60, 10), (60, 0)]),
             name="New Field",
             crop_type="corn"
         )
         
         # Get neighboring fields
-        neighbors = fbm.get_neighboring_fields("field_1", buffer_distance=50.0)
+        fbm.get_neighboring_fields("field_1", buffer_distance=50.0)
         
         # Export fields to a temporary file
         with tempfile.NamedTemporaryFile(suffix='.shp', delete=False) as tmp:

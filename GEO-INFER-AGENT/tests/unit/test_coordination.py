@@ -9,7 +9,6 @@ import asyncio
 import unittest
 
 from geo_infer_agent.core.agent_registry import AgentRegistry
-from geo_infer_agent.core.agent_base import ExampleAgent
 
 
 class TestAgentRegistry(unittest.TestCase):

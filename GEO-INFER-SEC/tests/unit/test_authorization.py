@@ -3,7 +3,7 @@ import os
 import pytest
 
 from geo_infer_sec.core.authorization import AuthorizationManager, PermissionType
-from geo_infer_sec.core.access_control import GeospatialAccessManager, Role, SpatialPermission
+from geo_infer_sec.core.access_control import Role, SpatialPermission
 
 
 @pytest.fixture

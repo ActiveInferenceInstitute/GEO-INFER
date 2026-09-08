@@ -2,7 +2,6 @@ import pytest
 import json
 from pathlib import Path
 from geo_infer_space.core.unified_backend import UnifiedH3Backend
-import tempfile
 import shutil
 from importlib.metadata import version
 

@@ -1,6 +1,5 @@
 """Tests for exercise generator module."""
 
-import pytest
 from geo_infer_edu.core.exercises import (
     ExerciseGenerator,
     ExerciseType,

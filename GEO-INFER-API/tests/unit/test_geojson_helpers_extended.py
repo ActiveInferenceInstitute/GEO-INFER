@@ -1,7 +1,6 @@
 """
 Extended unit tests for geojson_helpers covering buffer, intersection, union, and distance.
 """
-import math
 import pytest
 
 from geo_infer_api.models.geojson import GeoJSONType, Polygon

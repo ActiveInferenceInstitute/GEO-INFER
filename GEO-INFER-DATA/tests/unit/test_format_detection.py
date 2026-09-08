@@ -4,7 +4,6 @@ Tests for FormatDetector in geo_infer_data.utils.format_detection.
 
 import json
 import tempfile
-from pathlib import Path
 
 import numpy as np
 import pandas as pd

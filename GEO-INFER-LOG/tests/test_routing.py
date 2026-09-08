@@ -5,7 +5,6 @@ Tests for the GEO-INFER-LOG routing module.
 import pytest
 import networkx as nx
 import numpy as np
-from datetime import datetime
 
 from geo_infer_log.core.routing import (
     Vehicle,

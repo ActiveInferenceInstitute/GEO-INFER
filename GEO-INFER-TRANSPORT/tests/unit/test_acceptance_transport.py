@@ -23,14 +23,10 @@ from geo_infer_transport.core.traffic import (
 )
 from geo_infer_transport.core.network import (
     TransportNetwork,
-    RoadClass,
-    TransportMode,
 )
 from geo_infer_transport.core.routing import (
     RoutingEngine,
     Route,
-    RoutingAlgorithm,
-    OptimizationCriteria,
 )
 
 

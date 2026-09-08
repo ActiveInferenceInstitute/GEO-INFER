@@ -9,7 +9,6 @@ as ``agent_id``.  The helper below patches the attribute for compatibility.
 """
 
 import unittest
-from datetime import datetime
 
 from geo_infer_agent.core.agent_base import ExampleAgent
 from geo_infer_agent.models.hybrid import HybridState, SubAgentWrapper

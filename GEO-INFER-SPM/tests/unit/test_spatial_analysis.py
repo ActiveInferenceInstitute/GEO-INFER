@@ -4,7 +4,6 @@ Unit tests for spatial analysis functionality
 
 import numpy as np
 import pytest
-from scipy.spatial.distance import pdist
 
 from geo_infer_spm.models.data_models import SPMData
 from geo_infer_spm.core.spatial_analysis import SpatialAnalyzer
@@ -60,7 +59,7 @@ class TestSpatialAnalyzer:
     def test_spatial_weights_creation(self):
         """Test spatial weights matrix creation."""
         # Estimate variogram first
-        variogram = self.analyzer.estimate_variogram(self.data)
+        _variogram = self.analyzer.estimate_variogram(self.data)
 
         # Create weights
         weights = self.analyzer.create_spatial_weights()

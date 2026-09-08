@@ -5,7 +5,6 @@ Tests for validation, utility, directed edge, coordinate, and geometric methods.
 """
 
 import pytest
-import numpy as np
 from geo_infer_space.backends.h3.h3_backend import H3Backend
 
 

@@ -1,5 +1,4 @@
 """Tests for IoT sensor registry module."""
-import pytest
 
 from geo_infer_iot.core.registry import (
     SensorRegistry,

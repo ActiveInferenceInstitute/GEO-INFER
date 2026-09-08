@@ -5,10 +5,9 @@ Covers: configuration → factory → interface → visualization → API,
 verifying that the components work together end-to-end.
 """
 
-import math
 import pytest
 
-from geo_infer_app.models.agent_interface import AgentState, AgentType
+from geo_infer_app.models.agent_interface import AgentType
 from geo_infer_app.models.agent_factory import AgentFactory
 from geo_infer_app.models.agent_configuration import AgentConfiguration
 from geo_infer_app.models.agent_visualization import AgentVisualization

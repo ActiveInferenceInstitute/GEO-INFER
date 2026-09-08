@@ -5,8 +5,6 @@ from geo_infer_insurance.underwriting.core.claims_processing import (
     ClaimStatus,
     ClaimsProcessor,
     ClaimsProcessingConfig,
-    Payment,
-    Reserve,
 )
 from geo_infer_insurance.underwriting.core.pricing_engine import PricingEngine
 
@@ -90,7 +88,6 @@ class TestClaimsLifecycle:
             assert processor.settle_claim(claim.claim_id, 1500.0) is False
             return
 
-        import uuid
 
         reserves_before = claim.calculate_total_reserves()
         assert processor.settle_claim(claim.claim_id, 1500.0, "agreed") is True

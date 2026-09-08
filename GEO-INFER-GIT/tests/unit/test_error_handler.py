@@ -1,5 +1,4 @@
 """Tests for GIT error handling utilities."""
-import pytest
 
 from geo_infer_git.utils.error_handler import (
     ValidationError,

@@ -7,7 +7,6 @@ test cases across DataQuality, Spatial, IoT, Bayesian, Performance,
 and QualityController validators.
 """
 
-import math
 import pytest
 import numpy as np
 import pandas as pd

@@ -1,6 +1,6 @@
 import pytest
 import geopandas as gpd
-from shapely.geometry import Point, Polygon
+from shapely.geometry import Point
 from geo_infer_space.core.spatial_processor import SpatialProcessor
 
 @pytest.fixture

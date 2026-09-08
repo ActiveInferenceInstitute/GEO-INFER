@@ -1,6 +1,4 @@
 """Tests for the core PEP engine data manager."""
-import pytest
-from datetime import datetime, date
 
 from geo_infer_pep.core.pep_engine import PEPDataManager
 from geo_infer_pep.models.hr_models import Employee, EmploymentStatus

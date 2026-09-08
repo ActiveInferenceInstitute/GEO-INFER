@@ -2,7 +2,6 @@
 Unit tests for SpatialDecisionSupport, DecisionAlternative, and DecisionRecommendation.
 """
 
-import numpy as np
 import pytest
 
 from geo_infer_cog.decision.support import (

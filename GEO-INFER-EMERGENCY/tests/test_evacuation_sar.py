@@ -7,17 +7,14 @@ from datetime import datetime
 from geo_infer_emergency.core.evacuation import (
     EvacuationPlanner,
     EvacuationZone,
-    Shelter,
     EvacuationLevel
 )
 from geo_infer_emergency.core.awareness import (
     SituationalAwareness,
     ThreatLevel,
-    DataSource
 )
 from geo_infer_emergency.core.sar import (
     SearchAndRescue,
-    SearchPattern,
     SubjectType
 )
 

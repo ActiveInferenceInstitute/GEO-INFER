@@ -3,11 +3,9 @@
 Unit tests for the ColorPalette class in geo_infer_art.core.aesthetics.color_palette.
 """
 
-import os
 import tempfile
 import unittest
 import numpy as np
-import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 
 from geo_infer_art.core.aesthetics.color_palette import ColorPalette

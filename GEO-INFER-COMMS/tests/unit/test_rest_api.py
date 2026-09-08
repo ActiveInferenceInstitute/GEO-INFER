@@ -2,7 +2,6 @@
 
 import asyncio
 import inspect
-import os
 import time
 from types import SimpleNamespace
 

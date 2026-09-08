@@ -11,7 +11,7 @@ import argparse
 import subprocess
 import time
 from pathlib import Path
-from typing import List, Optional, Dict, Any
+from typing import List
 
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""

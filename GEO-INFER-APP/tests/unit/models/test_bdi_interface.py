@@ -5,7 +5,6 @@ Unit tests for BDI agent interface.
 import builtins
 import importlib.util
 import unittest
-import json
 from pathlib import Path
 
 from geo_infer_app.models.agent_interface import AgentType, AgentState

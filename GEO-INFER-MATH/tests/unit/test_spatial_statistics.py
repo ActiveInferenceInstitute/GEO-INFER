@@ -512,9 +512,6 @@ class TestAPIIntegration:
         """Test API request/response data models."""
         from geo_infer_math.api.spatial_analysis import (
             DescriptiveStatsRequest, DescriptiveStatsResponse,
-            AutocorrelationRequest, AutocorrelationResponse,
-            HotspotAnalysisRequest, HotspotAnalysisResponse,
-            ClusteringRequest, ClusteringResponse
         )
 
         # Test request models

@@ -4,7 +4,6 @@ Tests for cloud storage connectors in geo_infer_data.connectors.cloud.
 
 import asyncio
 
-import boto3
 import pytest
 
 from geo_infer_data.connectors.cloud import (

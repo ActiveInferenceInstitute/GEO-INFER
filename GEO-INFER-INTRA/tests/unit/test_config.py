@@ -1,10 +1,7 @@
 """Unit tests for configuration utilities."""
 
 import pytest
-import os
-import tempfile
 import yaml
-import json
 
 # Assuming the module structure we've defined
 from geo_infer_intra.utils import config

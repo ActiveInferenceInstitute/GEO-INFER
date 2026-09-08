@@ -7,12 +7,9 @@ validators and statistical assertions.  Each domain × check produces
 multiple parametrized test cases.
 """
 
-import math
 import pytest
-import numpy as np
 import pandas as pd
-from datetime import datetime, timezone, timedelta
-from geo_infer_test.core.validators import DataQualityValidator, SpatialValidator
+from geo_infer_test.core.validators import DataQualityValidator
 
 # ============================================================================
 # Domain-level structural validation

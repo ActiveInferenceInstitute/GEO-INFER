@@ -11,10 +11,8 @@ from __future__ import annotations
 
 import time
 import numpy as np
-import pytest
 import h3
 
-from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
 from geo_infer_math.core.geometry import points_in_polygon_vectorized
 
 

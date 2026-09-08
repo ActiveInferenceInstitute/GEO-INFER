@@ -6,8 +6,6 @@ SimulationEngine over multiple scenarios with distinct seeds and compares
 results.
 """
 
-import numpy as np
-
 from geo_infer_sim.core.simulation_engine import SimulationConfig, SimulationEngine
 from geo_infer_sim.scenarios.scenario_manager import ScenarioManager
 

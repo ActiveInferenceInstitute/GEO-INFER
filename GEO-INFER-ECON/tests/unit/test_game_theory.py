@@ -1,7 +1,6 @@
 """Tests for game theory module."""
 
 import numpy as np
-import pytest
 from geo_infer_econ.microeconomics.game_theory import (
     Game,
     NashEquilibrium,

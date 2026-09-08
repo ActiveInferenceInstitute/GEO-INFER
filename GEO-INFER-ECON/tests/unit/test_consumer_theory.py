@@ -1,7 +1,6 @@
 """Tests for consumer theory module."""
 
 import numpy as np
-import pytest
 from geo_infer_econ.microeconomics.consumer_theory import (
     UtilityFunctions,
     DemandFunctions,

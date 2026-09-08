@@ -7,7 +7,6 @@ from geo_infer_org.core.governance import (
     VotingMethod,
     Vote,
     Proposal,
-    DecisionStatus,
 )
 
 

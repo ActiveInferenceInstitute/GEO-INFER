@@ -1,9 +1,7 @@
 """Unit tests for time series utilities."""
 
 import pytest
-import sys
 import datetime
-from pathlib import Path
 
 from geo_infer_intra.utils.time_series_utils import (
     create_iso8601_timestamp,

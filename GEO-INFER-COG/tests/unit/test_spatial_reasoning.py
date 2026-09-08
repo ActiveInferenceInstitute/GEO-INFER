@@ -2,8 +2,6 @@
 Unit tests for spatial reasoning: SpatialRelation, ReasoningStep, SpatialReasoningEngine.
 """
 
-import numpy as np
-import pytest
 
 from geo_infer_cog.core.spatial_reasoning import (
     SpatialRelation,

@@ -2,7 +2,6 @@
 Unit tests for spatial memory: SpatialMemoryItem, MemoryConsolidation, SpatialMemoryModel.
 """
 
-import numpy as np
 import pytest
 from datetime import datetime, timedelta
 

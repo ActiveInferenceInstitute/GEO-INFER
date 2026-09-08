@@ -5,7 +5,6 @@ This module tests the LegalFramework and JurisdictionHandler classes and their m
 for managing legal frameworks and jurisdictions.
 """
 
-import pytest
 from shapely.geometry import Point, Polygon, MultiPolygon
 import geopandas as gpd
 import datetime

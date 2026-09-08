@@ -1,14 +1,11 @@
 import unittest
 from pathlib import Path
-import geopandas as gpd
-from shapely.geometry import Polygon
 from geo_infer_space.core.unified_backend import UnifiedH3Backend
 from geo_infer_space.core.base_module import BaseAnalysisModule
 import tempfile
 import shutil
 import json
 import pytest
-import os
 
 class MockModule(BaseAnalysisModule):
     def acquire_raw_data(self) -> Path:

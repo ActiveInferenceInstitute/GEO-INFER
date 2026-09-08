@@ -12,7 +12,7 @@ Verifies full multi-module composition with zero mock leakage and strict H3 v4 c
 from __future__ import annotations
 
 import datetime
-from typing import Any, Dict, List
+from typing import Dict
 import numpy as np
 import pandas as pd
 import pytest
@@ -20,30 +20,30 @@ import pytest
 import h3
 
 # Module Imports
-import geo_infer_space as space
+import geo_infer_space as geo_infer_space
 from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
-from geo_infer_space.core.analytics import SpatialAnalyticsInterface
-from geo_infer_space.nested import NestedH3Grid, HierarchyManager
-from geo_infer_space.backends.h3.h3_backend import H3Backend
+from geo_infer_space.core.analytics import SpatialAnalyticsInterface as SpatialAnalyticsInterface
+from geo_infer_space.nested import NestedH3Grid, HierarchyManager as HierarchyManager
+from geo_infer_space.backends.h3.h3_backend import H3Backend as H3Backend
 
-import geo_infer_time as time_mod
+import geo_infer_time as geo_infer_time
 from geo_infer_time.models.timeseries import TimeSeries
 from geo_infer_time.core.stream_processing import StreamProcessor
-from geo_infer_time.core.event_detection import EventDetector
+from geo_infer_time.core.event_detection import EventDetector as EventDetector
 
-import geo_infer_bayes as bayes
+import geo_infer_bayes as geo_infer_bayes
 from geo_infer_bayes.models.spatial_gp import SpatialGP
-from geo_infer_bayes.core.inference import BayesianInference
+from geo_infer_bayes.core.inference import BayesianInference as BayesianInference
 from geo_infer_bayes.utils.rng import resolve_rng as resolve_bayes_rng
 
-import geo_infer_risk as risk
+import geo_infer_risk as geo_infer_risk
 from geo_infer_risk.core.exposure_model import EnhancedExposureModel
-from geo_infer_risk.core.hazard_model import EnhancedHazardModel
-from geo_infer_risk.core.vulnerability_model import EnhancedVulnerabilityModel
-from geo_infer_risk.core.risk_engine import EnhancedRiskEngine
-from geo_infer_risk.utils.risk_metrics import calculate_ep_curve, calculate_aal
+from geo_infer_risk.core.hazard_model import EnhancedHazardModel as EnhancedHazardModel
+from geo_infer_risk.core.vulnerability_model import EnhancedVulnerabilityModel as EnhancedVulnerabilityModel
+from geo_infer_risk.core.risk_engine import EnhancedRiskEngine as EnhancedRiskEngine
+from geo_infer_risk.utils.risk_metrics import calculate_ep_curve, calculate_aal as calculate_aal
 
-import geo_infer_act as act
+import geo_infer_act as geo_infer_act
 from geo_infer_act.utils.h3_adapter import get_h3_adapter
 from geo_infer_act.core.generative_model import GenerativeModel
 from geo_infer_act.core.active_inference import ActiveInferenceModel
@@ -159,7 +159,7 @@ def test_space_risk_catastrophe_modeling_composition(h3_spatial_domain):
             "occupancy_type": "commercial",
             "hazard_zone": "coastal_flood",
         })
-    exposure_df = pd.DataFrame(portfolio)
+    _exposure_df = pd.DataFrame(portfolio)
 
     exposure_model = EnhancedExposureModel(
         exposure_type="property",

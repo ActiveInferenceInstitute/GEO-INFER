@@ -1,5 +1,4 @@
 """Tests for COMMS channel system."""
-import pytest
 
 from geo_infer_comms.core.channels import ChannelManager, ChannelPermissionManager
 from geo_infer_comms.models.message import (

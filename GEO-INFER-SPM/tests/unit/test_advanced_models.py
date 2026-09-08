@@ -89,8 +89,8 @@ class TestMixedEffectsSPM:
         model1 = MixedEffectsSPM(self.design_matrix, self.random_groups)
         model2 = MixedEffectsSPM(self.design_matrix, {})  # No random effects
 
-        result1 = model1.fit(self.spm_data)
-        result2 = model2.fit(self.spm_data)
+        _result1 = model1.fit(self.spm_data)
+        _result2 = model2.fit(self.spm_data)
 
         anova_result = model1.anova(model2)
 

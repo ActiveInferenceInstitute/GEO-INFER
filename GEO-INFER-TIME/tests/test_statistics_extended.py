@@ -8,7 +8,6 @@ and edge cases (constant series, short series, zero variance).
 
 import pytest
 import numpy as np
-from scipy import stats as sp_stats
 
 from geo_infer_time.core.statistics import TemporalStatistics
 
@@ -253,7 +252,7 @@ class TestInformationCriteriaExtended:
         """BIC penalizes more than AIC for n > ~8 (log(n) > 2)."""
         np.random.seed(42)
         residuals = list(np.random.randn(100))
-        result = stats.information_criteria(residuals, num_params=5)
+        stats.information_criteria(residuals, num_params=5)
         # BIC penalty = k*log(n) vs AIC penalty = 2k
         # For n=100, log(100)=4.6 > 2 so BIC > AIC
         bic_penalty = 5 * np.log(100)

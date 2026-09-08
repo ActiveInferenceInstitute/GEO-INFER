@@ -1,6 +1,5 @@
 """Tests for IoT data ingestion engine."""
 import pytest
-import asyncio
 from datetime import datetime, timezone
 
 from geo_infer_iot.core.ingestion import IoTDataIngestion, SensorMeasurement

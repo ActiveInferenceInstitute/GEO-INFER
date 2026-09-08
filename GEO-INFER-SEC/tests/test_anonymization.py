@@ -4,10 +4,8 @@ Unit tests for the anonymization module.
 
 import unittest
 import numpy as np
-import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point, Polygon
-import h3
 
 from geo_infer_sec.core.anonymization import GeospatialAnonymizer
 

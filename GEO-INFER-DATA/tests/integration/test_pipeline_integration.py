@@ -5,7 +5,6 @@ Tests the full flow: load -> transform -> validate -> output.
 """
 
 import asyncio
-from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -134,8 +133,7 @@ class TestCompressionFormatIntegration:
         compressor = DataCompressor(algorithm="gzip")
 
         data = {"type": "FeatureCollection", "features": []}
-        fmt = detector.detect_format(data)
-
+        detector.detect_format(data)
         compressed = compressor.compress_data(data)
         assert isinstance(compressed, bytes)
 

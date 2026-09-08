@@ -7,10 +7,8 @@ Tests for plan generation, selection, and execution in BDI agents.
 
 import asyncio
 import unittest
-from datetime import datetime, timedelta
 
-from geo_infer_agent.models.bdi.agent import Plan, Belief, Desire
-from geo_infer_agent.models import BDIAgent, BDIState
+from geo_infer_agent.models import BDIAgent
 
 
 class TestPlanLibrary(unittest.TestCase):

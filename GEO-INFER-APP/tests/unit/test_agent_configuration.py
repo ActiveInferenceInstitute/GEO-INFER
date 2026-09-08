@@ -1,9 +1,7 @@
 """Tests for agent configuration schemas and validation."""
 
-import pytest
 from geo_infer_app.models.agent_configuration import (
     AgentConfiguration,
-    AgentConfigSchema,
     ConfigField,
     ConfigFieldType,
 )
@@ -68,7 +66,7 @@ class TestAgentConfiguration:
         assert any("must be a number" in e for e in errors)
 
     def test_validate_geolocation_field(self):
-        schema = AgentConfiguration.get_schema(AgentType.BDI)
+        AgentConfiguration.get_schema(AgentType.BDI)
         errors = AgentConfiguration.validate_config(AgentType.BDI, {
             "name": "Geo Agent",
             "initial_location": {"lat": 40.7128, "lng": -74.0060},

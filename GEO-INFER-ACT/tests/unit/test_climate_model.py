@@ -6,7 +6,6 @@ using Active Inference with temperature and CO2 state factors.
 """
 
 import numpy as np
-import pytest
 
 from geo_infer_act.models.climate import ClimateModel
 from geo_infer_act.core.active_inference import ActiveInferenceModel

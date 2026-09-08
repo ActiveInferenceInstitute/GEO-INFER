@@ -5,7 +5,6 @@ import pytest
 import pandas as pd
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-from Bio.Align import MultipleSeqAlignment
 
 from geo_infer_bio.core.sequence_analysis import SequenceAnalyzer
 

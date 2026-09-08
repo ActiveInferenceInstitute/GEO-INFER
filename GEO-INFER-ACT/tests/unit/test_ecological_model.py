@@ -6,7 +6,6 @@ using Active Inference with hidden states for resources and predation risk.
 """
 
 import numpy as np
-import pytest
 
 from geo_infer_act.models.ecological import EcologicalModel
 

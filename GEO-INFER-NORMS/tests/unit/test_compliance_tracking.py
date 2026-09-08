@@ -1,7 +1,6 @@
 """Tests for the compliance tracking module."""
 import datetime
 import uuid
-import pytest
 
 from geo_infer_norms.core.compliance_tracking import ComplianceTracker, ComplianceReport
 from geo_infer_norms.models.compliance_status import ComplianceStatus, ComplianceMetric

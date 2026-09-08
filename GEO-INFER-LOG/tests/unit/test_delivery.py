@@ -1,6 +1,5 @@
 """Tests for delivery module."""
 
-import pytest
 from geo_infer_log.core.delivery import (
     LastMileRouter,
     DeliveryScheduler,

@@ -1,5 +1,4 @@
 """Tests for security input validation and sanitization."""
-import pytest
 
 
 class TestInputSanitization:

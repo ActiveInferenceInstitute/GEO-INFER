@@ -47,7 +47,6 @@ class TestModelExplainer:
         assert isinstance(importances, dict)
         assert len(importances) == 5
         # Feature 0 should be most important
-        keys = list(importances.keys())
         assert all(isinstance(v, (float, np.floating)) for v in importances.values())
 
     def test_calculate_feature_importance_coefficient(self) -> None:

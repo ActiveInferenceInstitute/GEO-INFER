@@ -15,7 +15,6 @@ These surface emergent behaviour across successive updates:
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from geo_infer_act.core.policy_selection import PolicySelector
 from geo_infer_act.core.spatial_agent import SpatialActiveInferenceAgent

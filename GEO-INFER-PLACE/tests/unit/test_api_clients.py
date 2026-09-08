@@ -7,7 +7,7 @@ and retry logic (using a mock HTTP server).
 """
 
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
 
 from geo_infer_place.core.api_clients import (
     CaliforniaAPIManager,

@@ -1,5 +1,4 @@
 """Shared pytest fixtures for GEO-INFER-PLACE tests."""
-import tempfile
 from pathlib import Path
 from typing import Dict, Any, List
 

@@ -1,6 +1,5 @@
 """Tests for accessibility analysis module."""
 
-import pytest
 import math
 from geo_infer_transport.core.accessibility import (
     AccessibilityAnalyzer,

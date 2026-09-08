@@ -5,7 +5,6 @@ Verifies export of GeoJSON data to formats usable for visualization.
 """
 import json
 import os
-import pytest
 from tempfile import NamedTemporaryFile
 
 from geo_infer_api.models.geojson import (

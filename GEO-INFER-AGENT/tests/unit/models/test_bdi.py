@@ -6,9 +6,7 @@ Unit tests for BDI agent.
 """
 
 import pytest
-import asyncio
 from datetime import datetime, timedelta
-import json
 
 # BDIState and BDIAgent are in bdi.py file, import from models package
 from geo_infer_agent.models import BDIState, BDIAgent
@@ -443,7 +441,7 @@ class TestBDIAgent:
         agent.state.set_current_intention(plan)
         
         # Perceive - in a real scenario, this would get data from sensors
-        perceptions = await agent.perceive()
+        await agent.perceive()
         
         # Decide
         action = await agent.decide()

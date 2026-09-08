@@ -1,6 +1,5 @@
 """Tests for the policy analysis engine."""
 
-import numpy as np
 import pytest
 from geo_infer_econ.core.policy_engine import (
     PolicyAnalysisEngine,

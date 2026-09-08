@@ -1,5 +1,4 @@
 """Tests for IoT quality control module."""
-import pytest
 
 from geo_infer_iot.core.quality_control import *  # noqa - import available QC classes
 

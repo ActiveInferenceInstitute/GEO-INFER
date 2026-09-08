@@ -2,8 +2,6 @@
 Unit tests for GEO-INFER-COMMS core functionality.
 """
 
-import pytest
-
 from geo_infer_comms import __version__, GeospatialCommunicationSystem
 
 

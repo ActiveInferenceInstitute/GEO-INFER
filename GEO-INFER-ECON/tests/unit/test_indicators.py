@@ -1,7 +1,6 @@
 """Tests for economic indicators utility module."""
 
 import numpy as np
-import pandas as pd
 import pytest
 from geo_infer_econ.utils.indicators import EconomicIndicators
 

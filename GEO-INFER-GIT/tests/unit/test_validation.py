@@ -1,5 +1,4 @@
 """Tests for GIT validation utilities."""
-import pytest
 
 from geo_infer_git.utils.validation import (
     ConfigValidator,

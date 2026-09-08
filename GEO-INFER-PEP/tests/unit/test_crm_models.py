@@ -1,6 +1,4 @@
 """Tests for PEP CRM data models."""
-import pytest
-from datetime import datetime
 
 from geo_infer_pep.models.crm_models import (
     Customer,

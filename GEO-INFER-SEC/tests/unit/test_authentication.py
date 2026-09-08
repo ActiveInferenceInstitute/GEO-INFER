@@ -5,13 +5,10 @@ Unit tests for authentication functionality.
 import base64
 
 import pytest
-from datetime import datetime, timedelta
 
 from geo_infer_sec.core.authentication import (
     generate_totp,
     AuthenticationManager,
-    UserCredentials,
-    TokenInfo,
 )
 
 

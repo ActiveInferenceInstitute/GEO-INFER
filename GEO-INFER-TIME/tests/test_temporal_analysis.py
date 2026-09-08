@@ -5,14 +5,12 @@ Tests for the GEO-INFER-TIME temporal analysis module.
 import pytest
 import numpy as np
 import pandas as pd
-from datetime import datetime, timedelta
 
 from geo_infer_time.core.analysis import (
     TemporalAnalyzer,
-    AnomalyType,
-    Anomaly
+    AnomalyType
 )
-from geo_infer_time.models.timeseries import TimeSeries
+
 
 
 class MockTimeSeries:

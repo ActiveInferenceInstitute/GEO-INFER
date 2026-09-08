@@ -4,7 +4,6 @@ import pytest
 import time
 import random
 from typing import List, Dict, Any
-from pathlib import Path
 
 from geo_infer_intra.utils.geospatial_utils import (
     create_point,

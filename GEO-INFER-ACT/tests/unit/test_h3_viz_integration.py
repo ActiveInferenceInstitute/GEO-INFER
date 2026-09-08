@@ -13,7 +13,6 @@ from pathlib import Path
 
 import h3
 import numpy as np
-import pytest
 
 from geo_infer_act import H3GridInferenceResult, H3BeliefUpdateResult
 from geo_infer_act.core.generative_model import GenerativeModel

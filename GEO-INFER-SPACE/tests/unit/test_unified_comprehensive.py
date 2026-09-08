@@ -6,8 +6,6 @@ and the H3Backend implementation using the unified dispatch system.
 """
 
 import pytest
-import math
-from typing import List, Dict, Any, Tuple
 
 from geo_infer_space.core import get_backend_dispatcher, SpatialIndexingInterface
 

@@ -449,8 +449,6 @@ class TestRadiationMonitoringSystem(unittest.TestCase):
 
     def test_system_health_validation(self):
         """Test system health validation."""
-        # Generate some data first
-        measurements = build_radiation_measurements(10)
 
         # Process some measurements
         self.monitoring_system.metrics["measurements_processed"] = 10

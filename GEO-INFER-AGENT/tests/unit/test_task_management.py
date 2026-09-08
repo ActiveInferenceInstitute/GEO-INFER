@@ -6,9 +6,8 @@ Tests for task management: Plan creation, assignment, advancement, and completio
 """
 
 import unittest
-from datetime import datetime, timedelta
 
-from geo_infer_agent.models.bdi.agent import Plan, Desire, Belief
+from geo_infer_agent.models.bdi.agent import Plan
 from geo_infer_agent.models import BDIState
 
 

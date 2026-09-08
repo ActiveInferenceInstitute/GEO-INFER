@@ -5,12 +5,10 @@
 Unit tests for repository cloner.
 """
 
-import os
 import tempfile
 import shutil
 from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
-import pytest
+from unittest.mock import Mock, patch
 
 from geo_infer_git.core.repo_cloner import RepoCloner, CloneProgress
 from geo_infer_git.utils.config_loader import CloneConfig

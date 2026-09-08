@@ -1,7 +1,6 @@
 """Tests for behavioral economics module."""
 
 import numpy as np
-import pytest
 from geo_infer_econ.microeconomics.behavioral_economics import (
     ProspectTheory,
     BehavioralParameters,

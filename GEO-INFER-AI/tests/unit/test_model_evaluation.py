@@ -6,7 +6,7 @@ from typing import List
 
 import numpy as np
 import pytest
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.ensemble import RandomForestRegressor
 
 from geo_infer_ai.core.model_evaluation import GeospatialModelEvaluator
 

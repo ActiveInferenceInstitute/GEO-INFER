@@ -7,7 +7,6 @@ and pattern detection statistics.
 
 import pytest
 import numpy as np
-from typing import List
 
 from geo_infer_space.core.statistics import SpatialStatistics
 from geo_infer_space.core.dispatcher import get_backend_dispatcher, reset_dispatcher

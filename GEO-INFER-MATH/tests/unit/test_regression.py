@@ -325,7 +325,6 @@ class TestRegressionRobustness:
         """Test models with small datasets."""
         X = np.random.randn(5, 2)
         y = X @ np.array([1, -1]) + 0.1 * np.random.randn(5)
-        coords = np.random.rand(5, 2)
 
         # OLS should work with small data
         model = OrdinaryLeastSquares()

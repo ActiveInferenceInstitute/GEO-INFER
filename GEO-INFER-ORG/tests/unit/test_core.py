@@ -2,8 +2,6 @@
 Unit tests for GEO-INFER-ORG core functionality.
 """
 
-import pytest
-
 
 class TestOrgModule:
     """Test basic module functionality."""

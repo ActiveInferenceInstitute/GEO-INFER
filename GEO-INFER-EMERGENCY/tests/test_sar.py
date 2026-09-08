@@ -1,6 +1,5 @@
 """Tests for search and rescue module."""
 
-import pytest
 from geo_infer_emergency.core.sar import (
     SearchAndRescue,
     SearchPattern,

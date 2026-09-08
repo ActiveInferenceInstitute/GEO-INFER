@@ -2,8 +2,6 @@
 Unit tests for spatial perception models: SpatialPercept, AttentionModel, SpatialPerceptionModel.
 """
 
-import numpy as np
-import pytest
 
 from geo_infer_cog.core.spatial_perception import (
     SpatialPercept,

@@ -5,8 +5,6 @@ This module tests the ZoningAnalyzer and LandUseClassifier classes and their met
 for analyzing zoning districts and land use patterns.
 """
 
-import pytest
-import numpy as np
 import geopandas as gpd
 from shapely.geometry import Polygon, Point
 import matplotlib.pyplot as plt

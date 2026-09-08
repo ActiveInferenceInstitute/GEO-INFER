@@ -28,8 +28,6 @@ from geo_infer_sec.core.cognitive_security import (
 from geo_infer_sec.models.security_models import (
     SecurityEvent,
     SecurityEventCategory,
-    ThreatLevel,
-    SecurityAlert,
 )
 from geo_infer_sec.models.risk_assessment import (
     RiskAssessment,

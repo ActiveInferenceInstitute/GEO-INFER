@@ -225,7 +225,6 @@ class TestPosteriorAnalysisUncertainty:
         # A posterior is normally built by inference; here the model holds the
         # training data and the fake posterior supplies draws.
         posterior = PosteriorAnalysis(model, gp_posterior.samples, None, "mcmc")
-        held_lo, held_hi = X[:6].copy(), X[:6].copy()  # only asks for interval, not data
         cov = posterior.predictive_interval(X[:6], level=0.9, samples=100, random_seed=0)
         assert cov[0].shape == (6,)
         assert np.all(cov[1] <= cov[0]) and np.all(cov[0] <= cov[2])

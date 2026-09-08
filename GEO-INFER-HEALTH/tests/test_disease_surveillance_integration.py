@@ -7,8 +7,7 @@ Uses real Pydantic models and geospatial utilities instead of mocks.
 import pytest
 from datetime import datetime, timedelta
 
-from geo_infer_health.models import DiseaseReport, Location, PopulationData
-from geo_infer_health.utils.geospatial_utils import haversine_distance, create_bounding_box
+from geo_infer_health.models import DiseaseReport, Location
 from geo_infer_health.core.disease_surveillance import DiseaseHotspotAnalyzer
 
 

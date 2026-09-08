@@ -120,7 +120,7 @@ class TestTradeModels:
         far = {"id": "far", "gdp": 100.0, "lat": 45.0, "lon": -12.0}
         home = {"id": "home", "gdp": 100.0, "lat": 45.0, "lon": -122.0}
         result = models.model_trade({"countries": [home, near, far]})
-        stats = {s["country_id"]: s for s in result["country_statistics"]}
+        _stats = {s["country_id"]: s for s in result["country_statistics"]}
         # Same GDP partners, different distances: closer partner trades more
         flows = {(f["exporter"], f["importer"]): f["trade_value"] for f in result["bilateral_flows"]}
         assert flows[("home", "near")] > 0

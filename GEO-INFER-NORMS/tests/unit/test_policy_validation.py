@@ -1,6 +1,5 @@
 """Tests for policy validation and regulatory framework operations."""
 import datetime
-import pytest
 
 from geo_infer_norms.models.regulation import Regulation, RegulatoryFramework
 from geo_infer_norms.models.policy import *  # noqa - import whatever policy models exist

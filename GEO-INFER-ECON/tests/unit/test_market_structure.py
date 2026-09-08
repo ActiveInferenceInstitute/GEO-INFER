@@ -2,7 +2,6 @@
 
 import numpy as np
 import pandas as pd
-import pytest
 from geo_infer_econ.microeconomics.market_structure import (
     CompetitionAnalysis,
     SpatialMarketAnalysis,

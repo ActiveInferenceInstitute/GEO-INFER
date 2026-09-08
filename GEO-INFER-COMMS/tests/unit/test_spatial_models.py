@@ -1,11 +1,9 @@
 """Tests for COMMS spatial data models."""
-import math
 import pytest
 
 from geo_infer_comms.models.spatial import (
     GeospatialPoint,
     SpatialIndex,
-    CoordinateSystem,
 )
 
 

@@ -3,12 +3,9 @@ Tests for Information Theory Module
 """
 
 import numpy as np
-import pytest
 from geo_infer_math.core.information_theory import (
     shannon_entropy,
-    renyi_entropy,
     spatial_entropy,
-    mutual_information,
     kl_divergence,
 )
 

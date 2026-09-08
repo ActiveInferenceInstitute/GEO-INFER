@@ -1,6 +1,5 @@
 """Tests for solar analysis module."""
 
-import numpy as np
 import pytest
 
 import sys

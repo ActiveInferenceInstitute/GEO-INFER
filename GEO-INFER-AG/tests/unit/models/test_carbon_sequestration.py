@@ -1,7 +1,6 @@
 """Tests for carbon sequestration model."""
 
 import pytest
-import numpy as np
 import pandas as pd
 from geo_infer_ag.models.carbon_sequestration import CarbonSequestrationModel
 

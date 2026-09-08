@@ -225,7 +225,7 @@ class TestMultiAgentModel(unittest.TestCase):
         self.assertFalse(done)
 
     def test_multi_agent_h3(self):
-        model = MultiAgentModel()
+        MultiAgentModel()  # constructed for side effects of __init__
         # Assume some H3 method
         self.assertTrue(True)
 
@@ -285,7 +285,7 @@ class TestResourceModel(unittest.TestCase):
             self.assertAlmostEqual(scores[r].sum(), 1.0, places=5)
 
     def test_resource_h3(self):
-        model = ResourceModel()
+        ResourceModel()  # constructed for side effects of __init__
         # Assume some H3 method
         self.assertTrue(True)
 

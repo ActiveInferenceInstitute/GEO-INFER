@@ -7,7 +7,7 @@ Unit tests for GitHub API client.
 
 import pytest
 import requests
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 import time
 
 from geo_infer_git.core.github_api import (

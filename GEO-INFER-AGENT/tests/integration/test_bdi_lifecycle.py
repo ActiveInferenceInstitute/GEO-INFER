@@ -8,23 +8,10 @@ produces consistent, deterministic behaviour for a simple task.
 """
 
 import asyncio
-import pytest
-
-from geo_infer_agent.models.bdi.agent import BDIAgent, BDIState, Belief, Desire, Plan
+from geo_infer_agent.models.bdi.agent import BDIAgent
 
 
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
 
-def make_agent(agent_id: str, *, plans=None, beliefs=None, desires=None) -> BDIAgent:
-    """Create a BDIAgent with optional pre-loaded config."""
-    config = {
-        "plans": plans or [],
-        "initial_beliefs": beliefs or {},
-        "initial_desires": desires or [],
-    }
-    return BDIAgent(agent_id=agent_id, config=config)
 
 
 # ---------------------------------------------------------------------------

@@ -2,14 +2,13 @@
 
 import os
 import sys
-import json
 import yaml
 import pytest
 import tempfile
 import logging
 from pathlib import Path
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Any, Generator, Union
+from typing import Dict, Optional, Any, Generator
 from geo_infer_intra.utils.config import load_default_config
 
 # Add each module to the Python path

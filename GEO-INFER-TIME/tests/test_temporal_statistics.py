@@ -7,7 +7,6 @@ diagnostic tests, information criteria, and summary statistics.
 
 import pytest
 import numpy as np
-import pandas as pd
 
 from geo_infer_time.core.statistics import TemporalStatistics
 
