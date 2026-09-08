@@ -34,6 +34,14 @@ MODULES = {
     'LOG': {'dependencies': ['SPACE', 'TIME', 'DATA'], 'description': 'Logistics'},
     'INSURANCE': {'dependencies': ['SPACE', 'TIME', 'DATA', 'RISK'], 'description': 'Insurance operations: underwriting, policy, claims, pricing'},
     'BIO': {'dependencies': ['SPACE', 'TIME', 'DATA'], 'description': 'Bioinformatics'},
+    'CLIMATE': {'dependencies': ['SPACE', 'TIME', 'DATA'], 'description': 'Climate operations: validation, SPI and extreme indices, heatwaves, droughts, trends'},
+    'EDU': {'dependencies': [], 'description': 'Education operations: curriculum design, exercises, progress tracking, personalized pathways'},
+    'EMERGENCY': {'dependencies': [], 'description': 'Emergency operations: situational awareness, ICS coordination, resource allocation, evacuation, SAR'},
+    'ENERGY': {'dependencies': [], 'description': 'Energy operations: wind and solar site resource assessment'},
+    'FOREST': {'dependencies': [], 'description': 'Forest operations: fire weather, wildfire risk, drought indices, biomass inventory'},
+    'MARINE': {'dependencies': [], 'description': 'Marine operations: water quality and coral reef health'},
+    'TRANSPORT': {'dependencies': [], 'description': 'Transport operations: network analysis, routing, traffic flow, isochrones'},
+    'WATER': {'dependencies': [], 'description': 'Water operations: rainfall-runoff, recharge, water balance, water quality'},
     
     # Infrastructure modules (Phase 4)
     'API': {'dependencies': ['All modules'], 'description': 'API services'},
