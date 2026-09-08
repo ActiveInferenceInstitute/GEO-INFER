@@ -56,3 +56,6 @@ config/
 /cache/
 GEO-INFER-PLACE/locations/cascadia/generated/cache/region_cache_*.json
 GEO-INFER-PLACE/locations/cascadia/output/data/cache/region_cache_*.json
+
+# GitNexus local knowledge-graph index (created by `gitnexus analyze`).
+/.gitnexus/
