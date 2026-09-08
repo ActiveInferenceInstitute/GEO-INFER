@@ -48,5 +48,5 @@ capabilities:
 - tested
 tasks:
   test:
-    cmd: python -m pytest
+    cmd: uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
     description: Run the test suite.
