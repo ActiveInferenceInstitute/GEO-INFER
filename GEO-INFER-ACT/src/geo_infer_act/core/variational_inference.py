@@ -3,6 +3,19 @@ Variational inference for active inference models.
 
 This module implements variational inference algorithms for belief updating
 in active inference models, including mean-field and structured approximations.
+
+References:
+    - Friston, K., Stephan, K., Li, B., & Daunizeau, J. (2010).
+      "Generalised Filtering." Mathematical Problems in Engineering.
+    - Formal analogue: fep_lean topic fep-090 (finite-jet generalized-filtering
+      correction step)
+
+The fep_lean topic ids are correspondence-of-constructs references into a
+separate Lean formalization catalogue, canonically mapped in
+`fep_lean/specs/geo-infer-notation-bridge/data/notation-map.yaml` and
+documented in `GEO-INFER-ACT/docs/fep_lean_notation_bridge.md`. They state
+no verification relationship between this numerical implementation and the
+Lean proofs.
 """
 
 import numpy as np

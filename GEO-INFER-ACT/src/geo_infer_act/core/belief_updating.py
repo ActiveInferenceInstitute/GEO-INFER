@@ -1,5 +1,17 @@
 """
 Belief updating for Active Inference models.
+
+References:
+    - Parr, T., Pezzulo, G., & Friston, K. (2022). Active Inference.
+      Cambridge, MA: MIT Press.
+    - Formal analogue: fep_lean topic fep-017 (posterior joint reconstruction)
+
+The fep_lean topic ids are correspondence-of-constructs references into a
+separate Lean formalization catalogue, canonically mapped in
+`fep_lean/specs/geo-infer-notation-bridge/data/notation-map.yaml` and
+documented in `GEO-INFER-ACT/docs/fep_lean_notation_bridge.md`. They state
+no verification relationship between this numerical implementation and the
+Lean proofs.
 """
 
 from typing import Dict
@@ -84,8 +96,7 @@ class BayesianBeliefUpdate:
             raise ValueError("Gaussian belief vectors must not be empty")
         if observation_matrix.shape != (observation.size, state_dim):
             raise ValueError(
-                "observation_matrix must have shape "
-                f"({observation.size}, {state_dim})"
+                f"observation_matrix must have shape ({observation.size}, {state_dim})"
             )
         if prior_precision.shape != (state_dim, state_dim):
             raise ValueError(
