@@ -354,3 +354,58 @@ class TestPolicyCoupling:
             np.argmin(result["all_free_energies"])
         )
         assert result["policy"]["id"] == "safe"
+
+
+# --- crescent-city-geo-observations/v1 delegation (2026-09-08 producer pass) ---
+
+from geo_infer_act.core.civic_intel import (  # noqa: E402
+    CRESCENT_CITY_OBSERVATIONS_SCHEMA,
+    load_crescent_city_geo_observations,
+)
+
+
+class TestObservationsDelegation:
+    """Live hazard observations resolve through the BAYES ingestion core."""
+
+    def test_loader_is_the_bayes_core_object(self) -> None:
+        """ACT delegates to the one canonical observations loader."""
+        from geo_infer_bayes.geo_observations import (
+            load_crescent_city_geo_observations as bayes_loader,
+        )
+
+        assert load_crescent_city_geo_observations is bayes_loader
+
+    def test_schema_constant_matches_producer_envelope(self) -> None:
+        assert CRESCENT_CITY_OBSERVATIONS_SCHEMA == "crescent-city-geo-observations/v1"
+
+    def test_bundled_snapshot_loads_with_live_monitors(self) -> None:
+        envelope = load_crescent_city_geo_observations()
+        assert envelope is not None
+        assert envelope["schema"] == CRESCENT_CITY_OBSERVATIONS_SCHEMA
+        assert len(envelope["monitors"]) == 15
+
+    def test_unavailable_envelope_passes_validation(self) -> None:
+        envelope = load_crescent_city_geo_observations(
+            {
+                "schema": CRESCENT_CITY_OBSERVATIONS_SCHEMA,
+                "anchor": {
+                    "name": "Crescent City",
+                    "guid": "CR4919",
+                    "municipality": "Crescent City, CA",
+                    "county": "Del Norte County",
+                    "state": "California",
+                    "latitude": 41.76,
+                    "longitude": -124.2,
+                },
+                "generatedAt": "2026-09-08T00:00:00.000Z",
+                "composite": None,
+                "monitors": [],
+                "hazardSummary": [],
+                "freshness": {
+                    "contractSchema": "crescent-city-geo-intel/v1",
+                    "contractGeneratedAt": None,
+                },
+            }
+        )
+        assert envelope is not None
+        assert envelope["composite"] is None
