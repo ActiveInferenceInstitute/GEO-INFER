@@ -7,10 +7,12 @@ receipt recording the live-browser checks and asset receipts that still
 match the bundles.  This script is the benchmark instrument:
 
 1.  It recomputes the SHA-256 digest and byte size of every artifact
-    (html, svg, png) across the 45 module manifests and counts
-    mismatches - the receipt is never trusted for this part; the hashes
-    are always recomputed from the files on disk.
-2.  It counts the DOCS-01 acceptance checks that lack a recorded PASS in
+    (html, svg, png) across the 45 module manifests - the receipt is
+    never trusted for this part; the hashes are always recomputed from
+    the files on disk.
+2.  It resolves every ``previews_index.md`` link target against the
+    filesystem.
+3.  It counts the DOCS-01 acceptance checks that lack a recorded PASS in
     ``GEO-INFER-INTRA/docs/modules/previews/verification/verification.json``.
     A missing receipt leaves every defined check open.
 
@@ -19,14 +21,18 @@ Metrics are printed one per line as ``METRIC name=value``; diagnostics as
 measure; the measured counts are data.
 """
 
+from __future__ import annotations
+
 import hashlib
 import json
+import re
 import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PREVIEWS = REPO_ROOT / "GEO-INFER-INTRA" / "docs" / "modules" / "previews"
 RECEIPT = PREVIEWS / "verification" / "verification.json"
+INDEX = REPO_ROOT / "GEO-INFER-INTRA" / "docs" / "modules" / "previews_index.md"
 
 DEFINED_CHECKS = (
     "all_45_pages_load_no_unexpected_console_errors",
@@ -70,6 +76,20 @@ def _receipt_mismatches() -> list[str]:
     return mismatches
 
 
+def _index_link_mismatches() -> list[str]:
+    """Every previews_index.md link target missing on disk."""
+    if not INDEX.is_file():
+        return [f"{INDEX.name}: missing"]
+    text = INDEX.read_text(encoding="utf-8")
+    return [
+        f"index link target missing: {match.group(1)}"
+        for match in re.finditer(r"\((previews/[^)]+)\)", text)
+        if not (
+            REPO_ROOT / "GEO-INFER-INTRA" / "docs" / "modules" / match.group(1)
+        ).is_file()
+    ]
+
+
 def _open_checks(mismatches: list[str]) -> list[str]:
     """Count defined acceptance checks without a recorded PASS."""
     receipt: dict | None = None
@@ -101,16 +121,20 @@ def main() -> int:
     if not PREVIEWS.is_dir():
         _fail(f"missing previews directory: {PREVIEWS}")
     mismatches = _receipt_mismatches()
-    open_checks = _open_checks(mismatches)
+    link_mismatches = _index_link_mismatches()
+    open_checks = _open_checks(mismatches + link_mismatches)
 
     print(f"METRIC docs01_verification_checks_open={len(open_checks)}")
-    print(f"METRIC preview_receipt_mismatches={len(mismatches)}")
+    print(
+        f"METRIC preview_asset_receipt_mismatches={len(mismatches) + len(link_mismatches)}"
+    )
+    print(f"ASI index_link_mismatches={len(link_mismatches)}")
     print(
         f"ASI preview_manifests={len(list(PREVIEWS.glob('*_preview.manifest.json')))}"
     )
     for check in open_checks:
         print(f"ASI docs01_check_open={check}")
-    for mismatch in mismatches[:8]:
+    for mismatch in (mismatches + link_mismatches)[:8]:
         print(f"ASI preview_receipt_mismatch={mismatch}")
     return 0
 

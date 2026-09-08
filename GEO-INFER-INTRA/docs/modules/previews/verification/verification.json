@@ -29,7 +29,9 @@
     "representative": [
      "ACT",
      "SPACE",
-     "WATER"
+     "WATER",
+     "CLIMATE",
+     "TRANSPORT"
     ],
     "leaflet_online": true,
     "map_visible": true,
@@ -54,7 +56,28 @@
      "map_visible": true,
      "note": "graceful - assets served from cache"
     },
-    "keyboard_toggle_offline": true
+    "keyboard_toggle_offline": true,
+    "representatives_verified": [
+     "ACT",
+     "SPACE",
+     "WATER",
+     "CLIMATE",
+     "TRANSPORT"
+    ],
+    "climate_transport_cold": {
+     "climate": {
+      "leaflet": false,
+      "map_display": "none",
+      "svg_renderable": true,
+      "page_errors": 0
+     },
+     "transport": {
+      "leaflet": false,
+      "map_display": "none",
+      "svg_renderable": true,
+      "page_errors": 0
+     }
+    }
    }
   },
   {
@@ -65,7 +88,11 @@
     "no_horizontal_overflow": true,
     "summary_visible": true,
     "svg_visible": true,
-    "captured": "act_cold_narrow.pdf"
+    "captured": [
+     "act_narrow_375px_cold.pdf",
+     "geo-infer-climate_narrow.pdf",
+     "geo-infer-transport_narrow.pdf"
+    ]
    }
   },
   {
@@ -120,7 +147,13 @@
      "act_cold_cache_cdn_blocked.pdf",
      "act_cold_narrow.pdf",
      "geo-infer-space_online.pdf",
-     "geo-infer-water_online.pdf"
+     "geo-infer-water_online.pdf",
+     "geo-infer-climate_cold_cache_cdn_blocked.pdf",
+     "geo-infer-climate_narrow.pdf",
+     "geo-infer-climate_online.pdf",
+     "geo-infer-transport_cold_cache_cdn_blocked.pdf",
+     "geo-infer-transport_narrow.pdf",
+     "geo-infer-transport_online.pdf"
     ]
    }
   },
@@ -504,5 +537,10 @@
   "Under cold-cache CDN failure Leaflet does not load (typeof L === 'undefined'), the map container stays display:none, and the always-present details#static-preview SVG (7 H3 polygons on ACT) is the usable surface; the page guard produces zero page errors.",
   "Keyboard: Enter on the details summary toggles the static preview open/closed both online and offline.",
   "Narrow viewport 375x667: no horizontal overflow; summary and SVG remain visible (warm and cold)."
- ]
+ ],
+ "tools": {
+  "browser": "session headless Chromium via Puppeteer (raw CDP); no Interceptor, no agent-browser (not installed)",
+  "interception": "CDP Fetch.enable + failRequest (unpkg.com, openstreetmap.org) in cold-cache incognito contexts",
+  "captures": "page.printToPDF at viewport size; raster captureScreenshot unavailable in the hidden browser"
+ }
 }
