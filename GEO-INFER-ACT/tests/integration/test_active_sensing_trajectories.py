@@ -15,7 +15,6 @@ These surface emergent behaviour across successive updates:
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from geo_infer_act.core.policy_selection import PolicySelector
 from geo_infer_act.core.spatial_agent import SpatialActiveInferenceAgent
@@ -30,16 +29,17 @@ def _one_cell() -> str:
 
 def test_laplace_filter_sharpens_belief_under_consistent_sensing() -> None:
     """Repeated consistent observations monotonically reduce belief spread."""
-    model = ContinuousPOMDPActiveInference(
-        state_dim=2, obs_dim=2, action_dim=2, dt=0.1
-    )
+    model = ContinuousPOMDPActiveInference(state_dim=2, obs_dim=2, action_dim=2, dt=0.1)
     observation = np.array([1.0, 1.0])
     traces = []
     for _ in range(15):
         _, sigma, _ = model.update_beliefs(observation)
         traces.append(float(np.trace(sigma)))
     # Belief covariance is strictly monotonically non-increasing.
-    assert all(trace_after <= trace_before for trace_before, trace_after in zip(traces, traces[1:]))
+    assert all(
+        trace_after <= trace_before
+        for trace_before, trace_after in zip(traces, traces[1:])
+    )
     assert traces[-1] < traces[0]
 
 

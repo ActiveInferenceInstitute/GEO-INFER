@@ -5,7 +5,6 @@ Tests for stream connectors in geo_infer_data.connectors.stream.
 import asyncio
 
 import aiohttp
-import aiomqtt
 import pytest
 from aiohttp import web
 
@@ -19,6 +18,7 @@ from geo_infer_data.connectors.stream import (
 
 def _collect(gen, n=None):
     """Drain an async generator with asyncio.run."""
+
     async def _run_all():
         out = []
         async for record in gen:
@@ -26,6 +26,7 @@ def _collect(gen, n=None):
             if n is not None and len(out) >= n:
                 break
         return out
+
     return asyncio.run(_run_all())
 
 

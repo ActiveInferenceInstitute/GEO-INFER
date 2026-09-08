@@ -14,7 +14,7 @@ from datetime import datetime
 
 import numpy as np
 
-from geo_infer_agent.core.agent_base import AgentState, BaseAgent, ExampleAgent
+from geo_infer_agent.core.agent_base import AgentState, ExampleAgent
 
 
 class TestAgentState(unittest.TestCase):

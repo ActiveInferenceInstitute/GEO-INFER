@@ -1,7 +1,6 @@
 """Unit tests for geospatial utilities."""
 
 import pytest
-from pathlib import Path
 
 from geo_infer_intra.utils.geospatial_utils import (
     create_point,

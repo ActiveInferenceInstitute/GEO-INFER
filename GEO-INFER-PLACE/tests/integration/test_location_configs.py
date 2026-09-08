@@ -9,7 +9,6 @@ Verifies:
 - Location registry completeness
 """
 
-import os
 import logging
 from pathlib import Path
 
@@ -61,7 +60,9 @@ class TestLocationDirectoryStructure:
     """Verify that all expected location directories exist with required files."""
 
     def test_locations_dir_exists(self):
-        assert LOCATIONS_DIR.is_dir(), f"locations/ directory not found at {LOCATIONS_DIR}"
+        assert LOCATIONS_DIR.is_dir(), (
+            f"locations/ directory not found at {LOCATIONS_DIR}"
+        )
         logger.info("locations/ directory found at %s", LOCATIONS_DIR)
 
     @pytest.mark.parametrize("location", EXPECTED_LOCATIONS)
@@ -75,7 +76,9 @@ class TestLocationDirectoryStructure:
         readme = LOCATIONS_DIR / location / "README.md"
         assert readme.is_file(), f"README.md missing for {location}"
         content = readme.read_text(encoding="utf-8")
-        assert len(content) > 100, f"README.md for {location} is too short ({len(content)} bytes)"
+        assert len(content) > 100, (
+            f"README.md for {location} is too short ({len(content)} bytes)"
+        )
         logger.info("README.md for '%s' exists (%d bytes)", location, len(content))
 
     @pytest.mark.parametrize("location", EXPECTED_LOCATIONS)
@@ -112,7 +115,9 @@ class TestREADMEFormatting:
         assert h2_count >= 2, f"README.md for {location} has fewer than 2 H2 sections"
         logger.info(
             "README.md for '%s' has %d H1 and %d H2 headings",
-            location, h1_count, h2_count,
+            location,
+            h1_count,
+            h2_count,
         )
 
     @pytest.mark.parametrize("location", EXPECTED_LOCATIONS)
@@ -172,7 +177,8 @@ class TestRequirementsFiles:
             )
         logger.info(
             "requirements.txt for '%s' has %d active dependencies (no fabricated)",
-            location, len(active_deps),
+            location,
+            len(active_deps),
         )
 
 
@@ -199,7 +205,9 @@ class TestAGENTSMDQuality:
     def test_agents_has_scope_section(self, location):
         agents = LOCATIONS_DIR / location / "AGENTS.md"
         content = agents.read_text(encoding="utf-8")
-        assert "## Scope" in content, f"AGENTS.md for {location} missing '## Scope' section"
+        assert "## Scope" in content, (
+            f"AGENTS.md for {location} missing '## Scope' section"
+        )
 
     @pytest.mark.parametrize("location", EXPECTED_LOCATIONS)
     def test_agents_has_capabilities(self, location):

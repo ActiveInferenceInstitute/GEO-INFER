@@ -11,7 +11,6 @@ from geo_infer_sec.utils.geospatial_utils import GeoSpatialUtils
 class TestCreateCircle(unittest.TestCase):
     def test_radius_is_metrically_accurate(self):
         circle = GeoSpatialUtils().create_circle(Point(-118.24, 34.05), 1000.0)
-        center = Point(-118.24, 34.05)
         for vertex in circle.exterior.coords:
             lat1, lon1 = math.radians(34.05), math.radians(-118.24)
             lat2, lon2 = math.radians(vertex[1]), math.radians(vertex[0])

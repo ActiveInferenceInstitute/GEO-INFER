@@ -9,7 +9,6 @@ H3 parent resolution).
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from geo_infer_act.core.spatial_agent import SpatialActiveInferenceAgent
 from geo_infer_act.models.multi_agent import MultiAgentModel
@@ -43,7 +42,9 @@ def test_spatial_per_cell_scores_are_normalized_uncertainty() -> None:
 def test_spatial_aggregates_scores_to_coarser_resolution() -> None:
     """Supplying a coarser target resolution produces one score per parent."""
     cells = _cells(8)
-    agent = SpatialActiveInferenceAgent(initial_cells=cells, state_dim=4, h3_resolution=9)
+    agent = SpatialActiveInferenceAgent(
+        initial_cells=cells, state_dim=4, h3_resolution=9
+    )
     agent.beliefs[:, :] = 0.25  # uniform → 1.0 everywhere
 
     coarser = 7

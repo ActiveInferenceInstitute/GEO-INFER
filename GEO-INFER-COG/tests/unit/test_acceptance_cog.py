@@ -12,12 +12,10 @@ previously lacked focused acceptance tests:
 No mocks, stubs, or placeholders: every assertion exercises actual code paths.
 """
 
-import numpy as np
 import pytest
 
 from geo_infer_cog.core.spatial_reasoning import (
     SpatialReasoningEngine,
-    SpatialRelation,
 )
 from geo_infer_cog.core.cognitive_engine import CognitiveProcessingEngine
 from geo_infer_cog.models.user_profiles import UserCognitiveProfile
@@ -26,6 +24,7 @@ from geo_infer_cog.models.user_profiles import UserCognitiveProfile
 # ---------------------------------------------------------------------------
 # SpatialReasoningEngine.reason_about_space
 # ---------------------------------------------------------------------------
+
 
 class TestReasonAboutSpace:
     """Acceptance: the public reasoning pipeline runs end-to-end."""
@@ -41,8 +40,14 @@ class TestReasonAboutSpace:
     def spatial_data(self) -> dict:
         return {
             "elements": [
-                {"id": "region_a", "geometry": {"type": "Point", "coordinates": [0, 0]}},
-                {"id": "region_b", "geometry": {"type": "Point", "coordinates": [10, 10]}},
+                {
+                    "id": "region_a",
+                    "geometry": {"type": "Point", "coordinates": [0, 0]},
+                },
+                {
+                    "id": "region_b",
+                    "geometry": {"type": "Point", "coordinates": [10, 10]},
+                },
             ]
         }
 
@@ -52,7 +57,9 @@ class TestReasonAboutSpace:
 
     def test_returns_required_keys(self, engine, spatial_data, perception_result):
         """The result dict must contain all documented output fields."""
-        result = engine.reason_about_space(spatial_data, perception_result, cognitive_state=None)
+        result = engine.reason_about_space(
+            spatial_data, perception_result, cognitive_state=None
+        )
         expected_keys = {
             "reasoning_id",
             "timestamp",
@@ -70,7 +77,9 @@ class TestReasonAboutSpace:
 
     def test_reasoning_type_reflected(self, engine, spatial_data, perception_result):
         """The reasoning_type in the result matches the engine config."""
-        result = engine.reason_about_space(spatial_data, perception_result, cognitive_state=None)
+        result = engine.reason_about_space(
+            spatial_data, perception_result, cognitive_state=None
+        )
         assert result["reasoning_type"] == "qualitative_spatial"
 
     def test_metrics_incremented(self, engine, spatial_data, perception_result):
@@ -82,30 +91,41 @@ class TestReasonAboutSpace:
 
     def test_processing_time_positive(self, engine, spatial_data, perception_result):
         """Processing time is a non-negative float."""
-        result = engine.reason_about_space(spatial_data, perception_result, cognitive_state=None)
+        result = engine.reason_about_space(
+            spatial_data, perception_result, cognitive_state=None
+        )
         assert isinstance(result["processing_time"], float)
         assert result["processing_time"] >= 0.0
 
     def test_reasoning_chain_nonempty(self, engine, spatial_data, perception_result):
         """The reasoning chain must contain at least one step."""
-        result = engine.reason_about_space(spatial_data, perception_result, cognitive_state=None)
+        result = engine.reason_about_space(
+            spatial_data, perception_result, cognitive_state=None
+        )
         assert len(result["reasoning_chain"]) >= 1
 
-    def test_validation_result_has_valid_flag(self, engine, spatial_data, perception_result):
+    def test_validation_result_has_valid_flag(
+        self, engine, spatial_data, perception_result
+    ):
         """The validation result contains a 'valid' boolean."""
-        result = engine.reason_about_space(spatial_data, perception_result, cognitive_state=None)
+        result = engine.reason_about_space(
+            spatial_data, perception_result, cognitive_state=None
+        )
         assert "valid" in result["validation_result"]
         assert isinstance(result["validation_result"]["valid"], bool)
 
     def test_confidence_score_bounded(self, engine, spatial_data, perception_result):
         """Confidence score is in [0, 1]."""
-        result = engine.reason_about_space(spatial_data, perception_result, cognitive_state=None)
+        result = engine.reason_about_space(
+            spatial_data, perception_result, cognitive_state=None
+        )
         assert 0.0 <= result["confidence_score"] <= 1.0
 
 
 # ---------------------------------------------------------------------------
 # CognitiveProcessingEngine.process_spatial_input (full pipeline)
 # ---------------------------------------------------------------------------
+
 
 class TestCognitivePipeline:
     """Acceptance: the full cognitive processing pipeline runs end-to-end."""
@@ -127,7 +147,11 @@ class TestCognitivePipeline:
     def test_pipeline_increments_metrics(self):
         """Running the pipeline increments all performance counters."""
         engine = CognitiveProcessingEngine()
-        spatial_data = {"elements": [{"id": "x", "geometry": {"type": "Point", "coordinates": [0, 0]}}]}
+        spatial_data = {
+            "elements": [
+                {"id": "x", "geometry": {"type": "Point", "coordinates": [0, 0]}}
+            ]
+        }
         before = engine.performance_metrics.copy()
         engine.process_spatial_input(spatial_data)
         after = engine.performance_metrics
@@ -141,6 +165,7 @@ class TestCognitivePipeline:
 # UserCognitiveProfile adaptive methods
 # ---------------------------------------------------------------------------
 
+
 class TestUserCognitiveProfileAdaptive:
     """Acceptance: profile adaptation and personalization methods."""
 
@@ -148,7 +173,9 @@ class TestUserCognitiveProfileAdaptive:
     def profile(self) -> UserCognitiveProfile:
         return UserCognitiveProfile(user_id="u1", spatial_expertise=0.5)
 
-    def test_update_from_interaction_good_performance_increases_expertise(self, profile):
+    def test_update_from_interaction_good_performance_increases_expertise(
+        self, profile
+    ):
         """A good performance score on a complex task increases expertise."""
         original = profile.spatial_expertise
         profile.update_from_interaction(
@@ -157,7 +184,9 @@ class TestUserCognitiveProfileAdaptive:
         )
         assert profile.spatial_expertise > original
 
-    def test_update_from_interaction_poor_performance_decreases_expertise(self, profile):
+    def test_update_from_interaction_poor_performance_decreases_expertise(
+        self, profile
+    ):
         """A poor performance score decreases expertise."""
         original = profile.spatial_expertise
         profile.update_from_interaction(
@@ -180,7 +209,11 @@ class TestUserCognitiveProfileAdaptive:
     def test_calculate_task_suitability_returns_bounded_score(self, profile):
         """Task suitability is in [0, 1]."""
         score = profile.calculate_task_suitability(
-            {"required_expertise": 0.5, "cognitive_style": "balanced", "cognitive_load": 0.5}
+            {
+                "required_expertise": 0.5,
+                "cognitive_style": "balanced",
+                "cognitive_load": 0.5,
+            }
         )
         assert 0.0 <= score <= 1.0
 
@@ -188,8 +221,14 @@ class TestUserCognitiveProfileAdaptive:
         """A user whose expertise matches the requirement scores higher."""
         expert = UserCognitiveProfile(user_id="e1", spatial_expertise=0.9)
         novice = UserCognitiveProfile(user_id="n1", spatial_expertise=0.1)
-        reqs = {"required_expertise": 0.9, "cognitive_style": "balanced", "cognitive_load": 0.5}
-        assert expert.calculate_task_suitability(reqs) > novice.calculate_task_suitability(reqs)
+        reqs = {
+            "required_expertise": 0.9,
+            "cognitive_style": "balanced",
+            "cognitive_load": 0.5,
+        }
+        assert expert.calculate_task_suitability(
+            reqs
+        ) > novice.calculate_task_suitability(reqs)
 
     def test_export_import_round_trip(self, profile):
         """export_profile → import_profile preserves key fields."""

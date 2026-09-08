@@ -6,11 +6,10 @@ bearing calculations, point-in-polygon, line intersection, and spherical area.
 """
 
 import numpy as np
-import pytest
 import sys
 import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
 from geo_infer_math.core.geometry import (
     Point,
@@ -25,7 +24,6 @@ from geo_infer_math.core.geometry import (
     line_intersection,
     polygon_area_spherical,
     great_circle_distance,
-    EARTH_RADIUS_KM,
 )
 
 
@@ -202,21 +200,25 @@ class TestPointInPolygon:
     """Tests for point-in-polygon determination."""
 
     def test_point_inside_square(self):
-        poly = Polygon(exterior=[
-            Point(x=0.0, y=0.0),
-            Point(x=10.0, y=0.0),
-            Point(x=10.0, y=10.0),
-            Point(x=0.0, y=10.0),
-        ])
+        poly = Polygon(
+            exterior=[
+                Point(x=0.0, y=0.0),
+                Point(x=10.0, y=0.0),
+                Point(x=10.0, y=10.0),
+                Point(x=0.0, y=10.0),
+            ]
+        )
         assert point_in_polygon(Point(x=5.0, y=5.0), poly) is True
 
     def test_point_outside_square(self):
-        poly = Polygon(exterior=[
-            Point(x=0.0, y=0.0),
-            Point(x=10.0, y=0.0),
-            Point(x=10.0, y=10.0),
-            Point(x=0.0, y=10.0),
-        ])
+        poly = Polygon(
+            exterior=[
+                Point(x=0.0, y=0.0),
+                Point(x=10.0, y=0.0),
+                Point(x=10.0, y=10.0),
+                Point(x=0.0, y=10.0),
+            ]
+        )
         assert point_in_polygon(Point(x=15.0, y=5.0), poly) is False
 
     def test_point_in_hole_excluded(self):
@@ -227,12 +229,14 @@ class TestPointInPolygon:
                 Point(x=10.0, y=10.0),
                 Point(x=0.0, y=10.0),
             ],
-            interiors=[[
-                Point(x=3.0, y=3.0),
-                Point(x=7.0, y=3.0),
-                Point(x=7.0, y=7.0),
-                Point(x=3.0, y=7.0),
-            ]]
+            interiors=[
+                [
+                    Point(x=3.0, y=3.0),
+                    Point(x=7.0, y=3.0),
+                    Point(x=7.0, y=7.0),
+                    Point(x=3.0, y=7.0),
+                ]
+            ],
         )
         assert point_in_polygon(Point(x=5.0, y=5.0), poly) is False
 
@@ -242,8 +246,10 @@ class TestLineIntersection:
 
     def test_crossing_lines(self):
         result = line_intersection(
-            Point(x=0.0, y=0.0), Point(x=10.0, y=10.0),
-            Point(x=0.0, y=10.0), Point(x=10.0, y=0.0)
+            Point(x=0.0, y=0.0),
+            Point(x=10.0, y=10.0),
+            Point(x=0.0, y=10.0),
+            Point(x=10.0, y=0.0),
         )
         assert result is not None
         assert abs(result.x - 5.0) < 1e-10
@@ -251,15 +257,19 @@ class TestLineIntersection:
 
     def test_parallel_lines_no_intersection(self):
         result = line_intersection(
-            Point(x=0.0, y=0.0), Point(x=10.0, y=0.0),
-            Point(x=0.0, y=1.0), Point(x=10.0, y=1.0)
+            Point(x=0.0, y=0.0),
+            Point(x=10.0, y=0.0),
+            Point(x=0.0, y=1.0),
+            Point(x=10.0, y=1.0),
         )
         assert result is None
 
     def test_non_intersecting_segments(self):
         result = line_intersection(
-            Point(x=0.0, y=0.0), Point(x=1.0, y=0.0),
-            Point(x=2.0, y=1.0), Point(x=3.0, y=1.0)
+            Point(x=0.0, y=0.0),
+            Point(x=1.0, y=0.0),
+            Point(x=2.0, y=1.0),
+            Point(x=3.0, y=1.0),
         )
         assert result is None
 
@@ -293,7 +303,13 @@ class TestVectorizedPointInPolygon:
     """Tests for SIMD/vectorized point-in-polygon containment."""
 
     def test_vectorized_matches_scalar_ray_casting(self):
-        from geo_infer_math.core.geometry import points_in_polygon_vectorized, point_in_polygon, Point, Polygon
+        from geo_infer_math.core.geometry import (
+            points_in_polygon_vectorized,
+            point_in_polygon,
+            Point,
+            Polygon,
+        )
+
         poly_x = np.array([0.0, 10.0, 10.0, 0.0, 0.0])
         poly_y = np.array([0.0, 0.0, 10.0, 10.0, 0.0])
         polygon = Polygon([Point(x=x, y=y) for x, y in zip(poly_x, poly_y)])
@@ -302,7 +318,9 @@ class TestVectorizedPointInPolygon:
         test_y = np.array([5.0, 5.0, 2.0, 8.0, 2.0, 10.0])
 
         vec_res = points_in_polygon_vectorized(test_x, test_y, poly_x, poly_y)
-        scalar_res = np.array([point_in_polygon(Point(x=x, y=y), polygon) for x, y in zip(test_x, test_y)])
+        scalar_res = np.array(
+            [point_in_polygon(Point(x=x, y=y), polygon) for x, y in zip(test_x, test_y)]
+        )
 
         assert np.array_equal(vec_res, scalar_res)
         assert np.array_equal(vec_res, [True, False, False, True, True, False])

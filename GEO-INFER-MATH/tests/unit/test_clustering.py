@@ -7,7 +7,6 @@ Tests deterministic spatial clustering, SpatialKMeans, and RNG isolation.
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from geo_infer_math.models.clustering import SpatialKMeans
 from geo_infer_math.utils.rng import resolve_rng

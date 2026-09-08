@@ -4,9 +4,9 @@ Pytest fixtures for GEO-INFER-TRANSPORT tests.
 Provides road network GeoDataFrames, origin-destination matrices,
 transport configurations, and standard spatial fixtures.
 """
+
 import pytest
 import numpy as np
-import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point, LineString
 from pathlib import Path
@@ -57,23 +57,34 @@ def road_network_gdf() -> gpd.GeoDataFrame:
     # 5 east-west segments
     for i in range(5):
         lat = base_lat + i * 0.01
-        segments.append(LineString([
-            (base_lng, lat),
-            (base_lng + 0.05, lat),
-        ]))
+        segments.append(
+            LineString(
+                [
+                    (base_lng, lat),
+                    (base_lng + 0.05, lat),
+                ]
+            )
+        )
 
     # 5 north-south segments
     for i in range(5):
         lng = base_lng + i * 0.0125
-        segments.append(LineString([
-            (lng, base_lat),
-            (lng, base_lat + 0.04),
-        ]))
+        segments.append(
+            LineString(
+                [
+                    (lng, base_lat),
+                    (lng, base_lat + 0.04),
+                ]
+            )
+        )
 
-    road_types = (
-        ["arterial", "arterial", "collector", "local", "local"]
-        + ["arterial", "collector", "collector", "local", "local"]
-    )
+    road_types = ["arterial", "arterial", "collector", "local", "local"] + [
+        "arterial",
+        "collector",
+        "collector",
+        "local",
+        "local",
+    ]
 
     return gpd.GeoDataFrame(
         {
@@ -97,13 +108,15 @@ def od_matrix() -> np.ndarray:
     trip counts between 5 traffic analysis zones. Diagonal is zero
     (no intra-zone trips).
     """
-    return np.array([
-        [0, 120, 80, 45, 200],
-        [110, 0, 150, 60, 90],
-        [75, 140, 0, 180, 55],
-        [50, 65, 170, 0, 130],
-        [190, 85, 50, 120, 0],
-    ])
+    return np.array(
+        [
+            [0, 120, 80, 45, 200],
+            [110, 0, 150, 60, 90],
+            [75, 140, 0, 180, 55],
+            [50, 65, 170, 0, 130],
+            [190, 85, 50, 120, 0],
+        ]
+    )
 
 
 @pytest.fixture

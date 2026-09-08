@@ -1,5 +1,4 @@
 """Tests for COMMS channel system."""
-import pytest
 
 from geo_infer_comms.core.channels import ChannelManager, ChannelPermissionManager
 from geo_infer_comms.models.message import (
@@ -84,7 +83,9 @@ class TestGeospatialPermission:
         permissions = ChannelPermissionManager(manager)
 
         allowed = permissions.check_geospatial_permission(
-            channel.channel_id, "creator", "read",
+            channel.channel_id,
+            "creator",
+            "read",
             GeospatialPoint(longitude=-122.4, latitude=37.7),
         )
 
@@ -95,7 +96,9 @@ class TestGeospatialPermission:
         permissions = ChannelPermissionManager(manager)
 
         allowed = permissions.check_geospatial_permission(
-            channel.channel_id, "creator", "read",
+            channel.channel_id,
+            "creator",
+            "read",
             GeospatialPoint(longitude=0.0, latitude=0.0),
         )
 

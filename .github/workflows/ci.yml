@@ -115,6 +115,11 @@ jobs:
         run: |
           uv run --with 'ruff>=0.15.6,<0.16' ruff check \
             GEO-INFER-*/src --select F821,F823,E721,E722
+          # HYG-04: the module test suites carry no dead imports or unused
+          # locals; sanctioned availability probes are preserved as
+          # redundant-alias re-exports, which this rule set does not flag.
+          uv run --with 'ruff>=0.15.6,<0.16' ruff check \
+            GEO-INFER-*/tests --select F401,F841,F811
 
       - name: Run unit tests
         id: unit_tests

@@ -6,8 +6,6 @@ SimulationEngine over multiple scenarios with distinct seeds and compares
 results.
 """
 
-import numpy as np
-
 from geo_infer_sim.core.simulation_engine import SimulationConfig, SimulationEngine
 from geo_infer_sim.scenarios.scenario_manager import ScenarioManager
 
@@ -83,9 +81,7 @@ class TestSimIntegration:
         good = manager.create_scenario(
             name="good", initial_conditions={}, parameters={}
         )
-        bad = manager.create_scenario(
-            name="bad", initial_conditions={}, parameters={}
-        )
+        bad = manager.create_scenario(name="bad", initial_conditions={}, parameters={})
 
         def sim_func(scenario):
             if scenario.name == "bad":

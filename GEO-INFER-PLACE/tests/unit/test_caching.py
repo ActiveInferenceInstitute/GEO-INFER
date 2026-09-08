@@ -6,10 +6,8 @@ Validates caching behaviour: write/read, TTL expiry,
 key generation, cache stats, and clear_cache.
 """
 
-import json
 import time
 from datetime import timedelta
-from pathlib import Path
 
 import pytest
 
@@ -41,9 +39,9 @@ class TestCacheLifecycle:
         """After TTL expires the cache should return None."""
         key = wrapper._cache_key("ttl_test")
         wrapper._write_cache(key, {"value": 42})
-        
+
         time.sleep(3)  # TTL is 2 seconds
-        
+
         result = wrapper._read_cache(key)
         assert result is None
 
@@ -51,10 +49,10 @@ class TestCacheLifecycle:
         """clear_cache() should remove all cached files."""
         wrapper._write_cache(wrapper._cache_key("a"), {"a": 1})
         wrapper._write_cache(wrapper._cache_key("b"), {"b": 2})
-        
+
         count = wrapper.clear_cache()
         assert count == 2
-        
+
         cached = list(tmp_path.glob("*.json"))
         assert len(cached) == 0
 
@@ -62,7 +60,7 @@ class TestCacheLifecycle:
         """cache_stats should report correct entry count."""
         wrapper._write_cache(wrapper._cache_key("s1"), {"x": 1})
         wrapper._write_cache(wrapper._cache_key("s2"), {"y": 2})
-        
+
         stats = wrapper.cache_stats()
         assert stats["entries"] == 2
         assert stats["total_bytes"] > 0

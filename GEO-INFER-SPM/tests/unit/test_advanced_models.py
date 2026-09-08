@@ -7,9 +7,18 @@ import pytest
 
 from geo_infer_spm.models.data_models import SPMData, DesignMatrix
 from geo_infer_spm.core.advanced.mixed_effects import MixedEffectsSPM, fit_mixed_effects
-from geo_infer_spm.core.advanced.nonparametric import NonparametricSPM, fit_nonparametric
-from geo_infer_spm.core.advanced.model_validation import ModelValidator, validate_spm_model
-from geo_infer_spm.core.advanced.spatial_regression import SpatialRegression, fit_spatial_model
+from geo_infer_spm.core.advanced.nonparametric import (
+    NonparametricSPM,
+    fit_nonparametric,
+)
+from geo_infer_spm.core.advanced.model_validation import (
+    ModelValidator,
+    validate_spm_model,
+)
+from geo_infer_spm.core.advanced.spatial_regression import (
+    SpatialRegression,
+    fit_spatial_model,
+)
 from geo_infer_spm.core.glm import fit_glm
 
 
@@ -24,25 +33,29 @@ class TestMixedEffectsSPM:
         points_per_group = n_points // n_groups
 
         # Create coordinates and group structure with proper lat/lon ranges
-        self.coordinates = np.column_stack([
-            np.random.uniform(-180, 180, n_points),  # longitude
-            np.random.uniform(-90, 90, n_points)     # latitude
-        ])
+        self.coordinates = np.column_stack(
+            [
+                np.random.uniform(-180, 180, n_points),  # longitude
+                np.random.uniform(-90, 90, n_points),  # latitude
+            ]
+        )
 
         # Create group indices (spatial clusters)
         group_indices = np.repeat(np.arange(n_groups), points_per_group)
         if len(group_indices) < n_points:
-            group_indices = np.concatenate([group_indices, np.full(n_points - len(group_indices), n_groups - 1)])
+            group_indices = np.concatenate(
+                [group_indices, np.full(n_points - len(group_indices), n_groups - 1)]
+            )
 
-        self.random_groups = {'spatial_cluster': group_indices}
+        self.random_groups = {"spatial_cluster": group_indices}
 
         # Create data with group-specific effects
         X = np.random.randn(n_points, 2)
         group_effects = group_indices * 0.5  # Different intercepts per group
         y = X @ np.array([1.0, -0.5]) + group_effects + 0.1 * np.random.randn(n_points)
 
-        self.spm_data = SPMData(data=y, coordinates=self.coordinates, crs='EPSG:4326')
-        self.design_matrix = DesignMatrix(matrix=X, names=['intercept', 'slope'])
+        self.spm_data = SPMData(data=y, coordinates=self.coordinates, crs="EPSG:4326")
+        self.design_matrix = DesignMatrix(matrix=X, names=["intercept", "slope"])
 
     def test_mixed_effects_initialization(self):
         """Test MixedEffectsSPM initialization."""
@@ -59,10 +72,10 @@ class TestMixedEffectsSPM:
         result = model.fit(self.spm_data, method="REML")
 
         assert result is not None
-        assert hasattr(result, 'beta_coefficients')
-        assert hasattr(result, 'residuals')
-        assert 'method' in result.model_diagnostics
-        assert result.model_diagnostics['method'] == 'Mixed_Effects_REML'
+        assert hasattr(result, "beta_coefficients")
+        assert hasattr(result, "residuals")
+        assert "method" in result.model_diagnostics
+        assert result.model_diagnostics["method"] == "Mixed_Effects_REML"
 
     def test_mixed_effects_convergence(self):
         """Test that mixed effects model converges."""
@@ -89,21 +102,23 @@ class TestMixedEffectsSPM:
         model1 = MixedEffectsSPM(self.design_matrix, self.random_groups)
         model2 = MixedEffectsSPM(self.design_matrix, {})  # No random effects
 
-        result1 = model1.fit(self.spm_data)
-        result2 = model2.fit(self.spm_data)
+        _result1 = model1.fit(self.spm_data)
+        _result2 = model2.fit(self.spm_data)
 
         anova_result = model1.anova(model2)
 
-        assert 'likelihood_ratio' in anova_result
-        assert 'p_value' in anova_result
-        assert 'significant' in anova_result
+        assert "likelihood_ratio" in anova_result
+        assert "p_value" in anova_result
+        assert "significant" in anova_result
 
     def test_convenience_function(self):
         """Test fit_mixed_effects convenience function."""
-        result = fit_mixed_effects(self.spm_data, self.design_matrix, self.random_groups)
+        result = fit_mixed_effects(
+            self.spm_data, self.design_matrix, self.random_groups
+        )
 
         assert result is not None
-        assert hasattr(result, 'model_diagnostics')
+        assert hasattr(result, "model_diagnostics")
 
 
 class TestNonparametricSPM:
@@ -114,17 +129,21 @@ class TestNonparametricSPM:
         np.random.seed(42)
         n_points = 50
 
-        self.coordinates = np.column_stack([
-            np.random.uniform(-180, 180, n_points),
-            np.random.uniform(-90, 90, n_points)
-        ])
+        self.coordinates = np.column_stack(
+            [
+                np.random.uniform(-180, 180, n_points),
+                np.random.uniform(-90, 90, n_points),
+            ]
+        )
 
         # Create nonlinear relationship
         x = np.linspace(0, 10, n_points)
         y = np.sin(x) + 0.5 * x + 0.2 * np.random.randn(n_points)
 
-        self.spm_data = SPMData(data=y, coordinates=self.coordinates, crs='EPSG:4326')
-        self.design_matrix = DesignMatrix(matrix=np.column_stack([np.ones(n_points), x]), names=['intercept', 'x'])
+        self.spm_data = SPMData(data=y, coordinates=self.coordinates, crs="EPSG:4326")
+        self.design_matrix = DesignMatrix(
+            matrix=np.column_stack([np.ones(n_points), x]), names=["intercept", "x"]
+        )
 
     def test_loess_fitting(self):
         """Test LOESS nonparametric fitting."""
@@ -133,9 +152,9 @@ class TestNonparametricSPM:
         result = model.fit(self.spm_data, self.design_matrix)
 
         assert result is not None
-        assert hasattr(result, 'residuals')
-        assert result.model_diagnostics['method'] == 'Nonparametric_loess'
-        assert 'r_squared' in result.model_diagnostics
+        assert hasattr(result, "residuals")
+        assert result.model_diagnostics["method"] == "Nonparametric_loess"
+        assert "r_squared" in result.model_diagnostics
 
     def test_kernel_regression(self):
         """Test kernel regression fitting."""
@@ -143,9 +162,9 @@ class TestNonparametricSPM:
 
         result = model.fit(self.spm_data, self.design_matrix)
 
-        assert result.model_diagnostics['method'] == 'Nonparametric_kernel'
-        assert result.model_diagnostics['kernel'] == 'gaussian'
-        assert 'bandwidth' in result.model_diagnostics
+        assert result.model_diagnostics["method"] == "Nonparametric_kernel"
+        assert result.model_diagnostics["kernel"] == "gaussian"
+        assert "bandwidth" in result.model_diagnostics
 
     def test_spline_fitting(self):
         """Test spline-based fitting."""
@@ -153,7 +172,7 @@ class TestNonparametricSPM:
 
         result = model.fit(self.spm_data, self.design_matrix)
 
-        assert result.model_diagnostics['method'] == 'Nonparametric_spline'
+        assert result.model_diagnostics["method"] == "Nonparametric_spline"
 
     def test_gam_fitting(self):
         """Test Generalized Additive Model fitting."""
@@ -161,7 +180,7 @@ class TestNonparametricSPM:
 
         result = model.fit(self.spm_data, self.design_matrix)
 
-        assert result.model_diagnostics['method'] == 'Nonparametric_gam'
+        assert result.model_diagnostics["method"] == "Nonparametric_gam"
 
     def test_robust_regression(self):
         """Test robust nonparametric regression."""
@@ -169,13 +188,15 @@ class TestNonparametricSPM:
         y_outliers = self.spm_data.data.copy()
         y_outliers[:5] = 10  # Extreme outliers
 
-        spm_data_outliers = SPMData(data=y_outliers, coordinates=self.coordinates, crs='EPSG:4326')
+        spm_data_outliers = SPMData(
+            data=y_outliers, coordinates=self.coordinates, crs="EPSG:4326"
+        )
 
         model = NonparametricSPM(method="robust")
 
         result = model.fit(spm_data_outliers, self.design_matrix)
 
-        assert result.model_diagnostics['method'] == 'Nonparametric_robust'
+        assert result.model_diagnostics["method"] == "Nonparametric_robust"
 
     def test_temporal_basis_functions(self):
         """Test temporal basis function generation."""
@@ -183,7 +204,7 @@ class TestNonparametricSPM:
         time_points = np.arange(20)
 
         # Test different basis types
-        for basis_type in ['fourier', 'polynomial', 'bspline']:
+        for basis_type in ["fourier", "polynomial", "bspline"]:
             basis = analyzer.temporal_basis_functions(
                 time_points, n_basis=5, basis_type=basis_type
             )
@@ -206,7 +227,7 @@ class TestNonparametricSPM:
         result = fit_nonparametric(self.spm_data, self.design_matrix, method="loess")
 
         assert result is not None
-        assert result.model_diagnostics['method'] == 'Nonparametric_loess'
+        assert result.model_diagnostics["method"] == "Nonparametric_loess"
 
 
 class TestModelValidator:
@@ -217,56 +238,65 @@ class TestModelValidator:
         np.random.seed(42)
         n_points = 100
 
-        self.coordinates = np.column_stack([
-            np.random.uniform(-180, 180, n_points),
-            np.random.uniform(-90, 90, n_points)
-        ])
+        self.coordinates = np.column_stack(
+            [
+                np.random.uniform(-180, 180, n_points),
+                np.random.uniform(-90, 90, n_points),
+            ]
+        )
 
         X = np.random.randn(n_points, 2)
         beta = np.array([1.5, -0.8])
         y = X @ beta + 0.2 * np.random.randn(n_points)
 
-        self.spm_data = SPMData(data=y, coordinates=self.coordinates, crs='EPSG:4326')
-        self.design_matrix = DesignMatrix(matrix=X, names=['intercept', 'slope'])
+        self.spm_data = SPMData(data=y, coordinates=self.coordinates, crs="EPSG:4326")
+        self.design_matrix = DesignMatrix(matrix=X, names=["intercept", "slope"])
 
         # Create fitted model
         from geo_infer_spm.core.glm import fit_glm
+
         self.model_result = fit_glm(self.spm_data, self.design_matrix)
 
     def test_kfold_cross_validation(self):
         """Test k-fold cross-validation."""
         validator = ModelValidator(validation_method="kfold", n_folds=5)
 
-        cv_results = validator.cross_validate(fit_glm, self.spm_data, self.design_matrix)
+        cv_results = validator.cross_validate(
+            fit_glm, self.spm_data, self.design_matrix
+        )
 
-        assert cv_results['method'] == 'kfold'
-        assert cv_results['n_folds'] == 5
-        assert 'overall_mse' in cv_results
-        assert 'overall_rmse' in cv_results
-        assert 'overall_r2' in cv_results
-        assert len(cv_results['cv_scores']) == 5
+        assert cv_results["method"] == "kfold"
+        assert cv_results["n_folds"] == 5
+        assert "overall_mse" in cv_results
+        assert "overall_rmse" in cv_results
+        assert "overall_r2" in cv_results
+        assert len(cv_results["cv_scores"]) == 5
 
     def test_loo_cross_validation(self):
         """Test leave-one-out cross-validation."""
         validator = ModelValidator(validation_method="loo")
 
-        cv_results = validator.cross_validate(fit_glm, self.spm_data, self.design_matrix)
+        cv_results = validator.cross_validate(
+            fit_glm, self.spm_data, self.design_matrix
+        )
 
-        assert cv_results['method'] == 'loo'
-        assert 'mse' in cv_results
-        assert 'rmse' in cv_results
-        assert 'r2' in cv_results
-        assert 'predictions' in cv_results
+        assert cv_results["method"] == "loo"
+        assert "mse" in cv_results
+        assert "rmse" in cv_results
+        assert "r2" in cv_results
+        assert "predictions" in cv_results
 
     def test_bootstrap_validation(self):
         """Test bootstrap validation."""
         validator = ModelValidator(validation_method="bootstrap", n_bootstraps=10)
 
-        cv_results = validator.cross_validate(fit_glm, self.spm_data, self.design_matrix)
+        cv_results = validator.cross_validate(
+            fit_glm, self.spm_data, self.design_matrix
+        )
 
-        assert cv_results['method'] == 'bootstrap'
-        assert cv_results['n_bootstraps'] == 10
-        assert 'avg_predictions' in cv_results
+        assert cv_results["method"] == "bootstrap"
+        assert cv_results["n_bootstraps"] == 10
+        assert "avg_predictions" in cv_results
 
     def test_model_comparison_aic(self):
         """Test model comparison using AIC."""
@@ -278,10 +308,10 @@ class TestModelValidator:
 
         comparison = validator.compare_models([model1, model2], method="aic")
 
-        assert comparison['method'] == 'AIC'
-        assert 'scores' in comparison
-        assert 'best_model_index' in comparison
-        assert len(comparison['relative_likelihoods']) == 2
+        assert comparison["method"] == "AIC"
+        assert "scores" in comparison
+        assert "best_model_index" in comparison
+        assert len(comparison["relative_likelihoods"]) == 2
 
     def test_model_comparison_bic(self):
         """Test model comparison using BIC."""
@@ -290,8 +320,8 @@ class TestModelValidator:
         models = [self.model_result, self.model_result]
         comparison = validator.compare_models(models, method="bic")
 
-        assert comparison['method'] == 'BIC'
-        assert len(comparison['scores']) == 2
+        assert comparison["method"] == "BIC"
+        assert len(comparison["scores"]) == 2
 
     def test_diagnostic_tests(self):
         """Test comprehensive diagnostic tests."""
@@ -299,7 +329,13 @@ class TestModelValidator:
 
         diagnostics = validator.diagnostic_tests(self.model_result)
 
-        expected_tests = ['shapiro_wilk', 'jarque_bera', 'breusch_pagan', 'durbin_watson', 'r_squared']
+        expected_tests = [
+            "shapiro_wilk",
+            "jarque_bera",
+            "breusch_pagan",
+            "durbin_watson",
+            "r_squared",
+        ]
         for test in expected_tests:
             assert test in diagnostics
 
@@ -319,24 +355,28 @@ class TestSpatialRegression:
         np.random.seed(42)
         n_points = 50
 
-        self.coordinates = np.column_stack([
-            np.random.uniform(-180, 180, n_points),
-            np.random.uniform(-90, 90, n_points)
-        ])
+        self.coordinates = np.column_stack(
+            [
+                np.random.uniform(-180, 180, n_points),
+                np.random.uniform(-90, 90, n_points),
+            ]
+        )
 
         # Create spatially autocorrelated data
         X = np.random.randn(n_points, 2)
         beta = np.array([1.0, -0.5])
 
         # Add spatial autocorrelation to response
-        distances = np.linalg.norm(self.coordinates[:, np.newaxis] - self.coordinates[np.newaxis, :], axis=2)
+        distances = np.linalg.norm(
+            self.coordinates[:, np.newaxis] - self.coordinates[np.newaxis, :], axis=2
+        )
         spatial_corr = np.exp(-distances / 30)  # Exponential decay
         spatial_effect = spatial_corr @ np.random.randn(n_points) * 0.5
 
         y = X @ beta + spatial_effect + 0.1 * np.random.randn(n_points)
 
-        self.spm_data = SPMData(data=y, coordinates=self.coordinates, crs='EPSG:4326')
-        self.design_matrix = DesignMatrix(matrix=X, names=['intercept', 'slope'])
+        self.spm_data = SPMData(data=y, coordinates=self.coordinates, crs="EPSG:4326")
+        self.design_matrix = DesignMatrix(matrix=X, names=["intercept", "slope"])
 
     def test_sar_model(self):
         """Test Spatial Autoregressive (SAR) model."""
@@ -345,8 +385,8 @@ class TestSpatialRegression:
         result = model.fit(self.spm_data, self.design_matrix, bandwidth=20.0)
 
         assert result is not None
-        assert result.model_diagnostics['method'] == 'SAR'
-        assert 'spatial_autoregressive_param' in result.model_diagnostics
+        assert result.model_diagnostics["method"] == "SAR"
+        assert "spatial_autoregressive_param" in result.model_diagnostics
 
     def test_sem_model(self):
         """Test Spatial Error Model (SEM)."""
@@ -354,8 +394,8 @@ class TestSpatialRegression:
 
         result = model.fit(self.spm_data, self.design_matrix, k_neighbors=5)
 
-        assert result.model_diagnostics['method'] == 'SEM'
-        assert 'spatial_error_param' in result.model_diagnostics
+        assert result.model_diagnostics["method"] == "SEM"
+        assert "spatial_error_param" in result.model_diagnostics
 
     def test_sdm_model(self):
         """Test Spatial Durbin Model (SDM)."""
@@ -363,7 +403,7 @@ class TestSpatialRegression:
 
         result = model.fit(self.spm_data, self.design_matrix, bandwidth=25.0)
 
-        assert result.model_diagnostics['method'] == 'SDM'
+        assert result.model_diagnostics["method"] == "SDM"
 
     def test_slx_model(self):
         """Test Spatial Lag of X (SLX) model."""
@@ -371,7 +411,7 @@ class TestSpatialRegression:
 
         result = model.fit(self.spm_data, self.design_matrix, k_neighbors=4)
 
-        assert result.model_diagnostics['method'] == 'SLX'
+        assert result.model_diagnostics["method"] == "SLX"
 
     def test_gwr_model(self):
         """Test Geographically Weighted Regression (GWR)."""
@@ -379,8 +419,8 @@ class TestSpatialRegression:
 
         result = model.fit(self.spm_data, self.design_matrix, bandwidth=15.0)
 
-        assert result.model_diagnostics['method'] == 'GWR'
-        assert 'bandwidth' in result.model_diagnostics
+        assert result.model_diagnostics["method"] == "GWR"
+        assert "bandwidth" in result.model_diagnostics
 
     def test_spatial_filter_model(self):
         """Test spatial filter model."""
@@ -388,7 +428,7 @@ class TestSpatialRegression:
 
         result = model.fit(self.spm_data, self.design_matrix, eigenvalue_threshold=0.1)
 
-        assert result.model_diagnostics['method'] == 'Spatial_Filter'
+        assert result.model_diagnostics["method"] == "Spatial_Filter"
 
     def test_invalid_model_type(self):
         """Test error handling for invalid model types."""
@@ -402,7 +442,7 @@ class TestSpatialRegression:
         W = model._create_spatial_weights_matrix(self.coordinates, bandwidth=20.0)
 
         assert W.shape == (len(self.coordinates), len(self.coordinates))
-        assert hasattr(W, 'toarray')  # Should be sparse matrix
+        assert hasattr(W, "toarray")  # Should be sparse matrix
 
         # Check row normalization (isolated points with no neighbors within bandwidth remain 0)
         row_sums = np.array(W.sum(axis=1)).flatten()
@@ -413,7 +453,7 @@ class TestSpatialRegression:
         result = fit_spatial_model(self.spm_data, self.design_matrix, model_type="sar")
 
         assert result is not None
-        assert result.model_diagnostics['method'] == 'SAR'
+        assert result.model_diagnostics["method"] == "SAR"
 
     def test_spatial_effects_extraction(self):
         """Test spatial effects extraction."""
@@ -423,7 +463,7 @@ class TestSpatialRegression:
         effects = model.get_spatial_effects()
 
         assert isinstance(effects, dict)
-        assert 'model_type' in effects
+        assert "model_type" in effects
 
 
 class TestAdvancedModelsIntegration:
@@ -434,17 +474,21 @@ class TestAdvancedModelsIntegration:
         np.random.seed(42)
         n_points = 80
 
-        self.coordinates = np.column_stack([
-            np.random.uniform(-180, 180, n_points),
-            np.random.uniform(-90, 90, n_points)
-        ])
+        self.coordinates = np.column_stack(
+            [
+                np.random.uniform(-180, 180, n_points),
+                np.random.uniform(-90, 90, n_points),
+            ]
+        )
 
         # Create complex data with multiple effects
         X = np.random.randn(n_points, 3)
         beta = np.array([2.0, -1.0, 0.5])
 
         # Spatial effects
-        distances = np.linalg.norm(self.coordinates[:, np.newaxis] - self.coordinates[np.newaxis, :], axis=2)
+        distances = np.linalg.norm(
+            self.coordinates[:, np.newaxis] - self.coordinates[np.newaxis, :], axis=2
+        )
         spatial_effect = np.exp(-distances / 40).sum(axis=1) * 0.3
 
         # Nonlinear effects
@@ -455,11 +499,16 @@ class TestAdvancedModelsIntegration:
         group_indices = np.random.randint(0, n_groups, n_points)
         group_effects = group_indices * 0.2
 
-        y = (X @ beta + spatial_effect + nonlinear_effect +
-             group_effects + 0.15 * np.random.randn(n_points))
+        y = (
+            X @ beta
+            + spatial_effect
+            + nonlinear_effect
+            + group_effects
+            + 0.15 * np.random.randn(n_points)
+        )
 
-        self.spm_data = SPMData(data=y, coordinates=self.coordinates, crs='EPSG:4326')
-        self.design_matrix = DesignMatrix(matrix=X, names=['intercept', 'x1', 'x2'])
+        self.spm_data = SPMData(data=y, coordinates=self.coordinates, crs="EPSG:4326")
+        self.design_matrix = DesignMatrix(matrix=X, names=["intercept", "x1", "x2"])
         self.group_indices = group_indices
 
     def test_model_comparison_across_methods(self):
@@ -469,19 +518,22 @@ class TestAdvancedModelsIntegration:
         # Fit different models
         parametric = fit_glm(self.spm_data, self.design_matrix)
 
-        nonparametric = fit_nonparametric(self.spm_data, self.design_matrix, method="loess")
+        nonparametric = fit_nonparametric(
+            self.spm_data, self.design_matrix, method="loess"
+        )
 
         mixed_effects = fit_mixed_effects(
-            self.spm_data, self.design_matrix,
-            {'group': self.group_indices}
+            self.spm_data, self.design_matrix, {"group": self.group_indices}
         )
 
         # Compare models
         validator = ModelValidator()
-        comparison = validator.compare_models([parametric, nonparametric, mixed_effects], method="aic")
+        comparison = validator.compare_models(
+            [parametric, nonparametric, mixed_effects], method="aic"
+        )
 
-        assert len(comparison['scores']) == 3
-        assert comparison['best_model_index'] in [0, 1, 2]
+        assert len(comparison["scores"]) == 3
+        assert comparison["best_model_index"] in [0, 1, 2]
 
     def test_spatial_model_comparison(self):
         """Test comparison of different spatial models."""
@@ -489,7 +541,9 @@ class TestAdvancedModelsIntegration:
 
         for model_type in ["sar", "sem", "slx"]:
             try:
-                result = fit_spatial_model(self.spm_data, self.design_matrix, model_type)
+                result = fit_spatial_model(
+                    self.spm_data, self.design_matrix, model_type
+                )
                 models.append(result)
             except Exception:
                 continue  # Skip a model that fails to fit
@@ -502,7 +556,7 @@ class TestAdvancedModelsIntegration:
         validator = ModelValidator()
         comparison = validator.compare_models(models, method="bic")
 
-        assert len(comparison['scores']) == len(models)
+        assert len(comparison["scores"]) == len(models)
 
     def test_cross_validation_comparison(self):
         """Test cross-validation across different model types."""
@@ -511,16 +565,19 @@ class TestAdvancedModelsIntegration:
         # Compare parametric vs nonparametric
         from geo_infer_spm.core.glm import fit_glm
 
-        parametric_cv = validator.cross_validate(fit_glm, self.spm_data, self.design_matrix)
+        parametric_cv = validator.cross_validate(
+            fit_glm, self.spm_data, self.design_matrix
+        )
 
         nonparametric_cv = validator.cross_validate(
             lambda d, dm: fit_nonparametric(d, dm, method="loess"),
-            self.spm_data, self.design_matrix
+            self.spm_data,
+            self.design_matrix,
         )
 
         # Both should produce valid CV results
-        assert parametric_cv['overall_r2'] > -1  # Reasonable R²
-        assert nonparametric_cv['overall_r2'] > -1
+        assert parametric_cv["overall_r2"] > -1  # Reasonable R²
+        assert nonparametric_cv["overall_r2"] > -1
 
     def test_diagnostic_comparison(self):
         """Test diagnostic comparison across models."""
@@ -528,12 +585,12 @@ class TestAdvancedModelsIntegration:
 
         models = [
             fit_glm(self.spm_data, self.design_matrix),
-            fit_nonparametric(self.spm_data, self.design_matrix, method="robust")
+            fit_nonparametric(self.spm_data, self.design_matrix, method="robust"),
         ]
 
         validator = ModelValidator()
 
         for model in models:
             diagnostics = validator.diagnostic_tests(model)
-            assert 'r_squared' in diagnostics
-            assert 'shapiro_wilk' in diagnostics
+            assert "r_squared" in diagnostics
+            assert "shapiro_wilk" in diagnostics

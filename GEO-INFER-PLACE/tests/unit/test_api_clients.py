@@ -7,7 +7,7 @@ and retry logic (using a mock HTTP server).
 """
 
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
 
 from geo_infer_place.core.api_clients import (
     CaliforniaAPIManager,
@@ -21,6 +21,7 @@ from geo_infer_place.core.api_clients import (
 
 
 # -- Client instantiation -------------------------------------------------
+
 
 class TestClientInit:
     """Test that API clients initialise without external calls."""
@@ -62,6 +63,7 @@ class TestCaliforniaAPIManager:
 
 # -- retry logic -----------------------------------------------------------
 
+
 class TestRetryLogic:
     """Test _fetch_with_retry helper."""
 
@@ -74,7 +76,9 @@ class TestRetryLogic:
         mock_session = MagicMock()
         mock_session.get.return_value = mock_response
 
-        result = _fetch_with_retry(mock_session, "https://example.com/api", max_retries=0)
+        result = _fetch_with_retry(
+            mock_session, "https://example.com/api", max_retries=0
+        )
         assert result == {"ok": True}
 
     def test_returns_error_on_4xx(self):
@@ -85,7 +89,9 @@ class TestRetryLogic:
         mock_session = MagicMock()
         mock_session.get.return_value = mock_response
 
-        result = _fetch_with_retry(mock_session, "https://example.com/missing", max_retries=0)
+        result = _fetch_with_retry(
+            mock_session, "https://example.com/missing", max_retries=0
+        )
         assert "error" in result
         assert result["error"]["status"] == 404
 
@@ -97,8 +103,10 @@ class TestRetryLogic:
         mock_session.get.side_effect = requests.exceptions.ConnectionError("refused")
 
         result = _fetch_with_retry(
-            mock_session, "https://example.com/down",
-            max_retries=1, timeout=1,
+            mock_session,
+            "https://example.com/down",
+            max_retries=1,
+            timeout=1,
         )
         assert "error" in result
         assert mock_session.get.call_count == 2  # initial + 1 retry

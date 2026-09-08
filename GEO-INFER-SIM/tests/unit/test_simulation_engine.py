@@ -127,6 +127,7 @@ class TestSimulationEngine:
 
     def test_paused_run_matches_uninterrupted_run_with_same_seed(self) -> None:
         """Pause/resume reproduces the uninterrupted trajectory for a seed."""
+
         def make_engine() -> SimulationEngine:
             return SimulationEngine(
                 SimulationConfig(time_step=1.0, max_time=10.0, random_seed=1234)
@@ -213,8 +214,6 @@ class TestCheckpointReproducibility:
     """Loading a checkpoint must restore config and re-seed the RNG."""
 
     def test_load_checkpoint_restores_config_and_rng(self, tmp_path) -> None:
-        import numpy as np
-
         config = SimulationConfig(
             time_step=0.5, max_time=10.0, output_interval=0.5, random_seed=123
         )
@@ -249,9 +248,7 @@ class TestCheckpointReproducibility:
 
         uninterrupted = make(7)
         for _ in range(2):
-            uninterrupted.step(
-                lambda t, s: {"v": uninterrupted.rng.random()}
-            )
+            uninterrupted.step(lambda t, s: {"v": uninterrupted.rng.random()})
 
         resumed = make(7)
         resumed.step(lambda t, s: {"v": resumed.rng.random()})

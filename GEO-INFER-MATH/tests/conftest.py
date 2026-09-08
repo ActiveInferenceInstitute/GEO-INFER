@@ -4,13 +4,13 @@ Pytest fixtures for GEO-INFER-MATH tests.
 Provides spatial weight matrices, coordinate pairs, graph adjacency
 structures, and standard spatial fixtures.
 """
+
 import pytest
 import numpy as np
-import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Tuple
 
 
 @pytest.fixture(scope="session")
@@ -51,13 +51,15 @@ def spatial_weight_matrix() -> np.ndarray:
     Matrix is symmetric and rows sum to 1.0, suitable for Moran's I
     and spatial autocorrelation computations.
     """
-    W = np.array([
-        [0.00, 0.35, 0.10, 0.05, 0.50],
-        [0.35, 0.00, 0.25, 0.15, 0.25],
-        [0.10, 0.25, 0.00, 0.40, 0.25],
-        [0.05, 0.15, 0.40, 0.00, 0.40],
-        [0.50, 0.25, 0.25, 0.40, 0.00],
-    ])
+    W = np.array(
+        [
+            [0.00, 0.35, 0.10, 0.05, 0.50],
+            [0.35, 0.00, 0.25, 0.15, 0.25],
+            [0.10, 0.25, 0.00, 0.40, 0.25],
+            [0.05, 0.15, 0.40, 0.00, 0.40],
+            [0.50, 0.25, 0.25, 0.40, 0.00],
+        ]
+    )
     # Row-standardize
     row_sums = W.sum(axis=1, keepdims=True)
     return W / row_sums
@@ -74,12 +76,12 @@ def coordinate_pairs() -> List[Tuple[float, float]]:
         (47.6062, -122.3321),  # Seattle
         (37.7749, -122.4194),  # San Francisco
         (34.0522, -118.2437),  # Los Angeles
-        (40.7128, -74.0060),   # New York
-        (41.8781, -87.6298),   # Chicago
-        (29.7604, -95.3698),   # Houston
+        (40.7128, -74.0060),  # New York
+        (41.8781, -87.6298),  # Chicago
+        (29.7604, -95.3698),  # Houston
         (33.4484, -112.0740),  # Phoenix
         (39.7392, -104.9903),  # Denver
-        (25.7617, -80.1918),   # Miami
+        (25.7617, -80.1918),  # Miami
         (47.2529, -122.4443),  # Tacoma
     ]
 

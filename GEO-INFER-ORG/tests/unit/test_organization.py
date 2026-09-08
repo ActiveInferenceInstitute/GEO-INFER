@@ -5,7 +5,6 @@ from geo_infer_org.core.organization import (
     OrganizationModel,
     OrgUnit,
     Role,
-    OrgStructureType,
     RoleLevel,
 )
 
@@ -14,10 +13,18 @@ from geo_infer_org.core.organization import (
 def org():
     model = OrganizationModel()
     model.add_unit(OrgUnit("root", "HQ", member_count=10, budget=100000))
-    model.add_unit(OrgUnit("eng", "Engineering", parent_id="root", member_count=50, budget=500000))
-    model.add_unit(OrgUnit("sales", "Sales", parent_id="root", member_count=30, budget=300000))
-    model.add_unit(OrgUnit("fe", "Frontend", parent_id="eng", member_count=20, budget=200000))
-    model.add_unit(OrgUnit("be", "Backend", parent_id="eng", member_count=30, budget=300000))
+    model.add_unit(
+        OrgUnit("eng", "Engineering", parent_id="root", member_count=50, budget=500000)
+    )
+    model.add_unit(
+        OrgUnit("sales", "Sales", parent_id="root", member_count=30, budget=300000)
+    )
+    model.add_unit(
+        OrgUnit("fe", "Frontend", parent_id="eng", member_count=20, budget=200000)
+    )
+    model.add_unit(
+        OrgUnit("be", "Backend", parent_id="eng", member_count=30, budget=300000)
+    )
     return model
 
 
@@ -56,9 +63,17 @@ class TestOrganizationModel:
 
     def test_metrics(self, org):
         org.add_role(Role("ceo", "CEO", RoleLevel.EXECUTIVE, "root"))
-        org.add_role(Role("vp_eng", "VP Engineering", RoleLevel.DIRECTOR, "eng", reports_to="ceo"))
-        org.add_role(Role("fe_lead", "FE Lead", RoleLevel.LEAD, "fe", reports_to="vp_eng"))
-        org.add_role(Role("dev1", "Developer", RoleLevel.INDIVIDUAL, "fe", reports_to="fe_lead"))
+        org.add_role(
+            Role(
+                "vp_eng", "VP Engineering", RoleLevel.DIRECTOR, "eng", reports_to="ceo"
+            )
+        )
+        org.add_role(
+            Role("fe_lead", "FE Lead", RoleLevel.LEAD, "fe", reports_to="vp_eng")
+        )
+        org.add_role(
+            Role("dev1", "Developer", RoleLevel.INDIVIDUAL, "fe", reports_to="fe_lead")
+        )
 
         metrics = org.compute_metrics()
         assert metrics.total_units == 5

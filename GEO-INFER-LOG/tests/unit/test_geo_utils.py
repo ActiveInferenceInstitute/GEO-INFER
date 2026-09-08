@@ -1,6 +1,5 @@
 """Tests for geo utility module."""
 
-import pytest
 from geo_infer_log.utils.geo import (
     haversine_distance,
     get_bbox,

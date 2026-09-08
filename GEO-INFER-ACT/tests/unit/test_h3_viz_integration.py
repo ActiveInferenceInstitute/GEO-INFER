@@ -13,7 +13,6 @@ from pathlib import Path
 
 import h3
 import numpy as np
-import pytest
 
 from geo_infer_act import H3GridInferenceResult, H3BeliefUpdateResult
 from geo_infer_act.core.generative_model import GenerativeModel
@@ -23,19 +22,22 @@ from geo_infer_act.utils.h3_adapter import get_h3_adapter
 # Minimal San Francisco boundary for tests
 SF_BOUNDARY = {
     "type": "Polygon",
-    "coordinates": [[
-        [-122.42, 37.77],
-        [-122.42, 37.78],
-        [-122.41, 37.78],
-        [-122.41, 37.77],
-        [-122.42, 37.77],
-    ]],
+    "coordinates": [
+        [
+            [-122.42, 37.77],
+            [-122.42, 37.78],
+            [-122.41, 37.78],
+            [-122.41, 37.77],
+            [-122.42, 37.77],
+        ]
+    ],
 }
 
 
 # ---------------------------------------------------------------------------
 # H3 adapter tests
 # ---------------------------------------------------------------------------
+
 
 class TestH3Adapter:
     """Tests for the H3 adapter (geo_infer_act.utils.h3_adapter)."""
@@ -73,6 +75,7 @@ class TestH3Adapter:
 # ---------------------------------------------------------------------------
 # GenerativeModel H3 spatial tests
 # ---------------------------------------------------------------------------
+
 
 class TestGenerativeModelH3Spatial:
     """Tests for GenerativeModel.enable_h3_spatial."""
@@ -116,6 +119,7 @@ class TestGenerativeModelH3Spatial:
 # ---------------------------------------------------------------------------
 # SpatialActiveInferenceAgent visualization tests
 # ---------------------------------------------------------------------------
+
 
 class TestSpatialAgentVisualization:
     """Tests for SpatialActiveInferenceAgent diagnostics/export."""
@@ -168,6 +172,7 @@ class TestSpatialAgentVisualization:
 # ---------------------------------------------------------------------------
 # H3 version and contract tests
 # ---------------------------------------------------------------------------
+
 
 class TestH3VersionContract:
     """Tests that H3 usage follows the v4 contract."""

@@ -6,8 +6,6 @@ Tests for the telemetry module: metric collection, event tracking, health monito
 """
 
 import unittest
-from datetime import datetime
-from collections import deque
 
 from geo_infer_agent.api.telemetry import (
     CounterMetric,

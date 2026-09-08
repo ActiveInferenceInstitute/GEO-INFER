@@ -7,43 +7,80 @@ validators and statistical assertions.  Each domain × check produces
 multiple parametrized test cases.
 """
 
-import math
 import pytest
-import numpy as np
 import pandas as pd
-from datetime import datetime, timezone, timedelta
-from geo_infer_test.core.validators import DataQualityValidator, SpatialValidator
+from geo_infer_test.core.validators import DataQualityValidator
 
 # ============================================================================
 # Domain-level structural validation
 # ============================================================================
 
 # Health data structural expectations
-_HEALTH_REQUIRED_COLS = ["date", "region", "cases", "hospitalizations", "deaths",
-                         "vaccinations", "testing_rate", "population"]
+_HEALTH_REQUIRED_COLS = [
+    "date",
+    "region",
+    "cases",
+    "hospitalizations",
+    "deaths",
+    "vaccinations",
+    "testing_rate",
+    "population",
+]
 
 # Economic data structural expectations
-_ECONOMIC_REQUIRED_COLS = ["date", "region", "gdp", "unemployment_rate",
-                           "inflation_rate", "housing_prices",
-                           "consumer_confidence", "retail_sales", "population"]
+_ECONOMIC_REQUIRED_COLS = [
+    "date",
+    "region",
+    "gdp",
+    "unemployment_rate",
+    "inflation_rate",
+    "housing_prices",
+    "consumer_confidence",
+    "retail_sales",
+    "population",
+]
 
 # Agricultural data structural expectations
-_AGRI_REQUIRED_COLS = ["date", "field_id", "temperature", "rainfall",
-                        "soil_moisture", "ndvi", "yield_estimate",
-                        "nitrogen_level", "phosphorus_level",
-                        "potassium_level", "pest_pressure",
-                        "disease_incidence"]
+_AGRI_REQUIRED_COLS = [
+    "date",
+    "field_id",
+    "temperature",
+    "rainfall",
+    "soil_moisture",
+    "ndvi",
+    "yield_estimate",
+    "nitrogen_level",
+    "phosphorus_level",
+    "potassium_level",
+    "pest_pressure",
+    "disease_incidence",
+]
 
 # Logistics data structural expectations
-_LOGISTICS_REQUIRED_COLS = ["date", "route_id", "distance_km", "duration_hours",
-                             "fuel_consumption", "cargo_weight",
-                             "delivery_success_rate", "customer_satisfaction",
-                             "cost_per_km", "carbon_emissions",
-                             "vehicle_utilization"]
+_LOGISTICS_REQUIRED_COLS = [
+    "date",
+    "route_id",
+    "distance_km",
+    "duration_hours",
+    "fuel_consumption",
+    "cargo_weight",
+    "delivery_success_rate",
+    "customer_satisfaction",
+    "cost_per_km",
+    "carbon_emissions",
+    "vehicle_utilization",
+]
 
 # Bioinformatics data structural expectations
-_BIO_REQUIRED_COLS = ["sample_id", "gene_id", "expression_level",
-                       "lat", "lng", "elevation", "habitat_type"]
+_BIO_REQUIRED_COLS = [
+    "sample_id",
+    "gene_id",
+    "expression_level",
+    "lat",
+    "lng",
+    "elevation",
+    "habitat_type",
+]
 
 
 # ============================================================================
@@ -80,7 +117,9 @@ class TestHealthDataDomain:
     def test_population_positive(self, sample_health_data):
         assert (sample_health_data["population"] > 0).all()
 
-    @pytest.mark.parametrize("col", ["cases", "hospitalizations", "deaths", "vaccinations"])
+    @pytest.mark.parametrize(
+        "col", ["cases", "hospitalizations", "deaths", "vaccinations"]
+    )
     def test_integer_columns(self, sample_health_data, col):
         vals = sample_health_data[col]
         # All values should be integer-like
@@ -119,7 +158,9 @@ class TestEconomicDataDomain:
     def test_regions(self, sample_economic_data):
         assert len(sample_economic_data["region"].unique()) == 3
 
-    @pytest.mark.parametrize("col", ["gdp", "housing_prices", "retail_sales", "population"])
+    @pytest.mark.parametrize(
+        "col", ["gdp", "housing_prices", "retail_sales", "population"]
+    )
     def test_positive_values(self, sample_economic_data, col):
         assert (sample_economic_data[col] > 0).all(), f"{col} has non-positive values"
 
@@ -162,7 +203,9 @@ class TestAgriculturalDataDomain:
         in_range = ((vals >= -0.5) & (vals <= 1.5)).mean()
         assert in_range >= 0.9, f"{col}: {in_range:.0%} in range"
 
-    @pytest.mark.parametrize("col", ["nitrogen_level", "phosphorus_level", "potassium_level"])
+    @pytest.mark.parametrize(
+        "col", ["nitrogen_level", "phosphorus_level", "potassium_level"]
+    )
     def test_nutrient_positive(self, sample_agricultural_data, col):
         # Nutrients should be mostly positive (noise may push a few slightly negative)
         positive_frac = (sample_agricultural_data[col] > 0).mean()
@@ -195,8 +238,17 @@ class TestLogisticsDataDomain:
     def test_routes(self, sample_logistics_data):
         assert len(sample_logistics_data["route_id"].unique()) == 3
 
-    @pytest.mark.parametrize("col", ["distance_km", "duration_hours", "fuel_consumption",
-                                      "cargo_weight", "cost_per_km", "carbon_emissions"])
+    @pytest.mark.parametrize(
+        "col",
+        [
+            "distance_km",
+            "duration_hours",
+            "fuel_consumption",
+            "cargo_weight",
+            "cost_per_km",
+            "carbon_emissions",
+        ],
+    )
     def test_positive_values(self, sample_logistics_data, col):
         assert (sample_logistics_data[col] > 0).all(), f"{col} has non-positive values"
 
@@ -240,7 +292,9 @@ class TestBioinformaticsDataDomain:
 
     @pytest.mark.parametrize("habitat", ["forest", "grassland", "wetland", "urban"])
     def test_habitat_has_samples(self, sample_bioinformatics_data, habitat):
-        subset = sample_bioinformatics_data[sample_bioinformatics_data["habitat_type"] == habitat]
+        subset = sample_bioinformatics_data[
+            sample_bioinformatics_data["habitat_type"] == habitat
+        ]
         # With 50 random samples, each habitat should get at least a few
         assert len(subset) > 0, f"No samples for habitat: {habitat}"
 
@@ -313,8 +367,14 @@ class TestIoTSensorDataDomain:
     @pytest.mark.parametrize("idx", range(5))
     def test_measurement_keys(self, sample_iot_data, idx):
         m = sample_iot_data[idx]["measurements"][0]
-        for key in ["timestamp", "temperature", "humidity", "pressure",
-                     "air_quality", "battery_level"]:
+        for key in [
+            "timestamp",
+            "temperature",
+            "humidity",
+            "pressure",
+            "air_quality",
+            "battery_level",
+        ]:
             assert key in m, f"Missing key: {key}"
 
 
@@ -340,7 +400,9 @@ class TestCrossDomainStatistics:
 
     def test_economic_gdp_grows(self, sample_economic_data):
         """GDP should generally trend upward over 48 months."""
-        metro_a = sample_economic_data[sample_economic_data["region"] == "Metro_A"].sort_values("date")
+        metro_a = sample_economic_data[
+            sample_economic_data["region"] == "Metro_A"
+        ].sort_values("date")
         first_quarter = metro_a["gdp"].head(12).mean()
         last_quarter = metro_a["gdp"].tail(12).mean()
         assert last_quarter > first_quarter * 0.8  # Allow some randomness

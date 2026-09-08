@@ -4,7 +4,6 @@ Tests for FormatDetector in geo_infer_data.utils.format_detection.
 
 import json
 import tempfile
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -72,9 +71,7 @@ class TestFormatDetector:
 
     def test_detect_from_path_csv(self):
         detector = FormatDetector()
-        with tempfile.NamedTemporaryFile(
-            suffix=".csv", mode="w", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".csv", mode="w", delete=False) as f:
             f.write("a,b,c\n1,2,3\n4,5,6\n")
             f.flush()
             fmt = detector.detect_from_path(f.name)
@@ -107,9 +104,7 @@ class TestFormatDetector:
 
     def test_detect_from_content_csv(self):
         detector = FormatDetector()
-        with tempfile.NamedTemporaryFile(
-            suffix=".txt", mode="w", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(suffix=".txt", mode="w", delete=False) as f:
             f.write("col1,col2\n1,2\n3,4\n")
             f.flush()
             fmt = detector.detect_from_content(f.name)

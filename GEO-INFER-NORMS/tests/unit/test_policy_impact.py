@@ -1,5 +1,5 @@
 """Tests for the policy impact analysis module."""
-import pytest
+
 import pandas as pd
 import geopandas as gpd
 from types import SimpleNamespace
@@ -128,16 +128,23 @@ class TestPolicyImpactAnalyzer:
 
 class TestRegulatoryImpactAssessment:
     def _make_entities(self, count: int = 5):
-        return gpd.GeoDataFrame({
-            "entity_id": [f"e-{i}" for i in range(count)],
-            "category": ["industrial"] * 3 + ["commercial"] * (count - 3),
-        })
+        return gpd.GeoDataFrame(
+            {
+                "entity_id": [f"e-{i}" for i in range(count)],
+                "category": ["industrial"] * 3 + ["commercial"] * (count - 3),
+            }
+        )
 
     def test_estimate_compliance_costs(self):
         ria = RegulatoryImpactAssessment(
             regulation="Test Regulation",
             affected_entities=self._make_entities(),
-            baseline_data={"compliance_costs": {"base_cost_per_entity": 2000.0, "complexity_multiplier": 1.5}},
+            baseline_data={
+                "compliance_costs": {
+                    "base_cost_per_entity": 2000.0,
+                    "complexity_multiplier": 1.5,
+                }
+            },
         )
         result = ria.estimate_compliance_costs()
         assert isinstance(result, pd.DataFrame)
@@ -169,10 +176,24 @@ class TestRegulatoryImpactAssessment:
         ria = RegulatoryImpactAssessment(
             regulation="Test Regulation",
             affected_entities=self._make_entities(),
-            baseline_data={"market": {"market_size": 5_000_000, "num_competitors": 20, "barrier_increase_pct": 8.0, "innovation_effect": 0.1, "price_change_pct": 2.0, "projected_exit_rate": 0.03}},
+            baseline_data={
+                "market": {
+                    "market_size": 5_000_000,
+                    "num_competitors": 20,
+                    "barrier_increase_pct": 8.0,
+                    "innovation_effect": 0.1,
+                    "price_change_pct": 2.0,
+                    "projected_exit_rate": 0.03,
+                }
+            },
         )
         result = ria.analyze_market_effects()
-        assert result["market_dimension"].tolist() == ["competition", "innovation", "prices", "entry_exit"]
+        assert result["market_dimension"].tolist() == [
+            "competition",
+            "innovation",
+            "prices",
+            "entry_exit",
+        ]
 
     def test_evaluate_goal_achievement(self):
         ria = RegulatoryImpactAssessment(
@@ -180,8 +201,18 @@ class TestRegulatoryImpactAssessment:
             affected_entities=self._make_entities(),
             baseline_data={
                 "regulation_goals": [
-                    {"name": "reduce_emissions", "target_value": 50, "current_value": 45, "metric_type": "ratio"},
-                    {"name": "increase_safety", "target_value": 1.0, "current_value": 1.0, "metric_type": "boolean"},
+                    {
+                        "name": "reduce_emissions",
+                        "target_value": 50,
+                        "current_value": 45,
+                        "metric_type": "ratio",
+                    },
+                    {
+                        "name": "increase_safety",
+                        "target_value": 1.0,
+                        "current_value": 1.0,
+                        "metric_type": "boolean",
+                    },
                 ]
             },
         )

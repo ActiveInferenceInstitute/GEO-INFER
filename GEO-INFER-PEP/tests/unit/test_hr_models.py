@@ -1,5 +1,5 @@
 """Tests for PEP HR data models."""
-import pytest
+
 from datetime import date
 
 from geo_infer_pep.models.hr_models import (

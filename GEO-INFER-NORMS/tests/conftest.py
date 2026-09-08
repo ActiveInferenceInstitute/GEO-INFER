@@ -4,9 +4,9 @@ Pytest fixtures for GEO-INFER-NORMS tests.
 Provides normative rules, compliance data, norms configurations,
 and standard spatial fixtures.
 """
+
 import pytest
 import numpy as np
-import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
 from pathlib import Path

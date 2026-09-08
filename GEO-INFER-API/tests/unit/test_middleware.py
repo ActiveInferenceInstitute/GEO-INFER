@@ -1,7 +1,7 @@
 """Tests for API middleware classes."""
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import MagicMock
 from geo_infer_api.core.middleware import (
     ErrorHandlerMiddleware,
     RequestLoggingMiddleware,

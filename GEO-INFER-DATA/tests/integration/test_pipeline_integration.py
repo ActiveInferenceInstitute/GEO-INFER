@@ -5,7 +5,6 @@ Tests the full flow: load -> transform -> validate -> output.
 """
 
 import asyncio
-from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -27,6 +26,7 @@ def _run(coro):
 # ---------------------------------------------------------------------------
 # Multi-step pipeline integration
 # ---------------------------------------------------------------------------
+
 
 class TestPipelineIntegration:
     def test_filter_then_aggregate(self):
@@ -127,6 +127,7 @@ class TestPipelineIntegration:
 # Compression + format detection integration
 # ---------------------------------------------------------------------------
 
+
 class TestCompressionFormatIntegration:
     def test_detect_compress_roundtrip(self):
         """Detect format of data, compress, decompress, verify integrity."""
@@ -134,8 +135,7 @@ class TestCompressionFormatIntegration:
         compressor = DataCompressor(algorithm="gzip")
 
         data = {"type": "FeatureCollection", "features": []}
-        fmt = detector.detect_format(data)
-
+        detector.detect_format(data)
         compressed = compressor.compress_data(data)
         assert isinstance(compressed, bytes)
 
@@ -145,9 +145,7 @@ class TestCompressionFormatIntegration:
     def test_compress_dataframe_and_stats(self):
         """Compress a DataFrame and verify stats are populated."""
         compressor = DataCompressor(algorithm="gzip")
-        df = pd.DataFrame(
-            {"a": range(500), "b": np.random.rand(500)}
-        )
+        df = pd.DataFrame({"a": range(500), "b": np.random.rand(500)})
 
         compressed = compressor.compress_data(df)
         assert isinstance(compressed, bytes)
@@ -161,6 +159,7 @@ class TestCompressionFormatIntegration:
 # ---------------------------------------------------------------------------
 # Bottleneck identification integration
 # ---------------------------------------------------------------------------
+
 
 class TestBottleneckIntegration:
     def test_pipeline_bottleneck_detection_short_execution(self):

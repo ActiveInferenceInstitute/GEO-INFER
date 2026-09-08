@@ -2,10 +2,9 @@
 Unit tests for GEO-INFER-TIME core functionality.
 """
 
-import pytest
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta
+
 
 from geo_infer_time import __version__
 from geo_infer_time.core.analysis import TemporalAnalyzer
@@ -18,6 +17,7 @@ class TestTimeModule:
     def test_module_import(self) -> None:
         """Test that the module can be imported."""
         import geo_infer_time
+
         assert geo_infer_time is not None
 
     def test_module_version(self) -> None:
@@ -32,7 +32,7 @@ class TestTimeModule:
 
     def test_timeseries_creation(self) -> None:
         """Test TimeSeries creation."""
-        dates = pd.date_range(start='2020-01-01', periods=100, freq='D')
+        dates = pd.date_range(start="2020-01-01", periods=100, freq="D")
         values = np.random.randn(100)
         ts = TimeSeries(values, dates)
         assert ts is not None
@@ -41,13 +41,12 @@ class TestTimeModule:
     def test_temporal_analysis_trend_detection(self) -> None:
         """Test trend detection functionality."""
         analyzer = TemporalAnalyzer()
-        dates = pd.date_range(start='2020-01-01', periods=100, freq='D')
+        dates = pd.date_range(start="2020-01-01", periods=100, freq="D")
         # Create data with a clear trend
         values = np.linspace(0, 10, 100) + np.random.randn(100) * 0.1
         ts = TimeSeries(values, dates)
-        
-        result = analyzer.detect_trend(ts, method='linear')
-        assert result is not None
-        assert 'trend_direction' in result
-        assert 'trend_values' in result
 
+        result = analyzer.detect_trend(ts, method="linear")
+        assert result is not None
+        assert "trend_direction" in result
+        assert "trend_values" in result

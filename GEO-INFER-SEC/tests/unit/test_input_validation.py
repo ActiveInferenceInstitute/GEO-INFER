@@ -1,5 +1,4 @@
 """Tests for security input validation and sanitization."""
-import pytest
 
 
 class TestInputSanitization:
@@ -14,7 +13,9 @@ class TestInputSanitization:
             "' UNION SELECT * FROM passwords --",
         ]
         for inp in dangerous_inputs:
-            has_sql_chars = any(c in inp for c in ("'", ";", "--", "UNION", "DROP", "OR 1=1"))
+            has_sql_chars = any(
+                c in inp for c in ("'", ";", "--", "UNION", "DROP", "OR 1=1")
+            )
             assert has_sql_chars, f"SQL pattern not detected in: {inp}"
 
     def test_xss_patterns_detected(self):
@@ -25,7 +26,9 @@ class TestInputSanitization:
             "javascript:alert(1)",
         ]
         for inp in xss_inputs:
-            has_xss = any(tag in inp.lower() for tag in ("<script", "onerror", "javascript:"))
+            has_xss = any(
+                tag in inp.lower() for tag in ("<script", "onerror", "javascript:")
+            )
             assert has_xss, f"XSS pattern not detected in: {inp}"
 
     def test_path_traversal_detected(self):

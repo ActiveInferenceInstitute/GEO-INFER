@@ -82,9 +82,7 @@ class TestAgentMessagePassing(unittest.TestCase):
                 )
             )
             sender = ExampleAgent(agent_id="sender-x")
-            result = self._run(
-                sender.send_message("receiver-x", {"command": "start"})
-            )
+            result = self._run(sender.send_message("receiver-x", {"command": "start"}))
             self.assertTrue(result)
             receiver = registry.get_agent("receiver-x")
             self.assertFalse(receiver.message_queue.empty())
@@ -111,7 +109,6 @@ class TestAgentMessagePassing(unittest.TestCase):
 
     def test_multiple_agents_communicate(self) -> None:
         """Two agents can exchange messages through their queues."""
-        agent_a = ExampleAgent(agent_id="agent-a")
         agent_b = ExampleAgent(agent_id="agent-b")
 
         # Agent A sends to Agent B by placing on B's queue

@@ -7,7 +7,6 @@ grid_disk, is_valid_cell, and GeoDataFrame conversion.
 """
 
 import pytest
-import numpy as np
 import h3
 
 from geo_infer_place.utils.h3_operations import (
@@ -27,6 +26,7 @@ from geo_infer_place.utils.h3_operations import (
 
 
 # -- latlng_to_cell / cell_to_latlng round-trip --------------------------
+
 
 class TestLatLngConversion:
     """Test H3 cell ↔ lat/lng conversions."""
@@ -58,6 +58,7 @@ class TestLatLngConversion:
 
 # -- polygon_to_cells & geo_to_cells -------------------------------------
 
+
 class TestPolygonToCells:
     """Test polygon→H3 cell conversion."""
 
@@ -65,13 +66,15 @@ class TestPolygonToCells:
         """A small polygon should return at least one H3 cell."""
         geojson = {
             "type": "Polygon",
-            "coordinates": [[
-                [-124.25, 41.70],
-                [-124.15, 41.70],
-                [-124.15, 41.80],
-                [-124.25, 41.80],
-                [-124.25, 41.70],
-            ]]
+            "coordinates": [
+                [
+                    [-124.25, 41.70],
+                    [-124.15, 41.70],
+                    [-124.15, 41.80],
+                    [-124.25, 41.80],
+                    [-124.25, 41.70],
+                ]
+            ],
         }
         cells = polygon_to_cells(geojson, 8)
         assert len(cells) > 0
@@ -82,13 +85,15 @@ class TestPolygonToCells:
         """geo_to_cells wrapper should also work."""
         geojson = {
             "type": "Polygon",
-            "coordinates": [[
-                [-124.25, 41.70],
-                [-124.15, 41.70],
-                [-124.15, 41.80],
-                [-124.25, 41.80],
-                [-124.25, 41.70],
-            ]]
+            "coordinates": [
+                [
+                    [-124.25, 41.70],
+                    [-124.15, 41.70],
+                    [-124.15, 41.80],
+                    [-124.25, 41.80],
+                    [-124.25, 41.70],
+                ]
+            ],
         }
         cells = geo_to_cells(geojson, 6)
         assert len(cells) > 0
@@ -97,13 +102,15 @@ class TestPolygonToCells:
         """Feature input must normalize through the native GeoJSON wrapper."""
         geometry = {
             "type": "Polygon",
-            "coordinates": [[
-                [-124.25, 41.70],
-                [-124.15, 41.70],
-                [-124.15, 41.80],
-                [-124.25, 41.80],
-                [-124.25, 41.70],
-            ]],
+            "coordinates": [
+                [
+                    [-124.25, 41.70],
+                    [-124.15, 41.70],
+                    [-124.15, 41.80],
+                    [-124.25, 41.80],
+                    [-124.25, 41.70],
+                ]
+            ],
         }
         feature = {"type": "Feature", "properties": {}, "geometry": geometry}
 
@@ -111,6 +118,7 @@ class TestPolygonToCells:
 
 
 # -- grid operations ------------------------------------------------------
+
 
 class TestGridOperations:
     """Test grid_disk, grid_distance, cell_area, etc."""
@@ -142,6 +150,7 @@ class TestGridOperations:
 
 # -- validity & neighbor checks -------------------------------------------
 
+
 class TestValidity:
     """Test is_valid_cell and are_neighbor_cells."""
 
@@ -161,6 +170,7 @@ class TestValidity:
 
 
 # -- GeoDataFrame conversion ---------------------------------------------
+
 
 class TestCellsToGeoDataFrame:
     """Test cells_to_geodataframe utility."""

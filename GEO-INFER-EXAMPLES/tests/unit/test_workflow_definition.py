@@ -1,9 +1,7 @@
 """Tests for WorkflowDefinition, ExecutionContext, and IntegrationPatterns."""
 
 import pytest
-import json
 import tempfile
-from pathlib import Path
 
 from geo_infer_examples.models.integration_models import (
     WorkflowDefinition,
@@ -73,9 +71,7 @@ class TestWorkflowDefinition:
         assert copied.id == wf.id
         assert copied is not wf
         assert copied.steps is not wf.steps
-        copied.steps.append(
-            WorkflowStep(name="extra", module="X", endpoint="/x")
-        )
+        copied.steps.append(WorkflowStep(name="extra", module="X", endpoint="/x"))
         assert len(copied.steps) == 4
         assert len(wf.steps) == 3
 

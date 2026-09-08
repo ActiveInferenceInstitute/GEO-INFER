@@ -12,8 +12,7 @@ from geo_infer_log.api.delivery import (
 from geo_infer_log.api.routes import get_fleet_manager, get_route_optimizer
 from geo_infer_log.api.supply_chain import get_supply_chain_model
 from geo_infer_log.core.delivery import DeliveryScheduler, LastMileRouter
-from geo_infer_log.core.routing import FleetManager, RouteOptimizer
-from geo_infer_log.core.supply_chain import SupplyChainModel
+from geo_infer_log.core.routing import FleetManager
 
 
 class TestCachedDependencies:
@@ -61,6 +60,4 @@ class TestCachedDependencies:
         )
 
         # A fresh dependency call must observe the registered vehicle.
-        assert (
-            get_fleet_manager().get_fleet_status()["total_vehicles"] == before + 1
-        )
+        assert get_fleet_manager().get_fleet_status()["total_vehicles"] == before + 1

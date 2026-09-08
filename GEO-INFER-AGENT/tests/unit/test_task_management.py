@@ -6,9 +6,8 @@ Tests for task management: Plan creation, assignment, advancement, and completio
 """
 
 import unittest
-from datetime import datetime, timedelta
 
-from geo_infer_agent.models.bdi.agent import Plan, Desire, Belief
+from geo_infer_agent.models.bdi.agent import Plan
 from geo_infer_agent.models import BDIState
 
 
@@ -144,7 +143,9 @@ class TestTaskAssignment(unittest.TestCase):
 
         # Filter to Plan objects only, then check desire_name
         plan_objects = [i for i in state.intentions if isinstance(i, Plan)]
-        alpha_plans = [p for p in plan_objects if p.desire_name == "alpha" and not p.complete]
+        alpha_plans = [
+            p for p in plan_objects if p.desire_name == "alpha" and not p.complete
+        ]
         self.assertEqual(len(alpha_plans), 2)
         names = {p.name for p in alpha_plans}
         self.assertEqual(names, {"p1", "p3"})

@@ -34,6 +34,7 @@
 - `run_model_audit.py`
 - `run_unified_tests.py`
 - `setup.py`
+- `tests_lint_metric.py`
 - `validate_act_geospatial_contract.py`
 - `validate_act_script_orchestration.py`
 - `validate_active_inference_contract.py`

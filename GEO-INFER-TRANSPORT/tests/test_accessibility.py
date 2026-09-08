@@ -1,6 +1,5 @@
 """Tests for accessibility analysis module."""
 
-import pytest
 import math
 from geo_infer_transport.core.accessibility import (
     AccessibilityAnalyzer,
@@ -162,7 +161,11 @@ class TestAccessibilityIndex:
         result = analyzer.calculate_accessibility_index(
             origin={"id": "o1", "location": {"lat": 34.0, "lon": -118.0}},
             destinations=[
-                {"id": "d1", "location": {"lat": 34.01, "lon": -118.01}, "weight": 10.0},
+                {
+                    "id": "d1",
+                    "location": {"lat": 34.01, "lon": -118.01},
+                    "weight": 10.0,
+                },
                 {"id": "d2", "location": {"lat": 34.05, "lon": -118.05}, "weight": 5.0},
             ],
             decay_function="exponential",
@@ -171,7 +174,10 @@ class TestAccessibilityIndex:
         assert result["accessibility_index"] > 0
         assert len(result["components"]) == 2
         # Closer destination contributes more
-        assert result["components"][0]["contribution"] >= result["components"][1]["contribution"]
+        assert (
+            result["components"][0]["contribution"]
+            >= result["components"][1]["contribution"]
+        )
 
     def test_power_decay_function(self) -> None:
         analyzer = AccessibilityAnalyzer()

@@ -83,6 +83,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`ci_root_tests_covered`, 102 → 109) plus local render-path health
   (`render_dependent_tests_local_passing`, 0 → 7).
 
+### Deep horizon 2026-09-08 - tests hygiene (HYG-04)
+
+- Cleared the module test suites' dead-import surface: the 398
+  F401/F841/F811 hits (361 F401, 35 F841, 2 F811 across 214 files) in
+  `GEO-INFER-*/tests` measured at the 2026-09-07 recount are 0, by the
+  HYG-01 per-site method — pure dead imports and pointless assignments
+  removed, sanctioned availability probes and deliberate re-exports
+  preserved as redundant-alias re-exports (which F401 exempts), F841
+  side-effect calls bare-called or underscore-prefixed. No `# noqa`, no
+  test semantics changed; every touched file's test subset passes, and
+  compileall plus full-suite collection cover the whole tree.
+- Added the durable sanctioned-select gate to the ci.yml
+  source-runtime-hygiene step: `ruff check GEO-INFER-*/tests --select
+  F401,F841,F811` keeps the floor at zero.
+- Extended the autoresearch harness (`autoresearch.sh` +
+  `GEO-INFER-TEST/tests_lint_metric.py`) with the HYG-04 instrument:
+  `tests_lint_hits` plus per-rule and top-file ASI diagnostics.
+
 ### September 7 root health and CI integration
 
 - Run the root manuscript regression suite (102 of 109 tests) in the CI

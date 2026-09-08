@@ -20,7 +20,6 @@ No mocks, stubs, or placeholders: every assertion exercises actual code paths.
 """
 
 import datetime
-import uuid
 
 import pytest
 from shapely.geometry import Point, Polygon
@@ -32,7 +31,7 @@ from geo_infer_norms.core.normative_inference import (
 )
 from geo_infer_norms.core.legal_frameworks import LegalFramework
 from geo_infer_norms.core.zoning_analysis import ZoningAnalyzer
-from geo_infer_norms.models.compliance_status import ComplianceStatus, ComplianceMetric
+from geo_infer_norms.models.compliance_status import ComplianceMetric
 from geo_infer_norms.models.legal_entity import LegalEntity, Jurisdiction
 from geo_infer_norms.models.regulation import Regulation
 from geo_infer_norms.models.zoning import ZoningCode, ZoningDistrict
@@ -41,6 +40,7 @@ from geo_infer_norms.models.zoning import ZoningCode, ZoningDistrict
 # ---------------------------------------------------------------------------
 # ComplianceTracker
 # ---------------------------------------------------------------------------
+
 
 class TestComplianceTrackerAcceptance:
     """Acceptance: threshold/range/boolean evaluation and weighted scoring."""
@@ -62,8 +62,11 @@ class TestComplianceTrackerAcceptance:
 
     def _regulation(self, reg_id: str = "reg-air") -> Regulation:
         return Regulation(
-            id=reg_id, name="Air Quality", description="PM2.5 limit",
-            regulation_type="environmental", issuing_authority="County",
+            id=reg_id,
+            name="Air Quality",
+            description="PM2.5 limit",
+            regulation_type="environmental",
+            issuing_authority="County",
             effective_date=datetime.date(2026, 1, 1),
         )
 
@@ -71,7 +74,9 @@ class TestComplianceTrackerAcceptance:
         """A value below a less_than threshold yields full compliance."""
         metric = self._threshold_metric()
         tracker = ComplianceTracker("environmental", compliance_metrics=[metric])
-        status = tracker.evaluate_compliance(self._entity(), self._regulation(), {"pm25": 28})
+        status = tracker.evaluate_compliance(
+            self._entity(), self._regulation(), {"pm25": 28}
+        )
         assert status.is_compliant is True
         assert status.compliance_level == 1.0
         assert len(tracker.compliance_statuses) == 1
@@ -81,7 +86,9 @@ class TestComplianceTrackerAcceptance:
         """A value above a less_than threshold yields non-compliance."""
         metric = self._threshold_metric()
         tracker = ComplianceTracker("environmental", compliance_metrics=[metric])
-        status = tracker.evaluate_compliance(self._entity(), self._regulation(), {"pm25": 40})
+        status = tracker.evaluate_compliance(
+            self._entity(), self._regulation(), {"pm25": 40}
+        )
         assert status.is_compliant is False
         assert status.compliance_level == 0.0
 
@@ -100,8 +107,11 @@ class TestComplianceTrackerAcceptance:
         )
         tracker = ComplianceTracker("ops", compliance_metrics=[metric])
         reg = Regulation(
-            id="reg-temp", name="Temperature", description="Temp range",
-            regulation_type="safety", issuing_authority="Plant",
+            id="reg-temp",
+            name="Temperature",
+            description="Temp range",
+            regulation_type="safety",
+            issuing_authority="Plant",
             effective_date=datetime.date(2026, 1, 1),
         )
         # Value 35 is above max 30 → non-compliant, level reflects distance.
@@ -121,11 +131,16 @@ class TestComplianceTrackerAcceptance:
         )
         tracker = ComplianceTracker("admin", compliance_metrics=[metric])
         reg = Regulation(
-            id="reg-permit", name="Permit", description="Permit required",
-            regulation_type="administrative", issuing_authority="City",
+            id="reg-permit",
+            name="Permit",
+            description="Permit required",
+            regulation_type="administrative",
+            issuing_authority="City",
             effective_date=datetime.date(2026, 1, 1),
         )
-        status = tracker.evaluate_compliance(self._entity(), reg, {"permit_present": True})
+        status = tracker.evaluate_compliance(
+            self._entity(), reg, {"permit_present": True}
+        )
         assert status.is_compliant is True
         assert status.compliance_level == 1.0
 
@@ -165,6 +180,7 @@ class TestComplianceTrackerAcceptance:
 # NormativeInference
 # ---------------------------------------------------------------------------
 
+
 class TestNormativeInferenceAcceptance:
     """Acceptance: norm registration and Bayesian compliance inference."""
 
@@ -184,7 +200,8 @@ class TestNormativeInferenceAcceptance:
         first = list(inference.norms.keys())[0]
         assert first in inference.norms
         second = inference.add_norm(
-            name="Helmet", condition=lambda obs: obs.get("helmet", False) is True,
+            name="Helmet",
+            condition=lambda obs: obs.get("helmet", False) is True,
         )
         assert second != first
         assert len(inference.norms) == 2
@@ -237,6 +254,7 @@ class TestNormativeInferenceAcceptance:
 # SocialNormDiffusion
 # ---------------------------------------------------------------------------
 
+
 class TestSocialNormDiffusionAcceptance:
     """Acceptance: norm adoption via network/spatial/content factors."""
 
@@ -245,8 +263,13 @@ class TestSocialNormDiffusionAcceptance:
         model = SocialNormDiffusion()
         for eid in ("a", "b", "c"):
             model.add_entity(eid, attributes={}, adoption_threshold=0.5)
-        model.add_norm("n1", "Recycle", initial_adopters=["a", "b"],
-                       spatial_factor=0.0, network_factor=1.0)
+        model.add_norm(
+            "n1",
+            "Recycle",
+            initial_adopters=["a", "b"],
+            spatial_factor=0.0,
+            network_factor=1.0,
+        )
         model.add_social_connection("a", "c", strength=1.0)
         model.add_social_connection("b", "c", strength=1.0)
         # c is connected to two adopters out of two → network_influence = 1.0.
@@ -259,13 +282,21 @@ class TestSocialNormDiffusionAcceptance:
     def test_content_influence_uses_jaccard(self):
         """Content factor adoption uses Jaccard similarity over attribute keys."""
         model = SocialNormDiffusion()
-        model.add_entity("e1", attributes={"env": 1, "climate": 1}, adoption_threshold=0.0)
+        model.add_entity(
+            "e1", attributes={"env": 1, "climate": 1}, adoption_threshold=0.0
+        )
         model.add_entity("e2", attributes={"env": 1}, adoption_threshold=0.0)
         # Norm attributes overlap 'env' with e1 (intersection 1, union 2 → 0.5)
         # and fully overlap with e2 (intersection 1, union 1 → 1.0).
-        model.add_norm("n1", "Green", initial_adopters=[],
-                       spatial_factor=0.0, network_factor=0.0, content_factor=1.0,
-                       attributes={"env": 1})
+        model.add_norm(
+            "n1",
+            "Green",
+            initial_adopters=[],
+            spatial_factor=0.0,
+            network_factor=0.0,
+            content_factor=1.0,
+            attributes={"env": 1},
+        )
         prob_e1 = model.calculate_adoption_probability("n1", "e1")
         prob_e2 = model.calculate_adoption_probability("n1", "e2")
         assert prob_e2 == pytest.approx(1.0)  # full overlap
@@ -287,6 +318,7 @@ class TestSocialNormDiffusionAcceptance:
 # LegalFramework
 # ---------------------------------------------------------------------------
 
+
 class TestLegalFrameworkAcceptance:
     """Acceptance: jurisdiction-regulation indexing and point lookups."""
 
@@ -294,8 +326,11 @@ class TestLegalFrameworkAcceptance:
         """A regulation tagged with a jurisdiction is returned by jurisdiction lookup."""
         jur = Jurisdiction(id="j1", name="County", level="county")
         reg = Regulation(
-            id="r1", name="Buffer", description="Riparian buffer",
-            regulation_type="environmental", issuing_authority="County",
+            id="r1",
+            name="Buffer",
+            description="Riparian buffer",
+            regulation_type="environmental",
+            issuing_authority="County",
             effective_date=datetime.date(2020, 1, 1),
             applicable_jurisdictions=["j1"],
         )
@@ -323,15 +358,26 @@ class TestLegalFrameworkAcceptance:
 # ZoningAnalyzer
 # ---------------------------------------------------------------------------
 
+
 class TestZoningAnalyzerAcceptance:
     """Acceptance: zoning compatibility matrix and point lookups."""
 
     def _codes(self):
         return [
-            ZoningCode(code="R-1", name="Residential", description="Single family",
-                       category="residential", jurisdiction_id="j1"),
-            ZoningCode(code="I-1", name="Industrial", description="Light industrial",
-                       category="industrial", jurisdiction_id="j1"),
+            ZoningCode(
+                code="R-1",
+                name="Residential",
+                description="Single family",
+                category="residential",
+                jurisdiction_id="j1",
+            ),
+            ZoningCode(
+                code="I-1",
+                name="Industrial",
+                description="Light industrial",
+                category="industrial",
+                jurisdiction_id="j1",
+            ),
         ]
 
     def test_same_code_fully_compatible(self):
@@ -352,8 +398,13 @@ class TestZoningAnalyzerAcceptance:
     def test_point_in_district_lookup(self):
         """get_zoning_at_point returns districts whose geometry contains the point."""
         poly = Polygon([(0, 0), (0, 10), (10, 10), (10, 0)])
-        district = ZoningDistrict(id="d1", name="Downtown", zoning_code="R-1",
-                                  jurisdiction_id="j1", geometry=poly)
+        district = ZoningDistrict(
+            id="d1",
+            name="Downtown",
+            zoning_code="R-1",
+            jurisdiction_id="j1",
+            geometry=poly,
+        )
         analyzer = ZoningAnalyzer(zoning_districts=[district])
         hits = analyzer.get_zoning_at_point(Point(5, 5))
         assert len(hits) == 1
@@ -365,14 +416,18 @@ class TestZoningAnalyzerAcceptance:
 # Regulation / Policy lifecycle
 # ---------------------------------------------------------------------------
 
+
 class TestRegulationLifecycleAcceptance:
     """Acceptance: regulation active/inactive and amendment lifecycle."""
 
     def test_is_active_within_window(self):
         """A regulation is active between effective and expiration dates."""
         reg = Regulation(
-            id="r1", name="Rule", description="A rule",
-            regulation_type="safety", issuing_authority="City",
+            id="r1",
+            name="Rule",
+            description="A rule",
+            regulation_type="safety",
+            issuing_authority="City",
             effective_date=datetime.date(2020, 1, 1),
             expiration_date=datetime.date(2030, 12, 31),
         )
@@ -383,8 +438,11 @@ class TestRegulationLifecycleAcceptance:
     def test_amend_updates_description_and_date(self):
         """Amending a regulation replaces its description and records the date."""
         reg = Regulation(
-            id="r1", name="Rule", description="Original",
-            regulation_type="safety", issuing_authority="City",
+            id="r1",
+            name="Rule",
+            description="Original",
+            regulation_type="safety",
+            issuing_authority="City",
             effective_date=datetime.date(2020, 1, 1),
         )
         amend_date = datetime.date(2025, 3, 15)
@@ -395,8 +453,11 @@ class TestRegulationLifecycleAcceptance:
     def test_zoning_code_use_classification(self):
         """ZoningCode classifies allowed/conditional/prohibited uses."""
         code = ZoningCode.create(
-            code="M-1", name="Mixed", description="Mixed use",
-            category="mixed_use", jurisdiction_id="j1",
+            code="M-1",
+            name="Mixed",
+            description="Mixed use",
+            category="mixed_use",
+            jurisdiction_id="j1",
             allowed_uses=["residential", "retail"],
             conditional_uses=["office"],
             prohibited_uses=["heavy_industry"],
