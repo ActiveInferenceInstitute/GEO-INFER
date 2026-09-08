@@ -143,11 +143,17 @@ def test_bundled_contract_loads_full_civic_and_hazard_surface() -> None:
     assert intel["city"]["latitude"] == pytest.approx(41.76)
     assert intel["city"]["longitude"] == pytest.approx(-124.2)
     assert len(intel["domains"]) == 12
+    # Refreshed 2026-09-08 with the regenerated crescent-city-geo-intel/v1
+    # seed: the producer's hazard-relevant surface grew from four domains to
+    # six (public-health-safety: wildfire smoke; tourism-recreation: tsunami
+    # museum; plus richer climate/emergency tagging).
     assert {domain["id"] for domain in intel["hazardDomains"]} == {
         "climate-environment",
         "emergency-management",
         "environmental-protection",
         "event-planning",
+        "public-health-safety",
+        "tourism-recreation",
     }
     all_hazard_tags = [
         tag
@@ -233,10 +239,14 @@ def test_seed_validation_does_not_advance_a_caller_generator() -> None:
 def test_bundled_hazard_prior_table_counts_only_hazard_topic_sections() -> None:
     table = build_hazard_prior_table(load_crescent_city_intel())
 
+    # Refreshed 2026-09-08 against the regenerated bundled seed: the hazard
+    # surface grew to six domains with richer tagging (climate change,
+    # earthquake; new public-health-safety and tourism-recreation entries).
     assert table == {
         "climate-environment": {
             "hazardTags": [
                 "climate adaptation",
+                "climate change",
                 "flood zone",
                 "sea level rise",
                 "wildfire smoke",
@@ -244,8 +254,8 @@ def test_bundled_hazard_prior_table_counts_only_hazard_topic_sections() -> None:
             "sectionCount": 5,
         },
         "emergency-management": {
-            "hazardTags": ["seismic", "tsunami"],
-            "sectionCount": 3,
+            "hazardTags": ["earthquake", "seismic", "tsunami"],
+            "sectionCount": 7,
         },
         "environmental-protection": {
             "hazardTags": ["erosion", "flood zone", "tsunami zone"],
@@ -253,6 +263,14 @@ def test_bundled_hazard_prior_table_counts_only_hazard_topic_sections() -> None:
         },
         "event-planning": {
             "hazardTags": ["tsunami drill"],
+            "sectionCount": 2,
+        },
+        "public-health-safety": {
+            "hazardTags": ["wildfire smoke"],
+            "sectionCount": 2,
+        },
+        "tourism-recreation": {
+            "hazardTags": ["tsunami museum"],
             "sectionCount": 2,
         },
     }

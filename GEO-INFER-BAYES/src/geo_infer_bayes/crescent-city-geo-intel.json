@@ -15,29 +15,41 @@
       "north": 42.006
     }
   },
-  "generatedAt": "2026-08-24T15:42:41.522Z",
+  "generatedAt": "2026-09-08T18:53:47.569Z",
   "domainCount": 12,
   "domains": [
     {
       "id": "emergency-management",
       "name": "Emergency Management",
       "icon": "🌊",
-      "description": "Tsunami preparedness, evacuation routes, emergency protocols, and mutual aid agreements for Crescent City — the most tsunami-impacted city in the contiguous United States.",
-      "updatedAt": "2026-03-13",
-      "topicCount": 3,
+      "description": "Tsunami preparedness, Cascadia subduction-zone earthquake planning, evacuation infrastructure, and mutual aid for Crescent City — the most tsunami-impacted city in the contiguous United States, sitting on the locked southern segment of the Cascadia margin (37% M8+ probability in 50 years; last full-margin rupture AD 1700).",
+      "updatedAt": "2026-08-25",
+      "topicCount": 4,
       "tags": [
         "alerts",
+        "cascadia",
         "communication",
+        "coseismic subsidence",
         "del norte county",
+        "dt:1700",
+        "dt:1964",
+        "dt:1964-resp",
+        "dt:2011",
+        "dt:ets",
+        "earthquake",
         "emergency",
         "emergency response",
         "evacuation",
+        "liquefaction",
+        "megathrust",
         "mutual aid",
         "natural disaster",
         "pelican bay",
         "seismic",
         "sirens",
+        "subduction zone",
         "tsunami",
+        "tsunamiready",
         "warning systems"
       ],
       "sections": [
@@ -52,6 +64,22 @@
         {
           "sectionNumber": "§ 15.04",
           "relevance": "Building code — seismic and flood zone requirements"
+        },
+        {
+          "sectionNumber": "§ 8.04",
+          "relevance": "Health and Safety — emergency management authority"
+        },
+        {
+          "sectionNumber": "§ 9.04",
+          "relevance": "Public Peace — emergency powers and mutual aid"
+        },
+        {
+          "sectionNumber": "§ 15.04",
+          "relevance": "Building code — seismic zone construction requirements"
+        },
+        {
+          "sectionNumber": "§ 17.04",
+          "relevance": "Zoning — coastal overlay district and tsunami inundation zone"
         },
         {
           "sectionNumber": "§ 2.04",
@@ -76,7 +104,7 @@
       "name": "Business Development",
       "icon": "🦀",
       "description": "Business licensing, fishing and crabbing regulations, tourism permits, harbor operations, and economic development for Crescent City's marine-based economy.",
-      "updatedAt": "2026-03-13",
+      "updatedAt": "2026-08-25",
       "topicCount": 4,
       "tags": [
         "boats",
@@ -153,13 +181,15 @@
       "name": "Environmental Protection",
       "icon": "🌿",
       "description": "Coastal protection, tsunami inundation zones, wetland buffers, stormwater management, and environmental regulations for Crescent City's sensitive coastal ecosystem.",
-      "updatedAt": "2026-03-13",
+      "updatedAt": "2026-08-25",
       "topicCount": 3,
       "tags": [
         "FEMA",
         "bluff",
         "buffer",
         "coastal",
+        "dt:1964-rebuild",
+        "dt:slr",
         "erosion",
         "flood zone",
         "habitat",
@@ -168,6 +198,7 @@
         "riparian",
         "setback",
         "shoreline",
+        "smith river",
         "stormwater",
         "tsunami zone",
         "wetland"
@@ -216,7 +247,7 @@
       "name": "Public Safety",
       "icon": "🛡️",
       "description": "Law enforcement, noise ordinances, prison-related regulations, and community safety protocols for Crescent City, home to Pelican Bay State Prison.",
-      "updatedAt": "2026-03-13",
+      "updatedAt": "2026-08-25",
       "topicCount": 3,
       "tags": [
         "construction",
@@ -279,7 +310,7 @@
       "name": "Event Planning",
       "icon": "🎪",
       "description": "Special event permitting, mass gathering safety, waterfront events, tsunami drill coordination, and public assembly regulations.",
-      "updatedAt": "2026-03-13",
+      "updatedAt": "2026-08-25",
       "topicCount": 4,
       "tags": [
         "amplified sound",
@@ -340,7 +371,7 @@
       "name": "Housing & Homelessness",
       "icon": "🏠",
       "description": "Housing policy, emergency shelter, camper/RV regulations, code enforcement, and social services for Crescent City — where a 17% poverty rate and limited affordable stock drive ongoing civic debate.",
-      "updatedAt": "2026-03-18",
+      "updatedAt": "2026-08-25",
       "topicCount": 5,
       "tags": [
         "ADU",
@@ -440,28 +471,37 @@
       "name": "Tourism & Recreation",
       "icon": "🏕️",
       "description": "Parks, camping permits, beach access, vacation rentals, Battery Point Lighthouse tours, and recreational facilities in Crescent City — gateway to Redwood National Park and the Smith River National Recreation Area.",
-      "updatedAt": "2026-03-18",
-      "topicCount": 4,
+      "updatedAt": "2026-08-25",
+      "topicCount": 5,
       "tags": [
         "airbnb",
         "battery point lighthouse",
         "beach access",
         "camping",
+        "dt:1850-og",
+        "dt:1856",
         "fishing charters",
         "guided tours",
         "heritage tourism",
         "historical preservation",
+        "jedediah smith",
+        "klamath knot",
         "lodging",
+        "old-growth",
         "parks",
         "party boats",
         "recreation",
         "recreational fishing",
         "redwood",
+        "redwood national park",
         "salmon season",
         "short-term rental",
+        "smith river",
         "special events",
         "sport fishing",
         "tourism",
+        "tourism gateway",
+        "tsunami museum",
         "vacation rental",
         "vrtu"
       ],
@@ -495,6 +535,18 @@
           "relevance": "Zoning — historic overlay districts"
         },
         {
+          "sectionNumber": "§ 17.04",
+          "relevance": "Zoning — visitor-serving commercial and tourism zones"
+        },
+        {
+          "sectionNumber": "§ 5.04",
+          "relevance": "Business licenses — tourism-oriented business registration"
+        },
+        {
+          "sectionNumber": "§ 12.04",
+          "relevance": "Streets — visitor access and signage"
+        },
+        {
           "sectionNumber": "§ 13.04",
           "relevance": "Harbor — commercial and charter fishing vessel regulations"
         },
@@ -509,7 +561,7 @@
       "name": "Harbor & Marine Operations",
       "icon": "⚓",
       "description": "Vessel registration, docking fees, slip assignments, dredging permits, fuel dock regulations, and port operations at the Port of Crescent City — the northernmost California working commercial fishing harbor south of the Oregon border.",
-      "updatedAt": "2026-03-18",
+      "updatedAt": "2026-08-25",
       "topicCount": 3,
       "tags": [
         "citizen dock",
@@ -566,7 +618,7 @@
       "name": "Education & Youth",
       "icon": "📚",
       "description": "School zone regulations, youth program permits, library use, parks & recreation facility reservations, and educational facility land-use rules — served by Del Norte Unified School District and College of the Redwoods.",
-      "updatedAt": "2026-03-18",
+      "updatedAt": "2026-08-25",
       "topicCount": 3,
       "tags": [
         "after-school",
@@ -626,17 +678,26 @@
       "name": "Climate & Environment",
       "icon": "🌡️",
       "description": "Climate resilience, drought monitoring, sea-level rise adaptation, carbon footprint, and environmental justice for Crescent City — a frontline coastal community facing Cascadia earthquake, tsunami inundation, and changing marine ecosystems.",
-      "updatedAt": "2026-07-22",
+      "updatedAt": "2026-08-25",
       "topicCount": 3,
       "tags": [
         "air quality",
         "climate adaptation",
+        "climate change",
         "coastal resilience",
+        "coseismic subsidence",
+        "cultural fire",
         "drought",
+        "dt:2020-slater",
+        "dt:2023-src",
+        "dt:2024-kdr",
+        "dt:slr-2100",
         "emissions",
         "environmental justice",
         "flood zone",
+        "klamath dam removal",
         "sea level rise",
+        "seas:dry",
         "smith river",
         "water conservation",
         "watershed",
@@ -678,7 +739,7 @@
       "name": "Demographics & Social Indicators",
       "icon": "👥",
       "description": "Population trends, poverty indicators, prison-adjacent demographics, homelessness data, and social vulnerability indices for Crescent City — where ~3,000 of the ~6,000 residents are incarcerated at Pelican Bay State Prison.",
-      "updatedAt": "2026-07-22",
+      "updatedAt": "2026-08-25",
       "topicCount": 3,
       "tags": [
         "CARE Court",
@@ -740,13 +801,16 @@
       "name": "Public Health & Safety",
       "icon": "🏥",
       "description": "Public health services, emergency medical response, pandemic preparedness, food safety, water quality, and mental health services coordination for Crescent City and Del Norte County.",
-      "updatedAt": "2026-07-22",
-      "topicCount": 3,
+      "updatedAt": "2026-08-25",
+      "topicCount": 4,
       "tags": [
+        "air quality",
         "ambulance",
         "behavioral health",
         "care court",
         "crisis intervention",
+        "dt:2020-slater",
+        "dt:2023-src",
         "emergency medical",
         "ems",
         "food handler",
@@ -754,7 +818,12 @@
         "health permit",
         "mental health",
         "mutual aid",
-        "restaurant inspection"
+        "pm2.5",
+        "respiratory health",
+        "restaurant inspection",
+        "seas:dry",
+        "sutter coast hospital",
+        "wildfire smoke"
       ],
       "sections": [
         {
@@ -792,6 +861,14 @@
         {
           "sectionNumber": "§ 9.04",
           "relevance": "Public Peace — crisis intervention protocols"
+        },
+        {
+          "sectionNumber": "§ 8.04",
+          "relevance": "Health and Safety — air quality authority"
+        },
+        {
+          "sectionNumber": "§ 8.08",
+          "relevance": "Nuisance abatement — air pollution"
         }
       ]
     }
@@ -803,6 +880,7 @@
         "name": "Emergency Management",
         "icon": "🌊",
         "hazardTags": [
+          "earthquake",
           "seismic",
           "tsunami"
         ],
@@ -825,6 +903,31 @@
               {
                 "sectionNumber": "§ 15.04",
                 "relevance": "Building code — seismic and flood zone requirements"
+              }
+            ]
+          },
+          {
+            "name": "Cascadia Megathrust Preparedness",
+            "tags": [
+              "earthquake",
+              "seismic"
+            ],
+            "sections": [
+              {
+                "sectionNumber": "§ 8.04",
+                "relevance": "Health and Safety — emergency management authority"
+              },
+              {
+                "sectionNumber": "§ 9.04",
+                "relevance": "Public Peace — emergency powers and mutual aid"
+              },
+              {
+                "sectionNumber": "§ 15.04",
+                "relevance": "Building code — seismic zone construction requirements"
+              },
+              {
+                "sectionNumber": "§ 17.04",
+                "relevance": "Zoning — coastal overlay district and tsunami inundation zone"
               }
             ]
           }
@@ -910,11 +1013,38 @@
         ]
       },
       {
+        "id": "tourism-recreation",
+        "name": "Tourism & Recreation",
+        "icon": "🏕️",
+        "hazardTags": [
+          "tsunami museum"
+        ],
+        "topics": [
+          {
+            "name": "Battery Point Lighthouse & Heritage Tourism",
+            "tags": [
+              "tsunami museum"
+            ],
+            "sections": [
+              {
+                "sectionNumber": "§ 2.04",
+                "relevance": "Historical preservation — City Administration authority"
+              },
+              {
+                "sectionNumber": "§ 17.04",
+                "relevance": "Zoning — historic overlay districts"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "id": "climate-environment",
         "name": "Climate & Environment",
         "icon": "🌡️",
         "hazardTags": [
           "climate adaptation",
+          "climate change",
           "flood zone",
           "sea level rise",
           "wildfire smoke"
@@ -945,6 +1075,33 @@
           {
             "name": "Air Quality & Environmental Justice",
             "tags": [
+              "wildfire smoke",
+              "climate change"
+            ],
+            "sections": [
+              {
+                "sectionNumber": "§ 8.04",
+                "relevance": "Health and Safety — air quality authority"
+              },
+              {
+                "sectionNumber": "§ 8.08",
+                "relevance": "Nuisance abatement — air pollution"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "public-health-safety",
+        "name": "Public Health & Safety",
+        "icon": "🏥",
+        "hazardTags": [
+          "wildfire smoke"
+        ],
+        "topics": [
+          {
+            "name": "Wildfire Smoke & Air Quality Health Response",
+            "tags": [
               "wildfire smoke"
             ],
             "sections": [
@@ -961,6 +1118,6 @@
         ]
       }
     ],
-    "relevantDomainCount": 4
+    "relevantDomainCount": 6
   }
 }
