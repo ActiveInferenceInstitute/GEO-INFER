@@ -89,6 +89,7 @@ FLOW_PENALTIES = (
     "\\clubpenalties 3 10000 10000 10000\n"
     "\\displaywidowpenalties 3 10000 10000 10000\n"
 )
+STRETCH_SETUP = "\\setlength{\\emergencystretch}{4em}\n"
 MAX_XELATEX_PASSES = 4
 
 _ERROR_PREFIX = "! "
@@ -199,6 +200,7 @@ def _preamble_header() -> Path:
         + GEOMETRY
         + WRAP_SETUP
         + FLOW_PENALTIES
+        + STRETCH_SETUP
     )
     destination = PDF_DIR / "_preamble.tex"
     destination.write_text(header, encoding="utf-8")
