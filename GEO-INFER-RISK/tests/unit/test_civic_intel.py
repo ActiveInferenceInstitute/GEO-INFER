@@ -127,7 +127,11 @@ def test_bundled_gold_surfaces_reviewed_hazard_policy() -> None:
     }
     # Refreshed 2026-09-08: emergency-management now also carries the
     # "earthquake" tag; its topic sections hold 6 distinct entries.
-    assert result["hazardDomains"][0]["hazardTags"] == ["earthquake", "seismic", "tsunami"]
+    assert result["hazardDomains"][0]["hazardTags"] == [
+        "earthquake",
+        "seismic",
+        "tsunami",
+    ]
     assert len(result["hazardDomains"][0]["sections"]) == 6
 
 
@@ -142,6 +146,19 @@ def test_local_json_path_and_missing_seed_are_deterministic(tmp_path: Path) -> N
     )
     empty = {"city": None, "hazardDomains": [], "bounds": None}
     assert load_crescent_city_hazard(tmp_path / "missing.json") == empty
+
+
+def test_seed_keyword_alias_is_deprecated_but_functional(tmp_path: Path) -> None:
+    """The legacy seed= alias still loads the same surface, with a warning."""
+
+    seed_path = tmp_path / "geo-intel.json"
+    seed_path.write_text(json.dumps(_contract_fixture()), encoding="utf-8")
+
+    with pytest.deprecated_call():
+        result = load_crescent_city_hazard(seed=seed_path)
+
+    assert result["city"] is not None
+    assert load_crescent_city_hazard(seed_path) == result
 
 
 def test_policy_weights_align_with_multi_hazard_matrix_names() -> None:
@@ -255,8 +272,7 @@ def test_existing_malformed_json_fails_closed(tmp_path: Path) -> None:
 
     invalid = tmp_path / "invalid.json"
     invalid.write_text("{not-json", encoding="utf-8")
-
-    with pytest.raises(ValueError, match="invalid Crescent City geo-intel JSON"):
+    with pytest.raises(ValueError, match="invalid Crescent City intel JSON"):
         load_crescent_city_hazard(invalid)
 
 
