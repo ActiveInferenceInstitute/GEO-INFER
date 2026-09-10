@@ -63,3 +63,5 @@ GEO-INFER-PLACE/locations/cascadia/output/data/cache/region_cache_*.json
 # Coverage measurement artifacts (TEST-03)
 /.coverage
 /.coverage.*
+.gitnexus/
+.claude/
