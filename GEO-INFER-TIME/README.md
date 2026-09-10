@@ -12,7 +12,6 @@ Temporal analysis, time series processing, forecasting, and spatio-temporal data
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`
-- `uv.lock`
 
 ## Public Interface
 

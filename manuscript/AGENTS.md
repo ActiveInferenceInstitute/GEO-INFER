@@ -2,15 +2,14 @@
 
 ## Scope
 
-- Owning module: `GEO-INFER`
-- Python package: `workspace`
+- Owning module: none (repository-level directory outside the GEO-INFER-* module fleet)
 - Directory role: Manuscript workspace within GEO-INFER.
 
 ## Capabilities
 
 - Maintains the tracked files and subdirectories listed below for this workspace.
 - Validates behavior with the command in the Validation section.
-- Integrates through `workspace` and the owning module's public contracts.
+- Integrates through the repository's module-level public contracts; this directory defines no Python package.
 
 ## Working Rules
 

@@ -29,10 +29,11 @@ Core workspace within `GEO-INFER-ACT`.
 - `civic_intel.py:GeoIntelTopic` (class)
 - `civic_intel.py:HazardDomain` (class)
 - `civic_intel.py:CrescentCityIntel` (class)
-- `civic_intel.py:default_contract_path` (function)
 - `civic_intel.py:parse_crescent_city_intel` (function)
 - `civic_intel.py:hazard_policy_prior` (function)
 - `dynamic_causal_model.py:DynamicCausalModel` (class)
+- `free_energy.py:validate_spd_precision` (function)
+- `free_energy.py:compute_policy_expected_free_energy` (function)
 - `free_energy.py:FreeEnergyCalculator` (class)
 - `generative_model.py:MarkovBlanket` (class)
 - `generative_model.py:HierarchicalLevel` (class)
@@ -41,7 +42,6 @@ Core workspace within `GEO-INFER-ACT`.
 - `gnn_contract.py:run_gnn_inference` (function)
 - `gnn_factored_contract.py:validate_factored_artifact` (function)
 - `gnn_factored_contract.py:FactoredGNNArtifact` (class)
-- `gnn_factored_contract.py:infer_factored_step` (function)
 
 ## Module Metadata
 

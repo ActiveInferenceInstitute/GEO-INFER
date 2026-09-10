@@ -27,6 +27,7 @@
 - `examples/`
 - `src/`
 - `tests/`
+- `_validator_common.py`
 - `build_package_wheels.py`
 - `import_probe.py`
 - `rewrite_readme_agents.py`
