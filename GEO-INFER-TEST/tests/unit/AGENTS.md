@@ -37,6 +37,7 @@
 - `test_test_discoverer.py`
 - `test_test_orchestrator.py`
 - `test_test_runner.py`
+- `test_testing_helpers.py`
 - `test_validate_h3_active_inference_contract.py`
 - `test_validate_packaging.py`
 - `test_validate_repo_contracts.py`
