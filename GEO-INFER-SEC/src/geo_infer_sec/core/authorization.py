@@ -32,7 +32,11 @@ class AuthorizationManager:
     geospatial resources with spatial and temporal constraints.
     """
 
-    def __init__(self, access_manager: Optional[GeospatialAccessManager] = None, secret_key: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        access_manager: Optional[GeospatialAccessManager] = None,
+        secret_key: Optional[str] = None,
+    ) -> None:
         """
         Initialize the authorization manager.
 
@@ -42,7 +46,7 @@ class AuthorizationManager:
                        Must be set via environment variable or configuration.
         """
         import os
-        
+
         if secret_key is None:
             secret_key = os.getenv("GEO_INFER_SEC_SECRET_KEY")
             if secret_key is None:
@@ -51,7 +55,7 @@ class AuthorizationManager:
                     "via GEO_INFER_SEC_SECRET_KEY environment variable. "
                     "Never use default secrets in production!"
                 )
-        
+
         self.access_manager = access_manager or GeospatialAccessManager(
             secret_key=secret_key
         )
@@ -81,7 +85,11 @@ class AuthorizationManager:
         for role in user_roles:
             if self._role_has_permission(role, resource, permission):
                 # Check spatial constraints if provided
-                if attributes and "latitude" in attributes and "longitude" in attributes:
+                if (
+                    attributes
+                    and "latitude" in attributes
+                    and "longitude" in attributes
+                ):
                     lat = attributes["latitude"]
                     lon = attributes["longitude"]
                     if not self.access_manager.can_access_location(user_id, lat, lon):
@@ -225,6 +233,3 @@ class AuthorizationManager:
                 )
 
         return permissions
-
-
-

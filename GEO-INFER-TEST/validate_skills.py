@@ -84,8 +84,7 @@ def parse_frontmatter(content: str) -> dict[str, str]:
 def find_module_dirs() -> list[Path]:
     """Find all GEO-INFER-* module directories."""
     dirs = sorted(
-        d for d in REPO_ROOT.iterdir()
-        if d.is_dir() and d.name.startswith("GEO-INFER-")
+        d for d in REPO_ROOT.iterdir() if d.is_dir() and d.name.startswith("GEO-INFER-")
     )
     return dirs
 
@@ -110,13 +109,9 @@ def validate_skill_file(
 
     # Line count bounds
     if line_count < MIN_LINES:
-        errors.append(
-            f"{label} Too few lines: {line_count} (min {MIN_LINES})"
-        )
+        errors.append(f"{label} Too few lines: {line_count} (min {MIN_LINES})")
     if line_count > MAX_LINES:
-        errors.append(
-            f"{label} Too many lines: {line_count} (max {MAX_LINES})"
-        )
+        errors.append(f"{label} Too many lines: {line_count} (max {MAX_LINES})")
 
     # YAML frontmatter
     fm = parse_frontmatter(content)
@@ -134,13 +129,10 @@ def validate_skill_file(
                 f"'geo-infer-{{module}}'"
             )
         # Expected name
-        expected_name = "geo-infer-" + module_name.lower().replace(
-            "geo-infer-", ""
-        )
+        expected_name = "geo-infer-" + module_name.lower().replace("geo-infer-", "")
         if name_val and name_val != expected_name:
             errors.append(
-                f"{label} Name mismatch: got '{name_val}', "
-                f"expected '{expected_name}'"
+                f"{label} Name mismatch: got '{name_val}', expected '{expected_name}'"
             )
 
     # Required sections
@@ -183,8 +175,7 @@ def validate_root_skill(verbose: bool = False) -> list[str]:
         errors.append(f"{label} No YAML frontmatter found")
     elif fm.get("name") != "geo-infer":
         errors.append(
-            f"{label} Root name should be 'geo-infer', "
-            f"got '{fm.get('name', '')}'"
+            f"{label} Root name should be 'geo-infer', got '{fm.get('name', '')}'"
         )
 
     for section in REQUIRED_SECTIONS:
@@ -216,8 +207,7 @@ def validate_skill_claim_language(content: str, label: str) -> list[str]:
         if any(allowed in normalized for allowed in SKILL_CLAIM_ALLOWLIST):
             continue
         errors.append(
-            f"{label} Unscoped stale/planned skill claim at line {lineno}: "
-            f"{stripped}"
+            f"{label} Unscoped stale/planned skill claim at line {lineno}: {stripped}"
         )
     return errors
 
@@ -234,16 +224,12 @@ def validate_cross_references(verbose: bool = False) -> list[str]:
         if readme.exists():
             content = readme.read_text(encoding="utf-8")
             if "SKILL.md" not in content and "SKILL" not in content:
-                warnings.append(
-                    f"[{module}] README.md does not reference SKILL.md"
-                )
+                warnings.append(f"[{module}] README.md does not reference SKILL.md")
 
         if agents.exists():
             content = agents.read_text(encoding="utf-8")
             if "SKILL.md" not in content and "SKILL" not in content:
-                warnings.append(
-                    f"[{module}] AGENTS.md does not reference SKILL.md"
-                )
+                warnings.append(f"[{module}] AGENTS.md does not reference SKILL.md")
 
     return warnings
 
@@ -254,11 +240,14 @@ def main() -> int:
         description="Validate SKILL.md files across GEO-INFER"
     )
     parser.add_argument(
-        "--verbose", "-v", action="store_true",
+        "--verbose",
+        "-v",
+        action="store_true",
         help="Show passing checks too",
     )
     parser.add_argument(
-        "--check-xrefs", action="store_true",
+        "--check-xrefs",
+        action="store_true",
         help="Also check README/AGENTS cross-references (warnings only)",
     )
     args = parser.parse_args()
@@ -279,9 +268,7 @@ def main() -> int:
     for module_dir in module_dirs:
         skill_path = module_dir / "SKILL.md"
         module_name = module_dir.name.lower()
-        errors = validate_skill_file(
-            skill_path, module_name, verbose=args.verbose
-        )
+        errors = validate_skill_file(skill_path, module_name, verbose=args.verbose)
         all_errors.extend(errors)
 
     # Cross-reference check (optional)
@@ -292,9 +279,7 @@ def main() -> int:
     # Summary
     logger.info("")
     total_files = 1 + len(module_dirs)  # root + modules
-    passing = total_files - len(
-        set(e.split("]")[0] + "]" for e in all_errors)
-    )
+    passing = total_files - len(set(e.split("]")[0] + "]" for e in all_errors))
 
     if all_errors:
         logger.error(f"❌ {len(all_errors)} errors in {total_files} files:")

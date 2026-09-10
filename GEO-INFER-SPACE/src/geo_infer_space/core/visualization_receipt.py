@@ -129,15 +129,15 @@ def write_visualization_receipt(
                 "bytes": artifact_path.stat().st_size,
             }
         ],
-        "accessibility": _accessibility_checks(artifact_path, title_marker=title_marker),
+        "accessibility": _accessibility_checks(
+            artifact_path, title_marker=title_marker
+        ),
     }
     if extra:
         manifest.update(extra)
 
     manifest_path = artifact_path.with_suffix(".manifest.json")
-    manifest_path.write_text(
-        json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
-    )
+    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     return manifest_path
 
 

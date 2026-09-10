@@ -22,16 +22,15 @@ def test_get_logger_is_passive() -> None:
     assert logging.root.handlers == before
 
 
-
 def test_configure_logging_adds_root_handlers() -> None:
     """The documented app-level entry installs a root handler set."""
     previous = list(logging.root.handlers)
     try:
         configure_logging(log_level="DEBUG", json_format=False)
         new_handlers = [h for h in logging.root.handlers if h not in previous]
-        assert any(
-            isinstance(h, logging.StreamHandler) for h in new_handlers
-        ), "configure_logging installed no console handler"
+        assert any(isinstance(h, logging.StreamHandler) for h in new_handlers), (
+            "configure_logging installed no console handler"
+        )
     finally:
         for handler in logging.root.handlers[:]:
             if handler not in previous:

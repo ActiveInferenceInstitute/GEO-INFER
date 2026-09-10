@@ -24,7 +24,9 @@ def _write_target_areas_geojson(path: Path) -> Path:
                 "properties": {"area": "TestRegion", "subarea": "all"},
                 "geometry": {
                     "type": "Polygon",
-                    "coordinates": [[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]]],
+                    "coordinates": [
+                        [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]]
+                    ],
                 },
             }
         ],

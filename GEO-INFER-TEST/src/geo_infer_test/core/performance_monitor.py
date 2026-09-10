@@ -53,7 +53,9 @@ class PerformanceMonitor:
         if self._trace_depth == 0:
             tracemalloc.start()
         self._trace_depth += 1
-        self._section_stack.append(_TimingRecord(label=label, start_time=time.perf_counter()))
+        self._section_stack.append(
+            _TimingRecord(label=label, start_time=time.perf_counter())
+        )
         self.logger.debug("⏱ Start: %s", label)
 
     def stop(self) -> Dict[str, Any]:

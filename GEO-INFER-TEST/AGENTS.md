@@ -27,6 +27,7 @@
 - `examples/`
 - `src/`
 - `tests/`
+- `_validator_common.py`
 - `build_package_wheels.py`
 - `check_coverage_floor.py`
 - `coverage_baseline_metric.py`

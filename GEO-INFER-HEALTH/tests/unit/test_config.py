@@ -17,7 +17,7 @@ from geo_infer_health.utils.config import (
     HealthConfig,
     load_config,
     save_config,
-    get_config_value
+    get_config_value,
 )
 
 
@@ -28,11 +28,12 @@ class TestConfigLoading:
         """Test loading YAML configuration."""
         config_data = {
             "module": {"name": "test", "version": "1.0.0"},
-            "api": {"host": "localhost", "port": 8000}
+            "api": {"host": "localhost", "port": 8000},
         }
 
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             import yaml
+
             yaml.safe_dump(config_data, f)
             temp_path = f.name
 
@@ -47,11 +48,12 @@ class TestConfigLoading:
         """Test loading JSON configuration."""
         config_data = {
             "module": {"name": "test", "version": "1.0.0"},
-            "api": {"host": "localhost", "port": 8000}
+            "api": {"host": "localhost", "port": 8000},
         }
 
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             import json
+
             json.dump(config_data, f)
             temp_path = f.name
 
@@ -77,25 +79,17 @@ class TestConfigValidation:
             "module": {
                 "name": "GEO-INFER-HEALTH",
                 "version": "1.0.0",
-                "description": "Test module"
+                "description": "Test module",
             },
-            "api": {
-                "host": "127.0.0.1",
-                "port": 8000,
-                "workers": 1
-            },
-            "database": {
-                "type": "memory"
-            },
-            "logging": {
-                "level": "INFO"
-            },
+            "api": {"host": "127.0.0.1", "port": 8000, "workers": 1},
+            "database": {"type": "memory"},
+            "logging": {"level": "INFO"},
             "analysis": {
                 "disease_surveillance": {
                     "default_scan_radius_km": 1.0,
-                    "hotspot_threshold_cases": 5
+                    "hotspot_threshold_cases": 5,
                 }
-            }
+            },
         }
 
         validated_config = validate_config(config_data)
@@ -107,7 +101,7 @@ class TestConfigValidation:
         invalid_config = {
             "module": {
                 "name": "test",
-                "version": "invalid_version"  # Should be semantic version
+                "version": "invalid_version",  # Should be semantic version
             }
         }
 
@@ -119,7 +113,7 @@ class TestConfigValidation:
         config_data = {
             "module": {"name": "test", "version": "1.0.0"},
             "api": {"host": "localhost", "port": 8000},
-            "database": {"type": "memory"}
+            "database": {"type": "memory"},
         }
 
         config = HealthConfig(**config_data)
@@ -145,12 +139,9 @@ class TestConfigMerging:
         """Test nested configuration merging."""
         base = {
             "api": {"host": "localhost", "port": 8000},
-            "database": {"type": "sqlite"}
+            "database": {"type": "sqlite"},
         }
-        override = {
-            "api": {"port": 9000},
-            "logging": {"level": "DEBUG"}
-        }
+        override = {"api": {"port": 9000}, "logging": {"level": "DEBUG"}}
 
         merged = merge_configs(base, override)
 
@@ -170,7 +161,7 @@ class TestEnvironmentVariableResolution:
                 "api": {
                     "host": "${TEST_HOST}",
                     "port": "${TEST_PORT}",
-                    "timeout": "${TEST_TIMEOUT:30}"  # With default
+                    "timeout": "${TEST_TIMEOUT:30}",  # With default
                 }
             }
 
@@ -182,12 +173,7 @@ class TestEnvironmentVariableResolution:
 
     def test_resolve_missing_environment_variable(self):
         """Test handling missing environment variables."""
-        config = {
-            "api": {
-                "host": "${MISSING_VAR}",
-                "port": 8000
-            }
-        }
+        config = {"api": {"host": "${MISSING_VAR}", "port": 8000}}
 
         resolved = resolve_environment_variables(config)
 
@@ -202,10 +188,10 @@ class TestConfigFileOperations:
         """Test saving and loading YAML configuration."""
         config_data = {
             "module": {"name": "test", "version": "1.0.0"},
-            "api": {"host": "localhost", "port": 8000}
+            "api": {"host": "localhost", "port": 8000},
         }
 
-        with tempfile.NamedTemporaryFile(suffix='.yaml', delete=False) as f:
+        with tempfile.NamedTemporaryFile(suffix=".yaml", delete=False) as f:
             temp_path = f.name
 
         try:
@@ -221,10 +207,10 @@ class TestConfigFileOperations:
         """Test saving and loading JSON configuration."""
         config_data = {
             "module": {"name": "test", "version": "1.0.0"},
-            "api": {"host": "localhost", "port": 8000}
+            "api": {"host": "localhost", "port": 8000},
         }
 
-        with tempfile.NamedTemporaryFile(suffix='.json', delete=False) as f:
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
             temp_path = f.name
 
         try:
@@ -244,7 +230,7 @@ class TestConfigValueRetrieval:
         """Test getting simple configuration values."""
         config = HealthConfig(
             module={"name": "test", "version": "1.0.0"},
-            api={"host": "localhost", "port": 8000}
+            api={"host": "localhost", "port": 8000},
         )
 
         assert get_config_value(config, "module.name") == "test"
@@ -256,19 +242,32 @@ class TestConfigValueRetrieval:
             analysis={
                 "disease_surveillance": {
                     "default_scan_radius_km": 1.0,
-                    "hotspot_threshold_cases": 5
+                    "hotspot_threshold_cases": 5,
                 }
             }
         )
 
-        assert get_config_value(config, "analysis.disease_surveillance.default_scan_radius_km") == 1.0
-        assert get_config_value(config, "analysis.disease_surveillance.hotspot_threshold_cases") == 5
+        assert (
+            get_config_value(
+                config, "analysis.disease_surveillance.default_scan_radius_km"
+            )
+            == 1.0
+        )
+        assert (
+            get_config_value(
+                config, "analysis.disease_surveillance.hotspot_threshold_cases"
+            )
+            == 5
+        )
 
     def test_get_config_value_with_default(self):
         """Test getting configuration values with defaults."""
         config = HealthConfig()
 
-        assert get_config_value(config, "nonexistent.key", "default_value") == "default_value"
+        assert (
+            get_config_value(config, "nonexistent.key", "default_value")
+            == "default_value"
+        )
         assert get_config_value(config, "api.host", "localhost") == "localhost"
 
     def test_get_config_value_missing_key(self):
@@ -291,18 +290,22 @@ class TestLoadConfigIntegration:
             "analysis": {
                 "disease_surveillance": {
                     "default_scan_radius_km": 1.0,
-                    "hotspot_threshold_cases": 5
+                    "hotspot_threshold_cases": 5,
                 }
-            }
+            },
         }
 
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             import yaml
+
             yaml.safe_dump(config_data, f)
             temp_path = f.name
 
         try:
-            with patch('geo_infer_health.utils.config.get_default_config_path', return_value=Path(temp_path)):
+            with patch(
+                "geo_infer_health.utils.config.get_default_config_path",
+                return_value=Path(temp_path),
+            ):
                 loaded_config = load_config()
 
                 assert isinstance(loaded_config, HealthConfig)
@@ -314,28 +317,32 @@ class TestLoadConfigIntegration:
     def test_load_config_with_env_vars(self):
         """Test loading configuration with environment variable resolution."""
         config_data = {
-            "api": {
-                "host": "${TEST_HOST:default_host}",
-                "port": "${TEST_PORT:8000}"
-            },
-            "database": {
-                "connection_string": "${DB_URL:sqlite:///test.db}"
-            }
+            "api": {"host": "${TEST_HOST:default_host}", "port": "${TEST_PORT:8000}"},
+            "database": {"connection_string": "${DB_URL:sqlite:///test.db}"},
         }
 
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             import yaml
+
             yaml.safe_dump(config_data, f)
             temp_path = f.name
 
         try:
-            with patch.dict(os.environ, {"TEST_HOST": "env_host", "DB_URL": "postgresql://test"}):
-                with patch('geo_infer_health.utils.config.get_default_config_path', return_value=Path(temp_path)):
+            with patch.dict(
+                os.environ, {"TEST_HOST": "env_host", "DB_URL": "postgresql://test"}
+            ):
+                with patch(
+                    "geo_infer_health.utils.config.get_default_config_path",
+                    return_value=Path(temp_path),
+                ):
                     loaded_config = load_config()
 
                     assert loaded_config.api["host"] == "env_host"  # From env
                     assert loaded_config.api["port"] == "8000"  # Default value
-                    assert loaded_config.database["connection_string"] == "postgresql://test"  # From env
+                    assert (
+                        loaded_config.database["connection_string"]
+                        == "postgresql://test"
+                    )  # From env
         finally:
             os.unlink(temp_path)
 
@@ -345,12 +352,15 @@ class TestConfigErrorHandling:
 
     def test_load_config_invalid_format(self):
         """Test loading configuration with invalid format."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
             f.write("invalid format content")
             temp_path = f.name
 
         try:
-            with patch('geo_infer_health.utils.config.get_default_config_path', return_value=Path(temp_path)):
+            with patch(
+                "geo_infer_health.utils.config.get_default_config_path",
+                return_value=Path(temp_path),
+            ):
                 with pytest.raises(ValueError):
                     load_config()
         finally:

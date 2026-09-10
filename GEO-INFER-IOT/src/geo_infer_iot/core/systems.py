@@ -21,6 +21,7 @@ from geo_infer_iot.utils.calibration import SensorCalibration
 
 logger = logging.getLogger(__name__)
 
+
 class IoTSystem:
     """
     High-level interface for IoT sensor systems integration.
@@ -552,8 +553,6 @@ class IoTSystem:
             return {"success": False, "error": str(e)}
 
 
-
-
 class GlobalMonitoringSystem:
     """
     Global-scale environmental monitoring system.
@@ -850,7 +849,8 @@ class AdaptiveSampling:
             "priority_cells": priority_cells,
             "uncovered_priority_cells": uncovered_cells,
             "coverage_ratio": (
-                (len(priority_cells) - len(uncovered_cells)) / max(len(priority_cells), 1)
+                (len(priority_cells) - len(uncovered_cells))
+                / max(len(priority_cells), 1)
             ),
         }
 

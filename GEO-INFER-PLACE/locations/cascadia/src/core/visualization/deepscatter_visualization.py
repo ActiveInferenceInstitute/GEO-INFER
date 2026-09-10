@@ -50,9 +50,7 @@ class CascadiaDeepscatterVisualizer:
                 # Get redevelopment score
                 score_data = redevelopment_scores.get(h3_id, {})
                 composite_score = (
-                    score_data.get("composite_score", 0.0)
-                    if isinstance(score_data, dict)
-                    else 0.0
+                    score_data.get("composite_score", 0.0) if isinstance(score_data, dict) else 0.0
                 )
 
                 # Extract module scores
@@ -398,9 +396,7 @@ def create_deepscatter_visualization(backend, output_dir: Path) -> Dict[str, str
 
     try:
         # Prepare data
-        data_points = visualizer.prepare_deepscatter_data(
-            unified_data, redevelopment_scores
-        )
+        data_points = visualizer.prepare_deepscatter_data(unified_data, redevelopment_scores)
 
         # Create HTML visualization
         html_path = visualizer.create_deepscatter_html(data_points)

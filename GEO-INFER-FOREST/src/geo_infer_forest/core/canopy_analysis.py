@@ -27,7 +27,9 @@ class CanopyAnalyzer:
             config: Configuration dictionary with analysis parameters.
         """
         self.config = config or {}
-        self.ndvi_forest_threshold: float = self.config.get("ndvi_forest_threshold", 0.4)
+        self.ndvi_forest_threshold: float = self.config.get(
+            "ndvi_forest_threshold", 0.4
+        )
         self.ndvi_dense_threshold: float = self.config.get("ndvi_dense_threshold", 0.7)
 
     def calculate_ndvi(
@@ -124,7 +126,7 @@ class CanopyAnalyzer:
         fvc = xr.where(fvc > 1.0, 1.0, fvc)
 
         if method == "squared":
-            fvc = fvc ** 2
+            fvc = fvc**2
 
         canopy_cover = fvc * 100.0
         canopy_cover.name = "canopy_cover_pct"
@@ -176,7 +178,9 @@ class CanopyAnalyzer:
         Returns:
             Dataset with gap mask, gap fraction, and gap size statistics.
         """
-        threshold = gap_threshold if gap_threshold is not None else self.ndvi_forest_threshold
+        threshold = (
+            gap_threshold if gap_threshold is not None else self.ndvi_forest_threshold
+        )
 
         gap_mask = ndvi < threshold
         total_pixels = float(ndvi.size)
@@ -184,7 +188,11 @@ class CanopyAnalyzer:
         gap_fraction = gap_pixels / total_pixels if total_pixels > 0 else 0.0
 
         mean_gap_ndvi = float(ndvi.where(gap_mask).mean()) if gap_pixels > 0 else 0.0
-        mean_forest_ndvi = float(ndvi.where(~gap_mask).mean()) if (total_pixels - gap_pixels) > 0 else 0.0
+        mean_forest_ndvi = (
+            float(ndvi.where(~gap_mask).mean())
+            if (total_pixels - gap_pixels) > 0
+            else 0.0
+        )
 
         return xr.Dataset(
             {

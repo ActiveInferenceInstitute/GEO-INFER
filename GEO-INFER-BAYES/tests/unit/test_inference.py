@@ -46,7 +46,6 @@ class _SimpleModel(BayesianModel):
 
 
 class TestBayesianInferenceInit:
-
     def test_init_with_mcmc(self) -> None:
         from geo_infer_bayes.core.inference import BayesianInference
 
@@ -92,7 +91,6 @@ class TestBayesianInferenceInit:
 
 
 class TestBayesianInferenceRun:
-
     def test_mcmc_run_produces_samples(self) -> None:
         from geo_infer_bayes.core.inference import BayesianInference
 

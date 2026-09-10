@@ -1,4 +1,5 @@
 """Tests for NORMS data models: Regulation, LegalEntity, ComplianceStatus, ComplianceMetric."""
+
 import datetime
 import pytest
 from shapely.geometry import Point, Polygon, MultiPolygon
@@ -178,8 +179,11 @@ class TestComplianceMetric:
 
     def test_set_range(self):
         metric = ComplianceMetric.create(
-            name="pH", description="pH range", regulation_id="reg-1",
-            evaluation_type="range", primary_field="ph",
+            name="pH",
+            description="pH range",
+            regulation_id="reg-1",
+            evaluation_type="range",
+            primary_field="ph",
         )
         metric.set_range(6.5, 8.5)
         assert metric.range_min == 6.5
@@ -187,16 +191,22 @@ class TestComplianceMetric:
 
     def test_set_range_wrong_type(self):
         metric = ComplianceMetric.create(
-            name="Test", description="Test", regulation_id="reg-1",
-            evaluation_type="threshold", primary_field="val",
+            name="Test",
+            description="Test",
+            regulation_id="reg-1",
+            evaluation_type="threshold",
+            primary_field="val",
         )
         with pytest.raises(ValueError):
             metric.set_range(0, 10)
 
     def test_add_sub_metric(self):
         metric = ComplianceMetric.create(
-            name="Composite", description="Composite metric", regulation_id="reg-1",
-            evaluation_type="composite", primary_field="overall",
+            name="Composite",
+            description="Composite metric",
+            regulation_id="reg-1",
+            evaluation_type="composite",
+            primary_field="overall",
         )
         metric.add_sub_metric("sub-1")
         assert "sub-1" in metric.sub_metrics

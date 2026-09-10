@@ -38,8 +38,12 @@ def _operation() -> Dict[str, Any]:
 
     # Synthetic subscribers: field crews that count deliveries.
     delivered: Dict[str, List[str]] = {"crew-north": [], "crew-south": []}
-    broker.subscribe("crew-north", lambda msg: delivered["crew-north"].append(msg.message_id))
-    broker.subscribe("crew-south", lambda msg: delivered["crew-south"].append(msg.message_id))
+    broker.subscribe(
+        "crew-north", lambda msg: delivered["crew-north"].append(msg.message_id)
+    )
+    broker.subscribe(
+        "crew-south", lambda msg: delivered["crew-south"].append(msg.message_id)
+    )
 
     broker.start()
     try:
@@ -70,7 +74,9 @@ def _operation() -> Dict[str, Any]:
                 priority=priority,
                 geospatial_data=geo,
             )
-            sent.append(broker.send_message(request, sender_id=senders[i % len(senders)]))
+            sent.append(
+                broker.send_message(request, sender_id=senders[i % len(senders)])
+            )
 
         # Deterministic drain: wait until the broker thread processes the queue.
         broker.message_queue.join()
@@ -113,7 +119,9 @@ def _operation() -> Dict[str, Any]:
         },
         "broker_query": {
             "messages_retrievable": len(stored),
-            "spatial_index_entries": sum(len(v) for v in broker.spatial_index._index.values()),
+            "spatial_index_entries": sum(
+                len(v) for v in broker.spatial_index._index.values()
+            ),
         },
         "urgent_sms_preview": sms_view,
         "email_subject_preview": email_view["subject"],

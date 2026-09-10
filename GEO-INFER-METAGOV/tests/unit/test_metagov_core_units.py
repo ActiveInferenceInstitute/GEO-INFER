@@ -57,9 +57,7 @@ class TestAnalyzeInstitutionsDecisionPath:
         assert analysis.governance_domain == "water"
         assert analysis.analysis_framework == InstitutionalFramework.IAD
 
-    def test_enforcement_weight_used_when_no_outcomes_reach_institution(
-        self, designer
-    ):
+    def test_enforcement_weight_used_when_no_outcomes_reach_institution(self, designer):
         """An institution whose stakeholders have no outcomes falls back to
         its enforcement-mechanism weight (legal -> 0.6, informal -> 0.4)."""
         analysis = self._analyze(
@@ -99,9 +97,7 @@ class TestAnalyzeInstitutionsDecisionPath:
                     "enforcement": "exotic",
                 },
             ],
-            outcomes=[
-                {"effectiveness": 0.95, "stakeholders": ["nobody_relevant"]}
-            ],
+            outcomes=[{"effectiveness": 0.95, "stakeholders": ["nobody_relevant"]}],
         )
         effectiveness = analysis.institutional_effectiveness
         by_name = {
@@ -120,9 +116,7 @@ class TestHelpersPureFunctions:
         assert calculate_collaboration_potential([{"interests": ["water"]}]) == 0.0
 
     def test_collaboration_potential_without_interests_is_neutral(self):
-        score = calculate_collaboration_potential(
-            [{"name": "A"}, {"name": "B"}]
-        )
+        score = calculate_collaboration_potential([{"name": "A"}, {"name": "B"}])
         assert score == pytest.approx(0.5)
 
     def test_collaboration_potential_disjoint_interests(self):

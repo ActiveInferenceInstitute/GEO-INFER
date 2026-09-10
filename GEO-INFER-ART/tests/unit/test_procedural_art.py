@@ -194,8 +194,7 @@ class TestProceduralArt(unittest.TestCase):
         """DLA with no stuck particles must not divide by zero (NaN -> ValueError)."""
         proc_art = ProceduralArt(
             algorithm="diffusion_limited_aggregation",
-            params={"seed": 7, "num_particles": 10, "iterations": 1,
-                    "stickiness": 0.0},
+            params={"seed": 7, "num_particles": 10, "iterations": 1, "stickiness": 0.0},
             resolution=(100, 100),
         )
         proc_art.generate()
@@ -220,7 +219,8 @@ class TestProceduralArt(unittest.TestCase):
         # Test invalid coordinates
         with self.assertRaises(ValueError):
             ProceduralArt.from_geo_coordinates(
-                lat=100.0, lon=self.test_lon  # Invalid latitude
+                lat=100.0,
+                lon=self.test_lon,  # Invalid latitude
             )
 
         # Test invalid feature type

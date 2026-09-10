@@ -41,8 +41,7 @@ sys.path.insert(0, str(repo_root / "GEO-INFER-SPACE"))
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger("spatial_microbiome_integration")
 
@@ -51,10 +50,10 @@ try:
     from geo_infer_bio.microbiome import MicrobiomeDataLoader, MicrobiomeDataset
     from geo_infer_bio.climate import ClimateDataProcessor, ClimateDataset
     from geo_infer_bio.soil import SoilDataIntegrator, SoilDataset
-    
+
     # Import SPACE module H3 capabilities (using existing demo structure)
     from h3_geospatial_demo import H3GeospatialDemo
-    
+
     HAS_GEO_INFER = True
     logger.info("✅ Successfully imported GEO-INFER modules")
 except ImportError as e:
@@ -70,6 +69,7 @@ try:
     from folium import plugins
     from folium.plugins import MarkerCluster, HeatMap
     import h3
+
     HAS_DEPS = True
 except ImportError as e:
     logger.error(f"❌ Missing required dependencies: {e}")
@@ -80,15 +80,15 @@ except ImportError as e:
 class SpatialMicrobiomeIntegrator:
     """
     Main integration class for spatial microbiome-climate-soil analysis.
-    
+
     This class demonstrates minimal orchestration of GEO-INFER modules to create
     sophisticated spatial biological analyses without novel algorithmic development.
     """
-    
+
     def __init__(self, output_dir: str = "output", h3_resolution: int = 7):
         """
         Initialize the spatial integrator.
-        
+
         Args:
             output_dir: Directory for output files
             h3_resolution: H3 hexagonal grid resolution (0-15)
@@ -96,133 +96,139 @@ class SpatialMicrobiomeIntegrator:
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.h3_resolution = h3_resolution
-        
+
         # Initialize data processors if available
         if HAS_GEO_INFER:
             self.microbiome_loader = MicrobiomeDataLoader()
             self.climate_processor = ClimateDataProcessor()
             self.soil_integrator = SoilDataIntegrator()
-            
+
             # Initialize H3 spatial processor using existing SPACE demo
             self.h3_demo = H3GeospatialDemo(
                 output_dir=str(self.output_dir / "h3_spatial"),
-                h3_resolution=h3_resolution
+                h3_resolution=h3_resolution,
             )
         else:
             self.microbiome_loader = None
             self.climate_processor = None
             self.soil_integrator = None
             self.h3_demo = None
-        
+
         logger.info(f"🚀 SpatialMicrobiomeIntegrator initialized")
         logger.info(f"📁 Output directory: {self.output_dir}")
         logger.info(f"🔷 H3 resolution: {h3_resolution}")
-    
-    def load_biological_datasets(self, 
-                               region_bbox: Tuple[float, float, float, float] = (-130, 25, -65, 55),
-                               max_samples: int = 1000) -> Dict[str, Any]:
+
+    def load_biological_datasets(
+        self,
+        region_bbox: Tuple[float, float, float, float] = (-130, 25, -65, 55),
+        max_samples: int = 1000,
+    ) -> Dict[str, Any]:
         """
         Load all biological datasets for the specified region.
-        
+
         Args:
             region_bbox: Bounding box (min_lon, min_lat, max_lon, max_lat)
             max_samples: Maximum number of microbiome samples
-            
+
         Returns:
             Dictionary containing all loaded datasets
         """
         logger.info("=== Loading Biological Datasets ===")
-        
+
         if not HAS_GEO_INFER:
             return self._generate_demo_datasets(region_bbox, max_samples)
-        
+
         # Load microbiome data (Earth Microbiome Project)
         logger.info("🧬 Loading Earth Microbiome Project data...")
         microbiome_data = self.microbiome_loader.load_emp_data(
             region_bbox=region_bbox,
-            sample_types=['soil', 'sediment', 'water'],
+            sample_types=["soil", "sediment", "water"],
             max_samples=max_samples,
-            quality_filters=True
+            quality_filters=True,
         )
         logger.info(f"✅ Loaded {len(microbiome_data)} microbiome samples")
-        
+
         # Get coordinates from microbiome samples
         coordinates = microbiome_data.get_coordinates()
-        
+
         # Load climate data for those coordinates
         logger.info("🌡️ Loading WorldClim climate data...")
-        climate_variables = ['bio1', 'bio12', 'bio15']  # Temperature, precipitation, seasonality
+        climate_variables = [
+            "bio1",
+            "bio12",
+            "bio15",
+        ]  # Temperature, precipitation, seasonality
         climate_data = self.climate_processor.load_worldclim_data(
-            variables=climate_variables,
-            coordinates=coordinates,
-            buffer_km=5.0
+            variables=climate_variables, coordinates=coordinates, buffer_km=5.0
         )
         logger.info(f"✅ Loaded climate data: {climate_data.get_variables()}")
-        
+
         # Load soil data for those coordinates
         logger.info("🌱 Loading ISRIC SoilGrids soil data...")
-        soil_properties = ['phh2o', 'soc', 'clay', 'sand']
-        soil_depths = ['0-5cm', '5-15cm']
+        soil_properties = ["phh2o", "soc", "clay", "sand"]
+        soil_depths = ["0-5cm", "5-15cm"]
         soil_data = self.soil_integrator.load_soilgrids_data(
-            coordinates=coordinates,
-            properties=soil_properties,
-            depths=soil_depths
+            coordinates=coordinates, properties=soil_properties, depths=soil_depths
         )
-        logger.info(f"✅ Loaded soil data: {soil_data.properties} at depths {soil_data.depths}")
-        
+        logger.info(
+            f"✅ Loaded soil data: {soil_data.properties} at depths {soil_data.depths}"
+        )
+
         datasets = {
-            'microbiome': microbiome_data,
-            'climate': climate_data,
-            'soil': soil_data,
-            'coordinates': coordinates,
-            'region_bbox': region_bbox
+            "microbiome": microbiome_data,
+            "climate": climate_data,
+            "soil": soil_data,
+            "coordinates": coordinates,
+            "region_bbox": region_bbox,
         }
-        
+
         logger.info(f"🎉 Successfully loaded all biological datasets")
         return datasets
-    
-    def _generate_demo_datasets(self, region_bbox: Tuple[float, float, float, float], max_samples: int) -> Dict[str, Any]:
+
+    def _generate_demo_datasets(
+        self, region_bbox: Tuple[float, float, float, float], max_samples: int
+    ) -> Dict[str, Any]:
         """Generate demo datasets when GEO-INFER modules are not available."""
         logger.info("🔄 Generating demonstration biological datasets...")
-        
+
         np.random.seed(42)  # For reproducible results
         min_lon, min_lat, max_lon, max_lat = region_bbox
-        
+
         # Create clustered coordinates to demonstrate H3 clustering
         cluster_centers = [
-            (40.7589, -73.9851),   # New York area
-            (34.0522, -118.2437),  # Los Angeles area  
-            (41.8781, -87.6298),   # Chicago area
-            (29.7604, -95.3698),   # Houston area
+            (40.7589, -73.9851),  # New York area
+            (34.0522, -118.2437),  # Los Angeles area
+            (41.8781, -87.6298),  # Chicago area
+            (29.7604, -95.3698),  # Houston area
             (47.6062, -122.3321),  # Seattle area
-            (25.7617, -80.1918),   # Miami area
+            (25.7617, -80.1918),  # Miami area
             (39.7392, -104.9903),  # Denver area
             (33.4484, -112.0740),  # Phoenix area
         ]
-        
+
         coordinates = []
         cluster_assignments = []
-        
+
         # Generate clustered data points
         samples_per_cluster = max_samples // len(cluster_centers)
-        
+
         for i, (center_lat, center_lon) in enumerate(cluster_centers):
             # Create dense clusters around each center
             for j in range(samples_per_cluster):
                 # Add random offset within ~50km radius
                 lat_offset = np.random.normal(0, 0.5)  # ~50km at mid-latitudes
                 lon_offset = np.random.normal(0, 0.5)
-                
+
                 new_lat = center_lat + lat_offset
                 new_lon = center_lon + lon_offset
-                
+
                 # Keep within bounds
                 new_lat = max(min_lat, min(max_lat, new_lat))
                 new_lon = max(min_lon, min(max_lon, new_lon))
-                
+
                 coordinates.append((new_lat, new_lon))
                 cluster_assignments.append(i)
-        
+
         # Add some scattered points between clusters
         remaining_samples = max_samples - len(coordinates)
         for _ in range(remaining_samples):
@@ -230,19 +236,19 @@ class SpatialMicrobiomeIntegrator:
             lon = np.random.uniform(min_lon, max_lon)
             coordinates.append((lat, lon))
             cluster_assignments.append(-1)  # No cluster
-        
+
         # Create demo microbiome data with cluster-specific characteristics
         demo_microbiome = {
-            'coordinates': coordinates,
-            'cluster_assignments': cluster_assignments,
-            'diversity_metrics': {},
-            'data_source': 'Demo Earth Microbiome Project (Clustered)'
+            "coordinates": coordinates,
+            "cluster_assignments": cluster_assignments,
+            "diversity_metrics": {},
+            "data_source": "Demo Earth Microbiome Project (Clustered)",
         }
-        
+
         # Generate diversity metrics with cluster patterns
         for i, (lat, lon) in enumerate(coordinates):
             cluster_id = cluster_assignments[i]
-            
+
             # Different diversity patterns for each cluster
             if cluster_id == 0:  # NYC - Urban, lower diversity
                 base_diversity = 1.2
@@ -271,30 +277,30 @@ class SpatialMicrobiomeIntegrator:
             else:  # Scattered points
                 base_diversity = 2.0
                 base_species = 150
-            
+
             # Add random variation
             diversity = np.random.gamma(base_diversity, 0.3)
             species = int(np.random.poisson(base_species))
-            
-            demo_microbiome['diversity_metrics'][f'sample_{i}'] = {
-                'shannon_diversity': diversity,
-                'observed_species': species,
-                'simpson_diversity': np.random.beta(5, 2),
-                'cluster_id': cluster_id
+
+            demo_microbiome["diversity_metrics"][f"sample_{i}"] = {
+                "shannon_diversity": diversity,
+                "observed_species": species,
+                "simpson_diversity": np.random.beta(5, 2),
+                "cluster_id": cluster_id,
             }
-        
+
         # Generate climate data using real climate data patterns (WorldClim-style)
         logger.info("🌡️ Generating realistic climate data with real-world patterns...")
         demo_climate = {
-            'variables': ['bio1', 'bio12', 'bio15'],
-            'climate_data': [],
-            'data_source': 'WorldClim-style Climate Data (Realistic Patterns)',
-            'coordinates': []
+            "variables": ["bio1", "bio12", "bio15"],
+            "climate_data": [],
+            "data_source": "WorldClim-style Climate Data (Realistic Patterns)",
+            "coordinates": [],
         }
-        
+
         # Generate climate stations (more sparse than microbiome samples)
         climate_coordinates = []
-        
+
         # Add major climate stations near cluster centers
         for i, (center_lat, center_lon) in enumerate(cluster_centers):
             # Add 3-5 climate stations per region
@@ -303,25 +309,25 @@ class SpatialMicrobiomeIntegrator:
                 # Climate stations within ~100km of center
                 lat_offset = np.random.normal(0, 1.0)
                 lon_offset = np.random.normal(0, 1.0)
-                
+
                 station_lat = center_lat + lat_offset
                 station_lon = center_lon + lon_offset
-                
+
                 # Keep within bounds
                 station_lat = max(min_lat, min(max_lat, station_lat))
                 station_lon = max(min_lon, min(max_lon, station_lon))
-                
+
                 climate_coordinates.append((station_lat, station_lon))
-        
+
         # Add some additional scattered climate stations
         additional_stations = 20
         for _ in range(additional_stations):
             lat = np.random.uniform(min_lat, max_lat)
             lon = np.random.uniform(min_lon, max_lon)
             climate_coordinates.append((lat, lon))
-        
-        demo_climate['coordinates'] = climate_coordinates
-        
+
+        demo_climate["coordinates"] = climate_coordinates
+
         # Generate realistic climate data for each station
         for lat, lon in climate_coordinates:
             # Real-world temperature patterns (WorldClim Bio1 - Annual Mean Temperature)
@@ -334,7 +340,7 @@ class SpatialMicrobiomeIntegrator:
                 temp_base = 200 + np.random.normal(0, 30)  # 20°C ± 3°C
             else:  # Tropical
                 temp_base = 260 + np.random.normal(0, 20)  # 26°C ± 2°C
-            
+
             # Adjust for longitude (continental effects)
             if -100 < lon < -80:  # Central plains - more extreme
                 temp_base += np.random.normal(0, 20)
@@ -342,13 +348,13 @@ class SpatialMicrobiomeIntegrator:
                 temp_base += np.random.normal(10, 15)
             elif lon > -80:  # East coast - some maritime influence
                 temp_base += np.random.normal(5, 15)
-            
+
             # Real-world precipitation patterns (WorldClim Bio12 - Annual Precipitation)
             # Base precipitation on geography
             coast_distance_west = abs(lon + 120)  # Distance from west coast
-            coast_distance_east = abs(lon + 75)   # Distance from east coast
+            coast_distance_east = abs(lon + 75)  # Distance from east coast
             min_coast_distance = min(coast_distance_west, coast_distance_east)
-            
+
             # Precipitation patterns
             if lat > 45 and lon < -120:  # Pacific Northwest - high precipitation
                 precip_base = 1500 + np.random.gamma(2, 200)
@@ -360,85 +366,91 @@ class SpatialMicrobiomeIntegrator:
                 precip_base = 200 + np.random.gamma(1, 50)
             else:  # General continental pattern
                 precip_base = 800 - min_coast_distance * 15 + np.random.gamma(2, 100)
-            
+
             precip_base = max(100, precip_base)  # Minimum 100mm
-            
+
             # Precipitation seasonality (WorldClim Bio15)
             # Higher seasonality inland, lower near coasts
             seasonality_base = 30 + min_coast_distance * 2
             seasonality = np.random.normal(seasonality_base, 15)
             seasonality = max(5, min(100, seasonality))  # Realistic range
-            
-            demo_climate['climate_data'].append({
-                'latitude': lat,
-                'longitude': lon,
-                'bio1': temp_base,  # Annual mean temperature (°C * 10)
-                'bio12': precip_base,  # Annual precipitation (mm)
-                'bio15': seasonality  # Precipitation seasonality (CV)
-            })
-        
+
+            demo_climate["climate_data"].append(
+                {
+                    "latitude": lat,
+                    "longitude": lon,
+                    "bio1": temp_base,  # Annual mean temperature (°C * 10)
+                    "bio12": precip_base,  # Annual precipitation (mm)
+                    "bio15": seasonality,  # Precipitation seasonality (CV)
+                }
+            )
+
         # Generate soil data with overlapping and non-overlapping areas
-        logger.info("🌱 Generating synthetic soil data with realistic spatial patterns...")
+        logger.info(
+            "🌱 Generating synthetic soil data with realistic spatial patterns..."
+        )
         demo_soil = {
-            'soil_properties': ['phh2o', 'soc', 'clay', 'sand'],
-            'depths': ['0-5cm', '5-15cm'],
-            'soil_data': {
-                'phh2o_0-5cm': {'coordinates': []},
-                'soc_0-5cm': {'coordinates': []},
-                'clay_0-5cm': {'coordinates': []},
-                'sand_0-5cm': {'coordinates': []}
+            "soil_properties": ["phh2o", "soc", "clay", "sand"],
+            "depths": ["0-5cm", "5-15cm"],
+            "soil_data": {
+                "phh2o_0-5cm": {"coordinates": []},
+                "soc_0-5cm": {"coordinates": []},
+                "clay_0-5cm": {"coordinates": []},
+                "sand_0-5cm": {"coordinates": []},
             },
-            'data_source': 'ISRIC SoilGrids-style Synthetic Data',
-            'coordinates': []
+            "data_source": "ISRIC SoilGrids-style Synthetic Data",
+            "coordinates": [],
         }
-        
+
         soil_coordinates = []
-        
-        # Soil sampling strategy: 
+
+        # Soil sampling strategy:
         # 1. Some samples co-located with microbiome samples (50%)
         # 2. Some samples on a systematic grid (30%)
         # 3. Some samples randomly distributed (20%)
-        
+
         # Co-located samples with microbiome data
-        colocated_indices = np.random.choice(len(coordinates), size=len(coordinates)//2, replace=False)
+        colocated_indices = np.random.choice(
+            len(coordinates), size=len(coordinates) // 2, replace=False
+        )
         for idx in colocated_indices:
             lat, lon = coordinates[idx]
             # Add small offset to simulate nearby but not exact sampling
             lat_offset = np.random.normal(0, 0.01)  # ~1km offset
             lon_offset = np.random.normal(0, 0.01)
             soil_coordinates.append((lat + lat_offset, lon + lon_offset))
-        
+
         # Systematic grid sampling
         grid_points = 60
         lat_steps = np.linspace(min_lat + 1, max_lat - 1, int(np.sqrt(grid_points)))
         lon_steps = np.linspace(min_lon + 1, max_lon - 1, int(np.sqrt(grid_points)))
-        
+
         for lat in lat_steps:
             for lon in lon_steps:
                 # Add some random offset to make it look more natural
                 lat_jitter = np.random.normal(0, 0.5)
                 lon_jitter = np.random.normal(0, 0.5)
                 soil_coordinates.append((lat + lat_jitter, lon + lon_jitter))
-        
+
         # Random additional samples
         random_samples = 40
         for _ in range(random_samples):
             lat = np.random.uniform(min_lat, max_lat)
             lon = np.random.uniform(min_lon, max_lon)
             soil_coordinates.append((lat, lon))
-        
-        demo_soil['coordinates'] = soil_coordinates
-        
+
+        demo_soil["coordinates"] = soil_coordinates
+
         # Generate realistic soil properties for each location
         for lat, lon in soil_coordinates:
             # pH patterns based on climate and geology
             # Generally: acidic in high-precipitation areas, alkaline in arid areas
-            
+
             # Estimate precipitation at this location (simplified)
             coast_distance = min(abs(lon + 70), abs(lon + 120))
             estimated_precip = 1200 - coast_distance * 15
             estimated_precip = max(200, estimated_precip)
-            
+
             # pH based on precipitation and latitude
             if estimated_precip > 1000:  # High precipitation - more acidic
                 ph_base = 5.8
@@ -446,25 +458,27 @@ class SpatialMicrobiomeIntegrator:
                 ph_base = 6.5
             else:  # Low precipitation - more alkaline
                 ph_base = 7.2
-            
+
             # Regional adjustments
             if lat > 45:  # Northern areas - slightly more acidic
                 ph_base -= 0.3
-            elif lat < 30 and lon > -100:  # Southeast - more acidic due to precipitation
+            elif (
+                lat < 30 and lon > -100
+            ):  # Southeast - more acidic due to precipitation
                 ph_base -= 0.5
             elif lat < 35 and -115 < lon < -105:  # Southwest - more alkaline
                 ph_base += 0.8
-            
+
             ph = np.random.normal(ph_base, 0.6)
             ph = max(4.0, min(9.0, ph))  # Realistic pH range
-            
+
             # Organic carbon - higher in cooler, wetter areas
             temp_factor = max(0.3, (50 - lat) / 20)  # Higher at northern latitudes
             precip_factor = estimated_precip / 1000
             oc_base = 25 * precip_factor * temp_factor
             oc = np.random.gamma(2, oc_base / 2)
             oc = max(2, min(80, oc))  # Realistic range 2-80 g/kg
-            
+
             # Clay content - varies by region and geology
             if -100 < lon < -95 and 35 < lat < 45:  # Great Plains - high clay
                 clay_base = 45
@@ -474,54 +488,56 @@ class SpatialMicrobiomeIntegrator:
                 clay_base = 30
             else:  # General
                 clay_base = 20
-            
+
             clay = np.random.gamma(2, clay_base / 2)
             clay = max(5, min(70, clay))  # Realistic range 5-70%
-            
+
             # Sand content (inversely related to clay, but not perfectly)
             sand_base = 70 - clay * 0.8
             sand = np.random.gamma(2, sand_base / 2)
             sand = max(10, min(85, sand))  # Realistic range 10-85%
-            
+
             # Add to soil data
-            demo_soil['soil_data']['phh2o_0-5cm']['coordinates'].append({
-                'latitude': lat, 'longitude': lon, 'value': ph
-            })
-            demo_soil['soil_data']['soc_0-5cm']['coordinates'].append({
-                'latitude': lat, 'longitude': lon, 'value': oc
-            })
-            demo_soil['soil_data']['clay_0-5cm']['coordinates'].append({
-                'latitude': lat, 'longitude': lon, 'value': clay
-            })
-            demo_soil['soil_data']['sand_0-5cm']['coordinates'].append({
-                'latitude': lat, 'longitude': lon, 'value': sand
-            })
-        
+            demo_soil["soil_data"]["phh2o_0-5cm"]["coordinates"].append(
+                {"latitude": lat, "longitude": lon, "value": ph}
+            )
+            demo_soil["soil_data"]["soc_0-5cm"]["coordinates"].append(
+                {"latitude": lat, "longitude": lon, "value": oc}
+            )
+            demo_soil["soil_data"]["clay_0-5cm"]["coordinates"].append(
+                {"latitude": lat, "longitude": lon, "value": clay}
+            )
+            demo_soil["soil_data"]["sand_0-5cm"]["coordinates"].append(
+                {"latitude": lat, "longitude": lon, "value": sand}
+            )
+
         # Create unified coordinate structure with all data
         unified_coordinates = []
-        
+
         # Add microbiome data
         for i, (lat, lon) in enumerate(coordinates):
             cluster_id = cluster_assignments[i] if i < len(cluster_assignments) else -1
             cluster_info = f"Cluster {cluster_id}" if cluster_id >= 0 else "Scattered"
-            unified_coordinates.append({
-                'lat': lat,
-                'lon': lon,
-                'data_type': 'microbiome',
-                'shannon_diversity': np.random.uniform(1.5, 4.5),
-                'species_richness': np.random.randint(50, 200),
-                'temperature': np.random.normal(150, 50),  # Scaled temperature
-                'ph': np.random.uniform(4.5, 8.5),
-                'cluster_info': cluster_info
-            })
-        
+            unified_coordinates.append(
+                {
+                    "lat": lat,
+                    "lon": lon,
+                    "data_type": "microbiome",
+                    "shannon_diversity": np.random.uniform(1.5, 4.5),
+                    "species_richness": np.random.randint(50, 200),
+                    "temperature": np.random.normal(150, 50),  # Scaled temperature
+                    "ph": np.random.uniform(4.5, 8.5),
+                    "cluster_info": cluster_info,
+                }
+            )
+
         # Add climate data
         for lat, lon in climate_coordinates:
             # Temperature varies by latitude (realistic patterns)
             temp_base = 25 - (lat - 25) * 0.4  # Decreases with latitude
             temp_base += np.random.normal(0, 3)  # Add variation
             temp_celsius = max(5, min(26, temp_base))
-            
+
             # Precipitation varies by region
             if lat > 45:  # Northern regions
                 precip_base = 600
@@ -531,19 +547,21 @@ class SpatialMicrobiomeIntegrator:
                 precip_base = 400
             else:  # General
                 precip_base = 800
-            
+
             precipitation = max(200, min(1500, np.random.normal(precip_base, 200)))
             seasonality = np.random.uniform(15, 95)
-            
-            unified_coordinates.append({
-                'lat': lat,
-                'lon': lon,
-                'data_type': 'climate',
-                'temperature': temp_celsius * 10,  # Match the expected scale
-                'precipitation': int(precipitation),
-                'precipitation_seasonality': seasonality
-            })
-        
+
+            unified_coordinates.append(
+                {
+                    "lat": lat,
+                    "lon": lon,
+                    "data_type": "climate",
+                    "temperature": temp_celsius * 10,  # Match the expected scale
+                    "precipitation": int(precipitation),
+                    "precipitation_seasonality": seasonality,
+                }
+            )
+
         # Add soil data
         for lat, lon in soil_coordinates:
             # pH varies by region (realistic patterns)
@@ -554,102 +572,136 @@ class SpatialMicrobiomeIntegrator:
                 ph_base -= 0.5
             elif lat < 35 and -115 < lon < -105:  # Southwest - more alkaline
                 ph_base += 0.8
-            
+
             ph = max(4.0, min(9.0, np.random.normal(ph_base, 0.6)))
             organic_carbon = max(2, min(80, np.random.gamma(2, 12)))
             bulk_density = np.random.uniform(1.0, 1.8)
-            
-            unified_coordinates.append({
-                'lat': lat,
-                'lon': lon,
-                'data_type': 'soil',
-                'ph': ph,
-                'organic_carbon': organic_carbon,
-                'bulk_density': bulk_density
-            })
-        
+
+            unified_coordinates.append(
+                {
+                    "lat": lat,
+                    "lon": lon,
+                    "data_type": "soil",
+                    "ph": ph,
+                    "organic_carbon": organic_carbon,
+                    "bulk_density": bulk_density,
+                }
+            )
+
         datasets = {
-            'microbiome': demo_microbiome,
-            'climate': demo_climate,
-            'soil': demo_soil,
-            'coordinates': unified_coordinates,
-            'cluster_assignments': cluster_assignments,
-            'region_bbox': region_bbox
+            "microbiome": demo_microbiome,
+            "climate": demo_climate,
+            "soil": demo_soil,
+            "coordinates": unified_coordinates,
+            "cluster_assignments": cluster_assignments,
+            "region_bbox": region_bbox,
         }
-        
+
         logger.info(f"✅ Generated clustered demo datasets with {max_samples} samples")
         logger.info(f"🏙️ Created {len(cluster_centers)} geographic clusters")
         logger.info(f"🌡️ Generated {len(climate_coordinates)} climate stations")
         logger.info(f"🌱 Generated {len(soil_coordinates)} soil sampling sites")
         return datasets
-    
-    def create_interactive_h3_visualization(self, 
-                                           biological_data: Dict[str, Any], 
-                                           map_center: Tuple[float, float] = (40.0, -97.5),
-                                           output_format: str = "interactive") -> str:
+
+    def create_interactive_h3_visualization(
+        self,
+        biological_data: Dict[str, Any],
+        map_center: Tuple[float, float] = (40.0, -97.5),
+        output_format: str = "interactive",
+    ) -> str:
         """
         Create interactive H3 visualization with clustering and biological overlays
         """
         logger.info("=== Creating Interactive H3 Visualization ===")
         logger.info(f"🗺️ Creating interactive map centered at {map_center}")
-        
+
         # Create base map with professional styling
         m = folium.Map(
             location=map_center,
             zoom_start=5,
-            tiles='CartoDB positron',
-            attr='© CartoDB, © OpenStreetMap contributors'
+            tiles="CartoDB positron",
+            attr="© CartoDB, © OpenStreetMap contributors",
         )
-        
+
         logger.info("🎛️ Creating layer groups for toggle control...")
-        
+
         # Create properly named feature groups for layer control
         h3_group = folium.FeatureGroup(name="🔷 H3 Spatial Grid", show=True)
         microbiome_group = folium.FeatureGroup(name="🧬 Microbiome Data", show=True)
         climate_group = folium.FeatureGroup(name="🌡️ Climate Stations", show=True)
         soil_group = folium.FeatureGroup(name="🌱 Soil Properties", show=True)
-        
+
         # Add enhanced H3 hexagonal overlay with mouseover highlighting
         logger.info("🔷 Adding enhanced H3 hexagonal overlay...")
         h3_sample_mapping = {}
-        
-        for coord in biological_data['coordinates']:
-            h3_index = h3.latlng_to_cell(coord['lat'], coord['lon'], self.h3_resolution)
+
+        for coord in biological_data["coordinates"]:
+            h3_index = h3.latlng_to_cell(coord["lat"], coord["lon"], self.h3_resolution)
             if h3_index not in h3_sample_mapping:
                 h3_sample_mapping[h3_index] = []
             h3_sample_mapping[h3_index].append(coord)
-        
+
         # Create H3 visualization with proper mouseover highlighting
         for h3_index, samples in h3_sample_mapping.items():
             try:
                 boundary = h3.cell_to_boundary(h3_index)
                 coords = [[lat, lon] for lat, lon in boundary]
-                
+
                 sample_count = len(samples)
-                avg_diversity = sum(s['shannon_diversity'] for s in samples) / sample_count
-                avg_temp = sum(s['temperature'] for s in samples) / sample_count
-                
+                avg_diversity = (
+                    sum(s["shannon_diversity"] for s in samples) / sample_count
+                )
+                avg_temp = sum(s["temperature"] for s in samples) / sample_count
+
                 # Enhanced color coding based on sample density
                 if sample_count >= 3:
-                    color, fill_color, opacity = "#d73027", "#d73027", 0.8  # High density - red
+                    color, fill_color, opacity = (
+                        "#d73027",
+                        "#d73027",
+                        0.8,
+                    )  # High density - red
                 elif sample_count == 2:
-                    color, fill_color, opacity = "#fc8d59", "#fc8d59", 0.7  # Medium - orange
+                    color, fill_color, opacity = (
+                        "#fc8d59",
+                        "#fc8d59",
+                        0.7,
+                    )  # Medium - orange
                 else:
-                    color, fill_color, opacity = "#4575b4", "#4575b4", 0.6  # Low density - blue
-                
+                    color, fill_color, opacity = (
+                        "#4575b4",
+                        "#4575b4",
+                        0.6,
+                    )  # Low density - blue
+
                 # Detailed cluster information
                 cluster_info = []
-                for city in ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Seattle', 'Miami', 'Denver', 'Phoenix']:
-                    city_count = sum(1 for s in samples if city.lower() in s.get('cluster_info', '').lower())
+                for city in [
+                    "New York",
+                    "Los Angeles",
+                    "Chicago",
+                    "Houston",
+                    "Seattle",
+                    "Miami",
+                    "Denver",
+                    "Phoenix",
+                ]:
+                    city_count = sum(
+                        1
+                        for s in samples
+                        if city.lower() in s.get("cluster_info", "").lower()
+                    )
                     if city_count > 0:
                         cluster_info.append(f"{city}: {city_count}")
-                
-                cluster_summary = "<br>".join(cluster_info) if cluster_info else "Scattered samples"
-                
+
+                cluster_summary = (
+                    "<br>".join(cluster_info) if cluster_info else "Scattered samples"
+                )
+
                 # Add hexagon with enhanced popup and proper mouseover highlighting
                 hex_polygon = folium.Polygon(
                     locations=coords,
-                    popup=folium.Popup(f"""
+                    popup=folium.Popup(
+                        f"""
                     <div style="font-family: Arial, sans-serif; min-width: 250px;">
                         <h4 style="margin: 0 0 10px 0; color: #2E8B57; border-bottom: 2px solid #2E8B57; padding-bottom: 5px;">
                             🔷 H3 Spatial Cluster
@@ -659,7 +711,7 @@ class SpatialMicrobiomeIntegrator:
                             <tr><td><b>Resolution:</b></td><td>{self.h3_resolution}</td></tr>
                             <tr><td><b>Total Samples:</b></td><td><span style="color: #d73027; font-weight: bold;">{sample_count}</span></td></tr>
                             <tr><td><b>Avg Diversity:</b></td><td>{avg_diversity:.2f}</td></tr>
-                            <tr><td><b>Avg Temperature:</b></td><td>{avg_temp/10:.1f}°C</td></tr>
+                            <tr><td><b>Avg Temperature:</b></td><td>{avg_temp / 10:.1f}°C</td></tr>
                         </table>
                         <div style="margin-top: 10px; padding: 8px; background: #f0f8f0; border-radius: 4px;">
                             <b>🏙️ Cluster Composition:</b><br>
@@ -669,165 +721,189 @@ class SpatialMicrobiomeIntegrator:
                             💡 This hex contains data points from {sample_count} location(s)
                         </div>
                     </div>
-                    """, max_width=300),
+                    """,
+                        max_width=300,
+                    ),
                     tooltip=f"H3 Cluster: {sample_count} samples • ID: {h3_index[:8]}...",
                     color=color,
                     weight=2,
                     fillColor=fill_color,
-                    fillOpacity=opacity
+                    fillOpacity=opacity,
                 )
-                
+
                 hex_polygon.add_to(h3_group)
-                
+
             except Exception as e:
                 logger.debug(f"Failed to add hexagon for {h3_index}: {e}")
-        
+
         h3_group.add_to(m)
-        logger.info(f"✅ Added {len(h3_sample_mapping)} H3 hexagons with clustering visualization")
-        
+        logger.info(
+            f"✅ Added {len(h3_sample_mapping)} H3 hexagons with clustering visualization"
+        )
+
         # Add microbiome diversity layer with clustering
         logger.info("🧬 Adding microbiome diversity layer with clustering...")
         microbiome_cluster = MarkerCluster(
             name="Microbiome Diversity Clusters",
             options={
-                'disableClusteringAtZoom': 10,
-                'maxClusterRadius': 50,
-                'spiderfyOnMaxZoom': True,
-                'showCoverageOnHover': False
-            }
+                "disableClusteringAtZoom": 10,
+                "maxClusterRadius": 50,
+                "spiderfyOnMaxZoom": True,
+                "showCoverageOnHover": False,
+            },
         ).add_to(microbiome_group)
-        
-        microbiome_data = [coord for coord in biological_data['coordinates'] 
-                          if coord.get('data_type') == 'microbiome']
-        
+
+        microbiome_data = [
+            coord
+            for coord in biological_data["coordinates"]
+            if coord.get("data_type") == "microbiome"
+        ]
+
         for coord in microbiome_data:
             # Enhanced microbiome marker with better popup
             folium.CircleMarker(
-                location=[coord['lat'], coord['lon']],
+                location=[coord["lat"], coord["lon"]],
                 radius=6,
-                popup=folium.Popup(f"""
+                popup=folium.Popup(
+                    f"""
                 <div style="font-family: Arial, sans-serif; min-width: 200px;">
                     <h4 style="color: #8B4513; margin: 0 0 8px 0;">🧬 Microbiome Sample</h4>
                     <table style="font-size: 11px; width: 100%;">
-                        <tr><td><b>Shannon Diversity:</b></td><td>{coord['shannon_diversity']:.2f}</td></tr>
-                        <tr><td><b>Species Richness:</b></td><td>{coord['species_richness']}</td></tr>
-                        <tr><td><b>Temperature:</b></td><td>{coord['temperature']/10:.1f}°C</td></tr>
-                        <tr><td><b>pH:</b></td><td>{coord['ph']:.1f}</td></tr>
-                        <tr><td><b>Location:</b></td><td>{coord['lat']:.3f}, {coord['lon']:.3f}</td></tr>
+                        <tr><td><b>Shannon Diversity:</b></td><td>{coord["shannon_diversity"]:.2f}</td></tr>
+                        <tr><td><b>Species Richness:</b></td><td>{coord["species_richness"]}</td></tr>
+                        <tr><td><b>Temperature:</b></td><td>{coord["temperature"] / 10:.1f}°C</td></tr>
+                        <tr><td><b>pH:</b></td><td>{coord["ph"]:.1f}</td></tr>
+                        <tr><td><b>Location:</b></td><td>{coord["lat"]:.3f}, {coord["lon"]:.3f}</td></tr>
                     </table>
                 </div>
-                """, max_width=250),
+                """,
+                    max_width=250,
+                ),
                 tooltip=f"Diversity: {coord['shannon_diversity']:.2f}",
-                color='#8B4513',
-                fillColor='#DEB887',
+                color="#8B4513",
+                fillColor="#DEB887",
                 fillOpacity=0.8,
-                weight=2
+                weight=2,
             ).add_to(microbiome_cluster)
-        
+
         microbiome_group.add_to(m)
         logger.info("✅ Added microbiome diversity layer with clustering")
-        
+
         # Add climate data layer with clustering
         logger.info("🌡️ Adding climate data layer with clustering...")
         climate_cluster = MarkerCluster(
             name="Climate Station Clusters",
             options={
-                'disableClusteringAtZoom': 8,
-                'maxClusterRadius': 60,
-                'spiderfyOnMaxZoom': True
-            }
+                "disableClusteringAtZoom": 8,
+                "maxClusterRadius": 60,
+                "spiderfyOnMaxZoom": True,
+            },
         ).add_to(climate_group)
-        
-        climate_data = [coord for coord in biological_data['coordinates'] 
-                       if coord.get('data_type') == 'climate']
-        
+
+        climate_data = [
+            coord
+            for coord in biological_data["coordinates"]
+            if coord.get("data_type") == "climate"
+        ]
+
         for coord in climate_data:
             # Temperature-based marker coloring (using valid Folium colors)
-            temp_c = coord['temperature'] / 10
+            temp_c = coord["temperature"] / 10
             if temp_c > 20:
-                marker_color = 'red'
+                marker_color = "red"
             elif temp_c > 15:
-                marker_color = 'orange'
+                marker_color = "orange"
             elif temp_c > 10:
-                marker_color = 'lightgreen'
+                marker_color = "lightgreen"
             else:
-                marker_color = 'blue'
-            
+                marker_color = "blue"
+
             folium.Marker(
-                location=[coord['lat'], coord['lon']],
-                popup=folium.Popup(f"""
+                location=[coord["lat"], coord["lon"]],
+                popup=folium.Popup(
+                    f"""
                 <div style="font-family: Arial, sans-serif; min-width: 200px;">
                     <h4 style="color: #B22222; margin: 0 0 8px 0;">🌡️ Climate Station</h4>
                     <table style="font-size: 11px; width: 100%;">
                         <tr><td><b>Temperature (Bio1):</b></td><td>{temp_c:.1f}°C</td></tr>
-                        <tr><td><b>Precipitation (Bio12):</b></td><td>{coord['precipitation']}mm</td></tr>
-                        <tr><td><b>Seasonality (Bio15):</b></td><td>{coord['precipitation_seasonality']:.1f}</td></tr>
+                        <tr><td><b>Precipitation (Bio12):</b></td><td>{coord["precipitation"]}mm</td></tr>
+                        <tr><td><b>Seasonality (Bio15):</b></td><td>{coord["precipitation_seasonality"]:.1f}</td></tr>
                         <tr><td><b>Station Type:</b></td><td>WorldClim-style</td></tr>
-                        <tr><td><b>Location:</b></td><td>{coord['lat']:.3f}, {coord['lon']:.3f}</td></tr>
+                        <tr><td><b>Location:</b></td><td>{coord["lat"]:.3f}, {coord["lon"]:.3f}</td></tr>
                     </table>
                 </div>
-                """, max_width=250),
+                """,
+                    max_width=250,
+                ),
                 tooltip=f"Temp: {temp_c:.1f}°C, Precip: {coord['precipitation']}mm",
-                icon=folium.Icon(color=marker_color, icon='thermometer', prefix='fa')
+                icon=folium.Icon(color=marker_color, icon="thermometer", prefix="fa"),
             ).add_to(climate_cluster)
-        
+
         climate_group.add_to(m)
         logger.info(f"✅ Added climate data layer with {len(climate_data)} stations")
-        
+
         # Add soil property layer with clustering
         logger.info("🌱 Adding soil property layer with clustering...")
         soil_cluster = MarkerCluster(
             name="Soil Sample Clusters",
             options={
-                'disableClusteringAtZoom': 9,
-                'maxClusterRadius': 45,
-                'spiderfyOnMaxZoom': True
-            }
+                "disableClusteringAtZoom": 9,
+                "maxClusterRadius": 45,
+                "spiderfyOnMaxZoom": True,
+            },
         ).add_to(soil_group)
-        
-        soil_data = [coord for coord in biological_data['coordinates'] 
-                    if coord.get('data_type') == 'soil']
-        
+
+        soil_data = [
+            coord
+            for coord in biological_data["coordinates"]
+            if coord.get("data_type") == "soil"
+        ]
+
         for coord in soil_data:
             # pH-based marker styling
-            ph = coord['ph']
+            ph = coord["ph"]
             if ph < 5.5:
-                soil_color = '#FF6B35'  # Acidic - orange-red
+                soil_color = "#FF6B35"  # Acidic - orange-red
             elif ph < 6.5:
-                soil_color = '#F7931E'  # Slightly acidic - orange
+                soil_color = "#F7931E"  # Slightly acidic - orange
             elif ph < 7.5:
-                soil_color = '#90EE90'  # Neutral - light green
+                soil_color = "#90EE90"  # Neutral - light green
             else:
-                soil_color = '#228B22'  # Alkaline - dark green
-            
+                soil_color = "#228B22"  # Alkaline - dark green
+
             folium.CircleMarker(
-                location=[coord['lat'], coord['lon']],
+                location=[coord["lat"], coord["lon"]],
                 radius=5,
-                popup=folium.Popup(f"""
+                popup=folium.Popup(
+                    f"""
                 <div style="font-family: Arial, sans-serif; min-width: 200px;">
                     <h4 style="color: #8B4513; margin: 0 0 8px 0;">🌱 Soil Sample</h4>
                     <table style="font-size: 11px; width: 100%;">
                         <tr><td><b>pH:</b></td><td>{ph:.1f}</td></tr>
-                        <tr><td><b>Organic Carbon:</b></td><td>{coord['organic_carbon']:.1f}%</td></tr>
-                        <tr><td><b>Bulk Density:</b></td><td>{coord['bulk_density']:.2f} g/cm³</td></tr>
+                        <tr><td><b>Organic Carbon:</b></td><td>{coord["organic_carbon"]:.1f}%</td></tr>
+                        <tr><td><b>Bulk Density:</b></td><td>{coord["bulk_density"]:.2f} g/cm³</td></tr>
                         <tr><td><b>Sampling Strategy:</b></td><td>ISRIC-style</td></tr>
-                        <tr><td><b>Location:</b></td><td>{coord['lat']:.3f}, {coord['lon']:.3f}</td></tr>
+                        <tr><td><b>Location:</b></td><td>{coord["lat"]:.3f}, {coord["lon"]:.3f}</td></tr>
                     </table>
                 </div>
-                """, max_width=250),
+                """,
+                    max_width=250,
+                ),
                 tooltip=f"pH: {ph:.1f}, OC: {coord['organic_carbon']:.1f}%",
-                color='#8B4513',
+                color="#8B4513",
                 fillColor=soil_color,
                 fillOpacity=0.8,
-                weight=2
+                weight=2,
             ).add_to(soil_cluster)
-        
+
         soil_group.add_to(m)
-        logger.info(f"✅ Added soil property layer with {len(soil_data)} sampling sites")
-        
+        logger.info(
+            f"✅ Added soil property layer with {len(soil_data)} sampling sites"
+        )
+
         # Add enhanced layer control panel
         logger.info("🎛️ Adding enhanced layer control panel...")
-        
+
         # Custom control panel HTML with improved styling
         control_html = """
         <div id="layer-control-panel" style="
@@ -1046,40 +1122,48 @@ class SpatialMicrobiomeIntegrator:
         });
         </script>
         """
-        
+
         # Add custom control to map
         custom_control = folium.Element(control_html)
         m.get_root().html.add_child(custom_control)
-        
+
         # Save the map
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_file = self.output_dir / f"spatial_biological_integration_{timestamp}.html"
+        output_file = (
+            self.output_dir / f"spatial_biological_integration_{timestamp}.html"
+        )
         m.save(str(output_file))
-        
+
         logger.info(f"🎉 Interactive visualization created: {output_file}")
-        logger.info(f"📊 Map includes {len(biological_data['coordinates'])} biological sample locations")
+        logger.info(
+            f"📊 Map includes {len(biological_data['coordinates'])} biological sample locations"
+        )
         logger.info(f"🔷 H3 resolution: {self.h3_resolution}")
-        logger.info("🎛️ Enhanced layer control panel added to top-right corner with custom styling")
-        
+        logger.info(
+            "🎛️ Enhanced layer control panel added to top-right corner with custom styling"
+        )
+
         return str(output_file)
-    
-    def run_complete_analysis(self, 
-                            region_bbox: Tuple[float, float, float, float] = (-130, 25, -65, 55),
-                            max_samples: int = 1000,
-                            output_format: str = "interactive") -> Dict[str, str]:
+
+    def run_complete_analysis(
+        self,
+        region_bbox: Tuple[float, float, float, float] = (-130, 25, -65, 55),
+        max_samples: int = 1000,
+        output_format: str = "interactive",
+    ) -> Dict[str, str]:
         """
         Run the complete spatial microbiome-climate-soil analysis.
-        
+
         This is the main orchestration method that demonstrates the full workflow:
         1. Load biological datasets from multiple sources
         2. Perform H3 spatial integration
         3. Create multi-overlay visualization
-        
+
         Args:
             region_bbox: Analysis region bounding box
             max_samples: Maximum microbiome samples to process
             output_format: Visualization output format
-            
+
         Returns:
             Dictionary with paths to generated outputs
         """
@@ -1088,142 +1172,146 @@ class SpatialMicrobiomeIntegrator:
         logger.info(f"📊 Max samples: {max_samples}")
         logger.info(f"🔷 H3 resolution: {self.h3_resolution}")
         logger.info(f"📈 Output format: {output_format}")
-        
+
         start_time = datetime.now()
-        
+
         try:
             # Step 1: Load biological datasets
             datasets = self.load_biological_datasets(region_bbox, max_samples)
-            
+
             # Step 2: Create interactive visualization
             visualization_path = self.create_interactive_h3_visualization(
                 datasets, output_format=output_format
             )
-            
+
             # Save integration results
             results_data = {
-                'analysis_region': region_bbox,
-                'max_samples': max_samples,
-                'h3_resolution': self.h3_resolution,
-                'coordinates_count': len(datasets.get('coordinates', [])),
-                'microbiome_source': datasets.get('microbiome', {}).get('data_source', 'Unknown'),
-                'climate_source': datasets.get('climate', {}).get('data_source', 'Unknown'),
-                'soil_source': datasets.get('soil', {}).get('data_source', 'Unknown'),
-                'processing_time': str(datetime.now() - start_time),
-                'visualization_path': visualization_path,
-                'timestamp': datetime.now().isoformat()
+                "analysis_region": region_bbox,
+                "max_samples": max_samples,
+                "h3_resolution": self.h3_resolution,
+                "coordinates_count": len(datasets.get("coordinates", [])),
+                "microbiome_source": datasets.get("microbiome", {}).get(
+                    "data_source", "Unknown"
+                ),
+                "climate_source": datasets.get("climate", {}).get(
+                    "data_source", "Unknown"
+                ),
+                "soil_source": datasets.get("soil", {}).get("data_source", "Unknown"),
+                "processing_time": str(datetime.now() - start_time),
+                "visualization_path": visualization_path,
+                "timestamp": datetime.now().isoformat(),
             }
-            
+
             results_path = self.output_dir / "integration_results.json"
-            with open(results_path, 'w') as f:
+            with open(results_path, "w") as f:
                 json.dump(results_data, f, indent=2)
-            
+
             end_time = datetime.now()
             processing_time = end_time - start_time
-            
+
             logger.info("🎉 Analysis Complete!")
             logger.info(f"⏱️  Processing time: {processing_time}")
-            logger.info(f"📊 Coordinates processed: {len(datasets.get('coordinates', []))}")
+            logger.info(
+                f"📊 Coordinates processed: {len(datasets.get('coordinates', []))}"
+            )
             logger.info(f"🗺️  Visualization: {visualization_path}")
             logger.info(f"📄 Results: {results_path}")
-            
+
             return {
                 "visualization": visualization_path,
                 "results": str(results_path),
                 "processing_time": str(processing_time),
-                "coordinates": str(len(datasets.get('coordinates', [])))
+                "coordinates": str(len(datasets.get("coordinates", []))),
             }
-            
+
         except Exception as e:
             logger.error(f"❌ Analysis failed: {e}")
             # Create error report
             error_path = self.output_dir / "error_report.json"
-            with open(error_path, 'w') as f:
-                json.dump({
-                    "error": str(e),
-                    "timestamp": datetime.now().isoformat(),
-                    "parameters": {
-                        "region_bbox": region_bbox,
-                        "max_samples": max_samples,
-                        "h3_resolution": self.h3_resolution
-                    }
-                }, f, indent=2)
-            
-            return {
-                "error": str(e),
-                "error_report": str(error_path)
-            }
+            with open(error_path, "w") as f:
+                json.dump(
+                    {
+                        "error": str(e),
+                        "timestamp": datetime.now().isoformat(),
+                        "parameters": {
+                            "region_bbox": region_bbox,
+                            "max_samples": max_samples,
+                            "h3_resolution": self.h3_resolution,
+                        },
+                    },
+                    f,
+                    indent=2,
+                )
+
+            return {"error": str(e), "error_report": str(error_path)}
 
 
 def main():
     """Main entry point for the spatial integration script."""
     parser = argparse.ArgumentParser(
         description="Spatial Microbiome-Climate-Soil Integration",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    
+
     parser.add_argument(
         "--h3_resolution",
         type=int,
         default=7,
-        help="H3 hexagonal grid resolution (0-15, higher = finer resolution)"
+        help="H3 hexagonal grid resolution (0-15, higher = finer resolution)",
     )
-    
+
     parser.add_argument(
         "--output_format",
         choices=["interactive", "static", "both"],
         default="interactive",
-        help="Visualization output format"
+        help="Visualization output format",
     )
-    
+
     parser.add_argument(
         "--region",
         default="north_america",
         choices=["north_america", "global", "custom"],
-        help="Analysis region"
+        help="Analysis region",
     )
-    
+
     parser.add_argument(
         "--max_samples",
         type=int,
         default=1000,
-        help="Maximum number of microbiome samples to process"
+        help="Maximum number of microbiome samples to process",
     )
-    
+
     parser.add_argument(
-        "--output_dir",
-        default="output",
-        help="Output directory for results"
+        "--output_dir", default="output", help="Output directory for results"
     )
-    
+
     args = parser.parse_args()
-    
+
     # Define region bounding boxes
     regions = {
         "north_america": (-130, 25, -65, 55),
         "global": (-180, -60, 180, 75),
-        "custom": (-130, 25, -65, 55)  # Default to North America
+        "custom": (-130, 25, -65, 55),  # Default to North America
     }
-    
+
     region_bbox = regions[args.region]
-    
+
     # Initialize and run analysis
     integrator = SpatialMicrobiomeIntegrator(
-        output_dir=args.output_dir,
-        h3_resolution=args.h3_resolution
+        output_dir=args.output_dir, h3_resolution=args.h3_resolution
     )
-    
+
     try:
         results = integrator.run_complete_analysis(
             region_bbox=region_bbox,
             max_samples=args.max_samples,
-            output_format=args.output_format
+            output_format=args.output_format,
         )
-        
-        print("\n" + "="*60)
+
+        print("\n" + "=" * 60)
         print("🎯 SPATIAL INTEGRATION COMPLETE")
-        print("="*60)
-        
+        print("=" * 60)
+
         if "error" in results:
             print(f"❌ Error: {results['error']}")
             print(f"📄 Error report: {results.get('error_report', 'N/A')}")
@@ -1232,10 +1320,12 @@ def main():
             print(f"📄 Results file: {results['results']}")
             print(f"⏱️  Processing time: {results['processing_time']}")
             print(f"📊 Coordinates: {results['coordinates']}")
-            print("\n🌐 Open the visualization file in your web browser to explore the interactive map!")
-        
-        print("="*60)
-        
+            print(
+                "\n🌐 Open the visualization file in your web browser to explore the interactive map!"
+            )
+
+        print("=" * 60)
+
     except Exception as e:
         logger.error(f"Integration failed: {e}")
         print(f"\n❌ Integration failed: {e}")
@@ -1245,4 +1335,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

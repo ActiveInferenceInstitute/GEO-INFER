@@ -5,18 +5,27 @@ Tests for the transforms module.
 import numpy as np
 import pytest
 from geo_infer_math.core.transforms import (
-    CoordinateTransformer, geographic_to_projected, projected_to_geographic,
-    utm_zone_from_lon_lat, utm_central_meridian, datum_transformation,
-    affine_transformation, rotation_matrix_2d, rotation_matrix_3d,
-    scale_matrix_2d, scale_matrix_3d, shear_matrix_2d
+    CoordinateTransformer,
+    geographic_to_projected,
+    projected_to_geographic,
+    utm_zone_from_lon_lat,
+    utm_central_meridian,
+    datum_transformation,
+    affine_transformation,
+    rotation_matrix_2d,
+    rotation_matrix_3d,
+    scale_matrix_2d,
+    scale_matrix_3d,
+    shear_matrix_2d,
 )
+
 
 class TestCoordinateTransformer:
     """Test coordinate transformation functionality."""
 
     def test_wgs84_to_utm_transformation(self):
         """Test WGS84 to UTM transformation."""
-        transformer = CoordinateTransformer('EPSG:4326', 'UTM')
+        transformer = CoordinateTransformer("EPSG:4326", "UTM")
 
         # Test point in northern hemisphere
         result = transformer.transform_point((10.0, 50.0, None))
@@ -31,18 +40,18 @@ class TestCoordinateTransformer:
 
     def test_utm_to_wgs84_transformation(self):
         """Test UTM to WGS84 transformation."""
-        transformer = CoordinateTransformer('UTM', 'EPSG:4326')
+        transformer = CoordinateTransformer("UTM", "EPSG:4326")
 
         # Test UTM point
         easting, northing = 500000, 5500000
         result = transformer.transform_point((easting, northing, None))
 
         assert -180 <= result[0] <= 180  # Longitude
-        assert -90 <= result[1] <= 90    # Latitude
+        assert -90 <= result[1] <= 90  # Latitude
 
     def test_geographic_to_web_mercator(self):
         """Test geographic to Web Mercator transformation."""
-        transformer = CoordinateTransformer('EPSG:4326', 'EPSG:3857')
+        transformer = CoordinateTransformer("EPSG:4326", "EPSG:3857")
 
         # Test point
         result = transformer.transform_point((10.0, 50.0, None))
@@ -51,7 +60,7 @@ class TestCoordinateTransformer:
 
     def test_web_mercator_to_geographic(self):
         """Test Web Mercator to geographic transformation."""
-        transformer = CoordinateTransformer('EPSG:3857', 'EPSG:4326')
+        transformer = CoordinateTransformer("EPSG:3857", "EPSG:4326")
 
         # Test point
         x, y = 1113194.91, 6446275.84  # Web Mercator coordinates for (10, 50)
@@ -62,13 +71,9 @@ class TestCoordinateTransformer:
 
     def test_transform_points_batch(self):
         """Test batch transformation of multiple points."""
-        transformer = CoordinateTransformer('EPSG:4326', 'UTM')
+        transformer = CoordinateTransformer("EPSG:4326", "UTM")
 
-        points = np.array([
-            [10.0, 50.0],
-            [11.0, 51.0],
-            [12.0, 52.0]
-        ])
+        points = np.array([[10.0, 50.0], [11.0, 51.0], [12.0, 52.0]])
 
         result = transformer.transform_points(points)
 
@@ -79,14 +84,15 @@ class TestCoordinateTransformer:
     def test_invalid_crs(self):
         """Test handling of invalid CRS specifications."""
         with pytest.raises(ValueError):
-            CoordinateTransformer('INVALID', 'EPSG:4326')
+            CoordinateTransformer("INVALID", "EPSG:4326")
+
 
 class TestGeographicProjection:
     """Test geographic to projected coordinate transformations."""
 
     def test_geographic_to_utm(self):
         """Test geographic to UTM projection."""
-        x, y = geographic_to_projected(10.0, 50.0, 'utm')
+        x, y = geographic_to_projected(10.0, 50.0, "utm")
 
         assert isinstance(x, float)
         assert isinstance(y, float)
@@ -95,7 +101,7 @@ class TestGeographicProjection:
 
     def test_projected_to_geographic(self):
         """Test projected to geographic transformation."""
-        lon, lat = projected_to_geographic(500000, 5500000, 'utm')
+        lon, lat = projected_to_geographic(500000, 5500000, "utm")
 
         assert isinstance(lon, float)
         assert isinstance(lat, float)
@@ -105,7 +111,8 @@ class TestGeographicProjection:
     def test_invalid_projection(self):
         """Test handling of invalid projection."""
         with pytest.raises(ValueError):
-            geographic_to_projected(10.0, 50.0, 'invalid')
+            geographic_to_projected(10.0, 50.0, "invalid")
+
 
 class TestUTMUtilities:
     """Test UTM utility functions."""
@@ -115,15 +122,15 @@ class TestUTMUtilities:
         # Test various longitudes
         zone, hemisphere = utm_zone_from_lon_lat(-177, 45)  # Westernmost
         assert zone == 1
-        assert hemisphere == 'N'
+        assert hemisphere == "N"
 
         zone, hemisphere = utm_zone_from_lon_lat(177, 45)  # Easternmost
         assert zone == 60
-        assert hemisphere == 'N'
+        assert hemisphere == "N"
 
         zone, hemisphere = utm_zone_from_lon_lat(10, -45)  # Southern hemisphere
         assert zone == 32  # Longitude 10° is in UTM zone 32
-        assert hemisphere == 'S'
+        assert hemisphere == "S"
 
     def test_utm_central_meridian(self):
         """Test UTM central meridian calculation."""
@@ -135,12 +142,13 @@ class TestUTMUtilities:
         meridian = utm_central_meridian(31)
         assert meridian == 3
 
+
 class TestDatumTransformation:
     """Test datum transformation functionality."""
 
     def test_wgs84_to_nad83(self):
         """Test WGS84 to NAD83 transformation."""
-        x, y, z = datum_transformation(1000000, 2000000, 100, 'WGS84', 'NAD83')
+        x, y, z = datum_transformation(1000000, 2000000, 100, "WGS84", "NAD83")
 
         assert isinstance(x, float)
         assert isinstance(y, float)
@@ -148,11 +156,12 @@ class TestDatumTransformation:
 
     def test_nad83_to_wgs84(self):
         """Test NAD83 to WGS84 transformation."""
-        x, y, z = datum_transformation(1000000, 2000000, 100, 'NAD83', 'WGS84')
+        x, y, z = datum_transformation(1000000, 2000000, 100, "NAD83", "WGS84")
 
         assert isinstance(x, float)
         assert isinstance(y, float)
         assert isinstance(z, float)
+
 
 class TestAffineTransformations:
     """Test affine transformation functions."""
@@ -179,6 +188,7 @@ class TestAffineTransformations:
         expected = np.array([[11, 22, 33], [14, 25, 36]])
         np.testing.assert_array_almost_equal(result, expected)
 
+
 class TestTransformationMatrices:
     """Test transformation matrix generation."""
 
@@ -196,9 +206,9 @@ class TestTransformationMatrices:
     def test_rotation_matrix_3d(self):
         """Test 3D rotation matrix generation."""
         angle = np.pi / 2
-        matrix_x = rotation_matrix_3d('x', angle)
-        matrix_y = rotation_matrix_3d('y', angle)
-        matrix_z = rotation_matrix_3d('z', angle)
+        matrix_x = rotation_matrix_3d("x", angle)
+        matrix_y = rotation_matrix_3d("y", angle)
+        matrix_z = rotation_matrix_3d("z", angle)
 
         assert matrix_x.shape == (3, 3)
         assert matrix_y.shape == (3, 3)
@@ -236,4 +246,4 @@ class TestTransformationMatrices:
     def test_invalid_axis_rotation(self):
         """Test handling of invalid rotation axis."""
         with pytest.raises(ValueError):
-            rotation_matrix_3d('invalid', np.pi/2)
+            rotation_matrix_3d("invalid", np.pi / 2)

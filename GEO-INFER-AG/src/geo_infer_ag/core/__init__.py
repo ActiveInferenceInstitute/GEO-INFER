@@ -10,4 +10,4 @@ __all__ = [
     "FieldBoundaryManager",
     "SeasonalAnalysis",
     "SustainabilityAssessment",
-] 
+]

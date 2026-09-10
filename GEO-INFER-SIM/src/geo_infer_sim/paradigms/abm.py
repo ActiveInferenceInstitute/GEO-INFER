@@ -50,7 +50,9 @@ class Agent:
         if other_agent.agent_id not in self.neighbors:
             self.neighbors.append(other_agent.agent_id)
         self.properties["last_interaction_time"] = time
-        self.properties["interaction_count"] = self.properties.get("interaction_count", 0) + 1
+        self.properties["interaction_count"] = (
+            self.properties.get("interaction_count", 0) + 1
+        )
 
 
 class AgentBasedModel:
@@ -164,7 +166,8 @@ class AgentBasedModel:
         # Update agent neighbors
         for agent in self.agents.values():
             agent.neighbors = [
-                n.agent_id for n in self.find_neighbors(agent, radius=self.neighbor_radius)
+                n.agent_id
+                for n in self.find_neighbors(agent, radius=self.neighbor_radius)
             ]
 
         # Execute agent steps
@@ -211,5 +214,3 @@ class AgentBasedModel:
             },
             "environment": self.environment,
         }
-
-

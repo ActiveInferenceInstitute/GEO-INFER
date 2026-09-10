@@ -29,6 +29,3 @@ __all__ = [
     "SpatialPrediction",
     "analyze_multi_scale_patterns",
 ]
-
-
-

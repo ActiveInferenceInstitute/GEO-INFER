@@ -39,7 +39,7 @@ class TestResourceDeployerInit:
     def test_default_initialization(self) -> None:
         deployer = ResourceDeployer()
         assert deployer is not None
-        assert deployer.optimization_algorithm == "mixed_integer"
+        assert deployer.optimization_algorithm == "greedy_nearest_resource"
         assert deployer.real_time_updates is True
         assert "engines" in deployer.resource_types
 

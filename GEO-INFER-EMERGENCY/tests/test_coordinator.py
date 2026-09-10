@@ -211,7 +211,7 @@ class TestResourceDeployer:
         """Create a ResourceDeployer instance."""
         return ResourceDeployer(
             resource_types=["engines", "ambulances"],
-            optimization_algorithm="mixed_integer",
+            optimization_algorithm="greedy_nearest_resource",
             real_time_updates=True,
         )
 
@@ -219,7 +219,7 @@ class TestResourceDeployer:
         """Test default initialization."""
         deployer = ResourceDeployer()
         assert "engines" in deployer.resource_types
-        assert deployer.optimization_algorithm == "mixed_integer"
+        assert deployer.optimization_algorithm == "greedy_nearest_resource"
 
     def test_register_resource(self, deployer):
         """Test registering a resource."""

@@ -166,7 +166,9 @@ class UnderwritingDecisionEngine:
             config: Decision engine configuration
         """
         self.config = config or {}
-        self.logger = logging.getLogger("geo_infer_insurance.underwriting.decision_engine")
+        self.logger = logging.getLogger(
+            "geo_infer_insurance.underwriting.decision_engine"
+        )
 
         # Decision frameworks
         self.decision_frameworks: Dict[str, DecisionFramework] = {}
@@ -325,9 +327,7 @@ class UnderwritingDecisionEngine:
             DecisionCriteria(
                 DecisionCriterion.PREMIUM_ADEQUACY, weight=0.3, threshold=1.2
             ),
-            DecisionCriteria(
-                DecisionCriterion.LOSS_HISTORY, weight=0.2, threshold=0.1
-            ),
+            DecisionCriteria(DecisionCriterion.LOSS_HISTORY, weight=0.2, threshold=0.1),
         ]
 
         self.decision_frameworks["conservative"] = DecisionFramework(

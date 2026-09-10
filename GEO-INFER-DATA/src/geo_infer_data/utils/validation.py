@@ -46,6 +46,7 @@ def scan_geometry_validity(geometries: Any) -> List[Tuple[Any, str, Any]]:
             issues.append((idx, "ok", geom))
     return issues
 
+
 def wgs84_bounds_issues(bounds: Sequence[float]) -> List[str]:
     """Return the WGS84 bound-check types violated by ``[lon, lat, lon, lat]`` bounds."""
     min_lon, min_lat, max_lon, max_lat = bounds[:4]
@@ -414,7 +415,9 @@ class GeospatialValidator:
         status = (
             QualityStatus.PASS
             if score >= 0.8
-            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+            else QualityStatus.WARNING
+            if score >= 0.5
+            else QualityStatus.FAIL
         )
 
         return QualityCheck(score=max(0.0, score), status=status, issues=issues)
@@ -444,7 +447,11 @@ class GeospatialValidator:
                             {
                                 "type": issue_type,
                                 "message": "Invalid "
-                                + ("longitude" if issue_type == "invalid_longitude_bounds" else "latitude")
+                                + (
+                                    "longitude"
+                                    if issue_type == "invalid_longitude_bounds"
+                                    else "latitude"
+                                )
                                 + " bounds",
                                 "severity": "high",
                             }
@@ -497,7 +504,9 @@ class GeospatialValidator:
         status = (
             QualityStatus.PASS
             if score >= 0.8
-            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+            else QualityStatus.WARNING
+            if score >= 0.5
+            else QualityStatus.FAIL
         )
 
         return QualityCheck(score=max(0.0, score), status=status, issues=issues)
@@ -552,7 +561,9 @@ class GeospatialValidator:
         status = (
             QualityStatus.PASS
             if score >= 0.8
-            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+            else QualityStatus.WARNING
+            if score >= 0.5
+            else QualityStatus.FAIL
         )
 
         return QualityCheck(score=max(0.0, score), status=status, issues=issues)

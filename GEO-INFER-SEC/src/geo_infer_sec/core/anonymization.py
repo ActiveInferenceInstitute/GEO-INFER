@@ -26,16 +26,16 @@ class GeospatialAnonymizer:
             seed: Random seed for reproducibility of anonymization operations.
         """
         self.rng = np.random.RandomState(seed)
-    
+
     def location_perturbation(
-        self, 
-        gdf: gpd.GeoDataFrame, 
-        epsilon: float = 100.0, 
-        geometry_col: str = "geometry"
+        self,
+        gdf: gpd.GeoDataFrame,
+        epsilon: float = 100.0,
+        geometry_col: str = "geometry",
     ) -> gpd.GeoDataFrame:
         """
         Apply random perturbation to point locations.
-        
+
         Args:
             gdf: GeoDataFrame with point geometries to anonymize
             epsilon: Maximum displacement distance in meters
@@ -63,7 +63,7 @@ class GeospatialAnonymizer:
                 "location_perturbation assumes EPSG:4326 coordinates; "
                 f"got {crs.to_string()}. Reproject before anonymizing."
             )
-        
+
         result = gdf.copy()
         for idx, row in result.iterrows():
             point = row[geometry_col]
@@ -82,31 +82,31 @@ class GeospatialAnonymizer:
             # Create new point
             new_point = Point(point.x + dx_deg, point.y + dy_deg)
             result.loc[idx, geometry_col] = new_point
-            
+
         return result
-    
+
     def spatial_k_anonymity(
-        self, 
-        gdf: gpd.GeoDataFrame, 
-        k: int = 5, 
-        h3_resolution: int = 9, 
-        geometry_col: str = "geometry"
+        self,
+        gdf: gpd.GeoDataFrame,
+        k: int = 5,
+        h3_resolution: int = 9,
+        geometry_col: str = "geometry",
     ) -> gpd.GeoDataFrame:
         """
         Apply spatial k-anonymity by aggregating points into H3 cells.
-        
+
         Args:
             gdf: GeoDataFrame with point geometries to anonymize
             k: Minimum number of points required in each H3 cell
             h3_resolution: H3 grid resolution (0-15, where higher is more precise)
             geometry_col: Name of the geometry column
-            
+
         Returns:
             GeoDataFrame with k-anonymized data
         """
         if not all(isinstance(geom, Point) for geom in gdf[geometry_col]):
             raise ValueError("All geometries must be Point objects")
-        
+
         result = gdf.copy()
         current_resolution = h3_resolution
 
@@ -146,39 +146,39 @@ class GeospatialAnonymizer:
         # Replace coordinates with cell centroids
         for cell_id in result["h3_cell"].unique():
             cell_center = h3.cell_to_latlng(cell_id)
-            result.loc[
-                result["h3_cell"] == cell_id, geometry_col
-            ] = Point(cell_center[1], cell_center[0])
+            result.loc[result["h3_cell"] == cell_id, geometry_col] = Point(
+                cell_center[1], cell_center[0]
+            )
 
         # Drop H3 cell column
         result = result.drop(columns=["h3_cell"])
 
         return result
-    
+
     def geographic_masking(
-        self, 
-        gdf: gpd.GeoDataFrame, 
-        attribute_cols: Optional[List[str]] = None, 
+        self,
+        gdf: gpd.GeoDataFrame,
+        attribute_cols: Optional[List[str]] = None,
         admin_boundaries: Optional[gpd.GeoDataFrame] = None,
         admin_id_col: str = "admin_id",
-        geometry_col: str = "geometry"
+        geometry_col: str = "geometry",
     ) -> gpd.GeoDataFrame:
         """
         Apply geographic masking by aggregating data to administrative boundaries.
-        
+
         Args:
             gdf: GeoDataFrame with point geometries to anonymize
             attribute_cols: List of columns with attributes to aggregate
             admin_boundaries: GeoDataFrame with administrative boundaries
             admin_id_col: Column name for administrative area identifier
             geometry_col: Name of the geometry column
-            
+
         Returns:
             GeoDataFrame with geographically masked data
         """
         if attribute_cols is None or admin_boundaries is None:
             raise ValueError("attribute_cols and admin_boundaries must be provided")
-        
+
         # Spatial join: assign each point to the admin boundary it falls within
         joined = gpd.sjoin(gdf, admin_boundaries, how="inner", predicate="within")
 
@@ -208,4 +208,4 @@ class GeospatialAnonymizer:
             else:
                 agg_gdf[col] = np.nan
 
-        return agg_gdf 
+        return agg_gdf

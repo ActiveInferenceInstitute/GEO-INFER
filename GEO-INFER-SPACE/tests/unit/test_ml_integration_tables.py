@@ -10,7 +10,10 @@ import h3
 import pytest
 
 from geo_infer_space.backends.h3.core import H3Cell, H3Grid
-from geo_infer_space.backends.h3.ml_integration import H3DisasterResponse, H3PerformanceOptimizer
+from geo_infer_space.backends.h3.ml_integration import (
+    H3DisasterResponse,
+    H3PerformanceOptimizer,
+)
 
 
 @pytest.fixture
@@ -54,7 +57,9 @@ class TestResolutionRecommendation:
         result = optimizer.optimize_grid_resolution(area_km2)
 
         for rec in result["all_recommendations"]:
-            expected = int(area_km2 / h3.average_hexagon_area(rec["resolution"], unit="km^2"))
+            expected = int(
+                area_km2 / h3.average_hexagon_area(rec["resolution"], unit="km^2")
+            )
             assert rec["estimated_cells"] == expected
 
 

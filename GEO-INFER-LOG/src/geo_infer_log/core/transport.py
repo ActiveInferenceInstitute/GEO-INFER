@@ -438,7 +438,11 @@ class TransportationNetworkAnalyzer:
         edge_flows: Dict[Tuple[Any, Any], float] = {}
         if isinstance(self.flow_data, pd.DataFrame) and not self.flow_data.empty:
             origin_col = next(
-                (c for c in self.flow_data.columns if c in ("origin", "source", "from")),
+                (
+                    c
+                    for c in self.flow_data.columns
+                    if c in ("origin", "source", "from")
+                ),
                 None,
             )
             dest_col = next(

@@ -57,7 +57,9 @@ class TFPInterface:
     # ------------------------------------------------------------------
     # GP model construction
     # ------------------------------------------------------------------
-    def create_spatial_gp_model(self, X: np.ndarray, y: np.ndarray, **kwargs: Any) -> str:
+    def create_spatial_gp_model(
+        self, X: np.ndarray, y: np.ndarray, **kwargs: Any
+    ) -> str:
         """
         Create a Gaussian Process model for spatial data.
 
@@ -153,7 +155,9 @@ class TFPInterface:
         )
         proposal_std = kwargs.get("proposal_std", 0.15)
 
-        traces: Dict[str, List[float]] = {k: [] for k in ("lengthscale", "variance", "noise")}
+        traces: Dict[str, List[float]] = {
+            k: [] for k in ("lengthscale", "variance", "noise")
+        }
         current_ll = self._log_marginal_likelihood(np.exp(current))
 
         total = n_warmup + n_samples

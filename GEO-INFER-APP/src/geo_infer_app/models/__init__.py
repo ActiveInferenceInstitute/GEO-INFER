@@ -14,9 +14,4 @@ from geo_infer_app.models.agent_factory import AgentFactory
 from geo_infer_app.models.agent_visualization import AgentVisualization
 from geo_infer_app.models.agent_configuration import AgentConfiguration
 
-__all__ = [
-    "AgentInterface",
-    "AgentFactory", 
-    "AgentVisualization",
-    "AgentConfiguration"
-] 
+__all__ = ["AgentInterface", "AgentFactory", "AgentVisualization", "AgentConfiguration"]

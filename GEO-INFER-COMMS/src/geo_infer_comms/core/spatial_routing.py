@@ -13,9 +13,7 @@ from typing import Dict, List, Optional, Tuple, Any, Set
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
-from geo_infer_comms.models.spatial import (
-    GeospatialPoint, SpatialFilter, SpatialIndex
-)
+from geo_infer_comms.models.spatial import GeospatialPoint, SpatialFilter, SpatialIndex
 from geo_infer_comms.models.message import MessageResponse, MessagePriority
 
 
@@ -33,7 +31,7 @@ class AdvancedSpatialRouter:
         spatial_index: SpatialIndex,
         routing_strategy: str = "proximity",
         adaptive_routing: bool = True,
-        load_balancing: bool = True
+        load_balancing: bool = True,
     ):
         self.spatial_index = spatial_index
         self.routing_strategy = routing_strategy
@@ -41,7 +39,9 @@ class AdvancedSpatialRouter:
         self.load_balancing = load_balancing
 
         # Routing state
-        self.network_topology: Dict[str, Dict[str, float]] = {}  # node -> node -> distance
+        self.network_topology: Dict[
+            str, Dict[str, float]
+        ] = {}  # node -> node -> distance
         self.node_loads: Dict[str, float] = {}
         self.node_locations: Dict[str, GeospatialPoint] = {}
         self.routing_history: List[Dict[str, Any]] = []
@@ -63,7 +63,7 @@ class AdvancedSpatialRouter:
         self,
         message: MessageResponse,
         target_nodes: List[str],
-        routing_context: Optional[Dict[str, Any]] = None
+        routing_context: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, List[str]]:
         """
         Route message using advanced geospatial algorithms.
@@ -91,15 +91,15 @@ class AdvancedSpatialRouter:
         elif self.routing_strategy == "load_balanced":
             return self._load_balanced_routing(message_location, target_nodes)
         elif self.routing_strategy == "adaptive":
-            return self._adaptive_routing(message_location, target_nodes, routing_context)
+            return self._adaptive_routing(
+                message_location, target_nodes, routing_context
+            )
         else:
             # Default to proximity routing
             return self._proximity_based_routing(message_location, target_nodes)
 
     def _proximity_based_routing(
-        self,
-        message_location: GeospatialPoint,
-        target_nodes: List[str]
+        self, message_location: GeospatialPoint, target_nodes: List[str]
     ) -> Dict[str, List[str]]:
         """Route messages based on proximity to message location."""
         routes = {}
@@ -116,9 +116,7 @@ class AdvancedSpatialRouter:
         return {node: [node] for node in target_nodes}
 
     def _network_aware_routing(
-        self,
-        message_location: GeospatialPoint,
-        target_nodes: List[str]
+        self, message_location: GeospatialPoint, target_nodes: List[str]
     ) -> Dict[str, List[str]]:
         """Route messages considering network topology and latency."""
         routes = {}
@@ -131,9 +129,7 @@ class AdvancedSpatialRouter:
         return routes
 
     def _load_balanced_routing(
-        self,
-        message_location: GeospatialPoint,
-        target_nodes: List[str]
+        self, message_location: GeospatialPoint, target_nodes: List[str]
     ) -> Dict[str, List[str]]:
         """Route messages with load balancing consideration."""
         routes = {}
@@ -151,7 +147,7 @@ class AdvancedSpatialRouter:
         self,
         message_location: GeospatialPoint,
         target_nodes: List[str],
-        routing_context: Optional[Dict[str, Any]] = None
+        routing_context: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, List[str]]:
         """Adaptive routing based on context and conditions."""
         routes = {}
@@ -174,9 +170,7 @@ class AdvancedSpatialRouter:
         return routes
 
     def _calculate_proximity_route(
-        self,
-        message_location: GeospatialPoint,
-        target_node: str
+        self, message_location: GeospatialPoint, target_node: str
     ) -> List[str]:
         """Calculate route based on proximity using Dijkstra over network topology."""
         if not self.network_topology:
@@ -186,7 +180,7 @@ class AdvancedSpatialRouter:
         # registered node locations; fall back to lexicographic selection
         # when no locations are registered.
         source_node: Optional[str] = None
-        best_dist = float('inf')
+        best_dist = float("inf")
         for node_id in self.network_topology:
             loc = self.node_locations.get(node_id)
             if loc is not None:
@@ -200,7 +194,7 @@ class AdvancedSpatialRouter:
             return [target_node]
 
         # Dijkstra shortest path
-        dist: Dict[str, float] = {n: float('inf') for n in self.network_topology}
+        dist: Dict[str, float] = {n: float("inf") for n in self.network_topology}
         prev: Dict[str, Optional[str]] = {n: None for n in self.network_topology}
         dist[source_node] = 0.0
         visited: Set[str] = set()
@@ -215,7 +209,7 @@ class AdvancedSpatialRouter:
                 break
             for v, weight in self.network_topology.get(u, {}).items():
                 alt = d + weight
-                if alt < dist.get(v, float('inf')):
+                if alt < dist.get(v, float("inf")):
                     dist[v] = alt
                     prev[v] = u
                     heapq.heappush(heap, (alt, v))
@@ -231,18 +225,14 @@ class AdvancedSpatialRouter:
         return path if path and path[0] == source_node else [target_node]
 
     def _calculate_network_route(
-        self,
-        message_location: GeospatialPoint,
-        target_node: str
+        self, message_location: GeospatialPoint, target_node: str
     ) -> List[str]:
         """Calculate route considering network topology via Dijkstra."""
         # Delegate to the topology-aware proximity router
         return self._calculate_proximity_route(message_location, target_node)
 
     def _calculate_alternative_route(
-        self,
-        message_location: GeospatialPoint,
-        target_node: str
+        self, message_location: GeospatialPoint, target_node: str
     ) -> List[str]:
         """Calculate alternative route that avoids congested (high-load) nodes."""
         primary = self._calculate_proximity_route(message_location, target_node)
@@ -286,7 +276,7 @@ class AdvancedSpatialRouter:
         message_id: str,
         route: List[str],
         success: bool,
-        latency: Optional[float] = None
+        latency: Optional[float] = None,
     ) -> None:
         """Record routing result for performance analysis."""
         routing_record = {
@@ -294,7 +284,7 @@ class AdvancedSpatialRouter:
             "route": route,
             "success": success,
             "latency": latency,
-            "timestamp": datetime.now(timezone.utc).isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         self.routing_history.append(routing_record)
@@ -319,13 +309,19 @@ class AdvancedSpatialRouter:
             "routing_strategy": self.routing_strategy,
             "total_routes": len(self.routing_history),
             "success_rate": (
-                self.routing_metrics.successful_routes /
-                max(self.routing_metrics.successful_routes + self.routing_metrics.failed_routes, 1) * 100
+                self.routing_metrics.successful_routes
+                / max(
+                    self.routing_metrics.successful_routes
+                    + self.routing_metrics.failed_routes,
+                    1,
+                )
+                * 100
             ),
             "average_latency": (
-                self.routing_metrics.total_latency / max(self.routing_metrics.route_count, 1)
+                self.routing_metrics.total_latency
+                / max(self.routing_metrics.route_count, 1)
             ),
-            "metrics": self.routing_metrics.to_dict()
+            "metrics": self.routing_metrics.to_dict(),
         }
 
 
@@ -346,14 +342,13 @@ class SpatialRoutingMetrics:
             "successful_routes": self.successful_routes,
             "failed_routes": self.failed_routes,
             "success_rate": (
-                self.successful_routes /
-                max(self.successful_routes + self.failed_routes, 1) * 100
+                self.successful_routes
+                / max(self.successful_routes + self.failed_routes, 1)
+                * 100
             ),
             "total_latency": self.total_latency,
-            "average_latency": (
-                self.total_latency / max(self.route_count, 1)
-            ),
-            "uptime_seconds": uptime.total_seconds()
+            "average_latency": (self.total_latency / max(self.route_count, 1)),
+            "uptime_seconds": uptime.total_seconds(),
         }
 
     def reset(self) -> None:
@@ -377,7 +372,7 @@ class GeospatialLoadBalancer:
         self,
         nodes: List[str],
         load_threshold: float = 0.8,
-        rebalance_interval: int = 300  # seconds
+        rebalance_interval: int = 300,  # seconds
     ):
         self.nodes = nodes
         self.load_threshold = load_threshold
@@ -395,7 +390,9 @@ class GeospatialLoadBalancer:
     def register_node_location(self, node_id: str, location: GeospatialPoint) -> None:
         """Register a node's geospatial location."""
         self.node_locations[node_id] = location
-        self.logger.info(f"Node location registered: {node_id} at {location.latitude}, {location.longitude}")
+        self.logger.info(
+            f"Node location registered: {node_id} at {location.latitude}, {location.longitude}"
+        )
 
     def update_node_load(self, node_id: str, load: float) -> None:
         """Update load information for a node."""
@@ -417,16 +414,17 @@ class GeospatialLoadBalancer:
     def select_optimal_node(
         self,
         message_location: GeospatialPoint,
-        exclude_nodes: Optional[List[str]] = None
+        exclude_nodes: Optional[List[str]] = None,
     ) -> Optional[str]:
         """Select the optimal node for a message based on location and load."""
         exclude_nodes = exclude_nodes or []
 
         # Filter out excluded nodes and overloaded nodes
         available_nodes = [
-            node for node in self.nodes
-            if node not in exclude_nodes and
-            self.node_loads.get(node, 0) < self.load_threshold
+            node
+            for node in self.nodes
+            if node not in exclude_nodes
+            and self.node_loads.get(node, 0) < self.load_threshold
         ]
 
         if not available_nodes:
@@ -458,7 +456,9 @@ class GeospatialLoadBalancer:
         # Select node with highest score
         best_node = max(node_scores, key=lambda x: x[1])[0]
 
-        self.logger.debug(f"Selected node {best_node} for message at {message_location.latitude}, {message_location.longitude}")
+        self.logger.debug(
+            f"Selected node {best_node} for message at {message_location.latitude}, {message_location.longitude}"
+        )
         return best_node
 
     def get_load_distribution(self) -> Dict[str, Any]:
@@ -469,9 +469,10 @@ class GeospatialLoadBalancer:
             "max_load": max(self.node_loads.values()),
             "min_load": min(self.node_loads.values()),
             "overloaded_nodes": [
-                node for node, load in self.node_loads.items()
+                node
+                for node, load in self.node_loads.items()
                 if load >= self.load_threshold
-            ]
+            ],
         }
 
 
@@ -483,11 +484,7 @@ class SpatialClusteringRouter:
     routing and load distribution based on geographic proximity.
     """
 
-    def __init__(
-        self,
-        cluster_radius_km: float = 50.0,
-        max_cluster_size: int = 100
-    ):
+    def __init__(self, cluster_radius_km: float = 50.0, max_cluster_size: int = 100):
         self.cluster_radius_km = cluster_radius_km
         self.max_cluster_size = max_cluster_size
 
@@ -512,9 +509,7 @@ class SpatialClusteringRouter:
         return cluster_id
 
     def route_to_cluster(
-        self,
-        message_location: GeospatialPoint,
-        cluster_strategy: str = "nearest"
+        self, message_location: GeospatialPoint, cluster_strategy: str = "nearest"
     ) -> Optional[str]:
         """Route message to appropriate cluster."""
         if cluster_strategy == "nearest":
@@ -540,7 +535,7 @@ class SpatialClusteringRouter:
             return None
 
         nearest_cluster = None
-        min_distance = float('inf')
+        min_distance = float("inf")
 
         for cluster in self.clusters.values():
             distance = location.distance_to(cluster.center)
@@ -556,7 +551,7 @@ class SpatialClusteringRouter:
             return None
 
         best_cluster = None
-        best_score = float('-inf')
+        best_score = float("-inf")
 
         for cluster in self.clusters.values():
             # Score based on proximity and cluster load
@@ -584,11 +579,11 @@ class SpatialClusteringRouter:
             "cluster_id": cluster.cluster_id,
             "center": {
                 "longitude": cluster.center.longitude,
-                "latitude": cluster.center.latitude
+                "latitude": cluster.center.latitude,
             },
             "node_count": len(cluster.nodes),
             "nodes": list(cluster.nodes.keys()),
-            "radius_km": self.cluster_radius_km
+            "radius_km": self.cluster_radius_km,
         }
 
 
@@ -641,33 +636,30 @@ class AdaptiveRoutingEngine:
     predict optimal routes, and adapt to changing network conditions.
     """
 
-    def __init__(
-        self,
-        learning_rate: float = 0.01,
-        exploration_rate: float = 0.1
-    ):
+    def __init__(self, learning_rate: float = 0.01, exploration_rate: float = 0.1):
         self.learning_rate = learning_rate
         self.exploration_rate = exploration_rate
 
         # Routing knowledge base
-        self.route_performance: Dict[str, Dict[str, float]] = {}  # route_key -> performance_metrics
-        self.message_patterns: Dict[str, Dict[str, Any]] = {}  # pattern_key -> pattern_data
+        self.route_performance: Dict[
+            str, Dict[str, float]
+        ] = {}  # route_key -> performance_metrics
+        self.message_patterns: Dict[
+            str, Dict[str, Any]
+        ] = {}  # pattern_key -> pattern_data
 
         # Adaptive parameters
         self.routing_weights: Dict[str, float] = {
             "proximity": 0.4,
             "latency": 0.3,
             "reliability": 0.2,
-            "load_balance": 0.1
+            "load_balance": 0.1,
         }
 
         self.logger = logging.getLogger(__name__)
 
     def learn_from_routing_result(
-        self,
-        message: MessageResponse,
-        route: List[str],
-        performance: Dict[str, Any]
+        self, message: MessageResponse, route: List[str], performance: Dict[str, Any]
     ) -> None:
         """Learn from a routing result to improve future routing."""
         route_key = self._generate_route_key(message, route)
@@ -676,23 +668,21 @@ class AdaptiveRoutingEngine:
             self.route_performance[route_key] = {
                 "success_rate": 0.0,
                 "avg_latency": 0.0,
-                "sample_count": 0
+                "sample_count": 0,
             }
 
         # Update performance metrics using exponential moving average
         current_perf = self.route_performance[route_key]
         alpha = self.learning_rate
 
-        current_perf["success_rate"] = (
-            (1 - alpha) * current_perf["success_rate"] +
-            alpha * (1.0 if performance.get("success", False) else 0.0)
-        )
+        current_perf["success_rate"] = (1 - alpha) * current_perf[
+            "success_rate"
+        ] + alpha * (1.0 if performance.get("success", False) else 0.0)
 
         if "latency" in performance:
-            current_perf["avg_latency"] = (
-                (1 - alpha) * current_perf["avg_latency"] +
-                alpha * performance["latency"]
-            )
+            current_perf["avg_latency"] = (1 - alpha) * current_perf[
+                "avg_latency"
+            ] + alpha * performance["latency"]
 
         current_perf["sample_count"] += 1
 
@@ -700,16 +690,14 @@ class AdaptiveRoutingEngine:
         self._update_routing_weights(route_key, performance)
 
     def predict_optimal_route(
-        self,
-        message: MessageResponse,
-        available_routes: Dict[str, List[str]]
+        self, message: MessageResponse, available_routes: Dict[str, List[str]]
     ) -> Optional[str]:
         """Predict the optimal route for a message."""
         if not available_routes:
             return None
 
         best_route = None
-        best_score = float('-inf')
+        best_score = float("-inf")
 
         for route_id, route in available_routes.items():
             score = self._calculate_route_score(message, route, route_id)
@@ -727,16 +715,13 @@ class AdaptiveRoutingEngine:
             message.message_type.value,
             message.priority.value,
             str(len(route)),
-            "_".join(route[:2])  # First two nodes
+            "_".join(route[:2]),  # First two nodes
         ]
 
         return "_".join(key_parts)
 
     def _calculate_route_score(
-        self,
-        message: MessageResponse,
-        route: List[str],
-        route_id: str
+        self, message: MessageResponse, route: List[str], route_id: str
     ) -> float:
         """Calculate score for a route."""
         route_key = self._generate_route_key(message, route)
@@ -748,8 +733,13 @@ class AdaptiveRoutingEngine:
         performance = self.route_performance[route_key]
 
         # Calculate score based on learned performance
-        success_score = performance["success_rate"] * self.routing_weights["reliability"]
-        latency_score = max(0, 1.0 - (performance["avg_latency"] / 1000)) * self.routing_weights["latency"]
+        success_score = (
+            performance["success_rate"] * self.routing_weights["reliability"]
+        )
+        latency_score = (
+            max(0, 1.0 - (performance["avg_latency"] / 1000))
+            * self.routing_weights["latency"]
+        )
 
         # Add proximity score if message has location
         proximity_score = 0.0
@@ -771,7 +761,7 @@ class AdaptiveRoutingEngine:
             MessagePriority.LOW: 0.3,
             MessagePriority.NORMAL: 0.5,
             MessagePriority.HIGH: 0.7,
-            MessagePriority.URGENT: 0.9
+            MessagePriority.URGENT: 0.9,
         }
         priority_score = priority_scores.get(message.priority, 0.5)
 
@@ -780,22 +770,27 @@ class AdaptiveRoutingEngine:
 
         return base_score * priority_score * length_penalty
 
-    def _update_routing_weights(self, route_key: str, performance: Dict[str, Any]) -> None:
+    def _update_routing_weights(
+        self, route_key: str, performance: Dict[str, Any]
+    ) -> None:
         """Update routing weights based on performance feedback."""
         # Simple adaptive weighting - in production would be more sophisticated
         if performance.get("success", False):
             # Increase weight for successful routing factors
-            self.routing_weights["reliability"] = min(0.9, self.routing_weights["reliability"] + 0.01)
+            self.routing_weights["reliability"] = min(
+                0.9, self.routing_weights["reliability"] + 0.01
+            )
         else:
             # Decrease weight for unsuccessful routing factors
-            self.routing_weights["reliability"] = max(0.1, self.routing_weights["reliability"] - 0.01)
+            self.routing_weights["reliability"] = max(
+                0.1, self.routing_weights["reliability"] - 0.01
+            )
 
     def get_routing_insights(self) -> Dict[str, Any]:
         """Get insights into routing performance and patterns."""
         total_routes = len(self.route_performance)
         successful_routes = sum(
-            1 for perf in self.route_performance.values()
-            if perf["success_rate"] > 0.8
+            1 for perf in self.route_performance.values() if perf["success_rate"] > 0.8
         )
 
         return {
@@ -803,9 +798,9 @@ class AdaptiveRoutingEngine:
             "high_performance_routes": successful_routes,
             "routing_weights": self.routing_weights,
             "average_success_rate": (
-                sum(perf["success_rate"] for perf in self.route_performance.values()) /
-                max(total_routes, 1)
-            )
+                sum(perf["success_rate"] for perf in self.route_performance.values())
+                / max(total_routes, 1)
+            ),
         }
 
 
@@ -819,7 +814,9 @@ class GeospatialMessageQueue:
 
     def __init__(self, max_size: int = 10000):
         self.max_size = max_size
-        self.queue: List[Tuple[float, str, MessageResponse]] = []  # (priority_score, message_id, message)
+        self.queue: List[
+            Tuple[float, str, MessageResponse]
+        ] = []  # (priority_score, message_id, message)
         self.spatial_index: Dict[str, List[str]] = {}  # location_key -> message_ids
         self.message_store: Dict[str, MessageResponse] = {}
 
@@ -850,7 +847,9 @@ class GeospatialMessageQueue:
 
         return True
 
-    def dequeue_message(self, spatial_filter: Optional[SpatialFilter] = None) -> Optional[MessageResponse]:
+    def dequeue_message(
+        self, spatial_filter: Optional[SpatialFilter] = None
+    ) -> Optional[MessageResponse]:
         """Dequeue highest priority message, optionally filtered by spatial criteria."""
         if not self.queue:
             return None
@@ -860,7 +859,9 @@ class GeospatialMessageQueue:
 
         for i, (priority_score, message_id, message) in enumerate(self.queue):
             if spatial_filter and message.geospatial_data:
-                if not spatial_filter.matches_location(message.geospatial_data.location):
+                if not spatial_filter.matches_location(
+                    message.geospatial_data.location
+                ):
                     continue
 
             candidates.append((priority_score, message_id, message, i))
@@ -892,10 +893,7 @@ class GeospatialMessageQueue:
         return message
 
     def get_messages_by_location(
-        self,
-        location: GeospatialPoint,
-        radius_km: float = 1.0,
-        limit: int = 100
+        self, location: GeospatialPoint, radius_km: float = 1.0, limit: int = 100
     ) -> List[MessageResponse]:
         """Get messages near a specific location."""
         nearby_messages = []
@@ -925,7 +923,7 @@ class GeospatialMessageQueue:
             "queue_size": len(self.queue),
             "spatial_index_size": len(self.spatial_index),
             "message_store_size": len(self.message_store),
-            "max_size": self.max_size
+            "max_size": self.max_size,
         }
 
     def _calculate_priority_score(self, message: MessageResponse) -> float:
@@ -934,7 +932,7 @@ class GeospatialMessageQueue:
             MessagePriority.URGENT: 1,
             MessagePriority.HIGH: 2,
             MessagePriority.NORMAL: 3,
-            MessagePriority.LOW: 4
+            MessagePriority.LOW: 4,
         }
 
         priority_score = base_priority.get(message.priority, 3)
@@ -974,12 +972,18 @@ class SpatialRoutingOptimizer:
 
         return {
             "total_routes_analyzed": len(history),
-            "success_rate": sum(1 for r in history if r["success"]) / len(history) * 100,
+            "success_rate": sum(1 for r in history if r["success"])
+            / len(history)
+            * 100,
             "average_latency": sum(r.get("latency", 0) for r in history) / len(history),
-            "optimization_suggestions": self._generate_optimization_suggestions(history)
+            "optimization_suggestions": self._generate_optimization_suggestions(
+                history
+            ),
         }
 
-    def _generate_optimization_suggestions(self, history: List[Dict[str, Any]]) -> List[str]:
+    def _generate_optimization_suggestions(
+        self, history: List[Dict[str, Any]]
+    ) -> List[str]:
         """Generate optimization suggestions based on history."""
         suggestions = []
 
@@ -989,7 +993,8 @@ class SpatialRoutingOptimizer:
             suggestions.append("Consider increasing retry attempts for failed routes")
 
         if any(r.get("latency", 0) > 1000 for r in history):  # > 1 second
-            suggestions.append("Consider optimizing network paths for high-latency routes")
+            suggestions.append(
+                "Consider optimizing network paths for high-latency routes"
+            )
 
         return suggestions
-

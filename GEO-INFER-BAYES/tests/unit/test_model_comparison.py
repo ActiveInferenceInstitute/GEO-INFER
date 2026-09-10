@@ -37,7 +37,6 @@ class _DummyModel:
 
 
 class TestModelComparisonInit:
-
     def test_default_construction(self) -> None:
         mc = ModelComparison()
         assert mc.models == []
@@ -50,7 +49,6 @@ class TestModelComparisonInit:
 
 
 class TestInformationCriteria:
-
     def test_aic_computation(self) -> None:
         mc = ModelComparison()
         aic = mc.compute_aic(log_likelihood=-50.0, n_params=3)
@@ -86,7 +84,6 @@ class TestInformationCriteria:
 
 
 class TestCompareModels:
-
     @pytest.fixture
     def two_models(self):
         """Create two models with different biases -- model A should fit
@@ -169,7 +166,6 @@ class TestCompareModels:
 
 
 class TestPlotComparison:
-
     def test_plot_comparison_returns_figure(self) -> None:
         import matplotlib
 

@@ -3,6 +3,7 @@
 Overlays salmon ESU coverage, EPA ecoregions, spotted owl habitat,
 and indigenous territories onto H3 hexagon grids.
 """
+
 from __future__ import annotations
 
 import logging
@@ -145,9 +146,7 @@ class GeoInferEcology:
         """True if location falls within Northern Spotted Owl critical habitat range."""
         # NSO critical habitat: Coast Range and Cascades west of crest
         ecoregion = self._ecoregion_at(lat, lon)
-        return ecoregion in (
-            "Coast Range", "Klamath Mountains", "Cascades", "Puget Lowland"
-        )
+        return ecoregion in ("Coast Range", "Klamath Mountains", "Cascades", "Puget Lowland")
 
     def _indigenous_overlap(self, lat: float, lon: float) -> list[str]:
         """Return names of tribal nations with territories near this location."""

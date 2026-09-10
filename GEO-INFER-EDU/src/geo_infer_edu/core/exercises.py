@@ -288,9 +288,9 @@ You are tasked with analyzing spatial patterns using {concept_display}.
         concept_snake = concept.lower().replace(" ", "_")
 
         return f'''"""
-{concept.replace('_', ' ').title()} Exercise
+{concept.replace("_", " ").title()} Exercise
 
-Complete the functions below to implement {concept.replace('_', ' ')} analysis.
+Complete the functions below to implement {concept.replace("_", " ")} analysis.
 """
 
 from spatial_analysis_lib import SpatialAnalyzer  # replace with your spatial analysis library
@@ -298,7 +298,7 @@ from spatial_analysis_lib import SpatialAnalyzer  # replace with your spatial an
 
 def analyze_{concept_snake}(data, parameters=None):
     """
-    Analyze spatial data using {concept.replace('_', ' ')} techniques.
+    Analyze spatial data using {concept.replace("_", " ")} techniques.
     
     Args:
         data: Input spatial data
@@ -463,11 +463,11 @@ You have been tasked with solving a real-world problem using geospatial analysis
 
 ## Available Data
 The following datasets are provided for your analysis:
-{chr(10).join(f'- {d}' for d in data_provided)}
+{chr(10).join(f"- {d}" for d in data_provided)}
 
 ## Deliverables
 You are expected to produce:
-{chr(10).join(f'{i+1}. {d}' for i, d in enumerate(expected_deliverables))}
+{chr(10).join(f"{i + 1}. {d}" for i, d in enumerate(expected_deliverables))}
 
 ## Evaluation Criteria
 - Technical accuracy of analysis
@@ -563,8 +563,8 @@ You are expected to produce:
 
             item = Exercise(
                 id=self._generate_id("assess"),
-                title=f"Assessment Item {i+1}",
-                description=objective.get("description", f"Assess objective {i+1}"),
+                title=f"Assessment Item {i + 1}",
+                description=objective.get("description", f"Assess objective {i + 1}"),
                 exercise_type=exercise_type,
                 difficulty=difficulty,
                 concepts=[objective.get("concept", "general")],

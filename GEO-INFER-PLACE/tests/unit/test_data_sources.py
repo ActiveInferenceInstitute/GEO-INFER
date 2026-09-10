@@ -68,7 +68,11 @@ class TestCategoriesAndSummary:
     def test_get_source_summary(self, ds):
         """Summary should include total count."""
         summary = ds.get_source_summary()
-        assert "total_sources" in summary or "total" in summary or isinstance(summary, dict)
+        assert (
+            "total_sources" in summary
+            or "total" in summary
+            or isinstance(summary, dict)
+        )
 
 
 if __name__ == "__main__":

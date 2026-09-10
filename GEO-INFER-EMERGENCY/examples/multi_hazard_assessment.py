@@ -53,7 +53,7 @@ def main():
 
     sa = SituationalAwareness(
         data_sources=["sensors", "field_reports", "satellite", "weather"],
-        fusion_algorithms=["bayesian"]
+        fusion_algorithms=["bayesian"],
     )
 
     hazard_results = {}
@@ -61,7 +61,7 @@ def main():
         assessment = sa.assess_threat(
             hazard=item["hazard"],
             affected_area=item["affected_area"],
-            assets_at_risk=item["assets_at_risk"]
+            assets_at_risk=item["assets_at_risk"],
         )
         hazard_results[item["name"]] = assessment
         print(f"\nHazard: {item['name']}")
@@ -80,21 +80,21 @@ def main():
             {
                 "source": "sensor_network",
                 "data": {"temperature_c": 41.0, "wind_speed_kmh": 35.0},
-                "confidence": 0.9
+                "confidence": 0.9,
             },
             {
                 "source": "field_report",
                 "data": {"temperature_c": 39.0, "wind_speed_kmh": 42.0},
-                "confidence": 0.7
+                "confidence": 0.7,
             },
             {
                 "source": "satellite_retrieval",
                 "data": {"temperature_c": 40.5, "wind_speed_kmh": 38.0},
-                "confidence": 0.8
-            }
+                "confidence": 0.8,
+            },
         ],
         fusion_method="weighted_average",
-        confidence_weighting=True
+        confidence_weighting=True,
     )
     print(f"  Fused fields : {fused['fused_data']}")
     print(f"  Confidence   : {fused['confidence']}")
@@ -106,26 +106,46 @@ def main():
     deployer = ResourceDeployer(optimization_algorithm="mixed_integer")
     allocation = deployer.optimize_allocation(
         resources=[
-            {"id": "eng_1", "type": "engine", "location": {"lat": 34.10, "lon": -118.30}},
-            {"id": "eng_2", "type": "engine", "location": {"lat": 34.00, "lon": -118.20}},
-            {"id": "amb_1", "type": "ambulance", "location": {"lat": 34.05, "lon": -118.10}},
-            {"id": "res_1", "type": "rescue_unit", "location": {"lat": 34.12, "lon": -118.22}}
+            {
+                "id": "eng_1",
+                "type": "engine",
+                "location": {"lat": 34.10, "lon": -118.30},
+            },
+            {
+                "id": "eng_2",
+                "type": "engine",
+                "location": {"lat": 34.00, "lon": -118.20},
+            },
+            {
+                "id": "amb_1",
+                "type": "ambulance",
+                "location": {"lat": 34.05, "lon": -118.10},
+            },
+            {
+                "id": "res_1",
+                "type": "rescue_unit",
+                "location": {"lat": 34.12, "lon": -118.22},
+            },
         ],
         demand_points=[
             {"id": "wildfire_perimeter", "location": {"lat": 34.08, "lon": -118.27}},
             {"id": "flood_zone", "location": {"lat": 34.01, "lon": -118.18}},
-            {"id": "field_hospital", "location": {"lat": 34.06, "lon": -118.12}}
+            {"id": "field_hospital", "location": {"lat": 34.06, "lon": -118.12}},
         ],
         constraints={"response_time": 20, "coverage": 0.8},
-        objectives=["minimize_response_time", "maximize_coverage"]
+        objectives=["minimize_response_time", "maximize_coverage"],
     )
 
-    print(f"  Allocated    : {allocation['metrics']['resources_allocated']} / "
-          f"{allocation['metrics']['total_demands']} demand points")
+    print(
+        f"  Allocated    : {allocation['metrics']['resources_allocated']} / "
+        f"{allocation['metrics']['total_demands']} demand points"
+    )
     print(f"  Coverage     : {allocation['metrics']['coverage_rate']:.0%}")
     for entry in allocation["allocations"]:
-        print(f"  - {entry['resource_id']} -> {entry['demand_id']} "
-              f"({entry['estimated_response_time']:.1f} min)")
+        print(
+            f"  - {entry['resource_id']} -> {entry['demand_id']} "
+            f"({entry['estimated_response_time']:.1f} min)"
+        )
     if allocation["unallocated_demands"]:
         print(f"  Unallocated  : {allocation['unallocated_demands']}")
 
@@ -135,7 +155,7 @@ def main():
 
     highest = max(
         hazard_results,
-        key=lambda name: (hazard_results[name].get("threat_score", 0) or 0)
+        key=lambda name: hazard_results[name].get("threat_score", 0) or 0,
     )
     print(f"\n  - Highest-priority hazard: {highest}")
     print(f"  - Fused temperature: {fused['fused_data'].get('temperature_c')} C")

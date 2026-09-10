@@ -4,6 +4,7 @@ Each class wraps a GEO-INFER module with graceful degradation — if the module 
 not installed, methods return {"available": False, "reason": "..."} instead of
 raising exceptions.
 """
+
 from __future__ import annotations
 
 import logging
@@ -20,6 +21,7 @@ logger = logging.getLogger(__name__)
 try:
     from geo_infer_math.core.spatial_statistics import MoranI  # type: ignore[import]
     from geo_infer_math.core.interpolation import KrigingInterpolator  # type: ignore[import]
+
     _MATH_AVAILABLE = True
 except ImportError as _e:
     _MATH_AVAILABLE = False
@@ -35,17 +37,30 @@ class CascadiaSpatialStats:
             return {"available": False, "reason": _MATH_REASON}
         try:
             import h3 as h3lib
-            scores = {k: float(v.get("score", 0.0)) for k, v in h3_data.items() if isinstance(v, dict)}
+
+            scores = {
+                k: float(v.get("score", 0.0)) for k, v in h3_data.items() if isinstance(v, dict)
+            }
             if len(scores) < 4:
-                return {"available": True, "moran_i": None, "p_value": None, "n": len(scores),
-                        "note": "Insufficient hexagons for autocorrelation"}
+                return {
+                    "available": True,
+                    "moran_i": None,
+                    "p_value": None,
+                    "n": len(scores),
+                    "note": "Insufficient hexagons for autocorrelation",
+                }
             cells = list(scores.keys())
             values = np.array([scores[c] for c in cells])
             coords = np.array([h3lib.cell_to_latlng(c) for c in cells])
             analyzer = MoranI()
             result = analyzer.compute(values, coords)
-            return {"available": True, "moran_i": result.get("I"), "p_value": result.get("p_value"),
-                    "n": len(scores), "interpretation": result.get("interpretation", "")}
+            return {
+                "available": True,
+                "moran_i": result.get("I"),
+                "p_value": result.get("p_value"),
+                "n": len(scores),
+                "interpretation": result.get("interpretation", ""),
+            }
         except Exception as exc:
             logger.warning("Moran's I computation failed: %s", exc)
             return {"available": True, "error": str(exc)}
@@ -68,6 +83,7 @@ class CascadiaSpatialStats:
 # ---------------------------------------------------------------------------
 try:
     from geo_infer_bayes import GaussianProcess  # type: ignore[import]
+
     _BAYES_AVAILABLE = True
 except ImportError as _e:
     _BAYES_AVAILABLE = False
@@ -83,7 +99,10 @@ class CascadiaBayesianAnalysis:
             return {"available": False, "reason": _BAYES_REASON}
         try:
             import h3 as h3lib
-            scores = {k: float(v.get("score", 0.0)) for k, v in h3_data.items() if isinstance(v, dict)}
+
+            scores = {
+                k: float(v.get("score", 0.0)) for k, v in h3_data.items() if isinstance(v, dict)
+            }
             if not scores:
                 return {"available": True, "posterior_mean": {}, "posterior_std": {}, "n": 0}
             cells = list(scores.keys())
@@ -115,6 +134,7 @@ class CascadiaBayesianAnalysis:
 # ---------------------------------------------------------------------------
 try:
     from geo_infer_risk.core.hazard_model import HazardModel  # type: ignore[import]
+
     _RISK_AVAILABLE = True
 except ImportError as _e:
     _RISK_AVAILABLE = False
@@ -130,13 +150,18 @@ class CascadiaSeismicRisk:
             return {"available": False, "reason": _RISK_REASON}
         try:
             import h3 as h3lib
+
             model = HazardModel(
                 hazard_type="seismic",
                 params={"hazard_type": "ground_shaking", "magnitude": 9.0, "region": "cascadia"},
             )
             events = model.generate_events(1)
             if not events:
-                return {"available": True, "error": "No seismic events generated", "n_cells": len(h3_cells)}
+                return {
+                    "available": True,
+                    "error": "No seismic events generated",
+                    "n_cells": len(h3_cells),
+                }
             event = events[0]
             hazard_scores: dict[str, float] = {}
             for cell in h3_cells:
@@ -154,6 +179,7 @@ class CascadiaSeismicRisk:
 # ---------------------------------------------------------------------------
 try:
     from geo_infer_forest.core.forest_health import ForestHealthAssessor  # type: ignore[import]
+
     _FOREST_AVAILABLE = True
 except ImportError as _e:
     _FOREST_AVAILABLE = False
@@ -163,7 +189,9 @@ except ImportError as _e:
 class CascadiaForestHealth:
     """Forest health analysis via GEO-INFER-FOREST."""
 
-    def assess_forest_health(self, h3_data: dict[str, Any], ecoregion_data: dict[str, Any]) -> dict[str, Any]:
+    def assess_forest_health(
+        self, h3_data: dict[str, Any], ecoregion_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Assess forest health per hexagon using ecoregion context."""
         if not _FOREST_AVAILABLE:
             return {"available": False, "reason": _FOREST_REASON}
@@ -181,6 +209,7 @@ class CascadiaForestHealth:
 # ---------------------------------------------------------------------------
 try:
     from geo_infer_marine.core.coastal_analyzer import CoastalAnalyzer  # type: ignore[import]
+
     _MARINE_AVAILABLE = True
 except ImportError as _e:
     _MARINE_AVAILABLE = False
@@ -213,6 +242,7 @@ class CascadiaCoastalAnalysis:
 # ---------------------------------------------------------------------------
 try:
     from geo_infer_econ.bioregional.bioregional_markets import BiodiversityMarkets  # type: ignore[import]
+
     _ECON_AVAILABLE = True
 except ImportError as _e:
     _ECON_AVAILABLE = False
@@ -222,7 +252,9 @@ except ImportError as _e:
 class CascadiaEcosystemServices:
     """Natural capital accounting via GEO-INFER-ECON."""
 
-    def value_ecosystem_services(self, h3_data: dict[str, Any], ecoregion_data: dict[str, Any]) -> dict[str, Any]:
+    def value_ecosystem_services(
+        self, h3_data: dict[str, Any], ecoregion_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Estimate ecosystem service values per hexagon using biodiversity market context."""
         if not _ECON_AVAILABLE:
             return {"available": False, "reason": _ECON_REASON}
@@ -231,8 +263,10 @@ class CascadiaEcosystemServices:
             import geopandas as gpd
             from shapely.geometry import box
             from geo_infer_econ.bioregional.bioregional_markets import (  # type: ignore[import]
-                BioregionalMarketDesign, BioregionalAsset,
+                BioregionalMarketDesign,
+                BioregionalAsset,
             )
+
             cascadia_bbox = box(-124.8, 41.8, -114.0, 54.0)
             boundary_gdf = gpd.GeoDataFrame(
                 {"name": ["Cascadia"]}, geometry=[cascadia_bbox], crs="EPSG:4326"
@@ -281,6 +315,7 @@ class CascadiaEcosystemServices:
 # ---------------------------------------------------------------------------
 try:
     from geo_infer_data.core.validation import DataValidator  # type: ignore[import]
+
     _DATA_AVAILABLE = True
 except ImportError as _e:
     _DATA_AVAILABLE = False
@@ -296,6 +331,7 @@ class CascadiaDataQuality:
             return {"available": False, "reason": _DATA_REASON}
         try:
             import asyncio
+
             validator = DataValidator()
             quality_scores = {}
             for module_name, data in modules_data.items():
@@ -305,7 +341,10 @@ class CascadiaDataQuality:
                 elif hasattr(validator, "validate_async"):
                     quality_scores[module_name] = asyncio.run(validator.validate_async(data))
                 else:
-                    quality_scores[module_name] = {"score": None, "note": "No validate method found"}
+                    quality_scores[module_name] = {
+                        "score": None,
+                        "note": "No validate method found",
+                    }
             return {"available": True, "quality_scores": quality_scores}
         except Exception as exc:
             logger.warning("Data quality validation failed: %s", exc)
@@ -317,6 +356,7 @@ class CascadiaDataQuality:
 # ---------------------------------------------------------------------------
 try:
     from geo_infer_climate.core.climate_processor import ClimateDataProcessor  # type: ignore[import]
+
     _CLIMATE_AVAILABLE = True
 except ImportError as _e:
     _CLIMATE_AVAILABLE = False
@@ -326,7 +366,9 @@ except ImportError as _e:
 class CascadiaClimateAnalysis:
     """Climate zone overlay and analysis via GEO-INFER-CLIMATE."""
 
-    def assign_climate_zones(self, h3_data: dict[str, Any], climate_yaml_path: Path) -> dict[str, Any]:
+    def assign_climate_zones(
+        self, h3_data: dict[str, Any], climate_yaml_path: Path
+    ) -> dict[str, Any]:
         """Assign climate zone classifications to each hexagon."""
         if not _CLIMATE_AVAILABLE:
             return {"available": False, "reason": _CLIMATE_REASON}
@@ -340,7 +382,10 @@ class CascadiaClimateAnalysis:
             elif hasattr(processor, "assign_zones"):
                 results = processor.assign_zones(h3_data)
             else:
-                return {"available": True, "error": "ClimateDataProcessor has no classify_cells or assign_zones method"}
+                return {
+                    "available": True,
+                    "error": "ClimateDataProcessor has no classify_cells or assign_zones method",
+                }
             return {"available": True, "results": results, "n_cells": len(h3_data)}
         except Exception as exc:
             logger.warning("Climate zone assignment failed: %s", exc)
@@ -350,6 +395,7 @@ class CascadiaClimateAnalysis:
 # ---------------------------------------------------------------------------
 # Convenience factory
 # ---------------------------------------------------------------------------
+
 
 def build_integration_suite() -> dict[str, Any]:
     """Return all integration wrappers keyed by domain name."""

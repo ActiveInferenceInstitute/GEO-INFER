@@ -177,9 +177,7 @@ class ProcessingLogger:
         for key, value in details.items():
             self.logger.info(f"     {key}: {value}")
 
-    def log_processing_complete(
-        self, operation: str, results: Dict[str, Any], duration: float
-    ):
+    def log_processing_complete(self, operation: str, results: Dict[str, Any], duration: float):
         """Log the completion of a processing operation."""
         self.logger.info(f"✅ PROCESSING COMPLETE - {operation}")
         self.logger.info(f"   Duration: {duration:.2f}s")
@@ -259,9 +257,7 @@ def log_dataframe_summary(logger: logging.Logger, df: pd.DataFrame, name: str):
     """Log a comprehensive summary of a DataFrame."""
     logger.info(f"📋 DATAFRAME SUMMARY - {name}")
     logger.info(f"   Shape: {df.shape}")
-    logger.info(
-        f"   Memory Usage: {df.memory_usage(deep=True).sum() / 1024 / 1024:.2f} MB"
-    )
+    logger.info(f"   Memory Usage: {df.memory_usage(deep=True).sum() / 1024 / 1024:.2f} MB")
     logger.info(f"   Columns: {list(df.columns)}")
     logger.info(f"   Data Types: {dict(df.dtypes)}")
 

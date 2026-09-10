@@ -10,7 +10,7 @@ import pytest
 import sys
 import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
 from geo_infer_math.core.optimization import (
     OptimizationConfig,
@@ -26,7 +26,7 @@ from geo_infer_math.core.optimization import (
 
 def quadratic(x: np.ndarray) -> float:
     """Simple quadratic: f(x) = sum(x^2), minimum at origin."""
-    return float(np.sum(x ** 2))
+    return float(np.sum(x**2))
 
 
 def rosenbrock_2d(x: np.ndarray) -> float:
@@ -46,40 +46,41 @@ class TestGradientDescentOptimizer:
         )
         optimizer = GradientDescentOptimizer(config)
         bounds = [(-5.0, 5.0), (-5.0, 5.0)]
-        result = optimizer.optimize(quadratic, bounds, initial_guess=np.array([3.0, 4.0]))
-        assert result['success'] is True
-        assert result['fun'] < 0.01
-        assert np.all(np.abs(result['x']) < 0.1)
+        result = optimizer.optimize(
+            quadratic, bounds, initial_guess=np.array([3.0, 4.0])
+        )
+        assert result["success"] is True
+        assert result["fun"] < 0.01
+        assert np.all(np.abs(result["x"]) < 0.1)
 
     def test_convergence_history_populated(self):
         config = OptimizationConfig(max_iterations=100, learning_rate=0.1, momentum=0.0)
         optimizer = GradientDescentOptimizer(config)
         bounds = [(-5.0, 5.0)]
         result = optimizer.optimize(quadratic, bounds, initial_guess=np.array([3.0]))
-        assert len(result['convergence_history']) > 1
+        assert len(result["convergence_history"]) > 1
         # Values should generally decrease
-        assert result['convergence_history'][-1] <= result['convergence_history'][0]
+        assert result["convergence_history"][-1] <= result["convergence_history"][0]
 
     def test_custom_gradient_function(self):
         def grad(x):
             return 2 * x
+
         config = OptimizationConfig(max_iterations=200, learning_rate=0.1, momentum=0.0)
         optimizer = GradientDescentOptimizer(config)
         bounds = [(-5.0, 5.0)]
         result = optimizer.optimize(
-            quadratic, bounds,
-            initial_guess=np.array([4.0]),
-            gradient_function=grad
+            quadratic, bounds, initial_guess=np.array([4.0]), gradient_function=grad
         )
-        assert result['fun'] < 0.01
+        assert result["fun"] < 0.01
 
     def test_bounds_respected(self):
         config = OptimizationConfig(max_iterations=100, learning_rate=0.5, momentum=0.0)
         optimizer = GradientDescentOptimizer(config)
         bounds = [(1.0, 5.0)]
         result = optimizer.optimize(quadratic, bounds, initial_guess=np.array([3.0]))
-        assert result['x'][0] >= 1.0
-        assert result['x'][0] <= 5.0
+        assert result["x"][0] >= 1.0
+        assert result["x"][0] <= 5.0
 
 
 class TestGeneticAlgorithmOptimizer:
@@ -97,8 +98,8 @@ class TestGeneticAlgorithmOptimizer:
         optimizer = GeneticAlgorithmOptimizer(config)
         bounds = [(-5.0, 5.0), (-5.0, 5.0)]
         result = optimizer.optimize(quadratic, bounds)
-        assert result['success'] is True
-        assert result['fun'] < 1.0
+        assert result["success"] is True
+        assert result["fun"] < 1.0
 
     def test_get_best_solution_after_optimization(self):
         config = OptimizationConfig(
@@ -127,23 +128,23 @@ class TestScipyOptimizer:
         config = OptimizationConfig(max_iterations=100)
         optimizer = ScipyOptimizer(config)
         bounds = [(-5.0, 5.0), (-5.0, 5.0)]
-        result = optimizer.optimize(quadratic, bounds, method='L-BFGS-B')
-        assert result['success'] is True
-        assert result['fun'] < 1e-6
+        result = optimizer.optimize(quadratic, bounds, method="L-BFGS-B")
+        assert result["success"] is True
+        assert result["fun"] < 1e-6
 
     def test_differential_evolution(self):
         config = OptimizationConfig(max_iterations=100, random_seed=42)
         optimizer = ScipyOptimizer(config)
         bounds = [(-5.0, 5.0), (-5.0, 5.0)]
-        result = optimizer.optimize(quadratic, bounds, method='differential_evolution')
-        assert result['fun'] < 1e-4
+        result = optimizer.optimize(quadratic, bounds, method="differential_evolution")
+        assert result["fun"] < 1e-4
 
     def test_default_initial_guess(self):
         config = OptimizationConfig()
         optimizer = ScipyOptimizer(config)
         bounds = [(-5.0, 5.0)]
-        result = optimizer.optimize(quadratic, bounds, method='L-BFGS-B')
-        assert 'x' in result
+        result = optimizer.optimize(quadratic, bounds, method="L-BFGS-B")
+        assert "x" in result
 
 
 class TestMultiObjectiveOptimizer:
@@ -164,10 +165,10 @@ class TestMultiObjectiveOptimizer:
         optimizer = MultiObjectiveOptimizer(config)
         bounds = [(-5.0, 5.0)]
         result = optimizer.optimize([f1, f2], bounds)
-        assert result['success'] is True
-        assert 'pareto_front' in result
+        assert result["success"] is True
+        assert "pareto_front" in result
         # Optimal trade-off is around x=1 (midpoint)
-        assert result['x'][0] > -3 and result['x'][0] < 5
+        assert result["x"][0] > -3 and result["x"][0] < 5
 
 
 class TestOptimizationManager:
@@ -175,27 +176,29 @@ class TestOptimizationManager:
 
     def test_create_manager(self):
         manager = create_optimization_manager()
-        assert 'gradient_descent' in manager.optimizers
-        assert 'genetic_algorithm' in manager.optimizers
-        assert 'scipy_lbfgs' in manager.optimizers
+        assert "gradient_descent" in manager.optimizers
+        assert "genetic_algorithm" in manager.optimizers
+        assert "scipy_lbfgs" in manager.optimizers
 
     def test_optimize_with_manager(self):
-        manager = OptimizationManager(OptimizationConfig(
-            max_iterations=100,
-            learning_rate=0.1,
-            momentum=0.0,
-        ))
+        manager = OptimizationManager(
+            OptimizationConfig(
+                max_iterations=100,
+                learning_rate=0.1,
+                momentum=0.0,
+            )
+        )
         bounds = [(-5.0, 5.0), (-5.0, 5.0)]
-        result = manager.optimize(quadratic, bounds, method='gradient_descent')
-        assert result['fun'] < 1.0
+        result = manager.optimize(quadratic, bounds, method="gradient_descent")
+        assert result["fun"] < 1.0
 
     def test_unknown_method_raises(self):
         manager = OptimizationManager()
         bounds = [(-5.0, 5.0)]
         with pytest.raises(ValueError, match="Unknown optimization method"):
-            manager.optimize(quadratic, bounds, method='nonexistent')
+            manager.optimize(quadratic, bounds, method="nonexistent")
 
     def test_convenience_function(self):
         result = optimize_function(quadratic, [(-5.0, 5.0), (-5.0, 5.0)])
-        assert 'x' in result
-        assert 'fun' in result
+        assert "x" in result
+        assert "fun" in result

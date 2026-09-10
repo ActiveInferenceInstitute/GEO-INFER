@@ -14,15 +14,16 @@ from datetime import datetime, timezone
 from dataclasses import dataclass, field
 
 from geo_infer_comms.models.message import (
-    ChannelRequest, ChannelResponse, ChannelType, ChannelStatus,
-    SubscriptionRequest, SubscriptionResponse, MessageResponse
+    ChannelRequest,
+    ChannelResponse,
+    ChannelType,
+    ChannelStatus,
+    SubscriptionRequest,
+    SubscriptionResponse,
+    MessageResponse,
 )
-from geo_infer_comms.models.spatial import (
-    GeospatialBounds, GeospatialPoint
-)
-from geo_infer_comms.utils.validation import (
-    validate_user_id, validate_spatial_bounds
-)
+from geo_infer_comms.models.spatial import GeospatialBounds, GeospatialPoint
+from geo_infer_comms.utils.validation import validate_user_id, validate_spatial_bounds
 
 
 class ChannelManager:
@@ -37,7 +38,7 @@ class ChannelManager:
         self,
         max_channels: int = 1000,
         enable_persistence: bool = True,
-        persistence_path: Optional[str] = None
+        persistence_path: Optional[str] = None,
     ):
         self.max_channels = max_channels
         self.enable_persistence = enable_persistence
@@ -61,7 +62,9 @@ class ChannelManager:
         # Set up logging
         self.logger = logging.getLogger(__name__)
 
-    def create_channel(self, request: ChannelRequest, creator_id: str) -> ChannelResponse:
+    def create_channel(
+        self, request: ChannelRequest, creator_id: str
+    ) -> ChannelResponse:
         """
         Create a new communication channel.
 
@@ -81,7 +84,9 @@ class ChannelManager:
 
         # Check channel limit
         if len(self.channels) >= self.max_channels:
-            raise ValueError(f"Maximum number of channels ({self.max_channels}) reached")
+            raise ValueError(
+                f"Maximum number of channels ({self.max_channels}) reached"
+            )
 
         # Create channel response
         channel = ChannelResponse(
@@ -89,7 +94,7 @@ class ChannelManager:
             description=request.description,
             type=request.type,
             permissions=request.permissions,
-            geospatial_bounds=request.geospatial_bounds
+            geospatial_bounds=request.geospatial_bounds,
         )
 
         # Initialize channel data structures
@@ -104,7 +109,9 @@ class ChannelManager:
 
             # Add to spatial index if geospatial bounds provided
             if request.geospatial_bounds:
-                self._add_channel_to_spatial_index(channel.channel_id, request.geospatial_bounds)
+                self._add_channel_to_spatial_index(
+                    channel.channel_id, request.geospatial_bounds
+                )
 
         self.metrics.channels_created += 1
         self.logger.info(f"Channel created: {channel.channel_id} by {creator_id}")
@@ -128,7 +135,7 @@ class ChannelManager:
         channel_type: Optional[ChannelType] = None,
         status: Optional[ChannelStatus] = None,
         creator_id: Optional[str] = None,
-        limit: int = 100
+        limit: int = 100,
     ) -> List[ChannelResponse]:
         """
         Get channels with filtering options.
@@ -158,7 +165,8 @@ class ChannelManager:
             # In a real implementation, would need to track creator_id
             # For now, filter by channels where user is a member
             filtered_channels = [
-                c for c in filtered_channels
+                c
+                for c in filtered_channels
                 if creator_id in self.channel_members.get(c.channel_id, set())
             ]
 
@@ -167,10 +175,7 @@ class ChannelManager:
         return filtered_channels[:limit]
 
     def update_channel(
-        self,
-        channel_id: str,
-        updates: Dict[str, Any],
-        user_id: str
+        self, channel_id: str, updates: Dict[str, Any], user_id: str
     ) -> bool:
         """
         Update channel properties.
@@ -201,11 +206,15 @@ class ChannelManager:
             if "geospatial_bounds" in updates:
                 # Remove from old spatial index
                 if channel.geospatial_bounds:
-                    self._remove_channel_from_spatial_index(channel_id, channel.geospatial_bounds)
+                    self._remove_channel_from_spatial_index(
+                        channel_id, channel.geospatial_bounds
+                    )
 
                 # Add to new spatial index
                 if updates["geospatial_bounds"]:
-                    self._add_channel_to_spatial_index(channel_id, updates["geospatial_bounds"])
+                    self._add_channel_to_spatial_index(
+                        channel_id, updates["geospatial_bounds"]
+                    )
 
                 channel.geospatial_bounds = updates["geospatial_bounds"]
 
@@ -242,7 +251,9 @@ class ChannelManager:
 
             # Remove from spatial index
             if channel.geospatial_bounds:
-                self._remove_channel_from_spatial_index(channel_id, channel.geospatial_bounds)
+                self._remove_channel_from_spatial_index(
+                    channel_id, channel.geospatial_bounds
+                )
 
         self.metrics.channels_deleted += 1
         self.logger.info(f"Channel deleted: {channel_id} by {user_id}")
@@ -269,7 +280,9 @@ class ChannelManager:
 
             self.channel_members[channel_id].add(user_id)
 
-        self.logger.info(f"Member added to channel {channel_id}: {user_id} by {added_by}")
+        self.logger.info(
+            f"Member added to channel {channel_id}: {user_id} by {added_by}"
+        )
         return True
 
     def remove_member(self, channel_id: str, user_id: str, removed_by: str) -> bool:
@@ -293,7 +306,9 @@ class ChannelManager:
 
             self.channel_members[channel_id].discard(user_id)
 
-        self.logger.info(f"Member removed from channel {channel_id}: {user_id} by {removed_by}")
+        self.logger.info(
+            f"Member removed from channel {channel_id}: {user_id} by {removed_by}"
+        )
         return True
 
     def get_members(self, channel_id: str) -> List[str]:
@@ -310,10 +325,7 @@ class ChannelManager:
             return list(self.channel_members.get(channel_id, set()))
 
     def subscribe_to_channel(
-        self,
-        channel_id: str,
-        user_id: str,
-        request: SubscriptionRequest
+        self, channel_id: str, user_id: str, request: SubscriptionRequest
     ) -> Optional[SubscriptionResponse]:
         """
         Subscribe a user to a channel.
@@ -337,7 +349,7 @@ class ChannelManager:
         subscription = SubscriptionResponse(
             channel_id=channel_id,
             user_id=user_id,
-            subscription_type=request.subscription_type
+            subscription_type=request.subscription_type,
         )
 
         with self._lock:
@@ -380,11 +392,7 @@ class ChannelManager:
         return self._check_permission(channel_id, user_id, permission)
 
     def set_permissions(
-        self,
-        channel_id: str,
-        user_id: str,
-        permissions: Dict[str, Any],
-        set_by: str
+        self, channel_id: str, user_id: str, permissions: Dict[str, Any], set_by: str
     ) -> bool:
         """
         Set permissions for a user in a channel.
@@ -410,10 +418,14 @@ class ChannelManager:
 
             self.channel_permissions[channel_id][user_id].update(permissions)
 
-        self.logger.info(f"Permissions set for user {user_id} in channel {channel_id} by {set_by}")
+        self.logger.info(
+            f"Permissions set for user {user_id} in channel {channel_id} by {set_by}"
+        )
         return True
 
-    def get_channels_by_location(self, location: GeospatialPoint, radius_km: float = 1.0) -> List[ChannelResponse]:
+    def get_channels_by_location(
+        self, location: GeospatialPoint, radius_km: float = 1.0
+    ) -> List[ChannelResponse]:
         """
         Find channels near a specific location.
 
@@ -446,10 +458,12 @@ class ChannelManager:
                     "skipping in location query"
                 )
                 continue
-            if (bounds.min_longitude <= max_lon and
-                bounds.max_longitude >= min_lon and
-                bounds.min_latitude <= max_lat and
-                bounds.max_latitude >= min_lat):
+            if (
+                bounds.min_longitude <= max_lon
+                and bounds.max_longitude >= min_lon
+                and bounds.min_latitude <= max_lat
+                and bounds.max_latitude >= min_lat
+            ):
                 nearby_channels.append(channel)
 
         return nearby_channels
@@ -457,7 +471,9 @@ class ChannelManager:
     def get_channel_statistics(self) -> Dict[str, Any]:
         """Get channel system statistics."""
         with self._lock:
-            total_members = sum(len(members) for members in self.channel_members.values())
+            total_members = sum(
+                len(members) for members in self.channel_members.values()
+            )
             total_subscriptions = sum(
                 len(subs) for subs in self.channel_subscriptions.values()
             )
@@ -466,8 +482,10 @@ class ChannelManager:
                 "total_channels": len(self.channels),
                 "total_members": total_members,
                 "total_subscriptions": total_subscriptions,
-                "spatial_channels": len([c for c in self.channels.values() if c.geospatial_bounds]),
-                "metrics": self.metrics.to_dict()
+                "spatial_channels": len(
+                    [c for c in self.channels.values() if c.geospatial_bounds]
+                ),
+                "metrics": self.metrics.to_dict(),
             }
 
     def _check_permission(self, channel_id: str, user_id: str, permission: str) -> bool:
@@ -482,7 +500,9 @@ class ChannelManager:
             user_perms = channel_perms.get(user_id, {})
 
             # Check if user is member (basic permission)
-            if permission == "read" and user_id in self.channel_members.get(channel_id, set()):
+            if permission == "read" and user_id in self.channel_members.get(
+                channel_id, set()
+            ):
                 return True
 
             # Check explicit permissions
@@ -503,7 +523,7 @@ class ChannelManager:
             "manage_members": True,
             "manage_permissions": True,
             "delete": True,
-            "role": "admin"
+            "role": "admin",
         }
 
         if channel_id not in self.channel_permissions:
@@ -511,7 +531,9 @@ class ChannelManager:
 
         self.channel_permissions[channel_id][user_id] = default_permissions
 
-    def _add_channel_to_spatial_index(self, channel_id: str, bounds: Dict[str, Any]) -> None:
+    def _add_channel_to_spatial_index(
+        self, channel_id: str, bounds: Dict[str, Any]
+    ) -> None:
         """Add channel to spatial index for location-based queries."""
         # Simplified spatial indexing - in production would use proper spatial index
         if validate_spatial_bounds(bounds):
@@ -526,7 +548,9 @@ class ChannelManager:
             if channel_id not in self.spatial_channels[key]:
                 self.spatial_channels[key].append(channel_id)
 
-    def _remove_channel_from_spatial_index(self, channel_id: str, bounds: Dict[str, Any]) -> None:
+    def _remove_channel_from_spatial_index(
+        self, channel_id: str, bounds: Dict[str, Any]
+    ) -> None:
         """Remove channel from spatial index."""
         center_lon = (bounds["min_longitude"] + bounds["max_longitude"]) / 2
         center_lat = (bounds["min_latitude"] + bounds["max_latitude"]) / 2
@@ -565,7 +589,7 @@ class ChannelMetrics:
             "subscriptions_removed": self.subscriptions_removed,
             "net_channels": self.channels_created - self.channels_deleted,
             "net_members": self.members_added - self.members_removed,
-            "uptime_seconds": uptime.total_seconds()
+            "uptime_seconds": uptime.total_seconds(),
         }
 
     def reset(self) -> None:
@@ -597,25 +621,18 @@ class ChannelPermissionManager:
         self._register_default_templates()
 
     def create_permission_template(
-        self,
-        template_name: str,
-        permissions: Dict[str, Any],
-        description: str = ""
+        self, template_name: str, permissions: Dict[str, Any], description: str = ""
     ) -> None:
         """Create a reusable permission template."""
         self.permission_templates[template_name] = {
             "permissions": permissions,
             "description": description,
-            "created_at": datetime.now(timezone.utc)
+            "created_at": datetime.now(timezone.utc),
         }
         self.logger.info(f"Created permission template: {template_name}")
 
     def apply_permission_template(
-        self,
-        channel_id: str,
-        template_name: str,
-        user_id: str,
-        applied_by: str
+        self, channel_id: str, template_name: str, user_id: str, applied_by: str
     ) -> bool:
         """Apply a permission template to a user in a channel."""
         if template_name not in self.permission_templates:
@@ -627,16 +644,14 @@ class ChannelPermissionManager:
         )
 
     def check_geospatial_permission(
-        self,
-        channel_id: str,
-        user_id: str,
-        permission: str,
-        location: GeospatialPoint
+        self, channel_id: str, user_id: str, permission: str, location: GeospatialPoint
     ) -> bool:
         """Check if user has permission at a specific location."""
         channel = self.channel_manager.get_channel(channel_id)
         if not channel or not channel.geospatial_bounds:
-            return self.channel_manager.check_permission(channel_id, user_id, permission)
+            return self.channel_manager.check_permission(
+                channel_id, user_id, permission
+            )
 
         # Check if location is within channel bounds
         try:
@@ -650,7 +665,9 @@ class ChannelPermissionManager:
 
         return self.channel_manager.check_permission(channel_id, user_id, permission)
 
-    def get_effective_permissions(self, channel_id: str, user_id: str) -> Dict[str, Any]:
+    def get_effective_permissions(
+        self, channel_id: str, user_id: str
+    ) -> Dict[str, Any]:
         """Get all effective permissions for a user in a channel."""
         with self.channel_manager._lock:
             if channel_id not in self.channel_manager.channel_permissions:
@@ -670,40 +687,38 @@ class ChannelPermissionManager:
 
     def _register_default_templates(self) -> None:
         """Register default permission templates."""
-        self.permission_templates.update({
-            "read_only": {
-                "permissions": {"read": True, "role": "viewer"},
-                "description": "Read-only access to channel"
-            },
-            "member": {
-                "permissions": {
-                    "read": True,
-                    "write": True,
-                    "role": "member"
+        self.permission_templates.update(
+            {
+                "read_only": {
+                    "permissions": {"read": True, "role": "viewer"},
+                    "description": "Read-only access to channel",
                 },
-                "description": "Standard member access"
-            },
-            "moderator": {
-                "permissions": {
-                    "read": True,
-                    "write": True,
-                    "manage_members": True,
-                    "role": "moderator"
+                "member": {
+                    "permissions": {"read": True, "write": True, "role": "member"},
+                    "description": "Standard member access",
                 },
-                "description": "Moderator access with member management"
-            },
-            "admin": {
-                "permissions": {
-                    "read": True,
-                    "write": True,
-                    "manage_members": True,
-                    "manage_permissions": True,
-                    "delete": True,
-                    "role": "admin"
+                "moderator": {
+                    "permissions": {
+                        "read": True,
+                        "write": True,
+                        "manage_members": True,
+                        "role": "moderator",
+                    },
+                    "description": "Moderator access with member management",
                 },
-                "description": "Full administrative access"
+                "admin": {
+                    "permissions": {
+                        "read": True,
+                        "write": True,
+                        "manage_members": True,
+                        "manage_permissions": True,
+                        "delete": True,
+                        "role": "admin",
+                    },
+                    "description": "Full administrative access",
+                },
             }
-        })
+        )
 
 
 class ChannelMessageFilter:
@@ -720,23 +735,24 @@ class ChannelMessageFilter:
         self.logger = logging.getLogger(__name__)
 
     def add_content_filter(
-        self,
-        channel_id: str,
-        filter_rule: Dict[str, Any],
-        added_by: str
+        self, channel_id: str, filter_rule: Dict[str, Any], added_by: str
     ) -> bool:
         """Add a content filter rule to a channel."""
-        if not self.channel_manager.check_permission(channel_id, added_by, "manage_permissions"):
+        if not self.channel_manager.check_permission(
+            channel_id, added_by, "manage_permissions"
+        ):
             return False
 
         if channel_id not in self.content_filters:
             self.content_filters[channel_id] = []
 
-        self.content_filters[channel_id].append({
-            **filter_rule,
-            "added_by": added_by,
-            "added_at": datetime.now(timezone.utc)
-        })
+        self.content_filters[channel_id].append(
+            {
+                **filter_rule,
+                "added_by": added_by,
+                "added_at": datetime.now(timezone.utc),
+            }
+        )
 
         self.logger.info(f"Content filter added to channel {channel_id} by {added_by}")
         return True
@@ -760,7 +776,9 @@ class ChannelMessageFilter:
 
         return True
 
-    def _evaluate_filter(self, message: MessageResponse, filter_rule: Dict[str, Any]) -> bool:
+    def _evaluate_filter(
+        self, message: MessageResponse, filter_rule: Dict[str, Any]
+    ) -> bool:
         """Evaluate a single filter rule against a message."""
         rule_type = filter_rule.get("type", "keyword")
 
@@ -776,7 +794,9 @@ class ChannelMessageFilter:
             # Check for required keywords (if specified)
             required_keywords = filter_rule.get("required_keywords", [])
             if required_keywords:
-                if not any(keyword.lower() in content_lower for keyword in required_keywords):
+                if not any(
+                    keyword.lower() in content_lower for keyword in required_keywords
+                ):
                     return False
 
         elif rule_type == "length":
@@ -800,8 +820,16 @@ class ChannelMessageFilter:
                 msg_loc = message.geospatial_data.location
                 bounds = geo_filter.get("bounds", {})
                 if bounds:
-                    lat_ok = bounds.get("min_lat", -90) <= msg_loc.latitude <= bounds.get("max_lat", 90)
-                    lon_ok = bounds.get("min_lon", -180) <= msg_loc.longitude <= bounds.get("max_lon", 180)
+                    lat_ok = (
+                        bounds.get("min_lat", -90)
+                        <= msg_loc.latitude
+                        <= bounds.get("max_lat", 90)
+                    )
+                    lon_ok = (
+                        bounds.get("min_lon", -180)
+                        <= msg_loc.longitude
+                        <= bounds.get("max_lon", 180)
+                    )
                     if not (lat_ok and lon_ok):
                         return False
 
@@ -828,7 +856,7 @@ class ChannelAnalytics:
         channel_id: str,
         activity_type: str,
         user_id: str,
-        details: Optional[Dict[str, Any]] = None
+        details: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Log channel activity for analytics."""
         activity_entry = {
@@ -836,26 +864,25 @@ class ChannelAnalytics:
             "activity_type": activity_type,
             "user_id": user_id,
             "timestamp": datetime.now(timezone.utc),
-            "details": details or {}
+            "details": details or {},
         }
 
         self.activity_log.append(activity_entry)
 
         # Trim log if too large
         if len(self.activity_log) > self.max_log_entries:
-            self.activity_log = self.activity_log[-self.max_log_entries:]
+            self.activity_log = self.activity_log[-self.max_log_entries :]
 
     def get_channel_activity(
         self,
         channel_id: str,
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
-        activity_types: Optional[List[str]] = None
+        activity_types: Optional[List[str]] = None,
     ) -> List[Dict[str, Any]]:
         """Get activity log for a specific channel."""
         filtered = [
-            entry for entry in self.activity_log
-            if entry["channel_id"] == channel_id
+            entry for entry in self.activity_log if entry["channel_id"] == channel_id
         ]
 
         if start_time:
@@ -898,12 +925,14 @@ class ChannelAnalytics:
             "total_activities": len(activities),
             "activity_types": activity_counts,
             "unique_users": len(user_activity),
-            "most_active_users": sorted(user_activity.items(), key=lambda x: x[1], reverse=True)[:10],
+            "most_active_users": sorted(
+                user_activity.items(), key=lambda x: x[1], reverse=True
+            )[:10],
             "hourly_distribution": hourly_activity,
             "time_range": {
                 "start": min(a["timestamp"] for a in activities),
-                "end": max(a["timestamp"] for a in activities)
-            }
+                "end": max(a["timestamp"] for a in activities),
+            },
         }
 
     def get_system_analytics(self) -> Dict[str, Any]:
@@ -922,9 +951,11 @@ class ChannelAnalytics:
         return {
             "total_activities": total_activities,
             "total_channels_with_activity": len(channel_activity),
-            "most_active_channels": sorted(channel_activity.items(), key=lambda x: x[1], reverse=True)[:10],
+            "most_active_channels": sorted(
+                channel_activity.items(), key=lambda x: x[1], reverse=True
+            )[:10],
             "time_range": {
                 "start": min(e["timestamp"] for e in self.activity_log),
-                "end": max(e["timestamp"] for e in self.activity_log)
-            }
+                "end": max(e["timestamp"] for e in self.activity_log),
+            },
         }

@@ -70,7 +70,12 @@ class PriorBuilders:
         # Ensure normalisation
         prior = prior / (prior.sum() + self._epsilon)
 
-        logger.debug("Built %s prior (size=%d, entropy=%.4f)", prior_type, size, self._entropy(prior))
+        logger.debug(
+            "Built %s prior (size=%d, entropy=%.4f)",
+            prior_type,
+            size,
+            self._entropy(prior),
+        )
         return cast(np.ndarray, prior)
 
     def _uniform(self, size: int) -> np.ndarray:

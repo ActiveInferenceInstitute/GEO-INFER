@@ -72,7 +72,9 @@ class PerformanceMonitor:
         """
         return OperationTracker(self, operation_name)
 
-    def record_metric(self, operation_name: str, metric_name: str, value: float) -> None:
+    def record_metric(
+        self, operation_name: str, metric_name: str, value: float
+    ) -> None:
         """
         Record a custom metric.
 
@@ -229,9 +231,9 @@ class PerformanceMonitor:
                     if self.enable_memory_monitoring:
                         memory_mb = psutil.Process().memory_info().rss / (1024 * 1024)
                         self.memory_history.append(memory_mb)
-                        self.metrics["memory_usage"][
-                            datetime.now(timezone.utc)
-                        ] = memory_mb
+                        self.metrics["memory_usage"][datetime.now(timezone.utc)] = (
+                            memory_mb
+                        )
 
                         # Keep only last 1000 measurements
                         if len(self.memory_history) > 1000:
@@ -241,9 +243,9 @@ class PerformanceMonitor:
                     if self.enable_cpu_monitoring:
                         cpu_percent = psutil.cpu_percent(interval=1)
                         self.cpu_history.append(cpu_percent)
-                        self.metrics["cpu_usage"][
-                            datetime.now(timezone.utc)
-                        ] = cpu_percent
+                        self.metrics["cpu_usage"][datetime.now(timezone.utc)] = (
+                            cpu_percent
+                        )
 
                         # Keep only last 1000 measurements
                         if len(self.cpu_history) > 1000:

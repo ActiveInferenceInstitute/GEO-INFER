@@ -74,7 +74,9 @@ def test_duplicate_shadow_classes_removed_from_producer_theory() -> None:
     # the exact objects re-exported through the package.
     from geo_infer_econ.microeconomics.market_structure import MarketStructureAnalysis
     from geo_infer_econ.microeconomics.game_theory import GameTheoryModels
-    from geo_infer_econ.microeconomics.behavioral_economics import BehavioralEconomicsEngine
+    from geo_infer_econ.microeconomics.behavioral_economics import (
+        BehavioralEconomicsEngine,
+    )
     from geo_infer_econ import microeconomics
 
     assert microeconomics.MarketStructureAnalysis is MarketStructureAnalysis

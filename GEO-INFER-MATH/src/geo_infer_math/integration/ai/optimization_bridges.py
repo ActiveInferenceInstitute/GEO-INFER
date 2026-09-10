@@ -38,7 +38,8 @@ class OptimizationBridges:
         self.convergence_tol = convergence_tol
         logger.debug(
             "OptimizationBridges initialized (lr=%.4f, max_iter=%d)",
-            learning_rate, max_iterations,
+            learning_rate,
+            max_iterations,
         )
 
     def bridge_optimize(
@@ -96,10 +97,14 @@ class OptimizationBridges:
             # Convergence check
             if len(loss_history) > 1:
                 loss_change = abs(loss_history[-1] - loss_history[-2])
-                if loss_change < self.convergence_tol and grad_norm < self.convergence_tol:
+                if (
+                    loss_change < self.convergence_tol
+                    and grad_norm < self.convergence_tol
+                ):
                     logger.debug(
                         "Optimization converged at iteration %d (loss=%.6f)",
-                        iteration, loss,
+                        iteration,
+                        loss,
                     )
                     return {
                         "optimal_params": params,
@@ -111,7 +116,8 @@ class OptimizationBridges:
 
         logger.debug(
             "Optimization did not converge after %d iterations (final loss=%.6f)",
-            self.max_iterations, loss_history[-1],
+            self.max_iterations,
+            loss_history[-1],
         )
         return {
             "optimal_params": params,
@@ -130,9 +136,11 @@ class OptimizationBridges:
             return self.learning_rate * (0.5 ** (iteration // 100))
         elif scheduler == "cosine":
             # Cosine annealing
-            return float(self.learning_rate * 0.5 * (
-                1 + np.cos(np.pi * iteration / self.max_iterations)
-            ))
+            return float(
+                self.learning_rate
+                * 0.5
+                * (1 + np.cos(np.pi * iteration / self.max_iterations))
+            )
         else:
             return self.learning_rate
 

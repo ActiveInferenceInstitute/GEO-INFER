@@ -4,6 +4,7 @@ Pytest fixtures for GEO-INFER-ECON tests.
 Provides economic indicators, market data time series,
 spatial economic GeoDataFrames, and standard spatial fixtures.
 """
+
 import pytest
 import numpy as np
 import pandas as pd

@@ -39,7 +39,6 @@ class ActiveInferenceAnalyzer:
         (self.output_dir / "analysis").mkdir(exist_ok=True)
         (self.output_dir / "visualizations").mkdir(exist_ok=True)
 
-
         # Data storage
         self.traces: Dict[str, list] = {
             "beliefs": [],
@@ -104,7 +103,6 @@ class ActiveInferenceAnalyzer:
 
         logger.info(f"Full history exported to {output_path}")
         return output_path
-
 
     def record_step(
         self,
@@ -1470,7 +1468,7 @@ def create_correlation_analysis(traces: Dict[str, list], output_dir: Path) -> No
 
         for i, col in enumerate(df.columns):
             axes[i].plot(df[col], linewidth=2, marker="o", markersize=3)
-            axes[i].set_title(f'{col.replace("_", " ").title()} Over Time')
+            axes[i].set_title(f"{col.replace('_', ' ').title()} Over Time")
             axes[i].set_xlabel("Time Step")
             axes[i].set_ylabel(col.replace("_", " ").title())
             axes[i].grid(True, alpha=0.3)

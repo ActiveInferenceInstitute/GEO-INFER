@@ -25,8 +25,9 @@ try:
         proximity_analysis,
         spatial_join_analysis,
         geometric_calculations,
-        topology_operations
+        topology_operations,
     )
+
     VECTOR_AVAILABLE = True
 except ImportError as e:
     logger.warning(f"Vector analytics not available: {e}")
@@ -40,8 +41,9 @@ try:
         focal_statistics as focal_statistics,
         zonal_statistics as zonal_statistics,
         raster_overlay as raster_overlay,
-        image_processing as image_processing
+        image_processing as image_processing,
     )
+
     RASTER_AVAILABLE = True
 except ImportError as e:
     logger.debug(f"Raster analytics not available: {e}")
@@ -54,8 +56,9 @@ try:
         service_area as service_area,
         network_connectivity as network_connectivity,
         routing_analysis as routing_analysis,
-        accessibility_analysis as accessibility_analysis
+        accessibility_analysis as accessibility_analysis,
     )
+
     NETWORK_AVAILABLE = True
 except ImportError as e:
     logger.debug(f"Network analytics not available: {e}")
@@ -68,8 +71,9 @@ try:
         clustering_analysis,
         hotspot_detection,
         spatial_autocorrelation,
-        variogram_analysis
+        variogram_analysis,
     )
+
     GEOSTATISTICS_AVAILABLE = True
 except ImportError as e:
     logger.debug(f"Geostatistics not available: {e}")
@@ -81,8 +85,9 @@ try:
         point_cloud_filtering as point_cloud_filtering,
         feature_extraction as feature_extraction,
         classification as classification,
-        surface_generation as surface_generation
+        surface_generation as surface_generation,
     )
+
     POINT_CLOUD_AVAILABLE = True
 except ImportError as e:
     logger.debug(f"Point cloud analytics not available: {e}")
@@ -90,25 +95,22 @@ except ImportError as e:
 
 __all__ = [
     # Always available
-    'TemporalAnalyzer',
-    'SpatioTemporalAnalyzer',
-    
+    "TemporalAnalyzer",
+    "SpatioTemporalAnalyzer",
     # Vector operations (if available)
-    'buffer_and_intersect',
-    'overlay_analysis', 
-    'proximity_analysis',
-    'spatial_join_analysis',
-    'geometric_calculations',
-    'topology_operations',
-    
+    "buffer_and_intersect",
+    "overlay_analysis",
+    "proximity_analysis",
+    "spatial_join_analysis",
+    "geometric_calculations",
+    "topology_operations",
     # Raster operations
-    'terrain_analysis',
-    'map_algebra',
-    
+    "terrain_analysis",
+    "map_algebra",
     # Geostatistical functions
-    'spatial_interpolation',
-    'clustering_analysis',
-    'hotspot_detection',
-    'spatial_autocorrelation',
-    'variogram_analysis',
+    "spatial_interpolation",
+    "clustering_analysis",
+    "hotspot_detection",
+    "spatial_autocorrelation",
+    "variogram_analysis",
 ]

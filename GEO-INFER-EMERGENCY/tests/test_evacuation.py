@@ -22,7 +22,9 @@ def road_network() -> nx.DiGraph:
     graph = nx.DiGraph()
     graph.add_edge("z1", "a", distance=4.0, travel_time=6.0, capacity=1000)
     graph.add_edge("a", "b", distance=3.0, travel_time=4.0, capacity=800)
-    graph.add_edge("b", "s1", distance=3.0, travel_time=5.0, capacity=600, contraflow_capable=True)
+    graph.add_edge(
+        "b", "s1", distance=3.0, travel_time=5.0, capacity=600, contraflow_capable=True
+    )
     graph.add_edge("z1", "b", distance=10.0, travel_time=15.0, capacity=900)
     graph.add_edge("a", "s1", distance=9.0, travel_time=12.0)
     graph.add_edge("b", "s2", distance=6.0, travel_time=9.0, capacity=700)
@@ -97,9 +99,14 @@ class TestEvacuationPlannerInit:
 
     def test_register_shelter(self) -> None:
         planner = EvacuationPlanner()
-        shelter = planner.register_shelter({
-            "id": "s1", "name": "Gym", "capacity": 500, "services": ["medical"],
-        })
+        shelter = planner.register_shelter(
+            {
+                "id": "s1",
+                "name": "Gym",
+                "capacity": 500,
+                "services": ["medical"],
+            }
+        )
         assert shelter.shelter_id == "s1"
         assert shelter.capacity == 500
         assert "medical" in shelter.services
@@ -110,7 +117,12 @@ class TestEvacuationPlan:
 
     def test_create_plan(self, planner: EvacuationPlanner) -> None:
         plan = planner.plan(
-            affected_zone={"id": "z1", "name": "Downtown", "level": "order", "geometry": {}},
+            affected_zone={
+                "id": "z1",
+                "name": "Downtown",
+                "level": "order",
+                "geometry": {},
+            },
             population={"total": 10000, "special_populations": ["hospitals"]},
             destinations=[{"id": "s1", "name": "Stadium", "capacity": 5000}],
             phasing="staged",
@@ -123,7 +135,12 @@ class TestEvacuationPlan:
 
     def test_create_plan_simultaneous(self, planner: EvacuationPlanner) -> None:
         plan = planner.plan(
-            affected_zone={"id": "z1", "name": "Coast", "level": "order", "geometry": {}},
+            affected_zone={
+                "id": "z1",
+                "name": "Coast",
+                "level": "order",
+                "geometry": {},
+            },
             population={"total": 5000},
             destinations=[{"id": "s1", "name": "Inland Shelter", "capacity": 5000}],
             phasing="simultaneous",
@@ -132,7 +149,12 @@ class TestEvacuationPlan:
 
     def test_contraflow_enabled(self, planner: EvacuationPlanner) -> None:
         plan = planner.plan(
-            affected_zone={"id": "z1", "name": "Area", "level": "order", "geometry": {}},
+            affected_zone={
+                "id": "z1",
+                "name": "Area",
+                "level": "order",
+                "geometry": {},
+            },
             population={"total": 2000},
             destinations=[{"id": "s1", "name": "Shelter", "capacity": 2000}],
             contraflow=True,
@@ -145,7 +167,12 @@ class TestEvacuationPlan:
         planner = EvacuationPlanner()
         with pytest.raises(ValueError, match="road_network required"):
             planner.plan(
-                affected_zone={"id": "z1", "name": "Area", "level": "order", "geometry": {}},
+                affected_zone={
+                    "id": "z1",
+                    "name": "Area",
+                    "level": "order",
+                    "geometry": {},
+                },
                 population={"total": 2000},
                 destinations=[{"id": "s1", "name": "Shelter", "capacity": 2000}],
             )
@@ -169,10 +196,14 @@ class TestOptimizeRoutes:
             assert route["path"][0] == origin
             assert route["path"][-1] == destination
             assert route["distance_km"] == pytest.approx(
-                nx.shortest_path_length(road_network, origin, destination, weight="distance")
+                nx.shortest_path_length(
+                    road_network, origin, destination, weight="distance"
+                )
             )
             assert route["estimated_time_minutes"] == pytest.approx(
-                nx.shortest_path_length(road_network, origin, destination, weight="travel_time")
+                nx.shortest_path_length(
+                    road_network, origin, destination, weight="travel_time"
+                )
             )
             assert route["capacity_vehicles_per_hour"] > 0
 
@@ -289,9 +320,7 @@ class TestClearanceTimeEstimate:
 
     def test_estimate_clearance_time(self) -> None:
         planner = EvacuationPlanner()
-        zone = EvacuationZone(
-            zone_id="z1", name="Zone", geometry={}, population=10000
-        )
+        zone = EvacuationZone(zone_id="z1", name="Zone", geometry={}, population=10000)
         estimates = planner.estimate_clearance_time(
             evacuation_plan={"zone": zone, "routes": []},
             scenarios=["best_case", "expected", "worst_case"],
@@ -299,18 +328,30 @@ class TestClearanceTimeEstimate:
         assert "best_case" in estimates
         assert "expected" in estimates
         assert "worst_case" in estimates
-        assert estimates["best_case"]["clearance_hours"] < estimates["worst_case"]["clearance_hours"]
+        assert (
+            estimates["best_case"]["clearance_hours"]
+            < estimates["worst_case"]["clearance_hours"]
+        )
 
     def test_special_populations_plan(self) -> None:
         planner = EvacuationPlanner()
         result = planner.plan_special_populations(
             facilities=[
                 {"id": "h1", "name": "Hospital", "type": "hospital", "population": 100},
-                {"id": "n1", "name": "Nursing Home", "type": "nursing_home", "population": 50},
+                {
+                    "id": "n1",
+                    "name": "Nursing Home",
+                    "type": "nursing_home",
+                    "population": 50,
+                },
             ],
             transportation=[{"type": "ambulance", "count": 5}],
             receiving_facilities=[
-                {"name": "Regional Hospital", "type": "hospital", "available_capacity": 200},
+                {
+                    "name": "Regional Hospital",
+                    "type": "hospital",
+                    "available_capacity": 200,
+                },
             ],
         )
         assert result["total_facilities"] == 2

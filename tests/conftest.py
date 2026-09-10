@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
+import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -20,6 +22,36 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[1]
 GENERATOR_PATH = REPO_ROOT / "manuscript" / "generate_research_artifacts.py"
 GENERATOR_MODULE = "geo_infer_manuscript_generator"
+
+
+def _git_env(home: Path) -> dict[str, str]:
+    """A git invocation environment whose ``PATH`` locates this machine's git.
+
+    A hardcoded macOS PATH broke on any other host, and ``git`` is invoked
+    with a scrubbed environment precisely so a developer's own config cannot
+    leak into a test checkout.  The directory that actually contains the
+    ``git`` binary being driven is the one that belongs on ``PATH``; the rest
+    of the inherited path is kept so helper scripts git itself calls still
+    resolve.
+    """
+    git_dir = ""
+    resolved = shutil.which("git")
+    if resolved:
+        git_dir = f"{Path(resolved).parent}{os.pathsep}"
+    return {
+        "GIT_AUTHOR_NAME": "test",
+        "GIT_AUTHOR_EMAIL": "test@example.invalid",
+        "GIT_COMMITTER_NAME": "test",
+        "GIT_COMMITTER_EMAIL": "test@example.invalid",
+        "PATH": f"{git_dir}{os.environ.get('PATH', '')}",
+        "HOME": str(home),
+    }
+
+
+@pytest.fixture
+def git_environment(tmp_path: Path) -> dict[str, str]:
+    """A scrubbed environment for driving git inside throwaway checkouts."""
+    return _git_env(tmp_path)
 
 
 def _load_generator() -> ModuleType:
@@ -53,19 +85,26 @@ def repo_inventory(generator: ModuleType, repo_root: Path):
 
 
 @pytest.fixture
+def figure_specs(generator: ModuleType):
+    """A minimal, valid figure-spec tuple for variable-building tests."""
+    return (
+        generator.FigureSpec(
+            label="fig:example",
+            filename="example.png",
+            caption="Example caption.",
+            generated_by="tests",
+            alt_text="Example alt text.",
+        ),
+    )
+
+
+@pytest.fixture
 def git_repo(tmp_path: Path) -> Path:
     """An initialised, committed, clean git repository."""
     root = tmp_path / "checkout"
     root.mkdir()
     (root / "seed.txt").write_text("seed\n", encoding="utf-8")
-    env = {
-        "GIT_AUTHOR_NAME": "test",
-        "GIT_AUTHOR_EMAIL": "test@example.invalid",
-        "GIT_COMMITTER_NAME": "test",
-        "GIT_COMMITTER_EMAIL": "test@example.invalid",
-        "PATH": "/usr/bin:/bin:/usr/local/bin:/opt/homebrew/bin",
-        "HOME": str(tmp_path),
-    }
+    env = _git_env(tmp_path)
     for args in (
         ["init", "-q", "-b", "main"],
         ["add", "-A"],
@@ -117,3 +156,56 @@ def shipped_artifacts_are_read_only(repo_root: Path):
             "checkout of the test's own (see the shim_checkout fixture), "
             "never against repo_root."
         )
+
+
+@pytest.fixture
+def generatable_checkout(generator: ModuleType, tmp_path: Path) -> Path:
+    """A committed checkout with the minimum shape ``generate`` accepts.
+
+    The generator refuses a tree missing any themed module, so every declared
+    module gets a one-file source package.  None of those counts are the
+    subject here; the verification record is.  Shared by every test that
+    drives the real ``generate`` against a synthetic tree.
+    """
+    root = tmp_path / "checkout"
+    root.mkdir()
+    manuscript = root / "manuscript"
+    manuscript.mkdir()
+    (manuscript / "config.yaml").write_text(
+        "paper:\n"
+        '  version: "0.0.0"\n'
+        '  date: "1970-01-01T00:00:00+00:00"\n'
+        "publication:\n"
+        '  year: "1970"\n'
+        "metadata:\n"
+        '  license: "unset"\n',
+        encoding="utf-8",
+    )
+    (manuscript / "00_abstract.md").write_text(
+        "# Abstract\n\nSource hash {{RESEARCH_SOURCE_HASH}}.\n", encoding="utf-8"
+    )
+    (manuscript / "references.bib").write_text("", encoding="utf-8")
+    (root / "pyproject.toml").write_text(
+        '[project]\nname = "example"\nversion = "1.2.3"\nlicense = "MIT"\n',
+        encoding="utf-8",
+    )
+    # The real checkout ignores ``/output/``, so writing the evidence bundle
+    # does not itself make the tree dirty.  Mirroring that is what lets these
+    # tests distinguish "the record moved" from "the tree moved".
+    (root / ".gitignore").write_text("/output/\n", encoding="utf-8")
+    for _theme, names in generator.MODULE_THEMES:
+        for name in names:
+            package = name.removeprefix("GEO-INFER-").lower()
+            source = root / name / "src" / f"geo_infer_{package}"
+            source.mkdir(parents=True)
+            (source / "__init__.py").write_text("VALUE = 1\n", encoding="utf-8")
+    env = _git_env(tmp_path)
+    for args in (
+        ["init", "-q", "-b", "main"],
+        ["add", "-A"],
+        ["commit", "-q", "-m", "seed"],
+    ):
+        subprocess.run(
+            ["git", "-C", str(root), *args], check=True, env=env, capture_output=True
+        )
+    return root

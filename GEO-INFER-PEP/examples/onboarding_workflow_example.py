@@ -26,9 +26,10 @@ from geo_infer_pep.methods import (
     generate_comprehensive_talent_dashboard,
     clear_all_data,
     get_all_employees,
-    get_all_candidates
+    get_all_candidates,
 )
 from geo_infer_pep.models.talent_models import CandidateStatus, Offer
+
 
 def create_sample_talent_data():
     """Create sample talent data files for demonstration."""
@@ -36,37 +37,134 @@ def create_sample_talent_data():
 
     # Create candidates CSV
     candidates_data = [
-        ['candidate_id', 'first_name', 'last_name', 'email', 'phone_number', 'linkedin_profile',
-         'applied_at', 'status', 'job_requisition_id', 'current_company', 'current_title', 'skills'],
-        ['cand001', 'Sarah', 'Johnson', 'sarah.johnson@email.com', '555-1001', 'linkedin.com/in/sarahjohnson',
-         '2023-12-01T09:00:00', 'offer_accepted', 'req001', 'Tech Solutions Inc', 'Senior Developer', 'python,javascript,react'],
-        ['cand002', 'Michael', 'Chen', 'michael.chen@email.com', '555-1002', 'linkedin.com/in/michaelchen',
-         '2023-12-05T14:30:00', 'interviewing', 'req002', 'Data Corp', 'Data Scientist', 'python,r,sql,machine learning'],
-        ['cand003', 'Emily', 'Rodriguez', 'emily.rodriguez@email.com', '555-1003', 'linkedin.com/in/emilyrodriguez',
-         '2023-11-28T11:15:00', 'offer_accepted', 'req001', 'StartupXYZ', 'Full Stack Developer', 'nodejs,react,python,docker'],
-        ['cand004', 'David', 'Williams', 'david.williams@email.com', '555-1004', 'linkedin.com/in/davidwilliams',
-         '2023-12-08T16:45:00', 'applied', 'req003', 'Enterprise Ltd', 'Product Manager', 'agile,scrum,product management']
+        [
+            "candidate_id",
+            "first_name",
+            "last_name",
+            "email",
+            "phone_number",
+            "linkedin_profile",
+            "applied_at",
+            "status",
+            "job_requisition_id",
+            "current_company",
+            "current_title",
+            "skills",
+        ],
+        [
+            "cand001",
+            "Sarah",
+            "Johnson",
+            "sarah.johnson@email.com",
+            "555-1001",
+            "linkedin.com/in/sarahjohnson",
+            "2023-12-01T09:00:00",
+            "offer_accepted",
+            "req001",
+            "Tech Solutions Inc",
+            "Senior Developer",
+            "python,javascript,react",
+        ],
+        [
+            "cand002",
+            "Michael",
+            "Chen",
+            "michael.chen@email.com",
+            "555-1002",
+            "linkedin.com/in/michaelchen",
+            "2023-12-05T14:30:00",
+            "interviewing",
+            "req002",
+            "Data Corp",
+            "Data Scientist",
+            "python,r,sql,machine learning",
+        ],
+        [
+            "cand003",
+            "Emily",
+            "Rodriguez",
+            "emily.rodriguez@email.com",
+            "555-1003",
+            "linkedin.com/in/emilyrodriguez",
+            "2023-11-28T11:15:00",
+            "offer_accepted",
+            "req001",
+            "StartupXYZ",
+            "Full Stack Developer",
+            "nodejs,react,python,docker",
+        ],
+        [
+            "cand004",
+            "David",
+            "Williams",
+            "david.williams@email.com",
+            "555-1004",
+            "linkedin.com/in/davidwilliams",
+            "2023-12-08T16:45:00",
+            "applied",
+            "req003",
+            "Enterprise Ltd",
+            "Product Manager",
+            "agile,scrum,product management",
+        ],
     ]
 
-    candidates_csv = os.path.join(temp_dir, 'sample_candidates.csv')
-    with open(candidates_csv, 'w', newline='') as csvfile:
+    candidates_csv = os.path.join(temp_dir, "sample_candidates.csv")
+    with open(candidates_csv, "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerows(candidates_data)
 
     # Create requisitions CSV
     requisitions_data = [
-        ['requisition_id', 'job_title', 'department', 'location', 'status', 'opened_at', 'closed_at', 'hiring_manager_id'],
-        ['req001', 'Senior Full Stack Developer', 'Engineering', 'San Francisco, CA', 'open', '2023-11-15', '', 'emp001'],
-        ['req002', 'Data Scientist', 'Data Science', 'Remote', 'open', '2023-11-20', '', 'emp002'],
-        ['req003', 'Product Manager', 'Product', 'New York, NY', 'open', '2023-12-01', '', 'emp003']
+        [
+            "requisition_id",
+            "job_title",
+            "department",
+            "location",
+            "status",
+            "opened_at",
+            "closed_at",
+            "hiring_manager_id",
+        ],
+        [
+            "req001",
+            "Senior Full Stack Developer",
+            "Engineering",
+            "San Francisco, CA",
+            "open",
+            "2023-11-15",
+            "",
+            "emp001",
+        ],
+        [
+            "req002",
+            "Data Scientist",
+            "Data Science",
+            "Remote",
+            "open",
+            "2023-11-20",
+            "",
+            "emp002",
+        ],
+        [
+            "req003",
+            "Product Manager",
+            "Product",
+            "New York, NY",
+            "open",
+            "2023-12-01",
+            "",
+            "emp003",
+        ],
     ]
 
-    requisitions_csv = os.path.join(temp_dir, 'sample_requisitions.csv')
-    with open(requisitions_csv, 'w', newline='') as csvfile:
+    requisitions_csv = os.path.join(temp_dir, "sample_requisitions.csv")
+    with open(requisitions_csv, "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerows(requisitions_data)
 
     return candidates_csv, requisitions_csv
+
 
 def demonstrate_onboarding_workflow():
     """Demonstrate the complete onboarding workflow."""
@@ -74,7 +172,9 @@ def demonstrate_onboarding_workflow():
 
     # Get candidates who are ready for onboarding (offer accepted)
     candidates = get_all_candidates()
-    offer_accepted_candidates = [c for c in candidates if c.status == CandidateStatus.OFFER_ACCEPTED]
+    offer_accepted_candidates = [
+        c for c in candidates if c.status == CandidateStatus.OFFER_ACCEPTED
+    ]
 
     print(f"Found {len(offer_accepted_candidates)} candidates ready for onboarding:")
 
@@ -82,12 +182,14 @@ def demonstrate_onboarding_workflow():
     failed_onboardings = 0
 
     for candidate in offer_accepted_candidates:
-        print(f"\n🎯 Processing onboarding for: {candidate.first_name} {candidate.last_name} ({candidate.candidate_id})")
+        print(
+            f"\n🎯 Processing onboarding for: {candidate.first_name} {candidate.last_name} ({candidate.candidate_id})"
+        )
 
         # Prepare employee data for onboarding
         employee_data = {
             "candidate_id": candidate.candidate_id,
-            "name": f"{candidate.first_name} {candidate.last_name}"
+            "name": f"{candidate.first_name} {candidate.last_name}",
         }
 
         try:
@@ -96,7 +198,9 @@ def demonstrate_onboarding_workflow():
 
             if success:
                 successful_onboardings += 1
-                print(f"✅ Onboarding completed successfully for {candidate.first_name}")
+                print(
+                    f"✅ Onboarding completed successfully for {candidate.first_name}"
+                )
             else:
                 failed_onboardings += 1
                 print(f"❌ Onboarding failed for {candidate.first_name}")
@@ -110,6 +214,7 @@ def demonstrate_onboarding_workflow():
     print(f"  - Failed: {failed_onboardings}")
 
     return successful_onboardings, failed_onboardings
+
 
 def main():
     """Main example function demonstrating complete onboarding workflow."""
@@ -138,9 +243,11 @@ def main():
 
         if "message" not in talent_dashboard:
             print("📊 Talent Metrics:")
-            print(f"  - Total Candidates: {talent_dashboard.get('total_candidates', 0)}")
+            print(
+                f"  - Total Candidates: {talent_dashboard.get('total_candidates', 0)}"
+            )
 
-            status_breakdown = talent_dashboard.get('status_breakdown', {})
+            status_breakdown = talent_dashboard.get("status_breakdown", {})
             print("\n📋 Candidate Status Breakdown:")
             for status, count in status_breakdown.items():
                 print(f"  - {status.title()}: {count} candidates")
@@ -163,7 +270,7 @@ def main():
             print(f"  - Total Employees: {hr_dashboard.get('total_employees', 0)}")
             print(f"  - Active Employees: {hr_dashboard.get('active_employees', 0)}")
 
-            dept_breakdown = hr_dashboard.get('headcount_by_department', {})
+            dept_breakdown = hr_dashboard.get("headcount_by_department", {})
             if dept_breakdown:
                 print("\n🏢 Department Breakdown:")
                 for dept, count in dept_breakdown.items():
@@ -234,6 +341,7 @@ def main():
     print("  - Add more validation and business rules")
     print("  - Integrate with external systems (HRIS, ATS)")
     print("  - Add automated notifications and approvals")
+
 
 if __name__ == "__main__":
     main()

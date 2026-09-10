@@ -510,9 +510,7 @@ class UnderwritingEngine:
                 claim_id="ERROR",
                 policy_id=claim_data.get("policy_id", "UNKNOWN"),
                 claim_number=claim_data.get("claim_number", "ERROR"),
-                claim_type=ClaimType(
-                    claim_data.get("claim_type", "property_damage")
-                ),
+                claim_type=ClaimType(claim_data.get("claim_type", "property_damage")),
                 date_of_loss=datetime.now(),
                 status=ClaimStatus.ERROR,
                 description=f"Processing error: {str(e)}",
@@ -708,8 +706,6 @@ def create_claims_processor(
     claims_config = ClaimsProcessingConfig()
     if config is not None:
         claims_config.processing_mode = config.claims_processing_mode
-        claims_config.reserve_calculation_method = (
-            config.reserve_calculation_method
-        )
+        claims_config.reserve_calculation_method = config.reserve_calculation_method
         claims_config.payment_processing_days = config.payment_processing_days
     return ClaimsProcessor(claims_config)

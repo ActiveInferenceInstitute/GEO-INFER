@@ -128,7 +128,9 @@ class RiskAssessmentEngine:
             config: Risk assessment configuration. If None, uses defaults.
         """
         self.config = config or RiskAssessmentConfig()
-        self.logger = logging.getLogger("geo_infer_insurance.underwriting.risk_assessment")
+        self.logger = logging.getLogger(
+            "geo_infer_insurance.underwriting.risk_assessment"
+        )
 
         # Initialize external interfaces
         self.risk_engine = None

@@ -407,7 +407,9 @@ class TestHmacValidation:
             value, context="json-ctx", key=KEY, serializer="json"
         )
         assert (
-            module.loads_signed(envelope, context="json-ctx", key=KEY, serializer="json")
+            module.loads_signed(
+                envelope, context="json-ctx", key=KEY, serializer="json"
+            )
             == value
         )
 
@@ -820,9 +822,7 @@ class TestDataMinioBackend:
         backend = self.backend()
         data_id = await backend.store({"payload": 1}, dataset_metadata())
         name = f"test-bucket/{data_id}.bin"
-        fake_minio.shared_objects[name] = flip_byte(
-            fake_minio.shared_objects[name], -1
-        )
+        fake_minio.shared_objects[name] = flip_byte(fake_minio.shared_objects[name], -1)
         with pytest.raises(data_ss.SignatureMismatchError):
             await backend.retrieve(data_id, {})
 
@@ -952,7 +952,9 @@ class TestGitDiskCache:
     def cache(tmp_path: Path, compression: bool = True, key=KEY):
         from geo_infer_git.utils.advanced_cache import DiskCache
 
-        return DiskCache(tmp_path, max_size_gb=0.01, compression=compression, signing_key=key)
+        return DiskCache(
+            tmp_path, max_size_gb=0.01, compression=compression, signing_key=key
+        )
 
     @staticmethod
     def cache_files(tmp_path: Path) -> List[Path]:
@@ -1072,9 +1074,9 @@ class TestGitRedisCache:
             )
         )
         raw[-1] ^= 0x01
-        redis_cache.fake.store["k"] = git_ss.TEXT_PREFIX + base64.urlsafe_b64encode(
-            bytes(raw)
-        ).decode()
+        redis_cache.fake.store["k"] = (
+            git_ss.TEXT_PREFIX + base64.urlsafe_b64encode(bytes(raw)).decode()
+        )
 
         with caplog.at_level("ERROR"):
             assert redis_cache.get("k", default="MISS") == "MISS"
@@ -1139,9 +1141,7 @@ class TestOpsCacheManager:
     def test_pickle_payload_is_binary_envelope(self, monkeypatch):
         import geo_infer_ops.core.cache as ops_cache
 
-        manager = self.manager(
-            monkeypatch, serializer=ops_cache.CacheSerializer.PICKLE
-        )
+        manager = self.manager(monkeypatch, serializer=ops_cache.CacheSerializer.PICKLE)
         serialized = manager._serialize({"key": (1, 2)})
         assert isinstance(serialized, bytes)
         assert serialized.startswith(ops_ss.MAGIC)
@@ -1186,9 +1186,7 @@ class TestOpsCacheManager:
     def test_hostile_pickle_value_never_deserialized(self, monkeypatch):
         import geo_infer_ops.core.cache as ops_cache
 
-        manager = self.manager(
-            monkeypatch, serializer=ops_cache.CacheSerializer.PICKLE
-        )
+        manager = self.manager(monkeypatch, serializer=ops_cache.CacheSerializer.PICKLE)
         manager.set("k", {"a": 1})
         manager.fake.store["geo_infer:k"] = hostile_pickle("ops-redis")
         assert manager.get("k", default="MISS") == "MISS"
@@ -1264,7 +1262,12 @@ class TestSerializationSurfaceAudit:
         source = Path(sys.modules[module_name].__file__).read_text(encoding="utf-8")
         found = {
             call
-            for call in ("pickle.load(", "pickle.loads(", "pickle.dump(", "pickle.dumps(")
+            for call in (
+                "pickle.load(",
+                "pickle.loads(",
+                "pickle.dump(",
+                "pickle.dumps(",
+            )
             if call in source
         }
         normalised = {call.rstrip("(") for call in found}
@@ -1275,17 +1278,13 @@ class TestSerializationSurfaceAudit:
 
     def test_hardened_modules_import_the_trust_boundary(self):
         for module_name, _ in self.HARDENED_SOURCES:
-            source = Path(sys.modules[module_name].__file__).read_text(
-                encoding="utf-8"
-            )
+            source = Path(sys.modules[module_name].__file__).read_text(encoding="utf-8")
             assert "secure_serialization" in source, module_name
 
     @pytest.mark.parametrize("module", MODULES, ids=MODULE_IDS)
     def test_verify_is_the_only_route_to_payload_bytes(self, module):
         """``loads_signed`` never returns for a payload that fails the MAC."""
-        envelope = bytearray(
-            module.dumps_signed({"a": 1}, context="audit", key=KEY)
-        )
+        envelope = bytearray(module.dumps_signed({"a": 1}, context="audit", key=KEY))
         envelope[-1] ^= 0x01
         with pytest.raises(module.SignatureMismatchError):
             module.loads_signed(bytes(envelope), context="audit", key=KEY)

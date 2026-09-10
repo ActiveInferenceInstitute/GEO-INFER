@@ -76,15 +76,12 @@ def generate_spatial_analysis_report(backend, output_dir: Path) -> str:
             ]
             spatial_analysis["module_spatial_distribution"][module_name] = {
                 "hexagon_count": len(module_hexagons),
-                "coverage_percentage": len(module_hexagons)
-                / len(backend.target_hexagons)
-                * 100,
+                "coverage_percentage": len(module_hexagons) / len(backend.target_hexagons) * 100,
             }
 
         # Generate report
         report_path = (
-            output_dir
-            / f"cascadia_spatial_analysis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
+            output_dir / f"cascadia_spatial_analysis_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
         )
 
         with open(report_path, "w") as f:
@@ -95,9 +92,7 @@ def generate_spatial_analysis_report(backend, output_dir: Path) -> str:
             f.write(
                 f"- **Total Hexagons:** {spatial_analysis['h3_coverage']['total_hexagons']:,}\n"
             )
-            f.write(
-                f"- **H3 Resolution:** {spatial_analysis['h3_coverage']['resolution']}\n"
-            )
+            f.write(f"- **H3 Resolution:** {spatial_analysis['h3_coverage']['resolution']}\n")
             f.write(
                 f"- **Coverage Area:** {spatial_analysis['h3_coverage']['coverage_area_km2']:.1f} km²\n\n"
             )
@@ -142,9 +137,7 @@ def generate_spatial_analysis_report(backend, output_dir: Path) -> str:
 def generate_enhanced_dashboard(backend, output_dir: Path, visualization_engine) -> str:
     """Generate enhanced interactive dashboard using SPACE visualization engine"""
     logger = logging.getLogger(__name__)
-    logger.info(
-        "🎨 Generating enhanced interactive dashboard with SPACE visualization..."
-    )
+    logger.info("🎨 Generating enhanced interactive dashboard with SPACE visualization...")
 
     try:
         # Prepare analysis results for dashboard
@@ -167,9 +160,7 @@ def generate_enhanced_dashboard(backend, output_dir: Path, visualization_engine)
         }
 
         # Generate comprehensive dashboard
-        dashboard_path = visualization_engine.create_comprehensive_dashboard(
-            analysis_results
-        )
+        dashboard_path = visualization_engine.create_comprehensive_dashboard(analysis_results)
 
         logger.info(f"✅ Enhanced dashboard generated: {dashboard_path}")
         return dashboard_path
@@ -214,13 +205,9 @@ def generate_analysis_report(summary: Dict[str, Any], output_path: Path) -> None
         )
 
         f.write("## 2. Analysis Overview\n")
-        f.write(
-            f"- **Total Hexagons Analyzed:** {fmt(summary.get('total_hexagons', 0))}\n"
-        )
+        f.write(f"- **Total Hexagons Analyzed:** {fmt(summary.get('total_hexagons', 0))}\n")
         f.write(f"- **H3 Resolution:** {summary.get('h3_resolution', 'Unknown')}\n")
-        f.write(
-            f"- **Modules Executed:** `{', '.join(summary.get('modules_analyzed', []))}`\n\n"
-        )
+        f.write(f"- **Modules Executed:** `{', '.join(summary.get('modules_analyzed', []))}`\n\n")
 
         f.write("## 3. Redevelopment Potential Insights\n")
         f.write(f"- **Mean Redevelopment Score:** {rp.get('mean_score', 0):.3f}\n")
@@ -253,18 +240,14 @@ def generate_analysis_report(summary: Dict[str, Any], output_path: Path) -> None
         f.write(
             "The analysis is built on a **Unified H3 Backend**, which standardizes diverse geospatial datasets into a common hexagonal grid. This enables:\n\n"
         )
-        f.write(
-            "- **Cross-border Analysis**: Seamless integration of California and Oregon data\n"
-        )
+        f.write("- **Cross-border Analysis**: Seamless integration of California and Oregon data\n")
         f.write(
             "- **Multi-source Integration**: Harmonization of zoning, water rights, ownership, and infrastructure data\n"
         )
         f.write(
             "- **Spatial Consistency**: Uniform resolution and coordinate system across all analyses\n"
         )
-        f.write(
-            "- **Scalable Processing**: Efficient handling of large geospatial datasets\n"
-        )
+        f.write("- **Scalable Processing**: Efficient handling of large geospatial datasets\n")
         f.write(
             "- **SPACE Integration**: Advanced spatial analysis using GEO-INFER-SPACE capabilities\n\n"
         )
@@ -279,18 +262,12 @@ def generate_analysis_report(summary: Dict[str, Any], output_path: Path) -> None
 
         f.write("## 7. Redevelopment Scoring Methodology\n")
         f.write("The redevelopment potential score combines multiple factors:\n\n")
-        f.write(
-            "- **Zoning Compatibility** (25%): Agricultural zoning classifications\n"
-        )
+        f.write("- **Zoning Compatibility** (25%): Agricultural zoning classifications\n")
         f.write("- **Water Availability** (20%): Surface and groundwater access\n")
         f.write("- **Infrastructure** (15%): Power, roads, and improvements\n")
-        f.write(
-            "- **Ownership Patterns** (15%): Parcel size and ownership concentration\n"
-        )
+        f.write("- **Ownership Patterns** (15%): Parcel size and ownership concentration\n")
         f.write("- **Current Use** (15%): Existing agricultural activities\n")
-        f.write(
-            "- **Financial Factors** (10%): Mortgage debt and economic indicators\n\n"
-        )
+        f.write("- **Financial Factors** (10%): Mortgage debt and economic indicators\n\n")
 
         f.write("## 8. SPACE Integration Features\n")
         f.write("This analysis leverages advanced GEO-INFER-SPACE capabilities:\n\n")
@@ -301,12 +278,8 @@ def generate_analysis_report(summary: Dict[str, Any], output_path: Path) -> None
         f.write(
             "- **Spatial Analysis**: Correlation analysis, hotspot detection, and proximity analysis\n"
         )
-        f.write(
-            "- **Enhanced Visualization**: Interactive dashboards with multi-layer overlays\n"
-        )
-        f.write(
-            "- **Real-time Data Integration**: Dynamic data loading and processing\n\n"
-        )
+        f.write("- **Enhanced Visualization**: Interactive dashboards with multi-layer overlays\n")
+        f.write("- **Real-time Data Integration**: Dynamic data loading and processing\n\n")
 
         f.write("## 9. Limitations & Considerations\n")
         f.write(
@@ -315,12 +288,8 @@ def generate_analysis_report(summary: Dict[str, Any], output_path: Path) -> None
         f.write(
             "- **Temporal Aspects**: Data represents a snapshot in time; conditions may change\n"
         )
-        f.write(
-            "- **Resolution Trade-offs**: H3 resolution 8 provides ~0.46 km² hexagons\n"
-        )
-        f.write(
-            "- **Cross-border Harmonization**: Different data standards between states\n\n"
-        )
+        f.write("- **Resolution Trade-offs**: H3 resolution 8 provides ~0.46 km² hexagons\n")
+        f.write("- **Cross-border Harmonization**: Different data standards between states\n\n")
 
         f.write("## 10. Next Steps & Recommendations\n")
         f.write("Based on the analysis results, recommended next steps include:\n\n")
@@ -378,8 +347,7 @@ def export_data_provenance(provenance: Dict[str, Any], output_dir: Path) -> Path
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     manifest_path = (
-        output_dir
-        / f"cascadia_data_provenance_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        output_dir / f"cascadia_data_provenance_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
     )
 
     try:

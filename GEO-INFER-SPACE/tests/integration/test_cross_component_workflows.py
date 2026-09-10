@@ -69,9 +69,9 @@ class TestSpatialIndexingWorkflows:
         assert len(children) > 0
 
         # Step 4: Verify the original cell is among the children
-        assert (
-            high_cell in children
-        ), f"High-res cell {high_cell} should be a child of its parent {parent_cell}"
+        assert high_cell in children, (
+            f"High-res cell {high_cell} should be a child of its parent {parent_cell}"
+        )
 
     def test_index_to_coordinates_round_trip(self, indexer):
         """
@@ -88,9 +88,9 @@ class TestSpatialIndexingWorkflows:
 
         # Step 3: Convert center back to cell -- should be the same cell
         cell_round_trip = indexer.latlng_to_cell(lat_out, lng_out, resolution)
-        assert (
-            cell == cell_round_trip
-        ), f"Round-trip failed: {cell} != {cell_round_trip}"
+        assert cell == cell_round_trip, (
+            f"Round-trip failed: {cell} != {cell_round_trip}"
+        )
 
     def test_cell_distance_positive_for_different_cells(self, indexer):
         """

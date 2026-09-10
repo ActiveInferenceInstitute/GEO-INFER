@@ -352,7 +352,6 @@ def run_accessibility_analysis(args: argparse.Namespace, config: Any) -> None:
             )
             population_data.append(pop_data)
 
-
         # Summary output reports basic statistics
         total_facilities = len(facilities)
         total_population = sum(p.population_count for p in population_data)
@@ -432,9 +431,7 @@ def run_environment_analysis(args: argparse.Namespace, config: Any) -> None:
         population_data: List[PopulationData] = []
         for index, (_, row) in enumerate(population_gdf.iterrows()):
             centroid = row.geometry.centroid
-            target_locations.append(
-                Location(latitude=centroid.y, longitude=centroid.x)
-            )
+            target_locations.append(Location(latitude=centroid.y, longitude=centroid.x))
             population_data.append(
                 PopulationData(
                     area_id=str(row.get("area_id", f"area_{index}")),
@@ -450,7 +447,12 @@ def run_environment_analysis(args: argparse.Namespace, config: Any) -> None:
 
         exposure_inputs = [
             ("air_quality", getattr(args, "air_quality", None), "air_quality", "AQI"),
-            ("water_quality", getattr(args, "water_quality", None), "water_quality", "index"),
+            (
+                "water_quality",
+                getattr(args, "water_quality", None),
+                "water_quality",
+                "index",
+            ),
         ]
         radius_km = float(getattr(args, "radius", 10.0))
         time_window_days = int(getattr(args, "time_window_days", 30))
@@ -464,9 +466,7 @@ def run_environment_analysis(args: argparse.Namespace, config: Any) -> None:
             results[f"{key}_file"] = path
             results[f"{key}_readings"] = len(readings)
             if readings:
-                analyzer = EnvironmentalHealthAnalyzer(
-                    environmental_readings=readings
-                )
+                analyzer = EnvironmentalHealthAnalyzer(environmental_readings=readings)
                 results[f"{key}_average_exposure"] = (
                     analyzer.calculate_average_exposure(
                         target_locations=target_locations,
@@ -488,9 +488,7 @@ def run_environment_analysis(args: argparse.Namespace, config: Any) -> None:
         raise
 
 
-def run_batch_processing(
-    args: argparse.Namespace, config: Any
-) -> List[Dict[str, Any]]:
+def run_batch_processing(args: argparse.Namespace, config: Any) -> List[Dict[str, Any]]:
     """Run batch processing of multiple files."""
     logger.info(f"Running batch processing with config: {args.config}")
     jobs = config.get("jobs", config.get("batch", {}).get("jobs", []))

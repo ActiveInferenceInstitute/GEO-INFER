@@ -5,7 +5,12 @@ Unit tests for contrast analysis functionality
 import numpy as np
 import pytest
 
-from geo_infer_spm.models.data_models import SPMData, DesignMatrix, SPMResult, ContrastResult
+from geo_infer_spm.models.data_models import (
+    SPMData,
+    DesignMatrix,
+    SPMResult,
+    ContrastResult,
+)
 from geo_infer_spm.core.contrasts import Contrast, contrast
 
 
@@ -14,7 +19,7 @@ class TestContrast:
 
     def setup_method(self):
         """Set up test data."""
-        self.design_names = ['intercept', 'condition_A', 'condition_B', 'covariate']
+        self.design_names = ["intercept", "condition_A", "condition_B", "covariate"]
 
     def test_contrast_initialization(self):
         """Test contrast initialization."""
@@ -27,7 +32,9 @@ class TestContrast:
 
     def test_contrast_from_string_simple(self):
         """Test parsing simple contrast strings."""
-        contrast_obj = Contrast.from_string("condition_A > condition_B", self.design_names)
+        contrast_obj = Contrast.from_string(
+            "condition_A > condition_B", self.design_names
+        )
 
         expected_vector = np.array([0, 1, -1, 0])
         np.testing.assert_array_equal(contrast_obj.vector, expected_vector)
@@ -35,7 +42,9 @@ class TestContrast:
 
     def test_contrast_from_string_complex(self):
         """Test parsing complex contrast strings."""
-        contrast_obj = Contrast.from_string("condition_A + condition_B > 2*covariate", self.design_names)
+        contrast_obj = Contrast.from_string(
+            "condition_A + condition_B > 2*covariate", self.design_names
+        )
 
         # A + B - 2*C = [0, 1, 1, -2]
         expected_vector = np.array([0, 1, 1, -2])
@@ -43,7 +52,9 @@ class TestContrast:
 
     def test_contrast_from_string_coefficients(self):
         """Test parsing contrast strings with coefficients."""
-        contrast_obj = Contrast.from_string("2*condition_A - condition_B", self.design_names)
+        contrast_obj = Contrast.from_string(
+            "2*condition_A - condition_B", self.design_names
+        )
 
         expected_vector = np.array([0, 2, -1, 0])
         np.testing.assert_array_equal(contrast_obj.vector, expected_vector)
@@ -51,10 +62,12 @@ class TestContrast:
     def test_f_contrast(self):
         """Test F-contrast initialization."""
         # Two contrasts: A>B and A>C
-        f_matrix = np.array([
-            [0, 1, -1, 0],  # A > B
-            [0, 1, 0, -1]   # A > C (assuming C is another condition)
-        ])
+        f_matrix = np.array(
+            [
+                [0, 1, -1, 0],  # A > B
+                [0, 1, 0, -1],  # A > C (assuming C is another condition)
+            ]
+        )
 
         contrast_obj = Contrast(f_matrix, name="A_tests", contrast_type="F")
 
@@ -78,8 +91,7 @@ class TestContrastAnalysis:
         # Create design matrix for 2x2 factorial design
         # Conditions: A1, A2, B1, B2
         self.design_matrix = DesignMatrix(
-            matrix=np.random.randn(n_points, 4),
-            names=['intercept', 'A', 'B', 'A:B']
+            matrix=np.random.randn(n_points, 4), names=["intercept", "A", "B", "A:B"]
         )
 
         # Known beta coefficients
@@ -88,17 +100,14 @@ class TestContrastAnalysis:
         self.y = X @ beta_true + 0.1 * np.random.randn(n_points)
 
         # Create mock SPM result
-        self.spm_data = SPMData(
-            data=self.y,
-            coordinates=np.random.rand(n_points, 2)
-        )
+        self.spm_data = SPMData(data=self.y, coordinates=np.random.rand(n_points, 2))
 
         self.spm_result = SPMResult(
             spm_data=self.spm_data,
             design_matrix=self.design_matrix,
             beta_coefficients=beta_true,
             residuals=self.y - X @ beta_true,
-            model_diagnostics={'r_squared': 0.95}
+            model_diagnostics={"r_squared": 0.95},
         )
 
     def test_t_contrast_computation(self):
@@ -107,10 +116,10 @@ class TestContrastAnalysis:
         contrast_result = contrast(self.spm_result, [0, 1, 0, 0])
 
         assert isinstance(contrast_result, ContrastResult)
-        assert hasattr(contrast_result, 't_statistic')
-        assert hasattr(contrast_result, 'p_values')
-        assert hasattr(contrast_result, 'effect_size')
-        assert hasattr(contrast_result, 'standard_error')
+        assert hasattr(contrast_result, "t_statistic")
+        assert hasattr(contrast_result, "p_values")
+        assert hasattr(contrast_result, "effect_size")
+        assert hasattr(contrast_result, "standard_error")
 
         # Effect size should be close to true beta (2.0)
         np.testing.assert_allclose(contrast_result.effect_size, 2.0, atol=0.2)
@@ -174,7 +183,7 @@ class TestCommonContrasts:
 
         design_matrix = DesignMatrix(
             matrix=np.random.randn(50, 4),
-            names=['intercept', 'group1', 'group2', 'group3']
+            names=["intercept", "group1", "group2", "group3"],
         )
 
         contrasts = generate_common_contrasts(design_matrix, design_type="categorical")
@@ -193,7 +202,7 @@ class TestCommonContrasts:
 
         design_matrix = DesignMatrix(
             matrix=np.random.randn(50, 5),
-            names=['intercept', 'time1', 'time2', 'time3', 'time4']
+            names=["intercept", "time1", "time2", "time3", "time4"],
         )
 
         contrasts = generate_common_contrasts(design_matrix, design_type="trend")

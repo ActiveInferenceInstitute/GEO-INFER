@@ -255,7 +255,10 @@ def _canonical_bounds(value: object) -> dict[str, float]:
     """Canonical WGS84 bounds mapping with JSON-safe rounded coordinates."""
     if not isinstance(value, Mapping):
         return {}
-    return {key: _rounded(value.get(key, 0.0), 3) for key in ("west", "south", "east", "north")}
+    return {
+        key: _rounded(value.get(key, 0.0), 3)
+        for key in ("west", "south", "east", "north")
+    }
 
 
 def _canonical_anchor(value: object) -> dict[str, object]:
@@ -277,11 +280,7 @@ def _raw_geo_view(contract: Mapping[str, object]) -> dict[str, object]:
     anchor = contract.get("anchor")
     raw_bounds = anchor.get("bounds") if isinstance(anchor, Mapping) else None
     hazard = contract.get("hazard")
-    domains = (
-        hazard.get("relevantDomains", [])
-        if isinstance(hazard, Mapping)
-        else []
-    )
+    domains = hazard.get("relevantDomains", []) if isinstance(hazard, Mapping) else []
     return {
         "schema": contract.get("schema"),
         "bounds": _canonical_bounds(raw_bounds),
@@ -423,9 +422,7 @@ def build_iso_geo_parity(contract: Mapping[str, object]) -> dict[str, object]:
 
     schema_agrees = bool(
         contract_schema is not None
-        and all(
-            module_views[name]["schema"] == contract_schema for name in sighted
-        )
+        and all(module_views[name]["schema"] == contract_schema for name in sighted)
     )
     bounds_agrees = all(
         module_views[name]["bounds"] == baseline["bounds"] for name in sighted
@@ -483,9 +480,7 @@ def _risk_section(contract: Mapping[str, object]) -> dict[str, object]:
         }
     hazard_intel = load_crescent_city_hazard(contract)  # type: ignore[misc]
     weights = crescent_city_hazard_weights(hazard_intel)  # type: ignore[misc]
-    rounded = {
-        str(tag): _rounded(weight, 3) for tag, weight in sorted(weights.items())
-    }
+    rounded = {str(tag): _rounded(weight, 3) for tag, weight in sorted(weights.items())}
     top_tag = max(weights, key=weights.get) if weights else None
     return {
         "available": True,
@@ -507,7 +502,10 @@ def _bayes_section(contract: Mapping[str, object]) -> dict[str, object]:
     return {
         "available": True,
         "domains": list(prior.domains),
-        "prior": {d: _rounded(p, 3) for d, p in zip(prior.domains, prior.probabilities, strict=True)},
+        "prior": {
+            d: _rounded(p, 3)
+            for d, p in zip(prior.domains, prior.probabilities, strict=True)
+        },
     }
 
 
@@ -620,7 +618,9 @@ def _render_parity(parity: Mapping[str, object], indent: str = "  ") -> list[str
     """Render the geo-parity block compactly for a terminal."""
     lines: list[str] = []
     sighted = parity.get("sighted")
-    lines.append(f"{indent}geo view parity : {len(sighted) if isinstance(sighted, list) else 0} modules sighted")
+    lines.append(
+        f"{indent}geo view parity : {len(sighted) if isinstance(sighted, list) else 0} modules sighted"
+    )
     if isinstance(sighted, list):
         lines.append(f"{indent}  modules       : {' '.join(sighted) or '(none)'}")
     lines.append(
@@ -647,7 +647,11 @@ def _anchor_summary(anchor: Mapping[str, object]) -> str:
     name = anchor.get("name")
     county = anchor.get("county")
     state = anchor.get("state")
-    return f"{name} · {county}, {state} [{anchor.get('latitude'):g}, {anchor.get('longitude'):g}]" if name else "(none)"
+    return (
+        f"{name} · {county}, {state} [{anchor.get('latitude'):g}, {anchor.get('longitude'):g}]"
+        if name
+        else "(none)"
+    )
 
 
 def render_summary(summary: Mapping[str, object]) -> str:
@@ -685,8 +689,14 @@ def render_summary(summary: Mapping[str, object]) -> str:
         weights = risk.get("weights")
         if isinstance(weights, Mapping):
             top = risk.get("top")
-            top_text = f" most-evidenced: {top[0]} ({top[1]:.3f})" if isinstance(top, (list, tuple)) and top else ""
-            lines.append(f"  RISK      : hazard weights  {_format_weights(weights)}{top_text}")
+            top_text = (
+                f" most-evidenced: {top[0]} ({top[1]:.3f})"
+                if isinstance(top, (list, tuple)) and top
+                else ""
+            )
+            lines.append(
+                f"  RISK      : hazard weights  {_format_weights(weights)}{top_text}"
+            )
     elif isinstance(risk, Mapping):
         lines.append(f"  RISK      : {risk.get('message')}")
 
@@ -706,7 +716,9 @@ def render_summary(summary: Mapping[str, object]) -> str:
         dominant = act.get("dominantHazard")
         decision = act.get("decision")
         tags = act.get("hazardTags")
-        lines.append(f"  ACT       : policy prior over {len(tags) if isinstance(tags, list) else 0} hazard states")
+        lines.append(
+            f"  ACT       : policy prior over {len(tags) if isinstance(tags, list) else 0} hazard states"
+        )
         lines.append(f"              dominant hazard: {dominant}")
         if isinstance(decision, Mapping):
             lines.append(

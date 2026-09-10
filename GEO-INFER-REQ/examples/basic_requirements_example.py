@@ -34,33 +34,40 @@ def main() -> None:
     # ------------------------------------------------------------------
     print("\nStep 1: Requirements analysis")
     analyzer = RequirementsAnalyzer()
-    analyzer.add_requirements([
-        Requirement(
-            "R001", "H3 cell indexing",
-            "The system shall support H3 v4 cell indexing for spatial data",
-            RequirementType.FUNCTIONAL,
-            PriorityLevel.HIGH,
-            stakeholders=["platform_team"],
-            acceptance_criteria=["H3 v4 cells encode/decode correctly",
-                                 "API documented"],
-        ),
-        Requirement(
-            "R002", "Query latency",
-            "Spatial queries shall return within 200 ms at p95",
-            RequirementType.PERFORMANCE,
-            PriorityLevel.MEDIUM,
-            dependencies=["R001"],
-            acceptance_criteria=["p95 latency <= 200 ms under load test"],
-        ),
-        Requirement(
-            "R003", "Access control",
-            "All spatial query endpoints shall require authenticated access",
-            RequirementType.SECURITY,
-            PriorityLevel.CRITICAL,
-            stakeholders=["security_team", "platform_team"],
-            acceptance_criteria=["Unauthenticated requests rejected with 401"],
-        ),
-    ])
+    analyzer.add_requirements(
+        [
+            Requirement(
+                "R001",
+                "H3 cell indexing",
+                "The system shall support H3 v4 cell indexing for spatial data",
+                RequirementType.FUNCTIONAL,
+                PriorityLevel.HIGH,
+                stakeholders=["platform_team"],
+                acceptance_criteria=[
+                    "H3 v4 cells encode/decode correctly",
+                    "API documented",
+                ],
+            ),
+            Requirement(
+                "R002",
+                "Query latency",
+                "Spatial queries shall return within 200 ms at p95",
+                RequirementType.PERFORMANCE,
+                PriorityLevel.MEDIUM,
+                dependencies=["R001"],
+                acceptance_criteria=["p95 latency <= 200 ms under load test"],
+            ),
+            Requirement(
+                "R003",
+                "Access control",
+                "All spatial query endpoints shall require authenticated access",
+                RequirementType.SECURITY,
+                PriorityLevel.CRITICAL,
+                stakeholders=["security_team", "platform_team"],
+                acceptance_criteria=["Unauthenticated requests rejected with 401"],
+            ),
+        ]
+    )
 
     graph = analyzer.build_dependency_graph()
     print(f"  Nodes: {graph.nodes}")
@@ -82,12 +89,18 @@ def main() -> None:
     print("\nStep 2: Traceability")
     tm = TraceabilityManager()
     tm.register_requirements(["R001", "R002", "R003"])
-    tm.add_trace_links([
-        TraceLink("R001", "src/h3_backend.py", ArtifactType.SOURCE_CODE),
-        TraceLink("R001", "tests/test_h3_backend.py", ArtifactType.TEST_CASE,
-                  verified=True),
-        TraceLink("R002", "tests/test_query_latency.py", ArtifactType.TEST_CASE),
-    ])
+    tm.add_trace_links(
+        [
+            TraceLink("R001", "src/h3_backend.py", ArtifactType.SOURCE_CODE),
+            TraceLink(
+                "R001",
+                "tests/test_h3_backend.py",
+                ArtifactType.TEST_CASE,
+                verified=True,
+            ),
+            TraceLink("R002", "tests/test_query_latency.py", ArtifactType.TEST_CASE),
+        ]
+    )
     # R003 has no links yet -> untraced
 
     coverage = tm.analyze_coverage()
@@ -103,30 +116,38 @@ def main() -> None:
     # ------------------------------------------------------------------
     print("\nStep 3: Validation")
     validator = RequirementValidator()
-    validator.add_specs([
-        RequirementSpec(
-            "R001", "H3 cell indexing",
-            "The system shall support H3 v4 cell indexing for spatial data",
-            priority=4, effort_estimate=10.0,
-            tags=["spatial", "backend"],
-            resources_required=["backend_dev"],
-        ),
-        RequirementSpec(
-            "R002", "Query latency",
-            "Spatial queries shall return within 200 ms at p95",
-            priority=2, effort_estimate=5.0,
-            dependencies=["R001"],
-            tags=["spatial", "performance"],
-            resources_required=["backend_dev"],
-        ),
-    ])
+    validator.add_specs(
+        [
+            RequirementSpec(
+                "R001",
+                "H3 cell indexing",
+                "The system shall support H3 v4 cell indexing for spatial data",
+                priority=4,
+                effort_estimate=10.0,
+                tags=["spatial", "backend"],
+                resources_required=["backend_dev"],
+            ),
+            RequirementSpec(
+                "R002",
+                "Query latency",
+                "Spatial queries shall return within 200 ms at p95",
+                priority=2,
+                effort_estimate=5.0,
+                dependencies=["R001"],
+                tags=["spatial", "performance"],
+                resources_required=["backend_dev"],
+            ),
+        ]
+    )
     validator.set_resource_capacity({"backend_dev": 12.0})  # person-days
 
     consistency = validator.check_consistency()
     print(f"  Consistent: {consistency.is_consistent}")
-    print(f"  Issues: {consistency.total_issues} "
-          f"(errors: {len(consistency.errors)}, warnings: {len(consistency.warnings)}, "
-          f"info: {len(consistency.info_items)})")
+    print(
+        f"  Issues: {consistency.total_issues} "
+        f"(errors: {len(consistency.errors)}, warnings: {len(consistency.warnings)}, "
+        f"info: {len(consistency.info_items)})"
+    )
 
     conflicts = validator.detect_conflicts()
     print(f"  Conflicts: {conflicts.total_conflicts}")

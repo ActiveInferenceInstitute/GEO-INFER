@@ -39,7 +39,7 @@ class ClimateIndicesCalculator:
         self,
         precipitation: xr.DataArray,
         timescale: int = 3,
-        distribution: str = 'gamma'
+        distribution: str = "gamma",
     ) -> xr.DataArray:
         """
         Calculate Standardized Precipitation Index (SPI).
@@ -59,12 +59,12 @@ class ClimateIndicesCalculator:
             precip_accum = precipitation
 
         # Calculate SPI using gamma distribution
-        if distribution == 'gamma':
+        if distribution == "gamma":
             spi = self._spi_gamma(precip_accum)
         else:
             spi = self._spi_normal(precip_accum)
 
-        spi.name = f'SPI_{timescale}'
+        spi.name = f"SPI_{timescale}"
         return spi
 
     def _spi_gamma(self, precip: xr.DataArray) -> xr.DataArray:
@@ -113,16 +113,14 @@ class ClimateIndicesCalculator:
 
     def _spi_normal(self, precip: xr.DataArray) -> xr.DataArray:
         """Calculate SPI using normal distribution."""
-        mean = precip.mean(dim='time')
-        std = precip.std(dim='time')
+        mean = precip.mean(dim="time")
+        std = precip.std(dim="time")
 
         spi = (precip - mean) / std
         return spi
 
     def calculate_heat_index(
-        self,
-        temperature: xr.DataArray,
-        humidity: Optional[xr.DataArray] = None
+        self, temperature: xr.DataArray, humidity: Optional[xr.DataArray] = None
     ) -> xr.DataArray:
         """
         Calculate heat index (apparent temperature).
@@ -140,45 +138,41 @@ class ClimateIndicesCalculator:
         else:
             # Temperature-only index basis
             hi = temperature.copy()
-            hi.name = 'heat_index'
+            hi.name = "heat_index"
 
         return hi
 
     def _heat_index_with_humidity(
-        self,
-        temp: xr.DataArray,
-        rh: xr.DataArray
+        self, temp: xr.DataArray, rh: xr.DataArray
     ) -> xr.DataArray:
         """Calculate heat index using temperature and humidity."""
         # Heat index formula (Rothfusz equation approximation)
         hi = temp.copy()
 
         # Convert to Fahrenheit for calculation
-        temp_f = temp * 9/5 + 32
+        temp_f = temp * 9 / 5 + 32
 
         # Heat index calculation
         hi_values = (
-            -42.379 +
-            2.04901523 * temp_f +
-            10.14333127 * rh -
-            0.22475541 * temp_f * rh -
-            6.83783e-3 * temp_f**2 -
-            5.481717e-2 * rh**2 +
-            1.22874e-3 * temp_f**2 * rh +
-            8.5282e-4 * temp_f * rh**2 -
-            1.99e-6 * temp_f**2 * rh**2
+            -42.379
+            + 2.04901523 * temp_f
+            + 10.14333127 * rh
+            - 0.22475541 * temp_f * rh
+            - 6.83783e-3 * temp_f**2
+            - 5.481717e-2 * rh**2
+            + 1.22874e-3 * temp_f**2 * rh
+            + 8.5282e-4 * temp_f * rh**2
+            - 1.99e-6 * temp_f**2 * rh**2
         )
 
         # Convert back to Celsius
-        hi.values = (hi_values - 32) * 5/9
-        hi.name = 'heat_index'
+        hi.values = (hi_values - 32) * 5 / 9
+        hi.name = "heat_index"
 
         return hi
 
     def calculate_extreme_indices(
-        self,
-        temperature: xr.DataArray,
-        precipitation: Optional[xr.DataArray] = None
+        self, temperature: xr.DataArray, precipitation: Optional[xr.DataArray] = None
     ) -> xr.Dataset:
         """
         Calculate climate extreme indices.
@@ -193,29 +187,29 @@ class ClimateIndicesCalculator:
         indices = {}
 
         # Hot days (days above 90th percentile)
-        temp_90th = float(temperature.quantile(0.9, dim='time'))
-        hot_days = (temperature > temp_90th).sum(dim='time')
-        indices['hot_days'] = hot_days
+        temp_90th = float(temperature.quantile(0.9, dim="time"))
+        hot_days = (temperature > temp_90th).sum(dim="time")
+        indices["hot_days"] = hot_days
 
         # Cold days (days below 10th percentile)
-        temp_10th = float(temperature.quantile(0.1, dim='time'))
-        cold_days = (temperature < temp_10th).sum(dim='time')
-        indices['cold_days'] = cold_days
+        temp_10th = float(temperature.quantile(0.1, dim="time"))
+        cold_days = (temperature < temp_10th).sum(dim="time")
+        indices["cold_days"] = cold_days
 
         # Maximum temperature
-        indices['max_temp'] = temperature.max(dim='time')
+        indices["max_temp"] = temperature.max(dim="time")
 
         # Minimum temperature
-        indices['min_temp'] = temperature.min(dim='time')
+        indices["min_temp"] = temperature.min(dim="time")
 
         if precipitation is not None:
             # Heavy precipitation days (above 95th percentile)
-            precip_95th = float(precipitation.quantile(0.95, dim='time'))
-            heavy_precip_days = (precipitation > precip_95th).sum(dim='time')
-            indices['heavy_precip_days'] = heavy_precip_days
+            precip_95th = float(precipitation.quantile(0.95, dim="time"))
+            heavy_precip_days = (precipitation > precip_95th).sum(dim="time")
+            indices["heavy_precip_days"] = heavy_precip_days
 
             # Total precipitation
-            indices['total_precip'] = precipitation.sum(dim='time')
+            indices["total_precip"] = precipitation.sum(dim="time")
 
         return xr.Dataset(indices)
 
@@ -223,7 +217,7 @@ class ClimateIndicesCalculator:
         self,
         precipitation: xr.DataArray,
         temperature: xr.DataArray,
-        awc: float = 100.0  # Available water capacity (mm)
+        awc: float = 100.0,  # Available water capacity (mm)
     ) -> xr.DataArray:
         """
         Calculate a first-order Palmer-style drought severity index.
@@ -253,17 +247,17 @@ class ClimateIndicesCalculator:
         water_balance = precipitation - pet
 
         # Accumulate water balance
-        accumulated = water_balance.cumsum(dim='time')
+        accumulated = water_balance.cumsum(dim="time")
 
         # Normalize to PDSI scale (-6 to +6)
-        mean_balance = accumulated.mean(dim='time')
-        std_balance = accumulated.std(dim='time')
+        mean_balance = accumulated.mean(dim="time")
+        std_balance = accumulated.std(dim="time")
 
         pdsi = (accumulated - mean_balance) / (std_balance + 1e-10) * 2
         pdsi = xr.where(pdsi > 6, 6, pdsi)
         pdsi = xr.where(pdsi < -6, -6, pdsi)
 
-        pdsi.name = 'PDSI'
+        pdsi.name = "PDSI"
         return cast(xr.DataArray, pdsi)
 
     def _calculate_pet(self, temperature: xr.DataArray) -> xr.DataArray:

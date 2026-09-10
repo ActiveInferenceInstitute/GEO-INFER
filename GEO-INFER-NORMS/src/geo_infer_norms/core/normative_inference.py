@@ -359,9 +359,7 @@ class NormativeInference:
             # Infer compliance for all norms
             result: Dict[str, float] = {}
             for norm_id in self.norms:
-                result[norm_id] = cast(
-                    float, self.infer_compliance(entity_id, norm_id)
-                )
+                result[norm_id] = cast(float, self.infer_compliance(entity_id, norm_id))
             return result
 
     def infer_network_compliance(self, entity_id: str, norm_id: str) -> float:
@@ -383,9 +381,7 @@ class NormativeInference:
             return 0.0
 
         # Get direct compliance probability
-        direct_probability = cast(
-            float, self.infer_compliance(entity_id, norm_id)
-        )
+        direct_probability = cast(float, self.infer_compliance(entity_id, norm_id))
 
         # Find related norms
         related_norms = {}
@@ -401,9 +397,7 @@ class NormativeInference:
         # Calculate influence from related norms
         influences = []
         for related_id, (rel_type, strength) in related_norms.items():
-            related_prob = cast(
-                float, self.infer_compliance(entity_id, related_id)
-            )
+            related_prob = cast(float, self.infer_compliance(entity_id, related_id))
 
             if rel_type == "supports":
                 # Supporting norms positively influence compliance
@@ -444,9 +438,7 @@ class NormativeInference:
         violations = []
 
         for norm_id, norm in self.norms.items():
-            compliance_prob = cast(
-                float, self.infer_compliance(entity_id, norm_id)
-            )
+            compliance_prob = cast(float, self.infer_compliance(entity_id, norm_id))
 
             if compliance_prob < threshold:
                 violations.append(
@@ -484,9 +476,7 @@ class NormativeInference:
 
         # For each norm with low compliance, suggest improvements
         for norm_id, norm in self.norms.items():
-            compliance_prob = cast(
-                float, self.infer_compliance(entity_id, norm_id)
-            )
+            compliance_prob = cast(float, self.infer_compliance(entity_id, norm_id))
 
             if compliance_prob < improvement_threshold:
                 # Simple heuristic: identify behaviors that might affect compliance
@@ -862,9 +852,7 @@ class SocialNormDiffusion:
         Returns:
             Dictionary mapping norm IDs to lists of adoption rates
         """
-        history: Dict[str, List[float]] = {
-            norm_id: [] for norm_id in self.norms
-        }
+        history: Dict[str, List[float]] = {norm_id: [] for norm_id in self.norms}
 
         # Calculate initial state
         for norm_id in self.norms:

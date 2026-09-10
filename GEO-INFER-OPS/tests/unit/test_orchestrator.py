@@ -171,6 +171,7 @@ class TestOrchestratorRetryAndDependencySemantics:
         self, orchestrator: Orchestrator
     ) -> None:
         """A task depending on a permanently failed task is marked FAILED."""
+
         def always_fails() -> None:
             raise RuntimeError("upstream failure")
 

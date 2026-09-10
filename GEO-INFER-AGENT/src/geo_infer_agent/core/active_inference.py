@@ -325,9 +325,7 @@ class GenerativeModel(nn.Module):
         # 6. Combine epistemic and pragmatic value
         # Note: In active inference, we want to minimize expected free energy
         # which is the sum of expected surprisal and expected divergence
-        G: torch.Tensor = (
-            -self.config.precision * epistemic_value - pragmatic_value
-        )
+        G: torch.Tensor = -self.config.precision * epistemic_value - pragmatic_value
 
         return G
 
@@ -675,5 +673,3 @@ class ActiveInferenceAgent:
             "observations": [],
         }
         logger.info("Experience buffer cleared")
-
-

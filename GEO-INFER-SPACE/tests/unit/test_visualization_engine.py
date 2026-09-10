@@ -5,10 +5,15 @@ import tempfile
 import pytest
 from geo_infer_space.core.visualization_engine import InteractiveVisualizationEngine
 
+
 @pytest.mark.reporting
 class TestInteractiveVisualizationEngine(unittest.TestCase):
     def setUp(self):
-        self.config = {'location': {'bounds': {'north': 42, 'south': 41, 'east': -123, 'west': -125}}}
+        self.config = {
+            "location": {
+                "bounds": {"north": 42, "south": 41, "east": -123, "west": -125}
+            }
+        }
         self._tmpdir = tempfile.TemporaryDirectory()
         self.output_dir = Path(self._tmpdir.name)
         self.engine = InteractiveVisualizationEngine(self.config, self.output_dir)
@@ -23,7 +28,7 @@ class TestInteractiveVisualizationEngine(unittest.TestCase):
 
     def test_create_comprehensive_dashboard(self):
         """Test dashboard creation with small real data."""
-        analysis_results = {'domain_results': {'forest_health': {}}}
+        analysis_results = {"domain_results": {"forest_health": {}}}
         dashboard_path = self.engine.create_comprehensive_dashboard(analysis_results)
         self.assertTrue(Path(dashboard_path).exists())
         self.assertTrue(Path(dashboard_path).is_relative_to(self.output_dir))

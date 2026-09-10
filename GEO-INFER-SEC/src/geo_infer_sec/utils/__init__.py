@@ -1,1 +1,1 @@
-"""Utility functions for security operations.""" 
+"""Utility functions for security operations."""

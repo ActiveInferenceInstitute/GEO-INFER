@@ -557,9 +557,9 @@ class BatchProtocol(MessageProtocol):
             )
 
         super().__init__(protocol_id, config)
-        self.batches: Dict[Tuple[str, str], Dict[str, Any]] = (
-            {}
-        )  # (sender, recipient) -> batch
+        self.batches: Dict[
+            Tuple[str, str], Dict[str, Any]
+        ] = {}  # (sender, recipient) -> batch
 
     def send_message(
         self, sender_id: str, recipient_id: str, payload: Any, **kwargs: Any

@@ -840,9 +840,13 @@ def create_h3_spatial_model(
         try:
             boundary_cells = set(adapter.polygon_to_cells(boundary, h3_resolution))
         except Exception as poly_error:
-            raise ValueError(f"H3 boundary conversion failed: {poly_error}") from poly_error
+            raise ValueError(
+                f"H3 boundary conversion failed: {poly_error}"
+            ) from poly_error
         if not boundary_cells:
-            raise ValueError("H3 boundary produced no cells at the requested resolution")
+            raise ValueError(
+                "H3 boundary produced no cells at the requested resolution"
+            )
 
         num_cells = len(boundary_cells)
         if num_cells > max_cells:

@@ -40,7 +40,6 @@ _PROCESSING_ID_SEQUENCE: "itertools.count[int]" = itertools.count(1)
 logger = logging.getLogger(__name__)
 
 
-
 @dataclass
 class CognitiveState:
     """Represents the current cognitive state of the processing engine."""
@@ -57,16 +56,18 @@ class CognitiveState:
         """Update attention focus areas with normalized weights."""
         total_weight = sum(focus_areas.values())
         if total_weight > 0:
-            self.attention_focus = {k: v/total_weight for k, v in focus_areas.items()}
+            self.attention_focus = {k: v / total_weight for k, v in focus_areas.items()}
         self._update_cognitive_load()
 
-    def add_to_working_memory(self, key: str, value: Any, importance: float = 1.0) -> None:
+    def add_to_working_memory(
+        self, key: str, value: Any, importance: float = 1.0
+    ) -> None:
         """Add item to working memory with importance weighting."""
         self.working_memory[key] = {
-            'value': value,
-            'importance': importance,
-            'timestamp': datetime.now(),
-            'access_count': 0
+            "value": value,
+            "importance": importance,
+            "timestamp": datetime.now(),
+            "access_count": 0,
         }
         self._update_cognitive_load()
 
@@ -74,9 +75,9 @@ class CognitiveState:
         """Retrieve item from working memory and update access patterns."""
         if key in self.working_memory:
             item = self.working_memory[key]
-            item['access_count'] += 1
-            item['last_access'] = datetime.now()
-            return item['value']
+            item["access_count"] += 1
+            item["last_access"] = datetime.now()
+            return item["value"]
         return None
 
     def _update_cognitive_load(self) -> None:
@@ -88,16 +89,19 @@ class CognitiveState:
     def get_memory_utilization(self) -> Dict[str, float]:
         """Get memory utilization statistics."""
         if not self.working_memory:
-            return {'utilization': 0.0, 'items': 0}
+            return {"utilization": 0.0, "items": 0}
 
         total_items = len(self.working_memory)
-        accessed_items = sum(1 for item in self.working_memory.values()
-                           if item.get('access_count', 0) > 0)
+        accessed_items = sum(
+            1
+            for item in self.working_memory.values()
+            if item.get("access_count", 0) > 0
+        )
 
         return {
-            'utilization': self.cognitive_load,
-            'items': total_items,
-            'accessed_ratio': accessed_items / total_items if total_items > 0 else 0.0
+            "utilization": self.cognitive_load,
+            "items": total_items,
+            "accessed_ratio": accessed_items / total_items if total_items > 0 else 0.0,
         }
 
 
@@ -114,13 +118,15 @@ class CognitiveProcessingEngine:
     - Spatial cognition theories for geographic reasoning
     """
 
-    def __init__(self,
-                 cognitive_framework: str = 'bayesian_attention',
-                 spatial_resolution: str = 'adaptive',
-                 temporal_modeling: str = 'working_memory',
-                 uncertainty_handling: str = 'probabilistic',
-                 config: Optional[Dict[str, Any]] = None,
-                 rng: Optional[np.random.Generator] = None):
+    def __init__(
+        self,
+        cognitive_framework: str = "bayesian_attention",
+        spatial_resolution: str = "adaptive",
+        temporal_modeling: str = "working_memory",
+        uncertainty_handling: str = "probabilistic",
+        config: Optional[Dict[str, Any]] = None,
+        rng: Optional[np.random.Generator] = None,
+    ):
         """
         Initialize the cognitive processing engine.
 
@@ -150,37 +156,39 @@ class CognitiveProcessingEngine:
 
         # Initialize component models
         self.perception_model = SpatialPerceptionModel(
-            framework=cognitive_framework,
-            resolution=spatial_resolution,
-            rng=self._rng
+            framework=cognitive_framework, resolution=spatial_resolution, rng=self._rng
         )
 
         self.reasoning_engine = SpatialReasoningEngine(
-            reasoning_type='qualitative_spatial',
+            reasoning_type="qualitative_spatial",
             uncertainty_method=uncertainty_handling,
-            rng=self._rng
+            rng=self._rng,
         )
 
         self.memory_model = SpatialMemoryModel(
-            memory_types=['working', 'long_term', 'episodic'],
-            consolidation_strategy='adaptive',
-            rng=self._rng
+            memory_types=["working", "long_term", "episodic"],
+            consolidation_strategy="adaptive",
+            rng=self._rng,
         )
 
         # Performance tracking
         self.performance_metrics = {
-            'decisions_made': 0,
-            'reasoning_chains': 0,
-            'memory_operations': 0,
-            'perception_updates': 0
+            "decisions_made": 0,
+            "reasoning_chains": 0,
+            "memory_operations": 0,
+            "perception_updates": 0,
         }
 
-        logger.info(f"Cognitive Processing Engine initialized with framework: {cognitive_framework}")
+        logger.info(
+            f"Cognitive Processing Engine initialized with framework: {cognitive_framework}"
+        )
 
-    def process_spatial_input(self,
-                            spatial_data: Dict[str, Any],
-                            context: Optional[Dict[str, Any]] = None,
-                            user_profile: Optional[UserCognitiveProfile] = None) -> Dict[str, Any]:
+    def process_spatial_input(
+        self,
+        spatial_data: Dict[str, Any],
+        context: Optional[Dict[str, Any]] = None,
+        user_profile: Optional[UserCognitiveProfile] = None,
+    ) -> Dict[str, Any]:
         """
         Process spatial input through the cognitive pipeline.
 
@@ -199,58 +207,62 @@ class CognitiveProcessingEngine:
             perception_result = self.perception_model.process_spatial_input(
                 spatial_data, context, user_profile
             )
-            self.state.update_attention(perception_result.get('attention_weights', {}))
-            self.performance_metrics['perception_updates'] += 1
+            self.state.update_attention(perception_result.get("attention_weights", {}))
+            self.performance_metrics["perception_updates"] += 1
 
             # Step 2: Working memory update
             for key, value in perception_result.items():
-                if key.startswith('spatial_'):
+                if key.startswith("spatial_"):
                     self.state.add_to_working_memory(key, value, importance=0.8)
 
             # Step 3: Spatial reasoning and inference
             reasoning_result = self.reasoning_engine.reason_about_space(
                 spatial_data, perception_result, self.state
             )
-            self.performance_metrics['reasoning_chains'] += 1
+            self.performance_metrics["reasoning_chains"] += 1
 
             # Step 4: Memory consolidation and learning
             memory_result = self.memory_model.update_memory(
                 perception_result, reasoning_result, self.state
             )
-            self.performance_metrics['memory_operations'] += 1
+            self.performance_metrics["memory_operations"] += 1
 
             # Step 5: Decision support integration
             decision_result = self._generate_spatial_decisions(
                 reasoning_result, memory_result, user_profile
             )
-            self.performance_metrics['decisions_made'] += 1
+            self.performance_metrics["decisions_made"] += 1
 
             # Compile results
             processing_time = (datetime.now() - start_time).total_seconds()
 
             result = {
-                'processing_id': f"cog_{next(_PROCESSING_ID_SEQUENCE)}_{int(self._rng.integers(0, 1000))}",
-                'timestamp': start_time.isoformat(),
-                'processing_time': processing_time,
-                'cognitive_state': self.state.__dict__,
-                'perception_result': perception_result,
-                'reasoning_result': reasoning_result,
-                'memory_result': memory_result,
-                'decision_result': decision_result,
-                'performance_metrics': self.performance_metrics.copy()
+                "processing_id": f"cog_{next(_PROCESSING_ID_SEQUENCE)}_{int(self._rng.integers(0, 1000))}",
+                "timestamp": start_time.isoformat(),
+                "processing_time": processing_time,
+                "cognitive_state": self.state.__dict__,
+                "perception_result": perception_result,
+                "reasoning_result": reasoning_result,
+                "memory_result": memory_result,
+                "decision_result": decision_result,
+                "performance_metrics": self.performance_metrics.copy(),
             }
 
-            logger.info(f"Spatial input processed successfully in {processing_time:.3f}s")
+            logger.info(
+                f"Spatial input processed successfully in {processing_time:.3f}s"
+            )
             return result
 
         except Exception as e:
             logger.error(f"Error in cognitive processing: {str(e)}")
             raise
 
-    def _generate_spatial_decisions(self,
-                                 reasoning_result: Dict[str, Any],
-                                 memory_result: Dict[str, Any],
-                                 user_profile: Optional[UserCognitiveProfile] = None) -> Dict[str, Any]:
+    def _generate_spatial_decisions(
+        self,
+        reasoning_result: Dict[str, Any],
+        memory_result: Dict[str, Any],
+        user_profile: Optional[UserCognitiveProfile] = None,
+    ) -> Dict[str, Any]:
         """
         Generate spatial decisions based on reasoning and memory.
 
@@ -265,36 +277,40 @@ class CognitiveProcessingEngine:
         decisions = []
 
         # Analyze spatial alternatives if available
-        alternatives = reasoning_result.get('spatial_alternatives', [])
+        alternatives = reasoning_result.get("spatial_alternatives", [])
         if alternatives:
             for alt in alternatives:
                 decision = {
-                    'alternative_id': alt.get('id'),
-                    'spatial_location': alt.get('geometry'),
-                    'cognitive_rationale': alt.get('reasoning_path', []),
-                    'confidence_score': self._calculate_decision_confidence(alt, user_profile),
-                    'cognitive_load_impact': self._estimate_cognitive_load(alt),
-                    'recommended_action': self._recommend_action(alt, reasoning_result)
+                    "alternative_id": alt.get("id"),
+                    "spatial_location": alt.get("geometry"),
+                    "cognitive_rationale": alt.get("reasoning_path", []),
+                    "confidence_score": self._calculate_decision_confidence(
+                        alt, user_profile
+                    ),
+                    "cognitive_load_impact": self._estimate_cognitive_load(alt),
+                    "recommended_action": self._recommend_action(alt, reasoning_result),
                 }
                 decisions.append(decision)
 
         # Update overall decision confidence
         if decisions:
-            confidences = [d['confidence_score'] for d in decisions]
+            confidences = [d["confidence_score"] for d in decisions]
             self.state.decision_confidence = np.mean(confidences)
 
         return {
-            'decisions': decisions,
-            'decision_strategy': 'cognitive_weighted' if user_profile else 'standard',
-            'confidence_distribution': self._analyze_confidence_distribution(decisions),
-            'cognitive_factors': self._extract_cognitive_factors(decisions)
+            "decisions": decisions,
+            "decision_strategy": "cognitive_weighted" if user_profile else "standard",
+            "confidence_distribution": self._analyze_confidence_distribution(decisions),
+            "cognitive_factors": self._extract_cognitive_factors(decisions),
         }
 
-    def _calculate_decision_confidence(self,
-                                    alternative: Dict[str, Any],
-                                    user_profile: Optional[UserCognitiveProfile] = None) -> float:
+    def _calculate_decision_confidence(
+        self,
+        alternative: Dict[str, Any],
+        user_profile: Optional[UserCognitiveProfile] = None,
+    ) -> float:
         """Calculate confidence score for a spatial decision alternative."""
-        base_confidence = alternative.get('confidence', 0.5)
+        base_confidence = alternative.get("confidence", 0.5)
 
         # Adjust based on cognitive load
         load_penalty = self.state.cognitive_load * 0.2
@@ -310,79 +326,83 @@ class CognitiveProcessingEngine:
     def _estimate_cognitive_load(self, alternative: Dict[str, Any]) -> float:
         """Estimate cognitive load impact of a spatial alternative."""
         # Simple heuristic based on spatial complexity
-        geometry = alternative.get('geometry', {})
+        geometry = alternative.get("geometry", {})
         if isinstance(geometry, dict):
             complexity_factors = [
-                len(geometry.get('coordinates', [])) / 100.0,  # Coordinate complexity
-                len(alternative.get('attributes', {})) / 10.0,  # Attribute complexity
-                self.state.cognitive_load * 0.3  # Current load influence
+                len(geometry.get("coordinates", [])) / 100.0,  # Coordinate complexity
+                len(alternative.get("attributes", {})) / 10.0,  # Attribute complexity
+                self.state.cognitive_load * 0.3,  # Current load influence
             ]
             return min(1.0, sum(complexity_factors) / 3.0)
 
         return 0.3  # Default moderate load
 
-    def _recommend_action(self,
-                         alternative: Dict[str, Any],
-                         reasoning_result: Dict[str, Any]) -> str:
+    def _recommend_action(
+        self, alternative: Dict[str, Any], reasoning_result: Dict[str, Any]
+    ) -> str:
         """Recommend action based on cognitive analysis."""
-        confidence = alternative.get('confidence', 0.5)
-        reasoning_strength = len(reasoning_result.get('reasoning_path', []))
+        confidence = alternative.get("confidence", 0.5)
+        reasoning_strength = len(reasoning_result.get("reasoning_path", []))
 
         if confidence > 0.8 and reasoning_strength > 3:
-            return 'strong_recommendation'
+            return "strong_recommendation"
         elif confidence > 0.6:
-            return 'moderate_recommendation'
+            return "moderate_recommendation"
         elif confidence > 0.4:
-            return 'weak_recommendation'
+            return "weak_recommendation"
         else:
-            return 'requires_further_analysis'
+            return "requires_further_analysis"
 
-    def _analyze_confidence_distribution(self, decisions: List[Dict[str, Any]]) -> Dict[str, float]:
+    def _analyze_confidence_distribution(
+        self, decisions: List[Dict[str, Any]]
+    ) -> Dict[str, float]:
         """Analyze the distribution of confidence scores across decisions."""
         if not decisions:
-            return {'mean': 0.0, 'std': 0.0, 'min': 0.0, 'max': 0.0}
+            return {"mean": 0.0, "std": 0.0, "min": 0.0, "max": 0.0}
 
-        confidences = [d.get('confidence_score', 0.0) for d in decisions]
+        confidences = [d.get("confidence_score", 0.0) for d in decisions]
 
         return {
-            'mean': float(np.mean(confidences)),
-            'std': float(np.std(confidences)),
-            'min': float(np.min(confidences)),
-            'max': float(np.max(confidences))
+            "mean": float(np.mean(confidences)),
+            "std": float(np.std(confidences)),
+            "min": float(np.min(confidences)),
+            "max": float(np.max(confidences)),
         }
 
-    def _extract_cognitive_factors(self, decisions: List[Dict[str, Any]]) -> Dict[str, List[str]]:
+    def _extract_cognitive_factors(
+        self, decisions: List[Dict[str, Any]]
+    ) -> Dict[str, List[str]]:
         """Extract cognitive factors influencing decisions."""
         factors: Dict[str, List[str]] = {
-            'high_confidence_factors': [],
-            'low_confidence_factors': [],
-            'cognitive_load_issues': []
+            "high_confidence_factors": [],
+            "low_confidence_factors": [],
+            "cognitive_load_issues": [],
         }
 
         for decision in decisions:
-            confidence = decision.get('confidence_score', 0.5)
-            load_impact = decision.get('cognitive_load_impact', 0.5)
+            confidence = decision.get("confidence_score", 0.5)
+            load_impact = decision.get("cognitive_load_impact", 0.5)
 
             if confidence > 0.7:
-                factors['high_confidence_factors'].extend(
-                    decision.get('cognitive_rationale', [])
+                factors["high_confidence_factors"].extend(
+                    decision.get("cognitive_rationale", [])
                 )
 
             if confidence < 0.5:
-                factors['low_confidence_factors'].append(
+                factors["low_confidence_factors"].append(
                     f"Low confidence in {decision.get('alternative_id', 'unknown')}"
                 )
 
             if load_impact > 0.7:
-                factors['cognitive_load_issues'].append(
+                factors["cognitive_load_issues"].append(
                     f"High load for {decision.get('alternative_id', 'unknown')}"
                 )
 
         return factors
 
-    def update_cognitive_models(self,
-                              training_data: Dict[str, Any],
-                              learning_rate: float = 0.01) -> Dict[str, Any]:
+    def update_cognitive_models(
+        self, training_data: Dict[str, Any], learning_rate: float = 0.01
+    ) -> Dict[str, Any]:
         """
         Update cognitive models based on new training data.
 
@@ -400,23 +420,23 @@ class CognitiveProcessingEngine:
             perception_updates = self.perception_model.update_model(
                 training_data, learning_rate
             )
-            update_results['perception'] = perception_updates
+            update_results["perception"] = perception_updates
 
             # Update reasoning engine
             reasoning_updates = self.reasoning_engine.update_model(
                 training_data, learning_rate
             )
-            update_results['reasoning'] = reasoning_updates
+            update_results["reasoning"] = reasoning_updates
 
             # Update memory model
             memory_updates = self.memory_model.update_model(
                 training_data, learning_rate
             )
-            update_results['memory'] = memory_updates
+            update_results["memory"] = memory_updates
 
             # Update performance metrics
-            self.performance_metrics['model_updates'] = (
-                self.performance_metrics.get('model_updates', 0) + 1
+            self.performance_metrics["model_updates"] = (
+                self.performance_metrics.get("model_updates", 0) + 1
             )
 
             logger.info("Cognitive models updated successfully")
@@ -429,20 +449,20 @@ class CognitiveProcessingEngine:
     def get_performance_summary(self) -> Dict[str, Any]:
         """Get comprehensive performance summary of the cognitive engine."""
         return {
-            'engine_status': 'active',
-            'cognitive_state': self.state.__dict__,
-            'performance_metrics': self.performance_metrics,
-            'model_status': {
-                'perception_model': self.perception_model.get_status(),
-                'reasoning_engine': self.reasoning_engine.get_status(),
-                'memory_model': self.memory_model.get_status()
+            "engine_status": "active",
+            "cognitive_state": self.state.__dict__,
+            "performance_metrics": self.performance_metrics,
+            "model_status": {
+                "perception_model": self.perception_model.get_status(),
+                "reasoning_engine": self.reasoning_engine.get_status(),
+                "memory_model": self.memory_model.get_status(),
             },
-            'configuration': {
-                'cognitive_framework': self.cognitive_framework,
-                'spatial_resolution': self.spatial_resolution,
-                'temporal_modeling': self.temporal_modeling,
-                'uncertainty_handling': self.uncertainty_handling
-            }
+            "configuration": {
+                "cognitive_framework": self.cognitive_framework,
+                "spatial_resolution": self.spatial_resolution,
+                "temporal_modeling": self.temporal_modeling,
+                "uncertainty_handling": self.uncertainty_handling,
+            },
         }
 
     def save_cognitive_state(self, filepath: str) -> None:
@@ -456,27 +476,27 @@ class CognitiveProcessingEngine:
         inspection/recovery, not a lossless round trip.
         """
         state_data = {
-            'cognitive_state': self.state.__dict__,
-            'performance_metrics': self.performance_metrics,
-            'config': self.config,
-            'timestamp': datetime.now().isoformat()
+            "cognitive_state": self.state.__dict__,
+            "performance_metrics": self.performance_metrics,
+            "config": self.config,
+            "timestamp": datetime.now().isoformat(),
         }
 
-        with open(filepath, 'w') as f:
+        with open(filepath, "w") as f:
             json.dump(state_data, f, indent=2, default=str)
 
         logger.info(f"Cognitive state saved to {filepath}")
 
     def load_cognitive_state(self, filepath: str) -> None:
         """Load cognitive state from file."""
-        with open(filepath, 'r') as f:
+        with open(filepath, "r") as f:
             state_data = json.load(f)
 
         # Restore cognitive state
-        state_dict = state_data['cognitive_state']
+        state_dict = state_data["cognitive_state"]
         self.state = CognitiveState(**state_dict)
 
         # Restore performance metrics
-        self.performance_metrics = state_data['performance_metrics']
+        self.performance_metrics = state_data["performance_metrics"]
 
         logger.info(f"Cognitive state loaded from {filepath}")

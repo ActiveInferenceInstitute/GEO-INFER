@@ -122,15 +122,7 @@ def _publish(generator: ModuleType, root: Path, **overrides: str) -> None:
 class TestConfigDateIsSettleable:
     """Recording the refreshed config must not move the date it carries."""
 
-    def _commit(self, root: Path, message: str) -> None:
-        env = {
-            "GIT_AUTHOR_NAME": "test",
-            "GIT_AUTHOR_EMAIL": "test@example.invalid",
-            "GIT_COMMITTER_NAME": "test",
-            "GIT_COMMITTER_EMAIL": "test@example.invalid",
-            "PATH": "/usr/bin:/bin:/usr/local/bin:/opt/homebrew/bin",
-            "HOME": str(root.parent),
-        }
+    def _commit(self, root: Path, message: str, env: dict[str, str]) -> None:
         for args in (["add", "-A"], ["commit", "-q", "-m", message]):
             subprocess.run(
                 ["git", "-C", str(root), *args],
@@ -140,13 +132,16 @@ class TestConfigDateIsSettleable:
             )
 
     def test_committing_the_refreshed_config_reaches_a_fixed_point(
-        self, generator: ModuleType, manuscript_tree: Path
+        self,
+        generator: ModuleType,
+        manuscript_tree: Path,
+        git_environment: dict[str, str],
     ) -> None:
-        self._commit(manuscript_tree, "add manuscript")
+        self._commit(manuscript_tree, "add manuscript", git_environment)
         generator.refresh_config_metadata(
             manuscript_tree, generator.config_metadata_values(manuscript_tree)
         )
-        self._commit(manuscript_tree, "record generated config")
+        self._commit(manuscript_tree, "record generated config", git_environment)
         # A second refresh after that commit must be a no-op, so a clean-tree
         # publication build is reachable.
         assert (
@@ -158,11 +153,14 @@ class TestConfigDateIsSettleable:
         assert generator._dirty_file_count(manuscript_tree) == 0
 
     def test_head_date_would_not_settle(
-        self, generator: ModuleType, manuscript_tree: Path
+        self,
+        generator: ModuleType,
+        manuscript_tree: Path,
+        git_environment: dict[str, str],
     ) -> None:
         # Why the source date excludes config.yaml: HEAD's date always moves
         # when the refreshed config is recorded.
-        self._commit(manuscript_tree, "add manuscript")
+        self._commit(manuscript_tree, "add manuscript", git_environment)
         head_before = generator._run_git(manuscript_tree, "show", "-s", "--format=%cI")
         source_before = generator._manuscript_source_date(manuscript_tree)
         assert head_before == source_before
@@ -171,7 +169,7 @@ class TestConfigDateIsSettleable:
             + "# recorded\n",
             encoding="utf-8",
         )
-        self._commit(manuscript_tree, "record generated config")
+        self._commit(manuscript_tree, "record generated config", git_environment)
         assert generator._manuscript_source_date(manuscript_tree) == source_before
 
 
@@ -229,4 +227,87 @@ class TestCheckMode:
         # commit date it holds, so comparing against HEAD could never pass.
         _publish(generator, manuscript_tree)
         (manuscript_tree / "later.txt").write_text("later\n", encoding="utf-8")
+        assert generator.check_published_artifacts(manuscript_tree) == ()
+
+
+class TestPublishedCountsAgainstRecord:
+    """The published counts are compared to the record they summarise.
+
+    The summary and the record are two files, and nothing compared them —
+    that is how a bundle shipped "9 passed" beside an eleven-result record.
+    ``--check`` now recomputes the counts from the record on disk, at the
+    record's own tier, and refuses a bundle whose numbers disagree.
+    """
+
+    @staticmethod
+    def _store_record(generator: ModuleType, root: Path) -> dict:
+        """Write a one-passed-result record stamped with this tree."""
+        inventory = generator.collect_inventory(root)
+        name = generator.VERIFICATION_COMMANDS[0][0]
+        record = generator.VerificationRecord(
+            results=(
+                generator.VerificationResult(
+                    name=name,
+                    command="run it",
+                    status="passed",
+                    return_code=0,
+                    duration_seconds=1.0,
+                    output_tail="",
+                ),
+            ),
+            source_commit=inventory.commit,
+            source_hash=inventory.source_hash,
+            full_validation_requested=False,
+        )
+        payload = generator._verification_payload(record)
+        path = generator._verification_record_path(root)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        return payload
+
+    def test_counts_disagreeing_with_the_record_are_reported(
+        self, generator: ModuleType, manuscript_tree: Path
+    ) -> None:
+        self._store_record(generator, manuscript_tree)
+        # _publish writes the coherent "no record" summary — every group
+        # unrun — which disagrees with the one-passed-group record above.
+        _publish(generator, manuscript_tree)
+        problems = generator.check_published_artifacts(manuscript_tree)
+        assert any(
+            "disagrees with the stored verification record" in problem
+            for problem in problems
+        )
+
+    def test_counts_matching_the_record_report_no_problem(
+        self, generator: ModuleType, manuscript_tree: Path
+    ) -> None:
+        payload = self._store_record(generator, manuscript_tree)
+        results = [
+            generator.VerificationResult(
+                name=entry["name"],
+                command=entry["command"],
+                status=entry["status"],
+                return_code=entry["return_code"],
+                duration_seconds=entry["duration_seconds"],
+                output_tail=entry["output_tail"],
+            )
+            for entry in payload["results"]
+        ]
+        summary, passed, failed, unrun = generator._verification_summary(
+            results, full_validation=False
+        )
+        _publish(
+            generator,
+            manuscript_tree,
+            VERIFICATION_DEFINED_COUNT=str(
+                len(generator.defined_command_groups(full_validation=False))
+            ),
+            VERIFICATION_PASS_COUNT=str(passed),
+            VERIFICATION_FAIL_COUNT=str(failed),
+            VERIFICATION_UNRUN_COUNT=str(unrun),
+            VERIFICATION_STATUS=summary,
+            VERIFICATION_RECORD_TIER="default",
+            VERIFICATION_RECORD_COMMIT=payload["source_commit"],
+            VERIFICATION_RECORD_SOURCE_HASH=payload["source_hash"],
+        )
         assert generator.check_published_artifacts(manuscript_tree) == ()

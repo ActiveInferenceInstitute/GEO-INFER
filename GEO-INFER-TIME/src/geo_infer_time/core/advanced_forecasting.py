@@ -139,11 +139,11 @@ class AdvancedForecastingEngine:
     """
     Advanced forecasting engine with multiple methods.
     """
-    
+
     def __init__(self, config: Optional[Dict] = None):
         """Initialize advanced forecasting engine."""
         self.config = config or {}
-    
+
     def forecast_arima(
         self,
         time_series: pd.Series,
@@ -226,7 +226,9 @@ class AdvancedForecastingEngine:
         trend_strength = np.var(decomposition.trend.dropna()) / np.var(time_series)
 
         # Calculate seasonality strength
-        seasonal_strength = np.var(decomposition.seasonal.dropna()) / np.var(time_series)
+        seasonal_strength = np.var(decomposition.seasonal.dropna()) / np.var(
+            time_series
+        )
 
         return {
             "trend": decomposition.trend,

@@ -427,7 +427,9 @@ class RepoManager:
             "ahead": ahead,
             "behind": behind,
             "protected": branch.name
-            in self._protected_branches.get(Path(cast(str, repo.working_tree_dir)).name, set()),
+            in self._protected_branches.get(
+                Path(cast(str, repo.working_tree_dir)).name, set()
+            ),
         }
 
     def list_branches(self, repo_name: str) -> List[Dict[str, object]]:

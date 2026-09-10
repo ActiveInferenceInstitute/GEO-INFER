@@ -82,7 +82,9 @@ DEFAULT_LAYER_STYLE: Dict[str, Any] = {
 # Format version matched to GeoLibre's project schema.
 GEOLIBRE_PROJECT_VERSION: str = "0.1.0"
 
-DEFAULT_BASEMAP_STYLE_URL: str = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+DEFAULT_BASEMAP_STYLE_URL: str = (
+    "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+)
 
 
 def default_map_view(
@@ -101,7 +103,12 @@ def default_map_view(
     Raises:
         ValueError: If ``center`` does not have exactly 2 elements.
     """
-    map_view: Dict[str, Any] = {"center": [-100, 40], "zoom": 2, "bearing": 0, "pitch": 0}
+    map_view: Dict[str, Any] = {
+        "center": [-100, 40],
+        "zoom": 2,
+        "bearing": 0,
+        "pitch": 0,
+    }
     if center is not None:
         if len(center) != 2:
             raise ValueError(
@@ -113,7 +120,9 @@ def default_map_view(
     return map_view
 
 
-def _layer_base(name: str, layer_type: str, layer_id: str, **style: Any) -> Dict[str, Any]:
+def _layer_base(
+    name: str, layer_type: str, layer_id: str, **style: Any
+) -> Dict[str, Any]:
     """Build the shared layer skeleton with a merged style dict.
 
     The default layer style is deep-copied so nested values are never shared

@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 class AnomalyType(Enum):
     """Types of anomalies."""
+
     POINT = "point"
     CONTEXTUAL = "contextual"
     COLLECTIVE = "collective"
@@ -31,6 +32,7 @@ class AnomalyType(Enum):
 @dataclass
 class Anomaly:
     """Detected anomaly."""
+
     index: int
     timestamp: str
     value: float
@@ -85,7 +87,9 @@ class TemporalAnalyzer:
         elif method == "moving_average":
             # Moving average trend
             window = min(30, len(values) // 10)
-            trend_line = pd.Series(values).rolling(window=window, center=True).mean().values
+            trend_line = (
+                pd.Series(values).rolling(window=window, center=True).mean().values
+            )
             trend_direction = "variable"
             trend_strength = np.corrcoef(values, trend_line)[0, 1]
 
@@ -160,9 +164,7 @@ class TemporalAnalyzer:
             )
         offset = pd.tseries.frequencies.to_offset(frequency)
         if offset is None:
-            raise ValueError(
-                f"unknown frequency {frequency!r}; pass period explicitly"
-            )
+            raise ValueError(f"unknown frequency {frequency!r}; pass period explicitly")
         base = offset.name
         if base == "h":
             if offset.n > 1 and 24 % offset.n != 0:
@@ -190,7 +192,6 @@ class TemporalAnalyzer:
             f"cannot infer a seasonal period from frequency {frequency!r} "
             f"(canonical alias {base!r}); pass period explicitly"
         )
-
 
     def decompose(
         self,
@@ -274,7 +275,7 @@ class TemporalAnalyzer:
         timeseries: TimeSeries,
         method: str = "zscore",
         threshold: float = 3.0,
-        window_size: Optional[int] = None
+        window_size: Optional[int] = None,
     ) -> Dict[str, Any]:
         """
         Detect anomalies in time series.
@@ -302,15 +303,17 @@ class TemporalAnalyzer:
             for i, (z, val) in enumerate(zip(z_scores, values)):
                 if abs(z) > threshold:
                     severity = "high" if abs(z) > threshold * 1.5 else "medium"
-                    anomalies.append(Anomaly(
-                        index=i,
-                        timestamp=timestamps[i] if i < len(timestamps) else str(i),
-                        value=float(val),
-                        expected_value=float(mean),
-                        deviation=float(z),
-                        anomaly_type=AnomalyType.POINT,
-                        severity=severity
-                    ))
+                    anomalies.append(
+                        Anomaly(
+                            index=i,
+                            timestamp=timestamps[i] if i < len(timestamps) else str(i),
+                            value=float(val),
+                            expected_value=float(mean),
+                            deviation=float(z),
+                            anomaly_type=AnomalyType.POINT,
+                            severity=severity,
+                        )
+                    )
 
         elif method == "iqr":
             q1, q3 = np.percentile(values, [25, 75])
@@ -322,15 +325,17 @@ class TemporalAnalyzer:
                 if val < lower or val > upper:
                     deviation = (val - (q1 + q3) / 2) / (iqr + 1e-10)
                     severity = "high" if abs(deviation) > 3 else "medium"
-                    anomalies.append(Anomaly(
-                        index=i,
-                        timestamp=timestamps[i] if i < len(timestamps) else str(i),
-                        value=float(val),
-                        expected_value=float((q1 + q3) / 2),
-                        deviation=float(deviation),
-                        anomaly_type=AnomalyType.POINT,
-                        severity=severity
-                    ))
+                    anomalies.append(
+                        Anomaly(
+                            index=i,
+                            timestamp=timestamps[i] if i < len(timestamps) else str(i),
+                            value=float(val),
+                            expected_value=float((q1 + q3) / 2),
+                            deviation=float(deviation),
+                            anomaly_type=AnomalyType.POINT,
+                            severity=severity,
+                        )
+                    )
 
         elif method == "rolling_zscore":
             window = window_size or max(10, len(values) // 20)
@@ -343,15 +348,17 @@ class TemporalAnalyzer:
             for i, (z, val) in enumerate(zip(z_scores.values, values)):
                 if not np.isnan(z) and abs(z) > threshold:
                     severity = "high" if abs(z) > threshold * 1.5 else "medium"
-                    anomalies.append(Anomaly(
-                        index=i,
-                        timestamp=timestamps[i] if i < len(timestamps) else str(i),
-                        value=float(val),
-                        expected_value=float(rolling_mean.iloc[i]),
-                        deviation=float(z),
-                        anomaly_type=AnomalyType.CONTEXTUAL,
-                        severity=severity
-                    ))
+                    anomalies.append(
+                        Anomaly(
+                            index=i,
+                            timestamp=timestamps[i] if i < len(timestamps) else str(i),
+                            value=float(val),
+                            expected_value=float(rolling_mean.iloc[i]),
+                            deviation=float(z),
+                            anomaly_type=AnomalyType.CONTEXTUAL,
+                            severity=severity,
+                        )
+                    )
 
         return {
             "method": method,
@@ -367,17 +374,17 @@ class TemporalAnalyzer:
                     "expected": a.expected_value,
                     "deviation": a.deviation,
                     "type": a.anomaly_type.value,
-                    "severity": a.severity
+                    "severity": a.severity,
                 }
                 for a in anomalies
-            ]
+            ],
         }
 
     def detect_change_points(
         self,
         timeseries: TimeSeries,
         method: str = "cusum",
-        min_segment_length: int = 10
+        min_segment_length: int = 10,
     ) -> Dict[str, Any]:
         """
         Detect change points (structural breaks) in time series.
@@ -412,16 +419,23 @@ class TemporalAnalyzer:
                 if diff > threshold:
                     # Check if this is a local maximum in cumsum
                     window = min_segment_length // 2
-                    local_max = max(abs(cumsum[max(0, i-window):min(n, i+window)]))
+                    local_max = max(
+                        abs(cumsum[max(0, i - window) : min(n, i + window)])
+                    )
                     if abs(cumsum[i]) >= local_max * 0.9:
                         # Avoid duplicates
-                        if not change_points or i - change_points[-1]['index'] >= min_segment_length:
-                            change_points.append({
-                                'index': i,
-                                'mean_before': float(left_mean),
-                                'mean_after': float(right_mean),
-                                'magnitude': float(diff)
-                            })
+                        if (
+                            not change_points
+                            or i - change_points[-1]["index"] >= min_segment_length
+                        ):
+                            change_points.append(
+                                {
+                                    "index": i,
+                                    "mean_before": float(left_mean),
+                                    "mean_after": float(right_mean),
+                                    "magnitude": float(diff),
+                                }
+                            )
 
         elif method == "binary_segmentation":
             # Simplified binary segmentation
@@ -429,7 +443,7 @@ class TemporalAnalyzer:
                 if end - start < 2 * min_segment_length:
                     return None
 
-                best_cost = float('inf')
+                best_cost = float("inf")
                 best_idx = None
                 segment = values[start:end]
 
@@ -447,10 +461,10 @@ class TemporalAnalyzer:
                     right_mean = np.mean(values[best_idx:end])
                     if abs(right_mean - left_mean) > 0.3 * np.std(values):
                         return {
-                            'index': best_idx,
-                            'mean_before': float(left_mean),
-                            'mean_after': float(right_mean),
-                            'magnitude': float(abs(right_mean - left_mean))
+                            "index": best_idx,
+                            "mean_before": float(left_mean),
+                            "mean_after": float(right_mean),
+                            "magnitude": float(abs(right_mean - left_mean)),
                         }
                 return None
 
@@ -461,27 +475,24 @@ class TemporalAnalyzer:
                 cp = find_change_point(start, end)
                 if cp:
                     change_points.append(cp)
-                    segments.append((start, cp['index']))
-                    segments.append((cp['index'], end))
+                    segments.append((start, cp["index"]))
+                    segments.append((cp["index"], end))
                     if len(change_points) >= 10:  # Limit
                         break
 
         # Sort by index
-        change_points.sort(key=lambda x: x['index'])
+        change_points.sort(key=lambda x: x["index"])
 
         return {
             "method": method,
             "series_length": n,
             "change_points_detected": len(change_points),
             "change_points": change_points,
-            "segments": len(change_points) + 1
+            "segments": len(change_points) + 1,
         }
 
     def calculate_cross_correlation(
-        self,
-        timeseries1: TimeSeries,
-        timeseries2: TimeSeries,
-        max_lag: int = 20
+        self, timeseries1: TimeSeries, timeseries2: TimeSeries, max_lag: int = 20
     ) -> Dict[str, Any]:
         """
         Calculate cross-correlation between two time series.
@@ -534,16 +545,16 @@ class TemporalAnalyzer:
                     else f"Series 1 leads by {peak['lag']} periods"
                     if peak["lag"] > 0
                     else "Series are synchronous"
-                )
+                ),
             },
-            "zero_lag_correlation": float(np.corrcoef(data1, data2)[0, 1])
+            "zero_lag_correlation": float(np.corrcoef(data1, data2)[0, 1]),
         }
 
     def validate_forecast(
         self,
         actual: List[float],
         predicted: List[float],
-        confidence_intervals: Optional[List[Tuple[float, float]]] = None
+        confidence_intervals: Optional[List[Tuple[float, float]]] = None,
     ) -> Dict[str, Any]:
         """
         Validate forecast accuracy with multiple metrics.
@@ -566,34 +577,46 @@ class TemporalAnalyzer:
 
         # Core metrics
         mae = float(np.mean(abs_errors))
-        mse = float(np.mean(errors ** 2))
+        mse = float(np.mean(errors**2))
         rmse = float(np.sqrt(mse))
         mape = float(np.mean(pct_errors))
 
         # Symmetric MAPE
-        smape = float(np.mean(2 * abs_errors / (np.abs(actual_arr) + np.abs(predicted_arr) + 1e-10)) * 100)
+        smape = float(
+            np.mean(
+                2 * abs_errors / (np.abs(actual_arr) + np.abs(predicted_arr) + 1e-10)
+            )
+            * 100
+        )
 
         # Directional accuracy
         if len(actual_arr) > 1:
             actual_direction = np.sign(np.diff(actual_arr))
             predicted_direction = np.sign(np.diff(predicted_arr))
-            directional_accuracy = float(np.mean(actual_direction == predicted_direction) * 100)
+            directional_accuracy = float(
+                np.mean(actual_direction == predicted_direction) * 100
+            )
         else:
             directional_accuracy = None
 
         # Confidence interval coverage
         if confidence_intervals:
-            coverage = sum(
-                1 for a, (low, high) in zip(actual_arr, confidence_intervals)
-                if low <= a <= high
-            ) / n * 100
+            coverage = (
+                sum(
+                    1
+                    for a, (low, high) in zip(actual_arr, confidence_intervals)
+                    if low <= a <= high
+                )
+                / n
+                * 100
+            )
         else:
             coverage = None
 
         # Theil's U statistic
         naive_errors = np.abs(np.diff(actual_arr))
         if len(naive_errors) > 0 and np.mean(naive_errors) > 0:
-            theil_u = rmse / np.sqrt(np.mean(naive_errors ** 2))
+            theil_u = rmse / np.sqrt(np.mean(naive_errors**2))
         else:
             theil_u = None
 
@@ -607,29 +630,32 @@ class TemporalAnalyzer:
                 "smape": smape,
                 "theil_u": theil_u,
                 "directional_accuracy": directional_accuracy,
-                "confidence_coverage": coverage
+                "confidence_coverage": coverage,
             },
             "interpretation": {
-                "rmse_vs_std": rmse / np.std(actual_arr) if np.std(actual_arr) > 0 else None,
+                "rmse_vs_std": rmse / np.std(actual_arr)
+                if np.std(actual_arr) > 0
+                else None,
                 "forecast_quality": (
-                    "Excellent" if mape < 10
-                    else "Good" if mape < 20
-                    else "Acceptable" if mape < 30
+                    "Excellent"
+                    if mape < 10
+                    else "Good"
+                    if mape < 20
+                    else "Acceptable"
+                    if mape < 30
                     else "Poor"
-                )
+                ),
             },
             "residuals": {
                 "mean": float(np.mean(errors)),
                 "std": float(np.std(errors)),
                 "min": float(np.min(errors)),
-                "max": float(np.max(errors))
-            }
+                "max": float(np.max(errors)),
+            },
         }
 
     def calculate_autocorrelation(
-        self,
-        timeseries: TimeSeries,
-        max_lag: int = 40
+        self, timeseries: TimeSeries, max_lag: int = 40
     ) -> Dict[str, Any]:
         """
         Calculate autocorrelation function.
@@ -661,7 +687,7 @@ class TemporalAnalyzer:
         # Detect periodicity from ACF peaks
         peaks = []
         for i in range(1, len(acf_values) - 1):
-            if acf_values[i] > acf_values[i-1] and acf_values[i] > acf_values[i+1]:
+            if acf_values[i] > acf_values[i - 1] and acf_values[i] > acf_values[i + 1]:
                 if acf_values[i] > conf_bound:
                     peaks.append({"lag": i, "acf": float(acf_values[i])})
 
@@ -673,18 +699,19 @@ class TemporalAnalyzer:
             "detected_periods": peaks[:5] if peaks else [],
             "summary": {
                 "first_significant_lag": next(
-                    (l["lag"] for l in significant_lags if l["significant"]),
-                    None
+                    (l["lag"] for l in significant_lags if l["significant"]), None
                 ),
-                "number_significant": sum(1 for l in significant_lags if l["significant"])
-            }
+                "number_significant": sum(
+                    1 for l in significant_lags if l["significant"]
+                ),
+            },
         }
 
     def calculate_rolling_statistics(
         self,
         timeseries: TimeSeries,
         window: int = 10,
-        statistics: Optional[List[str]] = None
+        statistics: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """
         Calculate rolling statistics over a time series.
@@ -692,7 +719,7 @@ class TemporalAnalyzer:
         Args:
             timeseries: TimeSeries object
             window: Rolling window size
-            statistics: List of statistics to calculate 
+            statistics: List of statistics to calculate
                        ('mean', 'std', 'min', 'max', 'var', 'sum', 'median')
                        If None, calculates all.
 
@@ -701,56 +728,56 @@ class TemporalAnalyzer:
         """
         data = timeseries.to_dataframe()
         values = data.iloc[:, 0]
-        
+
         available_stats = {
-            'mean': lambda s: s.rolling(window=window).mean(),
-            'std': lambda s: s.rolling(window=window).std(),
-            'var': lambda s: s.rolling(window=window).var(),
-            'min': lambda s: s.rolling(window=window).min(),
-            'max': lambda s: s.rolling(window=window).max(),
-            'sum': lambda s: s.rolling(window=window).sum(),
-            'median': lambda s: s.rolling(window=window).median(),
+            "mean": lambda s: s.rolling(window=window).mean(),
+            "std": lambda s: s.rolling(window=window).std(),
+            "var": lambda s: s.rolling(window=window).var(),
+            "min": lambda s: s.rolling(window=window).min(),
+            "max": lambda s: s.rolling(window=window).max(),
+            "sum": lambda s: s.rolling(window=window).sum(),
+            "median": lambda s: s.rolling(window=window).median(),
         }
-        
+
         if statistics is None:
             statistics = list(available_stats.keys())
-        
+
         results = {}
         for stat_name in statistics:
             if stat_name in available_stats:
                 stat_values = available_stats[stat_name](values)
                 results[stat_name] = {
-                    'values': stat_values.dropna().tolist(),
-                    'latest': float(stat_values.iloc[-1]) if not pd.isna(stat_values.iloc[-1]) else None,
+                    "values": stat_values.dropna().tolist(),
+                    "latest": float(stat_values.iloc[-1])
+                    if not pd.isna(stat_values.iloc[-1])
+                    else None,
                 }
             else:
                 logger.warning(f"Unknown statistic: {stat_name}")
-        
+
         # Calculate Bollinger Bands if we have mean and std
-        if 'mean' in results and 'std' in results:
+        if "mean" in results and "std" in results:
             mean_vals = pd.Series(values).rolling(window=window).mean()
             std_vals = pd.Series(values).rolling(window=window).std()
-            results['bollinger_upper'] = {
-                'values': (mean_vals + 2 * std_vals).dropna().tolist(),
+            results["bollinger_upper"] = {
+                "values": (mean_vals + 2 * std_vals).dropna().tolist(),
             }
-            results['bollinger_lower'] = {
-                'values': (mean_vals - 2 * std_vals).dropna().tolist(),
+            results["bollinger_lower"] = {
+                "values": (mean_vals - 2 * std_vals).dropna().tolist(),
             }
-        
+
         return {
-            'window': window,
-            'series_length': len(values),
-            'statistics': results,
-            'summary': {
-                'statistics_calculated': list(results.keys()),
-                'valid_observations': len(values) - window + 1
-            }
+            "window": window,
+            "series_length": len(values),
+            "statistics": results,
+            "summary": {
+                "statistics_calculated": list(results.keys()),
+                "valid_observations": len(values) - window + 1,
+            },
         }
 
     def detect_periodicity(
-        self,
-        timeseries: TimeSeries,
-        max_period: int = 60
+        self, timeseries: TimeSeries, max_period: int = 60
     ) -> Dict[str, Any]:
         """
         Detect periodicity in time series using FFT-based spectral analysis.
@@ -765,64 +792,68 @@ class TemporalAnalyzer:
         data = timeseries.to_dataframe()
         values = data.iloc[:, 0].dropna().values
         n = len(values)
-        
+
         if n < 4:
             return {
-                'error': 'Time series too short for periodicity detection',
-                'minimum_length': 4,
-                'actual_length': n
+                "error": "Time series too short for periodicity detection",
+                "minimum_length": 4,
+                "actual_length": n,
             }
-        
+
         # Detrend the data
         detrended = values - np.mean(values)
-        
+
         # FFT
         fft_values = np.fft.rfft(detrended)
         power_spectrum = np.abs(fft_values) ** 2
-        
+
         # Get frequencies
         freqs = np.fft.rfftfreq(n)
-        
+
         # Convert to periods (exclude DC component)
         periods = []
         for i in range(1, len(freqs)):
             if freqs[i] > 0:
                 period = 1 / freqs[i]
                 if period <= max_period:
-                    periods.append({
-                        'period': float(period),
-                        'power': float(power_spectrum[i]),
-                        'frequency': float(freqs[i])
-                    })
-        
+                    periods.append(
+                        {
+                            "period": float(period),
+                            "power": float(power_spectrum[i]),
+                            "frequency": float(freqs[i]),
+                        }
+                    )
+
         # Sort by power
-        periods.sort(key=lambda x: x['power'], reverse=True)
+        periods.sort(key=lambda x: x["power"], reverse=True)
         top_periods = periods[:5]
-        
+
         # Determine dominant period
         if top_periods:
             dominant = top_periods[0]
             # Calculate periodicity strength
-            total_power = sum(p['power'] for p in periods)
-            dominant_strength = dominant['power'] / total_power if total_power > 0 else 0
+            total_power = sum(p["power"] for p in periods)
+            dominant_strength = (
+                dominant["power"] / total_power if total_power > 0 else 0
+            )
         else:
             dominant = None
             dominant_strength = 0
-        
+
         return {
-            'series_length': n,
-            'max_period_searched': max_period,
-            'dominant_period': {
-                'period': dominant['period'] if dominant else None,
-                'strength': float(dominant_strength),
-                'interpretation': (
+            "series_length": n,
+            "max_period_searched": max_period,
+            "dominant_period": {
+                "period": dominant["period"] if dominant else None,
+                "strength": float(dominant_strength),
+                "interpretation": (
                     f"Strong periodicity at {dominant['period']:.1f} periods"
                     if dominant_strength > 0.3 and dominant
                     else "No strong periodicity detected"
-                )
+                ),
             },
-            'top_periods': top_periods,
-            'spectral_entropy': float(self._spectral_entropy(power_spectrum))
+            "top_periods": top_periods,
+            "spectral_entropy": float(self._spectral_entropy(power_spectrum)),
         }
 
     def _spectral_entropy(self, power_spectrum: np.ndarray) -> float:
@@ -837,14 +868,11 @@ class TemporalAnalyzer:
         return float(-np.sum(probs * np.log2(probs)))
 
     def calculate_granger_causality(
-        self,
-        timeseries1: TimeSeries,
-        timeseries2: TimeSeries,
-        max_lag: int = 5
+        self, timeseries1: TimeSeries, timeseries2: TimeSeries, max_lag: int = 5
     ) -> Dict[str, Any]:
         """
         Test for Granger causality between two time series.
-        
+
         Tests whether timeseries1 Granger-causes timeseries2 and vice versa.
 
         Args:
@@ -856,107 +884,103 @@ class TemporalAnalyzer:
             Dictionary with Granger causality test results
         """
         from scipy import stats
-        
+
         data1 = timeseries1.to_dataframe().iloc[:, 0].dropna().values
         data2 = timeseries2.to_dataframe().iloc[:, 0].dropna().values
-        
+
         # Align lengths
         min_len = min(len(data1), len(data2))
         data1 = data1[:min_len]
         data2 = data2[:min_len]
-        
+
         tests: Dict[str, Any] = {}
-        results = {
-            'series_length': min_len,
-            'max_lag': max_lag,
-            'tests': tests
-        }
-        
+        results = {"series_length": min_len, "max_lag": max_lag, "tests": tests}
+
         def test_granger(y: np.ndarray, x: np.ndarray, lag: int) -> Dict[str, Any]:
             """Simple F-test for Granger causality."""
             if len(y) <= lag + 1:
-                return {'error': 'Insufficient data for lag'}
-            
+                return {"error": "Insufficient data for lag"}
+
             # Create lagged variables
             y_lagged = y[lag:]
-            y_lags = np.column_stack([y[lag-i-1:-i-1] for i in range(lag)])
-            x_lags = np.column_stack([x[lag-i-1:-i-1] for i in range(lag)])
-            
+            y_lags = np.column_stack([y[lag - i - 1 : -i - 1] for i in range(lag)])
+            x_lags = np.column_stack([x[lag - i - 1 : -i - 1] for i in range(lag)])
+
             # Restricted model (only y lags)
             try:
                 # Simple OLS
                 X_r = np.column_stack([np.ones(len(y_lagged)), y_lags])
                 beta_r = np.linalg.lstsq(X_r, y_lagged, rcond=None)[0]
                 residuals_r = y_lagged - X_r @ beta_r
-                rss_r = np.sum(residuals_r ** 2)
-                
+                rss_r = np.sum(residuals_r**2)
+
                 # Unrestricted model (y and x lags)
                 X_u = np.column_stack([np.ones(len(y_lagged)), y_lags, x_lags])
                 beta_u = np.linalg.lstsq(X_u, y_lagged, rcond=None)[0]
                 residuals_u = y_lagged - X_u @ beta_u
-                rss_u = np.sum(residuals_u ** 2)
-                
+                rss_u = np.sum(residuals_u**2)
+
                 # F-test
                 n = len(y_lagged)
                 k_u = 2 * lag + 1
-                
+
                 if rss_u > 0:
                     f_stat = ((rss_r - rss_u) / lag) / (rss_u / (n - k_u))
                     p_value = 1 - stats.f.cdf(f_stat, lag, n - k_u)
                 else:
-                    f_stat = float('inf')
+                    f_stat = float("inf")
                     p_value = 0.0
-                
+
                 return {
-                    'f_statistic': float(f_stat),
-                    'p_value': float(p_value),
-                    'significant': p_value < 0.05,
-                    'lag': lag
+                    "f_statistic": float(f_stat),
+                    "p_value": float(p_value),
+                    "significant": p_value < 0.05,
+                    "lag": lag,
                 }
             except Exception as e:
-                return {'error': str(e)}
-        
+                return {"error": str(e)}
+
         # Test if series1 Granger-causes series2
         for lag in range(1, max_lag + 1):
-            key = f'series1_causes_series2_lag{lag}'
+            key = f"series1_causes_series2_lag{lag}"
             tests[key] = test_granger(data2, data1, lag)
-        
+
         # Test if series2 Granger-causes series1
         for lag in range(1, max_lag + 1):
-            key = f'series2_causes_series1_lag{lag}'
+            key = f"series2_causes_series1_lag{lag}"
             tests[key] = test_granger(data1, data2, lag)
-        
+
         # Summarize
         s1_causes_s2 = any(
-            isinstance(v, dict) and v.get('significant', False) 
-            for k, v in tests.items() 
-            if 'series1_causes_series2' in k
+            isinstance(v, dict) and v.get("significant", False)
+            for k, v in tests.items()
+            if "series1_causes_series2" in k
         )
         s2_causes_s1 = any(
-            isinstance(v, dict) and v.get('significant', False) 
-            for k, v in tests.items() 
-            if 'series2_causes_series1' in k
+            isinstance(v, dict) and v.get("significant", False)
+            for k, v in tests.items()
+            if "series2_causes_series1" in k
         )
-        
-        results['summary'] = {
-            'series1_granger_causes_series2': s1_causes_s2,
-            'series2_granger_causes_series1': s2_causes_s1,
-            'bidirectional_causality': s1_causes_s2 and s2_causes_s1,
-            'interpretation': (
-                "Bidirectional causality detected" if s1_causes_s2 and s2_causes_s1
-                else "Series 1 Granger-causes Series 2" if s1_causes_s2
-                else "Series 2 Granger-causes Series 1" if s2_causes_s1
+
+        results["summary"] = {
+            "series1_granger_causes_series2": s1_causes_s2,
+            "series2_granger_causes_series1": s2_causes_s1,
+            "bidirectional_causality": s1_causes_s2 and s2_causes_s1,
+            "interpretation": (
+                "Bidirectional causality detected"
+                if s1_causes_s2 and s2_causes_s1
+                else "Series 1 Granger-causes Series 2"
+                if s1_causes_s2
+                else "Series 2 Granger-causes Series 1"
+                if s2_causes_s1
                 else "No significant Granger causality detected"
-            )
+            ),
         }
-        
+
         return results
 
     def compute_temporal_entropy(
-        self,
-        timeseries: TimeSeries,
-        bins: int = 10,
-        method: str = "shannon"
+        self, timeseries: TimeSeries, bins: int = 10, method: str = "shannon"
     ) -> Dict[str, Any]:
         """
         Compute entropy measures for a time series.
@@ -972,12 +996,12 @@ class TemporalAnalyzer:
         data = timeseries.to_dataframe()
         values = data.iloc[:, 0].dropna().values
         n = len(values)
-        
+
         results = {
-            'series_length': n,
-            'method': method,
+            "series_length": n,
+            "method": method,
         }
-        
+
         # Shannon entropy (histogram-based)
         hist, _ = np.histogram(values, bins=bins, density=True)
         hist = hist[hist > 0]  # Remove zeros
@@ -987,77 +1011,84 @@ class TemporalAnalyzer:
             shannon_entropy = -np.sum(probs * np.log2(probs))
         else:
             shannon_entropy = 0.0
-        
-        results['shannon_entropy'] = {
-            'value': float(shannon_entropy),
-            'bins': bins,
-            'normalized': float(shannon_entropy / np.log2(bins)) if bins > 1 else 0.0
+
+        results["shannon_entropy"] = {
+            "value": float(shannon_entropy),
+            "bins": bins,
+            "normalized": float(shannon_entropy / np.log2(bins)) if bins > 1 else 0.0,
         }
-        
+
         # Sample entropy (approximation)
-        if method in ('sample', 'approximate') and n > 10:
+        if method in ("sample", "approximate") and n > 10:
             m = 2  # Embedding dimension
             r = 0.2 * np.std(values)  # Tolerance
-            
+
             def count_matches(template_length: int) -> int:
                 count = 0
                 templates = []
                 for i in range(n - template_length):
-                    templates.append(values[i:i + template_length])
-                
+                    templates.append(values[i : i + template_length])
+
                 for i, t1 in enumerate(templates):
-                    for t2 in templates[i+1:]:
+                    for t2 in templates[i + 1 :]:
                         if np.max(np.abs(t1 - t2)) < r:
                             count += 1
                 return count
-            
+
             try:
                 b_m = count_matches(m)
                 a_m = count_matches(m + 1)
-                
+
                 if b_m > 0 and a_m > 0:
                     sample_entropy = -np.log(a_m / b_m)
                 else:
                     sample_entropy = None
-                    
-                results['sample_entropy'] = {
-                    'value': float(sample_entropy) if sample_entropy else None,
-                    'embedding_dim': m,
-                    'tolerance': float(r)
+
+                results["sample_entropy"] = {
+                    "value": float(sample_entropy) if sample_entropy else None,
+                    "embedding_dim": m,
+                    "tolerance": float(r),
                 }
             except Exception as e:
-                results['sample_entropy'] = {'error': str(e)}
-        
-        # Approximate entropy
-        if method == 'approximate' and n > 10:
-            # Use sample entropy result for approximation
-            sample_ent = results.get('sample_entropy')
-            if isinstance(sample_ent, dict) and sample_ent.get('value'):
-                results['approximate_entropy'] = {
-                    'value': sample_ent['value'],
-                    'note': 'Approximated using sample entropy'
-                }
-        
-        # Interpretation
-        shannon_ent = results['shannon_entropy']
-        norm_entropy = shannon_ent['normalized'] if isinstance(shannon_ent, dict) else 0.0
-        results['interpretation'] = {
-            'complexity': (
-                'High' if norm_entropy > 0.8
-                else 'Medium' if norm_entropy > 0.5
-                else 'Low'
-            ),
-            'predictability': (
-                'Low' if norm_entropy > 0.8
-                else 'Medium' if norm_entropy > 0.5
-                else 'High'
-            ),
-            'description': (
-                'Series appears random/complex' if norm_entropy > 0.8
-                else 'Series has moderate regularity' if norm_entropy > 0.5
-                else 'Series has high regularity/predictability'
-            )
-        }
-        
-        return results
+                results["sample_entropy"] = {"error": str(e)}
 
+        # Approximate entropy
+        if method == "approximate" and n > 10:
+            # Use sample entropy result for approximation
+            sample_ent = results.get("sample_entropy")
+            if isinstance(sample_ent, dict) and sample_ent.get("value"):
+                results["approximate_entropy"] = {
+                    "value": sample_ent["value"],
+                    "note": "Approximated using sample entropy",
+                }
+
+        # Interpretation
+        shannon_ent = results["shannon_entropy"]
+        norm_entropy = (
+            shannon_ent["normalized"] if isinstance(shannon_ent, dict) else 0.0
+        )
+        results["interpretation"] = {
+            "complexity": (
+                "High"
+                if norm_entropy > 0.8
+                else "Medium"
+                if norm_entropy > 0.5
+                else "Low"
+            ),
+            "predictability": (
+                "Low"
+                if norm_entropy > 0.8
+                else "Medium"
+                if norm_entropy > 0.5
+                else "High"
+            ),
+            "description": (
+                "Series appears random/complex"
+                if norm_entropy > 0.8
+                else "Series has moderate regularity"
+                if norm_entropy > 0.5
+                else "Series has high regularity/predictability"
+            ),
+        }
+
+        return results

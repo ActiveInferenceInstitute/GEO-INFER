@@ -9,6 +9,7 @@ from geo_infer_insurance.underwriting.core.policy_management import PolicyManage
 
 import numpy as np
 
+
 def global_stream_untouched(action: object) -> bool:
     """Return whether ``action`` left the numpy.random singleton alone."""
     np.random.seed(4242)

@@ -5,6 +5,7 @@ Place Analyzer Module
 This module provides comprehensive analysis capabilities for specific places,
 integrating spatial processing, data integration, and visualization.
 """
+
 import logging
 import json
 import pandas as pd

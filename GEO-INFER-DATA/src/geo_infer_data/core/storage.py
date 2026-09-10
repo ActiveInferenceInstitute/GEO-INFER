@@ -221,7 +221,9 @@ class PostgreSQLBackend:
 
         # Create spatial index if geospatial data
         if isinstance(df, gpd.GeoDataFrame) and df.crs:
-            self.spatial_indexer.create_spatial_index(table_name, self.connection_string)
+            self.spatial_indexer.create_spatial_index(
+                table_name, self.connection_string
+            )
 
     async def _retrieve_dataframe(
         self, data_id: str, query: Dict[str, Any]
@@ -815,8 +817,12 @@ class AdaptiveDataStorage:
             "minio": {
                 "type": "minio",
                 "endpoint": "localhost:9000",
-                "access_key": os.environ.get("GEO_INFER_MINIO_ACCESS_KEY", "minioadmin"),
-                "secret_key": os.environ.get("GEO_INFER_MINIO_SECRET_KEY", "minioadmin"),
+                "access_key": os.environ.get(
+                    "GEO_INFER_MINIO_ACCESS_KEY", "minioadmin"
+                ),
+                "secret_key": os.environ.get(
+                    "GEO_INFER_MINIO_SECRET_KEY", "minioadmin"
+                ),
                 "bucket": "geo-infer-data",
             },
             "redis": {"type": "redis", "host": "localhost", "port": 6379, "db": 0},
@@ -1096,7 +1102,9 @@ class AdaptiveDataStorage:
             results: Any = []
         elif len(filtered) == 1:
             results = filtered[0]
-        elif all(isinstance(result, (pd.DataFrame, gpd.GeoDataFrame)) for result in filtered):
+        elif all(
+            isinstance(result, (pd.DataFrame, gpd.GeoDataFrame)) for result in filtered
+        ):
             results = pd.concat(filtered, ignore_index=True)
         else:
             results = filtered

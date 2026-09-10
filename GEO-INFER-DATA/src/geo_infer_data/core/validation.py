@@ -30,7 +30,6 @@ from ..utils.validation import (
 )
 
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -165,7 +164,9 @@ class GeospatialValidator:
         status = (
             QualityStatus.PASS
             if score >= 0.8
-            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+            else QualityStatus.WARNING
+            if score >= 0.5
+            else QualityStatus.FAIL
         )
         return QualityCheck(score=score, status=status, issues=issues)
 
@@ -206,7 +207,9 @@ class GeospatialValidator:
         status = (
             QualityStatus.PASS
             if score >= 0.8
-            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+            else QualityStatus.WARNING
+            if score >= 0.5
+            else QualityStatus.FAIL
         )
         return QualityCheck(score=score, status=status, issues=issues)
 
@@ -255,7 +258,9 @@ class GeospatialValidator:
         status = (
             QualityStatus.PASS
             if score >= 0.8
-            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+            else QualityStatus.WARNING
+            if score >= 0.5
+            else QualityStatus.FAIL
         )
         return QualityCheck(score=score, status=status, issues=issues)
 
@@ -398,7 +403,9 @@ class GeospatialValidator:
         status = (
             QualityStatus.PASS
             if score >= 0.8
-            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+            else QualityStatus.WARNING
+            if score >= 0.5
+            else QualityStatus.FAIL
         )
 
         return QualityCheck(score=max(0.0, score), status=status, issues=issues)
@@ -465,7 +472,9 @@ class GeospatialValidator:
         status = (
             QualityStatus.PASS
             if score >= 0.8
-            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+            else QualityStatus.WARNING
+            if score >= 0.5
+            else QualityStatus.FAIL
         )
 
         return QualityCheck(score=max(0.0, score), status=status, issues=issues)
@@ -528,7 +537,9 @@ class GeospatialValidator:
         status = (
             QualityStatus.PASS
             if score >= 0.8
-            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+            else QualityStatus.WARNING
+            if score >= 0.5
+            else QualityStatus.FAIL
         )
 
         return QualityCheck(score=max(0.0, score), status=status, issues=issues)
@@ -598,7 +609,9 @@ class GeospatialValidator:
         status = (
             QualityStatus.PASS
             if score >= 0.8
-            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+            else QualityStatus.WARNING
+            if score >= 0.5
+            else QualityStatus.FAIL
         )
 
         return QualityCheck(score=max(0.0, score), status=status, issues=issues)
@@ -670,7 +683,9 @@ class GeospatialValidator:
         status = (
             QualityStatus.PASS
             if score >= 0.8
-            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+            else QualityStatus.WARNING
+            if score >= 0.5
+            else QualityStatus.FAIL
         )
 
         return QualityCheck(score=max(0.0, score), status=status, issues=issues)
@@ -791,7 +806,9 @@ class GeospatialValidator:
         status = (
             QualityStatus.PASS
             if score >= 0.8
-            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+            else QualityStatus.WARNING
+            if score >= 0.5
+            else QualityStatus.FAIL
         )
 
         return QualityCheck(score=max(0.0, score), status=status, issues=issues)
@@ -823,7 +840,9 @@ class GeospatialValidator:
         status = (
             QualityStatus.PASS
             if score >= 0.8
-            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+            else QualityStatus.WARNING
+            if score >= 0.5
+            else QualityStatus.FAIL
         )
 
         return QualityCheck(score=max(0.0, score), status=status, issues=issues)
@@ -841,7 +860,9 @@ class GeospatialValidator:
         status = (
             QualityStatus.PASS
             if score >= 0.8
-            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+            else QualityStatus.WARNING
+            if score >= 0.5
+            else QualityStatus.FAIL
         )
 
         return QualityCheck(score=max(0.0, score), status=status, issues=issues)

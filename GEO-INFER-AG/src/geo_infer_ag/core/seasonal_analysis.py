@@ -401,7 +401,10 @@ class SeasonalAnalysis:
                 detrended = resampled.copy()
 
         # Calculate statistics
-        trend_data_out: Dict[str, Any] = {"original": resampled, "moving_avg": moving_avg}
+        trend_data_out: Dict[str, Any] = {
+            "original": resampled,
+            "moving_avg": moving_avg,
+        }
         trend_results: Dict[str, Any] = {
             "variable": variable,
             "period": period,
@@ -582,7 +585,7 @@ class SeasonalAnalysis:
             ax.text(
                 start,
                 time_series.max() * 0.8,
-                f"S{i+1}",
+                f"S{i + 1}",
                 bbox=dict(facecolor="white", alpha=0.7),
             )
 

@@ -275,7 +275,6 @@ class ActiveInferenceDiseaseAnalyzer(DiseaseHotspotAnalyzer):
 
         with PerformanceLogger("active_inference_analysis", log_threshold=1.0):
             try:
-
                 # Filter reports by time window if specified
                 analysis_reports = self.reports
                 if time_window_days and self.reports:

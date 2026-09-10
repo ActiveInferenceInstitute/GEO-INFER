@@ -132,7 +132,10 @@ class EnhancedExposureModel:
         self._initialize_exposure_data()
 
         # Initialize spatial indexing if available
-        if getattr(self, "spatial_interface", None) is not None and getattr(self, "exposure_data", None) is not None:
+        if (
+            getattr(self, "spatial_interface", None) is not None
+            and getattr(self, "exposure_data", None) is not None
+        ):
             self._initialize_spatial_indexing()
 
         # Initialize temporal profiles if time variation is enabled
@@ -585,7 +588,11 @@ class EnhancedExposureModel:
             )
 
     def _get_exposure_h3(
-        self, latitude: float, longitude: float, radius: float, time_scenario: Optional[str] = None
+        self,
+        latitude: float,
+        longitude: float,
+        radius: float,
+        time_scenario: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Get exposure using H3 spatial indexing."""
         assert self.spatial_interface is not None
@@ -607,7 +614,11 @@ class EnhancedExposureModel:
         return self._calculate_exposure_summary(filtered_data, time_scenario)
 
     def _get_exposure_kdtree(
-        self, latitude: float, longitude: float, radius: float, time_scenario: Optional[str] = None
+        self,
+        latitude: float,
+        longitude: float,
+        radius: float,
+        time_scenario: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Get exposure using KDTree spatial indexing."""
         assert self.spatial_tree is not None
@@ -626,7 +637,11 @@ class EnhancedExposureModel:
         return self._calculate_exposure_summary(filtered_data, time_scenario)
 
     def _get_exposure_brute_force(
-        self, latitude: float, longitude: float, radius: float, time_scenario: Optional[str] = None
+        self,
+        latitude: float,
+        longitude: float,
+        radius: float,
+        time_scenario: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Get exposure using brute force calculation."""
         assert self.exposure_data is not None
@@ -846,7 +861,6 @@ class EnhancedExposureModel:
         if bounds.get("min_lon", 0) <= longitude <= bounds.get(
             "max_lon", 0
         ) and bounds.get("min_lat", 0) <= latitude <= bounds.get("max_lat", 0):
-
             # Enhanced grid-based intensity calculation
             intensity_values = footprint.get("intensity_values", [[0]])
             # Calculate grid indices with higher precision
@@ -941,7 +955,9 @@ class EnhancedExposureModel:
         return float(base_value)
 
     def calculate_total_exposure(
-        self, bounds: Optional[Dict[str, float]] = None, time_scenario: Optional[str] = None
+        self,
+        bounds: Optional[Dict[str, float]] = None,
+        time_scenario: Optional[str] = None,
     ) -> Dict[str, Any]:
         assert self.exposure_data is not None
         """
@@ -1186,9 +1202,9 @@ class EnhancedPopulationExposureModel(EnhancedExposureModel):
             # Elderly populations may have different movement patterns
             elderly_mask = self.exposure_data["median_age"] > 65
             self.temporal_profiles["elderly_day"] = self.temporal_profiles["day"].copy()
-            self.temporal_profiles["elderly_day"][
-                elderly_mask
-            ] *= 1.2  # More elderly at home during day
+            self.temporal_profiles["elderly_day"][elderly_mask] *= (
+                1.2  # More elderly at home during day
+            )
 
     def _calculate_derived_properties(self) -> None:
         """Calculate population-specific derived properties."""

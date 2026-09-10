@@ -24,15 +24,17 @@ import numpy as np
 
 from geo_infer_data.core.pipeline import IntelligentETLPipeline
 from geo_infer_data.models.schemas import (
-    DataSource, DataDestination, Transformation,
-    ETLPipeline, ExecutionStatus
+    DataSource,
+    DataDestination,
+    Transformation,
+    ETLPipeline,
+    ExecutionStatus,
 )
 
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -43,30 +45,32 @@ def create_raw_environmental_data():
 
     # Create raw sensor data with some issues
     data = {
-        'sensor_id': np.random.choice(['sensor_001', 'sensor_002', 'sensor_003', 'sensor_004'], n_records),
-        'timestamp': pd.date_range('2023-01-01', periods=n_records, freq='30min'),
-        'raw_temperature': np.random.normal(20, 15, n_records),  # Some outliers
-        'raw_humidity': np.random.normal(60, 25, n_records),      # Some outliers
-        'raw_pressure': np.random.normal(1013, 50, n_records),    # Some outliers
-        'latitude': np.random.normal(37.7749, 0.1, n_records),
-        'longitude': np.random.normal(-122.4194, 0.1, n_records),
-        'battery_level': np.random.normal(85, 10, n_records)
+        "sensor_id": np.random.choice(
+            ["sensor_001", "sensor_002", "sensor_003", "sensor_004"], n_records
+        ),
+        "timestamp": pd.date_range("2023-01-01", periods=n_records, freq="30min"),
+        "raw_temperature": np.random.normal(20, 15, n_records),  # Some outliers
+        "raw_humidity": np.random.normal(60, 25, n_records),  # Some outliers
+        "raw_pressure": np.random.normal(1013, 50, n_records),  # Some outliers
+        "latitude": np.random.normal(37.7749, 0.1, n_records),
+        "longitude": np.random.normal(-122.4194, 0.1, n_records),
+        "battery_level": np.random.normal(85, 10, n_records),
     }
 
     # Introduce some data quality issues
     # Missing values
-    missing_indices = np.random.choice(n_records, size=n_records//10, replace=False)
-    for col in ['raw_temperature', 'raw_humidity', 'raw_pressure']:
+    missing_indices = np.random.choice(n_records, size=n_records // 10, replace=False)
+    for col in ["raw_temperature", "raw_humidity", "raw_pressure"]:
         data[col].iloc[missing_indices] = None
 
     # Invalid coordinates
-    invalid_indices = np.random.choice(n_records, size=n_records//20, replace=False)
-    data['latitude'].iloc[invalid_indices] = np.random.choice([100, -100])
-    data['longitude'].iloc[invalid_indices] = np.random.choice([200, -200])
+    invalid_indices = np.random.choice(n_records, size=n_records // 20, replace=False)
+    data["latitude"].iloc[invalid_indices] = np.random.choice([100, -100])
+    data["longitude"].iloc[invalid_indices] = np.random.choice([200, -200])
 
     # Unrealistic values
-    outlier_indices = np.random.choice(n_records, size=n_records//15, replace=False)
-    data['raw_temperature'].iloc[outlier_indices] = np.random.choice([100, -50])
+    outlier_indices = np.random.choice(n_records, size=n_records // 15, replace=False)
+    data["raw_temperature"].iloc[outlier_indices] = np.random.choice([100, -50])
 
     return pd.DataFrame(data)
 
@@ -91,10 +95,10 @@ async def main():
 
     pipeline = IntelligentETLPipeline(
         workflow_config=None,  # Will create programmatically
-        dependency_resolution='automatic',
-        error_recovery='intelligent_retry',
+        dependency_resolution="automatic",
+        error_recovery="intelligent_retry",
         monitoring_enabled=True,
-        parallel_execution=True
+        parallel_execution=True,
     )
 
     logger.info("ETL pipeline initialized")
@@ -104,97 +108,93 @@ async def main():
 
     # Data source
     source = DataSource(
-        type='file',
+        type="file",
         configuration={
-            'file_path': str(output_dir / "raw_environmental_data.csv"),
-            'format': 'csv',
-            'encoding': 'utf-8'
-        }
+            "file_path": str(output_dir / "raw_environmental_data.csv"),
+            "format": "csv",
+            "encoding": "utf-8",
+        },
     )
 
     # Data destination
     destination = DataDestination(
-        type='file',
+        type="file",
         configuration={
-            'output_path': str(output_dir / "processed_environmental_data.geojson"),
-            'format': 'geojson'
-        }
+            "output_path": str(output_dir / "processed_environmental_data.geojson"),
+            "format": "geojson",
+        },
     )
 
     # Transformation pipeline
     transformations = [
         Transformation(
-            type='filter',
+            type="filter",
             parameters={
-                'conditions': {
-                    'raw_temperature': {'min': -50, 'max': 100},
-                    'raw_humidity': {'min': 0, 'max': 100},
-                    'raw_pressure': {'min': 900, 'max': 1100}
+                "conditions": {
+                    "raw_temperature": {"min": -50, "max": 100},
+                    "raw_humidity": {"min": 0, "max": 100},
+                    "raw_pressure": {"min": 900, "max": 1100},
                 }
             },
             order=1,
-            enabled=True
+            enabled=True,
         ),
         Transformation(
-            type='clean',
+            type="clean",
             parameters={
-                'remove_nulls': True,
-                'fill_method': 'interpolate',
-                'outlier_method': 'iqr'
+                "remove_nulls": True,
+                "fill_method": "interpolate",
+                "outlier_method": "iqr",
             },
             order=2,
-            enabled=True
+            enabled=True,
         ),
         Transformation(
-            type='transform',
+            type="transform",
             parameters={
-                'transformations': {
-                    'temperature': {
-                        'type': 'scale',
-                        'factor': 1.0  # Convert to Celsius if needed
+                "transformations": {
+                    "temperature": {
+                        "type": "scale",
+                        "factor": 1.0,  # Convert to Celsius if needed
                     },
-                    'humidity': {
-                        'type': 'normalize',
-                        'min': 0,
-                        'max': 100
-                    }
+                    "humidity": {"type": "normalize", "min": 0, "max": 100},
                 }
             },
             order=3,
-            enabled=True
+            enabled=True,
         ),
         Transformation(
-            type='validate',
+            type="validate",
             parameters={
-                'rules': ['coordinate_validity', 'range_checks', 'completeness']
+                "rules": ["coordinate_validity", "range_checks", "completeness"]
             },
             order=4,
-            enabled=True
+            enabled=True,
         ),
         Transformation(
-            type='spatial_join',
+            type="spatial_join",
             parameters={
-                'join_type': 'nearest',
-                'max_distance': 0.01,
-                'target_layer': 'sf_neighborhoods'  # Would be actual neighborhood data
+                "join_type": "nearest",
+                "max_distance": 0.01,
+                "target_layer": "sf_neighborhoods",  # Would be actual neighborhood data
             },
             order=5,
-            enabled=True
+            enabled=True,
         ),
         Transformation(
-            type='temporal_aggregate',
+            type="temporal_aggregate",
             parameters={
-                'time_column': 'timestamp',
-                'frequency': '1H',
-                'aggregation': {
-                    'temperature': 'mean',
-                    'humidity': 'mean',
-                    'pressure': 'mean'
-                }
+                "time_column": "timestamp",
+                "frequency": "1H",
+                "aggregation": {
+                    "temperature": "mean",
+                    "humidity": "mean",
+                    "pressure": "mean",
+                },
             },
             order=6,
-            enabled=True
-        )
+            enabled=True,
+        ),
     ]
 
     # Create pipeline
@@ -204,7 +204,7 @@ async def main():
         source=source,
         destination=destination,
         transformations=transformations,
-        status='active'
+        status="active",
     )
 
     pipeline.pipeline = etl_pipeline
@@ -219,7 +219,7 @@ async def main():
         execution_result = await pipeline.execute_workflow(
             source_data=raw_data,
             target_storage=destination,
-            transformation_rules=None  # Use pipeline configuration
+            transformation_rules=None,  # Use pipeline configuration
         )
 
         logger.info("ETL workflow completed successfully")
@@ -241,33 +241,38 @@ async def main():
         if bottlenecks:
             logger.info("Identified Bottlenecks:")
             for bottleneck in bottlenecks:
-                logger.info(f"  - {bottleneck['type']}: {bottleneck.get('operation', 'system')} ({bottleneck.get('severity', 'unknown')})")
+                logger.info(
+                    f"  - {bottleneck['type']}: {bottleneck.get('operation', 'system')} ({bottleneck.get('severity', 'unknown')})"
+                )
         else:
             logger.info("No significant bottlenecks identified")
 
         # Save processed data
-        if 'load_result' in execution_result:
+        if "load_result" in execution_result:
             logger.info(f"Data saved to: {execution_result['load_result']}")
 
         # Save pipeline results
         pipeline_results = {
-            'execution_result': execution_result,
-            'performance_metrics': performance_metrics,
-            'bottlenecks': bottlenecks,
-            'pipeline_config': {
-                'name': etl_pipeline.name,
-                'transformations_count': len(transformations),
-                'source_type': source.type,
-                'destination_type': destination.type
+            "execution_result": execution_result,
+            "performance_metrics": performance_metrics,
+            "bottlenecks": bottlenecks,
+            "pipeline_config": {
+                "name": etl_pipeline.name,
+                "transformations_count": len(transformations),
+                "source_type": source.type,
+                "destination_type": destination.type,
             },
-            'timestamp': datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
-        with open(output_dir / "etl_pipeline_results.json", 'w') as f:
+        with open(output_dir / "etl_pipeline_results.json", "w") as f:
             import json
+
             json.dump(pipeline_results, f, indent=2, default=str)
 
-        logger.info(f"Pipeline results saved to {output_dir / 'etl_pipeline_results.json'}")
+        logger.info(
+            f"Pipeline results saved to {output_dir / 'etl_pipeline_results.json'}"
+        )
 
     except Exception as e:
         logger.error(f"ETL pipeline execution failed: {e}")
@@ -275,7 +280,7 @@ async def main():
         # Handle error based on recovery strategy
         logger.info(f"Error recovery strategy: {pipeline.error_recovery}")
 
-        if pipeline.error_recovery == 'intelligent_retry':
+        if pipeline.error_recovery == "intelligent_retry":
             logger.info("Attempting intelligent error recovery...")
             # In a real scenario, would attempt recovery
             logger.info("Recovery attempt completed")
@@ -293,8 +298,8 @@ async def main():
         logger.info(f"  {metric}: {value}")
 
     # Optimize pipeline based on performance
-    if 'execution_time_seconds' in current_metrics:
-        exec_time = current_metrics['execution_time_seconds']
+    if "execution_time_seconds" in current_metrics:
+        exec_time = current_metrics["execution_time_seconds"]
         if exec_time > 300:  # More than 5 minutes
             logger.info("Pipeline execution is slow, consider optimization:")
             logger.info("  - Enable parallel processing")
@@ -311,50 +316,50 @@ def demonstrate_pipeline_config():
     # Example pipeline configurations
     configurations = [
         {
-            'name': 'Real-time Data Pipeline',
-            'description': 'High-frequency data processing with minimal latency',
-            'config': {
-                'parallel_execution': True,
-                'error_recovery': 'fail_fast',
-                'monitoring_enabled': True,
-                'transformations': [
-                    {'type': 'validate', 'order': 1},
-                    {'type': 'clean', 'order': 2},
-                    {'type': 'transform', 'order': 3}
-                ]
-            }
+            "name": "Real-time Data Pipeline",
+            "description": "High-frequency data processing with minimal latency",
+            "config": {
+                "parallel_execution": True,
+                "error_recovery": "fail_fast",
+                "monitoring_enabled": True,
+                "transformations": [
+                    {"type": "validate", "order": 1},
+                    {"type": "clean", "order": 2},
+                    {"type": "transform", "order": 3},
+                ],
+            },
         },
         {
-            'name': 'Batch Processing Pipeline',
-            'description': 'Large-scale data processing with comprehensive validation',
-            'config': {
-                'parallel_execution': True,
-                'error_recovery': 'intelligent_retry',
-                'monitoring_enabled': True,
-                'transformations': [
-                    {'type': 'filter', 'order': 1},
-                    {'type': 'clean', 'order': 2},
-                    {'type': 'validate', 'order': 3},
-                    {'type': 'aggregate', 'order': 4},
-                    {'type': 'spatial_join', 'order': 5}
-                ]
-            }
+            "name": "Batch Processing Pipeline",
+            "description": "Large-scale data processing with comprehensive validation",
+            "config": {
+                "parallel_execution": True,
+                "error_recovery": "intelligent_retry",
+                "monitoring_enabled": True,
+                "transformations": [
+                    {"type": "filter", "order": 1},
+                    {"type": "clean", "order": 2},
+                    {"type": "validate", "order": 3},
+                    {"type": "aggregate", "order": 4},
+                    {"type": "spatial_join", "order": 5},
+                ],
+            },
         },
         {
-            'name': 'Quality Assurance Pipeline',
-            'description': 'Data validation and quality improvement',
-            'config': {
-                'parallel_execution': False,
-                'error_recovery': 'rollback',
-                'monitoring_enabled': True,
-                'transformations': [
-                    {'type': 'validate', 'order': 1},
-                    {'type': 'clean', 'order': 2},
-                    {'type': 'validate', 'order': 3},  # Re-validate after cleaning
-                    {'type': 'transform', 'order': 4}
-                ]
-            }
-        }
+            "name": "Quality Assurance Pipeline",
+            "description": "Data validation and quality improvement",
+            "config": {
+                "parallel_execution": False,
+                "error_recovery": "rollback",
+                "monitoring_enabled": True,
+                "transformations": [
+                    {"type": "validate", "order": 1},
+                    {"type": "clean", "order": 2},
+                    {"type": "validate", "order": 3},  # Re-validate after cleaning
+                    {"type": "transform", "order": 4},
+                ],
+            },
+        },
     ]
 
     for config in configurations:

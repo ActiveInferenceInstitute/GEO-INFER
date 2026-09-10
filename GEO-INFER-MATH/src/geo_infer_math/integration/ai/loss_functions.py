@@ -86,7 +86,7 @@ class SpatialLossFunctions:
             Dictionary with 'loss', 'base_loss', 'spatial_penalty'.
         """
         residuals = predictions - targets
-        base_mse = float(np.mean(residuals ** 2))
+        base_mse = float(np.mean(residuals**2))
 
         if coordinates is not None:
             coordinates = np.asarray(coordinates, dtype=np.float64)
@@ -94,13 +94,14 @@ class SpatialLossFunctions:
             n = len(predictions)
             distances = np.sqrt(
                 np.sum(
-                    (coordinates[:, np.newaxis, :] - coordinates[np.newaxis, :, :]) ** 2,
+                    (coordinates[:, np.newaxis, :] - coordinates[np.newaxis, :, :])
+                    ** 2,
                     axis=-1,
                 )
             )
             # Gaussian spatial weights
             bandwidth = np.median(distances[distances > 0]) if n > 1 else 1.0
-            weights = np.exp(-distances ** 2 / (2 * bandwidth ** 2))
+            weights = np.exp(-(distances**2) / (2 * bandwidth**2))
             np.fill_diagonal(weights, 0.0)
             weights = weights / (weights.sum(axis=1, keepdims=True) + self._epsilon)
 
@@ -114,7 +115,12 @@ class SpatialLossFunctions:
             spatial_penalty = 0.0
 
         loss = base_mse + spatial_penalty
-        logger.debug("Spatial MSE: loss=%.6f (base=%.6f, penalty=%.6f)", loss, base_mse, spatial_penalty)
+        logger.debug(
+            "Spatial MSE: loss=%.6f (base=%.6f, penalty=%.6f)",
+            loss,
+            base_mse,
+            spatial_penalty,
+        )
         return {"loss": loss, "base_loss": base_mse, "spatial_penalty": spatial_penalty}
 
     def geographically_weighted_loss(
@@ -139,7 +145,9 @@ class SpatialLossFunctions:
             Dictionary with 'loss', 'base_loss', 'spatial_penalty'.
         """
         if coordinates is None:
-            raise ValueError("Coordinates are required for geographically weighted loss.")
+            raise ValueError(
+                "Coordinates are required for geographically weighted loss."
+            )
 
         coordinates = np.asarray(coordinates, dtype=np.float64)
         residuals = predictions - targets
@@ -151,18 +159,22 @@ class SpatialLossFunctions:
             dists = np.sqrt(np.sum((coordinates - coordinates[i]) ** 2, axis=1))
             # Bisquare kernel
             u = dists / bandwidth
-            weights = np.where(u < 1.0, (1.0 - u ** 2) ** 2, 0.0)
+            weights = np.where(u < 1.0, (1.0 - u**2) ** 2, 0.0)
             weights[i] = 0.0  # Exclude self
             total_weight = weights.sum() + self._epsilon
             weights = weights / total_weight
 
-            losses[i] = float(np.sum(weights * residuals ** 2))
+            losses[i] = float(np.sum(weights * residuals**2))
 
         geo_loss = float(np.mean(losses))
-        base_loss = float(np.mean(residuals ** 2))
+        base_loss = float(np.mean(residuals**2))
 
         logger.debug("GW loss: %.6f (base MSE: %.6f)", geo_loss, base_loss)
-        return {"loss": geo_loss, "base_loss": base_loss, "spatial_penalty": geo_loss - base_loss}
+        return {
+            "loss": geo_loss,
+            "base_loss": base_loss,
+            "spatial_penalty": geo_loss - base_loss,
+        }
 
     def distance_penalized_loss(
         self,
@@ -186,7 +198,7 @@ class SpatialLossFunctions:
             Dictionary with 'loss', 'base_loss', 'spatial_penalty'.
         """
         residuals = predictions - targets
-        base_mse = float(np.mean(residuals ** 2))
+        base_mse = float(np.mean(residuals**2))
 
         if coordinates is not None:
             coordinates = np.asarray(coordinates, dtype=np.float64)
@@ -202,5 +214,14 @@ class SpatialLossFunctions:
             penalty = 0.0
 
         loss = base_mse + lambda_dist * penalty
-        logger.debug("Distance-penalized loss: %.6f (base=%.6f, penalty=%.6f)", loss, base_mse, penalty)
-        return {"loss": loss, "base_loss": base_mse, "spatial_penalty": lambda_dist * penalty}
+        logger.debug(
+            "Distance-penalized loss: %.6f (base=%.6f, penalty=%.6f)",
+            loss,
+            base_mse,
+            penalty,
+        )
+        return {
+            "loss": loss,
+            "base_loss": base_mse,
+            "spatial_penalty": lambda_dist * penalty,
+        }

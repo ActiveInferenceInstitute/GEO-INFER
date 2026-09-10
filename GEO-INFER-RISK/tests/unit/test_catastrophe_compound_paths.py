@@ -70,14 +70,10 @@ class TestJointExceedance:
         matrix = MultiHazardInteractionMatrix(["a", "b"])
         probabilities = {"a": 0.3, "b": 0.4}
         # Independent compound single path: p_a * p_b.
-        single = matrix.compound_exceedance_probability(
-            probabilities, ["a", "b"]
-        )
+        single = matrix.compound_exceedance_probability(probabilities, ["a", "b"])
         assert single == pytest.approx(0.12)
         # The same 2-hazard ordering via the union API is also a single path.
-        result = matrix.joint_exceedance_probability(
-            probabilities, [("b", "a")]
-        )
+        result = matrix.joint_exceedance_probability(probabilities, [("b", "a")])
         assert result == pytest.approx(0.12)
 
     def test_interactions_raise_the_union_probability(self) -> None:
@@ -150,9 +146,7 @@ class TestBranchEnumeration:
 
 
 class TestEngineDelegation:
-    def test_engine_exposes_the_compound_surface(
-        self, tmp_path: Path
-    ) -> None:
+    def test_engine_exposes_the_compound_surface(self, tmp_path: Path) -> None:
         config = load_config_with_defaults()
         config["general"]["output_directory"] = str(tmp_path / "outputs")
         config["general"]["cache_directory"] = str(tmp_path / "cache")
@@ -193,9 +187,7 @@ class TestManagerDelegation:
             hazards, np.array([[1.0, 0.6], [0.2, 1.0]]).tolist()
         )
         probabilities = {"a": 0.2, "b": 0.5}
-        path_prob = manager.branch_exceedance_probabilities(probabilities)[
-            ("a", "b")
-        ]
+        path_prob = manager.branch_exceedance_probabilities(probabilities)[("a", "b")]
         assert path_prob == pytest.approx(0.2 * (0.5 + 0.6 * 0.5))
         assert manager.joint_exceedance_probability(
             probabilities, [("a",), ("b",)]

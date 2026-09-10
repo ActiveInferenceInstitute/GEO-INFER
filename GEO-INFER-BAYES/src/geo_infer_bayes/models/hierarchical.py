@@ -329,14 +329,18 @@ class HierarchicalBayesianModel(BayesianModel):
         """
         interval_level = float(level)
         if not np.isfinite(interval_level) or not 0.0 < interval_level < 1.0:
-            raise ValueError("level must be a finite probability strictly between zero and one")
+            raise ValueError(
+                "level must be a finite probability strictly between zero and one"
+            )
         draws = self.posterior_predictive(
             posterior, X=X, samples=samples, random_seed=random_seed
         )
         tail = (1.0 - interval_level) / 2.0
         mean = np.asarray(np.mean(draws, axis=0), dtype=float)
         lower = np.asarray(np.percentile(draws, 100.0 * tail, axis=0), dtype=float)
-        upper = np.asarray(np.percentile(draws, 100.0 * (1.0 - tail), axis=0), dtype=float)
+        upper = np.asarray(
+            np.percentile(draws, 100.0 * (1.0 - tail), axis=0), dtype=float
+        )
         return mean, lower, upper
 
     def uncertainty_decomposition(

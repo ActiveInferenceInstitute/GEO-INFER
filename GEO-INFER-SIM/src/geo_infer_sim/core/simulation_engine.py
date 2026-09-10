@@ -80,9 +80,7 @@ class SimulationEngine:
 
         # Seeded RNG for stochastic step functions; deterministic-by-default
         # when config.random_seed is set.
-        self.rng: np.random.Generator = np.random.default_rng(
-            self.config.random_seed
-        )
+        self.rng: np.random.Generator = np.random.default_rng(self.config.random_seed)
 
     def initialize(self, initial_state: Dict[str, Any]) -> None:
         """
@@ -428,6 +426,8 @@ class SimulationEngine:
             "trend": (
                 "increasing"
                 if values[-1] > values[0]
-                else "decreasing" if values[-1] < values[0] else "stable"
+                else "decreasing"
+                if values[-1] < values[0]
+                else "stable"
             ),
         }

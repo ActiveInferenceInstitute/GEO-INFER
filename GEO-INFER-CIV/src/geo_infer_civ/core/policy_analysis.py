@@ -13,6 +13,7 @@ from enum import Enum
 
 class ImpactLevel(Enum):
     """Qualitative impact levels for stakeholder analysis."""
+
     VERY_NEGATIVE = -2
     NEGATIVE = -1
     NEUTRAL = 0
@@ -22,6 +23,7 @@ class ImpactLevel(Enum):
 
 class PolicyDomain(Enum):
     """Domains of policy action."""
+
     LAND_USE = "land_use"
     TRANSPORTATION = "transportation"
     HOUSING = "housing"
@@ -36,6 +38,7 @@ class PolicyDomain(Enum):
 @dataclass
 class CostBenefitItem:
     """A single cost or benefit item in the analysis."""
+
     name: str
     amount: float
     is_benefit: bool
@@ -48,6 +51,7 @@ class CostBenefitItem:
 @dataclass
 class StakeholderImpact:
     """Impact assessment for a single stakeholder group."""
+
     group_name: str
     population_size: int
     impact_level: ImpactLevel
@@ -60,6 +64,7 @@ class StakeholderImpact:
 @dataclass
 class CostBenefitResult:
     """Result of a cost-benefit analysis."""
+
     total_costs: float
     total_benefits: float
     net_present_value: float
@@ -73,6 +78,7 @@ class CostBenefitResult:
 @dataclass
 class EquityScore:
     """Result of equity analysis across demographics."""
+
     overall_equity_score: float
     gini_coefficient: float
     impact_distribution: Dict[str, float]
@@ -157,7 +163,9 @@ class CostBenefitAnalyzer:
             if cat not in categories:
                 categories[cat] = {"costs": 0.0, "benefits": 0.0}
             key = "benefits" if item.is_benefit else "costs"
-            discounted = item.amount / ((1 + self._discount_rate) ** item.time_horizon_years)
+            discounted = item.amount / (
+                (1 + self._discount_rate) ** item.time_horizon_years
+            )
             categories[cat][key] += discounted
 
         for cat in categories:
@@ -178,7 +186,9 @@ class CostBenefitAnalyzer:
         """Sum items with time-value discounting."""
         total = 0.0
         for item in items:
-            discounted = item.amount / ((1 + self._discount_rate) ** item.time_horizon_years)
+            discounted = item.amount / (
+                (1 + self._discount_rate) ** item.time_horizon_years
+            )
             total += discounted
         return total
 
@@ -186,7 +196,9 @@ class CostBenefitAnalyzer:
         """Sum items adjusted for probability of occurrence."""
         total = 0.0
         for item in items:
-            discounted = item.amount / ((1 + self._discount_rate) ** item.time_horizon_years)
+            discounted = item.amount / (
+                (1 + self._discount_rate) ** item.time_horizon_years
+            )
             total += discounted * item.probability
         return total
 
@@ -241,13 +253,17 @@ class CostBenefitAnalyzer:
 
         cumulative_net = 0.0
         for year in range(max_year + 1):
-            cumulative_net += benefits_by_year.get(year, 0.0) - costs_by_year.get(year, 0.0)
+            cumulative_net += benefits_by_year.get(year, 0.0) - costs_by_year.get(
+                year, 0.0
+            )
             if cumulative_net >= 0 and year > 0:
                 # Interpolate
                 prev_net = cumulative_net - (
                     benefits_by_year.get(year, 0.0) - costs_by_year.get(year, 0.0)
                 )
-                yearly_flow = benefits_by_year.get(year, 0.0) - costs_by_year.get(year, 0.0)
+                yearly_flow = benefits_by_year.get(year, 0.0) - costs_by_year.get(
+                    year, 0.0
+                )
                 if yearly_flow > 0:
                     fraction = -prev_net / yearly_flow
                     return year - 1 + fraction
@@ -306,7 +322,9 @@ class StakeholderImpactAnalyzer:
             scores = {
                 "overall_impact": impact.impact_level.value / 2.0,
                 "economic": self._normalize_impact(impact.economic_impact),
-                "quality_of_life": self._normalize_impact(impact.quality_of_life_impact),
+                "quality_of_life": self._normalize_impact(
+                    impact.quality_of_life_impact
+                ),
                 "environmental": self._normalize_impact(impact.environmental_impact),
                 "accessibility": self._normalize_impact(impact.accessibility_impact),
             }
@@ -413,7 +431,9 @@ class EquityAnalyzer:
             ValueError: If fewer than 2 groups are defined.
         """
         if len(self._group_impacts) < 2:
-            raise ValueError("At least 2 demographic groups required for equity analysis")
+            raise ValueError(
+                "At least 2 demographic groups required for equity analysis"
+            )
 
         impacts = self._group_impacts
         populations = self._group_populations
@@ -431,7 +451,9 @@ class EquityAnalyzer:
         # Impact distribution (normalized proportions)
         total_abs_impact = sum(abs(v) for v in impacts.values())
         if total_abs_impact > 0:
-            distribution = {g: round(abs(v) / total_abs_impact, 4) for g, v in impacts.items()}
+            distribution = {
+                g: round(abs(v) / total_abs_impact, 4) for g, v in impacts.items()
+            }
         else:
             distribution = {g: round(1.0 / len(impacts), 4) for g in impacts}
 

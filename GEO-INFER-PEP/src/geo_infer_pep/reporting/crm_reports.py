@@ -4,7 +4,6 @@ import logging
 from typing import List, Dict, Any, Optional
 from ..models.crm_models import Customer
 from ..crm.transformer import (
-
     convert_customers_to_dataframe,
 )  # Assuming this function exists
 

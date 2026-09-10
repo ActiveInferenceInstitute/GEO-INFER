@@ -164,9 +164,7 @@ def _operation() -> Dict[str, Any]:
         "polygon_area_sq_km": area_sq_km,
         "polygon_contains_point": contains_point,
         "listed_polygon_count": listed_count,
-        "all_endpoints_ok": all(
-            code in (200, 201) for code in status_codes.values()
-        ),
+        "all_endpoints_ok": all(code in (200, 201) for code in status_codes.values()),
     }
 
 

@@ -56,7 +56,9 @@ def routing_example(network: TransportNetwork) -> None:
     )
     print(f"OD matrix: {matrix['matrix']}")
 
-    alternatives = router.find_alternatives({"node_id": "n1"}, {"node_id": "n3"}, count=3)
+    alternatives = router.find_alternatives(
+        {"node_id": "n1"}, {"node_id": "n3"}, count=3
+    )
     print(f"Alternatives found: {len(alternatives)} (including primary)")
 
 

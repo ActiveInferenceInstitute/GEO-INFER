@@ -17,6 +17,7 @@ from pathlib import Path
 
 class ModuleType(Enum):
     """Categories of GEO-INFER modules."""
+
     CORE_INFRASTRUCTURE = "core_infrastructure"
     DATA_PROCESSING = "data_processing"
     SPATIAL_TEMPORAL = "spatial_temporal"
@@ -28,6 +29,7 @@ class ModuleType(Enum):
 
 class DataFormat(Enum):
     """Supported data formats for inter-module communication."""
+
     GEOJSON = "geojson"
     SPATIAL_TEMPORAL_JSON = "spatial_temporal_json"
     RASTER_ARRAY = "raster_array"
@@ -41,6 +43,7 @@ class DataFormat(Enum):
 
 class IntegrationPattern(Enum):
     """Integration patterns between modules."""
+
     SEQUENTIAL = "sequential"
     PARALLEL = "parallel"
     FAN_OUT = "fan_out"
@@ -55,6 +58,7 @@ class IntegrationPattern(Enum):
 @dataclass
 class ModuleSpec:
     """Specification for a GEO-INFER module."""
+
     name: str
     module_type: ModuleType
     api_base_url: str
@@ -66,7 +70,7 @@ class ModuleSpec:
     configuration: Dict[str, Any] = field(default_factory=dict)
     health_endpoint: str = "/health"
     documentation_url: Optional[str] = None
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary representation."""
         return {
@@ -80,11 +84,11 @@ class ModuleSpec:
             "optional_dependencies": self.optional_dependencies,
             "configuration": self.configuration,
             "health_endpoint": self.health_endpoint,
-            "documentation_url": self.documentation_url
+            "documentation_url": self.documentation_url,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'ModuleSpec':
+    def from_dict(cls, data: Dict[str, Any]) -> "ModuleSpec":
         """Create from dictionary representation."""
         return cls(
             name=data["name"],
@@ -92,28 +96,31 @@ class ModuleSpec:
             api_base_url=data["api_base_url"],
             version=data["version"],
             capabilities=data.get("capabilities", []),
-            supported_formats=[DataFormat(f) for f in data.get("supported_formats", [])],
+            supported_formats=[
+                DataFormat(f) for f in data.get("supported_formats", [])
+            ],
             dependencies=data.get("dependencies", []),
             optional_dependencies=data.get("optional_dependencies", []),
             configuration=data.get("configuration", {}),
             health_endpoint=data.get("health_endpoint", "/health"),
-            documentation_url=data.get("documentation_url")
+            documentation_url=data.get("documentation_url"),
         )
 
 
 @dataclass
 class ModuleConnection:
     """Defines connection between two modules."""
+
     source_module: str
     target_module: str
     pattern: IntegrationPattern
     data_format: DataFormat
     endpoint: str
     transformation: Optional[str] = None  # Data transformation function
-    validation: Optional[str] = None      # Validation rules
+    validation: Optional[str] = None  # Validation rules
     retry_policy: Optional[Dict[str, Any]] = None
     timeout: Optional[int] = None
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary representation."""
         return {
@@ -125,13 +132,14 @@ class ModuleConnection:
             "transformation": self.transformation,
             "validation": self.validation,
             "retry_policy": self.retry_policy,
-            "timeout": self.timeout
+            "timeout": self.timeout,
         }
 
 
 @dataclass
 class WorkflowStep:
     """Individual step in a workflow."""
+
     name: str
     module: str
     endpoint: str
@@ -142,14 +150,14 @@ class WorkflowStep:
     timeout: Optional[int] = None
     retry_count: int = 0
     optional: bool = False
-    
+
     # Event-driven properties
     trigger_events: List[str] = field(default_factory=list)
     emits_events: List[str] = field(default_factory=list)
-    
+
     # Feedback loop properties
     feedback_mapping: Optional[Dict[str, str]] = None
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary representation."""
         return {
@@ -165,11 +173,11 @@ class WorkflowStep:
             "optional": self.optional,
             "trigger_events": self.trigger_events,
             "emits_events": self.emits_events,
-            "feedback_mapping": self.feedback_mapping
+            "feedback_mapping": self.feedback_mapping,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'WorkflowStep':
+    def from_dict(cls, data: Dict[str, Any]) -> "WorkflowStep":
         """Create from dictionary representation."""
         return cls(**data)
 
@@ -177,6 +185,7 @@ class WorkflowStep:
 @dataclass
 class WorkflowDefinition:
     """Complete workflow definition."""
+
     id: str
     name: str
     description: str
@@ -189,7 +198,7 @@ class WorkflowDefinition:
     version: str = "1.0.0"
     tags: List[str] = field(default_factory=list)
     metadata: Dict[str, Any] = field(default_factory=dict)
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary representation."""
         return {
@@ -204,11 +213,11 @@ class WorkflowDefinition:
             "retry_policy": self.retry_policy,
             "version": self.version,
             "tags": self.tags,
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'WorkflowDefinition':
+    def from_dict(cls, data: Dict[str, Any]) -> "WorkflowDefinition":
         """Create from dictionary representation."""
         return cls(
             id=data["id"],
@@ -222,10 +231,10 @@ class WorkflowDefinition:
             retry_policy=data.get("retry_policy"),
             version=data.get("version", "1.0.0"),
             tags=data.get("tags", []),
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
-    
-    def copy(self) -> 'WorkflowDefinition':
+
+    def copy(self) -> "WorkflowDefinition":
         """Create a deep copy of the workflow definition."""
         return WorkflowDefinition.from_dict(self.to_dict())
 
@@ -233,6 +242,7 @@ class WorkflowDefinition:
 @dataclass
 class ExecutionContext:
     """Context for workflow execution."""
+
     user_id: Optional[str] = None
     session_id: Optional[str] = None
     priority: int = 5  # 1-10 scale
@@ -247,6 +257,7 @@ class ExecutionContext:
 @dataclass
 class SpatialTemporalData:
     """Standardized spatial-temporal data structure."""
+
     features: List[Dict[str, Any]]
     temporal_range: Tuple[datetime, datetime]
     spatial_bounds: Tuple[float, float, float, float]  # minx, miny, maxx, maxy
@@ -254,7 +265,7 @@ class SpatialTemporalData:
     temporal_resolution: Optional[str] = None
     spatial_resolution: Optional[float] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
-    
+
     def to_geojson(self) -> Dict[str, Any]:
         """Convert to GeoJSON format."""
         return {
@@ -263,20 +274,21 @@ class SpatialTemporalData:
             "metadata": {
                 "temporal_range": [
                     self.temporal_range[0].isoformat(),
-                    self.temporal_range[1].isoformat()
+                    self.temporal_range[1].isoformat(),
                 ],
                 "spatial_bounds": self.spatial_bounds,
                 "coordinate_system": self.coordinate_system,
                 "temporal_resolution": self.temporal_resolution,
                 "spatial_resolution": self.spatial_resolution,
-                **self.metadata
-            }
+                **self.metadata,
+            },
         }
 
 
 @dataclass
 class AnalysisResult:
     """Standardized analysis result structure."""
+
     data: Dict[str, Any]
     confidence: Optional[float] = None
     uncertainty: Optional[Dict[str, Any]] = None
@@ -285,7 +297,7 @@ class AnalysisResult:
     performance_metrics: Dict[str, Any] = field(default_factory=dict)
     validation_results: Optional[Dict[str, Any]] = None
     timestamp: datetime = field(default_factory=datetime.now)
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary representation."""
         return {
@@ -296,13 +308,14 @@ class AnalysisResult:
             "parameters": self.parameters,
             "performance_metrics": self.performance_metrics,
             "validation_results": self.validation_results,
-            "timestamp": self.timestamp.isoformat()
+            "timestamp": self.timestamp.isoformat(),
         }
 
 
 @dataclass
 class IntegrationResult:
     """Result of cross-module integration."""
+
     success: bool
     data: Dict[str, Any]
     metadata: Dict[str, Any] = field(default_factory=dict)
@@ -310,7 +323,7 @@ class IntegrationResult:
     warnings: List[str] = field(default_factory=list)
     execution_time: Optional[float] = None
     module_results: Dict[str, AnalysisResult] = field(default_factory=dict)
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary representation."""
         return {
@@ -320,13 +333,13 @@ class IntegrationResult:
             "errors": self.errors,
             "warnings": self.warnings,
             "execution_time": self.execution_time,
-            "module_results": {k: v.to_dict() for k, v in self.module_results.items()}
+            "module_results": {k: v.to_dict() for k, v in self.module_results.items()},
         }
-    
+
     def add_module_result(self, module_name: str, result: AnalysisResult) -> None:
         """Add result from a specific module."""
         self.module_results[module_name] = result
-    
+
     def get_module_result(self, module_name: str) -> Optional[AnalysisResult]:
         """Get result from a specific module."""
         return self.module_results.get(module_name)
@@ -335,98 +348,112 @@ class IntegrationResult:
 @dataclass
 class HealthSurveillanceData(SpatialTemporalData):
     """Specialized data structure for health surveillance."""
+
     case_data: List[Dict[str, Any]] = field(default_factory=list)
     demographic_data: List[Dict[str, Any]] = field(default_factory=list)
     environmental_factors: Dict[str, Any] = field(default_factory=dict)
     disease_type: Optional[str] = None
     severity_levels: Optional[List[str]] = None
-    
+
     def to_health_geojson(self) -> Dict[str, Any]:
         """Convert to health-specific GeoJSON format."""
         geojson = self.to_geojson()
-        geojson["metadata"].update({
-            "domain": "health_surveillance",
-            "disease_type": self.disease_type,
-            "severity_levels": self.severity_levels,
-            "case_count": len(self.case_data),
-            "demographic_count": len(self.demographic_data)
-        })
+        geojson["metadata"].update(
+            {
+                "domain": "health_surveillance",
+                "disease_type": self.disease_type,
+                "severity_levels": self.severity_levels,
+                "case_count": len(self.case_data),
+                "demographic_count": len(self.demographic_data),
+            }
+        )
         return geojson
 
 
 @dataclass
 class AgriculturalData(SpatialTemporalData):
     """Specialized data structure for agricultural applications."""
+
     field_boundaries: List[Dict[str, Any]] = field(default_factory=list)
     crop_types: List[str] = field(default_factory=list)
     growth_stages: Dict[str, Any] = field(default_factory=dict)
     weather_data: List[Dict[str, Any]] = field(default_factory=list)
     soil_properties: Dict[str, Any] = field(default_factory=dict)
     management_practices: List[Dict[str, Any]] = field(default_factory=list)
-    
+
     def to_agricultural_geojson(self) -> Dict[str, Any]:
         """Convert to agriculture-specific GeoJSON format."""
         geojson = self.to_geojson()
-        geojson["metadata"].update({
-            "domain": "agriculture",
-            "crop_types": self.crop_types,
-            "field_count": len(self.field_boundaries),
-            "weather_records": len(self.weather_data),
-            "management_practices": len(self.management_practices)
-        })
+        geojson["metadata"].update(
+            {
+                "domain": "agriculture",
+                "crop_types": self.crop_types,
+                "field_count": len(self.field_boundaries),
+                "weather_records": len(self.weather_data),
+                "management_practices": len(self.management_practices),
+            }
+        )
         return geojson
 
 
 @dataclass
 class UrbanPlanningData(SpatialTemporalData):
     """Specialized data structure for urban planning."""
+
     zoning_data: List[Dict[str, Any]] = field(default_factory=list)
     infrastructure: Dict[str, Any] = field(default_factory=dict)
     demographic_data: List[Dict[str, Any]] = field(default_factory=list)
     land_use: Dict[str, Any] = field(default_factory=dict)
     community_input: List[Dict[str, Any]] = field(default_factory=list)
     regulatory_constraints: Dict[str, Any] = field(default_factory=dict)
-    
+
     def to_urban_geojson(self) -> Dict[str, Any]:
         """Convert to urban planning-specific GeoJSON format."""
         geojson = self.to_geojson()
-        geojson["metadata"].update({
-            "domain": "urban_planning",
-            "zoning_areas": len(self.zoning_data),
-            "community_inputs": len(self.community_input),
-            "infrastructure_types": list(self.infrastructure.keys())
-        })
+        geojson["metadata"].update(
+            {
+                "domain": "urban_planning",
+                "zoning_areas": len(self.zoning_data),
+                "community_inputs": len(self.community_input),
+                "infrastructure_types": list(self.infrastructure.keys()),
+            }
+        )
         return geojson
 
 
 @dataclass
 class ClimateData(SpatialTemporalData):
     """Specialized data structure for climate applications."""
-    variables: List[str] = field(default_factory=list)  # temperature, precipitation, etc.
+
+    variables: List[str] = field(
+        default_factory=list
+    )  # temperature, precipitation, etc.
     scenarios: List[str] = field(default_factory=list)  # RCP scenarios
-    models: List[str] = field(default_factory=list)     # Climate models used
+    models: List[str] = field(default_factory=list)  # Climate models used
     ensemble_data: bool = False
     downscaling_method: Optional[str] = None
     bias_correction: Optional[str] = None
-    
+
     def to_climate_geojson(self) -> Dict[str, Any]:
         """Convert to climate-specific GeoJSON format."""
         geojson = self.to_geojson()
-        geojson["metadata"].update({
-            "domain": "climate",
-            "variables": self.variables,
-            "scenarios": self.scenarios,
-            "models": self.models,
-            "ensemble_data": self.ensemble_data,
-            "downscaling_method": self.downscaling_method,
-            "bias_correction": self.bias_correction
-        })
+        geojson["metadata"].update(
+            {
+                "domain": "climate",
+                "variables": self.variables,
+                "scenarios": self.scenarios,
+                "models": self.models,
+                "ensemble_data": self.ensemble_data,
+                "downscaling_method": self.downscaling_method,
+                "bias_correction": self.bias_correction,
+            }
+        )
         return geojson
 
 
 class IntegrationPatterns:
     """Collection of common integration patterns and templates."""
-    
+
     @staticmethod
     def create_health_surveillance_workflow() -> WorkflowDefinition:
         """Create a standard health surveillance workflow."""
@@ -439,50 +466,50 @@ class IntegrationPatterns:
                     name="data_ingestion",
                     module="DATA",
                     endpoint="/ingest/health-records",
-                    dependencies=[]
+                    dependencies=[],
                 ),
                 WorkflowStep(
                     name="geocoding",
                     module="SPACE",
                     endpoint="/geocode/addresses",
-                    dependencies=["data_ingestion"]
+                    dependencies=["data_ingestion"],
                 ),
                 WorkflowStep(
                     name="temporal_analysis",
                     module="TIME",
                     endpoint="/analyze/temporal-patterns",
-                    dependencies=["geocoding"]
+                    dependencies=["geocoding"],
                 ),
                 WorkflowStep(
                     name="spatial_clustering",
                     module="SPACE",
                     endpoint="/analyze/spatial-clusters",
-                    dependencies=["temporal_analysis"]
+                    dependencies=["temporal_analysis"],
                 ),
                 WorkflowStep(
                     name="outbreak_detection",
                     module="HEALTH",
                     endpoint="/detect/outbreaks",
-                    dependencies=["spatial_clustering"]
+                    dependencies=["spatial_clustering"],
                 ),
                 WorkflowStep(
                     name="risk_assessment",
                     module="RISK",
                     endpoint="/assess/outbreak-risk",
                     dependencies=["outbreak_detection"],
-                    optional=True
+                    optional=True,
                 ),
                 WorkflowStep(
                     name="alert_generation",
                     module="API",
                     endpoint="/alerts/generate",
-                    dependencies=["outbreak_detection", "risk_assessment"]
-                )
+                    dependencies=["outbreak_detection", "risk_assessment"],
+                ),
             ],
             execution_strategy="sequential",
-            tags=["health", "surveillance", "outbreak", "standard"]
+            tags=["health", "surveillance", "outbreak", "standard"],
         )
-    
+
     @staticmethod
     def create_precision_agriculture_workflow() -> WorkflowDefinition:
         """Create a precision agriculture monitoring workflow."""
@@ -495,49 +522,52 @@ class IntegrationPatterns:
                     name="sensor_data_collection",
                     module="IOT",
                     endpoint="/collect/sensor-data",
-                    dependencies=[]
+                    dependencies=[],
                 ),
                 WorkflowStep(
                     name="satellite_data_processing",
                     module="SPACE",
                     endpoint="/process/satellite-imagery",
-                    dependencies=[]
+                    dependencies=[],
                 ),
                 WorkflowStep(
                     name="data_fusion",
                     module="DATA",
                     endpoint="/fuse/multi-source",
-                    dependencies=["sensor_data_collection", "satellite_data_processing"]
+                    dependencies=[
+                        "sensor_data_collection",
+                        "satellite_data_processing",
+                    ],
                 ),
                 WorkflowStep(
                     name="crop_health_analysis",
                     module="AG",
                     endpoint="/analyze/crop-health",
-                    dependencies=["data_fusion"]
+                    dependencies=["data_fusion"],
                 ),
                 WorkflowStep(
                     name="predictive_modeling",
                     module="AI",
                     endpoint="/predict/crop-yield",
-                    dependencies=["crop_health_analysis"]
+                    dependencies=["crop_health_analysis"],
                 ),
                 WorkflowStep(
                     name="intervention_simulation",
                     module="SIM",
                     endpoint="/simulate/interventions",
-                    dependencies=["predictive_modeling"]
+                    dependencies=["predictive_modeling"],
                 ),
                 WorkflowStep(
                     name="recommendations",
                     module="AG",
                     endpoint="/generate/recommendations",
-                    dependencies=["intervention_simulation"]
-                )
+                    dependencies=["intervention_simulation"],
+                ),
             ],
             execution_strategy="parallel",
-            tags=["agriculture", "precision", "monitoring", "iot"]
+            tags=["agriculture", "precision", "monitoring", "iot"],
         )
-    
+
     @staticmethod
     def create_active_inference_workflow() -> WorkflowDefinition:
         """Create an active inference feedback loop workflow."""
@@ -551,7 +581,7 @@ class IntegrationPatterns:
                     module="SPACE",
                     endpoint="/process/observations",
                     dependencies=[],
-                    emits_events=["observations_ready"]
+                    emits_events=["observations_ready"],
                 ),
                 WorkflowStep(
                     name="belief_update",
@@ -559,63 +589,69 @@ class IntegrationPatterns:
                     endpoint="/update/beliefs",
                     dependencies=["observation_processing"],
                     feedback_mapping={"prior_beliefs": "posterior_beliefs"},
-                    emits_events=["beliefs_updated"]
+                    emits_events=["beliefs_updated"],
                 ),
                 WorkflowStep(
                     name="policy_selection",
                     module="ACT",
                     endpoint="/select/policy",
                     dependencies=["belief_update"],
-                    emits_events=["action_selected"]
+                    emits_events=["action_selected"],
                 ),
                 WorkflowStep(
                     name="action_execution",
                     module="AGENT",
                     endpoint="/execute/action",
                     dependencies=["policy_selection"],
-                    emits_events=["action_executed"]
+                    emits_events=["action_executed"],
                 ),
                 WorkflowStep(
                     name="outcome_evaluation",
                     module="BAYES",
                     endpoint="/evaluate/outcome",
                     dependencies=["action_execution"],
-                    feedback_mapping={"observations": "new_observations"}
-                )
+                    feedback_mapping={"observations": "new_observations"},
+                ),
             ],
             execution_strategy="feedback_loop",
             max_iterations=10,
             convergence_threshold=0.001,
-            tags=["active_inference", "adaptive", "feedback", "advanced"]
+            tags=["active_inference", "adaptive", "feedback", "advanced"],
         )
 
 
 class DataFormatConverter:
     """Utility class for converting between different data formats."""
-    
+
     @staticmethod
-    def convert_to_standard_format(data: Dict[str, Any], 
-                                 source_format: DataFormat,
-                                 target_format: DataFormat) -> Dict[str, Any]:
+    def convert_to_standard_format(
+        data: Dict[str, Any], source_format: DataFormat, target_format: DataFormat
+    ) -> Dict[str, Any]:
         """Convert data between different standardized formats."""
         if source_format == target_format:
             return data
-        
+
         # Implement format conversions as needed
         conversion_map = {
-            (DataFormat.GEOJSON, DataFormat.SPATIAL_TEMPORAL_JSON): 
-                DataFormatConverter._geojson_to_spatial_temporal,
-            (DataFormat.SPATIAL_TEMPORAL_JSON, DataFormat.GEOJSON):
-                DataFormatConverter._spatial_temporal_to_geojson,
+            (
+                DataFormat.GEOJSON,
+                DataFormat.SPATIAL_TEMPORAL_JSON,
+            ): DataFormatConverter._geojson_to_spatial_temporal,
+            (
+                DataFormat.SPATIAL_TEMPORAL_JSON,
+                DataFormat.GEOJSON,
+            ): DataFormatConverter._spatial_temporal_to_geojson,
             # Add more conversions as needed
         }
-        
+
         converter = conversion_map.get((source_format, target_format))
         if converter:
             return converter(data)
         else:
-            raise ValueError(f"No conversion available from {source_format} to {target_format}")
-    
+            raise ValueError(
+                f"No conversion available from {source_format} to {target_format}"
+            )
+
     @staticmethod
     def _geojson_to_spatial_temporal(data: Dict[str, Any]) -> Dict[str, Any]:
         """Convert GeoJSON to spatial-temporal format."""
@@ -624,9 +660,9 @@ class DataFormatConverter:
             "features": data.get("features", []),
             "temporal_info": data.get("metadata", {}).get("temporal_range"),
             "spatial_bounds": data.get("metadata", {}).get("spatial_bounds"),
-            "metadata": data.get("metadata", {})
+            "metadata": data.get("metadata", {}),
         }
-    
+
     @staticmethod
     def _spatial_temporal_to_geojson(data: Dict[str, Any]) -> Dict[str, Any]:
         """Convert spatial-temporal format to GeoJSON."""
@@ -637,37 +673,37 @@ class DataFormatConverter:
             "metadata": {
                 "temporal_range": data.get("temporal_info"),
                 "spatial_bounds": data.get("spatial_bounds"),
-                **data.get("metadata", {})
-            }
+                **data.get("metadata", {}),
+            },
         }
 
 
 def load_workflow_from_file(file_path: Union[str, Path]) -> WorkflowDefinition:
     """Load workflow definition from YAML or JSON file."""
     file_path = Path(file_path)
-    
-    with open(file_path, 'r') as f:
-        if file_path.suffix.lower() in ['.yaml', '.yml']:
+
+    with open(file_path, "r") as f:
+        if file_path.suffix.lower() in [".yaml", ".yml"]:
             data = yaml.safe_load(f)
-        elif file_path.suffix.lower() == '.json':
+        elif file_path.suffix.lower() == ".json":
             data = json.load(f)
         else:
             raise ValueError(f"Unsupported file format: {file_path.suffix}")
-    
+
     return WorkflowDefinition.from_dict(data)
 
 
-def save_workflow_to_file(workflow: WorkflowDefinition, 
-                         file_path: Union[str, Path],
-                         format: str = "yaml") -> None:
+def save_workflow_to_file(
+    workflow: WorkflowDefinition, file_path: Union[str, Path], format: str = "yaml"
+) -> None:
     """Save workflow definition to YAML or JSON file."""
     file_path = Path(file_path)
     data = workflow.to_dict()
-    
-    with open(file_path, 'w') as f:
-        if format.lower() in ['yaml', 'yml']:
+
+    with open(file_path, "w") as f:
+        if format.lower() in ["yaml", "yml"]:
             yaml.dump(data, f, default_flow_style=False, indent=2)
-        elif format.lower() == 'json':
+        elif format.lower() == "json":
             json.dump(data, f, indent=2)
         else:
             raise ValueError(f"Unsupported format: {format}")
@@ -683,16 +719,29 @@ GEO_INFER_MODULES: dict = {
         api_base_url="http://localhost:8001",
         version="1.0.0",
         capabilities=["data_ingestion", "data_fusion", "quality_assurance", "storage"],
-        supported_formats=[DataFormat.GEOJSON, DataFormat.SPATIAL_TEMPORAL_JSON, DataFormat.TIME_SERIES],
-        dependencies=["OPS", "SEC"]
+        supported_formats=[
+            DataFormat.GEOJSON,
+            DataFormat.SPATIAL_TEMPORAL_JSON,
+            DataFormat.TIME_SERIES,
+        ],
+        dependencies=["OPS", "SEC"],
     ),
     "SPACE": ModuleSpec(
         name="GEO-INFER-SPACE",
         module_type=ModuleType.SPATIAL_TEMPORAL,
         api_base_url="http://localhost:8002",
         version="1.0.0",
-        capabilities=["spatial_analysis", "geocoding", "spatial_clustering", "h3_indexing"],
-        supported_formats=[DataFormat.GEOJSON, DataFormat.RASTER_ARRAY, DataFormat.SPATIAL_TEMPORAL_JSON],
-        dependencies=["DATA", "MATH"]
+        capabilities=[
+            "spatial_analysis",
+            "geocoding",
+            "spatial_clustering",
+            "h3_indexing",
+        ],
+        supported_formats=[
+            DataFormat.GEOJSON,
+            DataFormat.RASTER_ARRAY,
+            DataFormat.SPATIAL_TEMPORAL_JSON,
+        ],
+        dependencies=["DATA", "MATH"],
     ),
 }

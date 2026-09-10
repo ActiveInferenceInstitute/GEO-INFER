@@ -38,7 +38,7 @@ class TestIngestionBenchmarks:
 
         return pd.DataFrame(
             {
-                "sensor_id": [f"sensor_{i%100}" for i in range(n_records)],
+                "sensor_id": [f"sensor_{i % 100}" for i in range(n_records)],
                 "timestamp": pd.date_range(
                     "2023-01-01", periods=n_records, freq="1min"
                 ),
@@ -132,9 +132,9 @@ class TestIngestionBenchmarks:
         throughput_with_validation = result["throughput_with_validation"]
 
         assert validation_time < 30, f"Validation too slow: {validation_time:.2f}s"
-        assert (
-            throughput_with_validation > 500
-        ), f"Throughput with validation too low: {throughput_with_validation:.0f} records/second"
+        assert throughput_with_validation > 500, (
+            f"Throughput with validation too low: {throughput_with_validation:.0f} records/second"
+        )
 
         print(
             f"📊 Validation throughput: {throughput_with_validation:.0f} records/second"
@@ -188,12 +188,12 @@ class TestIngestionBenchmarks:
         multi_source_time = result["multi_source_time"]
         multi_source_throughput = result["multi_source_throughput"]
 
-        assert (
-            multi_source_time < 45
-        ), f"Multi-source ingestion too slow: {multi_source_time:.2f}s"
-        assert (
-            multi_source_throughput > 2000
-        ), f"Multi-source throughput too low: {multi_source_throughput:.0f} records/second"
+        assert multi_source_time < 45, (
+            f"Multi-source ingestion too slow: {multi_source_time:.2f}s"
+        )
+        assert multi_source_throughput > 2000, (
+            f"Multi-source throughput too low: {multi_source_throughput:.0f} records/second"
+        )
 
         print(
             f"📊 Multi-source throughput: {multi_source_throughput:.0f} records/second"
@@ -275,9 +275,9 @@ class TestStorageBenchmarks:
         throughput = result["throughput"]
 
         assert latency < 10, f"Storage latency too high: {latency:.2f}s"
-        assert (
-            throughput > 5000
-        ), f"Storage throughput too low: {throughput:.0f} records/second"
+        assert throughput > 5000, (
+            f"Storage throughput too low: {throughput:.0f} records/second"
+        )
 
         print(f"📊 Storage throughput: {throughput:.0f} records/second")
         print(f"⏱️  Storage latency: {latency:.2f}s")
@@ -330,12 +330,12 @@ class TestStorageBenchmarks:
         avg_spatial_time = result["avg_spatial_query_time"]
         avg_temporal_time = result["avg_temporal_query_time"]
 
-        assert (
-            avg_spatial_time < 2.0
-        ), f"Spatial query too slow: {avg_spatial_time:.2f}s"
-        assert (
-            avg_temporal_time < 2.0
-        ), f"Temporal query too slow: {avg_temporal_time:.2f}s"
+        assert avg_spatial_time < 2.0, (
+            f"Spatial query too slow: {avg_spatial_time:.2f}s"
+        )
+        assert avg_temporal_time < 2.0, (
+            f"Temporal query too slow: {avg_temporal_time:.2f}s"
+        )
 
         print(f"📊 Average spatial query time: {avg_spatial_time:.3f}s")
         print(f"📊 Average temporal query time: {avg_temporal_time:.3f}s")
@@ -358,7 +358,7 @@ class TestValidationBenchmarks:
                 "humidity": np.random.normal(60, 10, n_records),
                 "latitude": np.random.normal(37.7749, 0.05, n_records),
                 "longitude": np.random.normal(-122.4194, 0.05, n_records),
-                "sensor_id": [f"sensor_{i%50}" for i in range(n_records)],
+                "sensor_id": [f"sensor_{i % 50}" for i in range(n_records)],
             }
         )
 
@@ -405,9 +405,9 @@ class TestValidationBenchmarks:
         throughput = result["throughput"]
 
         assert validation_time < 20, f"Validation too slow: {validation_time:.2f}s"
-        assert (
-            throughput > 1000
-        ), f"Validation throughput too low: {throughput:.0f} records/second"
+        assert throughput > 1000, (
+            f"Validation throughput too low: {throughput:.0f} records/second"
+        )
 
         print(f"📊 Validation throughput: {throughput:.0f} records/second")
         print(f"⏱️  Validation time: {validation_time:.2f}s")
@@ -453,15 +453,15 @@ class TestValidationBenchmarks:
 
         total_time = result["total_validation_time"]
 
-        assert (
-            result["completeness_time"] < 5
-        ), f"Completeness check too slow: {result['completeness_time']:.2f}s"
-        assert (
-            result["accuracy_time"] < 5
-        ), f"Accuracy check too slow: {result['accuracy_time']:.2f}s"
-        assert (
-            result["consistency_time"] < 5
-        ), f"Consistency check too slow: {result['consistency_time']:.2f}s"
+        assert result["completeness_time"] < 5, (
+            f"Completeness check too slow: {result['completeness_time']:.2f}s"
+        )
+        assert result["accuracy_time"] < 5, (
+            f"Accuracy check too slow: {result['accuracy_time']:.2f}s"
+        )
+        assert result["consistency_time"] < 5, (
+            f"Consistency check too slow: {result['consistency_time']:.2f}s"
+        )
         assert total_time < 15, f"Total validation too slow: {total_time:.2f}s"
 
         print(f"📊 Completeness check: {result['completeness_time']:.2f}s")
@@ -494,9 +494,9 @@ class TestMemoryBenchmarks:
         peak_memory = process.memory_info().rss / 1024 / 1024  # MB
 
         # Memory usage should be reasonable
-        assert (
-            peak_memory - initial_memory < 500
-        ), f"Memory usage too high: {peak_memory - initial_memory:.0f} MB"
+        assert peak_memory - initial_memory < 500, (
+            f"Memory usage too high: {peak_memory - initial_memory:.0f} MB"
+        )
 
         print(f"💾 Initial memory: {initial_memory:.0f} MB")
         print(f"💾 Peak memory: {peak_memory:.0f} MB")
@@ -547,9 +547,9 @@ class TestMemoryBenchmarks:
         peak_memory = process.memory_info().rss / 1024 / 1024  # MB
 
         # Memory usage should be reasonable
-        assert (
-            peak_memory - initial_memory < 300
-        ), f"Storage memory usage too high: {peak_memory - initial_memory:.0f} MB"
+        assert peak_memory - initial_memory < 300, (
+            f"Storage memory usage too high: {peak_memory - initial_memory:.0f} MB"
+        )
 
         print(f"💾 Initial memory: {initial_memory:.0f} MB")
         print(f"💾 Peak memory: {peak_memory:.0f} MB")
@@ -601,9 +601,9 @@ class TestScalabilityBenchmarks:
         # Scalability should be roughly linear
         expected_throughput = {"small": 1000, "medium": 2000, "large": 3000}[data_size]
 
-        assert (
-            result["throughput"] > expected_throughput * 0.5
-        ), f"Scalability issue for {data_size}: {result['throughput']:.0f} records/second"
+        assert result["throughput"] > expected_throughput * 0.5, (
+            f"Scalability issue for {data_size}: {result['throughput']:.0f} records/second"
+        )
 
         print(f"📈 {data_size.capitalize()} dataset ({result['records']} records):")
         print(f"   ⏱️  Processing time: {result['time']:.2f}s")
@@ -664,9 +664,9 @@ class TestScalabilityBenchmarks:
         # Storage should scale reasonably well
         max_time = {"small": 5, "medium": 15, "large": 60}[data_size]
 
-        assert (
-            result["storage_time"] < max_time
-        ), f"Storage too slow for {data_size}: {result['storage_time']:.2f}s"
+        assert result["storage_time"] < max_time, (
+            f"Storage too slow for {data_size}: {result['storage_time']:.2f}s"
+        )
 
         print(f"💾 {data_size.capitalize()} dataset storage:")
         print(f"   ⏱️  Storage time: {result['storage_time']:.2f}s")

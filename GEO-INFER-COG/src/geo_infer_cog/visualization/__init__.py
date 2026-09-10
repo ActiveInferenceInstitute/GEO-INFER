@@ -18,14 +18,6 @@ Integration Points:
 - GEO-INFER-SPACE: Cognitively optimized spatial data presentation
 """
 
-from .adapters import (
-    HumanCenteredVisualizer,
-    VisualizationElement,
-    ColorScheme
-)
+from .adapters import HumanCenteredVisualizer, VisualizationElement, ColorScheme
 
-__all__ = [
-    "HumanCenteredVisualizer",
-    "VisualizationElement",
-    "ColorScheme"
-]
+__all__ = ["HumanCenteredVisualizer", "VisualizationElement", "ColorScheme"]

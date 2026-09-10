@@ -13,8 +13,10 @@ from datetime import datetime, timedelta
 from dataclasses import dataclass, field
 from enum import Enum
 
+
 class PolicyStatus(Enum):
     """Insurance policy status enumeration."""
+
     QUOTED = "quoted"
     BOUND = "bound"
     ACTIVE = "active"
@@ -24,8 +26,10 @@ class PolicyStatus(Enum):
     SUSPENDED = "suspended"
     PENDING_CANCELLATION = "pending_cancellation"
 
+
 class CoverageType(Enum):
     """Insurance coverage type enumeration."""
+
     PROPERTY = "property"
     LIABILITY = "liability"
     BUSINESS_INTERRUPTION = "business_interruption"
@@ -35,9 +39,11 @@ class CoverageType(Enum):
     ALL_RISK = "all_risk"
     NAMED_PERILS = "named_perils"
 
+
 @dataclass
 class Coverage:
     """Insurance coverage configuration."""
+
     coverage_type: CoverageType
     limit: float
     deductible: float
@@ -62,20 +68,24 @@ class Coverage:
     def get_coverage_summary(self) -> Dict[str, Any]:
         """Get summary of coverage details."""
         return {
-            'type': self.coverage_type.value,
-            'limit': self.limit,
-            'deductible': self.deductible,
-            'premium': self.premium,
-            'coinsurance': self.coinsurance,
-            'waiting_period_days': self.waiting_period_days,
-            'retroactive_date': self.retroactive_date.isoformat() if self.retroactive_date else None,
-            'conditions_count': len(self.conditions),
-            'exclusions_count': len(self.exclusions)
+            "type": self.coverage_type.value,
+            "limit": self.limit,
+            "deductible": self.deductible,
+            "premium": self.premium,
+            "coinsurance": self.coinsurance,
+            "waiting_period_days": self.waiting_period_days,
+            "retroactive_date": self.retroactive_date.isoformat()
+            if self.retroactive_date
+            else None,
+            "conditions_count": len(self.conditions),
+            "exclusions_count": len(self.exclusions),
         }
+
 
 @dataclass
 class Endorsement:
     """Policy endorsement or amendment."""
+
     endorsement_id: str
     endorsement_type: str
     effective_date: datetime
@@ -91,19 +101,21 @@ class Endorsement:
     def get_endorsement_summary(self) -> Dict[str, Any]:
         """Get summary of endorsement details."""
         return {
-            'endorsement_id': self.endorsement_id,
-            'type': self.endorsement_type,
-            'effective_date': self.effective_date.isoformat(),
-            'description': self.description,
-            'premium_change': self.premium_change,
-            'coverage_changes_count': len(self.coverage_changes),
-            'conditions_count': len(self.conditions),
-            'is_effective': self.is_effective()
+            "endorsement_id": self.endorsement_id,
+            "type": self.endorsement_type,
+            "effective_date": self.effective_date.isoformat(),
+            "description": self.description,
+            "premium_change": self.premium_change,
+            "coverage_changes_count": len(self.coverage_changes),
+            "conditions_count": len(self.conditions),
+            "is_effective": self.is_effective(),
         }
+
 
 @dataclass
 class Exclusion:
     """Policy exclusion or limitation."""
+
     exclusion_id: str
     exclusion_type: str
     description: str
@@ -112,21 +124,25 @@ class Exclusion:
 
     def applies_to_peril(self, peril: str) -> bool:
         """Check if exclusion applies to specific peril."""
-        return self.applicability in ["all", "specific_peril"] and peril in self.conditions
+        return (
+            self.applicability in ["all", "specific_peril"] and peril in self.conditions
+        )
 
     def get_exclusion_summary(self) -> Dict[str, Any]:
         """Get summary of exclusion details."""
         return {
-            'exclusion_id': self.exclusion_id,
-            'type': self.exclusion_type,
-            'description': self.description,
-            'applicability': self.applicability,
-            'conditions_count': len(self.conditions)
+            "exclusion_id": self.exclusion_id,
+            "type": self.exclusion_type,
+            "description": self.description,
+            "applicability": self.applicability,
+            "conditions_count": len(self.conditions),
         }
+
 
 @dataclass
 class Policy:
     """Insurance policy data structure."""
+
     policy_id: str
     policy_number: str
     status: PolicyStatus
@@ -190,16 +206,22 @@ class Policy:
     def _update_premium(self) -> None:
         """Update total premium based on coverages and endorsements."""
         base_premium = sum(coverage.premium for coverage in self.coverages)
-        endorsement_adjustment = sum(endorsement.premium_change for endorsement in self.endorsements)
+        endorsement_adjustment = sum(
+            endorsement.premium_change for endorsement in self.endorsements
+        )
 
-        self.total_premium = base_premium + endorsement_adjustment + self.fees + self.taxes
+        self.total_premium = (
+            base_premium + endorsement_adjustment + self.fees + self.taxes
+        )
         self.updated_at = datetime.now()
 
     def is_active(self) -> bool:
         """Check if policy is currently active."""
         now = datetime.now()
-        return (self.status == PolicyStatus.ACTIVE and
-                self.effective_date <= now <= self.expiration_date)
+        return (
+            self.status == PolicyStatus.ACTIVE
+            and self.effective_date <= now <= self.expiration_date
+        )
 
     def days_to_expiration(self) -> int:
         """Calculate days until policy expiration."""
@@ -214,7 +236,7 @@ class Policy:
 
         for coverage in self.coverages:
             # Check if peril is covered (simplified logic)
-            if coverage.coverage_type.value in ['all_risk', peril.lower()]:
+            if coverage.coverage_type.value in ["all_risk", peril.lower()]:
                 applicable_coverages.append(coverage)
 
         return applicable_coverages
@@ -226,84 +248,86 @@ class Policy:
     def get_policy_summary(self) -> Dict[str, Any]:
         """Get comprehensive policy summary."""
         return {
-            'policy_id': self.policy_id,
-            'policy_number': self.policy_number,
-            'status': self.status.value,
-            'policyholder_id': self.policyholder_id,
-            'property_id': self.property_id,
-            'effective_date': self.effective_date.isoformat(),
-            'expiration_date': self.expiration_date.isoformat(),
-            'term_months': self.term_months,
-            'total_premium': self.total_premium,
-            'base_premium': self.base_premium,
-            'risk_score': self.risk_score,
-            'risk_tier': self.risk_tier,
-            'coverage_count': len(self.coverages),
-            'endorsement_count': len(self.endorsements),
-            'exclusion_count': len(self.exclusions),
-            'is_active': self.is_active(),
-            'days_to_expiration': self.days_to_expiration(),
-            'total_coverage_limit': self.calculate_policy_value(),
-            'created_at': self.created_at.isoformat(),
-            'updated_at': self.updated_at.isoformat()
+            "policy_id": self.policy_id,
+            "policy_number": self.policy_number,
+            "status": self.status.value,
+            "policyholder_id": self.policyholder_id,
+            "property_id": self.property_id,
+            "effective_date": self.effective_date.isoformat(),
+            "expiration_date": self.expiration_date.isoformat(),
+            "term_months": self.term_months,
+            "total_premium": self.total_premium,
+            "base_premium": self.base_premium,
+            "risk_score": self.risk_score,
+            "risk_tier": self.risk_tier,
+            "coverage_count": len(self.coverages),
+            "endorsement_count": len(self.endorsements),
+            "exclusion_count": len(self.exclusions),
+            "is_active": self.is_active(),
+            "days_to_expiration": self.days_to_expiration(),
+            "total_coverage_limit": self.calculate_policy_value(),
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
         }
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert policy to dictionary for serialization."""
         return {
-            'policy_id': self.policy_id,
-            'policy_number': self.policy_number,
-            'status': self.status.value,
-            'policyholder_id': self.policyholder_id,
-            'property_id': self.property_id,
-            'coverages': [
+            "policy_id": self.policy_id,
+            "policy_number": self.policy_number,
+            "status": self.status.value,
+            "policyholder_id": self.policyholder_id,
+            "property_id": self.property_id,
+            "coverages": [
                 {
-                    'coverage_type': coverage.coverage_type.value,
-                    'limit': coverage.limit,
-                    'deductible': coverage.deductible,
-                    'premium': coverage.premium,
-                    'coinsurance': coverage.coinsurance,
-                    'waiting_period_days': coverage.waiting_period_days,
-                    'retroactive_date': coverage.retroactive_date.isoformat() if coverage.retroactive_date else None,
-                    'conditions': coverage.conditions,
-                    'exclusions': coverage.exclusions
+                    "coverage_type": coverage.coverage_type.value,
+                    "limit": coverage.limit,
+                    "deductible": coverage.deductible,
+                    "premium": coverage.premium,
+                    "coinsurance": coverage.coinsurance,
+                    "waiting_period_days": coverage.waiting_period_days,
+                    "retroactive_date": coverage.retroactive_date.isoformat()
+                    if coverage.retroactive_date
+                    else None,
+                    "conditions": coverage.conditions,
+                    "exclusions": coverage.exclusions,
                 }
                 for coverage in self.coverages
             ],
-            'effective_date': self.effective_date.isoformat(),
-            'expiration_date': self.expiration_date.isoformat(),
-            'term_months': self.term_months,
-            'total_premium': self.total_premium,
-            'base_premium': self.base_premium,
-            'fees': self.fees,
-            'taxes': self.taxes,
-            'risk_score': self.risk_score,
-            'risk_tier': self.risk_tier,
-            'created_at': self.created_at.isoformat(),
-            'updated_at': self.updated_at.isoformat(),
-            'created_by': self.created_by,
-            'underwriter_id': self.underwriter_id,
-            'endorsements': [
+            "effective_date": self.effective_date.isoformat(),
+            "expiration_date": self.expiration_date.isoformat(),
+            "term_months": self.term_months,
+            "total_premium": self.total_premium,
+            "base_premium": self.base_premium,
+            "fees": self.fees,
+            "taxes": self.taxes,
+            "risk_score": self.risk_score,
+            "risk_tier": self.risk_tier,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+            "created_by": self.created_by,
+            "underwriter_id": self.underwriter_id,
+            "endorsements": [
                 {
-                    'endorsement_id': endorsement.endorsement_id,
-                    'endorsement_type': endorsement.endorsement_type,
-                    'effective_date': endorsement.effective_date.isoformat(),
-                    'description': endorsement.description,
-                    'premium_change': endorsement.premium_change,
-                    'coverage_changes': endorsement.coverage_changes,
-                    'conditions': endorsement.conditions
+                    "endorsement_id": endorsement.endorsement_id,
+                    "endorsement_type": endorsement.endorsement_type,
+                    "effective_date": endorsement.effective_date.isoformat(),
+                    "description": endorsement.description,
+                    "premium_change": endorsement.premium_change,
+                    "coverage_changes": endorsement.coverage_changes,
+                    "conditions": endorsement.conditions,
                 }
                 for endorsement in self.endorsements
             ],
-            'exclusions': [
+            "exclusions": [
                 {
-                    'exclusion_id': exclusion.exclusion_id,
-                    'exclusion_type': exclusion.exclusion_type,
-                    'description': exclusion.description,
-                    'applicability': exclusion.applicability,
-                    'conditions': exclusion.conditions
+                    "exclusion_id": exclusion.exclusion_id,
+                    "exclusion_type": exclusion.exclusion_type,
+                    "description": exclusion.description,
+                    "applicability": exclusion.applicability,
+                    "conditions": exclusion.conditions,
                 }
                 for exclusion in self.exclusions
             ],
-            'metadata': self.metadata
+            "metadata": self.metadata,
         }

@@ -11,4 +11,4 @@ except ImportError:
     GeoInferGroundWater = None
 from .data_sources import CascadianGroundWaterDataSources
 
-__all__ = ['GeoInferGroundWater', 'CascadianGroundWaterDataSources'] 
+__all__ = ["GeoInferGroundWater", "CascadianGroundWaterDataSources"]

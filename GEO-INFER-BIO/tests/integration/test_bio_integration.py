@@ -90,9 +90,9 @@ class TestSequenceAnalysisPipeline:
             assert 0.0 <= gc <= 100.0, f"GC content {gc} out of range for {record.id}"
 
         # Verify distinct GC values for different sequences
-        assert (
-            len(set(round(v, 2) for v in gc_values)) > 1
-        ), "Expected distinct GC values across sequences"
+        assert len(set(round(v, 2) for v in gc_values)) > 1, (
+            "Expected distinct GC values across sequences"
+        )
 
     def test_motif_finding(self, sample_sequences):
         """Test motif detection on synthetic sequences with known repeats."""
@@ -169,9 +169,9 @@ class TestSpatialAnalysisPipeline:
 
         gc_values = results["gc_content"]["gc_content"].tolist()
         # Sequences have different GC compositions, so values should differ
-        assert (
-            max(gc_values) - min(gc_values) > 1.0
-        ), "GC content should vary across diverse sequences"
+        assert max(gc_values) - min(gc_values) > 1.0, (
+            "GC content should vary across diverse sequences"
+        )
 
     def test_visualization_from_analysis_output(
         self, sample_sequences, spatial_data, tmp_path
@@ -234,6 +234,6 @@ class TestSequenceSimilarityPipeline:
         cross_sim = analyzer.calculate_sequence_similarity(
             sample_sequences[0].seq, sample_sequences[1].seq
         )
-        assert (
-            cross_sim < self_sim
-        ), "Cross-sequence similarity should be less than self-similarity"
+        assert cross_sim < self_sim, (
+            "Cross-sequence similarity should be less than self-similarity"
+        )

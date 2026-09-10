@@ -22,7 +22,9 @@ class TestAnalyzeFlowResolution:
         "resolution,expected_multiplier",
         [("15min", 4), ("5min", 12), ("30min", 2), ("1h", 1), ("60s", 60)],
     )
-    def test_hourly_volume_uses_resolution(self, resolution, expected_multiplier) -> None:
+    def test_hourly_volume_uses_resolution(
+        self, resolution, expected_multiplier
+    ) -> None:
         analyzer = TrafficAnalyzer(time_resolution=resolution)
         result = analyzer.analyze_flow(
             segment={"id": "seg1", "capacity": 2000, "speed_limit": 50},

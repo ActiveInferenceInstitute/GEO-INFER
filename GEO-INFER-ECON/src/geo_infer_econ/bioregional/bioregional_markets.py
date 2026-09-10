@@ -20,6 +20,7 @@ from datetime import datetime
 @dataclass
 class BioregionalAsset:
     """Represents a bioregional asset with ecological and economic attributes"""
+
     asset_id: str
     asset_type: str  # forest, wetland, grassland, agricultural, etc.
     location: Tuple[float, float]  # (lat, lon)
@@ -28,12 +29,15 @@ class BioregionalAsset:
     economic_attributes: Dict[str, float]  # market value, income potential, etc.
     ownership_type: str  # private, public, community, cooperative
     management_regime: str  # conservation, sustainable use, restoration
-    ecosystem_services: Dict[str, float]  # provisioning, regulating, cultural, supporting
+    ecosystem_services: Dict[
+        str, float
+    ]  # provisioning, regulating, cultural, supporting
 
 
 @dataclass
 class MarketParticipant:
     """Represents a participant in bioregional markets"""
+
     participant_id: str
     participant_type: str  # landowner, buyer, intermediary, regulator
     location: Tuple[float, float]
@@ -46,6 +50,7 @@ class MarketParticipant:
 @dataclass
 class EcosystemServiceCredit:
     """Represents a tradeable ecosystem service credit"""
+
     credit_id: str
     service_type: str  # carbon, biodiversity, water, pollination, etc.
     quantity: float  # units of service
@@ -62,7 +67,7 @@ class BioregionalMarketDesign:
     """
     Core engine for designing and operating bioregional markets
     """
-    
+
     def __init__(self, bioregion_boundary: gpd.GeoDataFrame):
         self.bioregion = bioregion_boundary
         self.assets: Dict[str, Any] = {}
@@ -70,126 +75,151 @@ class BioregionalMarketDesign:
         self.credits: Dict[str, Any] = {}
         self.market_mechanisms: Dict[str, Any] = {}
         self.transaction_history: List[Any] = []
-    
+
     def register_asset(self, asset: BioregionalAsset) -> bool:
         """Register a bioregional asset in the market system"""
         self.assets[asset.asset_id] = asset
         return True
-    
+
     def register_participant(self, participant: MarketParticipant) -> bool:
         """Register a market participant"""
         self.participants[participant.participant_id] = participant
         return True
-    
-    def create_ecosystem_service_credit(self, asset_id: str, 
-                                      service_type: str,
-                                      quantity: float,
-                                      quality_parameters: Dict[str, Any]) -> EcosystemServiceCredit:
+
+    def create_ecosystem_service_credit(
+        self,
+        asset_id: str,
+        service_type: str,
+        quantity: float,
+        quality_parameters: Dict[str, Any],
+    ) -> EcosystemServiceCredit:
         """
         Create ecosystem service credits from bioregional assets
-        
+
         Args:
             asset_id: ID of the asset generating the service
             service_type: Type of ecosystem service
             quantity: Quantity of service units
             quality_parameters: Parameters for credit quality assessment
-            
+
         Returns:
             EcosystemServiceCredit object
         """
         asset = self.assets[asset_id]
-        
+
         # Quality assessment based on asset characteristics
-        quality_score = self._assess_credit_quality(asset, service_type, quality_parameters)
-        quality_tier = 'high' if quality_score > 0.8 else 'medium' if quality_score > 0.5 else 'low'
-        
+        quality_score = self._assess_credit_quality(
+            asset, service_type, quality_parameters
+        )
+        quality_tier = (
+            "high"
+            if quality_score > 0.8
+            else "medium"
+            if quality_score > 0.5
+            else "low"
+        )
+
         # Price determination based on quality, location, and market conditions
         base_price = self._determine_base_price(service_type, quality_tier)
-        location_multiplier = self._calculate_location_multiplier(asset.location, service_type)
+        location_multiplier = self._calculate_location_multiplier(
+            asset.location, service_type
+        )
         price_per_unit = base_price * location_multiplier
-        
+
         credit = EcosystemServiceCredit(
             credit_id=f"{asset_id}_{service_type}_{datetime.now().isoformat()}",
             service_type=service_type,
             quantity=quantity,
             quality_tier=quality_tier,
             location=asset.location,
-            temporal_profile=quality_parameters.get('temporal_profile', 'permanent'),
-            verification_status='pending',
+            temporal_profile=quality_parameters.get("temporal_profile", "permanent"),
+            verification_status="pending",
             price_per_unit=price_per_unit,
-            expiration_date=quality_parameters.get('expiration_date'),
-            co_benefits=self._calculate_co_benefits(asset, service_type)
+            expiration_date=quality_parameters.get("expiration_date"),
+            co_benefits=self._calculate_co_benefits(asset, service_type),
         )
-        
+
         self.credits[credit.credit_id] = credit
         return credit
-    
-    def _assess_credit_quality(self, asset: BioregionalAsset, 
-                              service_type: str, 
-                              parameters: Dict[str, Any]) -> float:
+
+    def _assess_credit_quality(
+        self, asset: BioregionalAsset, service_type: str, parameters: Dict[str, Any]
+    ) -> float:
         """Assess the quality of ecosystem service credits"""
         quality_factors = {
-            'additionality': 0.3,  # Would the service occur without the project?
-            'permanence': 0.25,    # How long will the service be maintained?
-            'measurability': 0.2,  # How accurately can we measure the service?
-            'leakage_risk': 0.15,  # Risk of negative effects elsewhere  
-            'co_benefits': 0.1     # Additional ecological benefits
+            "additionality": 0.3,  # Would the service occur without the project?
+            "permanence": 0.25,  # How long will the service be maintained?
+            "measurability": 0.2,  # How accurately can we measure the service?
+            "leakage_risk": 0.15,  # Risk of negative effects elsewhere
+            "co_benefits": 0.1,  # Additional ecological benefits
         }
-        
+
         score = 0
         for factor, weight in quality_factors.items():
             factor_score = parameters.get(factor, 0.5)  # Default to medium quality
             score += factor_score * weight
-        
+
         return score
-    
+
     def _determine_base_price(self, service_type: str, quality_tier: str) -> float:
         """Determine base price for ecosystem service credits"""
         base_prices = {
-            'carbon': {'high': 50, 'medium': 30, 'low': 15},
-            'biodiversity': {'high': 100, 'medium': 60, 'low': 30},
-            'water_quality': {'high': 80, 'medium': 50, 'low': 25},
-            'pollination': {'high': 120, 'medium': 70, 'low': 35},
-            'flood_control': {'high': 90, 'medium': 55, 'low': 28}
+            "carbon": {"high": 50, "medium": 30, "low": 15},
+            "biodiversity": {"high": 100, "medium": 60, "low": 30},
+            "water_quality": {"high": 80, "medium": 50, "low": 25},
+            "pollination": {"high": 120, "medium": 70, "low": 35},
+            "flood_control": {"high": 90, "medium": 55, "low": 28},
         }
-        
-        return base_prices.get(service_type, {'high': 50, 'medium': 30, 'low': 15})[quality_tier]
-    
-    def _calculate_location_multiplier(self, location: Tuple[float, float], 
-                                     service_type: str) -> float:
+
+        return base_prices.get(service_type, {"high": 50, "medium": 30, "low": 15})[
+            quality_tier
+        ]
+
+    def _calculate_location_multiplier(
+        self, location: Tuple[float, float], service_type: str
+    ) -> float:
         """Calculate location-based price multiplier"""
         # Simple distance-based multiplier (can be made more sophisticated)
         # Closer to population centers or vulnerable areas gets higher prices
-        
+
         # Urban proximity defaults to 1.0; production deployments should
         # inject actual distance-to-urban calculations via spatial analysis
         urban_proximity = 1.0
-        
+
         # Ecosystem service specific location factors
         location_factors = {
-            'carbon': 1.0,  # Global benefit
-            'biodiversity': urban_proximity * 0.8 + 0.2,  # Higher value near cities
-            'water_quality': urban_proximity,  # Higher value for urban watersheds
-            'pollination': urban_proximity * 0.6 + 0.4,  # Value for agricultural areas
-            'flood_control': urban_proximity  # Higher value protecting urban areas
+            "carbon": 1.0,  # Global benefit
+            "biodiversity": urban_proximity * 0.8 + 0.2,  # Higher value near cities
+            "water_quality": urban_proximity,  # Higher value for urban watersheds
+            "pollination": urban_proximity * 0.6 + 0.4,  # Value for agricultural areas
+            "flood_control": urban_proximity,  # Higher value protecting urban areas
         }
-        
+
         return location_factors.get(service_type, 1.0)
-    
-    def _calculate_co_benefits(self, asset: BioregionalAsset, 
-                              service_type: str) -> Dict[str, float]:
+
+    def _calculate_co_benefits(
+        self, asset: BioregionalAsset, service_type: str
+    ) -> Dict[str, float]:
         """Calculate co-benefits of ecosystem service credits"""
         co_benefits = {}
-        
+
         # Example co-benefit calculations
-        if service_type == 'carbon':
-            co_benefits['biodiversity'] = asset.ecological_attributes.get('biodiversity_index', 0) * 0.5
-            co_benefits['water_quality'] = asset.ecological_attributes.get('water_filtration', 0) * 0.3
-        
-        elif service_type == 'biodiversity':
-            co_benefits['carbon'] = asset.ecological_attributes.get('carbon_storage', 0) * 0.4
-            co_benefits['recreation'] = asset.ecological_attributes.get('recreation_value', 0) * 0.6
-        
+        if service_type == "carbon":
+            co_benefits["biodiversity"] = (
+                asset.ecological_attributes.get("biodiversity_index", 0) * 0.5
+            )
+            co_benefits["water_quality"] = (
+                asset.ecological_attributes.get("water_filtration", 0) * 0.3
+            )
+
+        elif service_type == "biodiversity":
+            co_benefits["carbon"] = (
+                asset.ecological_attributes.get("carbon_storage", 0) * 0.4
+            )
+            co_benefits["recreation"] = (
+                asset.ecological_attributes.get("recreation_value", 0) * 0.6
+            )
+
         return co_benefits
 
 
@@ -197,131 +227,152 @@ class EcosystemServicesMarkets:
     """
     Specialized markets for different ecosystem services
     """
-    
+
     def __init__(self, market_design: BioregionalMarketDesign):
         self.market_design = market_design
-        self.order_book: Dict[str, List[Any]] = {'buy': [], 'sell': []}
-        self.market_clearing_mechanism = 'double_auction'
-    
-    def submit_buy_order(self, participant_id: str, service_type: str, 
-                        quantity: float, max_price: float,
-                        location_preferences: Dict[str, Any]) -> str:
+        self.order_book: Dict[str, List[Any]] = {"buy": [], "sell": []}
+        self.market_clearing_mechanism = "double_auction"
+
+    def submit_buy_order(
+        self,
+        participant_id: str,
+        service_type: str,
+        quantity: float,
+        max_price: float,
+        location_preferences: Dict[str, Any],
+    ) -> str:
         """Submit a buy order for ecosystem services"""
         order: Dict[str, Any] = {
-            'order_id': f"buy_{participant_id}_{datetime.now().isoformat()}",
-            'participant_id': participant_id,
-            'order_type': 'buy',
-            'service_type': service_type,
-            'quantity': quantity,
-            'price': max_price,
-            'location_preferences': location_preferences,
-            'timestamp': datetime.now()
+            "order_id": f"buy_{participant_id}_{datetime.now().isoformat()}",
+            "participant_id": participant_id,
+            "order_type": "buy",
+            "service_type": service_type,
+            "quantity": quantity,
+            "price": max_price,
+            "location_preferences": location_preferences,
+            "timestamp": datetime.now(),
         }
-        
-        self.order_book['buy'].append(order)
-        return cast(str, order['order_id'])
-    
-    def submit_sell_order(self, participant_id: str, credit_id: str, 
-                         min_price: float) -> str:
+
+        self.order_book["buy"].append(order)
+        return cast(str, order["order_id"])
+
+    def submit_sell_order(
+        self, participant_id: str, credit_id: str, min_price: float
+    ) -> str:
         """Submit a sell order for ecosystem service credits"""
         credit = self.market_design.credits[credit_id]
-        
+
         order: Dict[str, Any] = {
-            'order_id': f"sell_{participant_id}_{datetime.now().isoformat()}",
-            'participant_id': participant_id,
-            'order_type': 'sell',
-            'credit_id': credit_id,
-            'service_type': credit.service_type,
-            'quantity': credit.quantity,
-            'price': max(min_price, credit.price_per_unit),
-            'quality_tier': credit.quality_tier,
-            'location': credit.location,
-            'timestamp': datetime.now()
+            "order_id": f"sell_{participant_id}_{datetime.now().isoformat()}",
+            "participant_id": participant_id,
+            "order_type": "sell",
+            "credit_id": credit_id,
+            "service_type": credit.service_type,
+            "quantity": credit.quantity,
+            "price": max(min_price, credit.price_per_unit),
+            "quality_tier": credit.quality_tier,
+            "location": credit.location,
+            "timestamp": datetime.now(),
         }
-        
-        self.order_book['sell'].append(order)
-        return cast(str, order['order_id'])
-    
+
+        self.order_book["sell"].append(order)
+        return cast(str, order["order_id"])
+
     def clear_market(self) -> List[Dict[str, Any]]:
         """Clear the market and execute trades"""
-        if self.market_clearing_mechanism == 'double_auction':
+        if self.market_clearing_mechanism == "double_auction":
             return self._double_auction_clearing()
-        elif self.market_clearing_mechanism == 'call_auction':
+        elif self.market_clearing_mechanism == "call_auction":
             return self._call_auction_clearing()
         else:
             return []
-    
+
     def _double_auction_clearing(self) -> List[Dict[str, Any]]:
         """Double auction market clearing mechanism"""
         transactions = []
-        
+
         # Sort buy orders by price (descending) and sell orders by price (ascending)
-        buy_orders = sorted(self.order_book['buy'], key=lambda x: x['price'], reverse=True)
-        sell_orders = sorted(self.order_book['sell'], key=lambda x: x['price'])
-        
+        buy_orders = sorted(
+            self.order_book["buy"], key=lambda x: x["price"], reverse=True
+        )
+        sell_orders = sorted(self.order_book["sell"], key=lambda x: x["price"])
+
         for buy_order in buy_orders:
             for sell_order in sell_orders:
                 # Check if orders can be matched
-                if (buy_order['service_type'] == sell_order['service_type'] and
-                    buy_order['price'] >= sell_order['price'] and
-                    buy_order['quantity'] > 0 and sell_order['quantity'] > 0):
-                    
+                if (
+                    buy_order["service_type"] == sell_order["service_type"]
+                    and buy_order["price"] >= sell_order["price"]
+                    and buy_order["quantity"] > 0
+                    and sell_order["quantity"] > 0
+                ):
                     # Check location preferences
                     if self._check_location_compatibility(buy_order, sell_order):
                         # Execute trade
-                        trade_quantity = min(buy_order['quantity'], sell_order['quantity'])
-                        trade_price = (buy_order['price'] + sell_order['price']) / 2
-                        
+                        trade_quantity = min(
+                            buy_order["quantity"], sell_order["quantity"]
+                        )
+                        trade_price = (buy_order["price"] + sell_order["price"]) / 2
+
                         transaction = {
-                            'transaction_id': f"trade_{datetime.now().isoformat()}",
-                            'buy_order_id': buy_order['order_id'],
-                            'sell_order_id': sell_order['order_id'],
-                            'service_type': buy_order['service_type'],
-                            'quantity': trade_quantity,
-                            'price': trade_price,
-                            'timestamp': datetime.now()
+                            "transaction_id": f"trade_{datetime.now().isoformat()}",
+                            "buy_order_id": buy_order["order_id"],
+                            "sell_order_id": sell_order["order_id"],
+                            "service_type": buy_order["service_type"],
+                            "quantity": trade_quantity,
+                            "price": trade_price,
+                            "timestamp": datetime.now(),
                         }
-                        
+
                         transactions.append(transaction)
-                        
+
                         # Update order quantities
-                        buy_order['quantity'] -= trade_quantity
-                        sell_order['quantity'] -= trade_quantity
-                        
+                        buy_order["quantity"] -= trade_quantity
+                        sell_order["quantity"] -= trade_quantity
+
                         # Record transaction
                         self.market_design.transaction_history.append(transaction)
-        
+
         # Remove completed orders
-        self.order_book['buy'] = [order for order in self.order_book['buy'] if order['quantity'] > 0]
-        self.order_book['sell'] = [order for order in self.order_book['sell'] if order['quantity'] > 0]
-        
+        self.order_book["buy"] = [
+            order for order in self.order_book["buy"] if order["quantity"] > 0
+        ]
+        self.order_book["sell"] = [
+            order for order in self.order_book["sell"] if order["quantity"] > 0
+        ]
+
         return transactions
-    
+
     def _check_location_compatibility(self, buy_order: Dict, sell_order: Dict) -> bool:
         """Check if buy and sell orders are locationally compatible"""
-        location_prefs = buy_order.get('location_preferences', {})
-        
+        location_prefs = buy_order.get("location_preferences", {})
+
         if not location_prefs:
             return True  # No location preferences
-        
+
         # Calculate distance between buyer preference and asset location
-        max_distance = location_prefs.get('max_distance_km', float('inf'))
-        preferred_location = location_prefs.get('preferred_location')
-        
+        max_distance = location_prefs.get("max_distance_km", float("inf"))
+        preferred_location = location_prefs.get("preferred_location")
+
         if preferred_location:
-            distance = np.sqrt(
-                (sell_order['location'][0] - preferred_location[0])**2 +
-                (sell_order['location'][1] - preferred_location[1])**2
-            ) * 111  # Approximate km per degree
-            
+            distance = (
+                np.sqrt(
+                    (sell_order["location"][0] - preferred_location[0]) ** 2
+                    + (sell_order["location"][1] - preferred_location[1]) ** 2
+                )
+                * 111
+            )  # Approximate km per degree
+
             return bool(distance <= max_distance)
-        
+
         return True
-    
+
     def _call_auction_clearing(self) -> List[Dict[str, Any]]:
         """Uniform-price call auction: find clearing price at supply/demand intersection."""
-        buy_orders = sorted(self.order_book['buy'], key=lambda x: x['price'], reverse=True)
-        sell_orders = sorted(self.order_book['sell'], key=lambda x: x['price'])
+        buy_orders = sorted(
+            self.order_book["buy"], key=lambda x: x["price"], reverse=True
+        )
+        sell_orders = sorted(self.order_book["sell"], key=lambda x: x["price"])
 
         if not buy_orders or not sell_orders:
             return []
@@ -330,49 +381,57 @@ class EcosystemServicesMarkets:
         demand_qty, supply_qty = 0.0, 0.0
         demand_schedule = []  # (price, cumulative_qty)
         for o in buy_orders:
-            demand_qty += o['quantity']
-            demand_schedule.append((o['price'], demand_qty))
+            demand_qty += o["quantity"]
+            demand_schedule.append((o["price"], demand_qty))
         supply_schedule = []
         for o in sell_orders:
-            supply_qty += o['quantity']
-            supply_schedule.append((o['price'], supply_qty))
+            supply_qty += o["quantity"]
+            supply_schedule.append((o["price"], supply_qty))
 
         # Find clearing price: highest price where cumulative demand >= cumulative supply
-        clearing_price = sell_orders[0]['price']
+        clearing_price = sell_orders[0]["price"]
         for bp, d_cum in demand_schedule:
-            s_cum = sum(o['quantity'] for o in sell_orders if o['price'] <= bp)
+            s_cum = sum(o["quantity"] for o in sell_orders if o["price"] <= bp)
             if s_cum > 0 and d_cum >= s_cum:
                 clearing_price = bp
                 break
 
         # Execute all eligible trades at the clearing price
         transactions = []
-        remaining_buys = [o.copy() for o in buy_orders if o['price'] >= clearing_price]
-        remaining_sells = [o.copy() for o in sell_orders if o['price'] <= clearing_price]
+        remaining_buys = [o.copy() for o in buy_orders if o["price"] >= clearing_price]
+        remaining_sells = [
+            o.copy() for o in sell_orders if o["price"] <= clearing_price
+        ]
 
         for bo in remaining_buys:
             for so in remaining_sells:
-                if bo['quantity'] <= 0 or so['quantity'] <= 0:
+                if bo["quantity"] <= 0 or so["quantity"] <= 0:
                     continue
-                if bo['service_type'] != so['service_type']:
+                if bo["service_type"] != so["service_type"]:
                     continue
-                trade_qty = min(bo['quantity'], so['quantity'])
-                transactions.append({
-                    'transaction_id': f"call_{datetime.now().isoformat()}",
-                    'buy_order_id': bo['order_id'],
-                    'sell_order_id': so['order_id'],
-                    'service_type': bo['service_type'],
-                    'quantity': trade_qty,
-                    'price': clearing_price,
-                    'timestamp': datetime.now()
-                })
-                bo['quantity'] -= trade_qty
-                so['quantity'] -= trade_qty
+                trade_qty = min(bo["quantity"], so["quantity"])
+                transactions.append(
+                    {
+                        "transaction_id": f"call_{datetime.now().isoformat()}",
+                        "buy_order_id": bo["order_id"],
+                        "sell_order_id": so["order_id"],
+                        "service_type": bo["service_type"],
+                        "quantity": trade_qty,
+                        "price": clearing_price,
+                        "timestamp": datetime.now(),
+                    }
+                )
+                bo["quantity"] -= trade_qty
+                so["quantity"] -= trade_qty
                 self.market_design.transaction_history.append(transactions[-1])
 
         # Clean fulfilled orders
-        self.order_book['buy'] = [o for o in self.order_book['buy'] if o['quantity'] > 0]
-        self.order_book['sell'] = [o for o in self.order_book['sell'] if o['quantity'] > 0]
+        self.order_book["buy"] = [
+            o for o in self.order_book["buy"] if o["quantity"] > 0
+        ]
+        self.order_book["sell"] = [
+            o for o in self.order_book["sell"] if o["quantity"] > 0
+        ]
         return transactions
 
 
@@ -380,18 +439,20 @@ class BiodiversityMarkets:
     """
     Specialized markets for biodiversity credits and habitat banking
     """
-    
+
     def __init__(self, market_design: BioregionalMarketDesign):
         self.market_design = market_design
         self.habitat_banks: Dict[str, Any] = {}
         self.mitigation_requirements: Dict[str, Any] = {}
-    
-    def create_habitat_bank(self, bank_id: str, asset_ids: List[str], 
-                           credit_types: List[str]) -> Dict[str, Any]:
+
+    def create_habitat_bank(
+        self, bank_id: str, asset_ids: List[str], credit_types: List[str]
+    ) -> Dict[str, Any]:
         """Create a habitat bank for biodiversity credit generation"""
-        total_area = sum(self.market_design.assets[aid].area_hectares 
-                        for aid in asset_ids)
-        
+        total_area = sum(
+            self.market_design.assets[aid].area_hectares for aid in asset_ids
+        )
+
         # Calculate biodiversity credit potential
         credit_potential = {}
         for credit_type in credit_types:
@@ -400,104 +461,125 @@ class BiodiversityMarkets:
                 for aid in asset_ids
             )
             credit_potential[credit_type] = total_potential
-        
+
         bank = {
-            'bank_id': bank_id,
-            'asset_ids': asset_ids,
-            'total_area': total_area,
-            'credit_types': credit_types,
-            'credit_potential': credit_potential,
-            'credits_sold': {ct: 0 for ct in credit_types},
-            'status': 'approved'
+            "bank_id": bank_id,
+            "asset_ids": asset_ids,
+            "total_area": total_area,
+            "credit_types": credit_types,
+            "credit_potential": credit_potential,
+            "credits_sold": {ct: 0 for ct in credit_types},
+            "status": "approved",
         }
-        
+
         self.habitat_banks[bank_id] = bank
         return bank
-    
-    def calculate_mitigation_requirement(self, impact_location: Tuple[float, float],
-                                       impact_area: float,
-                                       habitat_type: str) -> Dict[str, Any]:
+
+    def calculate_mitigation_requirement(
+        self,
+        impact_location: Tuple[float, float],
+        impact_area: float,
+        habitat_type: str,
+    ) -> Dict[str, Any]:
         """Calculate biodiversity mitigation requirements for development impacts"""
         # Biodiversity offset ratios based on habitat type and location
         offset_ratios = {
-            'wetland': 3.0,  # 3:1 restoration ratio
-            'forest': 2.0,   # 2:1 restoration ratio  
-            'grassland': 1.5, # 1.5:1 restoration ratio
-            'coastal': 4.0    # 4:1 restoration ratio
+            "wetland": 3.0,  # 3:1 restoration ratio
+            "forest": 2.0,  # 2:1 restoration ratio
+            "grassland": 1.5,  # 1.5:1 restoration ratio
+            "coastal": 4.0,  # 4:1 restoration ratio
         }
-        
+
         base_ratio = offset_ratios.get(habitat_type, 2.0)
-        
+
         # Location-based multiplier: higher near known biodiversity hotspots
         # Use inverse-distance weighting to nearest registered asset
         location_multiplier = 1.0
         if self.market_design.assets:
             min_dist = min(
-                np.sqrt((a.location[0] - impact_location[0])**2 +
-                        (a.location[1] - impact_location[1])**2) * 111
+                np.sqrt(
+                    (a.location[0] - impact_location[0]) ** 2
+                    + (a.location[1] - impact_location[1]) ** 2
+                )
+                * 111
                 for a in self.market_design.assets.values()
             )
             # Closer to existing ecological assets → higher ratio
             location_multiplier = 1.0 + max(0, 1.0 - min_dist / 50)
-        
+
         required_credits = impact_area * base_ratio * location_multiplier
-        
+
         return {
-            'habitat_type': habitat_type,
-            'impact_area': impact_area,
-            'required_credits': required_credits,
-            'offset_ratio': base_ratio * location_multiplier
+            "habitat_type": habitat_type,
+            "impact_area": impact_area,
+            "required_credits": required_credits,
+            "offset_ratio": base_ratio * location_multiplier,
         }
-    
-    def match_credits_to_requirements(self, requirement_id: str) -> List[Dict[str, Any]]:
+
+    def match_credits_to_requirements(
+        self, requirement_id: str
+    ) -> List[Dict[str, Any]]:
         """Match available biodiversity credits to mitigation requirements"""
         requirement = self.mitigation_requirements[requirement_id]
         available_credits = []
-        
+
         # Find suitable habitat banks
         for bank_id, bank in self.habitat_banks.items():
-            if requirement['habitat_type'] in bank['credit_types']:
-                available_credits.append({
-                    'bank_id': bank_id,
-                    'available_credits': (bank['credit_potential'][requirement['habitat_type']] - 
-                                        bank['credits_sold'][requirement['habitat_type']]),
-                    'location': self._get_bank_centroid(bank),
-                    'distance_to_impact': self._calculate_distance(
-                        self._get_bank_centroid(bank), 
-                        requirement['impact_location']
-                    )
-                })
-        
+            if requirement["habitat_type"] in bank["credit_types"]:
+                available_credits.append(
+                    {
+                        "bank_id": bank_id,
+                        "available_credits": (
+                            bank["credit_potential"][requirement["habitat_type"]]
+                            - bank["credits_sold"][requirement["habitat_type"]]
+                        ),
+                        "location": self._get_bank_centroid(bank),
+                        "distance_to_impact": self._calculate_distance(
+                            self._get_bank_centroid(bank),
+                            requirement["impact_location"],
+                        ),
+                    }
+                )
+
         # Sort by distance and credit availability
-        available_credits.sort(key=lambda x: (x['distance_to_impact'], -x['available_credits']))
-        
+        available_credits.sort(
+            key=lambda x: (x["distance_to_impact"], -x["available_credits"])
+        )
+
         return available_credits
-    
+
     def _get_bank_centroid(self, bank: Dict[str, Any]) -> Tuple[float, float]:
         """Calculate centroid of habitat bank assets"""
-        locations = [self.market_design.assets[aid].location for aid in bank['asset_ids']]
+        locations = [
+            self.market_design.assets[aid].location for aid in bank["asset_ids"]
+        ]
         centroid_lat = sum(loc[0] for loc in locations) / len(locations)
         centroid_lon = sum(loc[1] for loc in locations) / len(locations)
         return (centroid_lat, centroid_lon)
-    
-    def _calculate_distance(self, loc1: Tuple[float, float], 
-                           loc2: Tuple[float, float]) -> float:
+
+    def _calculate_distance(
+        self, loc1: Tuple[float, float], loc2: Tuple[float, float]
+    ) -> float:
         """Calculate distance between two locations"""
-        return float(np.sqrt((loc1[0] - loc2[0])**2 + (loc1[1] - loc2[1])**2) * 111)  # km
+        return float(
+            np.sqrt((loc1[0] - loc2[0]) ** 2 + (loc1[1] - loc2[1]) ** 2) * 111
+        )  # km
 
 
 class LocalFoodSystems:
     """
     Markets and systems for local and regional food production and distribution
     """
-    
+
     def __init__(self, market_design: BioregionalMarketDesign):
         self.market_design = market_design
         self.food_producers: Dict[str, Any] = {}
         self.food_consumers: Dict[str, Any] = {}
         self.distribution_networks: Dict[str, Any] = {}
-    
-    def optimize_local_food_system(self, optimization_objectives: List[str]) -> Dict[str, Any]:
+
+    def optimize_local_food_system(
+        self, optimization_objectives: List[str]
+    ) -> Dict[str, Any]:
         """
         Optimize local food system for multiple objectives using advanced algorithms
 
@@ -513,17 +595,19 @@ class LocalFoodSystems:
 
         # Define objective functions
         objectives = {
-            'minimize_transport': self._transport_objective,
-            'maximize_nutrition': self._nutrition_objective,
-            'minimize_environmental_impact': self._environmental_objective,
-            'maximize_economic_efficiency': self._economic_objective
+            "minimize_transport": self._transport_objective,
+            "maximize_nutrition": self._nutrition_objective,
+            "minimize_environmental_impact": self._environmental_objective,
+            "maximize_economic_efficiency": self._economic_objective,
         }
 
         # Filter to requested objectives
-        active_objectives = {k: v for k, v in objectives.items() if k in optimization_objectives}
+        active_objectives = {
+            k: v for k, v in objectives.items() if k in optimization_objectives
+        }
 
         if not active_objectives:
-            return {'error': 'No valid optimization objectives specified'}
+            return {"error": "No valid optimization objectives specified"}
 
         # Generate production scenarios
         production_scenarios = self._generate_production_scenarios()
@@ -541,21 +625,29 @@ class LocalFoodSystems:
         best_scenario: Tuple[str, Any]
         if len(active_objectives) == 1:
             # Single objective - find best scenario
-            best_scenario = max(scenario_scores.items(), key=lambda x: list(x[1].values())[0])
+            best_scenario = max(
+                scenario_scores.items(), key=lambda x: list(x[1].values())[0]
+            )
         else:
             # Multiple objectives - use weighted combination
-            weights = {obj: 1.0 / len(active_objectives) for obj in active_objectives.keys()}
+            weights = {
+                obj: 1.0 / len(active_objectives) for obj in active_objectives.keys()
+            }
             best_scenario = self._find_pareto_optimal(scenario_scores, weights)
 
         return {
-            'optimal_scenario': best_scenario[0],
-            'scenario_scores': scenario_scores,
-            'optimization_objectives': optimization_objectives,
-            'production_allocation': production_scenarios[best_scenario[0]]['allocation'],
-            'distribution_plan': production_scenarios[best_scenario[0]]['distribution'],
-            'environmental_impact': production_scenarios[best_scenario[0]]['environmental'],
-            'economic_metrics': production_scenarios[best_scenario[0]]['economic'],
-            'nutritional_adequacy': production_scenarios[best_scenario[0]]['nutrition']
+            "optimal_scenario": best_scenario[0],
+            "scenario_scores": scenario_scores,
+            "optimization_objectives": optimization_objectives,
+            "production_allocation": production_scenarios[best_scenario[0]][
+                "allocation"
+            ],
+            "distribution_plan": production_scenarios[best_scenario[0]]["distribution"],
+            "environmental_impact": production_scenarios[best_scenario[0]][
+                "environmental"
+            ],
+            "economic_metrics": production_scenarios[best_scenario[0]]["economic"],
+            "nutritional_adequacy": production_scenarios[best_scenario[0]]["nutrition"],
         }
 
     def _generate_production_scenarios(self) -> Dict[str, Dict[str, Any]]:
@@ -563,30 +655,30 @@ class LocalFoodSystems:
         scenarios = {}
 
         # Scenario 1: Maximize local production
-        scenarios['max_local'] = {
-            'allocation': {'local_production': 0.8, 'imports': 0.2},
-            'distribution': {'direct_to_consumer': 0.6, 'local_markets': 0.4},
-            'environmental': {'carbon_footprint': 0.3, 'water_use': 0.4},
-            'economic': {'local_jobs': 100, 'economic_multiplier': 1.8},
-            'nutrition': {'nutritional_diversity': 0.9, 'food_security': 0.95}
+        scenarios["max_local"] = {
+            "allocation": {"local_production": 0.8, "imports": 0.2},
+            "distribution": {"direct_to_consumer": 0.6, "local_markets": 0.4},
+            "environmental": {"carbon_footprint": 0.3, "water_use": 0.4},
+            "economic": {"local_jobs": 100, "economic_multiplier": 1.8},
+            "nutrition": {"nutritional_diversity": 0.9, "food_security": 0.95},
         }
 
         # Scenario 2: Minimize transport costs
-        scenarios['min_transport'] = {
-            'allocation': {'local_production': 0.9, 'imports': 0.1},
-            'distribution': {'direct_to_consumer': 0.8, 'local_markets': 0.2},
-            'environmental': {'carbon_footprint': 0.2, 'water_use': 0.5},
-            'economic': {'local_jobs': 120, 'economic_multiplier': 2.0},
-            'nutrition': {'nutritional_diversity': 0.8, 'food_security': 0.98}
+        scenarios["min_transport"] = {
+            "allocation": {"local_production": 0.9, "imports": 0.1},
+            "distribution": {"direct_to_consumer": 0.8, "local_markets": 0.2},
+            "environmental": {"carbon_footprint": 0.2, "water_use": 0.5},
+            "economic": {"local_jobs": 120, "economic_multiplier": 2.0},
+            "nutrition": {"nutritional_diversity": 0.8, "food_security": 0.98},
         }
 
         # Scenario 3: Maximize nutrition
-        scenarios['max_nutrition'] = {
-            'allocation': {'local_production': 0.7, 'imports': 0.3},
-            'distribution': {'direct_to_consumer': 0.5, 'local_markets': 0.5},
-            'environmental': {'carbon_footprint': 0.4, 'water_use': 0.3},
-            'economic': {'local_jobs': 80, 'economic_multiplier': 1.5},
-            'nutrition': {'nutritional_diversity': 0.95, 'food_security': 0.90}
+        scenarios["max_nutrition"] = {
+            "allocation": {"local_production": 0.7, "imports": 0.3},
+            "distribution": {"direct_to_consumer": 0.5, "local_markets": 0.5},
+            "environmental": {"carbon_footprint": 0.4, "water_use": 0.3},
+            "economic": {"local_jobs": 80, "economic_multiplier": 1.5},
+            "nutrition": {"nutritional_diversity": 0.95, "food_security": 0.90},
         }
 
         return scenarios
@@ -594,26 +686,41 @@ class LocalFoodSystems:
     def _transport_objective(self, scenario: Dict[str, Any]) -> float:
         """Objective function for minimizing transport"""
         # Lower transport scores are better
-        return float(1.0 / (scenario['environmental']['carbon_footprint'] + 0.1))
+        return float(1.0 / (scenario["environmental"]["carbon_footprint"] + 0.1))
 
     def _nutrition_objective(self, scenario: Dict[str, Any]) -> float:
         """Objective function for maximizing nutrition"""
-        return float(scenario['nutrition']['nutritional_diversity'] * scenario['nutrition']['food_security'])
+        return float(
+            scenario["nutrition"]["nutritional_diversity"]
+            * scenario["nutrition"]["food_security"]
+        )
 
     def _environmental_objective(self, scenario: Dict[str, Any]) -> float:
         """Objective function for minimizing environmental impact"""
         # Combined environmental score (lower is better)
-        return float(1.0 / (scenario['environmental']['carbon_footprint'] + scenario['environmental']['water_use'] + 0.1))
+        return float(
+            1.0
+            / (
+                scenario["environmental"]["carbon_footprint"]
+                + scenario["environmental"]["water_use"]
+                + 0.1
+            )
+        )
 
     def _economic_objective(self, scenario: Dict[str, Any]) -> float:
         """Objective function for maximizing economic efficiency"""
-        return float(scenario['economic']['economic_multiplier'] * scenario['economic']['local_jobs'] / 100)
+        return float(
+            scenario["economic"]["economic_multiplier"]
+            * scenario["economic"]["local_jobs"]
+            / 100
+        )
 
-    def _find_pareto_optimal(self, scenario_scores: Dict[str, Dict[str, float]],
-                           weights: Dict[str, float]) -> Tuple[str, float]:
+    def _find_pareto_optimal(
+        self, scenario_scores: Dict[str, Dict[str, float]], weights: Dict[str, float]
+    ) -> Tuple[str, float]:
         """Find Pareto optimal scenario using weighted sum"""
-        best_scenario: str = ''
-        best_score = -float('inf')
+        best_scenario: str = ""
+        best_score = -float("inf")
 
         for scenario_name, scores in scenario_scores.items():
             # Calculate weighted score
@@ -624,18 +731,21 @@ class LocalFoodSystems:
                 best_scenario = scenario_name
 
         return best_scenario, float(best_score)
-    
+
     def calculate_food_miles(self, producer_id: str, consumer_id: str) -> float:
         """Calculate food miles between producer and consumer"""
-        producer_loc = self.food_producers[producer_id]['location']
-        consumer_loc = self.food_consumers[consumer_id]['location']
-        
+        producer_loc = self.food_producers[producer_id]["location"]
+        consumer_loc = self.food_consumers[consumer_id]["location"]
+
         return self._calculate_distance(producer_loc, consumer_loc)
-    
-    def _calculate_distance(self, loc1: Tuple[float, float], 
-                           loc2: Tuple[float, float]) -> float:
+
+    def _calculate_distance(
+        self, loc1: Tuple[float, float], loc2: Tuple[float, float]
+    ) -> float:
         """Calculate distance between two locations"""
-        return float(np.sqrt((loc1[0] - loc2[0])**2 + (loc1[1] - loc2[1])**2) * 111)  # km
+        return float(
+            np.sqrt((loc1[0] - loc2[0]) ** 2 + (loc1[1] - loc2[1]) ** 2) * 111
+        )  # km
 
 
 class CarbonMarkets:
@@ -648,7 +758,7 @@ class CarbonMarkets:
     def __init__(self, market_design: BioregionalMarketDesign):
         self.market_design = market_design
         self.allowances: Dict[str, float] = {}  # participant_id → tonnes CO2
-        self.emissions: Dict[str, float] = {}   # participant_id → tonnes CO2
+        self.emissions: Dict[str, float] = {}  # participant_id → tonnes CO2
         self.price_per_tonne: float = 50.0
         self.trade_history: List[Dict[str, Any]] = []
         self.sequestration_projects: Dict[str, Dict[str, Any]] = {}
@@ -683,7 +793,9 @@ class CarbonMarkets:
         Returns:
             Dict with balance and compliance status.
         """
-        self.emissions[participant_id] = self.emissions.get(participant_id, 0) + emissions
+        self.emissions[participant_id] = (
+            self.emissions.get(participant_id, 0) + emissions
+        )
         allowance = self.allowances.get(participant_id, 0)
         balance = allowance - self.emissions[participant_id]
 
@@ -715,10 +827,14 @@ class CarbonMarkets:
             Dict with trade details and updated balances.
         """
         price = price_per_tonne or self.price_per_tonne
-        seller_balance = self.allowances.get(seller_id, 0) - self.emissions.get(seller_id, 0)
+        seller_balance = self.allowances.get(seller_id, 0) - self.emissions.get(
+            seller_id, 0
+        )
 
         if seller_balance < tonnes:
-            return {"error": f"Seller {seller_id} has insufficient surplus ({seller_balance:.2f} t)"}
+            return {
+                "error": f"Seller {seller_id} has insufficient surplus ({seller_balance:.2f} t)"
+            }
 
         self.allowances[seller_id] -= tonnes
         self.allowances[buyer_id] = self.allowances.get(buyer_id, 0) + tonnes
@@ -936,7 +1052,7 @@ class WaterMarkets:
         if seller_alloc < volume_m3:
             return {
                 "error": f"Seller {seller_id} has insufficient allocation "
-                         f"({seller_alloc:.2f} m³)"
+                f"({seller_alloc:.2f} m³)"
             }
 
         self.allocations[seller_id] -= volume_m3
@@ -988,13 +1104,13 @@ def example_bioregional_market() -> BioregionalMarketDesign:
     Example usage of bioregional market design
     """
     print("=== Bioregional Market Design Example ===")
-    
+
     # Create bioregion boundary (baseline)
     bioregion = gpd.GeoDataFrame()
-    
+
     # Initialize market design
     market = BioregionalMarketDesign(bioregion)
-    
+
     # Create sample bioregional asset
     forest_asset = BioregionalAsset(
         asset_id="forest_001",
@@ -1002,52 +1118,49 @@ def example_bioregional_market() -> BioregionalMarketDesign:
         location=(45.0, -120.0),
         area_hectares=100.0,
         ecological_attributes={
-            'carbon_storage': 500.0,  # tons CO2
-            'biodiversity_index': 0.8,
-            'water_filtration': 0.9
+            "carbon_storage": 500.0,  # tons CO2
+            "biodiversity_index": 0.8,
+            "water_filtration": 0.9,
         },
-        economic_attributes={
-            'market_value': 500000,
-            'annual_income': 10000
-        },
+        economic_attributes={"market_value": 500000, "annual_income": 10000},
         ownership_type="community",
         management_regime="sustainable_forestry",
         ecosystem_services={
-            'carbon_sequestration': 10.0,  # tons CO2/year
-            'biodiversity_habitat': 0.8,
-            'water_regulation': 0.9,
-            'recreation': 0.7
-        }
+            "carbon_sequestration": 10.0,  # tons CO2/year
+            "biodiversity_habitat": 0.8,
+            "water_regulation": 0.9,
+            "recreation": 0.7,
+        },
     )
-    
+
     # Register asset
     market.register_asset(forest_asset)
-    
+
     # Create ecosystem service credit
     quality_params = {
-        'additionality': 0.9,
-        'permanence': 0.8,
-        'measurability': 0.85,
-        'leakage_risk': 0.1,
-        'co_benefits': 0.7,
-        'temporal_profile': 'permanent'
+        "additionality": 0.9,
+        "permanence": 0.8,
+        "measurability": 0.85,
+        "leakage_risk": 0.1,
+        "co_benefits": 0.7,
+        "temporal_profile": "permanent",
     }
-    
+
     carbon_credit = market.create_ecosystem_service_credit(
         asset_id="forest_001",
         service_type="carbon",
         quantity=10.0,
-        quality_parameters=quality_params
+        quality_parameters=quality_params,
     )
-    
+
     print(f"Created Carbon Credit: {carbon_credit.credit_id}")
     print(f"Quality Tier: {carbon_credit.quality_tier}")
     print(f"Price per Unit: ${carbon_credit.price_per_unit:.2f}")
     print(f"Co-benefits: {carbon_credit.co_benefits}")
-    
+
     return market
 
 
 if __name__ == "__main__":
     # Run example
-    example_market = example_bioregional_market() 
+    example_market = example_bioregional_market()

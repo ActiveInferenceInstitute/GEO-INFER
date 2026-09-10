@@ -12,6 +12,7 @@ import logging
 
 from ..models.hr_models import Employee, EmploymentStatus
 from .data_store import PEPDataManager, pep_data_manager  # noqa: F401 (re-export)
+
 logger = logging.getLogger(__name__)
 
 
@@ -29,7 +30,9 @@ class PEPEngine:
     """
 
     def __init__(self, data_manager: Optional[PEPDataManager] = None):
-        self.data_manager = data_manager if data_manager is not None else pep_data_manager
+        self.data_manager = (
+            data_manager if data_manager is not None else pep_data_manager
+        )
         self._initialized = False
 
         logger.info("PEP Engine initialized")

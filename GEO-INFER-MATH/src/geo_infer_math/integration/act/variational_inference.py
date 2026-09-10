@@ -40,7 +40,8 @@ class VariationalInferenceHelpers:
         self._epsilon = epsilon
         logger.debug(
             "VariationalInferenceHelpers initialized (max_iter=%d, tol=%.2e)",
-            max_iterations, convergence_threshold,
+            max_iterations,
+            convergence_threshold,
         )
 
     def perform_vi(
@@ -84,9 +85,11 @@ class VariationalInferenceHelpers:
                 log_lik = np.log(likelihood_arr.T @ obs_normalised + self._epsilon)
             else:
                 # Gaussian likelihood approximation
-                log_lik = -0.5 * np.sum(
-                    (observations[:n_states] - np.arange(n_states)) ** 2
-                ) * np.ones(n_states)
+                log_lik = (
+                    -0.5
+                    * np.sum((observations[:n_states] - np.arange(n_states)) ** 2)
+                    * np.ones(n_states)
+                )
 
             # M-step: update variational posterior
             log_q = np.log(prior + self._epsilon) + log_lik
@@ -104,7 +107,8 @@ class VariationalInferenceHelpers:
                 if elbo_change < self.convergence_threshold:
                     logger.debug(
                         "VI converged at iteration %d (ELBO change=%.2e)",
-                        iteration, elbo_change,
+                        iteration,
+                        elbo_change,
                     )
                     return {
                         "posterior": q,
@@ -115,7 +119,8 @@ class VariationalInferenceHelpers:
 
         logger.debug(
             "VI did not converge after %d iterations (final ELBO=%.4f)",
-            self.max_iterations, elbo_history[-1],
+            self.max_iterations,
+            elbo_history[-1],
         )
         return {
             "posterior": q,

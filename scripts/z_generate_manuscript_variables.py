@@ -146,13 +146,13 @@ def main() -> int:
         print(f"verification group recorded as failed: {name}", file=sys.stderr)
     problems = generator.check_published_artifacts(PROJECT_ROOT)
     for problem in problems:
-        print(f"manuscript artifacts are stale after hydration: {problem}",
-              file=sys.stderr)
+        print(
+            f"manuscript artifacts are stale after hydration: {problem}",
+            file=sys.stderr,
+        )
     if problems:
         return 1
-    mode = (
-        "publication" if publication else "evidence" if verify else "working-tree"
-    )
+    mode = "publication" if publication else "evidence" if verify else "working-tree"
     print(f"manuscript variables hydrated ({mode} build)")
     return 0
 

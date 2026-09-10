@@ -111,14 +111,10 @@ class PEPDataManager:
             _validate_filter_keys(Employee, filters, alias_keys={"status"})
             for key, value in filters.items():
                 if key == "department":
-                    employees = [
-                        emp for emp in employees if emp.department == value
-                    ]
+                    employees = [emp for emp in employees if emp.department == value]
                 elif key == "status":
                     employees = [
-                        emp
-                        for emp in employees
-                        if emp.employment_status.value == value
+                        emp for emp in employees if emp.employment_status.value == value
                     ]
                 elif key == "gender":
                     employees = [
@@ -127,9 +123,7 @@ class PEPDataManager:
                         if emp.gender and emp.gender.value == value
                     ]
                 else:
-                    employees = [
-                        emp for emp in employees if getattr(emp, key) == value
-                    ]
+                    employees = [emp for emp in employees if getattr(emp, key) == value]
 
         return employees
 
@@ -140,9 +134,7 @@ class PEPDataManager:
         if filters:
             _validate_filter_keys(Customer, filters)
             for key, value in filters.items():
-                customers = [
-                    cust for cust in customers if getattr(cust, key) == value
-                ]
+                customers = [cust for cust in customers if getattr(cust, key) == value]
 
         return customers
 
@@ -218,8 +210,7 @@ class PEPDataManager:
                     [
                         cand
                         for cand in self._candidates
-                        if cand.status.value
-                        not in ("hired", "rejected", "withdrawn")
+                        if cand.status.value not in ("hired", "rejected", "withdrawn")
                     ]
                 ),
             },

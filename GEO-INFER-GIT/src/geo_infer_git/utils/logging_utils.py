@@ -16,32 +16,52 @@ from pathlib import Path
 import json
 import time
 
+
 class JSONFormatter(logging.Formatter):
     """JSON formatter for structured logging."""
 
     def format(self, record: logging.LogRecord) -> str:
         """Format log record as JSON."""
         log_entry = {
-            'timestamp': self.formatTime(record, self.default_time_format),
-            'level': record.levelname,
-            'logger': record.name,
-            'message': record.getMessage(),
+            "timestamp": self.formatTime(record, self.default_time_format),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
         }
 
         # Add exception info if present
         if record.exc_info:
-            log_entry['exception'] = self.formatException(record.exc_info)
+            log_entry["exception"] = self.formatException(record.exc_info)
 
         # Add extra fields from record
         for key, value in record.__dict__.items():
-            if key not in ['name', 'msg', 'args', 'levelname', 'levelno',
-                          'pathname', 'filename', 'module', 'lineno',
-                          'funcName', 'created', 'msecs', 'relativeCreated',
-                          'thread', 'threadName', 'processName', 'process',
-                          'exc_info', 'exc_text', 'stack_info', 'message']:
+            if key not in [
+                "name",
+                "msg",
+                "args",
+                "levelname",
+                "levelno",
+                "pathname",
+                "filename",
+                "module",
+                "lineno",
+                "funcName",
+                "created",
+                "msecs",
+                "relativeCreated",
+                "thread",
+                "threadName",
+                "processName",
+                "process",
+                "exc_info",
+                "exc_text",
+                "stack_info",
+                "message",
+            ]:
                 log_entry[key] = value
 
         return json.dumps(log_entry, default=str)
+
 
 class TextFormatter(logging.Formatter):
     """Enhanced text formatter for human-readable logs."""
@@ -50,30 +70,33 @@ class TextFormatter(logging.Formatter):
         """Format log record as human-readable text."""
         # Add color codes for different log levels
         color_codes = {
-            'DEBUG': '\033[36m',    # Cyan
-            'INFO': '\033[32m',     # Green
-            'WARNING': '\033[33m',  # Yellow
-            'ERROR': '\033[31m',    # Red
-            'CRITICAL': '\033[35m', # Magenta
+            "DEBUG": "\033[36m",  # Cyan
+            "INFO": "\033[32m",  # Green
+            "WARNING": "\033[33m",  # Yellow
+            "ERROR": "\033[31m",  # Red
+            "CRITICAL": "\033[35m",  # Magenta
         }
 
-        color = color_codes.get(record.levelname, '')
-        reset = '\033[0m' if color else ''
+        color = color_codes.get(record.levelname, "")
+        reset = "\033[0m" if color else ""
 
         # Format timestamp
-        timestamp = self.formatTime(record, '%Y-%m-%d %H:%M:%S')
+        timestamp = self.formatTime(record, "%Y-%m-%d %H:%M:%S")
 
         # Format message with color
         if color:
-            formatted_message = f"{color}{record.levelname}{reset}: {record.getMessage()}"
+            formatted_message = (
+                f"{color}{record.levelname}{reset}: {record.getMessage()}"
+            )
         else:
             formatted_message = f"{record.levelname}: {record.getMessage()}"
 
         # Add context if available
-        if hasattr(record, 'repo_name'):
+        if hasattr(record, "repo_name"):
             formatted_message += f" [{record.repo_name}]"
 
         return f"{timestamp} - {formatted_message}"
+
 
 class GeoInferGitLogger:
     """
@@ -87,7 +110,9 @@ class GeoInferGitLogger:
     - Performance metrics logging
     """
 
-    def __init__(self, name: str = "geo_infer_git", config: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self, name: str = "geo_infer_git", config: Optional[Dict[str, Any]] = None
+    ):
         """
         Initialize the logger.
 
@@ -102,7 +127,7 @@ class GeoInferGitLogger:
         if self.logger.handlers:
             return
 
-        self.logger.setLevel(getattr(logging, self.config.get('level', 'INFO').upper()))
+        self.logger.setLevel(getattr(logging, self.config.get("level", "INFO").upper()))
 
         # Setup formatters
         self.json_formatter = JSONFormatter()
@@ -113,18 +138,18 @@ class GeoInferGitLogger:
 
     def _setup_handlers(self) -> None:
         """Set up logging handlers based on configuration."""
-        format_type = self.config.get('format', 'text')
+        format_type = self.config.get("format", "text")
 
         # Console handler
         console_handler = logging.StreamHandler(sys.stdout)
-        if format_type == 'json':
+        if format_type == "json":
             console_handler.setFormatter(self.json_formatter)
         else:
             console_handler.setFormatter(self.text_formatter)
         self.logger.addHandler(console_handler)
 
         # File handler (optional)
-        log_file = self.config.get('file')
+        log_file = self.config.get("file")
         if log_file:
             # Create log directory if needed
             log_path = Path(log_file)
@@ -133,11 +158,11 @@ class GeoInferGitLogger:
             # File handler with rotation
             file_handler = logging.handlers.RotatingFileHandler(
                 log_file,
-                maxBytes=10*1024*1024,  # 10MB
-                backupCount=5
+                maxBytes=10 * 1024 * 1024,  # 10MB
+                backupCount=5,
             )
 
-            if format_type == 'json':
+            if format_type == "json":
                 file_handler.setFormatter(self.json_formatter)
             else:
                 file_handler.setFormatter(self.text_formatter)
@@ -153,12 +178,18 @@ class GeoInferGitLogger:
             repo_name: Repository name
             **kwargs: Additional context data
         """
-        extra_data = {'operation': operation, 'repo_name': repo_name}
+        extra_data = {"operation": operation, "repo_name": repo_name}
         extra_data.update(kwargs)
 
         self.logger.info(f"Repository operation: {operation}", extra=extra_data)
 
-    def log_api_call(self, endpoint: str, method: str, status_code: Optional[int] = None, **kwargs: Any) -> None:
+    def log_api_call(
+        self,
+        endpoint: str,
+        method: str,
+        status_code: Optional[int] = None,
+        **kwargs: Any,
+    ) -> None:
         """
         Log an API call with details.
 
@@ -169,9 +200,9 @@ class GeoInferGitLogger:
             **kwargs: Additional context data
         """
         extra_data = {
-            'api_endpoint': endpoint,
-            'http_method': method,
-            'http_status': status_code
+            "api_endpoint": endpoint,
+            "http_method": method,
+            "http_status": status_code,
         }
         extra_data.update(kwargs)
 
@@ -190,15 +221,19 @@ class GeoInferGitLogger:
             **kwargs: Additional performance data
         """
         extra_data = {
-            'operation': operation,
-            'duration_seconds': duration,
-            'performance_metric': True
+            "operation": operation,
+            "duration_seconds": duration,
+            "performance_metric": True,
         }
         extra_data.update(kwargs)
 
-        self.logger.info(f"Performance: {operation} completed in {duration:.2f}s", extra=extra_data)
+        self.logger.info(
+            f"Performance: {operation} completed in {duration:.2f}s", extra=extra_data
+        )
 
-    def log_error_with_context(self, error: Exception, operation: Optional[str] = None, **kwargs: Any) -> None:
+    def log_error_with_context(
+        self, error: Exception, operation: Optional[str] = None, **kwargs: Any
+    ) -> None:
         """
         Log an error with additional context.
 
@@ -207,12 +242,15 @@ class GeoInferGitLogger:
             operation: Operation that failed
             **kwargs: Additional context data
         """
-        extra_data = {'error_type': type(error).__name__}
+        extra_data = {"error_type": type(error).__name__}
         if operation:
-            extra_data['failed_operation'] = operation
+            extra_data["failed_operation"] = operation
         extra_data.update(kwargs)
 
-        self.logger.error(f"Error occurred: {str(error)}", extra=extra_data, exc_info=True)
+        self.logger.error(
+            f"Error occurred: {str(error)}", extra=extra_data, exc_info=True
+        )
+
 
 def setup_logging(config: Optional[Dict[str, Any]] = None) -> GeoInferGitLogger:
     """
@@ -226,6 +264,7 @@ def setup_logging(config: Optional[Dict[str, Any]] = None) -> GeoInferGitLogger:
     """
     return GeoInferGitLogger("geo_infer_git", config)
 
+
 def get_logger(name: str) -> logging.Logger:
     """
     Get a logger instance for a specific module.
@@ -237,6 +276,7 @@ def get_logger(name: str) -> logging.Logger:
         Logger instance
     """
     return logging.getLogger(f"geo_infer_git.{name}")
+
 
 class LogContext:
     """
@@ -265,16 +305,17 @@ class LogContext:
                 setattr(record, key, value)
             return cast(logging.LogRecord, record)
 
-        self._logger.makeRecord = cast(
-            Any, record_factory
-        )
+        self._logger.makeRecord = cast(Any, record_factory)
         return self
 
     def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         """Exit context and restore original factory."""
         self._logger.makeRecord = self.old_factory
 
-def log_with_context(logger: logging.Logger, level: int, message: str, **context: Any) -> None:
+
+def log_with_context(
+    logger: logging.Logger, level: int, message: str, **context: Any
+) -> None:
     """
     Log a message with additional context.
 
@@ -286,14 +327,13 @@ def log_with_context(logger: logging.Logger, level: int, message: str, **context
     """
     if context:
         # Create a log record with context
-        record = logger.makeRecord(
-            logger.name, level, __file__, 0, message, (), None
-        )
+        record = logger.makeRecord(logger.name, level, __file__, 0, message, (), None)
         for key, value in context.items():
             setattr(record, key, value)
         logger.handle(record)
     else:
         logger.log(level, message)
+
 
 class PerformanceTimer:
     """
@@ -324,6 +364,7 @@ class PerformanceTimer:
             if self.logger:
                 cast(Any, self.logger).log_performance(self.operation, duration)
 
+
 def time_operation(operation: str, logger: Optional[logging.Logger] = None) -> Callable:
     """
     Decorator for timing function execution.
@@ -335,10 +376,13 @@ def time_operation(operation: str, logger: Optional[logging.Logger] = None) -> C
     Returns:
         Decorated function
     """
+
     def decorator(func: Callable) -> Callable:
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             timer_logger: Any = logger or get_logger(func.__module__)
             with PerformanceTimer(operation, timer_logger):
                 return func(*args, **kwargs)
+
         return wrapper
+
     return decorator

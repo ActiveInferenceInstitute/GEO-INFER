@@ -90,7 +90,9 @@ class FreeEnergyCalculator:
 
         logger.debug(
             "Free energy=%.4f (complexity=%.4f, accuracy=%.4f)",
-            free_energy, complexity, accuracy,
+            free_energy,
+            complexity,
+            accuracy,
         )
 
         return {
@@ -139,13 +141,20 @@ class FreeEnergyCalculator:
             prior_preferences = np.ones(n_obs) / n_obs
         else:
             prior_preferences = np.asarray(prior_preferences, dtype=np.float64)
-            prior_preferences = prior_preferences / (prior_preferences.sum() + self._epsilon)
+            prior_preferences = prior_preferences / (
+                prior_preferences.sum() + self._epsilon
+            )
 
         # Risk: D_KL[q(o) || p(o)]
         risk = self._kl_divergence(predicted_obs, prior_preferences)
 
         G = ambiguity + risk
-        logger.debug("Expected free energy G=%.4f (ambiguity=%.4f, risk=%.4f)", G, ambiguity, risk)
+        logger.debug(
+            "Expected free energy G=%.4f (ambiguity=%.4f, risk=%.4f)",
+            G,
+            ambiguity,
+            risk,
+        )
         return float(G)
 
     def bethe_free_energy(
@@ -205,9 +214,7 @@ class FreeEnergyCalculator:
         # Bethe free energy with counting numbers:
         #   F_Bethe = sum_i [U_i - (d_i - 1) H_i]
         #             + sum_{(ij)} [U_ij - H_ij]
-        bethe_node_contribution = node_energy - np.sum(
-            (degrees - 1) * node_entropy
-        )
+        bethe_node_contribution = node_energy - np.sum((degrees - 1) * node_entropy)
         F_bethe = bethe_node_contribution + edge_energy - edge_entropy
         logger.debug("Bethe free energy=%.4f", F_bethe)
         return float(F_bethe)

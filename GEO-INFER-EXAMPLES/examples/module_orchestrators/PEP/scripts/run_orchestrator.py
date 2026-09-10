@@ -24,8 +24,16 @@ from _lib import run_module_orchestrator  # noqa: E402
 
 def _operation() -> Dict[str, Any]:
     from geo_infer_pep.hr.transformer import clean_employee_data, enrich_employee_data
-    from geo_infer_pep.models.hr_models import Compensation, Employee, EmploymentStatus, Gender
-    from geo_infer_pep.reporting.hr_reports import generate_diversity_report, generate_headcount_report
+    from geo_infer_pep.models.hr_models import (
+        Compensation,
+        Employee,
+        EmploymentStatus,
+        Gender,
+    )
+    from geo_infer_pep.reporting.hr_reports import (
+        generate_diversity_report,
+        generate_headcount_report,
+    )
 
     # Synthetic workforce: 14 employees across three departments and sites.
     departments = [" research", " GIS LAB", "outreach"]
@@ -44,7 +52,9 @@ def _operation() -> Dict[str, Any]:
                 email=f"First{i}.Last{i}@example.org",
                 hire_date=date(2019 + (i % 6), 1 + (i % 12), 1 + (i % 27)),
                 employment_status=(
-                    EmploymentStatus.TERMINATED if i in (4, 11) else EmploymentStatus.ACTIVE
+                    EmploymentStatus.TERMINATED
+                    if i in (4, 11)
+                    else EmploymentStatus.ACTIVE
                 ),
                 job_title=titles[i % len(titles)],
                 department=departments[i % len(departments)],
@@ -64,7 +74,9 @@ def _operation() -> Dict[str, Any]:
     enriched = enrich_employee_data(cleaned)
 
     headcount = generate_headcount_report(enriched, group_by=["department", "location"])
-    diversity = generate_diversity_report(enriched, diversity_fields=["gender", "nationality"])
+    diversity = generate_diversity_report(
+        enriched, diversity_fields=["gender", "nationality"]
+    )
 
     tenured = [e for e in enriched if "tenure_years" in e.custom_fields]
     manager_validations = {
@@ -86,7 +98,9 @@ def _operation() -> Dict[str, Any]:
         },
         "enrichment": {
             "records_with_tenure": len(tenured),
-            "sample_tenure_years": tenured[0].custom_fields["tenure_years"] if tenured else None,
+            "sample_tenure_years": tenured[0].custom_fields["tenure_years"]
+            if tenured
+            else None,
             "manager_names_resolved": manager_validations,
         },
         "headcount_report": headcount,

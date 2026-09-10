@@ -158,12 +158,8 @@ class MesaModelBridge(SimulationEngine):
                                 exc_info=True,
                             )
                     # Always include bookkeeping fields for consistency.
-                    snapshot.setdefault(
-                        "steps", int(getattr(model, "steps", 0))
-                    )
-                    snapshot.setdefault(
-                        "time", float(getattr(model, "time", 0.0))
-                    )
+                    snapshot.setdefault("steps", int(getattr(model, "steps", 0)))
+                    snapshot.setdefault("time", float(getattr(model, "time", 0.0)))
                     return snapshot
             except Exception:  # pragma: no cover - defensive
                 logger.debug("DataCollector model vars unavailable", exc_info=True)
@@ -189,8 +185,7 @@ class MesaModelBridge(SimulationEngine):
                         except (TypeError, ValueError):
                             # Skip non-numeric reporter values silently.
                             logger.debug(
-                                "Skipping non-numeric DataCollector reporter "
-                                "%r=%r",
+                                "Skipping non-numeric DataCollector reporter %r=%r",
                                 name,
                                 value,
                             )
@@ -281,9 +276,7 @@ class MesaModelBridge(SimulationEngine):
                     {"time": self.current_time, "state": new_state.copy()}
                 )
 
-    def run(
-        self, step_func: Optional[Callable[..., Any]] = None
-    ) -> Dict[str, Any]:
+    def run(self, step_func: Optional[Callable[..., Any]] = None) -> Dict[str, Any]:
         """Run the Mesa model until ``max_time`` or the model stops.
 
         The loop terminates when *any* of the following holds:
@@ -349,8 +342,7 @@ class MesaModelBridge(SimulationEngine):
             }
 
             logger.info(
-                "Mesa-backed simulation finished in %.2fs "
-                "(final_time=%s, status=%s)",
+                "Mesa-backed simulation finished in %.2fs (final_time=%s, status=%s)",
                 duration,
                 self.current_time,
                 self.state.value,

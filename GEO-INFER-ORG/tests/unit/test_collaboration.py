@@ -15,23 +15,41 @@ from geo_infer_org.core.collaboration import (
 def network():
     net = CollaborationNetwork()
     # Create a small network: A-B, B-C, A-C, C-D
-    net.add_edge(CollaborationEdge("A", "B", CollaborationType.TASK_COORDINATION, strength=1.0))
-    net.add_edge(CollaborationEdge("B", "C", CollaborationType.KNOWLEDGE_SHARE, strength=2.0))
-    net.add_edge(CollaborationEdge("A", "C", CollaborationType.JOINT_PROJECT, strength=1.5))
-    net.add_edge(CollaborationEdge("C", "D", CollaborationType.KNOWLEDGE_SHARE, strength=1.0))
+    net.add_edge(
+        CollaborationEdge("A", "B", CollaborationType.TASK_COORDINATION, strength=1.0)
+    )
+    net.add_edge(
+        CollaborationEdge("B", "C", CollaborationType.KNOWLEDGE_SHARE, strength=2.0)
+    )
+    net.add_edge(
+        CollaborationEdge("A", "C", CollaborationType.JOINT_PROJECT, strength=1.5)
+    )
+    net.add_edge(
+        CollaborationEdge("C", "D", CollaborationType.KNOWLEDGE_SHARE, strength=1.0)
+    )
     return net
 
 
 @pytest.fixture
 def team_formation():
     tf = TeamFormation()
-    tf.add_members([
-        TeamMember("m1", "Alice", skills=["python", "ml", "stats"], unit_id="data"),
-        TeamMember("m2", "Bob", skills=["python", "devops", "docker"], unit_id="infra"),
-        TeamMember("m3", "Carol", skills=["javascript", "react", "css"], unit_id="frontend"),
-        TeamMember("m4", "Dave", skills=["python", "sql", "analytics"], unit_id="data"),
-        TeamMember("m5", "Eve", skills=["java", "spring", "sql"], unit_id="backend"),
-    ])
+    tf.add_members(
+        [
+            TeamMember("m1", "Alice", skills=["python", "ml", "stats"], unit_id="data"),
+            TeamMember(
+                "m2", "Bob", skills=["python", "devops", "docker"], unit_id="infra"
+            ),
+            TeamMember(
+                "m3", "Carol", skills=["javascript", "react", "css"], unit_id="frontend"
+            ),
+            TeamMember(
+                "m4", "Dave", skills=["python", "sql", "analytics"], unit_id="data"
+            ),
+            TeamMember(
+                "m5", "Eve", skills=["java", "spring", "sql"], unit_id="backend"
+            ),
+        ]
+    )
     return tf
 
 
@@ -127,6 +145,7 @@ class TestTeamFormation:
         assert 0.0 <= result.overall_score <= 1.0
         assert 0.0 <= result.coordination_cost <= 1.0
 
+
 class TestBetweennessVsNetworkx:
     def test_betweenness_matches_networkx_undirected(self, network):
         """Undirected normalization must match networkx's convention
@@ -144,21 +163,29 @@ class TestCapacityWeighting:
         """With identical skill coverage, the member with more remaining
         capacity is selected first."""
         tf = TeamFormation()
-        tf.add_members([
-            TeamMember("low", "Low Capacity", ["python"], capacity=0.1),
-            TeamMember("high", "High Capacity", ["python"], capacity=1.0),
-        ])
-        result = tf.form_team(required_skills=["python"], max_size=1, prefer_diverse_units=False)
+        tf.add_members(
+            [
+                TeamMember("low", "Low Capacity", ["python"], capacity=0.1),
+                TeamMember("high", "High Capacity", ["python"], capacity=1.0),
+            ]
+        )
+        result = tf.form_team(
+            required_skills=["python"], max_size=1, prefer_diverse_units=False
+        )
         assert result.team_members == ["high"]
 
     def test_zero_capacity_member_is_not_selected(self):
         """A member with zero remaining capacity contributes nothing and
         is never chosen while alternatives exist."""
         tf = TeamFormation()
-        tf.add_members([
-            TeamMember("empty", "Booked Out", ["python"], capacity=0.0),
-            TeamMember("free", "Available", ["java"], capacity=1.0),
-        ])
-        result = tf.form_team(required_skills=["python", "java"], max_size=2, prefer_diverse_units=False)
+        tf.add_members(
+            [
+                TeamMember("empty", "Booked Out", ["python"], capacity=0.0),
+                TeamMember("free", "Available", ["java"], capacity=1.0),
+            ]
+        )
+        result = tf.form_team(
+            required_skills=["python", "java"], max_size=2, prefer_diverse_units=False
+        )
         assert "empty" not in result.team_members
         assert "free" in result.team_members

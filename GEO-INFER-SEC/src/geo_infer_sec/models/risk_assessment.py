@@ -456,8 +456,8 @@ class RiskAssessment:
             </head>
             <body>
                 <h1>Risk Assessment: {self.name}</h1>
-                <p><strong>Description:</strong> {self.description or 'N/A'}</p>
-                <p><strong>Date:</strong> {self.updated_at.strftime('%Y-%m-%d')}</p>
+                <p><strong>Description:</strong> {self.description or "N/A"}</p>
+                <p><strong>Date:</strong> {self.updated_at.strftime("%Y-%m-%d")}</p>
                 <p><strong>Total Risk Score:</strong> {self.calculate_total_risk_score()}</p>
                 <p><strong>Number of Risks:</strong> {len(self.risks)}</p>
 

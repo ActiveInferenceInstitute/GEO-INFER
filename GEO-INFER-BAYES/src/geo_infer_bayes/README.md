@@ -10,7 +10,9 @@ Geo Infer Bayes workspace within `GEO-INFER-BAYES`.
 - `utils/`
 - `__init__.py`
 - `civic_intel.py`
+- `geo_observations.py`
 - `crescent-city-geo-intel.json`
+- `crescent-city-geo-observations.json`
 
 ## Public Interface
 
@@ -19,10 +21,18 @@ Geo Infer Bayes workspace within `GEO-INFER-BAYES`.
 - `civic_intel.py:CrescentCityIntel` (class)
 - `civic_intel.py:HazardPriorEntry` (class)
 - `civic_intel.py:HazardCategoricalPrior` (class)
+- `civic_intel.py:decode_contract_json` (function)
 - `civic_intel.py:load_crescent_city_contract` (function)
 - `civic_intel.py:load_crescent_city_intel` (function)
 - `civic_intel.py:build_hazard_prior_table` (function)
 - `civic_intel.py:build_hazard_categorical_prior` (function)
+- `geo_observations.py:ObservationAnchor` (class)
+- `geo_observations.py:CompositeSnapshot` (class)
+- `geo_observations.py:MonitorObservation` (class)
+- `geo_observations.py:HazardTagSummary` (class)
+- `geo_observations.py:ObservationsFreshness` (class)
+- `geo_observations.py:validate_geo_observations` (function)
+- `geo_observations.py:load_crescent_city_geo_observations` (function)
 
 ## Module Metadata
 

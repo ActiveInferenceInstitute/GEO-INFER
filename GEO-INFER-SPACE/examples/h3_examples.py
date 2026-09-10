@@ -162,7 +162,7 @@ print("-" * 40)
 sf_lat, sf_lng = 37.7749, -122.4194
 nyc_lat, nyc_lng = 40.7128, -74.0060
 
-dist = h3.great_circle_distance(sf_lat, sf_lng, nyc_lat, nyc_lng, 'km')
+dist = h3.great_circle_distance(sf_lat, sf_lng, nyc_lat, nyc_lng, "km")
 print(f"SF to NYC distance: {dist:.1f} km")
 
 # Point to cell center distance
@@ -171,18 +171,20 @@ print(f"Point to cell center: {point_dist:.1f} m")
 
 # Line to cells
 cells_along_line = h3.line_to_cells(
-    sf_lat, sf_lng,
-    37.8749, -122.3194,  # Nearby point
-    8
+    sf_lat,
+    sf_lng,
+    37.8749,
+    -122.3194,  # Nearby point
+    8,
 )
 print(f"Cells along line: {len(cells_along_line)}")
 
 # Geodesic area
-area = h3.cell_to_geodesic_area(cell, 'km^2')
+area = h3.cell_to_geodesic_area(cell, "km^2")
 print(f"Geodesic area: {area:.4f} km²")
 
 # Average edge length
-edge_len = h3.average_edge_length(8, 'm')
+edge_len = h3.average_edge_length(8, "m")
 print(f"Avg edge length (res 8): {edge_len:.1f} m")
 
 
@@ -209,9 +211,11 @@ print("-" * 40)
 
 for res in [0, 5, 8, 12, 15]:
     stats = h3.get_resolution_stats(res)
-    print(f"Res {res:2d}: {stats['total_cells']:>15,} cells, "
-          f"area: {stats['average_area_km2']:.6f} km², "
-          f"edge: {stats['average_edge_length_km']*1000:.1f} m")
+    print(
+        f"Res {res:2d}: {stats['total_cells']:>15,} cells, "
+        f"area: {stats['average_area_km2']:.6f} km², "
+        f"edge: {stats['average_edge_length_km'] * 1000:.1f} m"
+    )
 
 
 # =============================================================================
@@ -240,13 +244,15 @@ print("-" * 40)
 # Define a polygon (simple square)
 polygon = {
     "type": "Polygon",
-    "coordinates": [[
-        [-122.42, 37.77],
-        [-122.40, 37.77],
-        [-122.40, 37.78],
-        [-122.42, 37.78],
-        [-122.42, 37.77]
-    ]]
+    "coordinates": [
+        [
+            [-122.42, 37.77],
+            [-122.40, 37.77],
+            [-122.40, 37.78],
+            [-122.42, 37.78],
+            [-122.42, 37.77],
+        ]
+    ],
 }
 
 cells_in_polygon = h3.polygon_to_cells(polygon, 9)
@@ -260,6 +266,7 @@ print("\n📊 EXAMPLE 12: Spatial Analytics")
 print("-" * 40)
 
 import random
+
 random.seed(42)
 
 # Create sample data
@@ -267,27 +274,19 @@ sample_cells = [cell] + list(neighbors)
 sample_values = [random.uniform(10, 100) for _ in sample_cells]
 
 # Analyze hotspots
-hotspot_result = h3.analyze_hotspots({
-    'cells': sample_cells,
-    'values': sample_values
-})
-print(f"Hotspot analysis: {len(hotspot_result.get('cells', sample_cells))} cells analyzed")
+hotspot_result = h3.analyze_hotspots({"cells": sample_cells, "values": sample_values})
+print(
+    f"Hotspot analysis: {len(hotspot_result.get('cells', sample_cells))} cells analyzed"
+)
 
 # Find clusters
 cluster_result = h3.find_clusters(
-    sample_cells, 
-    sample_values,
-    min_cluster_size=2,
-    distance_threshold=1
+    sample_cells, sample_values, min_cluster_size=2, distance_threshold=1
 )
 print(f"Clusters found: {cluster_result.get('num_clusters', 0)}")
 
 # Calculate density
-density_result = h3.calculate_density(
-    sample_cells,
-    sample_values,
-    kernel_radius=1
-)
+density_result = h3.calculate_density(sample_cells, sample_values, kernel_radius=1)
 print(f"Density calculated for {len(density_result.get('densities', {}))} cells")
 
 

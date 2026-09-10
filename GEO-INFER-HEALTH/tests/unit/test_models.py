@@ -6,7 +6,11 @@ import pytest
 from datetime import datetime, timezone
 
 from geo_infer_health.models import (
-    Location, HealthFacility, DiseaseReport, PopulationData, EnvironmentalData
+    Location,
+    HealthFacility,
+    DiseaseReport,
+    PopulationData,
+    EnvironmentalData,
 )
 
 
@@ -60,7 +64,7 @@ class TestHealthFacility:
             facility_type="Hospital",
             location=location,
             capacity=500,
-            services_offered=["Emergency", "Surgery", "Cardiology"]
+            services_offered=["Emergency", "Surgery", "Cardiology"],
         )
 
         assert facility.facility_id == "test_hospital_001"
@@ -77,7 +81,7 @@ class TestHealthFacility:
             facility_id="test_clinic_001",
             name="Test Clinic",
             facility_type="Clinic",
-            location=location
+            location=location,
         )
 
         assert facility.capacity is None
@@ -94,7 +98,7 @@ class TestHealthFacility:
             facility_id="valid_id",
             name="Valid Name",
             facility_type="Hospital",
-            location=location
+            location=location,
         )
 
         # Invalid capacity (negative)
@@ -104,7 +108,7 @@ class TestHealthFacility:
                 name="Test",
                 facility_type="Hospital",
                 location=location,
-                capacity=-1
+                capacity=-1,
             )
 
 
@@ -122,7 +126,7 @@ class TestDiseaseReport:
             location=location,
             report_date=report_date,
             case_count=25,
-            source="CDC"
+            source="CDC",
         )
 
         assert report.report_id == "covid_report_001"
@@ -140,7 +144,7 @@ class TestDiseaseReport:
             disease_code="FLU",
             location=location,
             report_date=report_date,
-            case_count=1
+            case_count=1,
         )
 
         assert report.source is None
@@ -158,7 +162,7 @@ class TestDiseaseReport:
             disease_code="VALID",
             location=location,
             report_date=report_date,
-            case_count=5
+            case_count=5,
         )
 
         # Invalid case count (zero)
@@ -168,7 +172,7 @@ class TestDiseaseReport:
                 disease_code="TEST",
                 location=location,
                 report_date=report_date,
-                case_count=0
+                case_count=0,
             )
 
         # Invalid case count (negative)
@@ -178,7 +182,7 @@ class TestDiseaseReport:
                 disease_code="TEST",
                 location=location,
                 report_date=report_date,
-                case_count=-1
+                case_count=-1,
             )
 
 
@@ -193,7 +197,7 @@ class TestPopulationData:
             area_id="test_area_001",
             population_count=100000,
             age_distribution=age_distribution,
-            other_demographics={"gender": {"male": 48000, "female": 52000}}
+            other_demographics={"gender": {"male": 48000, "female": 52000}},
         )
 
         assert pop_data.area_id == "test_area_001"
@@ -203,10 +207,7 @@ class TestPopulationData:
 
     def test_population_data_defaults(self):
         """Test PopulationData default values."""
-        pop_data = PopulationData(
-            area_id="minimal_area",
-            population_count=50000
-        )
+        pop_data = PopulationData(area_id="minimal_area", population_count=50000)
 
         assert pop_data.age_distribution is None
         assert pop_data.other_demographics is None
@@ -214,17 +215,11 @@ class TestPopulationData:
     def test_population_data_validation(self):
         """Test PopulationData validation."""
         # Valid population data
-        PopulationData(
-            area_id="valid_area",
-            population_count=1000
-        )
+        PopulationData(area_id="valid_area", population_count=1000)
 
         # Invalid population count (negative)
         with pytest.raises(ValueError):
-            PopulationData(
-                area_id="invalid_pop",
-                population_count=-1
-            )
+            PopulationData(area_id="invalid_pop", population_count=-1)
 
 
 class TestEnvironmentalData:
@@ -241,7 +236,7 @@ class TestEnvironmentalData:
             value=15.5,
             unit="µg/m³",
             location=location,
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
         assert env_data.data_id == "pm25_reading_001"
@@ -261,7 +256,7 @@ class TestEnvironmentalData:
             value=25.0,
             unit="°C",
             location=location,
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
         # Test with different parameter types
@@ -271,7 +266,7 @@ class TestEnvironmentalData:
             value=0.5,
             unit="ppm",
             location=location,
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
 
@@ -337,8 +332,8 @@ class TestModelIntegration:
         facility = sample_health_facilities[0]
 
         # Check that location is properly embedded
-        assert hasattr(facility.location, 'latitude')
-        assert hasattr(facility.location, 'longitude')
+        assert hasattr(facility.location, "latitude")
+        assert hasattr(facility.location, "longitude")
 
         # Check that we can access location properties
         assert isinstance(facility.location.latitude, float)
@@ -349,8 +344,8 @@ class TestModelIntegration:
         report = sample_disease_reports[0]
 
         # Check location integration
-        assert hasattr(report.location, 'latitude')
-        assert hasattr(report.location, 'longitude')
+        assert hasattr(report.location, "latitude")
+        assert hasattr(report.location, "longitude")
 
         # Check CRS consistency
         assert report.location.crs == "EPSG:4326"
@@ -360,8 +355,8 @@ class TestModelIntegration:
         env_data = sample_environmental_data[0]
 
         # Check location integration
-        assert hasattr(env_data.location, 'latitude')
-        assert hasattr(env_data.location, 'longitude')
+        assert hasattr(env_data.location, "latitude")
+        assert hasattr(env_data.location, "longitude")
 
         # Check coordinate system
         assert env_data.location.crs == "EPSG:4326"

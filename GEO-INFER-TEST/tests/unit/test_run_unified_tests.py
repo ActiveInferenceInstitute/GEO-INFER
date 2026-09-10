@@ -13,7 +13,9 @@ RUNNER_PATH = REPO_ROOT / "GEO-INFER-TEST" / "run_unified_tests.py"
 
 
 def load_runner_module():
-    spec = importlib.util.spec_from_file_location("geo_infer_run_unified_tests", RUNNER_PATH)
+    spec = importlib.util.spec_from_file_location(
+        "geo_infer_run_unified_tests", RUNNER_PATH
+    )
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module
@@ -85,7 +87,9 @@ def test_unit_category_falls_back_to_root_test_files(tmp_path, monkeypatch):
     monkeypatch.setattr(runner, "PROJECT_ROOT", tmp_path)
     module = runner.discover_geo_infer_modules()[0]
 
-    assert runner.category_test_paths(module, "unit") == sorted([root_test, unit_test, tool_test])
+    assert runner.category_test_paths(module, "unit") == sorted(
+        [root_test, unit_test, tool_test]
+    )
     assert runner.category_test_paths(module, "integration") == []
     assert runner.category_test_paths(module, "system") == []
 
@@ -168,7 +172,9 @@ def test_non_pytest_no_tests_exit_remains_failure(tmp_path, monkeypatch):
 
     monkeypatch.setattr(runner.subprocess, "run", fake_run)
 
-    result = runner.run_command(["python", "script.py"], "script", timeout=10, cwd=tmp_path)
+    result = runner.run_command(
+        ["python", "script.py"], "script", timeout=10, cwd=tmp_path
+    )
 
     assert result.success is False
 
@@ -211,7 +217,9 @@ def test_performance_category_uses_canonical_directory_only(tmp_path, monkeypatc
 
     def fake_run(command, name, timeout, cwd=runner.PROJECT_ROOT):
         captured.append((name, command, timeout, cwd))
-        return runner.CommandResult(name=name, success=True, duration=0.0, command=command)
+        return runner.CommandResult(
+            name=name, success=True, duration=0.0, command=command
+        )
 
     monkeypatch.setattr(runner, "run_command", fake_run)
 
@@ -228,7 +236,9 @@ def test_coverage_category_isolates_modules_and_combines_data(tmp_path, monkeypa
     a_src = make_module(tmp_path, "A")
     b_src = make_module(tmp_path, "B")
     for module_name in ("A", "B"):
-        test_file = tmp_path / f"GEO-INFER-{module_name}" / "tests" / "unit" / "test_sample.py"
+        test_file = (
+            tmp_path / f"GEO-INFER-{module_name}" / "tests" / "unit" / "test_sample.py"
+        )
         test_file.parent.mkdir(parents=True)
         test_file.write_text("def test_sample():\n    assert True\n")
     monkeypatch.setattr(runner, "PROJECT_ROOT", tmp_path)
@@ -246,7 +256,9 @@ def test_coverage_category_isolates_modules_and_combines_data(tmp_path, monkeypa
         env_overrides=None,
     ):
         captured.append((name, command, timeout, cwd, env_overrides))
-        return runner.CommandResult(name=name, success=True, duration=0.0, command=command)
+        return runner.CommandResult(
+            name=name, success=True, duration=0.0, command=command
+        )
 
     monkeypatch.setattr(runner, "run_command", fake_run)
 

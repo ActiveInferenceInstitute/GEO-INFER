@@ -10,6 +10,7 @@ import sys
 import os
 import subprocess
 
+
 def check_dependencies():
     """Check if required dependencies are installed."""
     try:
@@ -17,6 +18,7 @@ def check_dependencies():
         import pandas
         import numpy
         import plotly.express
+
         print("✅ All dependencies found!")
         return True
     except ImportError as e:
@@ -24,11 +26,12 @@ def check_dependencies():
         print("💡 Install with: uv pip install streamlit pandas plotly")
         return False
 
+
 def launch_dashboard():
     """Launch the dashboard using direct streamlit command."""
     # Get the script directory
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    dashboard_script = os.path.join(script_dir, 'dashboard_app.py')
+    dashboard_script = os.path.join(script_dir, "dashboard_app.py")
 
     print("🏛️ GEO-INFER Area Study Dashboard")
     print("=" * 50)
@@ -40,14 +43,23 @@ def launch_dashboard():
 
     # Build streamlit command
     cmd = [
-        sys.executable, '-m', 'streamlit', 'run',
+        sys.executable,
+        "-m",
+        "streamlit",
+        "run",
         dashboard_script,
-        '--server.port', '8501',
-        '--server.address', '0.0.0.0',
-        '--server.headless', 'true',
-        '--theme.base', 'light',
-        '--browser.serverAddress', 'localhost',
-        '--browser.serverPort', '8501'
+        "--server.port",
+        "8501",
+        "--server.address",
+        "0.0.0.0",
+        "--server.headless",
+        "true",
+        "--theme.base",
+        "light",
+        "--browser.serverAddress",
+        "localhost",
+        "--browser.serverPort",
+        "8501",
     ]
 
     print(f"📋 Command: {' '.join(cmd)}")
@@ -61,6 +73,7 @@ def launch_dashboard():
     except Exception as e:
         print(f"❌ Error: {e}")
 
+
 def main():
     """Main function."""
     if not check_dependencies():
@@ -68,6 +81,7 @@ def main():
 
     launch_dashboard()
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

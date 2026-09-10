@@ -22,21 +22,25 @@ def build_organization() -> OrganizationModel:
     model = OrganizationModel()
     model.add_unit(OrgUnit(unit_id="hq", name="Regional Authority"))
     model.add_unit(OrgUnit(unit_id="planning", name="Planning", parent_id="hq"))
-    model.add_unit(OrgUnit(unit_id="emergency", name="Emergency Response", parent_id="hq"))
+    model.add_unit(
+        OrgUnit(unit_id="emergency", name="Emergency Response", parent_id="hq")
+    )
     return model
 
 
 def run_ranked_choice_vote() -> None:
     """Run an IRV vote among three options and print the outcome."""
     engine = VotingEngine()
-    engine.create_proposal(Proposal(
-        proposal_id="site-plan",
-        title="Site plan",
-        description="Choose the expansion site",
-        proposer_id="hq",
-        options=["site_a", "site_b", "site_c"],
-        voting_method=VotingMethod.RANKED_CHOICE,
-    ))
+    engine.create_proposal(
+        Proposal(
+            proposal_id="site-plan",
+            title="Site plan",
+            description="Choose the expansion site",
+            proposer_id="hq",
+            options=["site_a", "site_b", "site_c"],
+            voting_method=VotingMethod.RANKED_CHOICE,
+        )
+    )
     ballots = {
         "voter-1": ["site_a", "site_b", "site_c"],
         "voter-2": ["site_b", "site_a", "site_c"],

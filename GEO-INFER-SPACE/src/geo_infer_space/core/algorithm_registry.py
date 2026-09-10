@@ -64,7 +64,9 @@ class ProcessingContext:
 class AlgorithmRegistry:
     """Register and dispatch processing algorithms by stable id."""
 
-    def __init__(self, algorithms: Optional[Sequence[ProcessingAlgorithm]] = None) -> None:
+    def __init__(
+        self, algorithms: Optional[Sequence[ProcessingAlgorithm]] = None
+    ) -> None:
         self._algorithms: Dict[str, ProcessingAlgorithm] = {}
         for algorithm in algorithms or ():
             self.register(algorithm)
@@ -108,6 +110,7 @@ class AlgorithmRegistry:
 
 
 # -- a couple of reference algorithms (mirroring GeoLibre's registry.ts) ----
+
 
 def _get_layer(
     context: ProcessingContext,
@@ -209,7 +212,11 @@ def _collect(geometry: Mapping[str, Any], out: List[tuple[float, float]]) -> Non
 def _flatten_points(coords: Any) -> List[Any]:
     if not isinstance(coords, list):
         return []
-    if coords and isinstance(coords[0], list) and isinstance(coords[0][0], (int, float)):
+    if (
+        coords
+        and isinstance(coords[0], list)
+        and isinstance(coords[0][0], (int, float))
+    ):
         return [coords]
     flattened: List[Any] = []
     for item in coords:
@@ -224,7 +231,11 @@ def _iter_positions(coords: Any) -> Iterator[List[Any]]:
         if not isinstance(ring_or_line, list):
             continue
         for position in ring_or_line:
-            if isinstance(position, list) and position and isinstance(position[0], (int, float)):
+            if (
+                isinstance(position, list)
+                and position
+                and isinstance(position[0], (int, float))
+            ):
                 yield position
 
 

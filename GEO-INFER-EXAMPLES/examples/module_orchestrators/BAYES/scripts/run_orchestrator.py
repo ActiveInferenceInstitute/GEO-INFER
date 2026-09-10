@@ -42,9 +42,7 @@ def _operation() -> Dict[str, Any]:
             }
             self.noise_sigma = float(kwargs.get("noise_sigma", 1.0))
 
-        def log_likelihood(
-            self, theta: Dict[str, Any], data: Any
-        ) -> float:
+        def log_likelihood(self, theta: Dict[str, Any], data: Any) -> float:
             x = np.asarray(data["x"], dtype=float)
             y = np.asarray(data["y"], dtype=float)
             intercept = float(np.asarray(theta["intercept"]))

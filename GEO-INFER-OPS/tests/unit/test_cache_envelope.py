@@ -78,26 +78,20 @@ class TestCacheEnvelopeRejection:
         mock_redis.get.return_value = signed_json({"v": 42})
         assert cache_manager.get("k") == {"v": 42}
 
-    def test_tampered_payload_rejected_and_evicted(
-        self, cache_manager, mock_redis
-    ):
+    def test_tampered_payload_rejected_and_evicted(self, cache_manager, mock_redis):
         """A flipped-character envelope fails verification: miss + eviction."""
         mock_redis.get.return_value = tamper(signed_json({"v": 1}))
 
         assert cache_manager.get("k", default="MISS") == "MISS"
         mock_redis.delete.assert_called_once_with("geo_infer:k")
 
-    def test_unsigned_payload_rejected_and_evicted(
-        self, cache_manager, mock_redis
-    ):
+    def test_unsigned_payload_rejected_and_evicted(self, cache_manager, mock_redis):
         """A plain JSON object is never deserialized, evicted instead."""
         mock_redis.get.return_value = json.dumps({"injected": True})
         assert cache_manager.get("k", default="MISS") == "MISS"
         mock_redis.delete.assert_called_once_with("geo_infer:k")
 
-    def test_strict_mode_raises_payload_security_error(
-        self, mock_config, mock_redis
-    ):
+    def test_strict_mode_raises_payload_security_error(self, mock_config, mock_redis):
         """raise_on_untrusted propagates PayloadSecurityError to the caller."""
         mock_redis.get.return_value = json.dumps({"injected": True})
         manager = make_manager(mock_config, mock_redis, raise_on_untrusted=True)

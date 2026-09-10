@@ -222,10 +222,7 @@ class AgentVisualization:
             }
 
         # Agent type specific widgets
-        if (
-            agent_state.agent_type == AgentType.BDI
-            and "intentions" in widgets_list
-        ):
+        if agent_state.agent_type == AgentType.BDI and "intentions" in widgets_list:
             if agent_state.metadata and "intentions" in agent_state.metadata:
                 widgets_data["intentions"] = {
                     "title": "Intentions",
@@ -242,10 +239,7 @@ class AgentVisualization:
                     "value": _json_safe(agent_state.metadata["predictions"]),
                 }
 
-        if (
-            agent_state.agent_type == AgentType.RL
-            and "rewards" in widgets_list
-        ):
+        if agent_state.agent_type == AgentType.RL and "rewards" in widgets_list:
             if agent_state.metadata and "rewards" in agent_state.metadata:
                 widgets_data["rewards"] = {
                     "title": "Rewards",

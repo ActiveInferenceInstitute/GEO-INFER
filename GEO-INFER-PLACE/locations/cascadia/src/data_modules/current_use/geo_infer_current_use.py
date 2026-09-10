@@ -30,9 +30,7 @@ class GeoInferCurrentUse(BaseAnalysisModule):
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.target_hexagons = backend.target_hexagons
         self.data_source = CascadianCurrentUseDataSources()
-        logger.info(
-            "Initialized GeoInferCurrentUse module with real OSC H3 v4 integration."
-        )
+        logger.info("Initialized GeoInferCurrentUse module with real OSC H3 v4 integration.")
 
     def acquire_raw_data(self) -> Path:
         """
@@ -49,9 +47,7 @@ class GeoInferCurrentUse(BaseAnalysisModule):
                 empirical_data_path = paths["empirical_data"]
                 raw_data_path = paths["raw_data"]
             else:
-                empirical_data_path = Path(
-                    "output/data/empirical_current_use_data.geojson"
-                )
+                empirical_data_path = Path("output/data/empirical_current_use_data.geojson")
                 raw_data_path = Path("output/data/raw_current_use_data.geojson")
         except Exception:
             empirical_data_path = Path("output/data/empirical_current_use_data.geojson")
@@ -64,9 +60,7 @@ class GeoInferCurrentUse(BaseAnalysisModule):
 
         if raw_data_path.exists():
             return raw_data_path
-        raise FileNotFoundError(
-            f"No empirical current-use dataset is available: {raw_data_path}"
-        )
+        raise FileNotFoundError(f"No empirical current-use dataset is available: {raw_data_path}")
 
     def run_final_analysis(self, h3_data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -86,9 +80,7 @@ class GeoInferCurrentUse(BaseAnalysisModule):
 
         # Load real current use data
         try:
-            current_use_gdf = gpd.read_file(
-                self.data_dir / "empirical_current_use_data.geojson"
-            )
+            current_use_gdf = gpd.read_file(self.data_dir / "empirical_current_use_data.geojson")
             logger.info(f"Loaded {len(current_use_gdf)} real current use features")
         except Exception as e:
             logger.error(f"Failed to load real current use data: {e}")
@@ -101,14 +93,10 @@ class GeoInferCurrentUse(BaseAnalysisModule):
             try:
                 # Get hexagon boundary using real H3 v4 methods
                 hex_boundary = h3.cell_to_boundary(h3_index)
-                hex_polygon = Polygon(
-                    [(lng, lat) for lat, lng in hex_boundary]
-                )
+                hex_polygon = Polygon([(lng, lat) for lat, lng in hex_boundary])
 
                 # Find intersecting current use features
-                intersecting_features = current_use_gdf[
-                    current_use_gdf.intersects(hex_polygon)
-                ]
+                intersecting_features = current_use_gdf[current_use_gdf.intersects(hex_polygon)]
 
                 if len(intersecting_features) == 0:
                     # No current use data for this hexagon
@@ -151,9 +139,7 @@ class GeoInferCurrentUse(BaseAnalysisModule):
                 }
 
             except Exception as e:
-                logger.error(
-                    f"Real error in current use analysis for hexagon {h3_index}: {e}"
-                )
+                logger.error(f"Real error in current use analysis for hexagon {h3_index}: {e}")
                 continue
 
         logger.info(
@@ -177,9 +163,7 @@ class GeoInferCurrentUse(BaseAnalysisModule):
                     continue
 
                 # Convert to acres (approximate conversion)
-                area_acres = (
-                    intersection.area * 0.000247105
-                )  # Convert square degrees to acres
+                area_acres = intersection.area * 0.000247105  # Convert square degrees to acres
 
                 crop_type = feature.get("crop_type", "Unknown")
                 intensity = feature.get("intensity", "medium")

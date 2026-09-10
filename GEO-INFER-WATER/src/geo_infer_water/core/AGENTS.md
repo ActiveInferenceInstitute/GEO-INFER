@@ -24,6 +24,7 @@
 - `__init__.py`
 - `flood_drought.py`
 - `hydrology.py`
+- `infiltration.py`
 - `water_balance.py`
 - `water_infrastructure.py`
 - `water_quality.py`

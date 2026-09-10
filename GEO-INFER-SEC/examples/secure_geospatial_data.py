@@ -66,8 +66,12 @@ def main() -> None:
     token = access.generate_token("alice")
     payload = access.validate_token(token)
     print(f"   Token subject: {payload['user_id']}")
-    print(f"   alice inside LA basin: {access.can_access_location('alice', 34.05, -118.24)}")
-    print(f"   alice in New York:     {access.can_access_location('alice', 40.71, -74.00)}")
+    print(
+        f"   alice inside LA basin: {access.can_access_location('alice', 34.05, -118.24)}"
+    )
+    print(
+        f"   alice in New York:     {access.can_access_location('alice', 40.71, -74.00)}"
+    )
 
     # 3. Audit logging: data-access events in a temp log.
     print("\n3. Recording Audit Events...")
@@ -108,8 +112,10 @@ def main() -> None:
     anonymizer = GeospatialAnonymizer(seed=42)
     perturbed = anonymizer.location_perturbation(gdf, epsilon=500.0)
     grouped = anonymizer.spatial_k_anonymity(gdf, k=2, h3_resolution=8)
-    print(f"   Perturbation displacement (max, deg): "
-          f"{max(a.distance(b) for a, b in zip(gdf.geometry, perturbed.geometry)):.6f}")
+    print(
+        f"   Perturbation displacement (max, deg): "
+        f"{max(a.distance(b) for a, b in zip(gdf.geometry, perturbed.geometry)):.6f}"
+    )
     print(f"   K-anonymity output rows: {len(grouped)} (from {len(gdf)} input points)")
 
     print("\n" + "=" * 60)

@@ -17,15 +17,18 @@ from collections import defaultdict, deque
 try:
     from sklearn.ensemble import IsolationForest
     from sklearn.preprocessing import StandardScaler as StandardScaler
+
     HAS_SKLEARN = True
 except ImportError:
     HAS_SKLEARN = False
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class QualityCheckResult:
     """Result of a quality check operation."""
+
     passed: bool
     issues: List[str]
     quality_score: float
@@ -34,6 +37,7 @@ class QualityCheckResult:
     def __post_init__(self) -> None:
         if self.metadata is None:
             self.metadata = {}
+
 
 class QualityController:
     """
@@ -56,7 +60,7 @@ class QualityController:
         self.sensor_baselines: Dict[str, Any] = {}
         self.outlier_detector: Optional[Any] = None
         self.history_size = int(
-            self.config.get('history_size', self.DEFAULT_HISTORY_SIZE)
+            self.config.get("history_size", self.DEFAULT_HISTORY_SIZE)
         )
         # Bounded per-sensor rings so a long-lived controller keeps constant memory.
         self.measurement_history: Dict[str, deque[Dict[str, Any]]] = defaultdict(
@@ -65,23 +69,23 @@ class QualityController:
 
         # Default quality control parameters
         self.default_params = {
-            'outlier_detection': {
-                'method': 'isolation_forest',
-                'contamination': 0.1,
-                'window_size': 100
+            "outlier_detection": {
+                "method": "isolation_forest",
+                "contamination": 0.1,
+                "window_size": 100,
             },
-            'range_validation': {
-                'action': 'flag',  # 'flag', 'reject', 'correct'
-                'strict_mode': False
+            "range_validation": {
+                "action": "flag",  # 'flag', 'reject', 'correct'
+                "strict_mode": False,
             },
-            'temporal_consistency': {
-                'max_change_rate': 0.1,  # Max relative change per minute
-                'window_minutes': 60
+            "temporal_consistency": {
+                "max_change_rate": 0.1,  # Max relative change per minute
+                "window_minutes": 60,
             },
-            'spatial_consistency': {
-                'neighbor_threshold': 2.0,  # Standard deviations
-                'min_neighbors': 3
-            }
+            "spatial_consistency": {
+                "neighbor_threshold": 2.0,  # Standard deviations
+                "min_neighbors": 3,
+            },
         }
 
         # Initialize outlier detector if available
@@ -93,10 +97,11 @@ class QualityController:
     def _initialize_outlier_detector(self) -> None:
         """Initialize the outlier detection model."""
         try:
-            outlier_config = self.config.get('outlier_detection', self.default_params['outlier_detection'])
+            outlier_config = self.config.get(
+                "outlier_detection", self.default_params["outlier_detection"]
+            )
             self.outlier_detector = IsolationForest(
-                contamination=outlier_config.get('contamination', 0.1),
-                random_state=42
+                contamination=outlier_config.get("contamination", 0.1), random_state=42
             )
         except Exception as e:
             logger.warning(f"Failed to initialize outlier detector: {e}")
@@ -134,7 +139,7 @@ class QualityController:
             quality_score *= 0.7
 
         # Spatial consistency check (if location data available)
-        if 'latitude' in measurement and 'longitude' in measurement:
+        if "latitude" in measurement and "longitude" in measurement:
             spatial_result = self._validate_spatial_consistency(measurement)
             if not spatial_result.passed:
                 issues.extend(spatial_result.issues)
@@ -152,41 +157,45 @@ class QualityController:
             issues=issues,
             quality_score=quality_score,
             metadata={
-                'validation_timestamp': datetime.now().isoformat(),
-                'validation_checks': ['range', 'temporal', 'outlier', 'spatial']
-            }
+                "validation_timestamp": datetime.now().isoformat(),
+                "validation_checks": ["range", "temporal", "outlier", "spatial"],
+            },
         )
 
     def _validate_range(self, measurement: Dict) -> QualityCheckResult:
         """Validate measurement value against expected ranges."""
         issues = []
-        variable = measurement.get('variable', 'unknown')
-        value = measurement.get('value')
+        variable = measurement.get("variable", "unknown")
+        value = measurement.get("value")
 
         if value is None:
-            return QualityCheckResult(False, ['Missing value'], 0.0)
+            return QualityCheckResult(False, ["Missing value"], 0.0)
 
         # Get variable-specific ranges from config
-        variable_ranges = self.config.get('variable_ranges', {})
+        variable_ranges = self.config.get("variable_ranges", {})
 
         if variable in variable_ranges:
             min_val, max_val = variable_ranges[variable]
 
             if value < min_val or value > max_val:
-                issues.append(f"Value {value} outside expected range [{min_val}, {max_val}] for {variable}")
+                issues.append(
+                    f"Value {value} outside expected range [{min_val}, {max_val}] for {variable}"
+                )
 
         # General sanity checks
         if not isinstance(value, (int, float)) or np.isnan(value) or np.isinf(value):
             issues.append(f"Invalid value type or NaN/Inf: {value}")
 
-        return QualityCheckResult(len(issues) == 0, issues, 0.9 if len(issues) == 0 else 0.5)
+        return QualityCheckResult(
+            len(issues) == 0, issues, 0.9 if len(issues) == 0 else 0.5
+        )
 
     def _validate_temporal_consistency(self, measurement: Dict) -> QualityCheckResult:
         """Validate temporal consistency of measurements."""
         issues = []
-        sensor_id = measurement.get('sensor_id', 'unknown')
-        timestamp = measurement.get('timestamp')
-        value = measurement.get('value')
+        sensor_id = measurement.get("sensor_id", "unknown")
+        timestamp = measurement.get("timestamp")
+        value = measurement.get("value")
 
         if not timestamp or value is None:
             return QualityCheckResult(True, [], 1.0)  # Skip if no temporal data
@@ -196,46 +205,54 @@ class QualityController:
 
         if len(recent_measurements) >= 2:
             # Calculate rate of change
-            recent_values = [m['value'] for m in recent_measurements[-5:]]  # Last 5 measurements
+            recent_values = [
+                m["value"] for m in recent_measurements[-5:]
+            ]  # Last 5 measurements
             if len(recent_values) >= 2:
                 # Documented location is the nested
                 # temporal_consistency.max_change_rate; the flat key is
                 # kept only as a legacy fallback.
-                temporal_cfg = self.config.get('temporal_consistency', {})
+                temporal_cfg = self.config.get("temporal_consistency", {})
                 max_change_rate = temporal_cfg.get(
-                    'max_change_rate', self.config.get('max_change_rate', 0.1)
+                    "max_change_rate", self.config.get("max_change_rate", 0.1)
                 )
 
                 for i in range(1, len(recent_values)):
-                    prev_val = recent_values[i-1]
+                    prev_val = recent_values[i - 1]
                     curr_val = recent_values[i]
 
                     if prev_val != 0:  # Avoid division by zero
                         change_rate = abs(curr_val - prev_val) / abs(prev_val)
                         if change_rate > max_change_rate:
-                            issues.append(f"Temporal change rate {change_rate:.2%} exceeds threshold {max_change_rate:.2%}")
+                            issues.append(
+                                f"Temporal change rate {change_rate:.2%} exceeds threshold {max_change_rate:.2%}"
+                            )
 
-        return QualityCheckResult(len(issues) == 0, issues, 0.9 if len(issues) == 0 else 0.6)
+        return QualityCheckResult(
+            len(issues) == 0, issues, 0.9 if len(issues) == 0 else 0.6
+        )
 
     def _detect_outliers(self, measurement: Dict) -> QualityCheckResult:
         """Detect outliers using statistical methods and machine learning."""
         issues: List[str] = []
-        value = measurement.get('value')
+        value = measurement.get("value")
 
         if value is None or self.outlier_detector is None:
             return QualityCheckResult(True, [], 1.0)
 
         try:
-            sensor_id = measurement.get('sensor_id', 'unknown')
+            sensor_id = measurement.get("sensor_id", "unknown")
 
             # Isolation Forest needs a population; fit it on the retained window.
-            temp_cfg: Dict[str, Any] = self.default_params.get('temporal_consistency', {})  # type: ignore[assignment]
-            default_win = temp_cfg.get('window_minutes', 60)
-            window = int(self.config.get('outlier_window_minutes', default_win))
+            temp_cfg: Dict[str, Any] = self.default_params.get(
+                "temporal_consistency", {}
+            )  # type: ignore[assignment]
+            default_win = temp_cfg.get("window_minutes", 60)
+            window = int(self.config.get("outlier_window_minutes", default_win))
             recent = self._get_recent_measurements(sensor_id, minutes=window)
-            min_samples = int(self.config.get('outlier_min_samples', 20))
+            min_samples = int(self.config.get("outlier_min_samples", 20))
             if len(recent) >= min_samples:
-                samples = np.array([[entry['value']] for entry in recent])
+                samples = np.array([[entry["value"]] for entry in recent])
                 self.outlier_detector.fit(samples)
                 if self.outlier_detector.predict(np.array([[value]]))[0] == -1:
                     issues.append(
@@ -246,13 +263,15 @@ class QualityController:
             # Statistical 3-sigma check against the running baseline.
             if sensor_id in self.sensor_baselines:
                 baseline = self.sensor_baselines[sensor_id]
-                mean_val = baseline['mean']
-                std_val = baseline['std']
+                mean_val = baseline["mean"]
+                std_val = baseline["std"]
 
                 if std_val > 0:
                     z_score = abs(value - mean_val) / std_val
                     if z_score > 3.0:  # 3-sigma rule
-                        issues.append(f"Statistical outlier detected (z-score: {z_score:.2f})")
+                        issues.append(
+                            f"Statistical outlier detected (z-score: {z_score:.2f})"
+                        )
 
             # Update baseline statistics
             self._update_sensor_baseline(sensor_id, value)
@@ -260,7 +279,9 @@ class QualityController:
         except Exception as e:
             logger.warning(f"Error in outlier detection: {e}")
 
-        return QualityCheckResult(len(issues) == 0, issues, 0.8 if len(issues) == 0 else 0.4)
+        return QualityCheckResult(
+            len(issues) == 0, issues, 0.8 if len(issues) == 0 else 0.4
+        )
 
     def _validate_spatial_consistency(self, measurement: Dict) -> QualityCheckResult:
         """Validate spatial consistency by comparing against nearby sensor baselines.
@@ -274,30 +295,32 @@ class QualityController:
         Falls back to passing when fewer than ``min_neighbors`` baselines exist.
         """
         issues: list = []
-        sensor_id = measurement.get('sensor_id', 'unknown')
-        value = measurement.get('value')
+        sensor_id = measurement.get("sensor_id", "unknown")
+        value = measurement.get("value")
 
         if value is None:
             return QualityCheckResult(True, [], 1.0)
 
         spatial_cfg = self.config.get(
-            'spatial_consistency', self.default_params['spatial_consistency']
+            "spatial_consistency", self.default_params["spatial_consistency"]
         )
-        threshold = float(spatial_cfg.get('neighbor_threshold', 2.0))
-        min_neighbors = int(spatial_cfg.get('min_neighbors', 3))
+        threshold = float(spatial_cfg.get("neighbor_threshold", 2.0))
+        min_neighbors = int(spatial_cfg.get("min_neighbors", 3))
 
         # Collect baselines from all other sensors with >= 5 measurements
         neighbor_baselines = [
-            b for sid, b in self.sensor_baselines.items()
-            if sid != sensor_id and b.get('count', 0) >= 5
+            b
+            for sid, b in self.sensor_baselines.items()
+            if sid != sensor_id and b.get("count", 0) >= 5
         ]
 
         if len(neighbor_baselines) < min_neighbors:
             return QualityCheckResult(True, [], 0.9)
 
         outlier_count = sum(
-            1 for b in neighbor_baselines
-            if abs(value - b['mean']) > threshold * max(b['std'], 0.01)
+            1
+            for b in neighbor_baselines
+            if abs(value - b["mean"]) > threshold * max(b["std"], 0.01)
         )
         fraction_outlier = outlier_count / len(neighbor_baselines)
 
@@ -309,7 +332,6 @@ class QualityController:
 
         quality_score = round(1.0 - fraction_outlier * 0.5, 3)
         return QualityCheckResult(len(issues) == 0, issues, quality_score)
-
 
     @staticmethod
     def _parse_timestamp(timestamp: Any) -> Optional[datetime]:
@@ -325,7 +347,7 @@ class QualityController:
             parsed = timestamp
         elif isinstance(timestamp, str):
             try:
-                parsed = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+                parsed = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
             except ValueError:
                 return None
         else:
@@ -342,17 +364,17 @@ class QualityController:
         Args:
             measurement: The measurement that was just validated.
         """
-        value = measurement.get('value')
+        value = measurement.get("value")
         if not isinstance(value, (int, float)) or isinstance(value, bool):
             return
         if np.isnan(value) or np.isinf(value):
             return
-        observed_at = self._parse_timestamp(measurement.get('timestamp'))
+        observed_at = self._parse_timestamp(measurement.get("timestamp"))
         if observed_at is None:
             return
-        sensor_id = measurement.get('sensor_id', 'unknown')
+        sensor_id = measurement.get("sensor_id", "unknown")
         self.measurement_history[sensor_id].append(
-            {'value': float(value), 'timestamp': observed_at}
+            {"value": float(value), "timestamp": observed_at}
         )
 
     def _get_recent_measurements(self, sensor_id: str, minutes: int = 60) -> List[Dict]:
@@ -372,41 +394,47 @@ class QualityController:
         history = self.measurement_history.get(sensor_id)
         if not history:
             return []
-        newest = history[-1]['timestamp']
+        newest = history[-1]["timestamp"]
         cutoff = newest - timedelta(minutes=minutes)
-        return [entry for entry in history if entry['timestamp'] >= cutoff]
+        return [entry for entry in history if entry["timestamp"] >= cutoff]
 
     def _update_sensor_baseline(self, sensor_id: str, value: float) -> None:
         """Update baseline statistics for a sensor."""
         if sensor_id not in self.sensor_baselines:
             self.sensor_baselines[sensor_id] = {
-                'mean': value,
-                'std': 0.1,
-                'count': 1,
-                'last_update': datetime.now()
+                "mean": value,
+                "std": 0.1,
+                "count": 1,
+                "last_update": datetime.now(),
             }
         else:
             baseline = self.sensor_baselines[sensor_id]
-            count = baseline['count']
-            old_mean = baseline['mean']
+            count = baseline["count"]
+            old_mean = baseline["mean"]
 
             # Update mean using Welford's online algorithm
             new_mean = old_mean + (value - old_mean) / (count + 1)
 
             # Update variance (simplified)
             if count > 1:
-                old_var = baseline['std'] ** 2
-                new_var = ((count - 1) * old_var + (value - old_mean) * (value - new_mean)) / count
-                new_std = np.sqrt(max(0.01, new_var))  # Minimum std to avoid division by zero
+                old_var = baseline["std"] ** 2
+                new_var = (
+                    (count - 1) * old_var + (value - old_mean) * (value - new_mean)
+                ) / count
+                new_std = np.sqrt(
+                    max(0.01, new_var)
+                )  # Minimum std to avoid division by zero
             else:
                 new_std = 0.1
 
-            self.sensor_baselines[sensor_id].update({
-                'mean': new_mean,
-                'std': new_std,
-                'count': count + 1,
-                'last_update': datetime.now()
-            })
+            self.sensor_baselines[sensor_id].update(
+                {
+                    "mean": new_mean,
+                    "std": new_std,
+                    "count": count + 1,
+                    "last_update": datetime.now(),
+                }
+            )
 
     def validate_batch(self, measurements: List[Dict]) -> Dict:
         """
@@ -422,24 +450,26 @@ class QualityController:
 
         for measurement in measurements:
             result = self.validate_measurement(measurement)
-            batch_results.append({
-                'sensor_id': measurement.get('sensor_id', 'unknown'),
-                'passed': result.passed,
-                'quality_score': result.quality_score,
-                'issues': result.issues
-            })
+            batch_results.append(
+                {
+                    "sensor_id": measurement.get("sensor_id", "unknown"),
+                    "passed": result.passed,
+                    "quality_score": result.quality_score,
+                    "issues": result.issues,
+                }
+            )
 
         # Batch statistics
-        passed_count = sum(1 for r in batch_results if r['passed'])
-        avg_quality_score = np.mean([r['quality_score'] for r in batch_results])
+        passed_count = sum(1 for r in batch_results if r["passed"])
+        avg_quality_score = np.mean([r["quality_score"] for r in batch_results])
 
         return {
-            'total_measurements': len(measurements),
-            'passed_measurements': passed_count,
-            'failed_measurements': len(measurements) - passed_count,
-            'pass_rate': passed_count / len(measurements) if measurements else 0.0,
-            'average_quality_score': avg_quality_score,
-            'results': batch_results
+            "total_measurements": len(measurements),
+            "passed_measurements": passed_count,
+            "failed_measurements": len(measurements) - passed_count,
+            "pass_rate": passed_count / len(measurements) if measurements else 0.0,
+            "average_quality_score": avg_quality_score,
+            "results": batch_results,
         }
 
     def get_quality_report(self, time_window_hours: int = 24) -> Dict:
@@ -456,16 +486,16 @@ class QualityController:
         # For now, return summary of current state
 
         return {
-            'report_period_hours': time_window_hours,
-            'sensors_tracked': len(self.sensor_baselines),
-            'quality_checks_performed': len(self.quality_history),
-            'sensor_baselines': {
+            "report_period_hours": time_window_hours,
+            "sensors_tracked": len(self.sensor_baselines),
+            "quality_checks_performed": len(self.quality_history),
+            "sensor_baselines": {
                 sensor_id: {
-                    'mean': baseline['mean'],
-                    'std': baseline['std'],
-                    'measurement_count': baseline['count']
+                    "mean": baseline["mean"],
+                    "std": baseline["std"],
+                    "measurement_count": baseline["count"],
                 }
                 for sensor_id, baseline in self.sensor_baselines.items()
             },
-            'generated_at': datetime.now().isoformat()
+            "generated_at": datetime.now().isoformat(),
         }

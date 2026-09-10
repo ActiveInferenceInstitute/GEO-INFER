@@ -183,9 +183,7 @@ class SpatioTemporalAnalyzer:
 
         temporal_eps_seconds = temporal_eps_hours * 3600
 
-        def are_neighbors(
-            p1: Dict[str, Any], p2: Dict[str, Any]
-        ) -> bool:
+        def are_neighbors(p1: Dict[str, Any], p2: Dict[str, Any]) -> bool:
             """Check if two points are ST-neighbors."""
             # Temporal check
             time_diff = abs((p1["timestamp"] - p2["timestamp"]).total_seconds())

@@ -16,7 +16,7 @@ from sklearn.metrics import (
     f1_score,
     mean_absolute_error,
     mean_squared_error,
-    r2_score
+    r2_score,
 )
 
 logger = logging.getLogger(__name__)
@@ -26,11 +26,11 @@ class GeospatialModelEvaluator:
     """
     Evaluate geospatial AI models with spatial-specific metrics.
     """
-    
+
     def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         """Initialize model evaluator."""
         self.config = config or {}
-    
+
     def evaluate_classification(
         self,
         y_true: np.ndarray,
@@ -39,54 +39,58 @@ class GeospatialModelEvaluator:
     ) -> Dict[str, float]:
         """
         Evaluate classification model.
-        
+
         Args:
             y_true: True labels
             y_pred: Predicted labels
             labels: Optional label names
-            
+
         Returns:
             Evaluation metrics
         """
         metrics = {
-            'accuracy': float(accuracy_score(y_true, y_pred)),
-            'precision': float(precision_score(y_true, y_pred, average='weighted', zero_division=0)),
-            'recall': float(recall_score(y_true, y_pred, average='weighted', zero_division=0)),
-            'f1_score': float(f1_score(y_true, y_pred, average='weighted', zero_division=0))
+            "accuracy": float(accuracy_score(y_true, y_pred)),
+            "precision": float(
+                precision_score(y_true, y_pred, average="weighted", zero_division=0)
+            ),
+            "recall": float(
+                recall_score(y_true, y_pred, average="weighted", zero_division=0)
+            ),
+            "f1_score": float(
+                f1_score(y_true, y_pred, average="weighted", zero_division=0)
+            ),
         }
-        
+
         return metrics
-    
+
     def evaluate_regression(
-        self,
-        y_true: np.ndarray,
-        y_pred: np.ndarray
+        self, y_true: np.ndarray, y_pred: np.ndarray
     ) -> Dict[str, float]:
         """
         Evaluate regression model.
-        
+
         Args:
             y_true: True values
             y_pred: Predicted values
-            
+
         Returns:
             Evaluation metrics
         """
         metrics = {
-            'mae': float(mean_absolute_error(y_true, y_pred)),
-            'mse': float(mean_squared_error(y_true, y_pred)),
-            'rmse': float(np.sqrt(mean_squared_error(y_true, y_pred))),
-            'r2': float(r2_score(y_true, y_pred))
+            "mae": float(mean_absolute_error(y_true, y_pred)),
+            "mse": float(mean_squared_error(y_true, y_pred)),
+            "rmse": float(np.sqrt(mean_squared_error(y_true, y_pred))),
+            "r2": float(r2_score(y_true, y_pred)),
         }
-        
+
         return metrics
-    
+
     def evaluate_spatial_accuracy(
         self,
         y_true: np.ndarray,
         y_pred: np.ndarray,
         coordinates: np.ndarray,
-        buffer_distance: float = 100.0
+        buffer_distance: float = 100.0,
     ) -> Dict[str, float]:
         """
         Evaluate prediction accuracy as a value-error-within-tolerance metric.
@@ -115,17 +119,17 @@ class GeospatialModelEvaluator:
         errors = np.abs(y_true - y_pred)
 
         spatial_metrics = {
-            'mean_spatial_error': float(np.mean(errors)),
-            'median_spatial_error': float(np.median(errors)),
-            'max_spatial_error': float(np.max(errors)),
-            'spatial_error_std': float(np.std(errors))
+            "mean_spatial_error": float(np.mean(errors)),
+            "median_spatial_error": float(np.median(errors)),
+            "max_spatial_error": float(np.max(errors)),
+            "spatial_error_std": float(np.std(errors)),
         }
 
         within_buffer = np.sum(errors <= buffer_distance) / len(errors) * 100
-        spatial_metrics['within_buffer_percentage'] = float(within_buffer)
-        
+        spatial_metrics["within_buffer_percentage"] = float(within_buffer)
+
         return spatial_metrics
-    
+
     def compute_confusion_matrix(
         self,
         y_true: np.ndarray,
@@ -154,19 +158,23 @@ class GeospatialModelEvaluator:
 
         # Normalized version if requested
         cm_normalized = None
-        if normalize == 'true':
+        if normalize == "true":
             row_sums = cm.sum(axis=1, keepdims=True)
             cm_normalized = np.divide(
-                cm.astype(float), row_sums,
-                out=np.zeros_like(cm, dtype=float), where=row_sums != 0
+                cm.astype(float),
+                row_sums,
+                out=np.zeros_like(cm, dtype=float),
+                where=row_sums != 0,
             )
-        elif normalize == 'pred':
+        elif normalize == "pred":
             col_sums = cm.sum(axis=0, keepdims=True)
             cm_normalized = np.divide(
-                cm.astype(float), col_sums,
-                out=np.zeros_like(cm, dtype=float), where=col_sums != 0
+                cm.astype(float),
+                col_sums,
+                out=np.zeros_like(cm, dtype=float),
+                where=col_sums != 0,
             )
-        elif normalize == 'all':
+        elif normalize == "all":
             total = cm.sum()
             cm_normalized = cm.astype(float) / total if total > 0 else cm.astype(float)
 
@@ -181,25 +189,26 @@ class GeospatialModelEvaluator:
             recall_val = tp / (tp + fn) if (tp + fn) > 0 else 0.0
             f1_val = (
                 2 * precision_val * recall_val / (precision_val + recall_val)
-                if (precision_val + recall_val) > 0 else 0.0
+                if (precision_val + recall_val) > 0
+                else 0.0
             )
             per_class[str(label)] = {
-                'true_positive': int(tp),
-                'false_positive': int(fp),
-                'false_negative': int(fn),
-                'true_negative': int(tn),
-                'precision': float(precision_val),
-                'recall': float(recall_val),
-                'f1_score': float(f1_val),
+                "true_positive": int(tp),
+                "false_positive": int(fp),
+                "false_negative": int(fn),
+                "true_negative": int(tn),
+                "precision": float(precision_val),
+                "recall": float(recall_val),
+                "f1_score": float(f1_val),
             }
 
         result: Dict[str, Any] = {
-            'confusion_matrix': cm.tolist(),
-            'labels': [str(l) for l in labels],
-            'per_class': per_class,
+            "confusion_matrix": cm.tolist(),
+            "labels": [str(l) for l in labels],
+            "per_class": per_class,
         }
         if cm_normalized is not None:
-            result['confusion_matrix_normalized'] = cm_normalized.tolist()
+            result["confusion_matrix_normalized"] = cm_normalized.tolist()
 
         return result
 
@@ -207,7 +216,7 @@ class GeospatialModelEvaluator:
         self,
         y_true: np.ndarray,
         y_score: np.ndarray,
-        multi_class: str = 'ovr',
+        multi_class: str = "ovr",
     ) -> Dict[str, Any]:
         """
         Compute ROC-AUC score.
@@ -228,7 +237,7 @@ class GeospatialModelEvaluator:
         unique_classes = np.unique(y_true)
         n_classes = len(unique_classes)
 
-        result: Dict[str, Any] = {'n_classes': n_classes}
+        result: Dict[str, Any] = {"n_classes": n_classes}
 
         if n_classes == 2:
             # Binary case
@@ -236,34 +245,36 @@ class GeospatialModelEvaluator:
             if scores.ndim == 2:
                 scores = scores[:, 1]
             auc = float(roc_auc_score(y_true, scores))
-            result['roc_auc'] = auc
+            result["roc_auc"] = auc
         elif n_classes > 2:
             # Multi-class case
             if y_score.ndim == 1:
                 raise ValueError(
-                    "For multi-class ROC-AUC, y_score must be 2D "
-                    "(n_samples, n_classes)"
+                    "For multi-class ROC-AUC, y_score must be 2D (n_samples, n_classes)"
                 )
-            auc = float(roc_auc_score(
-                y_true, y_score, multi_class=multi_class, average='weighted'
-            ))
-            result['roc_auc'] = auc
-            result['multi_class_strategy'] = multi_class
+            auc = float(
+                roc_auc_score(
+                    y_true, y_score, multi_class=multi_class, average="weighted"
+                )
+            )
+            result["roc_auc"] = auc
+            result["multi_class_strategy"] = multi_class
 
             # Per-class AUC (one-vs-rest)
             from sklearn.preprocessing import label_binarize
+
             y_bin = label_binarize(y_true, classes=unique_classes)
             per_class_auc = {}
             for i, cls in enumerate(unique_classes):
                 try:
                     cls_auc = float(roc_auc_score(y_bin[:, i], y_score[:, i]))
                 except ValueError:
-                    cls_auc = float('nan')
+                    cls_auc = float("nan")
                 per_class_auc[str(cls)] = cls_auc
-            result['per_class_auc'] = per_class_auc
+            result["per_class_auc"] = per_class_auc
         else:
-            result['roc_auc'] = float('nan')
-            result['error'] = 'Only one class present in y_true'
+            result["roc_auc"] = float("nan")
+            result["error"] = "Only one class present in y_true"
 
         return result
 
@@ -273,7 +284,7 @@ class GeospatialModelEvaluator:
         X: np.ndarray,
         y: np.ndarray,
         coordinates: np.ndarray,
-        n_splits: int = 5
+        n_splits: int = 5,
     ) -> Dict[str, Any]:
         """
         Perform spatial block cross-validation.
@@ -324,8 +335,7 @@ class GeospatialModelEvaluator:
             scores.append(float(score))
 
         return {
-            'mean_score': float(np.mean(scores)),
-            'std_score': float(np.std(scores)),
-            'scores': scores,
+            "mean_score": float(np.mean(scores)),
+            "std_score": float(np.std(scores)),
+            "scores": scores,
         }
-

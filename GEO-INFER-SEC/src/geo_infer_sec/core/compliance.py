@@ -248,10 +248,10 @@ class ComplianceFramework:
             <head><title>Compliance Report</title></head>
             <body>
                 <h1>Compliance Report</h1>
-                <p>Generated: {report['timestamp']}</p>
+                <p>Generated: {report["timestamp"]}</p>
                 <h2>Summary</h2>
-                <p>Total Rules: {report['total_rules']}</p>
-                <p>Total Violations: {report['total_violations']}</p>
+                <p>Total Rules: {report["total_rules"]}</p>
+                <p>Total Violations: {report["total_violations"]}</p>
 
                 <h2>Violations by Regime</h2>
                 <ul>
@@ -277,11 +277,11 @@ class ComplianceFramework:
             for v in report["violations"]:
                 html += f"""
                 <tr>
-                    <td>{v['rule_name']}</td>
-                    <td>{v['regime']}</td>
-                    <td>{v['data_reference']}</td>
-                    <td>{v['timestamp']}</td>
-                    <td>{v['details'] or ''}</td>
+                    <td>{v["rule_name"]}</td>
+                    <td>{v["regime"]}</td>
+                    <td>{v["data_reference"]}</td>
+                    <td>{v["timestamp"]}</td>
+                    <td>{v["details"] or ""}</td>
                 </tr>
                 """
 

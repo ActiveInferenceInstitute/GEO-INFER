@@ -1,2 +1,1 @@
 """Data models for simulations."""
-

@@ -375,9 +375,7 @@ class GaussianModel(BaseActiveInferenceModel):
         updated_mean: np.ndarray = predicted_mean + K @ (
             observation - self.C @ predicted_mean
         )
-        updated_cov: np.ndarray = (
-            np.eye(self.state_dim) - K @ self.C
-        ) @ predicted_cov
+        updated_cov: np.ndarray = (np.eye(self.state_dim) - K @ self.C) @ predicted_cov
 
         # Ensure covariance matrix stays symmetric and positive definite
         updated_cov = (updated_cov + updated_cov.T) / 2

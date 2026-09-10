@@ -123,7 +123,9 @@ class TheoremProver:
                 time_taken=time.time() - start_time,
             )
 
-    def _prove_z3(self, theorem: str, assumptions: List[str], **kwargs: Any) -> ProofResult:
+    def _prove_z3(
+        self, theorem: str, assumptions: List[str], **kwargs: Any
+    ) -> ProofResult:
         """Prove using Z3 backend."""
         try:
             z3 = self._prover

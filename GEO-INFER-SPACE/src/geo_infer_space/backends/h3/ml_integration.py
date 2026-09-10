@@ -840,7 +840,6 @@ class H3DisasterResponse:
                                 other_change["cell_index"] == neighbor_idx
                                 and neighbor_idx not in processed_cells
                             ):
-
                                 cluster_cells.append(other_change)
                                 cluster_queue.append(neighbor_idx)
                                 processed_cells.add(neighbor_idx)
@@ -1027,9 +1026,7 @@ class H3PerformanceOptimizer:
         resolution_stats = {
             res: {
                 "avg_area_km2": float(h3.average_hexagon_area(res, unit="km^2")),
-                "edge_length_km": float(
-                    h3.average_hexagon_edge_length(res, unit="km")
-                ),
+                "edge_length_km": float(h3.average_hexagon_edge_length(res, unit="km")),
             }
             for res in range(16)
         }

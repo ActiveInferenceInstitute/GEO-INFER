@@ -118,7 +118,9 @@ def _operation() -> Dict[str, Any]:
         base_ndvi = 0.55 + 0.10 * float(rng.random())
         for step, stamp in enumerate(dates):
             seasonal = 0.08 * float(np.sin(2.0 * np.pi * step / 12.0))
-            ndvi = float(np.clip(base_ndvi + seasonal + rng.normal(0.0, 0.03), 0.05, 0.95))
+            ndvi = float(
+                np.clip(base_ndvi + seasonal + rng.normal(0.0, 0.03), 0.05, 0.95)
+            )
             evi = float(np.clip(0.75 * ndvi + rng.normal(0.0, 0.02), 0.02, 0.90))
             stress = float(np.clip(1.0 - 1.1 * ndvi + rng.normal(0.0, 0.05), 0.0, 1.0))
             ndvi_measurements.append(

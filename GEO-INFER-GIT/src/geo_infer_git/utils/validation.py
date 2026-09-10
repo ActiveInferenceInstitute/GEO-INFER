@@ -33,83 +33,117 @@ class ConfigValidator:
     def _load_default_schemas(self) -> Dict[str, Dict[str, Any]]:
         """Load default validation schemas."""
         return {
-            'clone_config': {
-                'type': 'object',
-                'properties': {
-                    'general': {
-                        'type': 'object',
-                        'properties': {
-                            'output_dir': {'type': 'string', 'minLength': 1},
-                            'base_dir': {'type': 'string', 'minLength': 1}
-                        }
+            "clone_config": {
+                "type": "object",
+                "properties": {
+                    "general": {
+                        "type": "object",
+                        "properties": {
+                            "output_dir": {"type": "string", "minLength": 1},
+                            "base_dir": {"type": "string", "minLength": 1},
+                        },
                     },
-                    'github': {
-                        'type': 'object',
-                        'properties': {
-                            'token': {'type': 'string'},
-                            'api_url': {'type': 'string', 'format': 'uri'},
-                            'wait_on_rate_limit': {'type': 'boolean'},
-                            'max_retries': {'type': 'integer', 'minimum': 1, 'maximum': 10},
-                            'retry_delay': {'type': 'number', 'minimum': 0.1, 'maximum': 60}
-                        }
-                    },
-                    'concurrency': {
-                        'type': 'object',
-                        'properties': {
-                            'enabled': {'type': 'boolean'},
-                            'max_workers': {'type': 'integer', 'minimum': 1, 'maximum': 20}
-                        }
-                    },
-                    'logging': {
-                        'type': 'object',
-                        'properties': {
-                            'level': {'type': 'string', 'enum': ['DEBUG', 'INFO', 'WARNING', 'ERROR']},
-                            'format': {'type': 'string', 'enum': ['json', 'text']},
-                            'file': {'type': 'string'}
-                        }
-                    }
-                }
-            },
-            'target_repositories': {
-                'type': 'object',
-                'properties': {
-                    'repositories': {
-                        'type': 'array',
-                        'items': {
-                            'type': 'object',
-                            'properties': {
-                                'owner': {'type': 'string', 'pattern': '^[a-zA-Z0-9]([a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$'},
-                                'repo': {'type': 'string', 'pattern': '^[a-zA-Z0-9._-]+$'},
-                                'branch': {'type': 'string', 'minLength': 1},
-                                'tags': {'type': 'array', 'items': {'type': 'string'}},
-                                'clone_depth': {'type': 'integer', 'minimum': 0},
-                                'enabled': {'type': 'boolean'}
+                    "github": {
+                        "type": "object",
+                        "properties": {
+                            "token": {"type": "string"},
+                            "api_url": {"type": "string", "format": "uri"},
+                            "wait_on_rate_limit": {"type": "boolean"},
+                            "max_retries": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 10,
                             },
-                            'required': ['owner', 'repo']
-                        }
-                    }
-                }
-            },
-            'target_users': {
-                'type': 'object',
-                'properties': {
-                    'users': {
-                        'type': 'array',
-                        'items': {
-                            'type': 'object',
-                            'properties': {
-                                'username': {'type': 'string', 'pattern': '^[a-zA-Z0-9]([a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$'},
-                                'include_repos': {'type': 'array', 'items': {'type': 'string'}},
-                                'exclude_repos': {'type': 'array', 'items': {'type': 'string'}},
-                                'max_repos': {'type': 'integer', 'minimum': 1, 'maximum': 100},
-                                'tags': {'type': 'array', 'items': {'type': 'string'}},
-                                'enabled': {'type': 'boolean'}
+                            "retry_delay": {
+                                "type": "number",
+                                "minimum": 0.1,
+                                "maximum": 60,
                             },
-                            'required': ['username']
-                        }
+                        },
+                    },
+                    "concurrency": {
+                        "type": "object",
+                        "properties": {
+                            "enabled": {"type": "boolean"},
+                            "max_workers": {
+                                "type": "integer",
+                                "minimum": 1,
+                                "maximum": 20,
+                            },
+                        },
+                    },
+                    "logging": {
+                        "type": "object",
+                        "properties": {
+                            "level": {
+                                "type": "string",
+                                "enum": ["DEBUG", "INFO", "WARNING", "ERROR"],
+                            },
+                            "format": {"type": "string", "enum": ["json", "text"]},
+                            "file": {"type": "string"},
+                        },
+                    },
+                },
+            },
+            "target_repositories": {
+                "type": "object",
+                "properties": {
+                    "repositories": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "owner": {
+                                    "type": "string",
+                                    "pattern": "^[a-zA-Z0-9]([a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$",
+                                },
+                                "repo": {
+                                    "type": "string",
+                                    "pattern": "^[a-zA-Z0-9._-]+$",
+                                },
+                                "branch": {"type": "string", "minLength": 1},
+                                "tags": {"type": "array", "items": {"type": "string"}},
+                                "clone_depth": {"type": "integer", "minimum": 0},
+                                "enabled": {"type": "boolean"},
+                            },
+                            "required": ["owner", "repo"],
+                        },
                     }
-                }
-            }
+                },
+            },
+            "target_users": {
+                "type": "object",
+                "properties": {
+                    "users": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "username": {
+                                    "type": "string",
+                                    "pattern": "^[a-zA-Z0-9]([a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$",
+                                },
+                                "include_repos": {
+                                    "type": "array",
+                                    "items": {"type": "string"},
+                                },
+                                "exclude_repos": {
+                                    "type": "array",
+                                    "items": {"type": "string"},
+                                },
+                                "max_repos": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 100,
+                                },
+                                "tags": {"type": "array", "items": {"type": "string"}},
+                                "enabled": {"type": "boolean"},
+                            },
+                            "required": ["username"],
+                        },
+                    }
+                },
+            },
         }
 
     def add_custom_schema(self, name: str, schema: Dict[str, Any]) -> None:
@@ -175,15 +209,15 @@ class ConfigValidator:
             return errors
 
         # Check scheme
-        if parsed.scheme not in ['http', 'https', 'git', 'ssh']:
+        if parsed.scheme not in ["http", "https", "git", "ssh"]:
             errors.append(f"Invalid URL scheme: {parsed.scheme}")
 
         # Check hostname for GitHub
-        if 'github.com' not in parsed.netloc:
+        if "github.com" not in parsed.netloc:
             errors.append(f"Not a GitHub URL: {parsed.netloc}")
 
         # Check path format
-        path_parts = [p for p in parsed.path.strip('/').split('/') if p]
+        path_parts = [p for p in parsed.path.strip("/").split("/") if p]
         if len(path_parts) < 2:
             errors.append("URL must include owner and repository name")
         elif len(path_parts) > 2:
@@ -192,14 +226,18 @@ class ConfigValidator:
         # Validate owner and repo names
         if len(path_parts) >= 2:
             owner, repo = path_parts[0], path_parts[1]
-            if not re.match(r'^[a-zA-Z0-9]([a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$', owner):
+            if not re.match(
+                r"^[a-zA-Z0-9]([a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$", owner
+            ):
                 errors.append(f"Invalid owner name: {owner}")
-            if not re.match(r'^[a-zA-Z0-9._-]+$', repo):
+            if not re.match(r"^[a-zA-Z0-9._-]+$", repo):
                 errors.append(f"Invalid repository name: {repo}")
 
         return errors
 
-    def validate_directory_path(self, path: str, must_exist: bool = False, writable: bool = True) -> List[str]:
+    def validate_directory_path(
+        self, path: str, must_exist: bool = False, writable: bool = True
+    ) -> List[str]:
         """
         Validate directory path.
 
@@ -233,7 +271,7 @@ class ConfigValidator:
         if writable:
             try:
                 # Try to create a test file
-                test_file = path_obj / '.test_write'
+                test_file = path_obj / ".test_write"
                 test_file.touch()
                 test_file.unlink()
             except Exception:
@@ -267,7 +305,7 @@ class ConfigValidator:
             errors.append("Token appears to be too short")
 
         # Check for valid characters (GitHub tokens use base64-like encoding)
-        if not re.match(r'^[a-zA-Z0-9_-]+$', token):
+        if not re.match(r"^[a-zA-Z0-9_-]+$", token):
             errors.append("Token contains invalid characters")
 
         return errors
@@ -293,17 +331,18 @@ class ConfigValidator:
             errors.append("Branch name too long (max 255 characters)")
 
         # Check for invalid characters
-        invalid_chars = [' ', '..', '~', '^', ':', '?', '*', '[', '\\']
+        invalid_chars = [" ", "..", "~", "^", ":", "?", "*", "[", "\\"]
         for char in invalid_chars:
             if char in branch:
                 errors.append(f"Branch name contains invalid character: {char}")
 
         # Check for reserved names
-        reserved_names = ['HEAD', 'refs', 'refs/heads', 'refs/tags']
+        reserved_names = ["HEAD", "refs", "refs/heads", "refs/tags"]
         if branch.lower() in [name.lower() for name in reserved_names]:
             errors.append(f"Branch name '{branch}' is reserved")
 
         return errors
+
 
 class RepositoryValidator:
     """
@@ -328,23 +367,23 @@ class RepositoryValidator:
         errors = []
 
         # Required fields
-        required_fields = ['name', 'owner', 'url', 'clone_url']
+        required_fields = ["name", "owner", "url", "clone_url"]
         for field in required_fields:
             if field not in repo_data or not repo_data[field]:
                 errors.append(f"Missing or empty required field: {field}")
 
         # Validate URLs if present
-        url_fields = ['url', 'clone_url', 'ssh_url']
+        url_fields = ["url", "clone_url", "ssh_url"]
         for field in url_fields:
             if field in repo_data and repo_data[field]:
                 url_errors = self.validate_github_url(repo_data[field])
                 errors.extend([f"{field}: {error}" for error in url_errors])
 
         # Validate numeric fields
-        if 'stars' in repo_data and not isinstance(repo_data['stars'], int):
+        if "stars" in repo_data and not isinstance(repo_data["stars"], int):
             errors.append("Stars must be an integer")
 
-        if 'size' in repo_data and not isinstance(repo_data['size'], int):
+        if "size" in repo_data and not isinstance(repo_data["size"], int):
             errors.append("Size must be an integer")
 
         return errors
@@ -368,14 +407,15 @@ class RepositoryValidator:
         errors = []
 
         # Owner validation (GitHub username/organization rules)
-        if not re.match(r'^[a-zA-Z0-9]([a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$', owner):
+        if not re.match(r"^[a-zA-Z0-9]([a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$", owner):
             errors.append(f"Invalid owner format: {owner}")
 
         # Repository validation
-        if not re.match(r'^[a-zA-Z0-9._-]+$', repo):
+        if not re.match(r"^[a-zA-Z0-9._-]+$", repo):
             errors.append(f"Invalid repository format: {repo}")
 
         return errors
+
 
 class InputValidator:
     """
@@ -412,7 +452,13 @@ class InputValidator:
 
         return errors
 
-    def validate_string_length(self, value: Any, field_name: str, min_length: int = 0, max_length: Optional[int] = None) -> List[str]:
+    def validate_string_length(
+        self,
+        value: Any,
+        field_name: str,
+        min_length: int = 0,
+        max_length: Optional[int] = None,
+    ) -> List[str]:
         """
         Validate string length.
 
@@ -443,7 +489,9 @@ class InputValidator:
 
         return errors
 
-    def validate_enum_value(self, value: Any, field_name: str, allowed_values: List[str]) -> List[str]:
+    def validate_enum_value(
+        self, value: Any, field_name: str, allowed_values: List[str]
+    ) -> List[str]:
         """
         Validate that a value is in a list of allowed values.
 
@@ -466,6 +514,7 @@ class InputValidator:
 
         return errors
 
+
 def validate_config_file(config_path: str) -> Tuple[bool, List[str]]:
     """
     Validate a configuration file.
@@ -484,18 +533,19 @@ def validate_config_file(config_path: str) -> Tuple[bool, List[str]]:
         return False, errors
 
     # Check file extension
-    if not config_path.endswith(('.yaml', '.yml', '.json')):
+    if not config_path.endswith((".yaml", ".yml", ".json")):
         errors.append(f"Unsupported file format: {config_path}")
         return False, errors
 
     try:
         # Load file
-        if config_path.endswith('.json'):
-            with open(config_path, 'r') as f:
+        if config_path.endswith(".json"):
+            with open(config_path, "r") as f:
                 config = json.load(f)
         else:
             import yaml
-            with open(config_path, 'r') as f:
+
+            with open(config_path, "r") as f:
                 config = yaml.safe_load(f)
 
         if config is None:
@@ -504,12 +554,12 @@ def validate_config_file(config_path: str) -> Tuple[bool, List[str]]:
 
         # Determine schema based on filename
         filename = os.path.basename(config_path)
-        if 'target_repos' in filename or 'repositories' in filename:
-            schema_name = 'target_repositories'
-        elif 'target_users' in filename or 'users' in filename:
-            schema_name = 'target_users'
-        elif 'clone' in filename or 'config' in filename:
-            schema_name = 'clone_config'
+        if "target_repos" in filename or "repositories" in filename:
+            schema_name = "target_repositories"
+        elif "target_users" in filename or "users" in filename:
+            schema_name = "target_users"
+        elif "clone" in filename or "config" in filename:
+            schema_name = "clone_config"
         else:
             errors.append(f"Cannot determine schema for file: {filename}")
             return False, errors
@@ -528,7 +578,12 @@ def validate_config_file(config_path: str) -> Tuple[bool, List[str]]:
 
     return len(errors) == 0, errors
 
-def validate_github_credentials(token: Optional[str] = None, username: Optional[str] = None, password: Optional[str] = None) -> List[str]:
+
+def validate_github_credentials(
+    token: Optional[str] = None,
+    username: Optional[str] = None,
+    password: Optional[str] = None,
+) -> List[str]:
     """
     Validate GitHub authentication credentials.
 
@@ -556,7 +611,9 @@ def validate_github_credentials(token: Optional[str] = None, username: Optional[
     # Validate username if provided
     if username:
         input_validator = InputValidator()
-        username_errors = input_validator.validate_string_length(username, 'username', 1, 39)
+        username_errors = input_validator.validate_string_length(
+            username, "username", 1, 39
+        )
         errors.extend(username_errors)
 
     # Validate password if provided

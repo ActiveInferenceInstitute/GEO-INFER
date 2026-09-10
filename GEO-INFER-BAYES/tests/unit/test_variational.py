@@ -72,7 +72,6 @@ class _VectorVIModel(BayesianModel):
 
 
 class TestVariationalInferenceInit:
-
     def test_default_init(self) -> None:
         model = _SimpleVIModel(name="test")
         vi = VariationalInference(model)
@@ -91,7 +90,6 @@ class TestVariationalInferenceInit:
 
 
 class TestVariationalParameterInit:
-
     def test_initialize_variational_parameters(self) -> None:
         model = _SimpleVIModel(name="test")
         vi = VariationalInference(model, random_seed=0)
@@ -111,7 +109,6 @@ class TestVariationalParameterInit:
 
 
 class TestVariationalSampling:
-
     def test_sample_variational_distribution(self) -> None:
         model = _SimpleVIModel(name="test")
         vi = VariationalInference(model, random_seed=0)
@@ -135,7 +132,6 @@ class TestVariationalSampling:
 
 
 class TestVariationalInferenceRun:
-
     def test_run_produces_samples(self) -> None:
         model = _SimpleVIModel(name="test")
         vi = VariationalInference(

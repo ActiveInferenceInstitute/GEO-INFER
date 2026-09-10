@@ -143,9 +143,9 @@ def assert_response_status(response: Any, expected_status: int) -> None:
         response: FastAPI response
         expected_status: Expected status code
     """
-    assert (
-        response.status_code == expected_status
-    ), f"Expected status {expected_status}, got {response.status_code}"
+    assert response.status_code == expected_status, (
+        f"Expected status {expected_status}, got {response.status_code}"
+    )
 
 
 def assert_response_json(response: Any, expected_json: Dict[str, Any]) -> None:
@@ -155,9 +155,9 @@ def assert_response_json(response: Any, expected_json: Dict[str, Any]) -> None:
         response: FastAPI response
         expected_json: Expected JSON content
     """
-    assert (
-        response.json() == expected_json
-    ), f"Expected JSON {expected_json}, got {response.json()}"
+    assert response.json() == expected_json, (
+        f"Expected JSON {expected_json}, got {response.json()}"
+    )
 
 
 def assert_metric_value(
@@ -175,9 +175,9 @@ def assert_metric_value(
     labels = labels or {}
 
     actual_value = get_metric_value(metric_name, labels)
-    assert (
-        actual_value == expected_value
-    ), f"Metric {metric_name} value mismatch: expected {expected_value}, got {actual_value}"
+    assert actual_value == expected_value, (
+        f"Metric {metric_name} value mismatch: expected {expected_value}, got {actual_value}"
+    )
 
 
 def create_test_app() -> Any:

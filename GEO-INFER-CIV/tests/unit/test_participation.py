@@ -20,13 +20,15 @@ def sample_records():
     methods = list(ParticipationMethod)
     demographics = ["youth", "seniors", "families", "professionals"]
     for i in range(40):
-        records.append(ParticipantRecord(
-            participant_id=f"p_{i}",
-            method=methods[i % len(methods)],
-            timestamp=1000.0 + i * 100,
-            demographic_group=demographics[i % len(demographics)],
-            sentiment_score=0.5 + (i % 5) * 0.1,
-        ))
+        records.append(
+            ParticipantRecord(
+                participant_id=f"p_{i}",
+                method=methods[i % len(methods)],
+                timestamp=1000.0 + i * 100,
+                demographic_group=demographics[i % len(demographics)],
+                sentiment_score=0.5 + (i % 5) * 0.1,
+            )
+        )
     return records
 
 
@@ -50,11 +52,13 @@ class TestParticipationAnalyzer:
 
     def test_reach_ratio_capped_at_one(self, analyzer):
         for i in range(200):
-            analyzer.add_record(ParticipantRecord(
-                participant_id=f"p_{i}",
-                method=ParticipationMethod.SURVEY,
-                timestamp=1000.0,
-            ))
+            analyzer.add_record(
+                ParticipantRecord(
+                    participant_id=f"p_{i}",
+                    method=ParticipationMethod.SURVEY,
+                    timestamp=1000.0,
+                )
+            )
         score = analyzer.compute_engagement_score(target_population=50)
         assert score.reach_ratio <= 1.0
 
@@ -74,7 +78,9 @@ class TestParticipationAnalyzer:
 
     def test_participation_index_invalid_baseline(self, analyzer):
         with pytest.raises(ValueError, match="baseline_rate"):
-            analyzer.compute_participation_index(target_population=100, baseline_rate=0.0)
+            analyzer.compute_participation_index(
+                target_population=100, baseline_rate=0.0
+            )
 
     def test_representation_analysis(self, analyzer, sample_records):
         analyzer.add_records(sample_records)
@@ -94,12 +100,14 @@ class TestParticipationAnalyzer:
     def test_representation_underrepresented(self, analyzer):
         # All participants from one group
         for i in range(20):
-            analyzer.add_record(ParticipantRecord(
-                participant_id=f"p_{i}",
-                method=ParticipationMethod.SURVEY,
-                timestamp=1000.0,
-                demographic_group="youth",
-            ))
+            analyzer.add_record(
+                ParticipantRecord(
+                    participant_id=f"p_{i}",
+                    method=ParticipationMethod.SURVEY,
+                    timestamp=1000.0,
+                    demographic_group="youth",
+                )
+            )
         report = analyzer.analyze_representation(
             population_demographics={"youth": 0.5, "seniors": 0.5}
         )

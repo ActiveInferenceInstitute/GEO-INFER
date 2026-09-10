@@ -17,7 +17,9 @@ from dataclasses import dataclass, field
 try:
     from geo_infer_act.core.active_inference import ActiveInferenceModel
 except ImportError as e:
-    logging.getLogger(__name__).debug("Optional active-inference integration unavailable: %s", e)
+    logging.getLogger(__name__).debug(
+        "Optional active-inference integration unavailable: %s", e
+    )
     ActiveInferenceModel = None
 
 try:
@@ -31,7 +33,9 @@ except ImportError as e:
 try:
     from geo_infer_agent.core.agent_base import BaseAgent
 except ImportError as e:
-    logging.getLogger(__name__).debug("Optional agent-framework integration unavailable: %s", e)
+    logging.getLogger(__name__).debug(
+        "Optional agent-framework integration unavailable: %s", e
+    )
     BaseAgent = None
 
 

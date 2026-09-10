@@ -16,6 +16,7 @@ from datetime import datetime
 # Optional dependencies with graceful handling
 try:
     import streamlit as st
+
     HAS_STREAMLIT = True
 except ImportError:
     HAS_STREAMLIT = False
@@ -23,6 +24,7 @@ except ImportError:
 
 try:
     import pandas as pd
+
     HAS_PANDAS = True
 except ImportError:
     HAS_PANDAS = False
@@ -32,6 +34,7 @@ try:
     import plotly.express as px
     import plotly.graph_objects as go
     from plotly.subplots import make_subplots
+
     HAS_PLOTLY = True
 except ImportError:
     HAS_PLOTLY = False
@@ -39,14 +42,19 @@ except ImportError:
 
 try:
     import requests
+
     HAS_REQUESTS = True
 except ImportError:
     HAS_REQUESTS = False
     print("⚠️  Requests not found. Install with: uv pip install requests")
 
+
 def setup_logging():
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    return logging.getLogger('area_study_dashboard')
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
+    return logging.getLogger("area_study_dashboard")
+
 
 class AreaStudyDashboard:
     def __init__(self):
@@ -56,13 +64,13 @@ class AreaStudyDashboard:
 
     def load_data(self):
         """Load area study data from output directory."""
-        output_dir = Path(__file__).parent.parent / 'output'
+        output_dir = Path(__file__).parent.parent / "output"
 
         # Look for the most recent results file
-        json_files = list(output_dir.glob('*area_study_results*.json'))
+        json_files = list(output_dir.glob("*area_study_results*.json"))
         if json_files:
             latest_file = max(json_files, key=lambda f: f.stat().st_mtime)
-            with open(latest_file, 'r') as f:
+            with open(latest_file, "r") as f:
                 self.data = json.load(f)
             self.logger.info(f"Loaded data from {latest_file.name}")
         else:
@@ -72,35 +80,35 @@ class AreaStudyDashboard:
     def create_sample_data(self):
         """Create sample data for demonstration."""
         self.data = {
-            'study_area': {
-                'name': 'Downtown Neighborhood',
-                'population': 8500,
-                'area_hectares': 150
+            "study_area": {
+                "name": "Downtown Neighborhood",
+                "population": 8500,
+                "area_hectares": 150,
             },
-            'integrated_data': {
-                'technical_metrics': {
-                    'connectivity_score': 0.72,
-                    'infrastructure_quality': 0.68,
-                    'iot_sensor_density': 3.2
+            "integrated_data": {
+                "technical_metrics": {
+                    "connectivity_score": 0.72,
+                    "infrastructure_quality": 0.68,
+                    "iot_sensor_density": 3.2,
                 },
-                'social_metrics': {
-                    'community_cohesion': 0.71,
-                    'social_vulnerability': 0.35,
-                    'organizational_density': 4.1
+                "social_metrics": {
+                    "community_cohesion": 0.71,
+                    "social_vulnerability": 0.35,
+                    "organizational_density": 4.1,
                 },
-                'environmental_metrics': {
-                    'air_quality_index': 68,
-                    'green_space_coverage': 0.18,
-                    'noise_level': 62
+                "environmental_metrics": {
+                    "air_quality_index": 68,
+                    "green_space_coverage": 0.18,
+                    "noise_level": 62,
+                },
+            },
+            "spatial_analysis": {
+                "hotspots": {
+                    "technical_deficit_zones": ["Zone_3", "Zone_7"],
+                    "social_vulnerability_zones": ["Zone_2", "Zone_5"],
+                    "environmental_concern_zones": ["Zone_1", "Zone_4"],
                 }
             },
-            'spatial_analysis': {
-                'hotspots': {
-                    'technical_deficit_zones': ['Zone_3', 'Zone_7'],
-                    'social_vulnerability_zones': ['Zone_2', 'Zone_5'],
-                    'environmental_concern_zones': ['Zone_1', 'Zone_4']
-                }
-            }
         }
 
     def create_dashboard(self):
@@ -108,6 +116,7 @@ class AreaStudyDashboard:
         # This method is no longer used since we separated the Streamlit app
         # into a separate file (dashboard_app.py)
         return True
+
 
 def open_browser(url, delay=2):
     """Open browser after a delay to ensure Streamlit is ready."""
@@ -128,6 +137,7 @@ def open_browser(url, delay=2):
     browser_thread = threading.Thread(target=_open_browser)
     browser_thread.daemon = True
     browser_thread.start()
+
 
 def check_server_connection(port=8501, timeout=30):
     """Check if Streamlit server is responding."""
@@ -152,6 +162,7 @@ def check_server_connection(port=8501, timeout=30):
     print(f"❌ Server not responding after {timeout} seconds")
     return False
 
+
 def run_streamlit_app(port=8501):
     """Run Streamlit app with robust server management."""
     import subprocess
@@ -163,18 +174,27 @@ def run_streamlit_app(port=8501):
 
     # Get the current script directory
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    dashboard_script = os.path.join(script_dir, 'dashboard_app.py')
+    dashboard_script = os.path.join(script_dir, "dashboard_app.py")
 
     # Streamlit command with configuration
     cmd = [
-        sys.executable, '-m', 'streamlit', 'run',
+        sys.executable,
+        "-m",
+        "streamlit",
+        "run",
         dashboard_script,
-        '--server.port', str(port),
-        '--server.address', '0.0.0.0',
-        '--server.headless', 'true',
-        '--theme.base', 'light',
-        '--server.enableCORS', 'false',
-        '--server.enableXsrfProtection', 'false'
+        "--server.port",
+        str(port),
+        "--server.address",
+        "0.0.0.0",
+        "--server.headless",
+        "true",
+        "--theme.base",
+        "light",
+        "--server.enableCORS",
+        "false",
+        "--server.enableXsrfProtection",
+        "false",
     ]
 
     print(f"🚀 Starting Streamlit server on port {port}...")
@@ -188,7 +208,7 @@ def run_streamlit_app(port=8501):
             cwd=script_dir,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            stdin=subprocess.PIPE
+            stdin=subprocess.PIPE,
         )
 
         # Register cleanup function
@@ -217,7 +237,9 @@ def run_streamlit_app(port=8501):
             print("🔄 The server will keep running until you stop it (Ctrl+C)")
         else:
             print("❌ Server failed to start properly")
-            print("💡 Try running manually: streamlit run dashboard_app.py --server.port 8501")
+            print(
+                "💡 Try running manually: streamlit run dashboard_app.py --server.port 8501"
+            )
             return 1
 
         # Keep the server running
@@ -236,6 +258,7 @@ def run_streamlit_app(port=8501):
     except Exception as e:
         print(f"❌ Error running dashboard: {e}")
         return 1
+
 
 def check_dependencies():
     """Check if all required dependencies are available."""
@@ -268,12 +291,13 @@ def check_dependencies():
     print("✅ All dependencies found!")
     return True
 
+
 def main():
     """Main function to launch the dashboard."""
     print("🏛️ GEO-INFER Area Study Dashboard")
-    print("="*50)
+    print("=" * 50)
     print("Multi-disciplinary area analysis with automatic browser launch")
-    print("="*50)
+    print("=" * 50)
 
     try:
         # Check dependencies first
@@ -297,6 +321,7 @@ def main():
         print("   ./quick_launch.sh")
         logging.exception("Detailed error information:")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

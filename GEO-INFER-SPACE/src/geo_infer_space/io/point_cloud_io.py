@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 try:
     import laspy  # type: ignore[import-untyped]
+
     HAS_LASPY = True
 except ImportError:
     laspy = None
@@ -33,11 +34,11 @@ except ImportError:
 # Supported point cloud formats
 # ---------------------------------------------------------------------------
 SUPPORTED_POINT_CLOUD_FORMATS: Dict[str, str] = {
-    '.las': 'LAS (LASer)',
-    '.laz': 'LAZ (Compressed LAS)',
-    '.ply': 'PLY (Polygon File Format)',
-    '.xyz': 'XYZ (Plain Text Points)',
-    '.csv': 'CSV (Comma-Separated Values)',
+    ".las": "LAS (LASer)",
+    ".laz": "LAZ (Compressed LAS)",
+    ".ply": "PLY (Polygon File Format)",
+    ".xyz": "XYZ (Plain Text Points)",
+    ".csv": "CSV (Comma-Separated Values)",
 }
 
 
@@ -106,13 +107,13 @@ class PointCloudReader:
             )
 
         try:
-            if file_ext in ('.las', '.laz'):
+            if file_ext in (".las", ".laz"):
                 return self._read_las(file_path, **kwargs)
-            elif file_ext == '.ply':
+            elif file_ext == ".ply":
                 return self._read_ply(file_path, **kwargs)
-            elif file_ext == '.xyz':
+            elif file_ext == ".xyz":
                 return self._read_xyz(file_path, **kwargs)
-            elif file_ext == '.csv':
+            elif file_ext == ".csv":
                 return self._read_csv(file_path, **kwargs)
             else:
                 raise ValueError(f"No reader implemented for {file_ext}")
@@ -136,61 +137,67 @@ class PointCloudReader:
         las = laspy.read(str(file_path), **kwargs)
 
         # Core XYZ coordinates
-        points = np.column_stack((
-            np.asarray(las.x),
-            np.asarray(las.y),
-            np.asarray(las.z),
-        ))
+        points = np.column_stack(
+            (
+                np.asarray(las.x),
+                np.asarray(las.y),
+                np.asarray(las.z),
+            )
+        )
 
         # Optional attributes
         classifications: Optional[np.ndarray] = None
         intensities: Optional[np.ndarray] = None
         colors: Optional[np.ndarray] = None
 
-        if hasattr(las, 'classification'):
+        if hasattr(las, "classification"):
             classifications = np.asarray(las.classification)
 
-        if hasattr(las, 'intensity'):
+        if hasattr(las, "intensity"):
             intensities = np.asarray(las.intensity)
 
         # RGB colours (LAS point formats 2, 3, 5, 7, 8, 10)
-        if all(hasattr(las, c) for c in ('red', 'green', 'blue')):
-            colors = np.column_stack((
-                np.asarray(las.red),
-                np.asarray(las.green),
-                np.asarray(las.blue),
-            ))
+        if all(hasattr(las, c) for c in ("red", "green", "blue")):
+            colors = np.column_stack(
+                (
+                    np.asarray(las.red),
+                    np.asarray(las.green),
+                    np.asarray(las.blue),
+                )
+            )
 
         # Metadata
         header = las.header
         metadata: Dict[str, Any] = {
-            'format': 'LAS' if file_path.suffix.lower() == '.las' else 'LAZ',
-            'point_count': int(header.point_count),
-            'point_format_id': int(header.point_format.id),
-            'version': f"{header.version.major}.{header.version.minor}",
-            'bounds': {
-                'min': [float(header.x_min), float(header.y_min), float(header.z_min)],
-                'max': [float(header.x_max), float(header.y_max), float(header.z_max)],
+            "format": "LAS" if file_path.suffix.lower() == ".las" else "LAZ",
+            "point_count": int(header.point_count),
+            "point_format_id": int(header.point_format.id),
+            "version": f"{header.version.major}.{header.version.minor}",
+            "bounds": {
+                "min": [float(header.x_min), float(header.y_min), float(header.z_min)],
+                "max": [float(header.x_max), float(header.y_max), float(header.z_max)],
             },
-            'scale': list(header.scales),
-            'offset': list(header.offsets),
-            'crs_wkt': str(las.header.parse_crs()) if hasattr(las.header, 'parse_crs') else None,
+            "scale": list(header.scales),
+            "offset": list(header.offsets),
+            "crs_wkt": str(las.header.parse_crs())
+            if hasattr(las.header, "parse_crs")
+            else None,
         }
 
         logger.info(
             "Read %d points from %s (format: LAS %s, point format %d)",
             points.shape[0],
             file_path,
-            metadata['version'],
-            metadata['point_format_id'],
+            metadata["version"],
+            metadata["point_format_id"],
         )
 
         return {
-            'points': points,
-            'classifications': classifications,
-            'intensities': intensities,
-            'colors': colors,
-            'metadata': metadata,
+            "points": points,
+            "classifications": classifications,
+            "intensities": intensities,
+            "colors": colors,
+            "metadata": metadata,
         }
 
     # ------------------------------------------------------------------
@@ -204,19 +211,19 @@ class PointCloudReader:
         (x, y, z, nx, ny, nz, red, green, blue, intensity,
         classification/label).
         """
-        with open(file_path, 'rb') as fh:
+        with open(file_path, "rb") as fh:
             # ---- Parse header ------------------------------------------------
             header_lines: List[str] = []
             while True:
                 line = fh.readline()
                 if not line:
                     raise ValueError("Unexpected end of file in PLY header")
-                decoded = line.decode('ascii', errors='replace').strip()
+                decoded = line.decode("ascii", errors="replace").strip()
                 header_lines.append(decoded)
-                if decoded == 'end_header':
+                if decoded == "end_header":
                     break
 
-            ply_format = 'ascii'
+            ply_format = "ascii"
             vertex_count = 0
             properties: List[tuple] = []  # (name, dtype_str)
             in_vertex_element = False
@@ -225,14 +232,14 @@ class PointCloudReader:
                 parts = hline.split()
                 if not parts:
                     continue
-                if parts[0] == 'format':
+                if parts[0] == "format":
                     ply_format = parts[1]
-                elif parts[0] == 'element' and parts[1] == 'vertex':
+                elif parts[0] == "element" and parts[1] == "vertex":
                     vertex_count = int(parts[2])
                     in_vertex_element = True
-                elif parts[0] == 'element' and parts[1] != 'vertex':
+                elif parts[0] == "element" and parts[1] != "vertex":
                     in_vertex_element = False
-                elif parts[0] == 'property' and in_vertex_element:
+                elif parts[0] == "property" and in_vertex_element:
                     # property <type> <name>
                     prop_type = parts[1]
                     prop_name = parts[2]
@@ -240,31 +247,38 @@ class PointCloudReader:
 
             if vertex_count == 0:
                 logger.warning("PLY file contains 0 vertices: %s", file_path)
-                return self._empty_result('PLY', file_path)
+                return self._empty_result("PLY", file_path)
 
             # ---- Map PLY types to numpy dtypes --------------------------------
             _ply_to_numpy = {
-                'float': 'f4', 'float32': 'f4',
-                'double': 'f8', 'float64': 'f8',
-                'uchar': 'u1', 'uint8': 'u1',
-                'char': 'i1', 'int8': 'i1',
-                'ushort': 'u2', 'uint16': 'u2',
-                'short': 'i2', 'int16': 'i2',
-                'uint': 'u4', 'uint32': 'u4',
-                'int': 'i4', 'int32': 'i4',
+                "float": "f4",
+                "float32": "f4",
+                "double": "f8",
+                "float64": "f8",
+                "uchar": "u1",
+                "uint8": "u1",
+                "char": "i1",
+                "int8": "i1",
+                "ushort": "u2",
+                "uint16": "u2",
+                "short": "i2",
+                "int16": "i2",
+                "uint": "u4",
+                "uint32": "u4",
+                "int": "i4",
+                "int32": "i4",
             }
 
-            np_dtype = np.dtype([
-                (name, _ply_to_numpy.get(ptype, 'f4'))
-                for name, ptype in properties
-            ])
+            np_dtype = np.dtype(
+                [(name, _ply_to_numpy.get(ptype, "f4")) for name, ptype in properties]
+            )
 
             # ---- Read vertex data --------------------------------------------
-            if ply_format == 'ascii':
+            if ply_format == "ascii":
                 raw_data = np.loadtxt(fh, dtype=np_dtype, max_rows=vertex_count)
-            elif ply_format in ('binary_little_endian', 'binary_big_endian'):
-                endian: Literal['<', '>'] = (
-                    '<' if ply_format == 'binary_little_endian' else '>'
+            elif ply_format in ("binary_little_endian", "binary_big_endian"):
+                endian: Literal["<", ">"] = (
+                    "<" if ply_format == "binary_little_endian" else ">"
                 )
                 np_dtype_endian = np_dtype.newbyteorder(endian)
                 raw_data = np.frombuffer(
@@ -278,55 +292,62 @@ class PointCloudReader:
             # ---- Extract arrays ----------------------------------------------
             prop_names = [p[0] for p in properties]
 
-            if not all(c in prop_names for c in ('x', 'y', 'z')):
+            if not all(c in prop_names for c in ("x", "y", "z")):
                 raise ValueError("PLY file is missing x/y/z vertex properties")
 
-            points = np.column_stack((
-                raw_data['x'].astype(np.float64),
-                raw_data['y'].astype(np.float64),
-                raw_data['z'].astype(np.float64),
-            ))
+            points = np.column_stack(
+                (
+                    raw_data["x"].astype(np.float64),
+                    raw_data["y"].astype(np.float64),
+                    raw_data["z"].astype(np.float64),
+                )
+            )
 
             classifications: Optional[np.ndarray] = None
-            for cname in ('classification', 'label', 'class', 'scalar_classification'):
+            for cname in ("classification", "label", "class", "scalar_classification"):
                 if cname in prop_names:
                     classifications = np.asarray(raw_data[cname])
                     break
 
             intensities: Optional[np.ndarray] = None
-            if 'intensity' in prop_names:
-                intensities = np.asarray(raw_data['intensity'])
+            if "intensity" in prop_names:
+                intensities = np.asarray(raw_data["intensity"])
 
             colors: Optional[np.ndarray] = None
-            if all(c in prop_names for c in ('red', 'green', 'blue')):
-                colors = np.column_stack((
-                    raw_data['red'].astype(np.uint8),
-                    raw_data['green'].astype(np.uint8),
-                    raw_data['blue'].astype(np.uint8),
-                ))
+            if all(c in prop_names for c in ("red", "green", "blue")):
+                colors = np.column_stack(
+                    (
+                        raw_data["red"].astype(np.uint8),
+                        raw_data["green"].astype(np.uint8),
+                        raw_data["blue"].astype(np.uint8),
+                    )
+                )
 
         metadata: Dict[str, Any] = {
-            'format': 'PLY',
-            'point_count': vertex_count,
-            'ply_format': ply_format,
-            'properties': prop_names,
-            'bounds': {
-                'min': points.min(axis=0).tolist(),
-                'max': points.max(axis=0).tolist(),
+            "format": "PLY",
+            "point_count": vertex_count,
+            "ply_format": ply_format,
+            "properties": prop_names,
+            "bounds": {
+                "min": points.min(axis=0).tolist(),
+                "max": points.max(axis=0).tolist(),
             },
         }
 
         logger.info(
             "Read %d points from %s (PLY %s, %d properties)",
-            vertex_count, file_path, ply_format, len(properties),
+            vertex_count,
+            file_path,
+            ply_format,
+            len(properties),
         )
 
         return {
-            'points': points,
-            'classifications': classifications,
-            'intensities': intensities,
-            'colors': colors,
-            'metadata': metadata,
+            "points": points,
+            "classifications": classifications,
+            "intensities": intensities,
+            "colors": colors,
+            "metadata": metadata,
         }
 
     # ------------------------------------------------------------------
@@ -348,10 +369,10 @@ class PointCloudReader:
                 are ``x``, ``y``, ``z``, ``intensity``,
                 ``classification``, ``red``, ``green``, ``blue``.
         """
-        delimiter = kwargs.get('delimiter', None)
-        skip_header = kwargs.get('skip_header', 0)
-        columns: Optional[List[str]] = kwargs.get('columns', None)
-        comments = kwargs.get('comments', '#')
+        delimiter = kwargs.get("delimiter", None)
+        skip_header = kwargs.get("skip_header", 0)
+        columns: Optional[List[str]] = kwargs.get("columns", None)
+        comments = kwargs.get("comments", "#")
 
         data = np.loadtxt(
             str(file_path),
@@ -370,58 +391,70 @@ class PointCloudReader:
 
         # Assign column names
         if columns is None:
-            default_cols = ['x', 'y', 'z', 'intensity', 'classification',
-                            'red', 'green', 'blue']
+            default_cols = [
+                "x",
+                "y",
+                "z",
+                "intensity",
+                "classification",
+                "red",
+                "green",
+                "blue",
+            ]
             columns = default_cols[: data.shape[1]]
 
-        col_map: Dict[str, int] = {
-            name: idx for idx, name in enumerate(columns)
-        }
+        col_map: Dict[str, int] = {name: idx for idx, name in enumerate(columns)}
 
-        points = np.column_stack((
-            data[:, col_map['x']],
-            data[:, col_map['y']],
-            data[:, col_map['z']],
-        ))
+        points = np.column_stack(
+            (
+                data[:, col_map["x"]],
+                data[:, col_map["y"]],
+                data[:, col_map["z"]],
+            )
+        )
 
         classifications: Optional[np.ndarray] = None
-        if 'classification' in col_map:
-            classifications = data[:, col_map['classification']].astype(np.int32)
+        if "classification" in col_map:
+            classifications = data[:, col_map["classification"]].astype(np.int32)
 
         intensities: Optional[np.ndarray] = None
-        if 'intensity' in col_map:
-            intensities = data[:, col_map['intensity']]
+        if "intensity" in col_map:
+            intensities = data[:, col_map["intensity"]]
 
         colors: Optional[np.ndarray] = None
-        if all(c in col_map for c in ('red', 'green', 'blue')):
-            colors = np.column_stack((
-                data[:, col_map['red']],
-                data[:, col_map['green']],
-                data[:, col_map['blue']],
-            )).astype(np.uint8)
+        if all(c in col_map for c in ("red", "green", "blue")):
+            colors = np.column_stack(
+                (
+                    data[:, col_map["red"]],
+                    data[:, col_map["green"]],
+                    data[:, col_map["blue"]],
+                )
+            ).astype(np.uint8)
 
         metadata: Dict[str, Any] = {
-            'format': 'XYZ',
-            'point_count': int(points.shape[0]),
-            'num_columns': int(data.shape[1]),
-            'columns': columns,
-            'bounds': {
-                'min': points.min(axis=0).tolist(),
-                'max': points.max(axis=0).tolist(),
+            "format": "XYZ",
+            "point_count": int(points.shape[0]),
+            "num_columns": int(data.shape[1]),
+            "columns": columns,
+            "bounds": {
+                "min": points.min(axis=0).tolist(),
+                "max": points.max(axis=0).tolist(),
             },
         }
 
         logger.info(
             "Read %d points from %s (XYZ, %d columns)",
-            points.shape[0], file_path, data.shape[1],
+            points.shape[0],
+            file_path,
+            data.shape[1],
         )
 
         return {
-            'points': points,
-            'classifications': classifications,
-            'intensities': intensities,
-            'colors': colors,
-            'metadata': metadata,
+            "points": points,
+            "classifications": classifications,
+            "intensities": intensities,
+            "colors": colors,
+            "metadata": metadata,
         }
 
     # ------------------------------------------------------------------
@@ -442,21 +475,21 @@ class PointCloudReader:
             z_col: Name of the Z/elevation/altitude column.
             delimiter: CSV delimiter (default ``','``).
         """
-        delimiter = kwargs.get('delimiter', ',')
-        x_col: Optional[str] = kwargs.get('x_col', None)
-        y_col: Optional[str] = kwargs.get('y_col', None)
-        z_col: Optional[str] = kwargs.get('z_col', None)
+        delimiter = kwargs.get("delimiter", ",")
+        x_col: Optional[str] = kwargs.get("x_col", None)
+        y_col: Optional[str] = kwargs.get("y_col", None)
+        z_col: Optional[str] = kwargs.get("z_col", None)
 
         # Read header
-        with open(file_path, 'r', encoding='utf-8') as fh:
+        with open(file_path, "r", encoding="utf-8") as fh:
             first_line = fh.readline().strip()
 
         headers = [h.strip().lower() for h in first_line.split(delimiter)]
 
         # Auto-detect coordinate columns
-        _x_candidates = ['x', 'easting', 'longitude', 'lon', 'lng', 'e']
-        _y_candidates = ['y', 'northing', 'latitude', 'lat', 'n']
-        _z_candidates = ['z', 'elevation', 'altitude', 'alt', 'height', 'h']
+        _x_candidates = ["x", "easting", "longitude", "lon", "lng", "e"]
+        _y_candidates = ["y", "northing", "latitude", "lat", "n"]
+        _z_candidates = ["z", "elevation", "altitude", "alt", "height", "h"]
 
         def _find_col(explicit: Optional[str], candidates: List[str]) -> Optional[str]:
             if explicit and explicit.lower() in headers:
@@ -496,49 +529,53 @@ class PointCloudReader:
 
         # Optional columns
         classifications: Optional[np.ndarray] = None
-        for cname in ('classification', 'class', 'label'):
+        for cname in ("classification", "class", "label"):
             if cname in headers:
                 classifications = data[:, headers.index(cname)].astype(np.int32)
                 break
 
         intensities: Optional[np.ndarray] = None
-        if 'intensity' in headers:
-            intensities = data[:, headers.index('intensity')]
+        if "intensity" in headers:
+            intensities = data[:, headers.index("intensity")]
 
         colors: Optional[np.ndarray] = None
-        if all(c in headers for c in ('red', 'green', 'blue')):
-            colors = np.column_stack((
-                data[:, headers.index('red')],
-                data[:, headers.index('green')],
-                data[:, headers.index('blue')],
-            )).astype(np.uint8)
+        if all(c in headers for c in ("red", "green", "blue")):
+            colors = np.column_stack(
+                (
+                    data[:, headers.index("red")],
+                    data[:, headers.index("green")],
+                    data[:, headers.index("blue")],
+                )
+            ).astype(np.uint8)
 
         metadata: Dict[str, Any] = {
-            'format': 'CSV',
-            'point_count': int(points.shape[0]),
-            'headers': headers,
-            'coordinate_columns': {
-                'x': x_col_resolved,
-                'y': y_col_resolved,
-                'z': z_col_resolved,
+            "format": "CSV",
+            "point_count": int(points.shape[0]),
+            "headers": headers,
+            "coordinate_columns": {
+                "x": x_col_resolved,
+                "y": y_col_resolved,
+                "z": z_col_resolved,
             },
-            'bounds': {
-                'min': points.min(axis=0).tolist(),
-                'max': points.max(axis=0).tolist(),
+            "bounds": {
+                "min": points.min(axis=0).tolist(),
+                "max": points.max(axis=0).tolist(),
             },
         }
 
         logger.info(
             "Read %d points from %s (CSV, columns: %s)",
-            points.shape[0], file_path, headers,
+            points.shape[0],
+            file_path,
+            headers,
         )
 
         return {
-            'points': points,
-            'classifications': classifications,
-            'intensities': intensities,
-            'colors': colors,
-            'metadata': metadata,
+            "points": points,
+            "classifications": classifications,
+            "intensities": intensities,
+            "colors": colors,
+            "metadata": metadata,
         }
 
     # ------------------------------------------------------------------
@@ -548,14 +585,14 @@ class PointCloudReader:
     def _empty_result(fmt: str, file_path: Path) -> Dict[str, Any]:
         """Return an empty result dictionary."""
         return {
-            'points': np.empty((0, 3), dtype=np.float64),
-            'classifications': None,
-            'intensities': None,
-            'colors': None,
-            'metadata': {
-                'format': fmt,
-                'point_count': 0,
-                'source': str(file_path),
+            "points": np.empty((0, 3), dtype=np.float64),
+            "classifications": None,
+            "intensities": None,
+            "colors": None,
+            "metadata": {
+                "format": fmt,
+                "point_count": 0,
+                "source": str(file_path),
             },
         }
 
@@ -630,33 +667,37 @@ class PointCloudWriter:
         file_path.parent.mkdir(parents=True, exist_ok=True)
 
         try:
-            if file_ext in ('.las', '.laz'):
+            if file_ext in (".las", ".laz"):
                 self._write_las(
-                    points, file_path,
+                    points,
+                    file_path,
                     classifications=classifications,
                     intensities=intensities,
                     colors=colors,
                     metadata=metadata,
                     **kwargs,
                 )
-            elif file_ext == '.ply':
+            elif file_ext == ".ply":
                 self._write_ply(
-                    points, file_path,
+                    points,
+                    file_path,
                     classifications=classifications,
                     intensities=intensities,
                     colors=colors,
                     **kwargs,
                 )
-            elif file_ext == '.xyz':
+            elif file_ext == ".xyz":
                 self._write_xyz(
-                    points, file_path,
+                    points,
+                    file_path,
                     classifications=classifications,
                     intensities=intensities,
                     **kwargs,
                 )
-            elif file_ext == '.csv':
+            elif file_ext == ".csv":
                 self._write_csv(
-                    points, file_path,
+                    points,
+                    file_path,
                     classifications=classifications,
                     intensities=intensities,
                     colors=colors,
@@ -665,7 +706,8 @@ class PointCloudWriter:
 
             logger.info(
                 "Successfully wrote %d points to %s",
-                points.shape[0], file_path,
+                points.shape[0],
+                file_path,
             )
 
         except (ImportError, ValueError):
@@ -698,22 +740,30 @@ class PointCloudWriter:
         metadata = metadata or {}
 
         # Determine point format: 0 (basic), 2 (with colour), 6 (1.4 basic), 7 (1.4 + colour)
-        file_version = kwargs.get('file_version', '1.4')
+        file_version = kwargs.get("file_version", "1.4")
         if colors is not None:
-            point_format_id = kwargs.get('point_format_id', 7 if file_version == '1.4' else 2)
+            point_format_id = kwargs.get(
+                "point_format_id", 7 if file_version == "1.4" else 2
+            )
         else:
-            point_format_id = kwargs.get('point_format_id', 6 if file_version == '1.4' else 0)
+            point_format_id = kwargs.get(
+                "point_format_id", 6 if file_version == "1.4" else 0
+            )
 
         point_format = laspy.PointFormat(point_format_id)
 
-        if file_version == '1.4':
-            header = laspy.LasHeader(point_format=point_format, version=laspy.Version(1, 4))
+        if file_version == "1.4":
+            header = laspy.LasHeader(
+                point_format=point_format, version=laspy.Version(1, 4)
+            )
         else:
-            header = laspy.LasHeader(point_format=point_format, version=laspy.Version(1, 2))
+            header = laspy.LasHeader(
+                point_format=point_format, version=laspy.Version(1, 2)
+            )
 
         # Scale & offset
-        scale = metadata.get('scale', [0.001, 0.001, 0.001])
-        offset = metadata.get('offset', points.min(axis=0).tolist())
+        scale = metadata.get("scale", [0.001, 0.001, 0.001])
+        offset = metadata.get("offset", points.min(axis=0).tolist())
         header.scales = np.asarray(scale, dtype=np.float64)
         header.offsets = np.asarray(offset, dtype=np.float64)
 
@@ -729,12 +779,12 @@ class PointCloudWriter:
             las_data.intensity = np.asarray(intensities, dtype=np.uint16)
 
         if colors is not None and all(
-            dim in point_format.dimension_names for dim in ('red', 'green', 'blue')
+            dim in point_format.dimension_names for dim in ("red", "green", "blue")
         ):
             colors_arr = np.asarray(colors)
             # Scale uint8 colours to uint16 as required by LAS spec
             if colors_arr.max() <= 255:
-                colors_arr = (colors_arr.astype(np.uint16) * 257)
+                colors_arr = colors_arr.astype(np.uint16) * 257
             las_data.red = colors_arr[:, 0]
             las_data.green = colors_arr[:, 1]
             las_data.blue = colors_arr[:, 2]
@@ -757,66 +807,70 @@ class PointCloudWriter:
     ) -> None:
         """Write an ASCII or binary-little-endian PLY file."""
         n = points.shape[0]
-        properties = ['x', 'y', 'z']
-        dtypes = [('x', 'f8'), ('y', 'f8'), ('z', 'f8')]
+        properties = ["x", "y", "z"]
+        dtypes = [("x", "f8"), ("y", "f8"), ("z", "f8")]
 
         if intensities is not None:
-            properties.append('intensity')
-            dtypes.append(('intensity', 'f4'))
+            properties.append("intensity")
+            dtypes.append(("intensity", "f4"))
         if classifications is not None:
-            properties.append('classification')
-            dtypes.append(('classification', 'u1'))
+            properties.append("classification")
+            dtypes.append(("classification", "u1"))
         if colors is not None:
-            for c in ('red', 'green', 'blue'):
+            for c in ("red", "green", "blue"):
                 properties.append(c)
-                dtypes.append((c, 'u1'))
+                dtypes.append((c, "u1"))
 
-        ply_format = 'binary_little_endian' if binary else 'ascii'
+        ply_format = "binary_little_endian" if binary else "ascii"
 
         # Build header
         header_lines = [
-            'ply',
-            f'format {ply_format} 1.0',
-            f'element vertex {n}',
+            "ply",
+            f"format {ply_format} 1.0",
+            f"element vertex {n}",
         ]
 
         _np_to_ply = {
-            'f8': 'double', 'f4': 'float', 'u1': 'uchar',
-            'u2': 'ushort', 'i4': 'int', 'u4': 'uint',
+            "f8": "double",
+            "f4": "float",
+            "u1": "uchar",
+            "u2": "ushort",
+            "i4": "int",
+            "u4": "uint",
         }
 
         for prop_name, dt in dtypes:
-            ply_type = _np_to_ply.get(dt, 'float')
-            header_lines.append(f'property {ply_type} {prop_name}')
+            ply_type = _np_to_ply.get(dt, "float")
+            header_lines.append(f"property {ply_type} {prop_name}")
 
-        header_lines.append('end_header')
-        header_str = '\n'.join(header_lines) + '\n'
+        header_lines.append("end_header")
+        header_str = "\n".join(header_lines) + "\n"
 
         # Build structured array
         vertex_dtype = np.dtype(dtypes)
         vertices = np.empty(n, dtype=vertex_dtype)
-        vertices['x'] = points[:, 0]
-        vertices['y'] = points[:, 1]
-        vertices['z'] = points[:, 2]
+        vertices["x"] = points[:, 0]
+        vertices["y"] = points[:, 1]
+        vertices["z"] = points[:, 2]
 
         if intensities is not None:
-            vertices['intensity'] = np.asarray(intensities, dtype=np.float32)
+            vertices["intensity"] = np.asarray(intensities, dtype=np.float32)
         if classifications is not None:
-            vertices['classification'] = np.asarray(classifications, dtype=np.uint8)
+            vertices["classification"] = np.asarray(classifications, dtype=np.uint8)
         if colors is not None:
             color_array = np.asarray(colors, dtype=np.uint8)
-            vertices['red'] = color_array[:, 0]
-            vertices['green'] = color_array[:, 1]
-            vertices['blue'] = color_array[:, 2]
+            vertices["red"] = color_array[:, 0]
+            vertices["green"] = color_array[:, 1]
+            vertices["blue"] = color_array[:, 2]
 
-        with open(file_path, 'wb') as fh:
-            fh.write(header_str.encode('ascii'))
+        with open(file_path, "wb") as fh:
+            fh.write(header_str.encode("ascii"))
             if binary:
                 vertices.tofile(fh)
             else:
                 for row in vertices:
-                    line = ' '.join(str(row[p]) for p in properties) + '\n'
-                    fh.write(line.encode('ascii'))
+                    line = " ".join(str(row[p]) for p in properties) + "\n"
+                    fh.write(line.encode("ascii"))
 
     # ------------------------------------------------------------------
     # XYZ
@@ -828,7 +882,7 @@ class PointCloudWriter:
         *,
         classifications: Optional[np.ndarray] = None,
         intensities: Optional[np.ndarray] = None,
-        delimiter: str = ' ',
+        delimiter: str = " ",
         precision: int = 6,
         **kwargs: Any,
     ) -> None:
@@ -842,11 +896,11 @@ class PointCloudWriter:
 
         data = np.column_stack(columns)
 
-        fmt = delimiter.join([f'%.{precision}f'] * 3)
+        fmt = delimiter.join([f"%.{precision}f"] * 3)
         if intensities is not None:
-            fmt += delimiter + f'%.{precision}f'
+            fmt += delimiter + f"%.{precision}f"
         if classifications is not None:
-            fmt += delimiter + '%d'
+            fmt += delimiter + "%d"
 
         np.savetxt(str(file_path), data, fmt=fmt)
 
@@ -861,30 +915,30 @@ class PointCloudWriter:
         classifications: Optional[np.ndarray] = None,
         intensities: Optional[np.ndarray] = None,
         colors: Optional[np.ndarray] = None,
-        delimiter: str = ',',
+        delimiter: str = ",",
         precision: int = 6,
         **kwargs: Any,
     ) -> None:
         """Write point cloud data to a CSV file with a header row."""
-        header_parts = ['x', 'y', 'z']
+        header_parts = ["x", "y", "z"]
         columns = [points[:, 0], points[:, 1], points[:, 2]]
-        fmt_parts = [f'%.{precision}f'] * 3
+        fmt_parts = [f"%.{precision}f"] * 3
 
         if intensities is not None:
-            header_parts.append('intensity')
+            header_parts.append("intensity")
             columns.append(np.asarray(intensities))
-            fmt_parts.append(f'%.{precision}f')
+            fmt_parts.append(f"%.{precision}f")
 
         if classifications is not None:
-            header_parts.append('classification')
+            header_parts.append("classification")
             columns.append(np.asarray(classifications, dtype=np.float64))
-            fmt_parts.append('%d')
+            fmt_parts.append("%d")
 
         if colors is not None:
-            for i, c in enumerate(('red', 'green', 'blue')):
+            for i, c in enumerate(("red", "green", "blue")):
                 header_parts.append(c)
                 columns.append(np.asarray(colors[:, i], dtype=np.float64))
-                fmt_parts.append('%d')
+                fmt_parts.append("%d")
 
         data = np.column_stack(columns)
         header = delimiter.join(header_parts)
@@ -895,7 +949,7 @@ class PointCloudWriter:
             data,
             fmt=fmt,
             header=header,
-            comments='',  # suppress the '#' prefix on the header line
+            comments="",  # suppress the '#' prefix on the header line
         )
 
 
@@ -946,7 +1000,8 @@ def write_point_cloud_file(
     """
     writer = PointCloudWriter()
     writer.write(
-        points, file_path,
+        points,
+        file_path,
         classifications=classifications,
         intensities=intensities,
         colors=colors,

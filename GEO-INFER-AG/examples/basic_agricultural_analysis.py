@@ -31,8 +31,8 @@ def make_field_gdf() -> gpd.GeoDataFrame:
             "precip_mm": [520.0, 480.0],
         },
         geometry=[
-            Polygon([(0, 0), (0, 300), (400, 300), (400, 0)]),      # 12 ha
-            Polygon([(0, -300), (0, 0), (350, 0), (350, -300)]),    # 10.5 ha
+            Polygon([(0, 0), (0, 300), (400, 300), (400, 0)]),  # 12 ha
+            Polygon([(0, -300), (0, 0), (350, 0), (350, -300)]),  # 10.5 ha
         ],
         crs="EPSG:32610",  # UTM zone 10N, meters
     )
@@ -57,10 +57,16 @@ def main() -> None:
     print("\n[Step 1] Field boundary management")
     fields = make_field_gdf()
     manager = FieldBoundaryManager(fields=fields, crs="EPSG:32610")
-    print(manager.fields[["field_id", "name", "crop_type", "area_ha"]].to_string(index=False))
+    print(
+        manager.fields[["field_id", "name", "crop_type", "area_ha"]].to_string(
+            index=False
+        )
+    )
 
     north = manager.get_field("field_001")
-    print(f"Retrieved '{north['name']}' ({north['area_ha']:.2f} ha of {north['crop_type']})")
+    print(
+        f"Retrieved '{north['name']}' ({north['area_ha']:.2f} ha of {north['crop_type']})"
+    )
 
     # Step 2: Crop yield modeling (fit on historical fields, predict on new)
     print("\n[Step 2] Crop yield modeling (corn)")
@@ -78,30 +84,44 @@ def main() -> None:
     targets = fields[fields["crop_type"] == "corn"].drop(columns="geometry")
     prediction = crop_model.predict({"field_data": targets})
     print(f"Predicted yield for {len(targets)} corn field(s):")
-    print(f"  mean {prediction['summary']['mean_yield']:.2f} t/ha "
-          f"(range {prediction['summary']['min_yield']:.2f}-{prediction['summary']['max_yield']:.2f})")
+    print(
+        f"  mean {prediction['summary']['mean_yield']:.2f} t/ha "
+        f"(range {prediction['summary']['min_yield']:.2f}-{prediction['summary']['max_yield']:.2f})"
+    )
 
     # Step 3: Seasonal analysis
     print("\n[Step 3] Seasonal analysis")
-    seasonal = SeasonalAnalysis(time_series_data=pd.DataFrame({"ndvi": make_ndvi_series()}))
-    season = seasonal.detect_growing_season(variable="ndvi", method="threshold", threshold=0.3)
+    seasonal = SeasonalAnalysis(
+        time_series_data=pd.DataFrame({"ndvi": make_ndvi_series()})
+    )
+    season = seasonal.detect_growing_season(
+        variable="ndvi", method="threshold", threshold=0.3
+    )
     detected = season["seasons"][0]
-    print(f"Growing season: {detected['start_date'].date()} to {detected['end_date'].date()} "
-          f"({detected['length_days']} days, peak NDVI {detected['peak_value']:.2f})")
+    print(
+        f"Growing season: {detected['start_date'].date()} to {detected['end_date'].date()} "
+        f"({detected['length_days']} days, peak NDVI {detected['peak_value']:.2f})"
+    )
 
     trends = seasonal.analyze_temporal_trends(variable="ndvi", period="monthly")
-    print(f"Monthly NDVI mean: {trends['statistics']['mean']:.2f} "
-          f"(trend slope {trends['trend_analysis']['slope']:.4f}/month)")
+    print(
+        f"Monthly NDVI mean: {trends['statistics']['mean']:.2f} "
+        f"(trend slope {trends['trend_analysis']['slope']:.4f}/month)"
+    )
 
     # Step 4: Sustainability assessment
     print("\n[Step 4] Sustainability assessment")
     assessment = SustainabilityAssessment(field_data=manager.fields)
     carbon = assessment.assess_carbon_sequestration()
     water = assessment.assess_water_usage()
-    print(f"Total carbon sequestration: {carbon['total_carbon_sequestration']:.1f} t C/yr "
-          f"({carbon['mean_carbon_sequestration_per_ha']:.2f} t/ha mean)")
-    print(f"Total water requirement:    {water['total_water_requirement']:.0f} m3/yr "
-          f"({water['mean_water_requirement_per_ha']:.0f} m3/ha mean)")
+    print(
+        f"Total carbon sequestration: {carbon['total_carbon_sequestration']:.1f} t C/yr "
+        f"({carbon['mean_carbon_sequestration_per_ha']:.2f} t/ha mean)"
+    )
+    print(
+        f"Total water requirement:    {water['total_water_requirement']:.0f} m3/yr "
+        f"({water['mean_water_requirement_per_ha']:.0f} m3/ha mean)"
+    )
 
     print("\nExample complete.")
 

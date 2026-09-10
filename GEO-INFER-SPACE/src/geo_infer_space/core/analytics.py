@@ -28,9 +28,7 @@ class SpatialAnalyticsInterface:
         self.dispatcher = get_backend_dispatcher()
         self.backend = backend
 
-    def analyze_hotspots(
-        self, data: Dict[str, Any], **kwargs: Any
-    ) -> Dict[str, Any]:
+    def analyze_hotspots(self, data: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
         """
         Analyze spatial hotspots in the data.
 
@@ -102,7 +100,9 @@ class SpatialAnalyticsInterface:
         """
         points = np.asarray(data, dtype=float)
         if points.ndim != 2 or points.shape[1] != 2:
-            raise ValueError("data must be an (n, 2) array of latitude/longitude points")
+            raise ValueError(
+                "data must be an (n, 2) array of latitude/longitude points"
+            )
         if method != "dbscan":
             raise ValueError("H3-backed clustering currently supports method='dbscan'")
         return self.cluster_points(
@@ -110,9 +110,7 @@ class SpatialAnalyticsInterface:
             **kwargs,
         )
 
-    def find_hotspots(
-        self, data: Dict[str, Any], **kwargs: Any
-    ) -> Dict[str, Any]:
+    def find_hotspots(self, data: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
         """
         Find spatial hotspots in data.
 
@@ -201,11 +199,17 @@ class SpatialAnalyticsInterface:
         values = []
         for point in points:
             if len(point) != 3:
-                raise ValueError("each source point must be (latitude, longitude, value)")
+                raise ValueError(
+                    "each source point must be (latitude, longitude, value)"
+                )
             lat, lng, value = point
             source_cells.append(
                 self.dispatcher.dispatch_indexing_operation(
-                    "latlng_to_cell", float(lat), float(lng), resolution, backend=self.backend
+                    "latlng_to_cell",
+                    float(lat),
+                    float(lng),
+                    resolution,
+                    backend=self.backend,
                 )
             )
             values.append(float(value))
@@ -215,7 +219,11 @@ class SpatialAnalyticsInterface:
             target_points = target_points or [(p[0], p[1]) for p in points]
             target_cells = [
                 self.dispatcher.dispatch_indexing_operation(
-                    "latlng_to_cell", float(lat), float(lng), resolution, backend=self.backend
+                    "latlng_to_cell",
+                    float(lat),
+                    float(lng),
+                    resolution,
+                    backend=self.backend,
                 )
                 for lat, lng in target_points
             ]
@@ -247,9 +255,7 @@ class SpatialAnalyticsInterface:
         backend = self.backend or self.dispatcher.get_default_backend("analytics")
         raise UnsupportedSpatialOperationError("analyze_network", backend)
 
-    def detect_patterns(
-        self, data: Dict[str, Any], **kwargs: Any
-    ) -> Dict[str, Any]:
+    def detect_patterns(self, data: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
         """
         Detect spatial patterns in the data.
 

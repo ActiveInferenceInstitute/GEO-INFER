@@ -79,7 +79,7 @@ def main():
     print(
         f"   {'Station':<12} {'Temp':>8} {'RH':>6} {'Wind':>8} {'FWI':>8} {'Rating':>12}"
     )
-    print(f"   {'-'*56}")
+    print(f"   {'-' * 56}")
 
     fwi_results = []
     for obs in weather_stations:
@@ -107,7 +107,7 @@ def main():
 
     print("\n   Fire Growth Scenarios (from ignition point):")
     print(f"   {'Fuel Type':<22} {'Wind':>8} {'Slope':>8} {'Time':>8} {'Area':>10}")
-    print(f"   {'-'*60}")
+    print(f"   {'-' * 60}")
 
     for scenario in scenarios:
         perimeter = analyzer.model_fire_perimeter(
@@ -139,7 +139,7 @@ def main():
     print(
         f"   Backing fire rate: {critical['spread_rates']['back_m_per_min']:.1f} m/min"
     )
-    print(f"   Head fire run: {critical['distances']['head_m']/1000:.2f} km")
+    print(f"   Head fire run: {critical['distances']['head_m'] / 1000:.2f} km")
     print(f"   Area burned: {critical['area_hectares']:.0f} hectares")
     print(f"   Perimeter length: {critical['perimeter_length_km']:.1f} km")
 
@@ -237,7 +237,7 @@ def main():
 
     print("\n   Active Incidents:")
     print(f"   {'ID':<15} {'Name':<20} {'Area':>8} {'Containment':>12}")
-    print(f"   {'-'*58}")
+    print(f"   {'-' * 58}")
 
     for incident in analyzer.get_active_incidents():
         print(

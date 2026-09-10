@@ -45,7 +45,9 @@ def _operation() -> Dict[str, Any]:
     normalized: Dict[str, str] = {
         name: utils.strip_dangerous_chars(payload) for name, payload in payloads.items()
     }
-    chars_removed = sum(len(p) - len(n) for p, n in zip(payloads.values(), normalized.values()))
+    chars_removed = sum(
+        len(p) - len(n) for p, n in zip(payloads.values(), normalized.values())
+    )
 
     # 2. Password hashing round trip (PBKDF2).
     stored_hash, salt = utils.hash_password("synthetic-passphrase-42")

@@ -24,6 +24,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 
 from ..utils.rng import resolve_rng
 
+
 @dataclass
 class SpatialWeightsConfig:
     """Configuration for spatial weights matrix construction."""
@@ -248,7 +249,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
 
         for i in range(n):
             if kernel_type == "gaussian":
-                weights[i] = np.exp(-distances[i] ** 2 / (2 * bandwidth**2))
+                weights[i] = np.exp(-(distances[i] ** 2) / (2 * bandwidth**2))
             elif kernel_type == "epanechnikov":
                 h = distances[i] / bandwidth
                 weights[i] = np.where(h <= 1, 0.75 * (1 - h**2), 0)
@@ -279,7 +280,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
             adaptive_bandwidth = sorted_distances[k] if k < n else sorted_distances[-1]
 
             # Apply Gaussian kernel with adaptive bandwidth
-            weights[i] = np.exp(-distances[i] ** 2 / (2 * adaptive_bandwidth**2))
+            weights[i] = np.exp(-(distances[i] ** 2) / (2 * adaptive_bandwidth**2))
 
         return weights
 
@@ -952,9 +953,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
         wy_residuals = W @ residuals
         residual_ss = float(residuals.T @ residuals)
         if residual_ss > 0:
-            morans_i = (
-                (n / np.sum(W)) * (residuals.T @ wy_residuals) / residual_ss
-            )
+            morans_i = (n / np.sum(W)) * (residuals.T @ wy_residuals) / residual_ss
         else:
             morans_i = 0.0
 

@@ -1,6 +1,7 @@
 """
 Middleware for the GEO-INFER-API.
 """
+
 import logging
 import time
 from typing import Callable, cast
@@ -23,21 +24,20 @@ class ErrorHandlerMiddleware(BaseHTTPMiddleware):
             response = cast("Response", await call_next(request))
             return response
         except APIError as e:
-            return JSONResponse(
-                status_code=e.status_code,
-                content=e.to_dict()
-            )
+            return JSONResponse(status_code=e.status_code, content=e.to_dict())
         except Exception:
-            logger.exception("Unexpected error processing %s %s", request.method, request.url)
+            logger.exception(
+                "Unexpected error processing %s %s", request.method, request.url
+            )
             return JSONResponse(
                 status_code=500,
                 content={
                     "error": {
                         "code": "INTERNAL_ERROR",
                         "message": "An unexpected error occurred",
-                        "status_code": 500
+                        "status_code": 500,
                     }
-                }
+                },
             )
 
 

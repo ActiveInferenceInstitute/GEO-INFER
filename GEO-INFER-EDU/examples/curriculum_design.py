@@ -53,8 +53,10 @@ def main() -> None:
         include_hints=True,
     )
     for exercise in exercises:
-        print(f"- {exercise.title} ({exercise.difficulty.value}, "
-              f"{exercise.expected_duration_minutes} min)")
+        print(
+            f"- {exercise.title} ({exercise.difficulty.value}, "
+            f"{exercise.expected_duration_minutes} min)"
+        )
 
     tracker = ProgressTracker(privacy_compliance="ferpa")
     tracker.track_progress(
@@ -78,7 +80,9 @@ def main() -> None:
     report = tracker.generate_competency_report("student_042")
     print(f"Completion rate: {progress.completion_rate:.0%}")
     for comp in report["competencies"]:
-        print(f"- {comp['name']}: {comp['level']} (confidence {comp['confidence']:.1f})")
+        print(
+            f"- {comp['name']}: {comp['level']} (confidence {comp['confidence']:.1f})"
+        )
 
     # Export must be JSON-serializable and FERPA-pseudonymized
     export = tracker.export_progress("student_042")
@@ -96,14 +100,21 @@ def main() -> None:
             "prior_knowledge": ["spatial_analysis"],
             "hours_per_week": 8,
         },
-        learning_goals=["spatial_analysis", "geovisualization", "geospatial_programming"],
+        learning_goals=[
+            "spatial_analysis",
+            "geovisualization",
+            "geospatial_programming",
+        ],
         constraints={"time": "30_hours"},
     )
-    print(f"Pathway {pathway.pathway_id}: {len(pathway.sequence)} steps, "
-          f"~{pathway.estimated_duration_weeks} weeks")
+    print(
+        f"Pathway {pathway.pathway_id}: {len(pathway.sequence)} steps, "
+        f"~{pathway.estimated_duration_weeks} weeks"
+    )
     for step in pathway.sequence:
-        print(f"  {step['order']}. {step['skill']} "
-              f"(~{step['estimated_hours']:.1f} hours)")
+        print(
+            f"  {step['order']}. {step['skill']} (~{step['estimated_hours']:.1f} hours)"
+        )
 
     print()
     print("=" * 60)

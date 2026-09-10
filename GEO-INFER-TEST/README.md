@@ -10,6 +10,7 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `examples/`
 - `src/`
 - `tests/`
+- `_validator_common.py`
 - `build_package_wheels.py`
 - `check_coverage_floor.py`
 - `coverage_baseline_metric.py`
@@ -47,6 +48,19 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 
 ## Public Interface
 
+- `_validator_common.py:ContractReport` (class)
+- `_validator_common.py:discover_module_dirs` (function)
+- `_validator_common.py:read_toml` (function)
+- `_validator_common.py:read_pyproject` (function)
+- `_validator_common.py:distribution_name` (function)
+- `_validator_common.py:package_name_from_distribution` (function)
+- `_validator_common.py:expected_package_name` (function)
+- `_validator_common.py:normalize_dependency_name` (function)
+- `_validator_common.py:parse_requirements_names` (function)
+- `_validator_common.py:pyproject_dependency_names` (function)
+- `_validator_common.py:pyproject_optional_names` (function)
+- `_validator_common.py:parse_setup_py_requires` (function)
+- `_validator_common.py:internal_requirement_names` (function)
 - `build_package_wheels.py:BuildResult` (class)
 - `build_package_wheels.py:BuildSummary` (class)
 - `build_package_wheels.py:validate_wheel_contents` (function)
@@ -54,19 +68,6 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `build_package_wheels.py:verify_wheels` (function)
 - `build_package_wheels.py:install_and_verify` (function)
 - `build_package_wheels.py:main` (function)
-- `check_coverage_floor.py:main` (function)
-- `coverage_baseline_metric.py:main` (function)
-- `import_probe.py:run_import_probe` (function)
-- `measure_module_coverage.py:measure_module` (function)
-- `measure_module_coverage.py:main` (function)
-- `orchestrator_coverage_metric.py:main` (function)
-- `preview_receipt_metric.py:main` (function)
-- `rewrite_readme_agents.py:ModuleInfo` (class)
-- `rewrite_readme_agents.py:git_ls_files` (function)
-- `rewrite_readme_agents.py:tracked_files` (function)
-- `rewrite_readme_agents.py:read_pyproject` (function)
-- `rewrite_readme_agents.py:requirement_lines` (function)
-- `rewrite_readme_agents.py:discover_modules` (function)
 
 ## Module Metadata
 

@@ -61,8 +61,8 @@ def sample_health_facilities(sample_locations):
 
     for i, location in enumerate(sample_locations[:4]):
         facility = HealthFacility(
-            facility_id=f"facility_{i+1}",
-            name=f"Test Facility {i+1}",
+            facility_id=f"facility_{i + 1}",
+            name=f"Test Facility {i + 1}",
             facility_type=facility_types[i % len(facility_types)],
             location=location,
             capacity=(i + 1) * 100,
@@ -83,7 +83,7 @@ def sample_disease_reports(sample_locations):
     for i, location in enumerate(sample_locations):
         for j in range(5):  # 5 reports per location
             report = DiseaseReport(
-                report_id=f"report_{i*5 + j + 1}",
+                report_id=f"report_{i * 5 + j + 1}",
                 disease_code=diseases[(i + j) % len(diseases)],
                 location=location,
                 report_date=base_date,
@@ -107,7 +107,7 @@ def sample_population_data(sample_locations):
 
     for i, location in enumerate(sample_locations[:3]):
         pop_data = PopulationData(
-            area_id=f"area_{i+1}",
+            area_id=f"area_{i + 1}",
             population_count=sum(age_distributions[i].values()),
             age_distribution=age_distributions[i],
         )
@@ -127,7 +127,7 @@ def sample_environmental_data(sample_locations):
     for i, location in enumerate(sample_locations):
         for j, (param, unit) in enumerate(zip(parameters, units)):
             data_point = EnvironmentalData(
-                data_id=f"env_{i*len(parameters) + j + 1}",
+                data_id=f"env_{i * len(parameters) + j + 1}",
                 parameter_name=param,
                 value=np.random.uniform(10, 50),
                 unit=unit,

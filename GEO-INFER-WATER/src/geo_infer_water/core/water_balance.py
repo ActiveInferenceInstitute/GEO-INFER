@@ -52,7 +52,9 @@ class WaterBalanceModeler:
             ``storage_change``), and ``closure_residual``.
         """
         storage_change = precipitation - evapotranspiration - runoff
-        closure_residual = precipitation - (evapotranspiration + runoff) - storage_change
+        closure_residual = (
+            precipitation - (evapotranspiration + runoff) - storage_change
+        )
         return xr.Dataset(
             {
                 "precipitation": precipitation,
@@ -91,15 +93,15 @@ class WaterBalanceModeler:
             return np.zeros(12)
 
         a = (
-            6.75e-7 * annual_heat_index ** 3
-            - 7.71e-5 * annual_heat_index ** 2
+            6.75e-7 * annual_heat_index**3
+            - 7.71e-5 * annual_heat_index**2
             + 1.792e-2 * annual_heat_index
             + 0.49239
         )
 
-        day_length_hours = np.array([
-            self._mean_day_length(latitude_deg, month) for month in range(1, 13)
-        ])
+        day_length_hours = np.array(
+            [self._mean_day_length(latitude_deg, month) for month in range(1, 13)]
+        )
         days_in_month = np.array([31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31])
 
         correction = (day_length_hours / 12.0) * (days_in_month / 30.0)
@@ -107,7 +109,9 @@ class WaterBalanceModeler:
         pet = np.zeros(12)
         for m in range(12):
             if temp[m] > 0 and annual_heat_index > 0:
-                pet[m] = 16.0 * (10.0 * temp[m] / annual_heat_index) ** a * correction[m]
+                pet[m] = (
+                    16.0 * (10.0 * temp[m] / annual_heat_index) ** a * correction[m]
+                )
 
         return pet
 
@@ -134,9 +138,9 @@ class WaterBalanceModeler:
             Daily PET (mm/day).
         """
         lat_rad = np.radians(latitude_deg)
-        ra_values = np.array([
-            self._extraterrestrial_radiation(lat_rad, int(d)) for d in day_of_year
-        ])
+        ra_values = np.array(
+            [self._extraterrestrial_radiation(lat_rad, int(d)) for d in day_of_year]
+        )
 
         temp_range = np.maximum(temp_max - temp_min, 0.0)
         pet = 0.0023 * ra_values * (temp_mean + 17.8) * np.sqrt(temp_range)
@@ -175,7 +179,7 @@ class WaterBalanceModeler:
 
         runoff = np.where(
             excess > 0,
-            excess ** 2 / (excess + s),
+            excess**2 / (excess + s),
             0.0,
         )
         return runoff
@@ -222,7 +226,9 @@ class WaterBalanceModeler:
                     surplus[i] = new_storage - soil_capacity_mm
                     new_storage = soil_capacity_mm
             else:
-                available = current_storage * (1.0 - np.exp(p_minus_pet / soil_capacity_mm))
+                available = current_storage * (
+                    1.0 - np.exp(p_minus_pet / soil_capacity_mm)
+                )
                 aet[i] = p + available
                 new_storage = current_storage - available
 
@@ -283,7 +289,10 @@ class WaterBalanceModeler:
             (24.0 * 60.0 / np.pi)
             * gsc
             * dr
-            * (ws * np.sin(lat_rad) * np.sin(dec) + np.cos(lat_rad) * np.cos(dec) * np.sin(ws))
+            * (
+                ws * np.sin(lat_rad) * np.sin(dec)
+                + np.cos(lat_rad) * np.cos(dec) * np.sin(ws)
+            )
         )
 
         return float(max(0.0, ra / 2.45))

@@ -244,7 +244,9 @@ class AdvancedDashboard:
             color = (
                 "#ff4444"
                 if risk_value > 0.5
-                else "#ffaa44" if risk_value > 0.3 else "#44ff44"
+                else "#ffaa44"
+                if risk_value > 0.3
+                else "#44ff44"
             )
             risk_items += f'<div style="margin: 5px 0; padding: 8px; background: {color}20; border-left: 4px solid {color};"><strong>{risk_name.replace("_", " ").title()}:</strong> {risk_level} ({risk_value:.2f})</div>'
 
@@ -265,7 +267,9 @@ class AdvancedDashboard:
             trend_icon = (
                 "📈"
                 if data["growth_trend"] > 0
-                else "📉" if data["growth_trend"] < 0 else "➡️"
+                else "📉"
+                if data["growth_trend"] < 0
+                else "➡️"
             )
             sector_items += f'<div style="margin: 5px 0; padding: 8px; background: #f8f9fa; border-left: 4px solid #3498db;"><strong>{sector.replace("_", " ").title()}:</strong> {data["employment"]} jobs ({data["employment_share"]}%) {trend_icon}</div>'
 
@@ -346,7 +350,9 @@ class AdvancedDashboard:
                     color = (
                         "red"
                         if incident["contained"] < 50
-                        else "orange" if incident["contained"] < 100 else "green"
+                        else "orange"
+                        if incident["contained"] < 100
+                        else "green"
                     )
                     folium.Marker(
                         location=[incident["lat"], incident["lon"]],
@@ -492,7 +498,9 @@ class AdvancedDashboard:
         ).add_to(self.layer_groups["conservation"])
 
     def _add_economic_indicators(self, m: folium.Map) -> None:
-        centers: List[Dict[str, Any]] = [{"loc": [41.7558, -124.2026], "name": "Crescent City", "emp": 3500}]
+        centers: List[Dict[str, Any]] = [
+            {"loc": [41.7558, -124.2026], "name": "Crescent City", "emp": 3500}
+        ]
         for c in centers:
             folium.CircleMarker(
                 location=c["loc"],
@@ -585,15 +593,15 @@ class AdvancedDashboard:
                 <h1>🗺️ Del Norte County Geospatial Intelligence Dashboard</h1>
                 <p>Climate • Zoning • Agro-Economics • Policy Support Interface</p>
                 <div>
-                     <span style="color: {'#27ae60' if real_time_data.get('fire_data', {}).get('success') else '#e74c3c'}">Fire Data</span> •
-                     <span style="color: {'#27ae60' if real_time_data.get('weather_data', {}).get('success') else '#e74c3c'}">Weather Data</span>
+                     <span style="color: {"#27ae60" if real_time_data.get("fire_data", {}).get("success") else "#e74c3c"}">Fire Data</span> •
+                     <span style="color: {"#27ae60" if real_time_data.get("weather_data", {}).get("success") else "#e74c3c"}">Weather Data</span>
                 </div>
             </div>
             <div class="dashboard-container">
                 <div class="sidebar">
-                    {panels.get('climate', '')}
-                    {panels.get('zoning', '')}
-                    {panels.get('economic', '')}
+                    {panels.get("climate", "")}
+                    {panels.get("zoning", "")}
+                    {panels.get("economic", "")}
                 </div>
                 <div class="map-container">
                     {map_html}
@@ -603,11 +611,15 @@ class AdvancedDashboard:
         </html>
         """
 
-    def generate_dashboard(self, filename: Optional[str] = None, fetch_data: bool = False) -> str:
+    def generate_dashboard(
+        self, filename: Optional[str] = None, fetch_data: bool = False
+    ) -> str:
         """Alias for save_dashboard() — generates HTML without fetching live data by default."""
         return self.save_dashboard(filename=filename, fetch_data=fetch_data)
 
-    def save_dashboard(self, filename: Optional[str] = None, fetch_data: bool = True) -> str:
+    def save_dashboard(
+        self, filename: Optional[str] = None, fetch_data: bool = True
+    ) -> str:
         if filename is None:
             ts = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"del_norte_intelligence_dashboard_{ts}.html"

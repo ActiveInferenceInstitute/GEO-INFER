@@ -24,6 +24,7 @@ from .github_api import GitHubRepository
 
 logger = logging.getLogger(__name__)
 
+
 class CloneProgress:
     """Track cloning progress and statistics."""
 
@@ -65,13 +66,14 @@ class CloneProgress:
     def get_stats(self) -> Dict[str, Any]:
         """Get current statistics."""
         return {
-            'total': self.total_repos,
-            'completed': self.completed_repos,
-            'failed': self.failed_repos,
-            'skipped': self.skipped_repos,
-            'elapsed_time': self.elapsed_time,
-            'success_rate': self.success_rate
+            "total": self.total_repos,
+            "completed": self.completed_repos,
+            "failed": self.failed_repos,
+            "skipped": self.skipped_repos,
+            "elapsed_time": self.elapsed_time,
+            "success_rate": self.success_rate,
         }
+
 
 class RepoCloner:
     """
@@ -104,9 +106,11 @@ class RepoCloner:
         self.git_env = os.environ.copy()
         if config.github_token:
             # For GitHub token authentication via HTTPS
-            self.git_env['GIT_TOKEN'] = config.github_token
+            self.git_env["GIT_TOKEN"] = config.github_token
 
-    def clone_repository(self, owner: str, repo: str, branch: Optional[str] = None) -> bool:
+    def clone_repository(
+        self, owner: str, repo: str, branch: Optional[str] = None
+    ) -> bool:
         """
         Clone a single repository.
 
@@ -123,7 +127,7 @@ class RepoCloner:
 
         # Check if repository already exists
         if repo_path.exists():
-            if (repo_path / '.git').exists():
+            if (repo_path / ".git").exists():
                 logger.info(f"Repository {owner}/{repo} already exists, skipping")
                 self.progress.increment_skipped()
                 return True
@@ -139,16 +143,18 @@ class RepoCloner:
 
             # Prepare clone options
             clone_kwargs: Dict[str, Any] = {
-                'branch': branch or self.config.default_branch,
-                'depth': self.config.clone_depth,
-                'recursive': False  # We'll handle submodules separately if needed
+                "branch": branch or self.config.default_branch,
+                "depth": self.config.clone_depth,
+                "recursive": False,  # We'll handle submodules separately if needed
             }
 
             # Handle authentication
-            if self.config.auth_method == 'token' and self.config.github_token:
+            if self.config.auth_method == "token" and self.config.github_token:
                 # Use token in URL for GitHub
-                if 'github.com' in clone_url:
-                    clone_url = clone_url.replace('https://', f'https://{self.config.github_token}@')
+                if "github.com" in clone_url:
+                    clone_url = clone_url.replace(
+                        "https://", f"https://{self.config.github_token}@"
+                    )
 
             # Perform the clone
             git_repo = git.Repo.clone_from(clone_url, repo_path, **clone_kwargs)
@@ -174,7 +180,9 @@ class RepoCloner:
             self.progress.increment_failed()
             return False
 
-    def clone_repositories_for_user(self, username: str, repositories: List[GitHubRepository]) -> Tuple[int, int]:
+    def clone_repositories_for_user(
+        self, username: str, repositories: List[GitHubRepository]
+    ) -> Tuple[int, int]:
         """
         Clone repositories for a specific user.
 
@@ -218,9 +226,7 @@ class RepoCloner:
             True if successful, False otherwise
         """
         return self.clone_repository(
-            github_repo.owner,
-            github_repo.name,
-            github_repo.default_branch
+            github_repo.owner, github_repo.name, github_repo.default_branch
         )
 
     def _setup_lfs(self, repo: git.Repo) -> None:
@@ -232,18 +238,22 @@ class RepoCloner:
         """
         try:
             # Check if repository uses LFS
-            lfs_config = repo.git.config('--get', 'filter.lfs.required', with_exceptions=False)
+            lfs_config = repo.git.config(
+                "--get", "filter.lfs.required", with_exceptions=False
+            )
             if lfs_config:
                 logger.info("Setting up Git LFS")
                 # Pull LFS objects
-                repo.git.lfs('pull', 'origin')
+                repo.git.lfs("pull", "origin")
         except git.GitCommandError:
             # LFS not available or not needed
             pass
         except Exception as e:
             logger.warning(f"Error setting up LFS: {e}")
 
-    def clone_multiple_repositories(self, repositories: List[Tuple[str, str, str]]) -> Dict[str, bool]:
+    def clone_multiple_repositories(
+        self, repositories: List[Tuple[str, str, str]]
+    ) -> Dict[str, bool]:
         """
         Clone multiple repositories in parallel.
 
@@ -260,7 +270,9 @@ class RepoCloner:
             # Parallel cloning
             with ThreadPoolExecutor(max_workers=self.config.max_workers) as executor:
                 future_to_repo = {
-                    executor.submit(self.clone_repository, owner, repo, branch): f"{owner}/{repo}"
+                    executor.submit(
+                        self.clone_repository, owner, repo, branch
+                    ): f"{owner}/{repo}"
                     for owner, repo, branch in repositories
                 }
 
@@ -295,10 +307,12 @@ class RepoCloner:
         try:
             usage = shutil.disk_usage(self.output_dir)
             return {
-                'total_bytes': usage.total,
-                'used_bytes': usage.used,
-                'free_bytes': usage.free,
-                'used_percent': (usage.used / usage.total) * 100 if usage.total > 0 else 0
+                "total_bytes": usage.total,
+                "used_bytes": usage.used,
+                "free_bytes": usage.free,
+                "used_percent": (usage.used / usage.total) * 100
+                if usage.total > 0
+                else 0,
             }
         except Exception as e:
             logger.error(f"Error getting disk usage: {e}")
@@ -320,12 +334,12 @@ class RepoCloner:
 
         try:
             for owner_dir in self.output_dir.iterdir():
-                if not owner_dir.is_dir() or owner_dir.name.startswith('.'):
+                if not owner_dir.is_dir() or owner_dir.name.startswith("."):
                     continue
                 for repo_dir in owner_dir.iterdir():
                     if not repo_dir.is_dir():
                         continue
-                    git_dir = repo_dir / '.git'
+                    git_dir = repo_dir / ".git"
                     if not git_dir.exists():
                         # owner/repo-shaped directory without .git: a failed
                         # or interrupted clone attempt, safe to remove.
@@ -357,12 +371,14 @@ class RepoCloner:
     def close(self) -> None:
         """Clean up resources and reset internal state."""
         self.reset_progress()
-        executor: Any = getattr(self, '_executor', None)
+        executor: Any = getattr(self, "_executor", None)
         if executor is not None:
             cast(Executor, executor).shutdown(wait=False)
-            setattr(self, '_executor', None)
+            setattr(self, "_executor", None)
 
-    def estimate_clone_time(self, repo_count: int, avg_repo_size: int = 50000) -> Dict[str, Any]:
+    def estimate_clone_time(
+        self, repo_count: int, avg_repo_size: int = 50000
+    ) -> Dict[str, Any]:
         """
         Estimate cloning time based on repository count and average size.
 
@@ -381,21 +397,31 @@ class RepoCloner:
         if self.config.concurrency_enabled:
             # Parallel cloning estimate
             workers = min(self.config.max_workers, repo_count)
-            parallel_time = (base_clone_time + (avg_repo_size * per_kb_time) + parallel_overhead) * (repo_count / workers)
-            sequential_time = (base_clone_time + (avg_repo_size * per_kb_time)) * repo_count
+            parallel_time = (
+                base_clone_time + (avg_repo_size * per_kb_time) + parallel_overhead
+            ) * (repo_count / workers)
+            sequential_time = (
+                base_clone_time + (avg_repo_size * per_kb_time)
+            ) * repo_count
 
             return {
-                'parallel_estimate_seconds': parallel_time,
-                'sequential_estimate_seconds': sequential_time,
-                'recommended_approach': 'parallel' if parallel_time < sequential_time else 'sequential',
-                'workers_used': workers,
-                'speedup_factor': sequential_time / parallel_time if parallel_time > 0 else 1
+                "parallel_estimate_seconds": parallel_time,
+                "sequential_estimate_seconds": sequential_time,
+                "recommended_approach": "parallel"
+                if parallel_time < sequential_time
+                else "sequential",
+                "workers_used": workers,
+                "speedup_factor": sequential_time / parallel_time
+                if parallel_time > 0
+                else 1,
             }
         else:
             # Sequential cloning estimate
-            sequential_time = (base_clone_time + (avg_repo_size * per_kb_time)) * repo_count
+            sequential_time = (
+                base_clone_time + (avg_repo_size * per_kb_time)
+            ) * repo_count
 
             return {
-                'sequential_estimate_seconds': sequential_time,
-                'recommended_approach': 'sequential'
-            } 
+                "sequential_estimate_seconds": sequential_time,
+                "recommended_approach": "sequential",
+            }

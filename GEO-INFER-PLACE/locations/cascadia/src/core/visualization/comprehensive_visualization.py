@@ -180,9 +180,7 @@ class ComprehensiveVisualizationEngine:
         # Determine layer inclusion and initial visibility from config and CLI
         initial_visibility: Dict[str, bool] = {}
         configured_layers: List[str] = []
-        cfg_path = (
-            Path(__file__).resolve().parents[1] / "config" / "analysis_config.yaml"
-        )
+        cfg_path = Path(__file__).resolve().parents[1] / "config" / "analysis_config.yaml"
         try:
             if cfg_path.exists():
                 import yaml
@@ -192,9 +190,7 @@ class ComprehensiveVisualizationEngine:
                 vis_cfg = cfg.get("visualization") or {}
                 initial_layer_vis_cfg = vis_cfg.get("initial_layer_visibility") or {}
                 if isinstance(initial_layer_vis_cfg, dict):
-                    initial_visibility = {
-                        str(k): bool(v) for k, v in initial_layer_vis_cfg.items()
-                    }
+                    initial_visibility = {str(k): bool(v) for k, v in initial_layer_vis_cfg.items()}
                 configured_layers = vis_cfg.get("layers") or []
                 if not isinstance(configured_layers, list):
                     configured_layers = []
@@ -217,8 +213,7 @@ class ComprehensiveVisualizationEngine:
             include_set = set([layer_to_module.get(x, x) for x in configured_layers])
         else:
             include_set = set(
-                list(data_sources.keys())
-                + (["redevelopment"] if redevelopment_scores else [])
+                list(data_sources.keys()) + (["redevelopment"] if redevelopment_scores else [])
             )
         visible_set = set([k for k in (initial_visible_layers or [])])
 
@@ -227,9 +222,7 @@ class ComprehensiveVisualizationEngine:
             redevelop_show = False
             # Initial visibility for redevelopment from config key
             if not visible_set:
-                redevelop_show = initial_visibility.get(
-                    "redevelopment_potential", False
-                )
+                redevelop_show = initial_visibility.get("redevelopment_potential", False)
             else:
                 redevelop_show = "redevelopment" in visible_set
             if "redevelopment" in include_set:
@@ -250,9 +243,7 @@ class ComprehensiveVisualizationEngine:
                     config_key = module_name
                     # Configuration uses the canonical module keys (zoning/current_use/...)
                     show_flag = initial_visibility.get(config_key, False)
-                self._add_data_layer(
-                    m, module_name, module_data, h3_data, show=show_flag
-                )
+                self._add_data_layer(m, module_name, module_data, h3_data, show=show_flag)
 
         # Add H3 hexagon grid layer (sampled for performance if very large)
         grid_hexes = target_hexagons
@@ -262,7 +253,7 @@ class ComprehensiveVisualizationEngine:
                 step = max(1, len(target_hexagons) // 2000)
                 grid_hexes = target_hexagons[::step]
         except Exception as exc:
-            logger.warning('Visualization step failed; continuing without it: %s', exc)
+            logger.warning("Visualization step failed; continuing without it: %s", exc)
         self._add_h3_grid_layer(m, grid_hexes, h3_data)
 
         # Add analysis layer (kept hidden by default; redevelopment layer added above is preferred)
@@ -286,7 +277,7 @@ class ComprehensiveVisualizationEngine:
             if redevelopment_scores and "redevelopment" in include_set:
                 layer_names = ["Redevelopment Potential"] + layer_names
         except Exception as exc:
-            logger.warning('Visualization step failed; continuing without it: %s', exc)
+            logger.warning("Visualization step failed; continuing without it: %s", exc)
         html_content = self._generate_enhanced_html(
             m, h3_data, data_sources, layer_names, module_status
         )
@@ -366,9 +357,7 @@ class ComprehensiveVisualizationEngine:
                 viz_paths["score_distribution"] = score_path
 
             # 3. Module comparison chart
-            module_fig = self._create_module_comparison_plot(
-                data_sources, total_targets
-            )
+            module_fig = self._create_module_comparison_plot(data_sources, total_targets)
             module_path = self.static_dir / "module_comparison.png"
             module_fig.savefig(module_path, dpi=300, bbox_inches="tight")
             plt.close(module_fig)
@@ -410,15 +399,11 @@ class ComprehensiveVisualizationEngine:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
         # Create static visualizations first
-        static_viz = self.create_static_visualizations(
-            h3_data, data_sources, redevelopment_scores
-        )
+        static_viz = self.create_static_visualizations(h3_data, data_sources, redevelopment_scores)
 
         # Create interactive map
         target_hexes = list(self._get_hexagons_map(h3_data).keys())
-        interactive_map = self.create_interactive_h3_map(
-            h3_data, data_sources, target_hexes
-        )
+        interactive_map = self.create_interactive_h3_map(h3_data, data_sources, target_hexes)
 
         # Generate dashboard HTML
         dashboard_html = self._generate_dashboard_html(
@@ -486,9 +471,7 @@ class ComprehensiveVisualizationEngine:
                 sources_summary["modules"][module_name] = {
                     "hexagon_count": len(hex_map),
                     "coverage_percentage": (
-                        len(hex_map)
-                        / max(1, len(self._get_hexagons_map(h3_data)))
-                        * 100.0
+                        len(hex_map) / max(1, len(self._get_hexagons_map(h3_data))) * 100.0
                     ),
                 }
 
@@ -513,7 +496,7 @@ class ComprehensiveVisualizationEngine:
                     f.write("</ul></body></html>")
                 export_paths["legend_html"] = legend_path
             except Exception as exc:
-                logger.warning('Visualization step failed; continuing without it: %s', exc)
+                logger.warning("Visualization step failed; continuing without it: %s", exc)
 
             logger.info(f"Visualization data exported: {len(export_paths)} files")
 
@@ -524,11 +507,7 @@ class ComprehensiveVisualizationEngine:
 
     def _get_hexagons_map(self, obj: Dict[str, Any]) -> Dict[str, Any]:
         """Return a mapping of hex_id -> data from either a flat dict or a dict with 'hexagons'."""
-        if (
-            isinstance(obj, dict)
-            and "hexagons" in obj
-            and isinstance(obj["hexagons"], dict)
-        ):
+        if isinstance(obj, dict) and "hexagons" in obj and isinstance(obj["hexagons"], dict):
             return obj["hexagons"]
         if isinstance(obj, dict):
             return obj
@@ -552,9 +531,7 @@ class ComprehensiveVisualizationEngine:
             color_scheme = self.viz_settings["color_schemes"].get(module_name, {})
 
             # Create feature group for this layer with initial visibility
-            fg = folium.FeatureGroup(
-                name=f"{module_name.replace('_', ' ').title()}", show=show
-            )
+            fg = folium.FeatureGroup(name=f"{module_name.replace('_', ' ').title()}", show=show)
 
             fused_hex_map = self._get_hexagons_map(h3_data)
             for hex_id, hex_data in hexagons.items():
@@ -563,12 +540,8 @@ class ComprehensiveVisualizationEngine:
                 boundary = self._get_hexagon_boundary(hex_id)
                 if boundary:
                     summarized = self._summarize_hex_data(hex_data, module_name)
-                    color = self._get_hexagon_color(
-                        summarized, color_scheme, module_name
-                    )
-                    popup_content = self._create_popup_content(
-                        hex_id, summarized, module_name
-                    )
+                    color = self._get_hexagon_color(summarized, color_scheme, module_name)
+                    popup_content = self._create_popup_content(hex_id, summarized, module_name)
                     folium.Polygon(
                         locations=boundary,
                         color=color,
@@ -624,8 +597,8 @@ class ComprehensiveVisualizationEngine:
 
                         popup_content = f"""
                         <b>Redevelopment Score:</b> {score:.2f}<br>
-                        <b>Data Sources:</b> {len(hex_data.get('sources', []))}<br>
-                        <b>Coverage:</b> {hex_data.get('coverage', 0):.1f}%
+                        <b>Data Sources:</b> {len(hex_data.get("sources", []))}<br>
+                        <b>Coverage:</b> {hex_data.get("coverage", 0):.1f}%
                         """
 
                         folium.Polygon(
@@ -745,9 +718,7 @@ class ComprehensiveVisualizationEngine:
                 zone_type = hex_data.get("zone_type", "Unknown")
                 return color_scheme.get(zone_type, "#808080")
             elif module_name == "current_use":
-                land_use = hex_data.get(
-                    "land_use", hex_data.get("crop_type", "Unknown")
-                )
+                land_use = hex_data.get("land_use", hex_data.get("crop_type", "Unknown"))
                 return color_scheme.get(land_use, "#808080")
             elif module_name == "ownership":
                 owner_type = hex_data.get("owner_type", "Unknown")
@@ -797,9 +768,7 @@ class ComprehensiveVisualizationEngine:
         except Exception:
             return "#808080"
 
-    def _create_popup_content(
-        self, hex_id: str, hex_data: Dict[str, Any], module_name: str
-    ) -> str:
+    def _create_popup_content(self, hex_id: str, hex_data: Dict[str, Any], module_name: str) -> str:
         """Create popup content for a hexagon."""
         try:
             content = f"<b>H3 Hexagon:</b> {hex_id}<br>"
@@ -808,13 +777,9 @@ class ComprehensiveVisualizationEngine:
             for key, value in hex_data.items():
                 if key != "geometry":
                     if isinstance(value, float):
-                        content += (
-                            f"<b>{key.replace('_', ' ').title()}:</b> {value:.2f}<br>"
-                        )
+                        content += f"<b>{key.replace('_', ' ').title()}:</b> {value:.2f}<br>"
                     else:
-                        content += (
-                            f"<b>{key.replace('_', ' ').title()}:</b> {value}<br>"
-                        )
+                        content += f"<b>{key.replace('_', ' ').title()}:</b> {value}<br>"
 
             return content
         except Exception as e:
@@ -864,11 +829,7 @@ class ComprehensiveVisualizationEngine:
                         import numpy as _np
 
                         v = float(_np.nanmean(values))
-                        level = (
-                            "High"
-                            if v >= 100000
-                            else ("Medium" if v >= 25000 else "Low")
-                        )
+                        level = "High" if v >= 100000 else ("Medium" if v >= 25000 else "Low")
                     except Exception:
                         level = "Low"
                 summary["improvement_level"] = level
@@ -960,14 +921,12 @@ class ComprehensiveVisualizationEngine:
                         raw = bool(stat.get("raw_exists", False))
                         status_lbl = "Real" if emp else ("Raw" if raw else "Missing")
                         status_cls = (
-                            "status-real"
-                            if emp
-                            else ("status-raw" if raw else "status-missing")
+                            "status-real" if emp else ("status-raw" if raw else "status-missing")
                         )
                         safe_cache = cache if isinstance(cache, str) else ""
                         module_rows += f"<tr><td>{mname}</td><td>{hex_cnt}</td><td>{in_feat}</td><td><span class='status-pill {status_cls}'>{status_lbl}</span></td><td title='{safe_cache}'>{safe_cache.split('/')[-1] if safe_cache else ''}</td></tr>"
             except Exception as exc:
-                logger.warning('Visualization step failed; continuing without it: %s', exc)
+                logger.warning("Visualization step failed; continuing without it: %s", exc)
 
             custom_js = (
                 """
@@ -1088,9 +1047,7 @@ class ComprehensiveVisualizationEngine:
         # Add statistics
         mean_score = np.mean(scores)
         median_score = np.median(scores)
-        ax.axvline(
-            mean_score, color="red", linestyle="--", label=f"Mean: {mean_score:.3f}"
-        )
+        ax.axvline(mean_score, color="red", linestyle="--", label=f"Mean: {mean_score:.3f}")
         ax.axvline(
             median_score,
             color="blue",
@@ -1103,9 +1060,7 @@ class ComprehensiveVisualizationEngine:
 
         return fig
 
-    def _create_module_comparison_plot(
-        self, data_sources: Dict[str, Any], total_targets: int
-    ):
+    def _create_module_comparison_plot(self, data_sources: Dict[str, Any], total_targets: int):
         """Create module comparison chart with counts and heuristic quality."""
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
 
@@ -1125,9 +1080,7 @@ class ComprehensiveVisualizationEngine:
                     sample_values.extend(list(v.keys()))
             diverse_attrs = len(set([k for k in sample_values if k != "feature_id"]))
             quality = (
-                max(0.0, min(1.0, 0.2 + 0.8 * (diverse_attrs / 10.0)))
-                if hex_count > 0
-                else 0.0
+                max(0.0, min(1.0, 0.2 + 0.8 * (diverse_attrs / 10.0))) if hex_count > 0 else 0.0
             )
             hexagon_counts.append(hex_count)
             quality_scores.append(quality)
@@ -1166,9 +1119,7 @@ class ComprehensiveVisualizationEngine:
                     sample_values.extend(list(v.keys()))
             diverse_attrs = len(set([k for k in sample_values if k != "feature_id"]))
             quality = (
-                max(0.0, min(1.0, 0.2 + 0.8 * (diverse_attrs / 10.0)))
-                if len(hex_map) > 0
-                else 0.0
+                max(0.0, min(1.0, 0.2 + 0.8 * (diverse_attrs / 10.0))) if len(hex_map) > 0 else 0.0
             )
             # Completeness and accuracy indicators derived from coverage and quality
             completeness = min(1.0, coverage * 0.8 + 0.2)
@@ -1302,24 +1253,24 @@ class ComprehensiveVisualizationEngine:
             <div class="header">
                 <h1>🌲 Cascadia Agricultural Analysis Dashboard</h1>
                 <p>Comprehensive agricultural land analysis for the Cascadian bioregion</p>
-                <p><strong>Generated:</strong> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+                <p><strong>Generated:</strong> {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
             </div>
 
             <div class="summary-stats">
                 <div class="stat-card">
-                    <div class="stat-value">{summary.get('total_hexagons', 0):,}</div>
+                    <div class="stat-value">{summary.get("total_hexagons", 0):,}</div>
                     <div class="stat-label">Total Hexagons</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value">{summary.get('processed_hexagons', 0):,}</div>
+                    <div class="stat-value">{summary.get("processed_hexagons", 0):,}</div>
                     <div class="stat-label">Processed Hexagons</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value">{len(summary.get('data_sources', []))}</div>
+                    <div class="stat-value">{len(summary.get("data_sources", []))}</div>
                     <div class="stat-label">Data Sources</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value">{summary.get('h3_resolution', 8)}</div>
+                    <div class="stat-value">{summary.get("h3_resolution", 8)}</div>
                     <div class="stat-label">H3 Resolution</div>
                 </div>
             </div>
@@ -1342,7 +1293,7 @@ class ComprehensiveVisualizationEngine:
 
                 html += f"""
                 <div class="section">
-                    <h3>{viz_name.replace('_', ' ').title()}</h3>
+                    <h3>{viz_name.replace("_", " ").title()}</h3>
                     <div class="viz-container">
                         <img src="{viz_rel}" alt="{viz_name}">
                     </div>

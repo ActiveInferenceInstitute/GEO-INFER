@@ -31,6 +31,8 @@ EXPECTED_HAZARD_DOMAIN_IDS = frozenset(
         "emergency-management",
         "environmental-protection",
         "event-planning",
+        "public-health-safety",
+        "tourism-recreation",
     }
 )
 
@@ -179,10 +181,10 @@ def test_seed_matches_v1_anchor_and_hazard_shape(
 
     hazard, domains, _ = _hazard_surface(consumer, seed)
     relevant_count = hazard.get("relevantDomainCount")
-    assert isinstance(relevant_count, int) and not isinstance(
-        relevant_count, bool
-    ), _drift_message(
-        f"{consumer} seed hazard.relevantDomainCount must be an integer."
+    assert isinstance(relevant_count, int) and not isinstance(relevant_count, bool), (
+        _drift_message(
+            f"{consumer} seed hazard.relevantDomainCount must be an integer."
+        )
     )
     assert relevant_count == len(domains), _drift_message(
         f"{consumer} seed declares {relevant_count} relevant domains but contains "
@@ -213,8 +215,7 @@ def test_bundled_seeds_share_canonical_hazard_domain_ids() -> None:
     }
 
     assert len(set(domain_ids_by_consumer.values())) == 1, _drift_message(
-        "Bundled seed hazard domain IDs diverged: "
-        f"{domain_ids_by_consumer!r}."
+        f"Bundled seed hazard domain IDs diverged: {domain_ids_by_consumer!r}."
     )
     actual_ids = next(iter(domain_ids_by_consumer.values()))
     assert actual_ids == EXPECTED_HAZARD_DOMAIN_IDS, _drift_message(

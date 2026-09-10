@@ -41,7 +41,9 @@ class TestCrps:
         mean = np.zeros(4)
         std = np.ones(4)
         draws = rng.normal(mean, std, size=(200_000, 4))
-        assert crps(obs, draws) == pytest.approx(crps_gaussian(obs, mean, std), abs=0.005)
+        assert crps(obs, draws) == pytest.approx(
+            crps_gaussian(obs, mean, std), abs=0.005
+        )
 
     def test_sharp_centered_predictive_scores_low(self) -> None:
         """A predictive pinned to the observations scores near zero."""
@@ -105,9 +107,9 @@ class TestCoverageDiagnostics:
     def test_coverage_calibration_error(self) -> None:
         obs = np.array([0.0, 2.0, 4.0, 6.0, 8.0])
         # [1, 3, 5, 7, 9] contains observations 2,4,6,8 -> 4 / 5 = 0.8.
-        assert coverage_calibration_error(obs, np.ones(5), np.full(5, 9.0), 0.95) == pytest.approx(
-            abs(0.8 - 0.95)
-        )
+        assert coverage_calibration_error(
+            obs, np.ones(5), np.full(5, 9.0), 0.95
+        ) == pytest.approx(abs(0.8 - 0.95))
 
     def test_interval_score_rewards_narrow_intervals(self) -> None:
         obs = np.array([0.0, 0.0, 0.0])
@@ -155,9 +157,9 @@ class TestLogPredictiveDensity:
 
     def test_gaussian_closed_form(self) -> None:
         obs = np.array([0.0, 1.0])
-        assert log_predictive_density_gaussian(obs, np.zeros(2), np.ones(2)) == pytest.approx(
-            -0.5 * np.log(2 * np.pi) - 0.5 * 0.5, abs=1e-9
-        )
+        assert log_predictive_density_gaussian(
+            obs, np.zeros(2), np.ones(2)
+        ) == pytest.approx(-0.5 * np.log(2 * np.pi) - 0.5 * 0.5, abs=1e-9)
 
 
 class TestEvaluateConvenience:

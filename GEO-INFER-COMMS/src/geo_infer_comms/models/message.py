@@ -510,5 +510,3 @@ def message_request_to_response(
         priority=request.priority,
         geospatial_data=request.geospatial_data,
     )
-
-

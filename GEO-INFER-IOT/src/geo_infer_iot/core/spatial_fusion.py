@@ -260,7 +260,7 @@ class SpatialDataFusion:
         Args:
             measurements: List of measurements to validate
             consistency_threshold: Maximum allowed standard deviations between neighbors
-            
+
         Returns:
             Dictionary with consistency validation results
         """

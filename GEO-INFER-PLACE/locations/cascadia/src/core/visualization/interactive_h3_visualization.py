@@ -237,14 +237,10 @@ class InteractiveH3Visualization:
                     boundary = self._get_hexagon_boundary(hex_id)
                     if boundary:
                         # Determine color based on data
-                        color = self._get_hexagon_color(
-                            hex_data, color_scheme, module_name
-                        )
+                        color = self._get_hexagon_color(hex_data, color_scheme, module_name)
 
                         # Create popup content
-                        popup_content = self._create_popup_content(
-                            hex_id, hex_data, module_name
-                        )
+                        popup_content = self._create_popup_content(hex_id, hex_data, module_name)
 
                         # Add polygon to map
                         folium.Polygon(
@@ -302,8 +298,8 @@ class InteractiveH3Visualization:
 
                         popup_content = f"""
                         <b>Redevelopment Score:</b> {score:.2f}<br>
-                        <b>Data Sources:</b> {len(hex_data.get('sources', []))}<br>
-                        <b>Coverage:</b> {hex_data.get('coverage', 0):.1f}%
+                        <b>Data Sources:</b> {len(hex_data.get("sources", []))}<br>
+                        <b>Coverage:</b> {hex_data.get("coverage", 0):.1f}%
                         """
 
                         folium.Polygon(
@@ -438,9 +434,7 @@ class InteractiveH3Visualization:
         except Exception:
             return "#808080"
 
-    def _create_popup_content(
-        self, hex_id: str, hex_data: Dict[str, Any], module_name: str
-    ) -> str:
+    def _create_popup_content(self, hex_id: str, hex_data: Dict[str, Any], module_name: str) -> str:
         """Create popup content for a hexagon."""
         try:
             content = f"<b>H3 Hexagon:</b> {hex_id}<br>"
@@ -449,13 +443,9 @@ class InteractiveH3Visualization:
             for key, value in hex_data.items():
                 if key != "geometry":
                     if isinstance(value, float):
-                        content += (
-                            f"<b>{key.replace('_', ' ').title()}:</b> {value:.2f}<br>"
-                        )
+                        content += f"<b>{key.replace('_', ' ').title()}:</b> {value:.2f}<br>"
                     else:
-                        content += (
-                            f"<b>{key.replace('_', ' ').title()}:</b> {value}<br>"
-                        )
+                        content += f"<b>{key.replace('_', ' ').title()}:</b> {value}<br>"
 
             return content
         except Exception as e:

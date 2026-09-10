@@ -1,4 +1,5 @@
 """Tests for the message broker: subscriptions and broadcast resolution."""
+
 import time
 
 import pytest
@@ -127,7 +128,9 @@ class TestSubscriptions:
         # Subscriber keeps their remaining callback
         assert "alice" in broker.subscribers
 
-    def test_spatial_subscription_only_receives_matching_geospatial_messages(self) -> None:
+    def test_spatial_subscription_only_receives_matching_geospatial_messages(
+        self,
+    ) -> None:
         broker = MessageBroker(enable_persistence=False)
         broker.start()
         received: list = []

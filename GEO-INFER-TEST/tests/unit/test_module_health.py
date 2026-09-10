@@ -35,7 +35,9 @@ class TestModuleHealthChecker:
         (base / "GEO-INFER-AAA" / "tests").mkdir()
         (base / "GEO-INFER-AAA" / "tests" / "test_dummy.py").touch()
         (base / "GEO-INFER-AAA" / "tests" / "legacy_test.py").touch()
-        (base / "GEO-INFER-AAA" / "pyproject.toml").write_text('dependencies = ["numpy", "pandas"]')
+        (base / "GEO-INFER-AAA" / "pyproject.toml").write_text(
+            'dependencies = ["numpy", "pandas"]'
+        )
 
         # Create an unhealthy module (missing everything)
         (base / "GEO-INFER-ZZZ").mkdir()

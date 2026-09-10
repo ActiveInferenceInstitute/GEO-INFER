@@ -9,6 +9,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: gnn-interchange-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   interchange:
     runs-on: ubuntu-latest
@@ -42,9 +46,12 @@ jobs:
           ref: ${{ steps.pair.outputs.revision }}
           path: gnn
           persist-credentials: false
-      - uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           version: "0.10.7"
+          cache-dependency-glob: |
+            geo/uv.lock
+            gnn/uv.lock
       - name: Record both checkouts before installing
         run: |
           mkdir receipts
@@ -64,7 +71,7 @@ jobs:
           geo/.venv/bin/python geo/GEO-INFER-TEST/validate_gnn_interchange.py \
             --gnn-repo "$PWD/gnn" --gnn-python "$PWD/gnn/.venv/bin/python" \
             > receipts/interchange.json
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: paired-interchange-py${{ matrix.python }}

@@ -10,7 +10,7 @@ import pytest
 import sys
 import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
 from geo_infer_math.api.convenience.bayes_convenience import (
     posterior_helper,
@@ -56,25 +56,29 @@ class TestPriorBuilder:
     """Tests for prior_builder function."""
 
     def test_uniform_prior_sums_to_one(self):
-        prior = prior_builder('uniform', size=100)
+        prior = prior_builder("uniform", size=100)
         assert abs(np.sum(prior) - 1.0) < 1e-10
 
     def test_gaussian_prior_sums_to_one(self):
-        prior = prior_builder('gaussian', parameters={'mean': 0.0, 'std': 1.0}, size=100)
+        prior = prior_builder(
+            "gaussian", parameters={"mean": 0.0, "std": 1.0}, size=100
+        )
         assert abs(np.sum(prior) - 1.0) < 1e-10
 
     def test_gaussian_prior_peaked_at_mean(self):
-        prior = prior_builder('gaussian', parameters={'mean': 0.0, 'std': 1.0}, size=101)
+        prior = prior_builder(
+            "gaussian", parameters={"mean": 0.0, "std": 1.0}, size=101
+        )
         # Peak should be at or near the middle index
         peak_idx = np.argmax(prior)
         assert abs(peak_idx - 50) <= 1
 
     def test_unknown_distribution_raises(self):
         with pytest.raises(ValueError, match="Unknown distribution"):
-            prior_builder('unknown_dist')
+            prior_builder("unknown_dist")
 
     def test_custom_size(self):
-        prior = prior_builder('uniform', size=50)
+        prior = prior_builder("uniform", size=50)
         assert len(prior) == 50
 
 
@@ -83,7 +87,7 @@ class TestMCMCWrapper:
 
     def test_metropolis_returns_correct_shape(self):
         def log_posterior(x):
-            return float(-0.5 * np.sum(x ** 2))  # Standard normal
+            return float(-0.5 * np.sum(x**2))  # Standard normal
 
         samples, metadata = mcmc_wrapper(
             log_posterior,
@@ -91,16 +95,16 @@ class TestMCMCWrapper:
             n_samples=100,
             n_burnin=20,
             step_size=0.5,
-            method='metropolis',
+            method="metropolis",
             rng=np.random.default_rng(42),
         )
         assert samples.shape == (100, 2)
-        assert 'acceptance_rate' in metadata
-        assert 0.0 <= metadata['acceptance_rate'] <= 1.0
+        assert "acceptance_rate" in metadata
+        assert 0.0 <= metadata["acceptance_rate"] <= 1.0
 
     def test_gibbs_sampling(self):
         def log_posterior(x):
-            return float(-0.5 * np.sum(x ** 2))
+            return float(-0.5 * np.sum(x**2))
 
         samples, metadata = mcmc_wrapper(
             log_posterior,
@@ -108,15 +112,15 @@ class TestMCMCWrapper:
             n_samples=50,
             n_burnin=10,
             step_size=0.5,
-            method='gibbs',
+            method="gibbs",
             rng=np.random.default_rng(42),
         )
         assert samples.shape == (50, 1)
-        assert metadata['method'] == 'gibbs'
+        assert metadata["method"] == "gibbs"
 
     def test_samples_concentrated_near_mode(self):
         def log_posterior(x):
-            return float(-0.5 * np.sum(x ** 2))
+            return float(-0.5 * np.sum(x**2))
 
         samples, _ = mcmc_wrapper(
             log_posterior,
@@ -140,7 +144,7 @@ class TestBayesianOptimizationHelper:
             objective, prior, n_iterations=50, rng=np.random.default_rng(42)
         )
         assert opt_val >= -25
-        assert 'n_iterations' in metadata
+        assert "n_iterations" in metadata
 
 
 class TestBayesianConvenience:
@@ -148,8 +152,8 @@ class TestBayesianConvenience:
 
     def test_initialization(self):
         bc = BayesianConvenience()
-        assert hasattr(bc, 'logger')
-        assert hasattr(bc, '_posterior_cache')
+        assert hasattr(bc, "logger")
+        assert hasattr(bc, "_posterior_cache")
 
     def test_calculate_posterior(self):
         bc = BayesianConvenience()
@@ -163,20 +167,23 @@ class TestBayesianConvenience:
         bc = BayesianConvenience()
         # BayesianConvenience.build_prior passes **kwargs as `parameters` dict
         # size parameter must be passed directly to prior_builder
-        prior = bc.build_prior('uniform')
+        prior = bc.build_prior("uniform")
         assert len(prior) == 100  # default size
         assert abs(np.sum(prior) - 1.0) < 1e-10
 
     def test_build_prior_gaussian(self):
         bc = BayesianConvenience()
-        prior = bc.build_prior('gaussian', mean=0.0, std=1.0)
+        prior = bc.build_prior("gaussian", mean=0.0, std=1.0)
         assert abs(np.sum(prior) - 1.0) < 1e-10
 
     def test_mcmc_sample(self):
         bc = BayesianConvenience()
-        log_post = lambda x: float(-0.5 * np.sum(x ** 2))
+        log_post = lambda x: float(-0.5 * np.sum(x**2))
         samples, meta = bc.mcmc_sample(
-            log_post, np.array([0.0]), n_samples=50, n_burnin=10,
+            log_post,
+            np.array([0.0]),
+            n_samples=50,
+            n_burnin=10,
             rng=np.random.default_rng(42),
         )
         assert samples.shape[0] == 50

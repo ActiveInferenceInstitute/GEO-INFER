@@ -63,9 +63,9 @@ class APIConnector:
         authentication: Optional[Dict[str, Any]] = None,
         rate_limiting: Optional[Dict[str, Any]] = None,
         timeout: int = 30,
-        retries: int = 3
+        retries: int = 3,
     ):
-        self.base_url = base_url.rstrip('/')
+        self.base_url = base_url.rstrip("/")
         self.authentication = authentication or {}
         self.rate_limiting = rate_limiting or {}
         self.timeout = timeout
@@ -86,7 +86,7 @@ class APIConnector:
             total=self.retries,
             status_forcelist=[429, 500, 502, 503, 504],
             method_whitelist=["HEAD", "GET", "OPTIONS"],
-            backoff_factor=1
+            backoff_factor=1,
         )
 
         # Create session with retry adapter
@@ -97,35 +97,41 @@ class APIConnector:
 
         # Set authentication headers
         if self.authentication:
-            auth_type = self.authentication.get('type', 'header')
-            if auth_type == 'header':
-                api_key = self.authentication.get('api_key')
+            auth_type = self.authentication.get("type", "header")
+            if auth_type == "header":
+                api_key = self.authentication.get("api_key")
                 if api_key:
-                    self.session.headers.update({'X-API-Key': api_key})
-            elif auth_type == 'bearer':
-                token = self.authentication.get('token')
+                    self.session.headers.update({"X-API-Key": api_key})
+            elif auth_type == "bearer":
+                token = self.authentication.get("token")
                 if token:
-                    self.session.headers.update({'Authorization': f'Bearer {token}'})
-            elif auth_type == 'basic':
+                    self.session.headers.update({"Authorization": f"Bearer {token}"})
+            elif auth_type == "basic":
                 from requests.auth import HTTPBasicAuth  # type: ignore[import-untyped]
-                username = self.authentication.get('username')
-                password = self.authentication.get('password')
+
+                username = self.authentication.get("username")
+                password = self.authentication.get("password")
                 if username and password:
                     self.session.auth = HTTPBasicAuth(username, password)
 
     def _check_rate_limit(self) -> None:
         """Check and enforce rate limiting."""
-        if 'requests_per_minute' in self.rate_limiting:
-            max_requests = self.rate_limiting['requests_per_minute']
+        if "requests_per_minute" in self.rate_limiting:
+            max_requests = self.rate_limiting["requests_per_minute"]
             time_window = 60  # seconds
 
             current_time = datetime.now()
             time_diff = (current_time - self.last_request_time).total_seconds()
 
-            if time_diff < time_window / max_requests and self.request_count >= max_requests:
+            if (
+                time_diff < time_window / max_requests
+                and self.request_count >= max_requests
+            ):
                 sleep_time = (time_window / max_requests) - time_diff
                 if sleep_time > 0:
-                    logger.debug(f"Rate limiting: sleeping for {sleep_time:.2f} seconds")
+                    logger.debug(
+                        f"Rate limiting: sleeping for {sleep_time:.2f} seconds"
+                    )
                     time.sleep(sleep_time)
 
             self.request_count += 1
@@ -134,10 +140,10 @@ class APIConnector:
     async def query_endpoint(
         self,
         endpoint: str,
-        method: str = 'GET',
+        method: str = "GET",
         params: Optional[Dict[str, Any]] = None,
         data: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, str]] = None
+        headers: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]:
         """
         Query API endpoint with automatic retry and rate limiting.
@@ -164,20 +170,20 @@ class APIConnector:
                 params=params,
                 json=data if data else None,
                 headers=headers,
-                timeout=self.timeout
+                timeout=self.timeout,
             )
 
             response.raise_for_status()
 
             # Handle different response formats
-            content_type = response.headers.get('content-type', '')
+            content_type = response.headers.get("content-type", "")
 
-            if 'application/json' in content_type:
+            if "application/json" in content_type:
                 return cast(Dict[str, Any], response.json())
-            elif 'text/' in content_type:
-                return {'text': response.text}
+            elif "text/" in content_type:
+                return {"text": response.text}
             else:
-                return {'content': response.content}
+                return {"content": response.content}
 
         except requests.exceptions.RequestException as e:
             logger.error(f"API request failed: {e}")
@@ -189,7 +195,7 @@ class APIConnector:
         spatial_filter: Optional[Dict[str, Any]] = None,
         temporal_filter: Optional[Dict[str, Any]] = None,
         pagination: Optional[Dict[str, Any]] = None,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> List[Dict[str, Any]]:
         """
         Query geospatial data from API with spatial and temporal filters.
@@ -210,24 +216,24 @@ class APIConnector:
         params = kwargs.copy()
 
         if spatial_filter:
-            if 'bbox' in spatial_filter:
-                bbox = spatial_filter['bbox']
+            if "bbox" in spatial_filter:
+                bbox = spatial_filter["bbox"]
                 if len(bbox) >= 4:
-                    params['bbox'] = ','.join(map(str, bbox))
-            if 'geometry' in spatial_filter:
-                params['geometry'] = spatial_filter['geometry']
+                    params["bbox"] = ",".join(map(str, bbox))
+            if "geometry" in spatial_filter:
+                params["geometry"] = spatial_filter["geometry"]
 
         if temporal_filter:
-            if 'start_date' in temporal_filter:
-                params['start_date'] = temporal_filter['start_date'].isoformat()
-            if 'end_date' in temporal_filter:
-                params['end_date'] = temporal_filter['end_date'].isoformat()
+            if "start_date" in temporal_filter:
+                params["start_date"] = temporal_filter["start_date"].isoformat()
+            if "end_date" in temporal_filter:
+                params["end_date"] = temporal_filter["end_date"].isoformat()
 
         if pagination:
-            if 'page' in pagination:
-                params['page'] = pagination['page']
-            if 'limit' in pagination:
-                params['limit'] = pagination['limit']
+            if "page" in pagination:
+                params["page"] = pagination["page"]
+            if "limit" in pagination:
+                params["limit"] = pagination["limit"]
 
         # Execute query with pagination handling
         all_results = []
@@ -235,17 +241,17 @@ class APIConnector:
 
         while True:
             try:
-                params['page'] = page
+                params["page"] = page
                 response = await self.query_endpoint(endpoint, params=params)
 
                 # Handle different response formats
                 if isinstance(response, dict):
-                    if 'data' in response:
-                        data = response['data']
-                    elif 'results' in response:
-                        data = response['results']
-                    elif 'features' in response:
-                        data = response['features']
+                    if "data" in response:
+                        data = response["data"]
+                    elif "results" in response:
+                        data = response["results"]
+                    elif "features" in response:
+                        data = response["features"]
                     else:
                         data = [response]
 
@@ -253,14 +259,18 @@ class APIConnector:
                         all_results.extend(data)
 
                         # Check if we have more pages
-                        if pagination and 'total_pages' in response:
-                            if page >= response['total_pages']:
+                        if pagination and "total_pages" in response:
+                            if page >= response["total_pages"]:
                                 break
                         elif len(data) == 0:
                             break
                         else:
                             page += 1
-                            if pagination and 'max_pages' in pagination and page > pagination['max_pages']:
+                            if (
+                                pagination
+                                and "max_pages" in pagination
+                                and page > pagination["max_pages"]
+                            ):
                                 break
                     else:
                         all_results.append(data)
@@ -277,10 +287,7 @@ class APIConnector:
         return all_results
 
     async def download_file(
-        self,
-        endpoint: str,
-        local_path: str,
-        params: Optional[Dict[str, Any]] = None
+        self, endpoint: str, local_path: str, params: Optional[Dict[str, Any]] = None
     ) -> str:
         """
         Download file from API endpoint.
@@ -299,10 +306,12 @@ class APIConnector:
         self._check_rate_limit()
 
         try:
-            response = self.session.get(url, params=params, timeout=self.timeout, stream=True)
+            response = self.session.get(
+                url, params=params, timeout=self.timeout, stream=True
+            )
             response.raise_for_status()
 
-            with open(local_path, 'wb') as f:
+            with open(local_path, "wb") as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     f.write(chunk)
 
@@ -332,7 +341,7 @@ class GraphQLConnector:
         self,
         endpoint: str,
         authentication: Optional[Dict[str, Any]] = None,
-        timeout: int = 30
+        timeout: int = 30,
     ):
         self.endpoint = endpoint
         self.authentication = authentication
@@ -348,20 +357,18 @@ class GraphQLConnector:
         self.session = requests.Session()
 
         if self.authentication:
-            auth_type = self.authentication.get('type', 'bearer')
-            if auth_type == 'bearer':
-                token = self.authentication.get('token')
+            auth_type = self.authentication.get("type", "bearer")
+            if auth_type == "bearer":
+                token = self.authentication.get("token")
                 if token:
-                    self.session.headers.update({'Authorization': f'Bearer {token}'})
-            elif auth_type == 'header':
-                api_key = self.authentication.get('api_key')
+                    self.session.headers.update({"Authorization": f"Bearer {token}"})
+            elif auth_type == "header":
+                api_key = self.authentication.get("api_key")
                 if api_key:
-                    self.session.headers.update({'X-API-Key': api_key})
+                    self.session.headers.update({"X-API-Key": api_key})
 
     async def execute_query(
-        self,
-        query: str,
-        variables: Optional[Dict[str, Any]] = None
+        self, query: str, variables: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
         Execute GraphQL query.
@@ -373,26 +380,21 @@ class GraphQLConnector:
         Returns:
             Query response
         """
-        payload = {
-            'query': query,
-            'variables': variables or {}
-        }
+        payload = {"query": query, "variables": variables or {}}
 
         try:
             response = self.session.post(
-                self.endpoint,
-                json=payload,
-                timeout=self.timeout
+                self.endpoint, json=payload, timeout=self.timeout
             )
             response.raise_for_status()
 
             result = response.json()
 
-            if 'errors' in result:
+            if "errors" in result:
                 logger.error(f"GraphQL errors: {result['errors']}")
                 raise ValueError(f"GraphQL query failed: {result['errors']}")
 
-            return cast(Dict[str, Any], result.get('data', {}))
+            return cast(Dict[str, Any], result.get("data", {}))
 
         except Exception as e:
             logger.error(f"GraphQL query failed: {e}")
@@ -404,7 +406,7 @@ class GraphQLConnector:
         spatial_filter: Optional[Dict[str, Any]] = None,
         temporal_filter: Optional[Dict[str, Any]] = None,
         fields: Optional[List[str]] = None,
-        limit: Optional[int] = None
+        limit: Optional[int] = None,
     ) -> List[Dict[str, Any]]:
         """
         Query geospatial features using GraphQL.
@@ -435,7 +437,6 @@ class GraphQLConnector:
 
         return cast(List[Dict[str, Any]], features)
 
-
     @staticmethod
     def _coerce_iso_date(value: Any, label: str) -> str:
         """Coerce a temporal filter value to an ISO-8601 string.
@@ -452,8 +453,7 @@ class GraphQLConnector:
                 return datetime.fromisoformat(value).isoformat()
             except ValueError as exc:
                 raise ValueError(
-                    f"GraphQL {label} must be an ISO-8601 date/datetime, "
-                    f"got {value!r}"
+                    f"GraphQL {label} must be an ISO-8601 date/datetime, got {value!r}"
                 ) from exc
         raise ValueError(
             f"GraphQL {label} must be a datetime or ISO-8601 string, "
@@ -537,16 +537,14 @@ class STACConnector:
         self,
         stac_url: str,
         authentication: Optional[Dict[str, Any]] = None,
-        timeout: int = 60
+        timeout: int = 60,
     ):
-        self.stac_url = stac_url.rstrip('/')
+        self.stac_url = stac_url.rstrip("/")
         self.authentication = authentication
         self.timeout = timeout
 
         self.connector = APIConnector(
-            base_url=stac_url,
-            authentication=authentication,
-            timeout=timeout
+            base_url=stac_url, authentication=authentication, timeout=timeout
         )
 
         logger.info(f"Initialized STAC connector for {stac_url}")
@@ -557,7 +555,7 @@ class STACConnector:
         bbox: Optional[List[float]] = None,
         datetime_range: Optional[str] = None,
         properties: Optional[Dict[str, Any]] = None,
-        limit: int = 100
+        limit: int = 100,
     ) -> Dict[str, Any]:
         """
         Search STAC items with spatial and temporal filters.
@@ -572,20 +570,18 @@ class STACConnector:
         Returns:
             STAC search results
         """
-        endpoint = '/search'
+        endpoint = "/search"
 
-        params: Dict[str, Any] = {
-            'limit': limit
-        }
+        params: Dict[str, Any] = {"limit": limit}
 
         if collections:
-            params['collections'] = collections
+            params["collections"] = collections
 
         if bbox:
-            params['bbox'] = bbox
+            params["bbox"] = bbox
 
         if datetime_range:
-            params['datetime'] = datetime_range
+            params["datetime"] = datetime_range
 
         if properties:
             params.update(properties)
@@ -594,10 +590,10 @@ class STACConnector:
             result = await self.connector.query_endpoint(endpoint, params=params)
 
             # Handle STAC search response
-            if 'features' in result:
-                items = result['features']
+            if "features" in result:
+                items = result["features"]
             else:
-                items = result.get('items', [])
+                items = result.get("items", [])
 
             logger.info(f"STAC search returned {len(items)} items")
             return result
@@ -616,7 +612,7 @@ class STACConnector:
         Returns:
             Collection metadata
         """
-        endpoint = f'/collections/{collection_id}'
+        endpoint = f"/collections/{collection_id}"
 
         try:
             collection = await self.connector.query_endpoint(endpoint)
@@ -632,15 +628,15 @@ class STACConnector:
         Returns:
             List of collection metadata
         """
-        endpoint = '/collections'
+        endpoint = "/collections"
 
         try:
             response = await self.connector.query_endpoint(endpoint)
 
-            if 'collections' in response:
-                collections = response['collections']
+            if "collections" in response:
+                collections = response["collections"]
             else:
-                collections = response.get('data', [])
+                collections = response.get("data", [])
 
             logger.info(f"Found {len(collections)} STAC collections")
             return cast(List[Dict[str, Any]], collections)
@@ -653,7 +649,7 @@ class STACConnector:
         self,
         item: Dict[str, Any],
         asset_keys: Optional[List[str]] = None,
-        download_dir: str = './downloads'
+        download_dir: str = "./downloads",
     ) -> List[str]:
         """
         Download assets from STAC item.
@@ -672,17 +668,17 @@ class STACConnector:
         download_paths = []
         os.makedirs(download_dir, exist_ok=True)
 
-        assets = item.get('assets', {})
+        assets = item.get("assets", {})
         if asset_keys:
             assets = {k: v for k, v in assets.items() if k in asset_keys}
 
         for asset_key, asset_info in assets.items():
-            asset_url = asset_info.get('href')
+            asset_url = asset_info.get("href")
             if not asset_url:
                 continue
 
             # Generate filename
-            item_id = item.get('id', 'unknown')
+            item_id = item.get("id", "unknown")
             filename = f"{item_id}_{asset_key}.{asset_info.get('type', 'dat')}"
             file_path = Path(download_dir) / filename
 

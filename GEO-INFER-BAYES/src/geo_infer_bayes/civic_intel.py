@@ -34,6 +34,7 @@ __all__ = [
     "HazardCategoricalPrior",
     "HazardPriorEntry",
     "HazardPriorTable",
+    "decode_contract_json",
     "load_crescent_city_contract",
     "load_crescent_city_intel",
 ]
@@ -148,14 +149,21 @@ class HazardCategoricalPrior:
             len(self.probabilities),
         }
         if len(lengths) != 1:
-            raise ValueError("domains, concentration, and probabilities must have equal length")
+            raise ValueError(
+                "domains, concentration, and probabilities must have equal length"
+            )
         if len(set(self.domains)) != len(self.domains):
             raise ValueError("hazard-prior domain IDs must be unique")
         if any(not name for name in self.domains):
             raise ValueError("hazard-prior domain IDs must be non-empty")
-        if any(not math.isfinite(value) or value <= 0.0 for value in self.concentration):
+        if any(
+            not math.isfinite(value) or value <= 0.0 for value in self.concentration
+        ):
             raise ValueError("hazard-prior concentrations must be finite and positive")
-        if any(not math.isfinite(value) or not 0.0 <= value <= 1.0 for value in self.probabilities):
+        if any(
+            not math.isfinite(value) or not 0.0 <= value <= 1.0
+            for value in self.probabilities
+        ):
             raise ValueError("hazard-prior probabilities must lie in [0, 1]")
         if self.probabilities and not math.isclose(
             sum(self.probabilities), 1.0, rel_tol=1e-12, abs_tol=1e-12
@@ -191,6 +199,15 @@ def _empty_intel() -> CrescentCityIntel:
     return {"city": None, "domains": [], "hazardDomains": [], "bounds": None}
 
 
+# ----------------------------------------------------------------------------
+# Shared contract validators for the civic-intel ingestion family
+#
+# ``geo_infer_act.core.civic_intel`` and ``geo_infer_risk.civic_intel`` import
+# the require/parse helpers below so all three consumers validate the
+# ``crescent-city-geo-intel/v1`` contract under one implementation.
+# ----------------------------------------------------------------------------
+
+
 def _require_mapping(value: object, field: str) -> Mapping[str, object]:
     if not isinstance(value, Mapping):
         raise ValueError(f"{field} must be an object")
@@ -206,12 +223,22 @@ def _require_list(value: object, field: str) -> list[object]:
 def _require_string(value: object, field: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValueError(f"{field} must be a non-empty string")
-    return value
+    return value.strip()
 
 
 def _require_string_list(value: object, field: str) -> list[str]:
     items = _require_list(value, field)
-    return [_require_string(item, f"{field}[{index}]") for index, item in enumerate(items)]
+    return [
+        _require_string(item, f"{field}[{index}]") for index, item in enumerate(items)
+    ]
+
+
+def _require_tags_within(
+    tags: list[str], allowed: set[str], field: str, allowed_field: str
+) -> None:
+    """Require every topic tag to be declared in the domain hazardTags."""
+    if not set(tags).issubset(allowed):
+        raise ValueError(f"{field} must be listed in {allowed_field}")
 
 
 def _require_int(value: object, field: str) -> int:
@@ -221,15 +248,18 @@ def _require_int(value: object, field: str) -> int:
 
 
 def _require_float(value: object, field: str) -> float:
-    if isinstance(value, bool) or not isinstance(value, (int, float)):
-        raise ValueError(f"{field} must be numeric")
+    if isinstance(value, bool) or not isinstance(
+        value, (int, float, np.integer, np.floating)
+    ):
+        raise ValueError(f"{field} must be a finite number")
     number = float(value)
     if not math.isfinite(number):
-        raise ValueError(f"{field} must be finite")
+        raise ValueError(f"{field} must be a finite number")
     return number
 
 
-def _parse_bounds(value: object) -> _GeoBounds:
+def _parse_contract_bounds(value: object) -> _GeoBounds:
+    """Validate the shared WGS84 anchor bounds (civic-intel family-wide)."""
     raw = _require_mapping(value, "anchor.bounds")
     bounds: _GeoBounds = {
         "west": _require_float(raw.get("west"), "anchor.bounds.west"),
@@ -238,13 +268,14 @@ def _parse_bounds(value: object) -> _GeoBounds:
         "north": _require_float(raw.get("north"), "anchor.bounds.north"),
     }
     if not -180.0 <= bounds["west"] < bounds["east"] <= 180.0:
-        raise ValueError("anchor bounds must satisfy -180 <= west < east <= 180")
+        raise ValueError("anchor.bounds must satisfy -180 <= west < east <= 180")
     if not -90.0 <= bounds["south"] < bounds["north"] <= 90.0:
-        raise ValueError("anchor bounds must satisfy -90 <= south < north <= 90")
+        raise ValueError("anchor.bounds must satisfy -90 <= south < north <= 90")
     return bounds
 
 
-def _parse_city(value: object) -> tuple[_City, _GeoBounds]:
+def _parse_contract_anchor(value: object) -> tuple[_City, _GeoBounds]:
+    """Validate the shared v1 city anchor consumed by the ingestion family."""
     raw = _require_mapping(value, "anchor")
     city: _City = {
         "name": _require_string(raw.get("name"), "anchor.name"),
@@ -261,13 +292,15 @@ def _parse_city(value: object) -> tuple[_City, _GeoBounds]:
         raise ValueError("anchor.latitude must lie in [-90, 90]")
     if not -180.0 <= city["longitude"] <= 180.0:
         raise ValueError("anchor.longitude must lie in [-180, 180]")
-    return city, _parse_bounds(raw.get("bounds"))
+    return city, _parse_contract_bounds(raw.get("bounds"))
 
 
 def _parse_section(value: object, field: str) -> _CivicSection:
     raw = _require_mapping(value, field)
     return {
-        "sectionNumber": _require_string(raw.get("sectionNumber"), f"{field}.sectionNumber"),
+        "sectionNumber": _require_string(
+            raw.get("sectionNumber"), f"{field}.sectionNumber"
+        ),
         "relevance": _require_string(raw.get("relevance"), f"{field}.relevance"),
     }
 
@@ -311,14 +344,21 @@ def _parse_hazard_domain(value: object, index: int) -> _HazardDomain:
         raise ValueError(f"{field}.hazardTags must not be empty")
     topics = [
         _parse_hazard_topic(item, f"{field}.topics[{topic_index}]")
-        for topic_index, item in enumerate(_require_list(raw.get("topics"), f"{field}.topics"))
+        for topic_index, item in enumerate(
+            _require_list(raw.get("topics"), f"{field}.topics")
+        )
     ]
     if not topics:
         raise ValueError(f"{field}.topics must not be empty")
     domain_tags = set(hazard_tags)
     for topic_index, topic in enumerate(topics):
-        if not set(topic["tags"]).issubset(domain_tags):
-            raise ValueError(f"{field}.topics[{topic_index}].tags must be listed in hazardTags")
+        _require_tags_within(
+            topic["tags"],
+            domain_tags,
+            f"{field}.topics[{topic_index}].tags",
+            "hazardTags",
+        )
+
     return {
         "id": _require_string(raw.get("id"), f"{field}.id"),
         "name": _require_string(raw.get("name"), f"{field}.name"),
@@ -339,12 +379,14 @@ def _bundled_intel_text() -> str | None:
         return None
 
 
-def _decode_contract_json(text: str, path_label: str) -> Mapping[str, object]:
+def decode_contract_json(text: str, path_label: str) -> Mapping[str, object]:
     """Decode one JSON object or raise a contract-facing ``ValueError``."""
     try:
         loaded = json.loads(text)
     except json.JSONDecodeError as exc:
-        raise ValueError(f"invalid Crescent City intel JSON at {path_label}: {exc}") from exc
+        raise ValueError(
+            f"invalid Crescent City intel JSON at {path_label}: {exc}"
+        ) from exc
     return _require_mapping(loaded, "contract")
 
 
@@ -374,7 +416,7 @@ def load_crescent_city_contract(
         text = _bundled_intel_text()
         if text is None:
             return None
-        return _decode_contract_json(text, f"geo_infer_bayes/{_BUNDLED_INTEL_RESOURCE}")
+        return decode_contract_json(text, f"geo_infer_bayes/{_BUNDLED_INTEL_RESOURCE}")
 
     path = Path(source)
     try:
@@ -382,8 +424,10 @@ def load_crescent_city_contract(
     except FileNotFoundError:
         return None
     except OSError as exc:
-        raise ValueError(f"unable to read Crescent City intel JSON at {path}: {exc}") from exc
-    return _decode_contract_json(text, str(path))
+        raise ValueError(
+            f"unable to read Crescent City intel JSON at {path}: {exc}"
+        ) from exc
+    return decode_contract_json(text, str(path))
 
 
 def _load_source(source: CivicIntelSource) -> Mapping[str, object] | None:
@@ -422,7 +466,7 @@ def load_crescent_city_intel(
             f"expected {CRESCENT_CITY_INTEL_SCHEMA!r}"
         )
 
-    city, bounds = _parse_city(contract.get("anchor"))
+    city, bounds = _parse_contract_anchor(contract.get("anchor"))
     domains = [
         _parse_civic_domain(value, index)
         for index, value in enumerate(_require_list(contract.get("domains"), "domains"))
@@ -441,16 +485,21 @@ def load_crescent_city_intel(
             _require_list(hazard.get("relevantDomains"), "hazard.relevantDomains")
         )
     ]
-    relevant_count = _require_int(hazard.get("relevantDomainCount"), "hazard.relevantDomainCount")
+    relevant_count = _require_int(
+        hazard.get("relevantDomainCount"), "hazard.relevantDomainCount"
+    )
     if relevant_count != len(hazard_domains):
-        raise ValueError("hazard.relevantDomainCount must equal the number of relevantDomains")
+        raise ValueError(
+            "hazard.relevantDomainCount must equal the number of relevantDomains"
+        )
     hazard_ids = [domain["id"] for domain in hazard_domains]
     if len(set(hazard_ids)) != len(hazard_ids):
         raise ValueError("hazard-relevant domain IDs must be unique")
     missing_domain_ids = sorted(set(hazard_ids).difference(domain_ids))
     if missing_domain_ids:
         raise ValueError(
-            "hazard-relevant domains must occur in domains: " + ", ".join(missing_domain_ids)
+            "hazard-relevant domains must occur in domains: "
+            + ", ".join(missing_domain_ids)
         )
 
     return {
@@ -516,13 +565,18 @@ def build_hazard_categorical_prior(
     concentration_values: list[float] = []
     for domain in domains:
         entry = table[domain]
-        tags = sorted({_require_string(tag, f"{domain}.hazardTags") for tag in entry["hazardTags"]})
+        tags = sorted(
+            {
+                _require_string(tag, f"{domain}.hazardTags")
+                for tag in entry["hazardTags"]
+            }
+        )
         if not tags:
             raise ValueError(f"{domain}.hazardTags must not be empty")
         section_count = _require_int(entry["sectionCount"], f"{domain}.sectionCount")
-        tag_multiplier = sum(weights.get(tag.casefold(), fallback_weight) for tag in tags) / len(
-            tags
-        )
+        tag_multiplier = sum(
+            weights.get(tag.casefold(), fallback_weight) for tag in tags
+        ) / len(tags)
         concentration_values.append(base + section_count * tag_multiplier)
 
     if not concentration_values:

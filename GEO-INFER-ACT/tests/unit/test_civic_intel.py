@@ -112,12 +112,8 @@ class TestParseCrescentCityIntel:
 
     def test_parse_is_deterministic_across_seeds(self) -> None:
         """Parsing output is identical regardless of the accepted seed."""
-        base = parse_crescent_city_intel(
-            seed=0, source=_hazard_contract_fixture()
-        )
-        reseeded = parse_crescent_city_intel(
-            seed=42, source=_hazard_contract_fixture()
-        )
+        base = parse_crescent_city_intel(seed=0, source=_hazard_contract_fixture())
+        reseeded = parse_crescent_city_intel(seed=42, source=_hazard_contract_fixture())
         assert base["city"] == reseeded["city"]
         assert base["hazardDomains"] == reseeded["hazardDomains"]
         assert base["bounds"] == reseeded["bounds"]
@@ -128,6 +124,14 @@ class TestParseCrescentCityIntel:
         assert parsed["city"] == ""
         assert parsed["hazardDomains"] == []
         assert parsed["bounds"] == {}
+
+    def test_default_source_is_the_bundled_bayes_copy(self) -> None:
+        """With no source, parsing reads the canonical bundled BAYES contract."""
+        parsed = parse_crescent_city_intel()
+
+        assert parsed["schema"] == "crescent-city-geo-intel/v1"
+        assert parsed["city"] == "Crescent City"
+        assert parsed["hazardDomains"]
 
     def test_parse_accepts_documented_json_string(self) -> None:
         """An injected JSON object string uses the same parser as a mapping."""
@@ -156,7 +160,9 @@ class TestParseCrescentCityIntel:
         bounds = anchor["bounds"]
         assert isinstance(bounds, dict)
         bounds["west"] = "not-a-coordinate"
-        with pytest.raises(ValueError, match="anchor.bounds.west must be a finite number"):
+        with pytest.raises(
+            ValueError, match="anchor.bounds.west must be a finite number"
+        ):
             parse_crescent_city_intel(source=non_numeric)
 
         inverted = _hazard_contract_fixture()
@@ -186,11 +192,13 @@ class TestParseCrescentCityIntel:
         assert parsed["hazardDomains"][0]["id"] == "flood-policy"
         assert parsed["hazardDomains"][0]["hazardTags"] == ["flood zone"]
 
-    def test_parse_rejects_non_schema_contract(self) -> None:
-        """A contract without the supported schema id yields an empty record."""
-        parsed = parse_crescent_city_intel(source={"schema": "other/v1", "anchor": {}})
-        assert parsed["city"] == ""
-        assert parsed["hazardDomains"] == []
+    def test_parse_rejects_schema_mismatch(self) -> None:
+        """A wrong or missing schema fails closed like BAYES/RISK, never empty."""
+        with pytest.raises(ValueError, match="unexpected Crescent City intel schema"):
+            parse_crescent_city_intel(source={"schema": "other/v1", "anchor": {}})
+
+        with pytest.raises(ValueError, match="unexpected Crescent City intel schema"):
+            parse_crescent_city_intel(source={"anchor": {}})
 
     def test_typed_view_constructs(self) -> None:
         """The typed dataclass view is directly constructible."""
@@ -199,7 +207,9 @@ class TestParseCrescentCityIntel:
             name="Emergency Management",
             hazardTags=["tsunami", "seismic"],
         )
-        bounds = CivicIntelBounds(west=-124.408, south=41.458, east=-123.536, north=42.006)
+        bounds = CivicIntelBounds(
+            west=-124.408, south=41.458, east=-123.536, north=42.006
+        )
         record = CrescentCityIntel(
             city="Crescent City",
             hazardDomains=[domain],
@@ -223,9 +233,7 @@ class TestHazardPolicyPrior:
         assert prior["dominantHazard"] == "tsunami"
         preferences = prior["preferences"]
         # Axis: [baseline(all-clear), seismic, tsunami]
-        assert preferences[0] == pytest.approx(
-            np.max(preferences), rel=1e-6
-        )
+        assert preferences[0] == pytest.approx(np.max(preferences), rel=1e-6)
         assert preferences[2] < preferences[1] < preferences[0]
         assert preferences[0] >= 0.5
         assert float(np.sum(preferences)) == pytest.approx(1.0, abs=1e-9)
@@ -238,7 +246,11 @@ class TestHazardPolicyPrior:
 
     def test_prior_empty_when_no_hazard_signal(self) -> None:
         """A contract without hazard domains yields a baseline-only prior."""
-        flat = {"schema": "crescent-city-geo-intel/v1", "anchor": {"name": "X"}, "hazard": {}}
+        flat = {
+            "schema": "crescent-city-geo-intel/v1",
+            "anchor": {"name": "X"},
+            "hazard": {},
+        }
         prior = hazard_policy_prior(parse_crescent_city_intel(source=flat))
         assert prior["hazardTags"] == []
         assert prior["dominantHazard"] is None
@@ -327,9 +339,7 @@ class TestPolicyCoupling:
         selector = PolicySelector(selection_mode="deterministic", random_seed=11)
 
         result = selector.select_policy(beliefs, policies, preferences=prior)
-        evaluation = selector.evaluate_policy_set(
-            beliefs, policies, preferences=prior
-        )
+        evaluation = selector.evaluate_policy_set(beliefs, policies, preferences=prior)
 
         assert result["selected_index"] == 0
         assert result["policy"]["id"] == "maintain_normal_ops"
@@ -350,9 +360,7 @@ class TestPolicyCoupling:
         beliefs = np.array([1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0])
         selector = PolicySelector(selection_mode="deterministic")
         result = selector.select_policy(beliefs, policies, preferences=prior)
-        assert result["selected_index"] == int(
-            np.argmin(result["all_free_energies"])
-        )
+        assert result["selected_index"] == int(np.argmin(result["all_free_energies"]))
         assert result["policy"]["id"] == "safe"
 
 

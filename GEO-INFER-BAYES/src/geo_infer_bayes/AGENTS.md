@@ -27,7 +27,9 @@
 - `utils/`
 - `__init__.py`
 - `civic_intel.py`
+- `geo_observations.py`
 - `crescent-city-geo-intel.json`
+- `crescent-city-geo-observations.json`
 
 ## Validation
 

@@ -29,4 +29,3 @@ __all__ = [
     "BayesianOptimization",
     "ModelSelection",
 ]
-

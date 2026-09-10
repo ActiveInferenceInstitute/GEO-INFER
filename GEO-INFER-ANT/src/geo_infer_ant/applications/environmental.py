@@ -31,9 +31,7 @@ try:
     )  # noqa: F401
     from geo_infer_space.core.analytics import SpatialAnalyticsInterface  # noqa: F401
 except ImportError as e:
-    logging.getLogger(__name__).debug(
-        "Optional spatial integration unavailable: %s", e
-    )
+    logging.getLogger(__name__).debug("Optional spatial integration unavailable: %s", e)
     SpatialIndexingInterface = None
     SpatialAnalyticsInterface = None
 
@@ -266,7 +264,7 @@ class EnvironmentalMonitoringSwarm:
 
         # Create monitoring agents
         for i in range(self.swarm_size):
-            agent_id = f"env_monitor_{i+1:03d}"
+            agent_id = f"env_monitor_{i + 1:03d}"
 
             # Determine agent position
             position = (
@@ -343,9 +341,7 @@ class EnvironmentalMonitoringSwarm:
                     if selected
                     else diagonal
                 )
-                return float(
-                    priority + min(1.0, separation / max(diagonal, 1e-12))
-                )
+                return float(priority + min(1.0, separation / max(diagonal, 1e-12)))
 
             best_index = max(
                 range(len(remaining)),
@@ -1052,12 +1048,8 @@ class EnvironmentalMonitoringSwarm:
         max_distance: float = (
             cast(float, np.max(nonzero_distances)) if nonzero_distances.size else 0.0
         )
-        sill: float = cast(
-            float, max(cast(float, np.var(values)), np.finfo(float).eps)
-        )
-        range_param: float = cast(
-            float, max(max_distance * 0.3, np.finfo(float).eps)
-        )
+        sill: float = cast(float, max(cast(float, np.var(values)), np.finfo(float).eps))
+        range_param: float = cast(float, max(max_distance * 0.3, np.finfo(float).eps))
         nugget = sill * 0.1
 
         # Spherical variogram function

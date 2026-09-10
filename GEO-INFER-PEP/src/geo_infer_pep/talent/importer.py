@@ -7,7 +7,6 @@ from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional
 from datetime import datetime, date
 from ..models.talent_models import (
-
     Candidate,
     JobRequisition,
     CandidateStatus,
@@ -72,7 +71,9 @@ class BaseTalentImporter(ABC):
             last_sync_date=last_sync_date, requisition_id=requisition_id
         )
         transformed_data = self.transform_candidates(raw_data)
-        logger.info(f"Imported and transformed {len(transformed_data)} candidate records.")
+        logger.info(
+            f"Imported and transformed {len(transformed_data)} candidate records."
+        )
         return transformed_data
 
     def import_requisitions(
@@ -149,7 +150,9 @@ class CSVTalentImporter(BaseTalentImporter):
         requisition_id: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         if not self.candidate_file_path:
-            logger.warning("Warning: Candidate file path not provided for fetch_candidates.")
+            logger.warning(
+                "Warning: Candidate file path not provided for fetch_candidates."
+            )
             return []
         # Basic filtering could be added here post-fetch if needed, e.g., by date or req_id
         return self._read_csv_file(self.candidate_file_path)
@@ -223,7 +226,9 @@ class CSVTalentImporter(BaseTalentImporter):
         self, last_sync_date: Optional[datetime] = None, status: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         if not self.requisition_file_path:
-            logger.warning("Warning: Requisition file path not provided for fetch_requisitions.")
+            logger.warning(
+                "Warning: Requisition file path not provided for fetch_requisitions."
+            )
             return []
         # Basic filtering could be added here post-fetch if needed
         return self._read_csv_file(self.requisition_file_path)

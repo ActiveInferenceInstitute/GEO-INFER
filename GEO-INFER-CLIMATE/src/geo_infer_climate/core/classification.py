@@ -94,9 +94,13 @@ class ClimateClassifier:
         elif p_ann < dry_threshold:
             code, desc = self._classify_arid(t, p, p_ann, dry_threshold)
         elif t_min >= -3 and t_min < 18 and t_max >= 10:
-            code, desc = self._classify_temperate(t, p, t_max, t_min, p_summer, p_winter)
+            code, desc = self._classify_temperate(
+                t, p, t_max, t_min, p_summer, p_winter
+            )
         elif t_min < -3 and t_max >= 10:
-            code, desc = self._classify_continental(t, p, t_max, t_min, p_summer, p_winter)
+            code, desc = self._classify_continental(
+                t, p, t_max, t_min, p_summer, p_winter
+            )
         elif t_max < 10:
             code, desc = self._classify_polar(t_max)
         else:
@@ -275,5 +279,9 @@ class ClimateClassifier:
             result = self.koppen_geiger_classify(t_series, p_series)
             codes[idx] = result["code"]
 
-        coords = {d: monthly_temp.coords[d] for d in spatial_dims if d in monthly_temp.coords}
-        return xr.DataArray(codes, dims=spatial_dims, coords=coords, name="koppen_geiger")
+        coords = {
+            d: monthly_temp.coords[d] for d in spatial_dims if d in monthly_temp.coords
+        }
+        return xr.DataArray(
+            codes, dims=spatial_dims, coords=coords, name="koppen_geiger"
+        )

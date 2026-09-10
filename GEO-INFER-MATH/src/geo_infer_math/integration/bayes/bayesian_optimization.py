@@ -42,7 +42,8 @@ class BayesianOptimization:
         self.noise = noise
         logger.debug(
             "BayesianOptimization initialized (n_init=%d, max_iter=%d)",
-            n_initial, max_iterations,
+            n_initial,
+            max_iterations,
         )
 
     def optimize(
@@ -97,11 +98,15 @@ class BayesianOptimization:
                 best_x = next_x.copy()
                 logger.debug(
                     "BO iter %d: new best y=%.6f at x=%s",
-                    iteration, best_y, best_x,
+                    iteration,
+                    best_y,
+                    best_x,
                 )
 
         logger.debug(
-            "BO complete: best_y=%.6f, n_evals=%d", best_y, len(Y),
+            "BO complete: best_y=%.6f, n_evals=%d",
+            best_y,
+            len(Y),
         )
 
         return {
@@ -118,7 +123,7 @@ class BayesianOptimization:
             (X1[:, np.newaxis, :] - X2[np.newaxis, :, :]) ** 2,
             axis=-1,
         )
-        return cast(np.ndarray, np.exp(-0.5 * sq_dist / (self.length_scale ** 2)))
+        return cast(np.ndarray, np.exp(-0.5 * sq_dist / (self.length_scale**2)))
 
     def _gp_predict(
         self,
@@ -166,6 +171,7 @@ class BayesianOptimization:
         z = (best_y - mu) / sigma
         # Standard normal CDF / PDF via numpy
         from scipy.stats import norm
+
         ei = (best_y - mu) * norm.cdf(z) + sigma * norm.pdf(z)
         return float(max(0.0, ei))
 
@@ -179,10 +185,9 @@ class BayesianOptimization:
     ) -> np.ndarray:
         """Find point maximising Expected Improvement via random search."""
         candidates = self._random_points(bounds, n_candidates)
-        ei_values = np.array([
-            self._expected_improvement(c, mu_fn, sigma_fn, best_y)
-            for c in candidates
-        ])
+        ei_values = np.array(
+            [self._expected_improvement(c, mu_fn, sigma_fn, best_y) for c in candidates]
+        )
         return cast(np.ndarray, candidates[int(np.argmax(ei_values))])
 
     def _random_points(self, bounds: np.ndarray, n: int) -> np.ndarray:

@@ -49,9 +49,13 @@ def test_expected_ec_matches_closed_form_gaussian_densities(
             4 * np.log(2) * threshold * exponential / (2 * np.pi) ** (3 / 2),
         ]
     )
-    np.testing.assert_allclose(rft.ec_densities(threshold), expected_densities, rtol=1e-13)
+    np.testing.assert_allclose(
+        rft.ec_densities(threshold), expected_densities, rtol=1e-13
+    )
     expected_ec = float(np.dot(np.array([1.0, 20.0, 100.0]), expected_densities))
-    assert rft.expected_euler_characteristic(threshold) == pytest.approx(expected_ec, rel=1e-13)
+    assert rft.expected_euler_characteristic(threshold) == pytest.approx(
+        expected_ec, rel=1e-13
+    )
     # Full EC must include the point and boundary terms, not only R_D rho_D.
     assert expected_ec > 100.0 * expected_densities[-1]
 
@@ -67,10 +71,15 @@ def test_three_dimensional_ec_uses_gaussian_hermite_polynomial() -> None:
             norm.sf(threshold),
             np.sqrt(4 * np.log(2)) * exponential / (2 * np.pi),
             4 * np.log(2) * threshold * exponential / (2 * np.pi) ** (3 / 2),
-            (4 * np.log(2)) ** (3 / 2) * (threshold**2 - 1) * exponential / (2 * np.pi) ** 2,
+            (4 * np.log(2)) ** (3 / 2)
+            * (threshold**2 - 1)
+            * exponential
+            / (2 * np.pi) ** 2,
         ]
     )
-    np.testing.assert_allclose(theory.ec_densities(threshold), expected_densities, rtol=1e-13)
+    np.testing.assert_allclose(
+        theory.ec_densities(threshold), expected_densities, rtol=1e-13
+    )
     assert theory.expected_euler_characteristic(threshold) == pytest.approx(
         float(np.dot(resels, expected_densities)), rel=1e-13
     )
@@ -102,10 +111,13 @@ def test_cluster_extent_threshold_inverts_fwe_probability(
 ) -> None:
     forming_threshold = 2.5
     extent = rft.cluster_extent_threshold(0.05, forming_threshold, two_sided=True)
-    assert rft.cluster_extent_p_value(extent, forming_threshold, two_sided=True) == pytest.approx(
-        0.05, abs=1e-12
+    assert rft.cluster_extent_p_value(
+        extent, forming_threshold, two_sided=True
+    ) == pytest.approx(0.05, abs=1e-12)
+    assert (
+        rft.cluster_extent_p_value(extent * 1.1, forming_threshold, two_sided=True)
+        < 0.05
     )
-    assert rft.cluster_extent_p_value(extent * 1.1, forming_threshold, two_sided=True) < 0.05
 
 
 def test_cluster_correction_assigns_component_extent_pvalues() -> None:
@@ -132,7 +144,9 @@ def test_cluster_correction_assigns_component_extent_pvalues() -> None:
 
 def test_peak_threshold_inverts_full_ec_fwe(rft: RandomFieldTheory) -> None:
     threshold = rft.peak_threshold(0.05, "Z", two_sided=True)
-    assert rft.peak_fwe_p_value(threshold, "Z", two_sided=True) == pytest.approx(0.05, abs=1e-12)
+    assert rft.peak_fwe_p_value(threshold, "Z", two_sided=True) == pytest.approx(
+        0.05, abs=1e-12
+    )
     assert rft.peak_threshold(0.01, "Z", two_sided=True) > threshold
 
 

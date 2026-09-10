@@ -94,7 +94,7 @@ class OceanCurrentModeler:
         transport_x = wind_stress_y / f
         transport_y = -wind_stress_x / f
 
-        magnitude = np.sqrt(transport_x ** 2 + transport_y ** 2)
+        magnitude = np.sqrt(transport_x**2 + transport_y**2)
 
         return xr.Dataset(
             {
@@ -130,17 +130,34 @@ class OceanCurrentModeler:
         """
         f = self._equator_safe_coriolis(latitude)
 
-        dtau_y_dx = wind_stress_y.diff("lon") / dx if "lon" in wind_stress_y.dims else xr.zeros_like(wind_stress_y)
-        dtau_x_dy = wind_stress_x.diff("lat") / dy if "lat" in wind_stress_x.dims else xr.zeros_like(wind_stress_x)
+        dtau_y_dx = (
+            wind_stress_y.diff("lon") / dx
+            if "lon" in wind_stress_y.dims
+            else xr.zeros_like(wind_stress_y)
+        )
+        dtau_x_dy = (
+            wind_stress_x.diff("lat") / dy
+            if "lat" in wind_stress_x.dims
+            else xr.zeros_like(wind_stress_x)
+        )
 
         min_shape = {
-            dim: min(dtau_y_dx.sizes.get(dim, 999), dtau_x_dy.sizes.get(dim, 999), f.sizes.get(dim, 999))
+            dim: min(
+                dtau_y_dx.sizes.get(dim, 999),
+                dtau_x_dy.sizes.get(dim, 999),
+                f.sizes.get(dim, 999),
+            )
             for dim in set(list(dtau_y_dx.dims) + list(dtau_x_dy.dims))
         }
 
-        curl_tau = dtau_y_dx.isel({d: slice(0, s) for d, s in min_shape.items() if d in dtau_y_dx.dims}) - \
-                   dtau_x_dy.isel({d: slice(0, s) for d, s in min_shape.items() if d in dtau_x_dy.dims})
-        f_trimmed = f.isel({d: slice(0, s) for d, s in min_shape.items() if d in f.dims})
+        curl_tau = dtau_y_dx.isel(
+            {d: slice(0, s) for d, s in min_shape.items() if d in dtau_y_dx.dims}
+        ) - dtau_x_dy.isel(
+            {d: slice(0, s) for d, s in min_shape.items() if d in dtau_x_dy.dims}
+        )
+        f_trimmed = f.isel(
+            {d: slice(0, s) for d, s in min_shape.items() if d in f.dims}
+        )
 
         pumping = curl_tau / (WATER_DENSITY * f_trimmed)
         pumping.name = "ekman_pumping"
@@ -179,8 +196,16 @@ class OceanCurrentModeler:
         else:
             dssh_dx = xr.zeros_like(sea_surface_height)
 
-        min_lat = min(dssh_dy.sizes.get("lat", 999), f.sizes.get("lat", 999), dssh_dx.sizes.get("lat", 999))
-        min_lon = min(dssh_dy.sizes.get("lon", 999), f.sizes.get("lon", 999), dssh_dx.sizes.get("lon", 999))
+        min_lat = min(
+            dssh_dy.sizes.get("lat", 999),
+            f.sizes.get("lat", 999),
+            dssh_dx.sizes.get("lat", 999),
+        )
+        min_lon = min(
+            dssh_dy.sizes.get("lon", 999),
+            f.sizes.get("lon", 999),
+            dssh_dx.sizes.get("lon", 999),
+        )
 
         sel = {}
         if "lat" in f.dims:
@@ -195,7 +220,7 @@ class OceanCurrentModeler:
         u_geo = -(GRAVITY / f_s) * dssh_dy_s
         v_geo = (GRAVITY / f_s) * dssh_dx_s
 
-        speed = np.sqrt(u_geo ** 2 + v_geo ** 2)
+        speed = np.sqrt(u_geo**2 + v_geo**2)
 
         return xr.Dataset(
             {

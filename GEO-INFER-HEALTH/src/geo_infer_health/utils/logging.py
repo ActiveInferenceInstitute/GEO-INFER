@@ -136,9 +136,7 @@ class PerformanceLogger:
         logger.debug(f"Starting operation: {self.operation_name}")
         return self
 
-    def __exit__(
-        self, exc_type: Any, exc_val: Any, exc_tb: Any
-    ) -> None:
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         import time
 
         if self.start_time is None:

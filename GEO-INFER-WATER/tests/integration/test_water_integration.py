@@ -202,9 +202,9 @@ class TestWaterQualityIndex:
             water_samples[4]
         )  # ws_005 is most polluted
 
-        assert (
-            clean_wqi["wqi"] > polluted_wqi["wqi"]
-        ), "Clean sample should have higher WQI than polluted sample"
+        assert clean_wqi["wqi"] > polluted_wqi["wqi"], (
+            "Clean sample should have higher WQI than polluted sample"
+        )
         assert clean_wqi["classification"] in ["Excellent", "Good", "Medium"]
         assert polluted_wqi["classification"] in ["Bad", "Very Bad", "Medium"]
 
@@ -333,9 +333,9 @@ class TestRegulatoryCompliance:
         who_nitrate = who_result["results"].get("nitrate", {})
 
         if epa_nitrate.get("violations", 0) > 0:
-            assert (
-                who_nitrate.get("violations", 0) <= epa_nitrate["violations"]
-            ), "WHO has looser nitrate limits so should have fewer violations"
+            assert who_nitrate.get("violations", 0) <= epa_nitrate["violations"], (
+                "WHO has looser nitrate limits so should have fewer violations"
+            )
 
 
 class TestPollutantLoadCalculation:

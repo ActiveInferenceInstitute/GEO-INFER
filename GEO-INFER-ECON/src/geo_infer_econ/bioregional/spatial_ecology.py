@@ -32,10 +32,16 @@ class LandscapeEconomics:
                 - ``edge_bonus_factor`` (float): Value multiplier for edge habitat (default 1.15).
         """
         self.config = config or {}
-        self.per_ha_values: Dict[str, float] = self.config.get("per_ha_values", {
-            "forest": 3800.0, "wetland": 6500.0, "grassland": 1200.0,
-            "cropland": 2800.0, "urban_green": 1600.0,
-        })
+        self.per_ha_values: Dict[str, float] = self.config.get(
+            "per_ha_values",
+            {
+                "forest": 3800.0,
+                "wetland": 6500.0,
+                "grassland": 1200.0,
+                "cropland": 2800.0,
+                "urban_green": 1600.0,
+            },
+        )
         self.edge_bonus = float(self.config.get("edge_bonus_factor", 1.15))
         logger.info("LandscapeEconomics initialized")
 
@@ -59,8 +65,14 @@ class LandscapeEconomics:
             gdf_proj = gdf
         gdf["area_ha"] = gdf_proj.geometry.area / 1e4  # m² → ha
 
-        condition = gdf["condition"].values if "condition" in gdf.columns else np.ones(len(gdf))
-        land_cover = gdf["land_cover"].values if "land_cover" in gdf.columns else ["forest"] * len(gdf)
+        condition = (
+            gdf["condition"].values if "condition" in gdf.columns else np.ones(len(gdf))
+        )
+        land_cover = (
+            gdf["land_cover"].values
+            if "land_cover" in gdf.columns
+            else ["forest"] * len(gdf)
+        )
 
         # Per-patch value
         values = []
@@ -92,7 +104,11 @@ class LandscapeEconomics:
             "landscape_diversity_shannon": round(shannon, 4),
             "cover_summary": cover_summary,
         }
-        logger.info("Landscape value: $%.2f across %.2f ha", result["total_value_usd"], result["total_area_ha"])
+        logger.info(
+            "Landscape value: $%.2f across %.2f ha",
+            result["total_value_usd"],
+            result["total_area_ha"],
+        )
         return result
 
 
@@ -106,8 +122,13 @@ class HabitatConnectivity:
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
-        self.dispersal_distance_m = float(self.config.get("dispersal_distance_m", 5000.0))
-        logger.info("HabitatConnectivity initialized: dispersal=%.0f m", self.dispersal_distance_m)
+        self.dispersal_distance_m = float(
+            self.config.get("dispersal_distance_m", 5000.0)
+        )
+        logger.info(
+            "HabitatConnectivity initialized: dispersal=%.0f m",
+            self.dispersal_distance_m,
+        )
 
     def analyze_connectivity(self, habitat_data: gpd.GeoDataFrame) -> Dict[str, Any]:
         """Analyze habitat connectivity from patch GeoDataFrame.
@@ -127,7 +148,11 @@ class HabitatConnectivity:
             gdf = gdf.to_crs(epsg=3857)
 
         centroids = gdf.geometry.centroid
-        quality = gdf["habitat_quality"].values if "habitat_quality" in gdf.columns else np.ones(n)
+        quality = (
+            gdf["habitat_quality"].values
+            if "habitat_quality" in gdf.columns
+            else np.ones(n)
+        )
         areas = gdf.geometry.area / 1e4  # ha
 
         # Build distance matrix
@@ -169,11 +194,17 @@ class HabitatConnectivity:
                 same_comp = any(i in c and j in c for c in components)
                 if same_comp:
                     nl = 1 if i != j else 0
-                    iic_sum += (areas.iloc[i] * quality[i] * areas.iloc[j] * quality[j]) / (1 + nl)
-        iic = float(iic_sum / (total_area ** 2 + 1e-10))
+                    iic_sum += (
+                        areas.iloc[i] * quality[i] * areas.iloc[j] * quality[j]
+                    ) / (1 + nl)
+        iic = float(iic_sum / (total_area**2 + 1e-10))
 
         isolated = [int(c[0]) for c in components if len(c) == 1]
-        mean_dist = float(np.mean(dist_matrix[dist_matrix > 0])) if (dist_matrix > 0).any() else 0.0
+        mean_dist = (
+            float(np.mean(dist_matrix[dist_matrix > 0]))
+            if (dist_matrix > 0).any()
+            else 0.0
+        )
 
         result = {
             "integral_index_of_connectivity": round(iic, 6),
@@ -275,7 +306,9 @@ class EcosystemNetworkAnalysis:
             "network_efficiency": round(efficiency, 6),
             "cycling_index": round(cycling, 6),
         }
-        logger.info("Network: connectance=%.4f, efficiency=%.6f", connectance, efficiency)
+        logger.info(
+            "Network: connectance=%.4f, efficiency=%.6f", connectance, efficiency
+        )
         return result
 
 
@@ -288,12 +321,15 @@ class ConservationPrioritization:
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
-        self.weights = self.config.get("weights", {
-            "species_richness": 0.30,
-            "threat_level": 0.25,
-            "habitat_quality": 0.25,
-            "cost_efficiency": 0.20,
-        })
+        self.weights = self.config.get(
+            "weights",
+            {
+                "species_richness": 0.30,
+                "threat_level": 0.25,
+                "habitat_quality": 0.25,
+                "cost_efficiency": 0.20,
+            },
+        )
         logger.info("ConservationPrioritization initialized")
 
     def prioritize_areas(self, conservation_data: Dict[str, Any]) -> pd.DataFrame:
@@ -332,16 +368,18 @@ class ConservationPrioritization:
             # Cost efficiency: inverse cost, normalized
             cost_eff = 1.0 / (cost + 1e-6)
 
-            rows.append({
-                "name": area.get("name", "unnamed"),
-                "area_ha": area_ha,
-                "species_richness_raw": sr,
-                "threat_level": tl,
-                "habitat_quality": hq,
-                "cost_per_ha": cost,
-                "existing_protection": existing,
-                "cost_efficiency_raw": cost_eff,
-            })
+            rows.append(
+                {
+                    "name": area.get("name", "unnamed"),
+                    "area_ha": area_ha,
+                    "species_richness_raw": sr,
+                    "threat_level": tl,
+                    "habitat_quality": hq,
+                    "cost_per_ha": cost,
+                    "existing_protection": existing,
+                    "cost_efficiency_raw": cost_eff,
+                }
+            )
 
         df = pd.DataFrame(rows)
 
@@ -364,16 +402,28 @@ class ConservationPrioritization:
         )
 
         # Complementarity bonus: less-protected areas get a boost
-        df["priority_score"] *= (1.0 + 0.2 * (1.0 - df["existing_protection"]))
+        df["priority_score"] *= 1.0 + 0.2 * (1.0 - df["existing_protection"])
         df["priority_score"] = df["priority_score"].round(4)
-        df["rank"] = df["priority_score"].rank(ascending=False, method="min").astype(int)
+        df["rank"] = (
+            df["priority_score"].rank(ascending=False, method="min").astype(int)
+        )
         df = df.sort_values("rank").reset_index(drop=True)
 
         # Clean up intermediate columns
-        df = df.drop(columns=["species_richness_raw", "cost_efficiency_raw",
-                               "species_richness_norm", "cost_efficiency_norm"])
+        df = df.drop(
+            columns=[
+                "species_richness_raw",
+                "cost_efficiency_raw",
+                "species_richness_norm",
+                "cost_efficiency_norm",
+            ]
+        )
 
-        logger.info("Top priority: %s (score=%.4f)", df.iloc[0]["name"], df.iloc[0]["priority_score"])
+        logger.info(
+            "Top priority: %s (score=%.4f)",
+            df.iloc[0]["name"],
+            df.iloc[0]["priority_score"],
+        )
         return df
 
 
@@ -409,8 +459,11 @@ class RestorationEconomics:
         self.config = config or {}
         self.discount_rate = float(self.config.get("discount_rate", 0.04))
         self.time_horizon = int(self.config.get("time_horizon", 30))
-        logger.info("RestorationEconomics initialized: discount=%.2f, horizon=%d yr",
-                     self.discount_rate, self.time_horizon)
+        logger.info(
+            "RestorationEconomics initialized: discount=%.2f, horizon=%d yr",
+            self.discount_rate,
+            self.time_horizon,
+        )
 
     def analyze_restoration(self, restoration_data: Dict[str, Any]) -> Dict[str, Any]:
         """Analyze restoration economics for proposed projects.
@@ -438,8 +491,12 @@ class RestorationEconomics:
             p_type = proj.get("type", "forest").lower()
             area = float(proj.get("area_ha", 0.0))
             current_sv = float(proj.get("current_service_value", 0.0))
-            cost_ha = float(proj.get("restoration_cost_per_ha",
-                                      self.RESTORATION_COSTS.get(p_type, 5000.0)))
+            cost_ha = float(
+                proj.get(
+                    "restoration_cost_per_ha",
+                    self.RESTORATION_COSTS.get(p_type, 5000.0),
+                )
+            )
             recovery_years = int(proj.get("expected_recovery_years", 10))
             target_sv = self.SERVICE_GAINS.get(p_type, 2000.0)
 
@@ -478,7 +535,9 @@ class RestorationEconomics:
                 "npv_benefits_usd": round(npv_benefit, 2),
                 "benefit_cost_ratio": round(bcr, 3),
                 "payback_period_years": payback,
-                "annual_benefit_at_maturity_usd": round(max(0, target_sv - current_sv) * area, 2),
+                "annual_benefit_at_maturity_usd": round(
+                    max(0, target_sv - current_sv) * area, 2
+                ),
             }
             project_results.append(p_result)
             total_cost += upfront

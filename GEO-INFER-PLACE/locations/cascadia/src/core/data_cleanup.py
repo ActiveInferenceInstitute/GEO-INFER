@@ -125,9 +125,7 @@ class DataCleanupManager:
         empirical_dir = output_data_dir / "empirical"
         if empirical_dir.exists():
             for file_path in empirical_dir.glob("empirical_*_data.geojson"):
-                module_name = file_path.stem.replace("empirical_", "").replace(
-                    "_data", ""
-                )
+                module_name = file_path.stem.replace("empirical_", "").replace("_data", "")
                 if module_name in self.module_dirs:
                     target_dir = self.module_dirs[module_name] / "empirical"
                     target_dir.mkdir(parents=True, exist_ok=True)
@@ -160,9 +158,7 @@ class DataCleanupManager:
         processed_dir = output_data_dir / "processed"
         if processed_dir.exists():
             for file_path in processed_dir.glob("processed_*_data.geojson"):
-                module_name = file_path.stem.replace("processed_", "").replace(
-                    "_data", ""
-                )
+                module_name = file_path.stem.replace("processed_", "").replace("_data", "")
                 if module_name in self.module_dirs:
                     target_dir = self.module_dirs[module_name] / "processed"
                     target_dir.mkdir(parents=True, exist_ok=True)

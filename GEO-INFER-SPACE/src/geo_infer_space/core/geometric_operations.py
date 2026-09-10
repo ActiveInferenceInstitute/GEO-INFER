@@ -21,6 +21,7 @@ class GeometricOperationsInterface:
 
     def __init__(self, backend: Optional[str] = None) -> None:
         from .dispatcher import get_backend_dispatcher
+
         self.dispatcher = get_backend_dispatcher()
         self.backend = backend
 
@@ -44,7 +45,7 @@ class GeometricOperationsInterface:
         return cast(
             Dict[str, Any],
             self.dispatcher.dispatch_geometric_operation(
-                'buffer_geometry',
+                "buffer_geometry",
                 geometry,
                 distance,
                 backend=self.backend,
@@ -65,7 +66,7 @@ class GeometricOperationsInterface:
         return cast(
             float,
             self.dispatcher.dispatch_geometric_operation(
-                'calculate_area', geometry, backend=self.backend
+                "calculate_area", geometry, backend=self.backend
             ),
         )
 
@@ -82,7 +83,7 @@ class GeometricOperationsInterface:
         return cast(
             float,
             self.dispatcher.dispatch_geometric_operation(
-                'calculate_perimeter', geometry, backend=self.backend
+                "calculate_perimeter", geometry, backend=self.backend
             ),
         )
 
@@ -99,7 +100,7 @@ class GeometricOperationsInterface:
         return cast(
             Tuple[float, float],
             self.dispatcher.dispatch_geometric_operation(
-                'calculate_centroid', geometry, backend=self.backend
+                "calculate_centroid", geometry, backend=self.backend
             ),
         )
 
@@ -117,7 +118,7 @@ class GeometricOperationsInterface:
         return cast(
             float,
             self.dispatcher.dispatch_geometric_operation(
-                'calculate_distance', geom1, geom2, backend=self.backend
+                "calculate_distance", geom1, geom2, backend=self.backend
             ),
         )
 
@@ -134,11 +135,13 @@ class GeometricOperationsInterface:
         return cast(
             Dict[str, Any],
             self.dispatcher.dispatch_geometric_operation(
-                'union_geometries', geometries, backend=self.backend
+                "union_geometries", geometries, backend=self.backend
             ),
         )
 
-    def intersection_geometries(self, geom1: Dict[str, Any], geom2: Dict[str, Any]) -> Dict[str, Any]:
+    def intersection_geometries(
+        self, geom1: Dict[str, Any], geom2: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Calculate intersection of two geometries.
 
@@ -152,11 +155,13 @@ class GeometricOperationsInterface:
         return cast(
             Dict[str, Any],
             self.dispatcher.dispatch_geometric_operation(
-                'intersection_geometries', geom1, geom2, backend=self.backend
+                "intersection_geometries", geom1, geom2, backend=self.backend
             ),
         )
 
-    def difference_geometries(self, geom1: Dict[str, Any], geom2: Dict[str, Any]) -> Dict[str, Any]:
+    def difference_geometries(
+        self, geom1: Dict[str, Any], geom2: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Calculate difference of two geometries.
 
@@ -170,11 +175,13 @@ class GeometricOperationsInterface:
         return cast(
             Dict[str, Any],
             self.dispatcher.dispatch_geometric_operation(
-                'difference_geometries', geom1, geom2, backend=self.backend
+                "difference_geometries", geom1, geom2, backend=self.backend
             ),
         )
 
-    def contains_geometry(self, container: Dict[str, Any], contained: Dict[str, Any]) -> bool:
+    def contains_geometry(
+        self, container: Dict[str, Any], contained: Dict[str, Any]
+    ) -> bool:
         """
         Check if one geometry contains another.
 
@@ -188,7 +195,7 @@ class GeometricOperationsInterface:
         return cast(
             bool,
             self.dispatcher.dispatch_geometric_operation(
-                'contains_geometry', container, contained, backend=self.backend
+                "contains_geometry", container, contained, backend=self.backend
             ),
         )
 
@@ -206,11 +213,13 @@ class GeometricOperationsInterface:
         return cast(
             bool,
             self.dispatcher.dispatch_geometric_operation(
-                'intersects_geometry', geom1, geom2, backend=self.backend
+                "intersects_geometry", geom1, geom2, backend=self.backend
             ),
         )
 
-    def transform_geometry(self, geometry: Dict[str, Any], from_crs: str, to_crs: str) -> Dict[str, Any]:
+    def transform_geometry(
+        self, geometry: Dict[str, Any], from_crs: str, to_crs: str
+    ) -> Dict[str, Any]:
         """
         Transform geometry from one coordinate reference system to another.
 
@@ -225,7 +234,7 @@ class GeometricOperationsInterface:
         return cast(
             Dict[str, Any],
             self.dispatcher.dispatch_indexing_operation(
-                'transform_geometry',
+                "transform_geometry",
                 geometry,
                 from_crs,
                 to_crs,

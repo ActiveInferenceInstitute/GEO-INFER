@@ -100,15 +100,10 @@ def main() -> None:
         feature_names = engineer.get_feature_names()
         if feature_names:
             for idx in top_indices:
-                print(
-                    f"  {feature_names[idx]}: {feature_importance[idx]:.4f}"
-                )
+                print(f"  {feature_names[idx]}: {feature_importance[idx]:.4f}")
 
     print("\nExample completed successfully!")
 
 
 if __name__ == "__main__":
     main()
-
-
-

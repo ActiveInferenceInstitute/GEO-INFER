@@ -472,9 +472,7 @@ class DelNorteComprehensiveDashboard:
         result["riskWeights"] = self._risk_results_from_contract(contract, sources)
         result["bayesPriors"] = self._bayes_results_from_contract(contract, sources)
         result["actPolicy"] = self._act_results_from_contract(contract, sources)
-        result["moduleWeights"] = self._consolidate_module_weights(
-            result, contract
-        )
+        result["moduleWeights"] = self._consolidate_module_weights(result, contract)
         result["moduleResults"] = {
             "status": "ok" if contract is not None else "unavailable",
             "sources": sources,
@@ -488,7 +486,10 @@ class DelNorteComprehensiveDashboard:
         risk_mod = self._import_civic_intel_module("geo_infer_risk.civic_intel")
         if risk_mod is None:
             sources["risk"] = "unavailable"
-            return {"status": "unavailable", "error": "geo_infer_risk.civic_intel not importable"}
+            return {
+                "status": "unavailable",
+                "error": "geo_infer_risk.civic_intel not importable",
+            }
         if contract is None:
             sources["risk"] = "unavailable"
             return {"status": "unavailable", "error": "No civic-intel contract"}
@@ -522,7 +523,10 @@ class DelNorteComprehensiveDashboard:
         bayes_mod = self._import_civic_intel_module("geo_infer_bayes.civic_intel")
         if bayes_mod is None:
             sources["bayes"] = "unavailable"
-            return {"status": "unavailable", "error": "geo_infer_bayes.civic_intel not importable"}
+            return {
+                "status": "unavailable",
+                "error": "geo_infer_bayes.civic_intel not importable",
+            }
         if contract is None:
             sources["bayes"] = "unavailable"
             return {"status": "unavailable", "error": "No civic-intel contract"}
@@ -548,7 +552,10 @@ class DelNorteComprehensiveDashboard:
         act_mod = self._import_civic_intel_module("geo_infer_act.core.civic_intel")
         if act_mod is None:
             sources["act"] = "unavailable"
-            return {"status": "unavailable", "error": "geo_infer_act.core.civic_intel not importable"}
+            return {
+                "status": "unavailable",
+                "error": "geo_infer_act.core.civic_intel not importable",
+            }
         if contract is None:
             sources["act"] = "unavailable"
             return {"status": "unavailable", "error": "No civic-intel contract"}
@@ -611,9 +618,7 @@ class DelNorteComprehensiveDashboard:
         selection = selector.select_policy(preferences, policies, preferences)
         return {
             "action": str(selection["policy"].get("id")),
-            "expected_free_energy": round(
-                float(selection["expected_free_energy"]), 4
-            ),
+            "expected_free_energy": round(float(selection["expected_free_energy"]), 4),
             "probability": round(float(selection["probability"]), 4),
         }
 
@@ -668,9 +673,7 @@ class DelNorteComprehensiveDashboard:
                 ]
                 prior_values = [float(by_domain[did]) for did in matched_domains]
                 prior_weight = (
-                    (sum(prior_values) / len(prior_values))
-                    if prior_values
-                    else None
+                    (sum(prior_values) / len(prior_values)) if prior_values else None
                 )
                 preference = act_prefs.get(tag)
                 if preference is not None:
@@ -781,7 +784,11 @@ class DelNorteComprehensiveDashboard:
                 )
                 tooltip += module_tooltip_suffix
                 popup_html = self._civic_intel_popup(
-                    cell_id, density, applying, domain_by_id, hazard_tags,
+                    cell_id,
+                    density,
+                    applying,
+                    domain_by_id,
+                    hazard_tags,
                     module_rows_block=module_popup_block,
                 )
                 folium.Polygon(
@@ -953,7 +960,7 @@ by natural-hazard intent (from the crescent-city-intel contract).</p>
             (
                 f'<div style="display:flex;justify-content:space-between;'
                 f'align-items:center;margin:3px 0;">'
-                f'<span>{_html(d.get("icon", ""))} {_html(d.get("name", ""))}</span>'
+                f"<span>{_html(d.get('icon', ''))} {_html(d.get('name', ''))}</span>"
                 f'<span style="color:{color};font-weight:bold;">{float(d.get("coverage", 0)):.2f}</span></div>'
             )
             for d, color in zip(top, ["#d73027", "#fc8d59", "#fee08b", "#d9ef8b"])
@@ -986,9 +993,13 @@ by natural-hazard intent (from the crescent-city-intel contract).</p>
         if not isinstance(module_rows, list) or not module_rows:
             return
         module_names = result.get("moduleResults", {}).get("sources", {})
-        footer = " · ".join(
-            f"{_html(name)}: {_html(state)}" for name, state in module_names.items()
-        ) if module_names else ""
+        footer = (
+            " · ".join(
+                f"{_html(name)}: {_html(state)}" for name, state in module_names.items()
+            )
+            if module_names
+            else ""
+        )
         rows = "".join(
             (
                 f'<div style="display:flex;justify-content:space-between;'
@@ -996,11 +1007,11 @@ by natural-hazard intent (from the crescent-city-intel contract).</p>
                 f'<span style="flex:1;"><b>{_html(row.get("tag", ""))}</b> '
                 f'<span style="color:#888;font-size:10px;">{_html(row.get("action", ""))}</span></span>'
                 f'<span style="color:#d73027;font-weight:bold;width:44px;text-align:right;">'
-                f'{float(row.get("riskWeight", 0)):.2f}</span>'
+                f"{float(row.get('riskWeight', 0)):.2f}</span>"
                 f'<span style="color:#557;width:44px;text-align:right;">'
-                f'{row.get("priorWeight", 0) if row.get("priorWeight") is not None else 0:.3f}</span>'
+                f"{row.get('priorWeight', 0) if row.get('priorWeight') is not None else 0:.3f}</span>"
                 f'<span style="color:#666;width:44px;text-align:right;">'
-                f'{row.get("preference", 0) if row.get("preference") is not None else 0:.2f}</span>'
+                f"{row.get('preference', 0) if row.get('preference') is not None else 0:.2f}</span>"
                 f"</div>"
             )
             for row in module_rows[:5]
@@ -1024,7 +1035,7 @@ by natural-hazard intent (from the crescent-city-intel contract).</p>
             <div style="font-size:10px;color:#888;margin-bottom:4px;">RISK weight · BAYES prior · ACT preference</div>
             {header}
             {rows}
-            {('<div style="font-size:9px;color:#aaa;margin-top:6px;">' + footer + '</div>') if footer else ""}
+            {('<div style="font-size:9px;color:#aaa;margin-top:6px;">' + footer + "</div>") if footer else ""}
         </div>"""
         m_root: Any = m.get_root()
         m_root.html.add_child(folium.Element(panel))
@@ -1293,9 +1304,9 @@ by natural-hazard intent (from the crescent-city-intel contract).</p>
             <div style="font-family: Arial; min-width: 200px;">
                 <h4 style="color: #228B22; margin: 0 0 8px 0;">🌲 Forest Health Site</h4>
                 <table style="font-size: 11px; width: 100%;">
-                    <tr><td><b>Site ID:</b></td><td>{site.get('plot_id', site.get('site_id', 'unknown'))}</td></tr>
-                    <tr><td><b>NDVI:</b></td><td>{ndvi if ndvi is not None else 'not reported'}</td></tr>
-                    <tr><td><b>Canopy Cover:</b></td><td>{canopy_cover if canopy_cover is not None else 'not reported'}</td></tr>
+                    <tr><td><b>Site ID:</b></td><td>{site.get("plot_id", site.get("site_id", "unknown"))}</td></tr>
+                    <tr><td><b>NDVI:</b></td><td>{ndvi if ndvi is not None else "not reported"}</td></tr>
+                    <tr><td><b>Canopy Cover:</b></td><td>{canopy_cover if canopy_cover is not None else "not reported"}</td></tr>
                     <tr><td><b>Health Index:</b></td><td>{health_index:.3f}</td></tr>
                     <tr><td><b>Last Updated:</b></td><td>{datetime.now().strftime("%Y-%m-%d")}</td></tr>
                 </table>
@@ -1315,7 +1326,6 @@ by natural-hazard intent (from the crescent-city-intel contract).</p>
         """Add coastal resilience analysis layers."""
         # Add tide gauge data if available
         if "tide_data" in self.processed_data:
-
             # Add tide gauge markers
             folium.Marker(
                 location=[41.745, -124.201],  # Crescent City Harbor
@@ -1603,9 +1613,7 @@ by natural-hazard intent (from the crescent-city-intel contract).</p>
             console.log('Del Norte County Dashboard Control Panel Loaded');
         }});
         </script>
-        """.format(
-            datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        )
+        """.format(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
         m_root: Any = m.get_root()
         m_root.html.add_child(folium.Element(control_html))
@@ -1885,10 +1893,10 @@ Spatial Analysis:
 - Coverage Area: {coverage_area:.2f} km²
 
 Analysis Domains:
-- Forest Health Monitoring: {'✓' if 'forest_health' in self.analysis_results else '✗'}
-- Coastal Resilience Assessment: {'✓' if 'coastal_resilience' in self.analysis_results else '✗'}
-- Fire Risk Assessment: {'✓' if 'fire_risk' in self.analysis_results else '✗'}
-- Cross-Domain Integration: {'✓' if 'integration' in self.analysis_results else '✗'}
+- Forest Health Monitoring: {"✓" if "forest_health" in self.analysis_results else "✗"}
+- Coastal Resilience Assessment: {"✓" if "coastal_resilience" in self.analysis_results else "✗"}
+- Fire Risk Assessment: {"✓" if "fire_risk" in self.analysis_results else "✗"}
+- Cross-Domain Integration: {"✓" if "integration" in self.analysis_results else "✗"}
 
 Key Findings:
 - Climate Vulnerability Index: {self._calculate_climate_vulnerability_index():.2f}

@@ -221,8 +221,6 @@ def test_csv_hr_importer(dummy_hr_csv_file, caplog):
     assert emp_minimal.employment_status == EmploymentStatus.PENDING_HIRE
 
 
-
-
 def test_clean_employee_data(sample_employee_data_list):
     """clean_employee_data title-cases department, job title, and location."""
     messy = Employee(

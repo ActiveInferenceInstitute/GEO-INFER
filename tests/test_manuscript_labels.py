@@ -38,11 +38,11 @@ class TestValidatorCount:
         assert repo_inventory.test_tooling_files == len(all_top_level)
 
     def test_both_counts_are_published_under_distinct_names(
-        self, generator: ModuleType, repo_inventory
+        self, generator: ModuleType, repo_inventory, figure_specs
     ) -> None:
         variables = generator.build_variables(
             repo_inventory,
-            _figure_specs(generator),
+            figure_specs,
             generator.VerificationRecord.unmeasured(),
         )
         assert variables["VALIDATOR_FILE_COUNT"] == str(repo_inventory.validator_files)
@@ -73,15 +73,3 @@ class TestModuleCountLabel:
             ]
         )
         assert repo_inventory.module_count == expected
-
-
-def _figure_specs(generator: ModuleType):
-    return (
-        generator.FigureSpec(
-            label="fig:example",
-            filename="example.png",
-            caption="Example caption.",
-            generated_by="tests",
-            alt_text="Example alt text.",
-        ),
-    )

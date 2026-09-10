@@ -15,7 +15,6 @@ Comprehensive place-based analysis framework providing deep insights into specif
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`
-- `uv.lock`
 
 ## Public Interface
 

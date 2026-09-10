@@ -590,7 +590,9 @@ class SustainabilityAssessment:
             # would be measured in degrees.
             metric_crs = result_data.estimate_utm_crs()
             fields_metric = (
-                result_data.to_crs(metric_crs) if metric_crs is not None else result_data
+                result_data.to_crs(metric_crs)
+                if metric_crs is not None
+                else result_data
             )
             areas_metric = (
                 protected_areas.to_crs(metric_crs)
@@ -812,7 +814,9 @@ class SustainabilityAssessment:
         self.metrics["sustainability_index"] = sustainability_metrics
         return sustainability_metrics
 
-    def plot_sustainability_metrics(self, ax: Any = None, metric_type: str = "sustainability_index") -> Any:
+    def plot_sustainability_metrics(
+        self, ax: Any = None, metric_type: str = "sustainability_index"
+    ) -> Any:
         """
         Plot sustainability metrics on a map.
 

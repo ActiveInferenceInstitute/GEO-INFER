@@ -1978,7 +1978,7 @@ def create_interactive_h3_slider(
             projection="natural earth",
             range_color=[df[metric].min(), df[metric].max()],
             color_continuous_scale="viridis",
-            title=f'H3 Grid Evolution: {metric.replace("_", " ").title()}',
+            title=f"H3 Grid Evolution: {metric.replace('_', ' ').title()}",
             hover_data=["cell"],
         )
 

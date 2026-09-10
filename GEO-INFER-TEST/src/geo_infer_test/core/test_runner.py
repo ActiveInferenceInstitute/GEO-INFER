@@ -46,6 +46,7 @@ class TestConfiguration:
     """Pre-built log integration injected by the caller (constructor
     injection preferred over post-construction attribute replacement)."""
 
+
 @dataclass
 class TestResult:
     """Result of a test execution."""
@@ -195,9 +196,7 @@ class GeoInferTestRunner:
         }
 
         try:
-            for future in as_completed(
-                futures, timeout=self.config.timeout_seconds
-            ):
+            for future in as_completed(futures, timeout=self.config.timeout_seconds):
                 module, test = futures[future]
                 try:
                     result = future.result()

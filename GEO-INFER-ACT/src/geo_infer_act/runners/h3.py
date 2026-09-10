@@ -9,7 +9,10 @@ from typing import Any, Dict, Iterable, List, Mapping, Optional, cast
 
 import numpy as np
 
-from geo_infer_act.core.active_inference import ActiveInferenceModel, H3GridInferenceResult
+from geo_infer_act.core.active_inference import (
+    ActiveInferenceModel,
+    H3GridInferenceResult,
+)
 from geo_infer_act.core.generative_model import GenerativeModel
 from geo_infer_act.runners.io import write_csv, write_json
 from geo_infer_act.utils.h3_adapter import get_h3_adapter, normalize_belief_vector

@@ -36,9 +36,7 @@ def test_automatic_inducing_selection_is_deterministic_and_caps_at_n() -> None:
     X, y = spatial_signal(18)
     first = SparseSpatialGP(n_inducing=7, optimize_hyperparameters=False).fit(X, y)
     second = SparseSpatialGP(n_inducing=7, optimize_hyperparameters=False).fit(X, y)
-    saturated = SparseSpatialGP(n_inducing=40, optimize_hyperparameters=False).fit(
-        X, y
-    )
+    saturated = SparseSpatialGP(n_inducing=40, optimize_hyperparameters=False).fit(X, y)
 
     assert_allclose(first.inducing_points_, second.inducing_points_)
     assert first.inducing_points_.shape == (7, 1)
@@ -146,9 +144,7 @@ def test_sparse_gp_rejects_invalid_inputs_and_unfitted_prediction() -> None:
     with pytest.raises(ValueError, match="greater than zero"):
         SparseSpatialGP(n_inducing=0)
     with pytest.raises(ValueError, match="same number"):
-        SparseSpatialGP(optimize_hyperparameters=False).fit(
-            np.ones((3, 2)), np.ones(2)
-        )
+        SparseSpatialGP(optimize_hyperparameters=False).fit(np.ones((3, 2)), np.ones(2))
     with pytest.raises(ValueError, match="feature dimension"):
         SparseSpatialGP(
             inducing_points=np.ones((2, 3)), optimize_hyperparameters=False

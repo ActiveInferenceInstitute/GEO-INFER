@@ -17,14 +17,24 @@ import queue
 import uuid
 
 from geo_infer_comms.models.message import (
-    MessageRequest, MessageResponse, MessageStatus, MessagePriority, MessageType,
-    BroadcastRequest, BroadcastResponse, MessageMetadata
+    MessageRequest,
+    MessageResponse,
+    MessageStatus,
+    MessagePriority,
+    MessageType,
+    BroadcastRequest,
+    BroadcastResponse,
+    MessageMetadata,
 )
 from geo_infer_comms.models.spatial import (
-    GeospatialMetadata, SpatialFilter, GeospatialPoint, SpatialIndex
+    GeospatialMetadata,
+    SpatialFilter,
+    GeospatialPoint,
+    SpatialIndex,
 )
 from geo_infer_comms.utils.validation import (
-    validate_message_content, validate_message_recipients
+    validate_message_content,
+    validate_message_recipients,
 )
 
 
@@ -41,7 +51,7 @@ class MessageBroker:
         max_queue_size: int = 10000,
         enable_persistence: bool = True,
         persistence_path: Optional[str] = None,
-        recipient_resolver: Optional[Callable[[str, Dict[str, Any]], List[str]]] = None
+        recipient_resolver: Optional[Callable[[str, Dict[str, Any]], List[str]]] = None,
     ):
         """
         Initialize the message broker.
@@ -64,7 +74,9 @@ class MessageBroker:
 
         # Message storage and routing
         self.message_store: Dict[str, MessageResponse] = {}
-        self.message_queue: queue.PriorityQueue = queue.PriorityQueue(maxsize=max_queue_size)
+        self.message_queue: queue.PriorityQueue = queue.PriorityQueue(
+            maxsize=max_queue_size
+        )
         self.spatial_index = SpatialIndex()
 
         # Subscribers and routing. ``subscription_callbacks`` maps each
@@ -94,8 +106,7 @@ class MessageBroker:
 
             self._running = True
             self._processing_thread = threading.Thread(
-                target=self._process_messages,
-                daemon=True
+                target=self._process_messages, daemon=True
             )
             self._processing_thread.start()
             self.logger.info("Message broker started")
@@ -141,7 +152,7 @@ class MessageBroker:
             message_type=request.message_type,
             priority=request.priority,
             geospatial_data=request.geospatial_data,
-            metadata=MessageMetadata()
+            metadata=MessageMetadata(),
         )
 
         # Store message
@@ -151,8 +162,7 @@ class MessageBroker:
             # Add to spatial index if geospatial data present
             if message.geospatial_data:
                 self.spatial_index.insert(
-                    message.geospatial_data.location,
-                    message.message_id
+                    message.geospatial_data.location, message.message_id
                 )
 
             # Queue for processing
@@ -163,7 +173,9 @@ class MessageBroker:
         self.logger.info(f"Message queued: {message.message_id}")
         return message
 
-    def broadcast_message(self, request: BroadcastRequest, sender_id: str) -> BroadcastResponse:
+    def broadcast_message(
+        self, request: BroadcastRequest, sender_id: str
+    ) -> BroadcastResponse:
         """
         Broadcast a message to multiple recipients based on criteria.
 
@@ -195,17 +207,19 @@ class MessageBroker:
                         priority=request.priority,
                         geospatial_data=cast(
                             Optional[GeospatialMetadata], request.geospatial_filter
-                        )
+                        ),
                     )
                     self.send_message(message_request, sender_id)
                     successful_deliveries += 1
                 except Exception as e:
-                    self.logger.error(f"Failed to deliver broadcast to {recipient}: {e}")
+                    self.logger.error(
+                        f"Failed to deliver broadcast to {recipient}: {e}"
+                    )
 
             broadcast.recipient_count = len(recipients)
             broadcast.delivery_stats = {
                 "successful": successful_deliveries,
-                "failed": len(recipients) - successful_deliveries
+                "failed": len(recipients) - successful_deliveries,
             }
 
             if successful_deliveries > 0:
@@ -224,7 +238,7 @@ class MessageBroker:
         self,
         subscriber_id: str,
         callback: Callable[[MessageResponse], None],
-        spatial_filter: Optional[SpatialFilter] = None
+        spatial_filter: Optional[SpatialFilter] = None,
     ) -> str:
         """
         Subscribe to messages with optional spatial filtering.
@@ -247,14 +261,17 @@ class MessageBroker:
 
             if spatial_filter:
                 self.spatial_subscriptions[subscription_id] = (
-                    subscriber_id, spatial_filter
+                    subscriber_id,
+                    spatial_filter,
                 )
             self.subscription_callbacks[subscription_id] = (subscriber_id, callback)
 
         self.logger.info(f"Subscriber {subscriber_id} subscribed: {subscription_id}")
         return subscription_id
 
-    def unsubscribe(self, subscriber_id: str, subscription_id: Optional[str] = None) -> bool:
+    def unsubscribe(
+        self, subscriber_id: str, subscription_id: Optional[str] = None
+    ) -> bool:
         """
         Unsubscribe from messages.
 
@@ -286,7 +303,8 @@ class MessageBroker:
                 # Remove all subscriptions for this subscriber
                 del self.subscribers[subscriber_id]
                 owned = [
-                    sid for sid, (owner, _) in self.subscription_callbacks.items()
+                    sid
+                    for sid, (owner, _) in self.subscription_callbacks.items()
                     if owner == subscriber_id
                 ]
                 for sid in owned:
@@ -315,7 +333,7 @@ class MessageBroker:
         channel_id: Optional[str] = None,
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
-        limit: int = 100
+        limit: int = 100,
     ) -> List[MessageResponse]:
         """
         Retrieve messages with filtering options.
@@ -337,16 +355,24 @@ class MessageBroker:
         filtered_messages = messages
 
         if sender_id:
-            filtered_messages = [m for m in filtered_messages if m.sender_id == sender_id]
+            filtered_messages = [
+                m for m in filtered_messages if m.sender_id == sender_id
+            ]
 
         if channel_id:
-            filtered_messages = [m for m in filtered_messages if m.channel_id == channel_id]
+            filtered_messages = [
+                m for m in filtered_messages if m.channel_id == channel_id
+            ]
 
         if start_time:
-            filtered_messages = [m for m in filtered_messages if m.timestamp >= start_time]
+            filtered_messages = [
+                m for m in filtered_messages if m.timestamp >= start_time
+            ]
 
         if end_time:
-            filtered_messages = [m for m in filtered_messages if m.timestamp <= end_time]
+            filtered_messages = [
+                m for m in filtered_messages if m.timestamp <= end_time
+            ]
 
         # Sort by timestamp (newest first) and limit
         filtered_messages.sort(key=lambda m: m.timestamp, reverse=True)
@@ -359,7 +385,7 @@ class MessageBroker:
             "queue_size": self.message_queue.qsize(),
             "subscribers": len(self.subscribers),
             "spatial_subscriptions": len(self.spatial_subscriptions),
-            "metrics": self.metrics.to_dict()
+            "metrics": self.metrics.to_dict(),
         }
 
     def _process_messages(self) -> None:
@@ -399,7 +425,9 @@ class MessageBroker:
                         # In a real implementation, would use threading or async
                         callback(message)
                     except Exception as e:
-                        self.logger.error(f"Error delivering to subscriber {subscriber_id}: {e}")
+                        self.logger.error(
+                            f"Error delivering to subscriber {subscriber_id}: {e}"
+                        )
 
             self.metrics.messages_delivered += 1
 
@@ -408,7 +436,9 @@ class MessageBroker:
             message.status = MessageStatus.FAILED
             self.metrics.delivery_failures += 1
 
-    def _find_matching_subscribers(self, message: MessageResponse) -> Dict[str, List[Callable]]:
+    def _find_matching_subscribers(
+        self, message: MessageResponse
+    ) -> Dict[str, List[Callable]]:
         """Find subscriber callbacks that should receive this message.
 
         Each subscription is evaluated independently: subscriptions with a
@@ -425,13 +455,17 @@ class MessageBroker:
                     if not message.geospatial_data:
                         # Message without geospatial data doesn't match spatial filters
                         continue
-                    if not spatial_filter.matches_location(message.geospatial_data.location):
+                    if not spatial_filter.matches_location(
+                        message.geospatial_data.location
+                    ):
                         continue
                 matching.setdefault(owner_id, []).append(callback)
 
         return matching
 
-    def _resolve_broadcast_recipients(self, request: BroadcastRequest, sender_id: str) -> List[str]:
+    def _resolve_broadcast_recipients(
+        self, request: BroadcastRequest, sender_id: str
+    ) -> List[str]:
         """Resolve broadcast recipients based on target criteria.
 
         ``all_users`` targets the broker's own subscriber registry. All other
@@ -450,7 +484,9 @@ class MessageBroker:
                 "configured on MessageBroker"
             )
 
-        return list(self.recipient_resolver(request.target_type, request.target_criteria))
+        return list(
+            self.recipient_resolver(request.target_type, request.target_criteria)
+        )
 
     def _get_priority_value(self, priority: MessagePriority) -> int:
         """Convert message priority to queue priority value (lower = higher priority)."""
@@ -458,7 +494,7 @@ class MessageBroker:
             MessagePriority.URGENT: 1,
             MessagePriority.HIGH: 2,
             MessagePriority.NORMAL: 3,
-            MessagePriority.LOW: 4
+            MessagePriority.LOW: 4,
         }
         return priority_map.get(priority, 3)
 
@@ -486,7 +522,7 @@ class MessageMetrics:
             ),
             "messages_queued": self.messages_queued,
             "messages_processed": self.messages_processed,
-            "uptime_seconds": uptime.total_seconds()
+            "uptime_seconds": uptime.total_seconds(),
         }
 
     def reset(self) -> None:
@@ -533,7 +569,7 @@ class MessageRouter:
         """Get routing performance statistics."""
         return {
             "total_rules": len(self.routing_rules),
-            "rules": [rule.name for rule in self.routing_rules]
+            "rules": [rule.name for rule in self.routing_rules],
         }
 
 
@@ -546,7 +582,9 @@ class RoutingRule:
     action: Dict[str, Any]
     priority: int = 1
     enabled: bool = True
-    _broker: Optional['MessageBroker'] = None  # Use string annotation for forward reference
+    _broker: Optional["MessageBroker"] = (
+        None  # Use string annotation for forward reference
+    )
 
     def matches(self, message: MessageResponse) -> bool:
         """Check if message matches this routing rule."""
@@ -565,7 +603,9 @@ class RoutingRule:
         if "geospatial" in self.condition and message.geospatial_data:
             # Check geospatial conditions
             geo_condition = self.condition["geospatial"]
-            if not self._check_geospatial_condition(message.geospatial_data, geo_condition):
+            if not self._check_geospatial_condition(
+                message.geospatial_data, geo_condition
+            ):
                 return False
 
         return True
@@ -583,20 +623,29 @@ class RoutingRule:
                     target_type=action["target_type"],
                     target_criteria=action.get("criteria", {}),
                     message_type=action.get("message_type", "notification"),
-                    priority=message.priority
+                    priority=message.priority,
                 )
                 assert self._broker is not None
-                broadcast_response = self._broker.broadcast_message(broadcast_request, message.sender_id)
+                broadcast_response = self._broker.broadcast_message(
+                    broadcast_request, message.sender_id
+                )
                 # Collect actual recipients resolved by the broadcast
-                if hasattr(broadcast_response, 'recipient_count'):
-                    recipients.extend([f"broadcast_recipient_{i}" for i in range(broadcast_response.recipient_count)])
+                if hasattr(broadcast_response, "recipient_count"):
+                    recipients.extend(
+                        [
+                            f"broadcast_recipient_{i}"
+                            for i in range(broadcast_response.recipient_count)
+                        ]
+                    )
 
         if "specific_recipients" in action:
             recipients.extend(action["specific_recipients"])
 
         return recipients
 
-    def _check_geospatial_condition(self, geo_data: GeospatialMetadata, condition: Dict[str, Any]) -> bool:
+    def _check_geospatial_condition(
+        self, geo_data: GeospatialMetadata, condition: Dict[str, Any]
+    ) -> bool:
         """Check geospatial condition against message data."""
         # Simple geospatial condition checking
         if "within_bounds" in condition:
@@ -605,25 +654,27 @@ class RoutingRule:
             lat, lon = loc.latitude, loc.longitude
             return cast(
                 bool,
-                (bounds.get('min_lat', -90) <= lat <= bounds.get('max_lat', 90)
-                 and bounds.get('min_lon', -180) <= lon <= bounds.get('max_lon', 180)),
+                (
+                    bounds.get("min_lat", -90) <= lat <= bounds.get("max_lat", 90)
+                    and bounds.get("min_lon", -180) <= lon <= bounds.get("max_lon", 180)
+                ),
             )
 
         if "within_distance" in condition:
             dist_cfg = condition["within_distance"]
-            max_km = cast(float, dist_cfg.get('max_km', float('inf')))
-            ref = dist_cfg.get('reference', {})
+            max_km = cast(float, dist_cfg.get("max_km", float("inf")))
+            ref = dist_cfg.get("reference", {})
             loc = geo_data.location
             reference = GeospatialPoint(
-                longitude=cast(float, ref.get('longitude', 0.0)),
-                latitude=cast(float, ref.get('latitude', 0.0)),
+                longitude=cast(float, ref.get("longitude", 0.0)),
+                latitude=cast(float, ref.get("latitude", 0.0)),
             )
             d_km = loc.distance_to(reference) / 1000.0
             return cast(bool, d_km <= max_km)
 
         return True
 
-    def set_broker(self, broker: 'MessageBroker') -> None:
+    def set_broker(self, broker: "MessageBroker") -> None:
         """Set the message broker reference for this rule."""
         self._broker = broker
 
@@ -636,7 +687,7 @@ class MessageFormatter:
         """Format message for SMS delivery."""
         content = message.content
         if len(content) > max_length:
-            content = content[:max_length-3] + "..."
+            content = content[: max_length - 3] + "..."
         return f"From {message.sender_id}: {content}"
 
     @staticmethod
@@ -654,8 +705,8 @@ class MessageFormatter:
             Content:
             {message.content}
 
-            {f'Location: {message.geospatial_data.location.latitude}, {message.geospatial_data.location.longitude}' if message.geospatial_data else ''}
-            """
+            {f"Location: {message.geospatial_data.location.latitude}, {message.geospatial_data.location.longitude}" if message.geospatial_data else ""}
+            """,
         }
 
     @staticmethod
@@ -666,11 +717,7 @@ class MessageFormatter:
         if len(body) > 100:
             body = body[:97] + "..."
 
-        return {
-            "title": title,
-            "body": body,
-            "priority": message.priority.value
-        }
+        return {"title": title, "body": body, "priority": message.priority.value}
 
     @staticmethod
     def format_for_geospatial_context(message: MessageResponse) -> Dict[str, Any]:
@@ -680,7 +727,7 @@ class MessageFormatter:
             "content": message.content,
             "sender_id": message.sender_id,
             "timestamp": message.timestamp.isoformat(),
-            "priority": message.priority.value
+            "priority": message.priority.value,
         }
 
         if message.geospatial_data:
@@ -688,7 +735,7 @@ class MessageFormatter:
                 "latitude": message.geospatial_data.location.latitude,
                 "longitude": message.geospatial_data.location.longitude,
                 "accuracy": message.geospatial_data.accuracy,
-                "source": message.geospatial_data.source
+                "source": message.geospatial_data.source,
             }
 
             if message.geospatial_data.bounds:
@@ -696,7 +743,7 @@ class MessageFormatter:
                     "min_lat": message.geospatial_data.bounds.min_latitude,
                     "min_lon": message.geospatial_data.bounds.min_longitude,
                     "max_lat": message.geospatial_data.bounds.max_latitude,
-                    "max_lon": message.geospatial_data.bounds.max_longitude
+                    "max_lon": message.geospatial_data.bounds.max_longitude,
                 }
 
         return formatted

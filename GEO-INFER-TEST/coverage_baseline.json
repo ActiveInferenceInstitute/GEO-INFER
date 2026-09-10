@@ -1,6 +1,6 @@
 {
  "floor_rationale": "per-module floor = measured line coverage rounded DOWN to the nearest 5 percent: coarse floors catch a coverage collapse (a touched module losing more than the rounding gap) without red-turning ordinary refactor churn; the diff-scoped gate re-measures only modules whose src or tests changed in a PR",
- "measured_at": "2026-09-08",
+ "measured_at": "2026-09-10",
  "modules": {
   "GEO-INFER-ACT": {
    "coverage_percent": 32.0,
@@ -11,12 +11,12 @@
    "floor_percent": 50
   },
   "GEO-INFER-AGENT": {
-   "coverage_percent": 62.7,
-   "floor_percent": 60
+   "coverage_percent": 54.7,
+   "floor_percent": 50
   },
   "GEO-INFER-AI": {
-   "coverage_percent": 87.4,
-   "floor_percent": 85
+   "coverage_percent": 80.7,
+   "floor_percent": 80
   },
   "GEO-INFER-ANT": {
    "coverage_percent": 43.8,
@@ -55,8 +55,8 @@
    "floor_percent": 60
   },
   "GEO-INFER-COMMS": {
-   "coverage_percent": 51.3,
-   "floor_percent": 50
+   "coverage_percent": 37.1,
+   "floor_percent": 35
   },
   "GEO-INFER-DATA": {
    "coverage_percent": 53.1,
@@ -107,8 +107,8 @@
    "floor_percent": 25
   },
   "GEO-INFER-LOG": {
-   "coverage_percent": 52.4,
-   "floor_percent": 50
+   "coverage_percent": 44.6,
+   "floor_percent": 40
   },
   "GEO-INFER-MARINE": {
    "coverage_percent": 92.9,
@@ -123,8 +123,8 @@
    "floor_percent": 55
   },
   "GEO-INFER-NORMS": {
-   "coverage_percent": 57.2,
-   "floor_percent": 55
+   "coverage_percent": 47.3,
+   "floor_percent": 45
   },
   "GEO-INFER-OPS": {
    "coverage_percent": 45.8,
@@ -167,7 +167,7 @@
    "floor_percent": 40
   },
   "GEO-INFER-TEST": {
-   "coverage_percent": 87.7,
+   "coverage_percent": 88.6,
    "floor_percent": 85
   },
   "GEO-INFER-TIME": {

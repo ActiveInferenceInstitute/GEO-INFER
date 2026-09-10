@@ -52,7 +52,9 @@ class TestGraphqlApi:
         assert result["sequenceId"] == "seq-1"
         assert result["gcContent"] == pytest.approx(10 / 17 * 100)
 
-    def test_analyze_sequence_rejects_invalid_sequence(self, client: TestClient) -> None:
+    def test_analyze_sequence_rejects_invalid_sequence(
+        self, client: TestClient
+    ) -> None:
         body = _query(
             client,
             """

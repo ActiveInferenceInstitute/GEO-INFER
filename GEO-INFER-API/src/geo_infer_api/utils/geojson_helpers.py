@@ -1,12 +1,11 @@
 """
 Utility functions for working with GeoJSON data.
 """
+
 import math
 from typing import Dict, List, Optional, Tuple, Union, cast
 
-from geo_infer_api.models.geojson import (
-    GeoJSONType, Polygon, PolygonFeature
-)
+from geo_infer_api.models.geojson import GeoJSONType, Polygon, PolygonFeature
 
 
 def validate_polygon_rings(coordinates: List[List[Tuple[float, float]]]) -> bool:
@@ -72,7 +71,9 @@ def calculate_polygon_area(polygon: Union[Polygon, Dict]) -> float:
     return area
 
 
-def polygon_contains_point(polygon: Union[Polygon, Dict], point: Tuple[float, float]) -> bool:
+def polygon_contains_point(
+    polygon: Union[Polygon, Dict], point: Tuple[float, float]
+) -> bool:
     """
     Check if a point is inside a polygon using the ray casting algorithm.
 
@@ -122,6 +123,7 @@ def simplify_polygon(polygon: Union[Polygon, Dict], tolerance: float = 0.01) -> 
     Returns:
         Polygon: A simplified Polygon
     """
+
     def rdp(points: List, epsilon: float) -> List:
         """Recursive Ramer-Douglas-Peucker simplification."""
         if len(points) <= 2:
@@ -136,13 +138,15 @@ def simplify_polygon(polygon: Union[Polygon, Dict], tolerance: float = 0.01) -> 
                 dmax = d
 
         if dmax > epsilon:
-            results1 = rdp(points[:index + 1], epsilon)
+            results1 = rdp(points[: index + 1], epsilon)
             results2 = rdp(points[index:], epsilon)
             return results1[:-1] + results2
         else:
             return [points[0], points[-1]]
 
-    def perpendicular_distance(point: Tuple, line_start: Tuple, line_end: Tuple) -> float:
+    def perpendicular_distance(
+        point: Tuple, line_start: Tuple, line_end: Tuple
+    ) -> float:
         """Calculate perpendicular distance from a point to a line segment."""
         x, y = point
         x1, y1 = line_start
@@ -153,8 +157,11 @@ def simplify_polygon(polygon: Union[Polygon, Dict], tolerance: float = 0.01) -> 
 
         slope = (y2 - y1) / (x2 - x1)
         intercept = y1 - slope * x1
-        return float(abs(slope * x - y + intercept) / ((slope ** 2 + 1) ** 0.5))
-    rings = polygon.coordinates if isinstance(polygon, Polygon) else polygon["coordinates"]
+        return float(abs(slope * x - y + intercept) / ((slope**2 + 1) ** 0.5))
+
+    rings = (
+        polygon.coordinates if isinstance(polygon, Polygon) else polygon["coordinates"]
+    )
     simplified_rings = []
     for ring in rings:
         simplified_ring = rdp(ring[:-1], tolerance)
@@ -381,6 +388,7 @@ def calculate_distance(
     Returns:
         float: Distance in kilometers
     """
+
     def get_centroid(polygon: Union[Polygon, Dict]) -> Tuple[float, float]:
         """Calculate centroid of a polygon."""
         if isinstance(polygon, Polygon):

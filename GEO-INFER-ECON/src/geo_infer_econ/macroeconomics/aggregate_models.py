@@ -60,7 +60,9 @@ class AggregateGrowthModels:
         lab_growth = np.diff(np.log(labor))
 
         # Solow residual: TFP growth = GDP growth - alpha*K growth - (1-alpha)*L growth
-        tfp_growth = gdp_growth - self.alpha * cap_growth - (1 - self.alpha) * lab_growth
+        tfp_growth = (
+            gdp_growth - self.alpha * cap_growth - (1 - self.alpha) * lab_growth
+        )
 
         # Factor contributions
         capital_contrib = self.alpha * cap_growth
@@ -150,8 +152,12 @@ class BusinessCycleModels:
             "peak_indices": peaks,
             "trough_indices": troughs,
             "n_cycles": len(peaks),
-            "avg_cycle_duration": round(float(np.mean(durations)), 1) if durations else None,
-            "current_phase": "expansion" if len(cycle) > 0 and cycle[-1] > 0 else "contraction",
+            "avg_cycle_duration": round(float(np.mean(durations)), 1)
+            if durations
+            else None,
+            "current_phase": "expansion"
+            if len(cycle) > 0 and cycle[-1] > 0
+            else "contraction",
         }
 
     @staticmethod
@@ -177,6 +183,7 @@ class BusinessCycleModels:
 
         # Solve via Thomas-like approach for pentadiagonal
         from scipy.linalg import solve_banded
+
         ab = np.zeros((5, n))
         for i in range(n - 2):
             ab[0, i + 2] = diag_2[i]
@@ -205,12 +212,13 @@ class MonetaryPolicyModels:
         """
         self.config = config or {}
         self.inflation_target = self.config.get("inflation_target", 2.0)
-        self.phi_pi = self.config.get("inflation_weight", 1.5)   # Taylor coefficient
-        self.phi_y = self.config.get("output_gap_weight", 0.5)    # Taylor coefficient
+        self.phi_pi = self.config.get("inflation_weight", 1.5)  # Taylor coefficient
+        self.phi_y = self.config.get("output_gap_weight", 0.5)  # Taylor coefficient
         self.r_star = self.config.get("neutral_rate", 2.0)
         logger.info(
             "MonetaryPolicyModels initialized (target=%.1f%%, r*=%.1f%%)",
-            self.inflation_target, self.r_star,
+            self.inflation_target,
+            self.r_star,
         )
 
     def model_policy(self, policy_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -234,7 +242,8 @@ class MonetaryPolicyModels:
 
         logger.info(
             "Modeling monetary policy: inflation=%.1f%%, output_gap=%.1f%%",
-            inflation, output_gap,
+            inflation,
+            output_gap,
         )
 
         # Taylor rule: i = r* + π + φ_π(π - π*) + φ_y(y)
@@ -266,7 +275,8 @@ class MonetaryPolicyModels:
         # Forward-looking component
         avg_forecast = float(np.mean(forecast)) if forecast else inflation
         forward_taylor = (
-            self.r_star + avg_forecast
+            self.r_star
+            + avg_forecast
             + self.phi_pi * (avg_forecast - self.inflation_target)
             + self.phi_y * output_gap
         )
@@ -434,15 +444,19 @@ class TradeModels:
 
                 # Gravity equation
                 trade_flow = (
-                    (gdp_i ** self.gdp_elasticity)
-                    * (gdp_j ** self.gdp_elasticity)
-                    * (dist ** self.dist_elasticity)
+                    (gdp_i**self.gdp_elasticity)
+                    * (gdp_j**self.gdp_elasticity)
+                    * (dist**self.dist_elasticity)
                 )
                 trade_matrix[i, j] = trade_flow
 
         # Normalize to reasonable scale
         if trade_matrix.max() > 0:
-            scale = np.mean([float(c.get("gdp", 100)) for c in countries]) * 0.3 / trade_matrix.max()
+            scale = (
+                np.mean([float(c.get("gdp", 100)) for c in countries])
+                * 0.3
+                / trade_matrix.max()
+            )
             trade_matrix *= scale
 
         # Calculate trade statistics per country
@@ -456,29 +470,33 @@ class TradeModels:
             # HHI concentration
             if exports > 0:
                 shares = trade_matrix[i, :] / exports
-                hhi = float(np.sum(shares ** 2))
+                hhi = float(np.sum(shares**2))
             else:
                 hhi = 0
 
-            country_stats.append({
-                "country_id": country_ids[i],
-                "exports": round(exports, 2),
-                "imports": round(imports, 2),
-                "trade_balance": round(exports - imports, 2),
-                "trade_openness": round(openness, 4),
-                "export_concentration_hhi": round(hhi, 4),
-            })
+            country_stats.append(
+                {
+                    "country_id": country_ids[i],
+                    "exports": round(exports, 2),
+                    "imports": round(imports, 2),
+                    "trade_balance": round(exports - imports, 2),
+                    "trade_openness": round(openness, 4),
+                    "export_concentration_hhi": round(hhi, 4),
+                }
+            )
 
         # Build bilateral flows list
         bilateral = []
         for i in range(n):
             for j in range(n):
                 if i != j and trade_matrix[i, j] > 0.01:
-                    bilateral.append({
-                        "exporter": country_ids[i],
-                        "importer": country_ids[j],
-                        "trade_value": round(float(trade_matrix[i, j]), 2),
-                    })
+                    bilateral.append(
+                        {
+                            "exporter": country_ids[i],
+                            "importer": country_ids[j],
+                            "trade_value": round(float(trade_matrix[i, j]), 2),
+                        }
+                    )
 
         return {
             "n_countries": n,
@@ -496,5 +514,10 @@ class TradeModels:
         R = 6371.0
         dlat = np.radians(lat2 - lat1)
         dlon = np.radians(lon2 - lon1)
-        a = np.sin(dlat / 2) ** 2 + np.cos(np.radians(lat1)) * np.cos(np.radians(lat2)) * np.sin(dlon / 2) ** 2
+        a = (
+            np.sin(dlat / 2) ** 2
+            + np.cos(np.radians(lat1))
+            * np.cos(np.radians(lat2))
+            * np.sin(dlon / 2) ** 2
+        )
         return float(R * 2 * np.arcsin(np.sqrt(a)))

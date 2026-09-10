@@ -15,7 +15,11 @@ class TestLogIntegration:
             {"id": "FAC_C", "location": (4.8357, 45.7640)},  # Lyon
         ]
         demand_points = [
-            {"id": f"D{i}", "location": (2.30 + i * 0.01, 48.85 + i * 0.01), "demand": 10 + i}
+            {
+                "id": f"D{i}",
+                "location": (2.30 + i * 0.01, 48.85 + i * 0.01),
+                "demand": 10 + i,
+            }
             for i in range(4)
         ]
 
@@ -39,7 +43,11 @@ class TestLogIntegration:
         inventory = InventoryManager()
         result = inventory.optimize_inventory(
             facilities=selected,
-            demand_data={"FAC_A": [40, 42, 38, 45], "FAC_B": [30, 28, 33], "FAC_C": [20, 22]},
+            demand_data={
+                "FAC_A": [40, 42, 38, 45],
+                "FAC_B": [30, 28, 33],
+                "FAC_C": [20, 22],
+            },
             lead_times={"FAC_A": 3, "FAC_B": 5, "FAC_C": 4},
             service_level=0.95,
         )

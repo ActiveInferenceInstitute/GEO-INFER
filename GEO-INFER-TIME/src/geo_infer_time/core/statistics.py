@@ -557,7 +557,7 @@ class TemporalStatistics:
                 "recommendation": (
                     "Residuals appear well-behaved"
                     if len(issues) == 0
-                    else f'Issues detected: {", ".join(issues)}'
+                    else f"Issues detected: {', '.join(issues)}"
                 ),
             },
         }

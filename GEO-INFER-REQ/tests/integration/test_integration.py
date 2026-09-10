@@ -109,8 +109,12 @@ class TestRequirementsAnalysis:
         analyzer = RequirementsAnalyzer()
         analyzer.add_requirements(
             [
-                Requirement("A", "A", "a", RequirementType.FUNCTIONAL, dependencies=["B"]),
-                Requirement("B", "B", "b", RequirementType.FUNCTIONAL, dependencies=["A"]),
+                Requirement(
+                    "A", "A", "a", RequirementType.FUNCTIONAL, dependencies=["B"]
+                ),
+                Requirement(
+                    "B", "B", "b", RequirementType.FUNCTIONAL, dependencies=["A"]
+                ),
             ]
         )
         assert analyzer.build_dependency_graph().cycles
@@ -151,7 +155,9 @@ class TestTraceability:
     def test_verifying_a_link_removes_it_from_the_backlog(self, tracer):
         """Verification is recorded and reflected immediately."""
         assert tracer.verify_link("R2", "validate.py") is True
-        assert all(link.artifact_id != "validate.py" for link in tracer.get_unverified_links())
+        assert all(
+            link.artifact_id != "validate.py" for link in tracer.get_unverified_links()
+        )
 
     def test_impact_propagates_through_dependents(self, tracer):
         """Changing R1 reaches the requirements built on it."""

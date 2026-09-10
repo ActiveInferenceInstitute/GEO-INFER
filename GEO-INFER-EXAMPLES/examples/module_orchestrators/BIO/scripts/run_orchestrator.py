@@ -31,8 +31,24 @@ def _operation() -> Dict[str, Any]:
     rng = np.random.default_rng(7)
     bases = np.array(list("ACGT"))
     sense_codons = [
-        "TTC", "TTA", "CTG", "ATT", "ATC", "GTT", "GCT", "CCC", "ACC",
-        "GTC", "GAG", "TGG", "TAC", "AAG", "GAA", "CAA", "GGC", "CGT",
+        "TTC",
+        "TTA",
+        "CTG",
+        "ATT",
+        "ATC",
+        "GTT",
+        "GCT",
+        "CCC",
+        "ACC",
+        "GTC",
+        "GAG",
+        "TGG",
+        "TAC",
+        "AAG",
+        "GAA",
+        "CAA",
+        "GGC",
+        "CGT",
     ]
 
     def _random_bases(count: int) -> List[str]:
@@ -45,7 +61,9 @@ def _operation() -> Dict[str, Any]:
     background_a = _random_bases(240)
     orf_start = 30
     contig_a = (
-        "".join(background_a[:orf_start]) + orf_string + "".join(background_a[orf_start + len(orf_string):])
+        "".join(background_a[:orf_start])
+        + orf_string
+        + "".join(background_a[orf_start + len(orf_string) :])
     )
 
     # Mutated variant: three point substitutions inside the ORF.
@@ -66,9 +84,7 @@ def _operation() -> Dict[str, Any]:
     with tempfile.TemporaryDirectory() as tmp_dir:
         fasta_path = Path(tmp_dir) / "synthetic_contigs.fasta"
         fasta_path.write_text(
-            "".join(
-                f">{name}\n{sequence}\n" for name, sequence in records_payload
-            ),
+            "".join(f">{name}\n{sequence}\n" for name, sequence in records_payload),
             encoding="utf-8",
         )
         records = analyzer.load_sequence(str(fasta_path))
@@ -78,9 +94,7 @@ def _operation() -> Dict[str, Any]:
 
     alignment = analyzer.align_sequences(records[:2], algorithm="global")
     aligned_pair = [str(record.seq) for record in alignment]
-    matches = sum(
-        1 for a, b in zip(aligned_pair[0], aligned_pair[1]) if a == b
-    )
+    matches = sum(1 for a, b in zip(aligned_pair[0], aligned_pair[1]) if a == b)
     alignment_identity = matches / len(aligned_pair[0])
 
     gc_contents = {
@@ -88,9 +102,7 @@ def _operation() -> Dict[str, Any]:
         for record in records
     }
     repeated_motifs = analyzer.find_motifs(records[0].seq, motif_length=6)
-    similarity = analyzer.calculate_sequence_similarity(
-        records[0].seq, records[1].seq
-    )
+    similarity = analyzer.calculate_sequence_similarity(records[0].seq, records[1].seq)
     coding_regions = analyzer.predict_coding_regions(records[0].seq, min_length=60)
 
     return {

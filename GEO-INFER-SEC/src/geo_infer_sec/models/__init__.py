@@ -1,1 +1,1 @@
-"""Data models for security and privacy contexts.""" 
+"""Data models for security and privacy contexts."""

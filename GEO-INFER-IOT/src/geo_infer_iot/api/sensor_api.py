@@ -15,11 +15,13 @@ import h3
 try:
     from geo_infer_iot.core.registry import SensorRegistry
     from geo_infer_iot.core.ingestion import IoTDataIngestion
+
     HAS_CORE_MODULES = True
 except ImportError:
     HAS_CORE_MODULES = False
 
 logger = logging.getLogger(__name__)
+
 
 class SensorAPI:
     """
@@ -62,25 +64,24 @@ class SensorAPI:
                 "version": "1.0.0",
                 "status": "operational",
                 "timestamp": datetime.now().isoformat(),
-                "endpoints": [
-                    "/sensors",
-                    "/measurements",
-                    "/networks",
-                    "/health"
-                ]
+                "endpoints": ["/sensors", "/measurements", "/networks", "/health"],
             }
 
         @self.app.get("/sensors")
         async def list_sensors(
-            sensor_type: Optional[str] = Query(None, description="Filter by sensor type"),
+            sensor_type: Optional[str] = Query(
+                None, description="Filter by sensor type"
+            ),
             network_id: Optional[str] = Query(None, description="Filter by network ID"),
             h3_index: Optional[str] = Query(None, description="Filter by H3 index"),
             limit: int = Query(100, description="Maximum number of sensors to return"),
-            offset: int = Query(0, description="Offset for pagination")
+            offset: int = Query(0, description="Offset for pagination"),
         ) -> Dict[str, Any]:
             """List sensors with optional filtering."""
             if self.registry is None:
-                raise HTTPException(status_code=503, detail="Sensor registry not available")
+                raise HTTPException(
+                    status_code=503, detail="Sensor registry not available"
+                )
 
             try:
                 sensors = []
@@ -101,7 +102,7 @@ class SensorAPI:
 
                 # Apply pagination
                 total_sensors = len(sensors)
-                paginated_sensors = sensors[offset:offset + limit]
+                paginated_sensors = sensors[offset : offset + limit]
 
                 return {
                     "sensors": [
@@ -114,7 +115,9 @@ class SensorAPI:
                             "h3_index": s.h3_index,
                             "status": s.status,
                             "registered_at": s.registered_at.isoformat(),
-                            "last_seen": s.last_seen.isoformat() if s.last_seen else None
+                            "last_seen": s.last_seen.isoformat()
+                            if s.last_seen
+                            else None,
                         }
                         for s in paginated_sensors
                     ],
@@ -123,23 +126,29 @@ class SensorAPI:
                     "pagination": {
                         "limit": limit,
                         "offset": offset,
-                        "has_more": offset + limit < total_sensors
-                    }
+                        "has_more": offset + limit < total_sensors,
+                    },
                 }
 
             except Exception as e:
                 logger.error(f"Error listing sensors: {e}")
-                raise HTTPException(status_code=500, detail=f"Error retrieving sensors: {str(e)}")
+                raise HTTPException(
+                    status_code=500, detail=f"Error retrieving sensors: {str(e)}"
+                )
 
         @self.app.get("/sensors/{sensor_id}")
         async def get_sensor(sensor_id: str) -> Dict[str, Any]:
             """Get detailed information about a specific sensor."""
             if self.registry is None:
-                raise HTTPException(status_code=503, detail="Sensor registry not available")
+                raise HTTPException(
+                    status_code=503, detail="Sensor registry not available"
+                )
 
             sensor = self.registry.sensors.get(sensor_id)
             if not sensor:
-                raise HTTPException(status_code=404, detail=f"Sensor {sensor_id} not found")
+                raise HTTPException(
+                    status_code=404, detail=f"Sensor {sensor_id} not found"
+                )
 
             return {
                 "sensor_id": sensor.sensor_id,
@@ -148,51 +157,65 @@ class SensorAPI:
                 "location": {
                     "latitude": sensor.latitude,
                     "longitude": sensor.longitude,
-                    "h3_index": sensor.h3_index
+                    "h3_index": sensor.h3_index,
                 },
                 "status": sensor.status,
                 "metadata": sensor.metadata,
                 "registered_at": sensor.registered_at.isoformat(),
-                "last_seen": sensor.last_seen.isoformat() if sensor.last_seen else None
+                "last_seen": sensor.last_seen.isoformat() if sensor.last_seen else None,
             }
 
         @self.app.post("/sensors")
         async def register_sensor(sensor_data: Dict) -> Dict[str, Any]:
             """Register a new sensor."""
             if self.registry is None:
-                raise HTTPException(status_code=503, detail="Sensor registry not available")
+                raise HTTPException(
+                    status_code=503, detail="Sensor registry not available"
+                )
 
             try:
                 sensor = self.registry.register_sensor(sensor_data)
                 return {
                     "message": "Sensor registered successfully",
                     "sensor_id": sensor.sensor_id,
-                    "status": "registered"
+                    "status": "registered",
                 }
             except Exception as e:
                 logger.error(f"Error registering sensor: {e}")
-                raise HTTPException(status_code=400, detail=f"Error registering sensor: {str(e)}")
+                raise HTTPException(
+                    status_code=400, detail=f"Error registering sensor: {str(e)}"
+                )
 
         @self.app.get("/measurements")
         async def query_measurements(
             sensor_id: Optional[str] = Query(None, description="Filter by sensor ID"),
-            variable: Optional[str] = Query(None, description="Filter by variable type"),
-            start_time: Optional[datetime] = Query(None, description="Start time for query"),
-            end_time: Optional[datetime] = Query(None, description="End time for query"),
+            variable: Optional[str] = Query(
+                None, description="Filter by variable type"
+            ),
+            start_time: Optional[datetime] = Query(
+                None, description="Start time for query"
+            ),
+            end_time: Optional[datetime] = Query(
+                None, description="End time for query"
+            ),
             h3_index: Optional[str] = Query(
                 None, description="H3 cell to filter measurements by location"
             ),
             h3_resolution: int = Query(
                 8, description="H3 resolution used to match measurements to h3_index"
             ),
-            limit: int = Query(1000, description="Maximum measurements to return")
+            limit: int = Query(1000, description="Maximum measurements to return"),
         ) -> Dict[str, Any]:
             """Query sensor measurements with temporal and spatial filtering."""
             if self.ingestion is None:
-                raise HTTPException(status_code=503, detail="Data ingestion not available")
+                raise HTTPException(
+                    status_code=503, detail="Data ingestion not available"
+                )
 
             if h3_index is not None and not h3.is_valid_cell(h3_index):
-                raise HTTPException(status_code=400, detail=f"Invalid H3 index: {h3_index}")
+                raise HTTPException(
+                    status_code=400, detail=f"Invalid H3 index: {h3_index}"
+                )
 
             try:
                 # Filter measurements based on query parameters
@@ -227,7 +250,11 @@ class SensorAPI:
                     filtered_measurements.append(measurement)
 
                 # Apply limit
-                limited_measurements = filtered_measurements[-limit:] if len(filtered_measurements) > limit else filtered_measurements
+                limited_measurements = (
+                    filtered_measurements[-limit:]
+                    if len(filtered_measurements) > limit
+                    else filtered_measurements
+                )
 
                 return {
                     "measurements": [
@@ -240,10 +267,10 @@ class SensorAPI:
                             "location": {
                                 "latitude": m.latitude,
                                 "longitude": m.longitude,
-                                "h3_index": m.h3_index
+                                "h3_index": m.h3_index,
                             },
                             "quality_flags": m.quality_flags,
-                            "metadata": m.metadata
+                            "metadata": m.metadata,
                         }
                         for m in limited_measurements
                     ],
@@ -255,19 +282,23 @@ class SensorAPI:
                         "start_time": start_time.isoformat() if start_time else None,
                         "end_time": end_time.isoformat() if end_time else None,
                         "h3_index": h3_index,
-                        "h3_resolution": h3_resolution
-                    }
+                        "h3_resolution": h3_resolution,
+                    },
                 }
 
             except Exception as e:
                 logger.error(f"Error querying measurements: {e}")
-                raise HTTPException(status_code=500, detail=f"Error querying measurements: {str(e)}")
+                raise HTTPException(
+                    status_code=500, detail=f"Error querying measurements: {str(e)}"
+                )
 
         @self.app.post("/measurements")
         async def submit_measurements(measurements: List[Dict]) -> Dict[str, Any]:
             """Submit new sensor measurements."""
             if self.ingestion is None:
-                raise HTTPException(status_code=503, detail="Data ingestion not available")
+                raise HTTPException(
+                    status_code=503, detail="Data ingestion not available"
+                )
 
             try:
                 processed_count = 0
@@ -284,35 +315,38 @@ class SensorAPI:
                     "message": f"Processed {processed_count} measurements, {failed_count} failed",
                     "processed_count": processed_count,
                     "failed_count": failed_count,
-                    "total_submitted": len(measurements)
+                    "total_submitted": len(measurements),
                 }
 
             except Exception as e:
                 logger.error(f"Error submitting measurements: {e}")
-                raise HTTPException(status_code=500, detail=f"Error processing measurements: {str(e)}")
+                raise HTTPException(
+                    status_code=500, detail=f"Error processing measurements: {str(e)}"
+                )
 
         @self.app.get("/networks")
         async def list_networks() -> Dict[str, Any]:
             """List all sensor networks."""
             if self.registry is None:
-                raise HTTPException(status_code=503, detail="Sensor registry not available")
+                raise HTTPException(
+                    status_code=503, detail="Sensor registry not available"
+                )
 
             networks = []
             for network in self.registry.networks.values():
-                networks.append({
-                    "network_id": network.network_id,
-                    "name": network.name,
-                    "protocol": network.protocol,
-                    "spatial_bounds": network.spatial_bounds,
-                    "sensor_types": network.sensor_types,
-                    "sensor_count": network.sensor_count,
-                    "created_at": network.created_at.isoformat()
-                })
+                networks.append(
+                    {
+                        "network_id": network.network_id,
+                        "name": network.name,
+                        "protocol": network.protocol,
+                        "spatial_bounds": network.spatial_bounds,
+                        "sensor_types": network.sensor_types,
+                        "sensor_count": network.sensor_count,
+                        "created_at": network.created_at.isoformat(),
+                    }
+                )
 
-            return {
-                "networks": networks,
-                "total_networks": len(networks)
-            }
+            return {"networks": networks, "total_networks": len(networks)}
 
         @self.app.get("/health")
         async def health_check() -> Dict[str, Any]:
@@ -320,7 +354,7 @@ class SensorAPI:
             health_status: Dict[str, Any] = {
                 "status": "healthy",
                 "timestamp": datetime.now().isoformat(),
-                "services": {}
+                "services": {},
             }
 
             # Check core services
@@ -343,7 +377,9 @@ class SensorAPI:
         async def get_sensors_in_h3_cell(h3_index: str) -> Dict[str, Any]:
             """Get all sensors in a specific H3 cell."""
             if self.registry is None:
-                raise HTTPException(status_code=503, detail="Sensor registry not available")
+                raise HTTPException(
+                    status_code=503, detail="Sensor registry not available"
+                )
 
             sensors = self.registry.get_sensors_in_h3_cell(h3_index)
 
@@ -356,10 +392,10 @@ class SensorAPI:
                         "sensor_type": s.sensor_type,
                         "latitude": s.latitude,
                         "longitude": s.longitude,
-                        "status": s.status
+                        "status": s.status,
                     }
                     for s in sensors
-                ]
+                ],
             }
 
     def get_app(self) -> FastAPI:
@@ -369,4 +405,5 @@ class SensorAPI:
     def run(self, host: str = "0.0.0.0", port: int = 8000, **kwargs: Any) -> None:
         """Run the API server."""
         import uvicorn
+
         uvicorn.run(self.app, host=host, port=port, **kwargs)

@@ -51,6 +51,7 @@ from geo_infer_civ.core.policy_analysis import (
 # AttendanceTracker
 # ---------------------------------------------------------------------------
 
+
 class TestAttendanceTrackerAcceptance:
     """Acceptance: civic meeting attendance trend and effectiveness analysis."""
 
@@ -91,18 +92,22 @@ class TestAttendanceTrackerAcceptance:
         """Filtering by meeting_type narrows the trend to that subset."""
         tracker.add_meetings(increasing_meetings)
         # Add a different-type meeting to confirm the filter excludes it.
-        tracker.add_meeting(MeetingRecord(
-            meeting_id="th0",
-            meeting_type=MeetingType.TOWN_HALL,
-            date=2000.0,
-            registered_attendees=50,
-            actual_attendees=45,
-        ))
+        tracker.add_meeting(
+            MeetingRecord(
+                meeting_id="th0",
+                meeting_type=MeetingType.TOWN_HALL,
+                date=2000.0,
+                registered_attendees=50,
+                actual_attendees=45,
+            )
+        )
         trend = tracker.compute_attendance_trend(meeting_type=MeetingType.CITY_COUNCIL)
         assert trend.meeting_count == 6
         assert trend.peak_meeting_type == MeetingType.CITY_COUNCIL.value
 
-    def test_meeting_effectiveness_combines_attendance_and_comments(self, tracker, increasing_meetings):
+    def test_meeting_effectiveness_combines_attendance_and_comments(
+        self, tracker, increasing_meetings
+    ):
         """Effectiveness is a 0.6*attendance + 0.4*comment blend in [0, 1]."""
         tracker.add_meetings(increasing_meetings)
         eff = tracker.get_meeting_effectiveness("cc0")
@@ -120,6 +125,7 @@ class TestAttendanceTrackerAcceptance:
 # ---------------------------------------------------------------------------
 # PublicCommentAnalyzer
 # ---------------------------------------------------------------------------
+
 
 class TestPublicCommentAnalyzerAcceptance:
     """Acceptance: public comment distribution and engagement depth."""
@@ -141,7 +147,9 @@ class TestPublicCommentAnalyzerAcceptance:
             PublicComment(
                 comment_id=f"c{i}",
                 meeting_id="m1",
-                category=CommentCategory.SUPPORT if i % 2 == 0 else CommentCategory.OPPOSITION,
+                category=CommentCategory.SUPPORT
+                if i % 2 == 0
+                else CommentCategory.OPPOSITION,
                 word_count=120,
                 timestamp=1000.0 + i,
                 submitter_id=f"s{i}",
@@ -152,21 +160,25 @@ class TestPublicCommentAnalyzerAcceptance:
         analyzer.add_comments(comments)
         result = analyzer.analyze()
         assert result.total_comments == 6
-        assert pytest.approx(sum(result.category_distribution.values()), abs=1e-6) == 1.0
+        assert (
+            pytest.approx(sum(result.category_distribution.values()), abs=1e-6) == 1.0
+        )
         assert result.unique_submitters == 6
         assert result.engagement_depth_score > 0.0
 
     def test_analyze_filters_by_meeting(self, analyzer):
         """Filtering by meeting_id scopes the analysis to that meeting."""
         for mid in ("m1", "m2"):
-            analyzer.add_comment(PublicComment(
-                comment_id=f"c_{mid}",
-                meeting_id=mid,
-                category=CommentCategory.QUESTION,
-                word_count=80,
-                timestamp=1.0,
-                submitter_id="s1",
-            ))
+            analyzer.add_comment(
+                PublicComment(
+                    comment_id=f"c_{mid}",
+                    meeting_id=mid,
+                    category=CommentCategory.QUESTION,
+                    word_count=80,
+                    timestamp=1.0,
+                    submitter_id="s1",
+                )
+            )
         only_m1 = analyzer.analyze(meeting_id="m1")
         assert only_m1.total_comments == 1
         assert only_m1.category_distribution[CommentCategory.QUESTION.value] == 1.0
@@ -175,6 +187,7 @@ class TestPublicCommentAnalyzerAcceptance:
 # ---------------------------------------------------------------------------
 # VoterTurnoutModel
 # ---------------------------------------------------------------------------
+
 
 class TestVoterTurnoutModelAcceptance:
     """Acceptance: voter turnout averaging and prediction."""
@@ -202,7 +215,9 @@ class TestVoterTurnoutModelAcceptance:
         """An uncontested prediction is lower than the type baseline."""
         contested = model.predict_turnout(1000, "general", is_contested=True)
         uncontested = model.predict_turnout(1000, "general", is_contested=False)
-        assert contested["predicted_turnout_rate"] > uncontested["predicted_turnout_rate"]
+        assert (
+            contested["predicted_turnout_rate"] > uncontested["predicted_turnout_rate"]
+        )
         assert 0.0 <= uncontested["predicted_turnout_rate"] <= 1.0
         assert "base_rate" in contested
 
@@ -217,6 +232,7 @@ class TestVoterTurnoutModelAcceptance:
 # ---------------------------------------------------------------------------
 # ParticipationAnalyzer
 # ---------------------------------------------------------------------------
+
 
 class TestParticipationAnalyzerAcceptance:
     """Acceptance: engagement scoring and demographic representation."""
@@ -261,8 +277,10 @@ class TestParticipationAnalyzerAcceptance:
         analyzer.add_records(self._records(40))
         report = analyzer.analyze_representation(
             population_demographics={
-                "youth": 0.25, "seniors": 0.25,
-                "families": 0.25, "professionals": 0.25,
+                "youth": 0.25,
+                "seniors": 0.25,
+                "families": 0.25,
+                "professionals": 0.25,
             }
         )
         assert len(report.representation_indices) == 4
@@ -273,6 +291,7 @@ class TestParticipationAnalyzerAcceptance:
 # CostBenefitAnalyzer
 # ---------------------------------------------------------------------------
 
+
 class TestCostBenefitAnalyzerAcceptance:
     """Acceptance: discounted cost-benefit computation."""
 
@@ -282,10 +301,18 @@ class TestCostBenefitAnalyzerAcceptance:
 
     def test_positive_npv_when_benefits_exceed_costs(self, analyzer):
         """A benefit stream that outweighs the upfront cost yields positive NPV."""
-        analyzer.add_item(CostBenefitItem("build", 1_000_000, is_benefit=False, time_horizon_years=0))
-        analyzer.add_item(CostBenefitItem("revenue", 500_000, is_benefit=True, time_horizon_years=1))
-        analyzer.add_item(CostBenefitItem("revenue", 500_000, is_benefit=True, time_horizon_years=2))
-        analyzer.add_item(CostBenefitItem("revenue", 500_000, is_benefit=True, time_horizon_years=3))
+        analyzer.add_item(
+            CostBenefitItem("build", 1_000_000, is_benefit=False, time_horizon_years=0)
+        )
+        analyzer.add_item(
+            CostBenefitItem("revenue", 500_000, is_benefit=True, time_horizon_years=1)
+        )
+        analyzer.add_item(
+            CostBenefitItem("revenue", 500_000, is_benefit=True, time_horizon_years=2)
+        )
+        analyzer.add_item(
+            CostBenefitItem("revenue", 500_000, is_benefit=True, time_horizon_years=3)
+        )
         result = analyzer.analyze()
         # Discounted benefits (~1.36M) exceed the upfront 1M cost.
         assert result.net_present_value > 0
@@ -294,8 +321,14 @@ class TestCostBenefitAnalyzerAcceptance:
 
     def test_category_breakdown_partitions_items(self, analyzer):
         """Items are grouped into categories with discounted cost/benefit sums."""
-        analyzer.add_item(CostBenefitItem("road", 500_000, is_benefit=False, category="infrastructure"))
-        analyzer.add_item(CostBenefitItem("toll", 200_000, is_benefit=True, category="revenue"))
+        analyzer.add_item(
+            CostBenefitItem(
+                "road", 500_000, is_benefit=False, category="infrastructure"
+            )
+        )
+        analyzer.add_item(
+            CostBenefitItem("toll", 200_000, is_benefit=True, category="revenue")
+        )
         result = analyzer.analyze()
         assert "infrastructure" in result.category_breakdown
         assert "revenue" in result.category_breakdown
@@ -303,10 +336,18 @@ class TestCostBenefitAnalyzerAcceptance:
 
     def test_payback_period_within_horizon(self, analyzer):
         """A recovering investment reaches payback within the modeled years."""
-        analyzer.add_item(CostBenefitItem("cost", 1000, is_benefit=False, time_horizon_years=0))
-        analyzer.add_item(CostBenefitItem("income", 400, is_benefit=True, time_horizon_years=1))
-        analyzer.add_item(CostBenefitItem("income", 400, is_benefit=True, time_horizon_years=2))
-        analyzer.add_item(CostBenefitItem("income", 400, is_benefit=True, time_horizon_years=3))
+        analyzer.add_item(
+            CostBenefitItem("cost", 1000, is_benefit=False, time_horizon_years=0)
+        )
+        analyzer.add_item(
+            CostBenefitItem("income", 400, is_benefit=True, time_horizon_years=1)
+        )
+        analyzer.add_item(
+            CostBenefitItem("income", 400, is_benefit=True, time_horizon_years=2)
+        )
+        analyzer.add_item(
+            CostBenefitItem("income", 400, is_benefit=True, time_horizon_years=3)
+        )
         result = analyzer.analyze()
         assert 0 < result.payback_period_years <= 4
 
@@ -320,17 +361,24 @@ class TestCostBenefitAnalyzerAcceptance:
 # StakeholderImpactAnalyzer + EquityAnalyzer
 # ---------------------------------------------------------------------------
 
+
 class TestStakeholderAndEquityAcceptance:
     """Acceptance: stakeholder impact matrices and equity analysis."""
 
     def test_impact_matrix_normalizes_to_unit_interval(self):
         """Impact matrix composite scores fall within [-1, 1]."""
         sa = StakeholderImpactAnalyzer()
-        sa.add_impact(StakeholderImpact(
-            "residents", 10000, ImpactLevel.POSITIVE,
-            economic_impact=0.5, quality_of_life_impact=0.8,
-            environmental_impact=0.3, accessibility_impact=0.6,
-        ))
+        sa.add_impact(
+            StakeholderImpact(
+                "residents",
+                10000,
+                ImpactLevel.POSITIVE,
+                economic_impact=0.5,
+                quality_of_life_impact=0.8,
+                environmental_impact=0.3,
+                accessibility_impact=0.6,
+            )
+        )
         matrix = sa.compute_impact_matrix()
         assert "residents" in matrix
         composite = matrix["residents"]["weighted_composite"]
@@ -339,16 +387,28 @@ class TestStakeholderAndEquityAcceptance:
     def test_find_most_affected_returns_extremes(self):
         """Most-affected returns the most-positive and most-negative groups."""
         sa = StakeholderImpactAnalyzer()
-        sa.add_impact(StakeholderImpact(
-            "winners", 100, ImpactLevel.VERY_POSITIVE,
-            economic_impact=1.0, quality_of_life_impact=1.0,
-            environmental_impact=1.0, accessibility_impact=1.0,
-        ))
-        sa.add_impact(StakeholderImpact(
-            "losers", 100, ImpactLevel.VERY_NEGATIVE,
-            economic_impact=-1.0, quality_of_life_impact=-1.0,
-            environmental_impact=-1.0, accessibility_impact=-1.0,
-        ))
+        sa.add_impact(
+            StakeholderImpact(
+                "winners",
+                100,
+                ImpactLevel.VERY_POSITIVE,
+                economic_impact=1.0,
+                quality_of_life_impact=1.0,
+                environmental_impact=1.0,
+                accessibility_impact=1.0,
+            )
+        )
+        sa.add_impact(
+            StakeholderImpact(
+                "losers",
+                100,
+                ImpactLevel.VERY_NEGATIVE,
+                economic_impact=-1.0,
+                quality_of_life_impact=-1.0,
+                environmental_impact=-1.0,
+                accessibility_impact=-1.0,
+            )
+        )
         best, worst = sa.find_most_affected()
         assert best == "winners"
         assert worst == "losers"

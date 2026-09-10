@@ -127,7 +127,11 @@ def test_bundled_gold_surfaces_reviewed_hazard_policy() -> None:
     }
     # Refreshed 2026-09-08: emergency-management now also carries the
     # "earthquake" tag; its topic sections hold 6 distinct entries.
-    assert result["hazardDomains"][0]["hazardTags"] == ["earthquake", "seismic", "tsunami"]
+    assert result["hazardDomains"][0]["hazardTags"] == [
+        "earthquake",
+        "seismic",
+        "tsunami",
+    ]
     assert len(result["hazardDomains"][0]["sections"]) == 6
 
 

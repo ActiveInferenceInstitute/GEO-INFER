@@ -153,18 +153,14 @@ class SpatialAnalyzer:
         ) -> np.ndarray:
             """Exponential variogram model."""
             range_ = np.maximum(range_, np.finfo(float).eps)
-            return cast(
-                np.ndarray, nugget + sill * (1 - np.exp(-h / range_))
-            )
+            return cast(np.ndarray, nugget + sill * (1 - np.exp(-h / range_)))
 
         def gaussian_model(
             h: np.ndarray, nugget: float, sill: float, range_: float
         ) -> np.ndarray:
             """Gaussian variogram model."""
             range_ = np.maximum(range_, np.finfo(float).eps)
-            return cast(
-                np.ndarray, nugget + sill * (1 - np.exp(-((h / range_) ** 2)))
-            )
+            return cast(np.ndarray, nugget + sill * (1 - np.exp(-((h / range_) ** 2))))
 
         # Try different models
         models = [
@@ -468,7 +464,10 @@ class SpatialAnalyzer:
         return float(best_bandwidth)
 
     def spatial_basis_functions(
-        self, n_basis: int = 10, basis_type: str = "gaussian", random_seed: Optional[int] = None
+        self,
+        n_basis: int = 10,
+        basis_type: str = "gaussian",
+        random_seed: Optional[int] = None,
     ) -> np.ndarray:
         """
         Generate spatial basis functions for modeling spatial variation.

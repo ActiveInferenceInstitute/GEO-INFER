@@ -10,55 +10,76 @@ from typing import Dict
 
 # Module metadata
 MODULES = {
-    'ACT': {'dependencies': ['MATH', 'BAYES'], 'description': 'Active Inference'},
-    'AG': {'dependencies': ['SPACE', 'TIME', 'DATA'], 'description': 'Agriculture'},
-    'AI': {'dependencies': ['DATA', 'SPACE'], 'description': 'Artificial Intelligence'},
-    'AGENT': {'dependencies': ['ACT', 'AI'], 'description': 'Intelligent agents'},
-    'ANT': {'dependencies': ['ACT', 'SIM'], 'description': 'Complex systems'},
-    'API': {'dependencies': ['All modules'], 'description': 'API services'},
-    'APP': {'dependencies': ['API', 'SPACE'], 'description': 'Applications'},
-    'ART': {'dependencies': ['SPACE', 'APP'], 'description': 'Artistic expression'},
-    'BAYES': {'dependencies': ['MATH'], 'description': 'Bayesian inference'},
-    'BIO': {'dependencies': ['SPACE', 'TIME', 'DATA'], 'description': 'Bioinformatics'},
-    'CIV': {'dependencies': ['SPACE', 'APP'], 'description': 'Civic engagement'},
-    'COG': {'dependencies': ['SPACE', 'AI'], 'description': 'Cognitive modeling'},
-    'COMMS': {'dependencies': ['INTRA', 'APP'], 'description': 'Communications'},
-    'DATA': {'dependencies': ['OPS', 'SEC'], 'description': 'Data management and ETL'},
-    'ECON': {'dependencies': ['SPACE', 'TIME', 'DATA'], 'description': 'Economics'},
-    'GIT': {'dependencies': ['OPS'], 'description': 'Version control'},
-    'HEALTH': {'dependencies': ['SPACE', 'TIME', 'DATA'], 'description': 'Health applications'},
-    'INTRA': {'dependencies': ['All modules'], 'description': 'Documentation'},
-    'IOT': {'dependencies': ['SPACE', 'BAYES', 'DATA'], 'description': 'IoT integration'},
-    'MATH': {'dependencies': [], 'description': 'Mathematical foundations'},
-    'NORMS': {'dependencies': ['SPACE', 'DATA'], 'description': 'Compliance'},
-    'OPS': {'dependencies': ['SEC'], 'description': 'Operations'},
-    'ORG': {'dependencies': ['PEP', 'COMMS'], 'description': 'Organizations'},
-    'PEP': {'dependencies': ['ORG', 'COMMS'], 'description': 'People management'},
-    'PLACE': {'dependencies': ['SPACE', 'TIME', 'DATA', 'ALL'], 'description': 'Place-based analysis'},
-    'REQ': {'dependencies': ['NORMS', 'SEC'], 'description': 'Requirements'},
-    'RISK': {'dependencies': ['SPACE', 'TIME', 'DATA'], 'description': 'Risk management'},
-    'SEC': {'dependencies': [], 'description': 'Security'},
-    'SIM': {'dependencies': ['SPACE', 'TIME'], 'description': 'Simulation'},
-    'SPM': {'dependencies': ['MATH', 'SPACE'], 'description': 'Statistical mapping'},
-    'SPACE': {'dependencies': ['DATA', 'MATH'], 'description': 'Spatial methods with H3 v4'},
-    'TEST': {'dependencies': ['All modules'], 'description': 'Testing framework'},
-    'TIME': {'dependencies': ['DATA', 'MATH'], 'description': 'Temporal methods'},
-    'LOG': {'dependencies': ['SPACE', 'TIME', 'DATA'], 'description': 'Logistics'},
-    'INSURANCE': {'dependencies': ['SPACE', 'TIME', 'DATA', 'RISK'], 'description': 'Insurance operations: underwriting, policy, claims, pricing'},
+    "ACT": {"dependencies": ["MATH", "BAYES"], "description": "Active Inference"},
+    "AG": {"dependencies": ["SPACE", "TIME", "DATA"], "description": "Agriculture"},
+    "AI": {"dependencies": ["DATA", "SPACE"], "description": "Artificial Intelligence"},
+    "AGENT": {"dependencies": ["ACT", "AI"], "description": "Intelligent agents"},
+    "ANT": {"dependencies": ["ACT", "SIM"], "description": "Complex systems"},
+    "API": {"dependencies": ["All modules"], "description": "API services"},
+    "APP": {"dependencies": ["API", "SPACE"], "description": "Applications"},
+    "ART": {"dependencies": ["SPACE", "APP"], "description": "Artistic expression"},
+    "BAYES": {"dependencies": ["MATH"], "description": "Bayesian inference"},
+    "BIO": {"dependencies": ["SPACE", "TIME", "DATA"], "description": "Bioinformatics"},
+    "CIV": {"dependencies": ["SPACE", "APP"], "description": "Civic engagement"},
+    "COG": {"dependencies": ["SPACE", "AI"], "description": "Cognitive modeling"},
+    "COMMS": {"dependencies": ["INTRA", "APP"], "description": "Communications"},
+    "DATA": {"dependencies": ["OPS", "SEC"], "description": "Data management and ETL"},
+    "ECON": {"dependencies": ["SPACE", "TIME", "DATA"], "description": "Economics"},
+    "GIT": {"dependencies": ["OPS"], "description": "Version control"},
+    "HEALTH": {
+        "dependencies": ["SPACE", "TIME", "DATA"],
+        "description": "Health applications",
+    },
+    "INTRA": {"dependencies": ["All modules"], "description": "Documentation"},
+    "IOT": {
+        "dependencies": ["SPACE", "BAYES", "DATA"],
+        "description": "IoT integration",
+    },
+    "MATH": {"dependencies": [], "description": "Mathematical foundations"},
+    "NORMS": {"dependencies": ["SPACE", "DATA"], "description": "Compliance"},
+    "OPS": {"dependencies": ["SEC"], "description": "Operations"},
+    "ORG": {"dependencies": ["PEP", "COMMS"], "description": "Organizations"},
+    "PEP": {"dependencies": ["ORG", "COMMS"], "description": "People management"},
+    "PLACE": {
+        "dependencies": ["SPACE", "TIME", "DATA", "ALL"],
+        "description": "Place-based analysis",
+    },
+    "REQ": {"dependencies": ["NORMS", "SEC"], "description": "Requirements"},
+    "RISK": {
+        "dependencies": ["SPACE", "TIME", "DATA"],
+        "description": "Risk management",
+    },
+    "SEC": {"dependencies": [], "description": "Security"},
+    "SIM": {"dependencies": ["SPACE", "TIME"], "description": "Simulation"},
+    "SPM": {"dependencies": ["MATH", "SPACE"], "description": "Statistical mapping"},
+    "SPACE": {
+        "dependencies": ["DATA", "MATH"],
+        "description": "Spatial methods with H3 v4",
+    },
+    "TEST": {"dependencies": ["All modules"], "description": "Testing framework"},
+    "TIME": {"dependencies": ["DATA", "MATH"], "description": "Temporal methods"},
+    "LOG": {"dependencies": ["SPACE", "TIME", "DATA"], "description": "Logistics"},
+    "INSURANCE": {
+        "dependencies": ["SPACE", "TIME", "DATA", "RISK"],
+        "description": "Insurance operations: underwriting, policy, claims, pricing",
+    },
 }
+
 
 def create_thin_orchestrator_script(module_name: str, module_info: Dict):
     """Create thin orchestrator script for a module."""
-    deps_str = ', '.join([f"'{d}'" for d in module_info['dependencies'] if d != 'All modules'])
+    deps_str = ", ".join(
+        [f"'{d}'" for d in module_info["dependencies"] if d != "All modules"]
+    )
     if not deps_str:
-        deps_str = '[]'
+        deps_str = "[]"
     else:
         deps_str = f"[{deps_str}]"
-    
+
     script_content = f'''#!/usr/bin/env python3
 """
 {module_name} Module Orchestrator - GEO-INFER Examples
-Demonstrates: {module_info['description']}
+Demonstrates: {module_info["description"]}
 
 Thin orchestrator pattern: Focuses on orchestration structure and patterns,
 not detailed module implementations.
@@ -110,7 +131,7 @@ class {module_name}Orchestrator:
     def run_orchestrator(self):
         """Run the complete {module_name} module demonstration."""
         self.logger.info("🚀 Starting {module_name} Module Orchestrator (Thin)")
-        self.logger.info("Demonstrating: {module_info['description']}")
+        self.logger.info("Demonstrating: {module_info["description"]}")
         
         start_time = time.time()
         results = {{
@@ -274,7 +295,7 @@ class {module_name}Orchestrator:
 def main():
     """Main function."""
     print(f"🌟 GEO-INFER-{module_name} Module Orchestrator (Thin)")
-    print(f"Demonstrating: {module_info['description']}")
+    print(f"Demonstrating: {module_info["description"]}")
     print("Orchestrator Type: Thin (focuses on orchestration patterns)")
     
     try:
@@ -289,27 +310,32 @@ def main():
 if __name__ == "__main__":
     sys.exit(main())
 '''
-    
-    script_path = Path(__file__).parent / module_name / 'scripts' / 'run_orchestrator.py'
-    with open(script_path, 'w') as f:
+
+    script_path = (
+        Path(__file__).parent / module_name / "scripts" / "run_orchestrator.py"
+    )
+    with open(script_path, "w") as f:
         f.write(script_content)
-    
+
     # Make script executable
     os.chmod(script_path, 0o755)
-    
+
     print(f"✅ Updated {module_name} orchestrator to thin pattern")
+
 
 def main():
     """Update all orchestrators to thin pattern."""
     print("🚀 Updating all orchestrators to thin orchestrator pattern...")
-    print("Thin orchestrators focus on orchestration patterns, not detailed implementations")
-    
+    print(
+        "Thin orchestrators focus on orchestration patterns, not detailed implementations"
+    )
+
     for module_name, module_info in MODULES.items():
         create_thin_orchestrator_script(module_name, module_info)
-    
+
     print(f"\n✅ Updated {len(MODULES)} orchestrators to thin pattern successfully!")
     print("📁 All orchestrators now follow the thin orchestrator pattern")
 
+
 if __name__ == "__main__":
     main()
-

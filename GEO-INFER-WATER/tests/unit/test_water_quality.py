@@ -163,6 +163,7 @@ class TestTrendAnalysis:
 
     def _make_samples(self, values, start="2024-01-01"):
         from datetime import datetime, timedelta
+
         base = datetime.fromisoformat(start)
         return [
             WaterSample(

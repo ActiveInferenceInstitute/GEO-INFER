@@ -175,9 +175,7 @@ class TestMessagingService(unittest.TestCase):
 
     def test_broadcast_to_nonexistent_channel(self) -> None:
         """Broadcasting to a nonexistent channel sends to zero agents."""
-        count = self._run(
-            self.service.broadcast_message("sender", {}, "ghost_channel")
-        )
+        count = self._run(self.service.broadcast_message("sender", {}, "ghost_channel"))
         self.assertEqual(count, 0)
 
     def test_register_message_callback(self) -> None:

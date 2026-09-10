@@ -15,13 +15,16 @@ from ..models.talent_models import CandidateStatus
 
 logger = logging.getLogger(__name__)
 
+
 class WorkflowStatus(str, Enum):
     """Status of workflow execution."""
+
     PENDING = "pending"
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
     FAILED = "failed"
     CANCELLED = "cancelled"
+
 
 class WorkflowStep:
     """Represents a single step in a workflow."""
@@ -63,6 +66,7 @@ class WorkflowStep:
             self.completed_at = datetime.now()
             return False
 
+
 class PEPOrchestrator:
     """
     Orchestrates complex PEP workflows and processes.
@@ -83,7 +87,9 @@ class PEPOrchestrator:
     def create_employee_onboarding_workflow(self, candidate_id: str) -> str:
         """Create a comprehensive employee onboarding workflow."""
 
-        workflow_id = f"onboarding_{candidate_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        workflow_id = (
+            f"onboarding_{candidate_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        )
 
         workflow = {
             "id": workflow_id,
@@ -92,7 +98,7 @@ class PEPOrchestrator:
             "status": WorkflowStatus.PENDING,
             "created_at": datetime.now(),
             "steps": [],
-            "context": {"candidate_id": candidate_id}
+            "context": {"candidate_id": candidate_id},
         }
 
         # Define workflow steps
@@ -100,56 +106,64 @@ class PEPOrchestrator:
             WorkflowStep(
                 "validate_candidate",
                 "Validate candidate data and eligibility",
-                self._validate_candidate_step
+                self._validate_candidate_step,
             ),
             WorkflowStep(
                 "process_background_check",
                 "Initiate background check process",
                 self._process_background_check_step,
-                dependencies=["validate_candidate"]
+                dependencies=["validate_candidate"],
             ),
             WorkflowStep(
                 "create_employee_record",
                 "Create employee record in HR system",
                 self._create_employee_record_step,
-                dependencies=["validate_candidate"]
+                dependencies=["validate_candidate"],
             ),
             WorkflowStep(
                 "setup_payroll",
                 "Setup payroll and compensation",
                 self._setup_payroll_step,
-                dependencies=["create_employee_record"]
+                dependencies=["create_employee_record"],
             ),
             WorkflowStep(
                 "schedule_training",
                 "Schedule initial training and orientation",
                 self._schedule_training_step,
-                dependencies=["create_employee_record"]
+                dependencies=["create_employee_record"],
             ),
             WorkflowStep(
                 "setup_equipment",
                 "Setup workstation and equipment",
                 self._setup_equipment_step,
-                dependencies=["create_employee_record"]
+                dependencies=["create_employee_record"],
             ),
             WorkflowStep(
                 "send_welcome_package",
                 "Send welcome package and communications",
                 self._send_welcome_package_step,
-                dependencies=["create_employee_record"]
+                dependencies=["create_employee_record"],
             ),
             WorkflowStep(
                 "final_verification",
                 "Final verification and workflow completion",
                 self._final_verification_step,
-                dependencies=["process_background_check", "setup_payroll", "schedule_training", "setup_equipment", "send_welcome_package"]
-            )
+                dependencies=[
+                    "process_background_check",
+                    "setup_payroll",
+                    "schedule_training",
+                    "setup_equipment",
+                    "send_welcome_package",
+                ],
+            ),
         ]
 
         workflow["steps"] = steps
         self.workflows[workflow_id] = workflow
 
-        logger.info(f"Created onboarding workflow {workflow_id} for candidate {candidate_id}")
+        logger.info(
+            f"Created onboarding workflow {workflow_id} for candidate {candidate_id}"
+        )
         return workflow_id
 
     def create_bulk_hire_workflow(self, candidate_ids: List[str]) -> str:
@@ -164,7 +178,7 @@ class PEPOrchestrator:
             "status": WorkflowStatus.PENDING,
             "created_at": datetime.now(),
             "steps": [],
-            "context": {"candidate_ids": candidate_ids}
+            "context": {"candidate_ids": candidate_ids},
         }
 
         # Define bulk workflow steps
@@ -172,38 +186,40 @@ class PEPOrchestrator:
             WorkflowStep(
                 "validate_all_candidates",
                 "Validate all candidates in bulk",
-                self._validate_bulk_candidates_step
+                self._validate_bulk_candidates_step,
             ),
             WorkflowStep(
                 "prepare_hiring_documents",
                 "Prepare bulk hiring documents",
                 self._prepare_bulk_documents_step,
-                dependencies=["validate_all_candidates"]
+                dependencies=["validate_all_candidates"],
             ),
             WorkflowStep(
                 "bulk_employee_creation",
                 "Create employee records in bulk",
                 self._bulk_employee_creation_step,
-                dependencies=["prepare_hiring_documents"]
+                dependencies=["prepare_hiring_documents"],
             ),
             WorkflowStep(
                 "bulk_system_setup",
                 "Setup systems and access in bulk",
                 self._bulk_system_setup_step,
-                dependencies=["bulk_employee_creation"]
+                dependencies=["bulk_employee_creation"],
             ),
             WorkflowStep(
                 "bulk_communications",
                 "Send bulk welcome communications",
                 self._bulk_communications_step,
-                dependencies=["bulk_system_setup"]
-            )
+                dependencies=["bulk_system_setup"],
+            ),
         ]
 
         workflow["steps"] = steps
         self.workflows[workflow_id] = workflow
 
-        logger.info(f"Created bulk hire workflow {workflow_id} for {len(candidate_ids)} candidates")
+        logger.info(
+            f"Created bulk hire workflow {workflow_id} for {len(candidate_ids)} candidates"
+        )
         return workflow_id
 
     def execute_workflow(self, workflow_id: str) -> Dict[str, Any]:
@@ -213,7 +229,7 @@ class PEPOrchestrator:
             return {
                 "success": False,
                 "error": f"Workflow {workflow_id} not found",
-                "workflow_id": workflow_id
+                "workflow_id": workflow_id,
             }
 
         workflow = self.workflows[workflow_id]
@@ -237,8 +253,10 @@ class PEPOrchestrator:
 
                 # Check if all dependencies are completed
                 dependencies_met = all(
-                    any(s.name == dep and s.status == WorkflowStatus.COMPLETED
-                        for s in workflow["steps"])
+                    any(
+                        s.name == dep and s.status == WorkflowStatus.COMPLETED
+                        for s in workflow["steps"]
+                    )
                     for dep in step.dependencies
                 )
 
@@ -255,7 +273,7 @@ class PEPOrchestrator:
                             "success": False,
                             "error": f"Workflow failed at step {step.name}: {step.error}",
                             "workflow_id": workflow_id,
-                            "failed_step": step.name
+                            "failed_step": step.name,
                         }
 
                     executed_steps.add(step.name)
@@ -263,8 +281,7 @@ class PEPOrchestrator:
 
             # Check if all steps are completed
             all_completed = all(
-                step.status == WorkflowStatus.COMPLETED
-                for step in workflow["steps"]
+                step.status == WorkflowStatus.COMPLETED for step in workflow["steps"]
             )
 
             if all_completed:
@@ -272,13 +289,15 @@ class PEPOrchestrator:
 
             # Check if we're stuck (no progress made in this iteration)
             if not progress_made and iteration > 1:
-                pending_steps = [s for s in workflow["steps"] if s.status == WorkflowStatus.PENDING]
+                pending_steps = [
+                    s for s in workflow["steps"] if s.status == WorkflowStatus.PENDING
+                ]
                 if pending_steps:
                     workflow["status"] = WorkflowStatus.FAILED
                     return {
                         "success": False,
                         "error": f"Workflow stuck. Pending steps with unmet dependencies: {[s.name for s in pending_steps]}",
-                        "workflow_id": workflow_id
+                        "workflow_id": workflow_id,
                     }
 
         workflow["status"] = WorkflowStatus.COMPLETED
@@ -291,17 +310,14 @@ class PEPOrchestrator:
             "workflow_id": workflow_id,
             "steps_executed": len(executed_steps),
             "total_steps": len(workflow["steps"]),
-            "context": workflow["context"]
+            "context": workflow["context"],
         }
 
     def get_workflow_status(self, workflow_id: str) -> Dict[str, Any]:
         """Get the status of a workflow."""
 
         if workflow_id not in self.workflows:
-            return {
-                "success": False,
-                "error": f"Workflow {workflow_id} not found"
-            }
+            return {"success": False, "error": f"Workflow {workflow_id} not found"}
 
         workflow = self.workflows[workflow_id]
 
@@ -311,20 +327,28 @@ class PEPOrchestrator:
             "name": workflow["name"],
             "status": workflow["status"].value,
             "created_at": workflow["created_at"].isoformat(),
-            "started_at": workflow.get("started_at", "").isoformat() if workflow.get("started_at") else None,
-            "completed_at": workflow.get("completed_at", "").isoformat() if workflow.get("completed_at") else None,
+            "started_at": workflow.get("started_at", "").isoformat()
+            if workflow.get("started_at")
+            else None,
+            "completed_at": workflow.get("completed_at", "").isoformat()
+            if workflow.get("completed_at")
+            else None,
             "steps": [
                 {
                     "name": step.name,
                     "description": step.description,
                     "status": step.status.value,
                     "dependencies": step.dependencies,
-                    "started_at": step.started_at.isoformat() if step.started_at else None,
-                    "completed_at": step.completed_at.isoformat() if step.completed_at else None,
-                    "error": step.error
+                    "started_at": step.started_at.isoformat()
+                    if step.started_at
+                    else None,
+                    "completed_at": step.completed_at.isoformat()
+                    if step.completed_at
+                    else None,
+                    "error": step.error,
                 }
                 for step in workflow["steps"]
-            ]
+            ],
         }
 
     # Workflow step implementations
@@ -334,7 +358,9 @@ class PEPOrchestrator:
         candidate_id = context["candidate_id"]
 
         # Get candidate from data manager
-        candidates = self.engine.data_manager.get_candidates({"candidate_id": candidate_id})
+        candidates = self.engine.data_manager.get_candidates(
+            {"candidate_id": candidate_id}
+        )
 
         if not candidates:
             raise ValueError(f"candidate {candidate_id} not found")
@@ -343,7 +369,9 @@ class PEPOrchestrator:
 
         # Validation checks
         if candidate.status != CandidateStatus.OFFER_ACCEPTED:
-            raise ValueError(f"candidate {candidate_id} status is {candidate.status}, expected OFFER_ACCEPTED")
+            raise ValueError(
+                f"candidate {candidate_id} status is {candidate.status}, expected OFFER_ACCEPTED"
+            )
 
         if not candidate.email:
             raise ValueError(f"candidate {candidate_id} missing email address")
@@ -351,7 +379,7 @@ class PEPOrchestrator:
         return {
             "candidate_id": candidate_id,
             "validation_status": "passed",
-            "candidate_name": f"{candidate.first_name} {candidate.last_name}"
+            "candidate_name": f"{candidate.first_name} {candidate.last_name}",
         }
 
     def _process_background_check_step(self, context: Dict[str, Any]) -> Dict[str, Any]:
@@ -364,7 +392,7 @@ class PEPOrchestrator:
         return {
             "candidate_id": candidate_id,
             "background_check_status": "initiated",
-            "estimated_completion": "3-5 business days"
+            "estimated_completion": "3-5 business days",
         }
 
     def _create_employee_record_step(self, context: Dict[str, Any]) -> Dict[str, Any]:
@@ -378,12 +406,11 @@ class PEPOrchestrator:
         success = process_employee_onboarding_workflow(employee_data)
 
         if not success:
-            raise RuntimeError(f"Failed to create employee record for candidate {candidate_id}")
+            raise RuntimeError(
+                f"Failed to create employee record for candidate {candidate_id}"
+            )
 
-        return {
-            "candidate_id": candidate_id,
-            "employee_record_created": True
-        }
+        return {"candidate_id": candidate_id, "employee_record_created": True}
 
     def _setup_payroll_step(self, context: Dict[str, Any]) -> Dict[str, Any]:
         """Setup payroll and compensation."""
@@ -395,7 +422,7 @@ class PEPOrchestrator:
         return {
             "candidate_id": candidate_id,
             "payroll_setup_status": "completed",
-            "compensation_processed": True
+            "compensation_processed": True,
         }
 
     def _schedule_training_step(self, context: Dict[str, Any]) -> Dict[str, Any]:
@@ -409,7 +436,11 @@ class PEPOrchestrator:
             "candidate_id": candidate_id,
             "training_scheduled": True,
             "orientation_date": "Next Monday",
-            "training_modules": ["Company Overview", "Security Training", "Product Training"]
+            "training_modules": [
+                "Company Overview",
+                "Security Training",
+                "Product Training",
+            ],
         }
 
     def _setup_equipment_step(self, context: Dict[str, Any]) -> Dict[str, Any]:
@@ -423,7 +454,7 @@ class PEPOrchestrator:
             "candidate_id": candidate_id,
             "equipment_setup_status": "ordered",
             "items": ["Laptop", "Monitor", "Headphones", "Access Card"],
-            "estimated_delivery": "2 business days"
+            "estimated_delivery": "2 business days",
         }
 
     def _send_welcome_package_step(self, context: Dict[str, Any]) -> Dict[str, Any]:
@@ -437,7 +468,11 @@ class PEPOrchestrator:
             "candidate_id": candidate_id,
             "welcome_email_sent": True,
             "welcome_package_sent": True,
-            "communication_items": ["Welcome Email", "New Hire Portal Access", "Benefits Guide"]
+            "communication_items": [
+                "Welcome Email",
+                "New Hire Portal Access",
+                "Benefits Guide",
+            ],
         }
 
     def _final_verification_step(self, context: Dict[str, Any]) -> Dict[str, Any]:
@@ -451,7 +486,7 @@ class PEPOrchestrator:
             "candidate_id": candidate_id,
             "verification_status": "completed",
             "onboarding_status": "complete",
-            "start_date": "Next Monday"
+            "start_date": "Next Monday",
         }
 
     # Bulk workflow step implementations
@@ -465,8 +500,13 @@ class PEPOrchestrator:
 
         for candidate_id in candidate_ids:
             try:
-                candidates = self.engine.data_manager.get_candidates({"candidate_id": candidate_id})
-                if candidates and candidates[0].status == CandidateStatus.OFFER_ACCEPTED:
+                candidates = self.engine.data_manager.get_candidates(
+                    {"candidate_id": candidate_id}
+                )
+                if (
+                    candidates
+                    and candidates[0].status == CandidateStatus.OFFER_ACCEPTED
+                ):
                     valid_candidates.append(candidate_id)
                 else:
                     invalid_candidates.append(candidate_id)
@@ -478,7 +518,7 @@ class PEPOrchestrator:
 
         return {
             "valid_candidates": valid_candidates,
-            "total_validated": len(valid_candidates)
+            "total_validated": len(valid_candidates),
         }
 
     def _prepare_bulk_documents_step(self, context: Dict[str, Any]) -> Dict[str, Any]:
@@ -490,7 +530,7 @@ class PEPOrchestrator:
 
         return {
             "documents_prepared": len(candidate_ids),
-            "document_types": ["Offer Letters", "Tax Forms", "Benefits Enrollment"]
+            "document_types": ["Offer Letters", "Tax Forms", "Benefits Enrollment"],
         }
 
     def _bulk_employee_creation_step(self, context: Dict[str, Any]) -> Dict[str, Any]:
@@ -504,6 +544,7 @@ class PEPOrchestrator:
             try:
                 employee_data = {"candidate_id": candidate_id}
                 from ..methods import process_employee_onboarding_workflow
+
                 success = process_employee_onboarding_workflow(employee_data)
                 if success:
                     success_count += 1
@@ -515,7 +556,7 @@ class PEPOrchestrator:
         return {
             "employees_created": success_count,
             "failed_creations": failed_count,
-            "success_rate": success_count / len(candidate_ids)
+            "success_rate": success_count / len(candidate_ids),
         }
 
     def _bulk_system_setup_step(self, context: Dict[str, Any]) -> Dict[str, Any]:
@@ -527,7 +568,12 @@ class PEPOrchestrator:
 
         return {
             "systems_setup": len(candidate_ids),
-            "systems": ["Email", "HR Portal", "Project Management", "Development Tools"]
+            "systems": [
+                "Email",
+                "HR Portal",
+                "Project Management",
+                "Development Tools",
+            ],
         }
 
     def _bulk_communications_step(self, context: Dict[str, Any]) -> Dict[str, Any]:
@@ -539,5 +585,9 @@ class PEPOrchestrator:
 
         return {
             "communications_sent": len(candidate_ids),
-            "communication_types": ["Welcome Email", "Portal Access", "Start Date Confirmation"]
+            "communication_types": [
+                "Welcome Email",
+                "Portal Access",
+                "Start Date Confirmation",
+            ],
         }

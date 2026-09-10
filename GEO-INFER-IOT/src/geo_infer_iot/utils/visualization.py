@@ -236,8 +236,8 @@ class IoTVisualization:
         if "last_measurement" in sensor:
             measurement = sensor["last_measurement"]
             popup_html += f"""
-            <p><strong>Last Reading:</strong> {measurement.get('value', 'N/A')} {measurement.get('unit', '')}</p>
-            <p><strong>Timestamp:</strong> {measurement.get('timestamp', 'N/A')}</p>
+            <p><strong>Last Reading:</strong> {measurement.get("value", "N/A")} {measurement.get("unit", "")}</p>
+            <p><strong>Timestamp:</strong> {measurement.get("timestamp", "N/A")}</p>
             """
 
         popup_html += "</div>"
@@ -529,10 +529,10 @@ class IoTVisualization:
                 html_content += f"""
                 <div class="metric">
                     <h3>Network Overview</h3>
-                    <p><strong>Total Sensors:</strong> {summary.get('total_sensors', 0)}</p>
-                    <p><strong>Health Score:</strong> {summary.get('average_health_score', 0):.2f}</p>
-                    <p><strong>Active Sensors:</strong> {summary.get('status_distribution', {}).get('good', 0)}</p>
-                    <p><strong>Sensors Needing Attention:</strong> {summary.get('sensors_needing_maintenance', 0)}</p>
+                    <p><strong>Total Sensors:</strong> {summary.get("total_sensors", 0)}</p>
+                    <p><strong>Health Score:</strong> {summary.get("average_health_score", 0):.2f}</p>
+                    <p><strong>Active Sensors:</strong> {summary.get("status_distribution", {}).get("good", 0)}</p>
+                    <p><strong>Sensors Needing Attention:</strong> {summary.get("sensors_needing_maintenance", 0)}</p>
                 </div>
                 """
 
@@ -564,7 +564,7 @@ class IoTVisualization:
                 <div class="metric">
                     <h3>Recent Activity</h3>
                     <p><strong>Total Measurements:</strong> {len(recent)}</p>
-                    <p><strong>Time Range:</strong> {recent[0].get('timestamp', 'N/A') if recent else 'N/A'}</p>
+                    <p><strong>Time Range:</strong> {recent[0].get("timestamp", "N/A") if recent else "N/A"}</p>
                 </div>
                 """
 

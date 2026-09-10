@@ -28,12 +28,18 @@ from geo_infer_metagov.core.scenarios import ScenarioPlanner, Scenario, Scenario
 
 # Integration modules (optional)
 try:
-    from geo_infer_metagov.integrations.spatial import SpatialGovernanceIntegration as SpatialGovernanceIntegration
+    from geo_infer_metagov.integrations.spatial import (
+        SpatialGovernanceIntegration as SpatialGovernanceIntegration,
+    )
     from geo_infer_metagov.integrations.organizational import (
         OrganizationalGovernanceIntegration as OrganizationalGovernanceIntegration,
     )
-    from geo_infer_metagov.integrations.security import SecurityGovernanceIntegration as SecurityGovernanceIntegration
-    from geo_infer_metagov.integrations.normative import NormativeGovernanceIntegration as NormativeGovernanceIntegration
+    from geo_infer_metagov.integrations.security import (
+        SecurityGovernanceIntegration as SecurityGovernanceIntegration,
+    )
+    from geo_infer_metagov.integrations.normative import (
+        NormativeGovernanceIntegration as NormativeGovernanceIntegration,
+    )
 
     INTEGRATIONS_AVAILABLE = True
 except ImportError:

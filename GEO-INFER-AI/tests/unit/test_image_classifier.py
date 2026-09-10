@@ -114,11 +114,10 @@ class TestImageClassifier:
     def test_predict_before_fit(self, image_data_2d: tuple) -> None:
         """Test that prediction fails before training."""
         from sklearn.exceptions import NotFittedError
-        
+
         X, y = image_data_2d
         classifier = ImageClassifier(model_type="random_forest")
 
         # sklearn raises NotFittedError, which our code converts to ValueError
         with pytest.raises((ValueError, NotFittedError)):
             classifier.predict(X)
-

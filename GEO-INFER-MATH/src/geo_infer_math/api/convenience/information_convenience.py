@@ -21,8 +21,8 @@ logger = logging.getLogger(__name__)
 def spatial_entropy_helper(
     coordinates: np.ndarray,
     values: Optional[np.ndarray] = None,
-    method: str = 'shannon',
-    **kwargs: Any
+    method: str = "shannon",
+    **kwargs: Any,
 ) -> float:
     """
     Helper for calculating spatial entropy.
@@ -37,7 +37,7 @@ def spatial_entropy_helper(
         Spatial entropy value
     """
     from geo_infer_math.core.information_theory import spatial_entropy
-    
+
     return spatial_entropy(coordinates, values, method=method, **kwargs)
 
 
@@ -46,7 +46,7 @@ def mutual_information_helper(
     values_x: np.ndarray,
     coordinates_y: np.ndarray,
     values_y: np.ndarray,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> float:
     """
     Helper for calculating spatial mutual information.
@@ -62,7 +62,7 @@ def mutual_information_helper(
         Mutual information value
     """
     from geo_infer_math.core.information_theory import spatial_mutual_information
-    
+
     return spatial_mutual_information(
         coordinates_x, values_x, coordinates_y, values_y, **kwargs
     )
@@ -73,7 +73,7 @@ def kl_divergence_helper(
     values_p: np.ndarray,
     coordinates_q: np.ndarray,
     values_q: np.ndarray,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> float:
     """
     Helper for calculating spatial KL divergence.
@@ -89,7 +89,7 @@ def kl_divergence_helper(
         KL divergence value
     """
     from geo_infer_math.core.information_theory import spatial_kl_divergence
-    
+
     return spatial_kl_divergence(
         coordinates_p, values_p, coordinates_q, values_q, **kwargs
     )
@@ -98,74 +98,67 @@ def kl_divergence_helper(
 class InformationTheoryConvenience:
     """
     Convenience class for information theory operations.
-    
+
     Provides high-level methods for common information theory tasks.
     """
-    
+
     def __init__(self) -> None:
         """Initialize information theory convenience class."""
         self.entropy_calc = EntropyCalculator()
         self.mi_calc = MutualInformationCalculator()
         self.kl_calc = KLDivergenceCalculator()
-    
+
     def calculate_entropy(
-        self,
-        data: np.ndarray,
-        method: str = 'shannon',
-        **kwargs: Any
+        self, data: np.ndarray, method: str = "shannon", **kwargs: Any
     ) -> float:
         """
         Calculate entropy.
-        
+
         Args:
             data: Input data
             method: Entropy method
             **kwargs: Additional parameters
-        
+
         Returns:
             Entropy value
         """
         return self.entropy_calc.calculate(data, method=method, **kwargs)
-    
+
     def calculate_mutual_information(
         self,
         probabilities_xy: np.ndarray,
         probabilities_x: np.ndarray,
         probabilities_y: np.ndarray,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> float:
         """
         Calculate mutual information.
-        
+
         Args:
             probabilities_xy: Joint probabilities
             probabilities_x: Marginal probabilities for X
             probabilities_y: Marginal probabilities for Y
             **kwargs: Additional parameters
-        
+
         Returns:
             Mutual information value
         """
         return self.mi_calc.calculate(
             probabilities_xy, probabilities_x, probabilities_y, **kwargs
         )
-    
+
     def calculate_kl_divergence(
-        self,
-        p: np.ndarray,
-        q: np.ndarray,
-        **kwargs: Any
+        self, p: np.ndarray, q: np.ndarray, **kwargs: Any
     ) -> float:
         """
         Calculate KL divergence.
-        
+
         Args:
             p: Distribution P
             q: Distribution Q
             **kwargs: Additional parameters
-        
+
         Returns:
             KL divergence value
         """
         return self.kl_calc.calculate(p, q, **kwargs)
-

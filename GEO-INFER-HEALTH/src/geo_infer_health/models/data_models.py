@@ -8,9 +8,7 @@ class Location(BaseModel):
 
     latitude: Optional[float] = Field(..., description="Latitude of the location.")
     longitude: Optional[float] = Field(..., description="Longitude of the location.")
-    crs: str = Field(
-        default="EPSG:4326", description="Coordinate Reference System."
-    )
+    crs: str = Field(default="EPSG:4326", description="Coordinate Reference System.")
 
     @field_validator("latitude")
     @classmethod

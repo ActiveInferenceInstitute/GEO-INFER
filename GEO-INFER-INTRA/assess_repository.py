@@ -56,12 +56,18 @@ class RepositoryAssessment:
         }
 
     def assess_module(self, module_name: str, module_path: Path) -> dict[str, Any]:
-        source_files = _python_files(module_path / "src") if (module_path / "src").exists() else []
-        test_files = [
-            path
-            for path in _python_files(module_path / "tests")
-            if path.name.startswith("test_") or path.name.endswith("_test.py")
-        ] if (module_path / "tests").exists() else []
+        source_files = (
+            _python_files(module_path / "src") if (module_path / "src").exists() else []
+        )
+        test_files = (
+            [
+                path
+                for path in _python_files(module_path / "tests")
+                if path.name.startswith("test_") or path.name.endswith("_test.py")
+            ]
+            if (module_path / "tests").exists()
+            else []
+        )
         h3_runtime = any(
             "import h3" in path.read_text(encoding="utf-8", errors="ignore")
             or "from h3" in path.read_text(encoding="utf-8", errors="ignore")
@@ -70,12 +76,17 @@ class RepositoryAssessment:
         )
         pyproject = module_path / "pyproject.toml"
         requirements = list(module_path.glob("requirements*.txt"))
-        dependency_text = "\n".join(
-            [pyproject.read_text(encoding="utf-8", errors="ignore")]
-            if pyproject.exists()
-            else []
-        ) + "\n" + "\n".join(
-            path.read_text(encoding="utf-8", errors="ignore") for path in requirements
+        dependency_text = (
+            "\n".join(
+                [pyproject.read_text(encoding="utf-8", errors="ignore")]
+                if pyproject.exists()
+                else []
+            )
+            + "\n"
+            + "\n".join(
+                path.read_text(encoding="utf-8", errors="ignore")
+                for path in requirements
+            )
         )
         return {
             "module": module_name,
@@ -94,16 +105,11 @@ class RepositoryAssessment:
 
     def generate_report(self) -> dict[str, Any]:
         details = {
-            name: self.assess_module(name, path)
-            for name, path in self.modules.items()
+            name: self.assess_module(name, path) for name, path in self.modules.items()
         }
-        h3_modules = [
-            name for name, detail in details.items() if detail["h3_runtime"]
-        ]
+        h3_modules = [name for name, detail in details.items() if detail["h3_runtime"]]
         missing_h3_contract = [
-            name
-            for name in h3_modules
-            if not details[name]["h3_dependency_contract"]
+            name for name in h3_modules if not details[name]["h3_dependency_contract"]
         ]
         return {
             "schema_version": 2,
@@ -175,7 +181,9 @@ class RepositoryAssessment:
             )
         return "\n".join(lines) + "\n"
 
-    def save_report(self, report: dict[str, Any], output: Path | None = None) -> tuple[Path, Path]:
+    def save_report(
+        self, report: dict[str, Any], output: Path | None = None
+    ) -> tuple[Path, Path]:
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
         output = output or (
             self.project_root
@@ -208,7 +216,9 @@ def main() -> int:
     report = assessor.generate_report()
     json_path, markdown_path = assessor.save_report(
         report,
-        (PROJECT_ROOT / args.output) if args.output and not args.output.is_absolute() else args.output,
+        (PROJECT_ROOT / args.output)
+        if args.output and not args.output.is_absolute()
+        else args.output,
     )
     print(json_path)
     print(markdown_path)

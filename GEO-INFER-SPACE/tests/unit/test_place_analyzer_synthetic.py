@@ -16,12 +16,8 @@ class TestSyntheticDemoMode:
     def test_synthetic_data_is_labelled(self, analyzer):
         results = analyzer.analyze_place("Demo", (40.7128, -74.0060), radius_km=5)
         assert results["synthetic"] is True
-        assert (
-            results["environmental_factors"]["data_provenance"] == "synthetic_demo"
-        )
-        assert (
-            results["accessibility_metrics"]["data_provenance"] == "synthetic_demo"
-        )
+        assert results["environmental_factors"]["data_provenance"] == "synthetic_demo"
+        assert results["accessibility_metrics"]["data_provenance"] == "synthetic_demo"
 
     def test_synthetic_mode_logs_warning(self, analyzer, caplog):
         with caplog.at_level(logging.WARNING, logger="geo_infer_space.place_analyzer"):

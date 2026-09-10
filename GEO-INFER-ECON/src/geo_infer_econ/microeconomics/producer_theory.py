@@ -18,6 +18,7 @@ from scipy.optimize import minimize
 @dataclass
 class FirmProfile:
     """Profile of a firm for producer theory analysis"""
+
     firm_id: str
     location: Tuple[float, float]
     inputs: Dict[str, float]  # input quantities
@@ -51,7 +52,9 @@ class ProductionFunctions:
         return float(np.prod(np.power(inputs, alpha)))
 
     @staticmethod
-    def ces_production(inputs: np.ndarray, alpha: np.ndarray, rho: float, A: float = 1.0) -> float:
+    def ces_production(
+        inputs: np.ndarray, alpha: np.ndarray, rho: float, A: float = 1.0
+    ) -> float:
         """
         Constant Elasticity of Substitution production function
 
@@ -68,7 +71,7 @@ class ProductionFunctions:
             return ProductionFunctions.cobb_douglas(inputs, alpha) * A
 
         ces_sum = np.sum(alpha * np.power(inputs, rho))
-        return A * np.power(ces_sum, 1/rho) if ces_sum > 0 else 0
+        return A * np.power(ces_sum, 1 / rho) if ces_sum > 0 else 0
 
     @staticmethod
     def translog_production(inputs: np.ndarray, beta: np.ndarray) -> float:
@@ -88,7 +91,7 @@ class ProductionFunctions:
 
         # Linear terms
         for i in range(n):
-            log_q += beta[i+1] * inputs[i]
+            log_q += beta[i + 1] * inputs[i]
 
         # Quadratic terms
         idx = n + 1
@@ -127,8 +130,12 @@ class CostMinimization:
         )
         self.parameters: Dict[str, Any] = {}
 
-    def minimize_cost(self, output_target: float, input_prices: np.ndarray,
-                     production_params: Dict[str, Any]) -> Dict[str, Any]:
+    def minimize_cost(
+        self,
+        output_target: float,
+        input_prices: np.ndarray,
+        production_params: Dict[str, Any],
+    ) -> Dict[str, Any]:
         """
         Solve cost minimization problem
 
@@ -148,7 +155,9 @@ class CostMinimization:
                 return 1e10  # Penalty for negative inputs
 
             # Check if production meets target
-            actual_output = self.production_function(inputs, production_params.get('alpha', np.ones(n_inputs)/n_inputs))
+            actual_output = self.production_function(
+                inputs, production_params.get("alpha", np.ones(n_inputs) / n_inputs)
+            )
 
             if actual_output < output_target:
                 return 1e10  # Penalty for not meeting output target
@@ -157,34 +166,46 @@ class CostMinimization:
 
         def production_constraint(inputs: np.ndarray) -> float:
             """Constraint: output >= target"""
-            return self.production_function(inputs, production_params.get('alpha', np.ones(n_inputs)/n_inputs)) - output_target
+            return (
+                self.production_function(
+                    inputs, production_params.get("alpha", np.ones(n_inputs) / n_inputs)
+                )
+                - output_target
+            )
 
         # Initial guess
-        alpha = production_params.get('alpha', np.ones(n_inputs)/n_inputs)
-        initial_inputs = np.array([output_target / (alpha[i] * n_inputs) for i in range(n_inputs)])
+        alpha = production_params.get("alpha", np.ones(n_inputs) / n_inputs)
+        initial_inputs = np.array(
+            [output_target / (alpha[i] * n_inputs) for i in range(n_inputs)]
+        )
 
         # Constraints
-        constraints = {'type': 'ineq', 'fun': production_constraint}
+        constraints = {"type": "ineq", "fun": production_constraint}
 
         # Bounds (non-negative inputs)
         bounds = [(1e-6, None) for _ in range(n_inputs)]
 
         # Optimize
-        result = minimize(cost_function, initial_inputs, method='SLSQP',
-                         bounds=bounds, constraints=constraints)
+        result = minimize(
+            cost_function,
+            initial_inputs,
+            method="SLSQP",
+            bounds=bounds,
+            constraints=constraints,
+        )
 
         if result.success:
             optimal_inputs = result.x
             min_cost = np.sum(input_prices * optimal_inputs)
 
             return {
-                'optimal_inputs': optimal_inputs,
-                'minimum_cost': min_cost,
-                'output_achieved': self.production_function(optimal_inputs, alpha),
-                'success': True
+                "optimal_inputs": optimal_inputs,
+                "minimum_cost": min_cost,
+                "output_achieved": self.production_function(optimal_inputs, alpha),
+                "success": True,
             }
         else:
-            return {'success': False, 'message': result.message}
+            return {"success": False, "message": result.message}
 
 
 class TechnicalEfficiency:
@@ -195,7 +216,9 @@ class TechnicalEfficiency:
     def __init__(self) -> None:
         self.efficiency_scores: Dict[str, float] = {}
 
-    def data_envelopment_analysis(self, inputs: np.ndarray, outputs: np.ndarray) -> np.ndarray:
+    def data_envelopment_analysis(
+        self, inputs: np.ndarray, outputs: np.ndarray
+    ) -> np.ndarray:
         """
         Calculate technical efficiency using Data Envelopment Analysis (DEA)
 
@@ -216,7 +239,9 @@ class TechnicalEfficiency:
 
         return efficiency_scores
 
-    def _solve_dea_lp(self, target_firm: int, inputs: np.ndarray, outputs: np.ndarray) -> float:
+    def _solve_dea_lp(
+        self, target_firm: int, inputs: np.ndarray, outputs: np.ndarray
+    ) -> float:
         """Solve DEA linear programming problem for a single firm"""
 
         # DEA model (simplified - would use proper LP solver in practice)
@@ -247,7 +272,9 @@ class ProducerTheoryModels:
         self.cost_minimization = CostMinimization()
         self.efficiency_analysis = TechnicalEfficiency()
 
-    def analyze_production_possibilities(self, firms: List[FirmProfile]) -> Dict[str, Any]:
+    def analyze_production_possibilities(
+        self, firms: List[FirmProfile]
+    ) -> Dict[str, Any]:
         """
         Analyze production possibilities frontier for multiple firms
 
@@ -262,27 +289,37 @@ class ProducerTheoryModels:
         outputs_data = []
 
         for firm in firms:
-            inputs_data.append([firm.inputs.get(f'input_{i}', 0) for i in range(2)])  # Simplified to 2 inputs
-            outputs_data.append([firm.outputs.get('output_1', 0)])
+            inputs_data.append(
+                [firm.inputs.get(f"input_{i}", 0) for i in range(2)]
+            )  # Simplified to 2 inputs
+            outputs_data.append([firm.outputs.get("output_1", 0)])
 
         inputs = np.array(inputs_data)
         outputs = np.array(outputs_data)
 
         # Calculate efficiency scores
-        efficiency_scores = self.efficiency_analysis.data_envelopment_analysis(inputs, outputs)
+        efficiency_scores = self.efficiency_analysis.data_envelopment_analysis(
+            inputs, outputs
+        )
 
         # Find production frontier
         frontier_indices = efficiency_scores >= 0.95  # Firms on the frontier
 
         return {
-            'efficiency_scores': efficiency_scores,
-            'frontier_firms': [firms[i].firm_id for i in range(len(firms)) if frontier_indices[i]],
-            'average_efficiency': np.mean(efficiency_scores),
-            'efficiency_distribution': np.histogram(efficiency_scores, bins=10)
+            "efficiency_scores": efficiency_scores,
+            "frontier_firms": [
+                firms[i].firm_id for i in range(len(firms)) if frontier_indices[i]
+            ],
+            "average_efficiency": np.mean(efficiency_scores),
+            "efficiency_distribution": np.histogram(efficiency_scores, bins=10),
         }
 
-    def calculate_cost_function(self, output_level: float, input_prices: np.ndarray,
-                              production_params: Dict[str, Any]) -> Dict[str, Any]:
+    def calculate_cost_function(
+        self,
+        output_level: float,
+        input_prices: np.ndarray,
+        production_params: Dict[str, Any],
+    ) -> Dict[str, Any]:
         """
         Calculate cost function for given output level
 
@@ -299,19 +336,19 @@ class ProducerTheoryModels:
             output_level, input_prices, production_params
         )
 
-        if cost_result['success']:
+        if cost_result["success"]:
             # Calculate average and marginal costs
-            min_cost = cost_result['minimum_cost']
+            min_cost = cost_result["minimum_cost"]
             marginal_cost = min_cost / output_level if output_level > 0 else 0
 
             # Scale economies (returns to scale)
             # This would require more sophisticated analysis
 
             return {
-                'minimum_cost': min_cost,
-                'marginal_cost': marginal_cost,
-                'optimal_inputs': cost_result['optimal_inputs'],
-                'average_cost': min_cost / output_level
+                "minimum_cost": min_cost,
+                "marginal_cost": marginal_cost,
+                "optimal_inputs": cost_result["optimal_inputs"],
+                "average_cost": min_cost / output_level,
             }
         else:
-            return {'success': False, 'message': cost_result['message']}
+            return {"success": False, "message": cost_result["message"]}

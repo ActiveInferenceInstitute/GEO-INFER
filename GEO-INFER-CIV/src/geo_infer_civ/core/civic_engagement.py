@@ -13,6 +13,7 @@ from enum import Enum
 
 class MeetingType(Enum):
     """Types of civic meetings."""
+
     CITY_COUNCIL = "city_council"
     PLANNING_COMMISSION = "planning_commission"
     PUBLIC_HEARING = "public_hearing"
@@ -24,6 +25,7 @@ class MeetingType(Enum):
 
 class CommentCategory(Enum):
     """Categories for public comments."""
+
     SUPPORT = "support"
     OPPOSITION = "opposition"
     QUESTION = "question"
@@ -35,6 +37,7 @@ class CommentCategory(Enum):
 @dataclass
 class MeetingRecord:
     """Record of attendance at a civic meeting."""
+
     meeting_id: str
     meeting_type: MeetingType
     date: float
@@ -49,6 +52,7 @@ class MeetingRecord:
 @dataclass
 class PublicComment:
     """A single public comment record."""
+
     comment_id: str
     meeting_id: str
     category: CommentCategory
@@ -62,6 +66,7 @@ class PublicComment:
 @dataclass
 class AttendanceTrend:
     """Attendance trend analysis result."""
+
     average_attendance: float
     attendance_rate: float
     trend_direction: str
@@ -74,6 +79,7 @@ class AttendanceTrend:
 @dataclass
 class CommentAnalysis:
     """Analysis of public comments."""
+
     total_comments: int
     category_distribution: Dict[str, float]
     average_word_count: float
@@ -143,7 +149,9 @@ class AttendanceTracker:
         total_actual = sum(m.actual_attendees for m in sorted_meetings)
         total_registered = sum(m.registered_attendees for m in sorted_meetings)
         avg_attendance = total_actual / len(sorted_meetings)
-        attendance_rate = total_actual / total_registered if total_registered > 0 else 0.0
+        attendance_rate = (
+            total_actual / total_registered if total_registered > 0 else 0.0
+        )
 
         # Linear regression for trend
         n = len(sorted_meetings)
@@ -329,16 +337,20 @@ class PublicCommentAnalyzer:
 
         # Engagement depth score
         category_diversity = self._shannon_entropy(list(cat_counts.values()))
-        max_category_entropy = math.log2(len(CommentCategory)) if len(CommentCategory) > 1 else 1.0
-        normalized_diversity = category_diversity / max_category_entropy if max_category_entropy > 0 else 0.0
+        max_category_entropy = (
+            math.log2(len(CommentCategory)) if len(CommentCategory) > 1 else 1.0
+        )
+        normalized_diversity = (
+            category_diversity / max_category_entropy
+            if max_category_entropy > 0
+            else 0.0
+        )
 
         length_score = min(avg_word_count / 200.0, 1.0)
         submitter_ratio = unique_submitters / total if total > 0 else 0.0
 
         engagement_depth = (
-            0.4 * normalized_diversity
-            + 0.3 * length_score
-            + 0.3 * submitter_ratio
+            0.4 * normalized_diversity + 0.3 * length_score + 0.3 * submitter_ratio
         )
 
         return CommentAnalysis(
@@ -398,16 +410,20 @@ class VoterTurnoutModel:
             is_contested: Whether the election was contested.
             media_coverage_score: Media attention level (0-1).
         """
-        self._turnout_records.append({
-            "election_id": election_id,
-            "eligible_voters": eligible_voters,
-            "actual_voters": actual_voters,
-            "turnout_rate": actual_voters / eligible_voters if eligible_voters > 0 else 0.0,
-            "election_type": election_type,
-            "date": date,
-            "is_contested": is_contested,
-            "media_coverage_score": media_coverage_score,
-        })
+        self._turnout_records.append(
+            {
+                "election_id": election_id,
+                "eligible_voters": eligible_voters,
+                "actual_voters": actual_voters,
+                "turnout_rate": actual_voters / eligible_voters
+                if eligible_voters > 0
+                else 0.0,
+                "election_type": election_type,
+                "date": date,
+                "is_contested": is_contested,
+                "media_coverage_score": media_coverage_score,
+            }
+        )
 
     def compute_average_turnout(
         self,
@@ -463,27 +479,39 @@ class VoterTurnoutModel:
             raise ValueError("No historical data available for prediction")
 
         # Baseline: average for this election type
-        type_records = [r for r in self._turnout_records if r["election_type"] == election_type]
+        type_records = [
+            r for r in self._turnout_records if r["election_type"] == election_type
+        ]
         if type_records:
             base_rate = sum(r["turnout_rate"] for r in type_records) / len(type_records)
         else:
-            base_rate = sum(r["turnout_rate"] for r in self._turnout_records) / len(self._turnout_records)
+            base_rate = sum(r["turnout_rate"] for r in self._turnout_records) / len(
+                self._turnout_records
+            )
 
         # Adjustment factors
         contest_adjustment = 0.0
         contested_records = [r for r in self._turnout_records if r["is_contested"]]
-        uncontested_records = [r for r in self._turnout_records if not r["is_contested"]]
+        uncontested_records = [
+            r for r in self._turnout_records if not r["is_contested"]
+        ]
 
         if contested_records and uncontested_records:
-            contested_avg = sum(r["turnout_rate"] for r in contested_records) / len(contested_records)
-            uncontested_avg = sum(r["turnout_rate"] for r in uncontested_records) / len(uncontested_records)
+            contested_avg = sum(r["turnout_rate"] for r in contested_records) / len(
+                contested_records
+            )
+            uncontested_avg = sum(r["turnout_rate"] for r in uncontested_records) / len(
+                uncontested_records
+            )
             contest_effect = contested_avg - uncontested_avg
             if not is_contested:
                 contest_adjustment = -abs(contest_effect)
 
         media_adjustment = (media_coverage_score - 0.5) * 0.10
 
-        predicted_rate = max(0.0, min(1.0, base_rate + contest_adjustment + media_adjustment))
+        predicted_rate = max(
+            0.0, min(1.0, base_rate + contest_adjustment + media_adjustment)
+        )
 
         # Confidence based on available data
         n = len(type_records) if type_records else len(self._turnout_records)

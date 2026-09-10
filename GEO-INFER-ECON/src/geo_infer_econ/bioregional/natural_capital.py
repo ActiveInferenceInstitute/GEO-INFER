@@ -59,7 +59,8 @@ class NaturalCapitalAccounting:
         self.unit_values = {**_ASSET_UNIT_VALUES, **self.config.get("unit_values", {})}
         logger.info(
             "NaturalCapitalAccounting initialized: discount_rate=%.2f, horizon=%d yr",
-            self.discount_rate, self.time_horizon,
+            self.discount_rate,
+            self.time_horizon,
         )
 
     def account_assets(self, assets: List[Dict[str, Any]]) -> pd.DataFrame:
@@ -88,7 +89,9 @@ class NaturalCapitalAccounting:
             annual_value = round(area * unit_val * condition, 2)
             npv = round(
                 annual_value
-                * sum(1 / (1 + self.discount_rate) ** t for t in range(self.time_horizon)),
+                * sum(
+                    1 / (1 + self.discount_rate) ** t for t in range(self.time_horizon)
+                ),
                 2,
             )
             projected_condition = min(1.0, max(0.0, condition + trend * 10))
@@ -139,11 +142,36 @@ class EcosystemAssetsValuation:
     """
 
     SERVICE_SHARES: Dict[str, Dict[str, float]] = {
-        "forest": {"provisioning": 0.25, "regulating": 0.40, "cultural": 0.15, "supporting": 0.20},
-        "wetland": {"provisioning": 0.20, "regulating": 0.45, "cultural": 0.10, "supporting": 0.25},
-        "grassland": {"provisioning": 0.35, "regulating": 0.30, "cultural": 0.15, "supporting": 0.20},
-        "coastal": {"provisioning": 0.30, "regulating": 0.35, "cultural": 0.20, "supporting": 0.15},
-        "freshwater": {"provisioning": 0.40, "regulating": 0.25, "cultural": 0.15, "supporting": 0.20},
+        "forest": {
+            "provisioning": 0.25,
+            "regulating": 0.40,
+            "cultural": 0.15,
+            "supporting": 0.20,
+        },
+        "wetland": {
+            "provisioning": 0.20,
+            "regulating": 0.45,
+            "cultural": 0.10,
+            "supporting": 0.25,
+        },
+        "grassland": {
+            "provisioning": 0.35,
+            "regulating": 0.30,
+            "cultural": 0.15,
+            "supporting": 0.20,
+        },
+        "coastal": {
+            "provisioning": 0.30,
+            "regulating": 0.35,
+            "cultural": 0.20,
+            "supporting": 0.15,
+        },
+        "freshwater": {
+            "provisioning": 0.40,
+            "regulating": 0.25,
+            "cultural": 0.15,
+            "supporting": 0.20,
+        },
     }
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
@@ -175,7 +203,15 @@ class EcosystemAssetsValuation:
             unit_val = self.unit_values.get(a_type, 1000.0)
             total_val = area * unit_val * condition
 
-            shares = self.SERVICE_SHARES.get(a_type, {"provisioning": 0.25, "regulating": 0.35, "cultural": 0.15, "supporting": 0.25})
+            shares = self.SERVICE_SHARES.get(
+                a_type,
+                {
+                    "provisioning": 0.25,
+                    "regulating": 0.35,
+                    "cultural": 0.15,
+                    "supporting": 0.25,
+                },
+            )
             for service, share in shares.items():
                 totals[service] += total_val * share
             totals["total"] += total_val
@@ -197,8 +233,12 @@ class BiodiversityCredits:
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
         self.credit_price = float(self.config.get("credit_price", 25.0))  # USD per unit
-        self.baseline_species_per_ha = float(self.config.get("baseline_species_per_ha", 50.0))
-        logger.info("BiodiversityCredits initialized: price=$%.2f/unit", self.credit_price)
+        self.baseline_species_per_ha = float(
+            self.config.get("baseline_species_per_ha", 50.0)
+        )
+        logger.info(
+            "BiodiversityCredits initialized: price=$%.2f/unit", self.credit_price
+        )
 
     def calculate_credits(self, biodiversity_data: Dict[str, Any]) -> float:
         """Calculate biodiversity credits for a site.
@@ -231,7 +271,10 @@ class BiodiversityCredits:
 
         logger.info(
             "Biodiversity credits: %.2f units for %.1f ha (species_ratio=%.2f, quality=%.2f)",
-            credits, area, species_ratio, quality_multiplier,
+            credits,
+            area,
+            species_ratio,
+            quality_multiplier,
         )
         return credits
 
@@ -257,7 +300,11 @@ class CarbonAccounting:
         self.co2_factor = 3.667  # tCO2 per tC
         self.market = self.config.get("carbon_market", "voluntary")
         self.carbon_price = _CARBON_PRICES.get(self.market, 12.0)
-        logger.info("CarbonAccounting initialized: market=%s, price=$%.2f/tCO2e", self.market, self.carbon_price)
+        logger.info(
+            "CarbonAccounting initialized: market=%s, price=$%.2f/tCO2e",
+            self.market,
+            self.carbon_price,
+        )
 
     def account_carbon(self, carbon_data: Dict[str, Any]) -> pd.DataFrame:
         """Account for carbon stocks and flows across ecosystem parcels.
@@ -306,7 +353,8 @@ class CarbonAccounting:
         df = pd.DataFrame(rows)
         logger.info(
             "Total carbon stock: %.2f tC, value: $%.2f",
-            df["carbon_stock_tC"].sum(), df["monetary_value_usd"].sum(),
+            df["carbon_stock_tC"].sum(),
+            df["monetary_value_usd"].sum(),
         )
         return df
 
@@ -320,17 +368,40 @@ class WaterResourceAccounting:
 
     # Default hydrological coefficients by land cover
     HYDRO_COEFFICIENTS: Dict[str, Dict[str, float]] = {
-        "forest": {"et_fraction": 0.55, "runoff_fraction": 0.20, "recharge_fraction": 0.25},
-        "wetland": {"et_fraction": 0.65, "runoff_fraction": 0.10, "recharge_fraction": 0.25},
-        "grassland": {"et_fraction": 0.50, "runoff_fraction": 0.30, "recharge_fraction": 0.20},
-        "cropland": {"et_fraction": 0.45, "runoff_fraction": 0.35, "recharge_fraction": 0.20},
-        "urban": {"et_fraction": 0.15, "runoff_fraction": 0.75, "recharge_fraction": 0.10},
+        "forest": {
+            "et_fraction": 0.55,
+            "runoff_fraction": 0.20,
+            "recharge_fraction": 0.25,
+        },
+        "wetland": {
+            "et_fraction": 0.65,
+            "runoff_fraction": 0.10,
+            "recharge_fraction": 0.25,
+        },
+        "grassland": {
+            "et_fraction": 0.50,
+            "runoff_fraction": 0.30,
+            "recharge_fraction": 0.20,
+        },
+        "cropland": {
+            "et_fraction": 0.45,
+            "runoff_fraction": 0.35,
+            "recharge_fraction": 0.20,
+        },
+        "urban": {
+            "et_fraction": 0.15,
+            "runoff_fraction": 0.75,
+            "recharge_fraction": 0.10,
+        },
     }
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
         self.water_price = float(self.config.get("water_price_per_m3", 0.50))  # USD/m³
-        logger.info("WaterResourceAccounting initialized: water_price=$%.2f/m³", self.water_price)
+        logger.info(
+            "WaterResourceAccounting initialized: water_price=$%.2f/m³",
+            self.water_price,
+        )
 
     def account_water(self, water_data: Dict[str, Any]) -> pd.DataFrame:
         """Account for water resources using a catchment water balance.
@@ -357,7 +428,12 @@ class WaterResourceAccounting:
             demand = float(c.get("water_demand_m3", 0.0))
 
             coeffs = self.HYDRO_COEFFICIENTS.get(
-                c_type, {"et_fraction": 0.45, "runoff_fraction": 0.30, "recharge_fraction": 0.25}
+                c_type,
+                {
+                    "et_fraction": 0.45,
+                    "runoff_fraction": 0.30,
+                    "recharge_fraction": 0.25,
+                },
             )
 
             # Convert precip to m³ (1 mm over 1 ha = 10 m³)
@@ -388,6 +464,7 @@ class WaterResourceAccounting:
         df = pd.DataFrame(rows)
         logger.info(
             "Total available water: %.2f m³, value: $%.2f",
-            df["available_m3"].sum(), df["water_value_usd"].sum(),
+            df["available_m3"].sum(),
+            df["water_value_usd"].sum(),
         )
         return df

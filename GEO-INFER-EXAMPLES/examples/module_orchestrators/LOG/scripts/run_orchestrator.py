@@ -51,11 +51,9 @@ def _operation() -> Dict[str, Any]:
     def _add_road(u: str, v: str) -> None:
         u_lon, u_lat = node_coords[u]
         v_lon, v_lat = node_coords[v]
-        distance_km = (
-            math.hypot(
-                (v_lon - u_lon) * math.cos(math.radians(u_lat)) * 111.32,
-                (v_lat - u_lat) * 110.57,
-            )
+        distance_km = math.hypot(
+            (v_lon - u_lon) * math.cos(math.radians(u_lat)) * 111.32,
+            (v_lat - u_lat) * 110.57,
         )
         speed_kmh = float(rng.uniform(35.0, 55.0))
         graph.add_edge(

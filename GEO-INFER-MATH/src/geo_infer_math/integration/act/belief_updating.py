@@ -71,7 +71,7 @@ class BeliefUpdating:
             log_evidence = np.log(likelihood.T @ obs_normalised + self._epsilon)
         else:
             # Use observations directly as log-evidence
-            log_evidence = new_observations[:len(prior)]
+            log_evidence = new_observations[: len(prior)]
 
         # Precision-weighted log posterior
         log_posterior = np.log(prior + self._epsilon) + precision * log_evidence
@@ -82,18 +82,22 @@ class BeliefUpdating:
         # Prediction error: difference between predicted and actual observations
         if likelihood is not None:
             predicted_obs = likelihood @ prior
-            prediction_error = new_observations - predicted_obs[:len(new_observations)]
+            prediction_error = new_observations - predicted_obs[: len(new_observations)]
         else:
             prediction_error = log_evidence - np.log(prior + self._epsilon)
 
         # KL divergence between posterior and prior
-        kl_change = float(np.sum(
-            posterior * np.log((posterior + self._epsilon) / (prior + self._epsilon))
-        ))
+        kl_change = float(
+            np.sum(
+                posterior
+                * np.log((posterior + self._epsilon) / (prior + self._epsilon))
+            )
+        )
 
         logger.debug(
             "Belief update: KL change=%.4f, precision=%.2f",
-            kl_change, precision,
+            kl_change,
+            precision,
         )
 
         return {
@@ -135,7 +139,8 @@ class BeliefUpdating:
 
         logger.debug(
             "Precision-weighted update: learning_rate=%.4f, max_error=%.4f",
-            learning_rate, float(np.max(np.abs(prediction_errors))),
+            learning_rate,
+            float(np.max(np.abs(prediction_errors))),
         )
         return cast(np.ndarray, updated)
 

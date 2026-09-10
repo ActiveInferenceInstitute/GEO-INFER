@@ -38,9 +38,7 @@ class GeoInferOwnership(BaseAnalysisModule):
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.target_hexagons = backend.target_hexagons
         self.data_source = CascadianOwnershipDataSources()
-        logger.info(
-            "Initialized GeoInferOwnership module with real OSC H3 v4 integration."
-        )
+        logger.info("Initialized GeoInferOwnership module with real OSC H3 v4 integration.")
 
     def acquire_raw_data(self) -> Path:
         """
@@ -57,9 +55,7 @@ class GeoInferOwnership(BaseAnalysisModule):
                 empirical_data_path = paths["empirical_data"]
                 raw_data_path = paths["raw_data"]
             else:
-                empirical_data_path = Path(
-                    "output/data/empirical_ownership_data.geojson"
-                )
+                empirical_data_path = Path("output/data/empirical_ownership_data.geojson")
                 raw_data_path = Path("output/data/raw_ownership_data.geojson")
         except Exception:
             empirical_data_path = Path("output/data/empirical_ownership_data.geojson")
@@ -104,12 +100,8 @@ class GeoInferOwnership(BaseAnalysisModule):
 
         # Load real ownership data for spatial analysis
         try:
-            ownership_gdf = gpd.read_file(
-                self.data_dir / "empirical_ownership_data.geojson"
-            )
-            logger.info(
-                f"Loaded {len(ownership_gdf)} real ownership features for analysis"
-            )
+            ownership_gdf = gpd.read_file(self.data_dir / "empirical_ownership_data.geojson")
+            logger.info(f"Loaded {len(ownership_gdf)} real ownership features for analysis")
         except Exception as e:
             logger.error(f"Failed to load real ownership data: {e}")
             return {}
@@ -120,14 +112,10 @@ class GeoInferOwnership(BaseAnalysisModule):
             try:
                 # Get hexagon boundary using real H3 v4 methods
                 hex_boundary = h3.cell_to_boundary(h3_id)
-                hex_polygon = Polygon(
-                    [(lng, lat) for lat, lng in hex_boundary]
-                )
+                hex_polygon = Polygon([(lng, lat) for lat, lng in hex_boundary])
 
                 # Find intersecting ownership features using real spatial analysis
-                intersecting_features = ownership_gdf[
-                    ownership_gdf.intersects(hex_polygon)
-                ]
+                intersecting_features = ownership_gdf[ownership_gdf.intersects(hex_polygon)]
 
                 if len(intersecting_features) == 0:
                     # No ownership data for this hexagon
@@ -151,28 +139,18 @@ class GeoInferOwnership(BaseAnalysisModule):
 
                 analysis_results[h3_id] = {
                     "ownership_concentration_hhi": ownership_metrics.get("hhi", 0.0),
-                    "largest_owner_share_pct": ownership_metrics.get(
-                        "largest_share", 0.0
-                    ),
-                    "number_of_unique_owners": ownership_metrics.get(
-                        "unique_owners", 0
-                    ),
+                    "largest_owner_share_pct": ownership_metrics.get("largest_share", 0.0),
+                    "number_of_unique_owners": ownership_metrics.get("unique_owners", 0),
                     "number_of_parcels": ownership_metrics.get("parcel_count", 0),
-                    "average_parcel_size_acres": ownership_metrics.get(
-                        "avg_parcel_size", 0.0
-                    ),
+                    "average_parcel_size_acres": ownership_metrics.get("avg_parcel_size", 0.0),
                     "total_parcel_area_acres": ownership_metrics.get("total_area", 0.0),
                     "score": ownership_metrics.get("redevelopment_score", 0.0),
                     "owner_diversity": ownership_metrics.get("owner_diversity", 0.0),
-                    "parcel_fragmentation": ownership_metrics.get(
-                        "parcel_fragmentation", 0.0
-                    ),
+                    "parcel_fragmentation": ownership_metrics.get("parcel_fragmentation", 0.0),
                 }
 
             except Exception as e:
-                logger.error(
-                    f"Real error in ownership analysis for hexagon {h3_id}: {e}"
-                )
+                logger.error(f"Real error in ownership analysis for hexagon {h3_id}: {e}")
                 continue
 
         logger.info(
@@ -241,9 +219,7 @@ class GeoInferOwnership(BaseAnalysisModule):
         largest_share = 0.0
 
         if total_area > 0 and owner_areas:
-            owner_shares = {
-                owner: (area / total_area) * 100 for owner, area in owner_areas.items()
-            }
+            owner_shares = {owner: (area / total_area) * 100 for owner, area in owner_areas.items()}
             hhi = sum(share**2 for share in owner_shares.values())
             largest_share = max(owner_shares.values())
 
@@ -254,9 +230,7 @@ class GeoInferOwnership(BaseAnalysisModule):
 
         # Calculate additional metrics
         owner_diversity = self._calculate_owner_diversity(owner_areas, total_area)
-        parcel_fragmentation = self._calculate_parcel_fragmentation(
-            parcel_count, avg_parcel_size
-        )
+        parcel_fragmentation = self._calculate_parcel_fragmentation(parcel_count, avg_parcel_size)
 
         return {
             "hhi": hhi,
@@ -336,9 +310,7 @@ class GeoInferOwnership(BaseAnalysisModule):
 
         return min(1.0, max(0.0, score))
 
-    def _calculate_owner_diversity(
-        self, owner_areas: Dict[str, float], total_area: float
-    ) -> float:
+    def _calculate_owner_diversity(self, owner_areas: Dict[str, float], total_area: float) -> float:
         """
         Calculate real owner diversity score based on area distribution.
         """
@@ -355,9 +327,7 @@ class GeoInferOwnership(BaseAnalysisModule):
 
         return min(1.0, normalized_diversity)
 
-    def _calculate_parcel_fragmentation(
-        self, parcel_count: int, avg_parcel_size: float
-    ) -> float:
+    def _calculate_parcel_fragmentation(self, parcel_count: int, avg_parcel_size: float) -> float:
         """
         Calculate real parcel fragmentation score.
         """
@@ -380,9 +350,7 @@ class GeoInferOwnership(BaseAnalysisModule):
                 return name
         return None
 
-    def _analyze_ownership_patterns(
-        self, parcels_gdf: gpd.GeoDataFrame
-    ) -> Dict[str, Any]:
+    def _analyze_ownership_patterns(self, parcels_gdf: gpd.GeoDataFrame) -> Dict[str, Any]:
         """
         Analyze ownership patterns in a set of parcels.
 
@@ -404,21 +372,15 @@ class GeoInferOwnership(BaseAnalysisModule):
             }
 
         # Dynamically identify relevant columns
-        owner_col = self._find_col(
-            parcels_gdf, ["owner_name", "OWNERNAME", "OWNER", "PAROWNER"]
-        )
-        area_col = self._find_col(
-            parcels_gdf, ["acreage", "ACRES", "GIS_ACRES", "calca_gis"]
-        )
+        owner_col = self._find_col(parcels_gdf, ["owner_name", "OWNERNAME", "OWNER", "PAROWNER"])
+        area_col = self._find_col(parcels_gdf, ["acreage", "ACRES", "GIS_ACRES", "calca_gis"])
 
         if not area_col:
             # Calculate area from geometry if no area column exists
             try:
                 # Project to equal-area projection for accurate calculation
                 parcels_projected = parcels_gdf.to_crs("EPSG:3310")
-                parcels_gdf["calculated_acres"] = (
-                    parcels_projected.geometry.area * 0.000247105
-                )
+                parcels_gdf["calculated_acres"] = parcels_projected.geometry.area * 0.000247105
                 area_col = "calculated_acres"
             except Exception:
                 # Fallback to rough area calculation

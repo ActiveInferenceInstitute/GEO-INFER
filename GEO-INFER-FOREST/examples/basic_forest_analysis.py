@@ -47,8 +47,10 @@ def main():
         attrs={"units": "trees/ha"},
     )
     biomass = inventory.estimate_biomass(forest_cover, tree_density)
-    print(f"Estimated biomass (t/ha): {float(biomass.mean()):.1f} mean, "
-          f"{float(biomass.min()):.1f}-{float(biomass.max()):.1f} range")
+    print(
+        f"Estimated biomass (t/ha): {float(biomass.mean()):.1f} mean, "
+        f"{float(biomass.min()):.1f}-{float(biomass.max()):.1f} range"
+    )
 
     # 2. Model carbon stock and sequestration value
     print("\n2. Modeling Carbon Sequestration")
@@ -87,9 +89,11 @@ def main():
     risk_result = wildfire.assess_wildfire_risk(
         temperature, precipitation, fuel_load=biomass
     )
-    print(f"Mean wildfire risk: {float(risk_result['wildfire_risk'].mean()):.3f} "
-          f"(range {float(risk_result['wildfire_risk'].min()):.3f}-"
-          f"{float(risk_result['wildfire_risk'].max()):.3f})")
+    print(
+        f"Mean wildfire risk: {float(risk_result['wildfire_risk'].mean()):.3f} "
+        f"(range {float(risk_result['wildfire_risk'].min()):.3f}-"
+        f"{float(risk_result['wildfire_risk'].max()):.3f})"
+    )
     print(f"Mean drought index: {float(risk_result['drought_index'].mean()):.3f}")
 
     print("\n" + "=" * 50)

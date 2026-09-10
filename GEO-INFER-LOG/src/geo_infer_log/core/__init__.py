@@ -47,22 +47,19 @@ __all__ = [
     "FleetManager",
     "VehicleRouter",
     "TravelTimeEstimator",
-    
     # Supply chain modeling
     "SupplyChainModel",
     "ResilienceAnalyzer",
     "NetworkOptimizer",
     "FacilityLocator",
     "InventoryManager",
-    
     # Last-mile delivery
     "LastMileRouter",
     "DeliveryScheduler",
     "ServiceAreaAnalyzer",
-    
     # Transportation planning
     "MultiModalPlanner",
     "TransportationNetworkAnalyzer",
     "TrafficSimulator",
     "EmissionsCalculator",
-] 
+]

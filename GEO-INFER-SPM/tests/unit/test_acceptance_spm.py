@@ -36,16 +36,19 @@ from geo_infer_spm.models.data_models import (
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _make_spm_data(n: int = 20, seed: int = 42) -> tuple:
     """Create synthetic SPMData + DesignMatrix for OLS fitting."""
     rng = np.random.default_rng(seed=seed)
     x = rng.uniform(0, 10, n)
     # True model: y = 2 + 0.5*x + noise
     y = 2.0 + 0.5 * x + rng.normal(0, 0.1, n)
-    coords = np.column_stack([
-        rng.uniform(-90, 90, n),    # latitudes
-        rng.uniform(-180, 180, n),  # longitudes
-    ])
+    coords = np.column_stack(
+        [
+            rng.uniform(-90, 90, n),  # latitudes
+            rng.uniform(-180, 180, n),  # longitudes
+        ]
+    )
     data = SPMData(data=y, coordinates=coords)
     # Design matrix: [intercept, x]
     X = np.column_stack([np.ones(n), x])
@@ -57,6 +60,7 @@ def _make_spm_data(n: int = 20, seed: int = 42) -> tuple:
 # SPMData / DesignMatrix data models
 # ---------------------------------------------------------------------------
 
+
 class TestSPMDataModels:
     """Acceptance: core data model construction and validation."""
 
@@ -66,10 +70,12 @@ class TestSPMDataModels:
         n = 10
         data = SPMData(
             data=rng.standard_normal(n),
-            coordinates=np.column_stack([
-                rng.uniform(-90, 90, n),
-                rng.uniform(-180, 180, n),
-            ]),
+            coordinates=np.column_stack(
+                [
+                    rng.uniform(-90, 90, n),
+                    rng.uniform(-180, 180, n),
+                ]
+            ),
         )
         assert data.n_points == n
         assert data.has_temporal is False
@@ -97,10 +103,12 @@ class TestSPMDataModels:
         n = 5
         original = SPMData(
             data=rng.standard_normal(n),
-            coordinates=np.column_stack([
-                rng.uniform(-90, 90, n),
-                rng.uniform(-180, 180, n),
-            ]),
+            coordinates=np.column_stack(
+                [
+                    rng.uniform(-90, 90, n),
+                    rng.uniform(-180, 180, n),
+                ]
+            ),
             metadata={"source": "test"},
             crs="EPSG:3857",
         )
@@ -116,6 +124,7 @@ class TestSPMDataModels:
 # ---------------------------------------------------------------------------
 # GeneralLinearModel fitting
 # ---------------------------------------------------------------------------
+
 
 class TestGeneralLinearModel:
     """Acceptance: GLM fitting, diagnostics, and prediction."""
@@ -212,6 +221,7 @@ class TestGeneralLinearModel:
 # Contrast specification and testing
 # ---------------------------------------------------------------------------
 
+
 class TestContrast:
     """Acceptance: contrast string parsing and t/F-contrast computation."""
 
@@ -276,6 +286,7 @@ class TestContrast:
 # Random Field Theory
 # ---------------------------------------------------------------------------
 
+
 class TestRandomFieldTheory:
     """Acceptance: RFT smoothness estimation and correction."""
 
@@ -323,6 +334,7 @@ class TestRandomFieldTheory:
 # ---------------------------------------------------------------------------
 # compute_spm multiple comparison corrections
 # ---------------------------------------------------------------------------
+
 
 class TestComputeSPM:
     """Acceptance: multiple comparison correction methods."""
@@ -385,10 +397,12 @@ def _make_contrast_result_spm(cr: ContrastResult) -> SPMResult:
     rng = np.random.default_rng(seed=40)
     data = SPMData(
         data=rng.standard_normal(n),
-        coordinates=np.column_stack([
-            rng.uniform(-90, 90, n),
-            rng.uniform(-180, 180, n),
-        ]),
+        coordinates=np.column_stack(
+            [
+                rng.uniform(-90, 90, n),
+                rng.uniform(-180, 180, n),
+            ]
+        ),
     )
     X = np.column_stack([np.ones(n), rng.uniform(0, 10, n)])
     design = DesignMatrix(matrix=X, names=["intercept", "x"])

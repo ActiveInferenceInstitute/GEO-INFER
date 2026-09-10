@@ -14,6 +14,7 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
+
 class PerformanceOptimizer:
     """
     Performance optimization utilities for geospatial art generation.
@@ -50,12 +51,13 @@ class PerformanceOptimizer:
         if os.path.exists(metadata_file):
             try:
                 import json
-                with open(metadata_file, 'r') as f:
+
+                with open(metadata_file, "r") as f:
                     metadata = json.load(f)
 
-                self.cache = metadata.get('cache', {})
-                self.cache_timestamps = metadata.get('timestamps', {})
-                self.cache_sizes = metadata.get('sizes', {})
+                self.cache = metadata.get("cache", {})
+                self.cache_timestamps = metadata.get("timestamps", {})
+                self.cache_sizes = metadata.get("sizes", {})
 
                 # Clean up old cache entries
                 self._cleanup_cache()
@@ -72,13 +74,14 @@ class PerformanceOptimizer:
 
         try:
             import json
+
             metadata = {
-                'cache': self.cache,
-                'timestamps': self.cache_timestamps,
-                'sizes': self.cache_sizes
+                "cache": self.cache,
+                "timestamps": self.cache_timestamps,
+                "sizes": self.cache_sizes,
             }
 
-            with open(metadata_file, 'w') as f:
+            with open(metadata_file, "w") as f:
                 json.dump(metadata, f, indent=2)
 
         except Exception:
@@ -91,10 +94,7 @@ class PerformanceOptimizer:
             return
 
         # Sort by timestamp (oldest first)
-        sorted_items = sorted(
-            self.cache_timestamps.items(),
-            key=lambda x: x[1]
-        )
+        sorted_items = sorted(self.cache_timestamps.items(), key=lambda x: x[1])
 
         # Remove oldest entries until under limit
         while len(self.cache) > self.max_cache_size:
@@ -134,7 +134,7 @@ class PerformanceOptimizer:
         func: Callable,
         args: tuple = (),
         kwargs: Optional[dict] = None,
-        cache_key: Optional[str] = None
+        cache_key: Optional[str] = None,
     ) -> Any:
         """
         Execute a function with caching.
@@ -159,7 +159,7 @@ class PerformanceOptimizer:
 
             try:
                 # Load cached result
-                if cache_file.endswith('.npy'):
+                if cache_file.endswith(".npy"):
                     return np.load(cache_file)
                 else:
                     # For other formats, return the file path
@@ -183,10 +183,10 @@ class PerformanceOptimizer:
                 self.cache_timestamps[cache_key] = time.time()
                 self.cache_sizes[cache_key] = result.nbytes
 
-            elif hasattr(result, 'save'):  # PIL Image or matplotlib figure
+            elif hasattr(result, "save"):  # PIL Image or matplotlib figure
                 # Save images
                 cache_file = os.path.join(self.cache_dir, f"{cache_key}.png")
-                result.savefig(cache_file, dpi=150, bbox_inches='tight')
+                result.savefig(cache_file, dpi=150, bbox_inches="tight")
 
                 self.cache[cache_key] = cache_file
                 self.cache_timestamps[cache_key] = time.time()
@@ -215,7 +215,7 @@ class PerformanceOptimizer:
         func: Callable,
         parameter_sets: List[Dict],
         max_workers: Optional[int] = None,
-        progress_callback: Optional[Callable] = None
+        progress_callback: Optional[Callable] = None,
     ) -> List[Any]:
         """
         Execute a function in parallel with different parameter sets.
@@ -262,7 +262,7 @@ class PerformanceOptimizer:
         func: Callable,
         args: tuple = (),
         kwargs: Optional[dict] = None,
-        iterations: int = 10
+        iterations: int = 10,
     ) -> Dict[str, Any]:
         """
         Benchmark a function's performance.
@@ -299,7 +299,7 @@ class PerformanceOptimizer:
             "min": np.min(times),
             "max": np.max(times),
             "median": np.median(times),
-            "iterations": len(times)
+            "iterations": len(times),
         }
 
     def optimize_resolution(
@@ -309,7 +309,7 @@ class PerformanceOptimizer:
         max_resolution: int = 2000,
         test_function: Optional[Callable] = None,
         test_args: tuple = (),
-        test_kwargs: Optional[dict] = None
+        test_kwargs: Optional[dict] = None,
     ) -> int:
         """
         Find optimal resolution for target execution time.
@@ -362,7 +362,7 @@ class PerformanceOptimizer:
         self,
         data: np.ndarray,
         chunk_size: int = 1000,
-        process_function: Optional[Callable] = None
+        process_function: Optional[Callable] = None,
     ) -> np.ndarray:
         """
         Process large arrays in chunks to manage memory usage.
@@ -427,7 +427,7 @@ class PerformanceOptimizer:
                 "cpu_count": os.cpu_count(),
                 "available_memory": self._get_available_memory(),
             },
-            "recommendations": self._generate_recommendations()
+            "recommendations": self._generate_recommendations(),
         }
 
         return report
@@ -436,6 +436,7 @@ class PerformanceOptimizer:
         """Get available system memory in bytes."""
         try:
             import psutil
+
             return int(psutil.virtual_memory().available)
         except ImportError:
             # Fallback for systems without psutil
@@ -448,12 +449,16 @@ class PerformanceOptimizer:
         # Cache recommendations
         cache_usage = len(self.cache) / max(self.max_cache_size, 1)
         if cache_usage < 0.5:
-            recommendations.append("Consider increasing cache size for better performance")
+            recommendations.append(
+                "Consider increasing cache size for better performance"
+            )
         elif cache_usage > 0.9:
-            recommendations.append("Cache is nearly full, consider increasing max_cache_size")
+            recommendations.append(
+                "Cache is nearly full, consider increasing max_cache_size"
+            )
 
         # Memory recommendations
-        if hasattr(self, '_get_available_memory'):
+        if hasattr(self, "_get_available_memory"):
             available_mem = self._get_available_memory()
             if available_mem < 1024 * 1024 * 1024:  # Less than 1GB
                 recommendations.append("Low available memory detected")
@@ -471,15 +476,20 @@ def cache_result(cache_optimizer: PerformanceOptimizer) -> Callable:
     Returns:
         Decorated function
     """
+
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             return cache_optimizer.cached_execution(func, args, kwargs)
+
         return wrapper
+
     return decorator
 
 
-def parallel_map(func: Callable, items: List[Any], max_workers: Optional[int] = None) -> List[Any]:
+def parallel_map(
+    func: Callable, items: List[Any], max_workers: Optional[int] = None
+) -> List[Any]:
     """
     Apply a function to a list of items in parallel.
 
@@ -511,10 +521,12 @@ def time_execution(func: Callable) -> Callable:
     Returns:
         Decorated function that returns (result, execution_time)
     """
+
     @functools.wraps(func)
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         start_time = time.time()
         result = func(*args, **kwargs)
         execution_time = time.time() - start_time
         return result, execution_time
+
     return wrapper

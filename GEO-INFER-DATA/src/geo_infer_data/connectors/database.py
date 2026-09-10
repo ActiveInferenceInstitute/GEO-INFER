@@ -229,9 +229,7 @@ class DatabaseConnector:
         if spatial_filter and enable_geospatial and "bbox" in spatial_filter:
             bbox = spatial_filter["bbox"]
             if len(bbox) >= 4:
-                min_lon, min_lat, max_lon, max_lat = (
-                    float(v) for v in bbox[:4]
-                )
+                min_lon, min_lat, max_lon, max_lat = (float(v) for v in bbox[:4])
                 conditions.append(
                     "ST_Intersects(geom, ST_MakeEnvelope(:min_lon, :min_lat, "
                     ":max_lon, :max_lat, 4326))"
@@ -370,15 +368,12 @@ class DatabaseConnector:
             sql_type = dtype_map.get(col_dtype, "TEXT")
             # Normalise then validate the column name; non-identifier columns
             # are rejected rather than escaped.
-            safe_col = validate_sql_identifier(
-                col.replace(" ", "_").replace("-", "_")
-            )
+            safe_col = validate_sql_identifier(col.replace(" ", "_").replace("-", "_"))
             columns_sql.append(f'"{safe_col}" {sql_type}')
 
         safe_table = validate_sql_identifier(table_name)
         create_stmt = (
-            f"CREATE TABLE IF NOT EXISTS {safe_table} "
-            f"({', '.join(columns_sql)})"
+            f"CREATE TABLE IF NOT EXISTS {safe_table} ({', '.join(columns_sql)})"
         )
 
         try:

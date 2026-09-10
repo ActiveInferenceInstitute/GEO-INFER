@@ -191,9 +191,7 @@ class PersonalizedLearning:
         )
 
         current_skills = list(profile.prior_knowledge)
-        skill_gaps = [
-            c for c in learning_goals if c not in set(current_skills)
-        ]
+        skill_gaps = [c for c in learning_goals if c not in set(current_skills)]
         hours_per_skill = (
             total_hours_budget / len(skill_gaps) if skill_gaps else total_hours_budget
         )
@@ -295,7 +293,9 @@ class PersonalizedLearning:
             )
 
         # Sort by relevance
-        recommendations.sort(key=lambda x: float(x["relevance_score"] or 0), reverse=True)
+        recommendations.sort(
+            key=lambda x: float(x["relevance_score"] or 0), reverse=True
+        )
 
         logger.info(
             f"Generated {len(recommendations)} recommendations for {learner_id}"

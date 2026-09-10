@@ -205,9 +205,7 @@ class PerformanceMetrics:
                 "counters": dict(self.counters),
                 "gauges": dict(self.gauges),
                 "performance_stats": {
-                    op[: -len("_duration")]: self._stats_locked(
-                        op[: -len("_duration")]
-                    )
+                    op[: -len("_duration")]: self._stats_locked(op[: -len("_duration")])
                     for op in list(self.metrics.keys())
                     if op.endswith("_duration")
                 },

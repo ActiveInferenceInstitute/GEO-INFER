@@ -88,6 +88,4 @@ def test_suggest_resolution_with_budget_exceeding() -> None:
     # target_cells above the hard cap means the finest resolution that meets
     # the target also exceeds the safety cap -> refused.
     with pytest.raises(H3HardCapExceededError):
-        suggest_resolution_with_budget(
-            1000.0, target_cells=500_000, hard_cap=200_000
-        )
+        suggest_resolution_with_budget(1000.0, target_cells=500_000, hard_cap=200_000)

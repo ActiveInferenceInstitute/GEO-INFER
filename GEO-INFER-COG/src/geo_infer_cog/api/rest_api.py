@@ -323,7 +323,7 @@ def register_api_routes(app: Any) -> None:
             # Validate spatial data
             validation = validate_spatial_data(source_data)
             if not validation["valid"]:
-                return jsonify({"error": f'Invalid data: {validation["errors"]}'}), 400
+                return jsonify({"error": f"Invalid data: {validation['errors']}"}), 400
 
             # Extract knowledge based on type
             if extraction_type == "entities":
@@ -427,7 +427,7 @@ def register_api_routes(app: Any) -> None:
             validation = validate_spatial_data(spatial_data)
             if not validation["valid"]:
                 return (
-                    jsonify({"error": f'Invalid spatial data: {validation["errors"]}'}),
+                    jsonify({"error": f"Invalid spatial data: {validation['errors']}"}),
                     400,
                 )
 
@@ -443,7 +443,7 @@ def register_api_routes(app: Any) -> None:
                     return (
                         jsonify(
                             {
-                                "error": f'Invalid user profile: {profile_validation["errors"]}'
+                                "error": f"Invalid user profile: {profile_validation['errors']}"
                             }
                         ),
                         400,
@@ -494,7 +494,7 @@ def register_api_routes(app: Any) -> None:
             validation = validate_spatial_data(spatial_data)
             if not validation["valid"]:
                 return (
-                    jsonify({"error": f'Invalid spatial data: {validation["errors"]}'}),
+                    jsonify({"error": f"Invalid spatial data: {validation['errors']}"}),
                     400,
                 )
 
@@ -510,7 +510,7 @@ def register_api_routes(app: Any) -> None:
                     return (
                         jsonify(
                             {
-                                "error": f'Invalid user profile: {profile_validation["errors"]}'
+                                "error": f"Invalid user profile: {profile_validation['errors']}"
                             }
                         ),
                         400,
@@ -527,9 +527,7 @@ def register_api_routes(app: Any) -> None:
             decision_result = processing_result.get("decision_result", {})
             decisions = decision_result.get("decisions", [])
             confidences = [
-                d.get("confidence_score", 0.0)
-                for d in decisions
-                if isinstance(d, dict)
+                d.get("confidence_score", 0.0) for d in decisions if isinstance(d, dict)
             ]
             mean_confidence = (
                 sum(confidences) / len(confidences) if confidences else 0.0
@@ -585,7 +583,7 @@ def register_api_routes(app: Any) -> None:
             validation = validate_user_profile(data)
             if not validation["valid"]:
                 return (
-                    jsonify({"error": f'Invalid profile data: {validation["errors"]}'}),
+                    jsonify({"error": f"Invalid profile data: {validation['errors']}"}),
                     400,
                 )
 

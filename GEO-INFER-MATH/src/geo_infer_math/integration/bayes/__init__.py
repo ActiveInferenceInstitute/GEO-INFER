@@ -1,4 +1,5 @@
 """BAYES Module Integration."""
+
 from geo_infer_math.integration.bayes.posterior_helpers import PosteriorHelpers
 from geo_infer_math.integration.bayes.prior_builders import PriorBuilders
 from geo_infer_math.integration.bayes.mcmc_helpers import MCMCHelpers
@@ -12,4 +13,3 @@ __all__ = [
     "BayesianOptimization",
     "ModelSelection",
 ]
-

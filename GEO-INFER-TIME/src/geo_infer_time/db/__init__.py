@@ -126,9 +126,7 @@ class InMemoryStore(TimeSeriesStore):
             spatial_location=deepcopy(ts.spatial_location),
             metadata=deepcopy(ts.metadata),
         )
-        logger.info(
-            "Stored time series '%s' (%d rows)", name, len(ts)
-        )
+        logger.info("Stored time series '%s' (%d rows)", name, len(ts))
 
     def retrieve(self, name: str) -> TimeSeries:
         """Retrieve a full TimeSeries by name."""

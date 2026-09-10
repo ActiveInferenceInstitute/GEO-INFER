@@ -83,9 +83,7 @@ def _operation() -> Dict[str, Any]:
         "mean_free_energy_last_third": round(
             float(np.mean(free_energies[-n_early:])), 4
         ),
-        "mean_prediction_error": round(
-            float(np.mean(state.prediction_errors)), 6
-        ),
+        "mean_prediction_error": round(float(np.mean(state.prediction_errors)), 6),
         "final_belief": [round(float(p), 4) for p in final_belief],
         "final_belief_argmax": int(np.argmax(final_belief)),
         "action_history_tail": [

@@ -178,9 +178,9 @@ class TestEcosystemStatistics:
             for d in REPO_ROOT.iterdir()
             if d.is_dir() and d.name.startswith("GEO-INFER-")
         ]
-        assert (
-            len(module_dirs) >= 45
-        ), f"Expected >=45 modules, found {len(module_dirs)}"
+        assert len(module_dirs) >= 45, (
+            f"Expected >=45 modules, found {len(module_dirs)}"
+        )
 
     def test_total_test_file_count(self):
         """There should be 200+ test files across the ecosystem."""
@@ -200,9 +200,9 @@ class TestEcosystemStatistics:
             results = discoverer.discover_all_tests(GEO_INFER_MODULES)
             # Should discover at least 40 modules
             modules_with_tests = [m for m in GEO_INFER_MODULES if m in results]
-            assert (
-                len(modules_with_tests) >= 40
-            ), f"TestDiscoverer found tests for {len(modules_with_tests)} modules, expected >=40"
+            assert len(modules_with_tests) >= 40, (
+                f"TestDiscoverer found tests for {len(modules_with_tests)} modules, expected >=40"
+            )
         except ImportError:
             pytest.fail("geo_infer_test.core.test_discoverer not available")
 
@@ -227,9 +227,9 @@ class TestSourceStructure:
             for d in mod_dir.iterdir()
             if d.is_dir() and d.name.startswith("geo_infer")
         )
-        assert (
-            has_src or has_package
-        ), f"GEO-INFER-{module} has neither src/ nor a geo_infer_* package"
+        assert has_src or has_package, (
+            f"GEO-INFER-{module} has neither src/ nor a geo_infer_* package"
+        )
 
     @pytest.mark.parametrize("module", GEO_INFER_MODULES)
     def test_module_has_pyproject_or_setup(self, module):
@@ -240,6 +240,6 @@ class TestSourceStructure:
         has_pyproject = (mod_dir / "pyproject.toml").is_file()
         has_setup = (mod_dir / "setup.py").is_file()
         has_setup_cfg = (mod_dir / "setup.cfg").is_file()
-        assert (
-            has_pyproject or has_setup or has_setup_cfg
-        ), f"GEO-INFER-{module} has no pyproject.toml, setup.py, or setup.cfg"
+        assert has_pyproject or has_setup or has_setup_cfg, (
+            f"GEO-INFER-{module} has no pyproject.toml, setup.py, or setup.cfg"
+        )

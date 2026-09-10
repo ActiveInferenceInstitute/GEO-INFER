@@ -520,9 +520,10 @@ async def run_complete_demonstration():
         }
 
         # 3. Stigmergic Communication
-        pheromone_system, digital_stigmergy = (
-            await demonstrate_stigmergic_communication()
-        )
+        (
+            pheromone_system,
+            digital_stigmergy,
+        ) = await demonstrate_stigmergic_communication()
         results["stigmergic_communication"] = {
             "pheromone_types": len(pheromone_system.pheromone_types),
             "digital_types": len(digital_stigmergy.information_types),
@@ -545,9 +546,12 @@ async def run_complete_demonstration():
         }
 
         # 6. Pattern Analysis
-        analyzer, spatial_analysis, interaction_analysis, emergence_analysis = (
-            await demonstrate_pattern_analysis()
-        )
+        (
+            analyzer,
+            spatial_analysis,
+            interaction_analysis,
+            emergence_analysis,
+        ) = await demonstrate_pattern_analysis()
         results["pattern_analysis"] = {
             "emergence_detected": emergence_analysis["emergence_detected"],
             "network_density": interaction_analysis.get("network_structure", {})

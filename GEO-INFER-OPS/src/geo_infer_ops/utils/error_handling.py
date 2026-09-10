@@ -108,7 +108,10 @@ class NetworkError(GeoInferError):
 
     def __init__(self, message: str, **kwargs: Any) -> None:
         super().__init__(
-            message, category=ErrorCategory.NETWORK, severity=ErrorSeverity.HIGH, **kwargs
+            message,
+            category=ErrorCategory.NETWORK,
+            severity=ErrorSeverity.HIGH,
+            **kwargs,
         )
 
 
@@ -129,7 +132,10 @@ class PermissionError(GeoInferError):
 
     def __init__(self, message: str, **kwargs: Any) -> None:
         super().__init__(
-            message, category=ErrorCategory.PERMISSION, severity=ErrorSeverity.HIGH, **kwargs
+            message,
+            category=ErrorCategory.PERMISSION,
+            severity=ErrorSeverity.HIGH,
+            **kwargs,
         )
 
 
@@ -138,7 +144,10 @@ class FilesystemError(GeoInferError):
 
     def __init__(self, message: str, **kwargs: Any) -> None:
         super().__init__(
-            message, category=ErrorCategory.FILESYSTEM, severity=ErrorSeverity.HIGH, **kwargs
+            message,
+            category=ErrorCategory.FILESYSTEM,
+            severity=ErrorSeverity.HIGH,
+            **kwargs,
         )
 
 
@@ -147,7 +156,10 @@ class ConfigurationError(GeoInferError):
 
     def __init__(self, message: str, **kwargs: Any) -> None:
         super().__init__(
-            message, category=ErrorCategory.CONFIGURATION, severity=ErrorSeverity.HIGH, **kwargs
+            message,
+            category=ErrorCategory.CONFIGURATION,
+            severity=ErrorSeverity.HIGH,
+            **kwargs,
         )
 
 
@@ -156,7 +168,10 @@ class ValidationError(GeoInferError):
 
     def __init__(self, message: str, **kwargs: Any) -> None:
         super().__init__(
-            message, category=ErrorCategory.VALIDATION, severity=ErrorSeverity.MEDIUM, **kwargs
+            message,
+            category=ErrorCategory.VALIDATION,
+            severity=ErrorSeverity.MEDIUM,
+            **kwargs,
         )
 
 
@@ -165,7 +180,10 @@ class ProcessingError(GeoInferError):
 
     def __init__(self, message: str, **kwargs: Any) -> None:
         super().__init__(
-            message, category=ErrorCategory.PROCESSING, severity=ErrorSeverity.MEDIUM, **kwargs
+            message,
+            category=ErrorCategory.PROCESSING,
+            severity=ErrorSeverity.MEDIUM,
+            **kwargs,
         )
 
 
@@ -174,7 +192,10 @@ class DataError(GeoInferError):
 
     def __init__(self, message: str, **kwargs: Any) -> None:
         super().__init__(
-            message, category=ErrorCategory.DATA, severity=ErrorSeverity.MEDIUM, **kwargs
+            message,
+            category=ErrorCategory.DATA,
+            severity=ErrorSeverity.MEDIUM,
+            **kwargs,
         )
 
 
@@ -383,9 +404,7 @@ def retry_on_error(
                         raise
 
                     # Calculate delay with exponential backoff
-                    delay = min(
-                        base_delay * (exponential_base ** attempt), max_delay
-                    )
+                    delay = min(base_delay * (exponential_base**attempt), max_delay)
 
                     if jitter:
                         delay = delay * (0.5 + random.random() * 0.5)
@@ -430,11 +449,13 @@ def with_error_handling(
                 try:
                     return func(*args, **kwargs)
                 except Exception as error:
-                    structured_error = handle_error(
-                        error, op_name, log, reraise=False
-                    )
+                    structured_error = handle_error(error, op_name, log, reraise=False)
 
-                    if structured_error and structured_error.recoverable and attempt < max_retries - 1:
+                    if (
+                        structured_error
+                        and structured_error.recoverable
+                        and attempt < max_retries - 1
+                    ):
                         log.warning(
                             f"Recoverable error in {op_name} (attempt {attempt + 1}/{max_retries}), "
                             f"retrying: {structured_error}"
@@ -473,4 +494,3 @@ __all__ = [
     "retry_on_error",
     "with_error_handling",
 ]
-

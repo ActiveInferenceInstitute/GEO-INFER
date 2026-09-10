@@ -16,7 +16,7 @@ from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_CACHE_DIR = Path.home() / '.geo_infer_place' / 'cache'
+DEFAULT_CACHE_DIR = Path.home() / ".geo_infer_place" / "cache"
 
 
 class CachedAPIWrapper:

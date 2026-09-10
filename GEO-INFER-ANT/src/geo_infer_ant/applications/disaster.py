@@ -196,9 +196,7 @@ class DisasterResponseSwarm:
             assessment["priority_zones"] = priority_zones
 
             # Assess risk factors
-            risk_factors = self._assess_risk_factors(
-                conditions, disaster_type
-            )
+            risk_factors = self._assess_risk_factors(conditions, disaster_type)
             assessment["risk_factors"] = risk_factors
 
             # Estimate total response time

@@ -18,9 +18,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler(
-            f'empirical_assessment_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
-        ),
+        logging.FileHandler(f"empirical_assessment_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"),
         logging.StreamHandler(),
     ],
 )
@@ -120,9 +118,7 @@ class EmpiricalDataAssessor:
                 for prop in properties[:3]:  # Show first 3 properties
                     if gdf[prop].dtype in ["object", "string"]:
                         unique_values = gdf[prop].value_counts().head(5)
-                        logger.info(
-                            f"      📝 {prop} sample values: {dict(unique_values)}"
-                        )
+                        logger.info(f"      📝 {prop} sample values: {dict(unique_values)}")
                     else:
                         stats = gdf[prop].describe()
                         logger.info(
@@ -198,9 +194,7 @@ class EmpiricalDataAssessor:
 
         # Check for data source attribution
         source_columns = [
-            col
-            for col in gdf.columns
-            if "source" in col.lower() or "data" in col.lower()
+            col for col in gdf.columns if "source" in col.lower() or "data" in col.lower()
         ]
         if source_columns:
             empirical_indicators["data_source_attribution"] = True
@@ -223,9 +217,7 @@ class EmpiricalDataAssessor:
         if empirical_score >= 0.6:
             logger.info(f"      ✅ {file_name} appears to contain empirical data")
         else:
-            logger.warning(
-                f"      ⚠️ {file_name} has insufficient provenance indicators"
-            )
+            logger.warning(f"      ⚠️ {file_name} has insufficient provenance indicators")
 
     def generate_assessment_report(self):
         """Generate a comprehensive assessment report."""
@@ -237,9 +229,7 @@ class EmpiricalDataAssessor:
             f.write(f"*Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*\n\n")
 
             f.write("## Summary\n")
-            f.write(
-                "This report assesses the quality and empirical nature of data sources\n"
-            )
+            f.write("This report assesses the quality and empirical nature of data sources\n")
             f.write("used in the Del Norte county agricultural analysis.\n\n")
 
             f.write("## Key Findings\n")

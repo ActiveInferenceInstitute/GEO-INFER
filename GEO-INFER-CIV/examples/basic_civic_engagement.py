@@ -25,10 +25,16 @@ def attendance_example() -> None:
     tracker = AttendanceTracker()
     tracker.add_meetings(
         [
-            MeetingRecord("mtg_001", MeetingType.CITY_COUNCIL, 1704067200.0, 200, 145, 23),
-            MeetingRecord("mtg_002", MeetingType.CITY_COUNCIL, 1706745600.0, 200, 162, 31),
+            MeetingRecord(
+                "mtg_001", MeetingType.CITY_COUNCIL, 1704067200.0, 200, 145, 23
+            ),
+            MeetingRecord(
+                "mtg_002", MeetingType.CITY_COUNCIL, 1706745600.0, 200, 162, 31
+            ),
             MeetingRecord("mtg_003", MeetingType.TOWN_HALL, 1705881600.0, 300, 187, 56),
-            MeetingRecord("mtg_004", MeetingType.BUDGET_HEARING, 1708041600.0, 120, 78, 28),
+            MeetingRecord(
+                "mtg_004", MeetingType.BUDGET_HEARING, 1708041600.0, 120, 78, 28
+            ),
         ]
     )
     trend = tracker.compute_attendance_trend()
@@ -43,16 +49,28 @@ def participation_example() -> None:
     analyzer = ParticipationAnalyzer()
     analyzer.add_records(
         [
-            ParticipantRecord("p01", ParticipationMethod.TOWN_HALL, 1705276800.0, "north"),
+            ParticipantRecord(
+                "p01", ParticipationMethod.TOWN_HALL, 1705276800.0, "north"
+            ),
             ParticipantRecord("p02", ParticipationMethod.SURVEY, 1705363200.0, "north"),
-            ParticipantRecord("p03", ParticipationMethod.PUBLIC_COMMENT, 1705449600.0, "south"),
-            ParticipantRecord("p04", ParticipationMethod.ONLINE_FORUM, 1705536000.0, "east"),
-            ParticipantRecord("p05", ParticipationMethod.WORKSHOP, 1705622400.0, "south"),
-            ParticipantRecord("p06", ParticipationMethod.MAP_ANNOTATION, 1705708800.0, "north"),
+            ParticipantRecord(
+                "p03", ParticipationMethod.PUBLIC_COMMENT, 1705449600.0, "south"
+            ),
+            ParticipantRecord(
+                "p04", ParticipationMethod.ONLINE_FORUM, 1705536000.0, "east"
+            ),
+            ParticipantRecord(
+                "p05", ParticipationMethod.WORKSHOP, 1705622400.0, "south"
+            ),
+            ParticipantRecord(
+                "p06", ParticipationMethod.MAP_ANNOTATION, 1705708800.0, "north"
+            ),
         ]
     )
     score = analyzer.compute_engagement_score(target_population=5000)
-    index = analyzer.compute_participation_index(target_population=50, baseline_rate=0.10)
+    index = analyzer.compute_participation_index(
+        target_population=50, baseline_rate=0.10
+    )
     report = analyzer.analyze_representation({"north": 0.5, "south": 0.3, "east": 0.2})
     print("\n--- Participation ---")
     print(f"Overall engagement score: {score.overall_score:.3f}")
@@ -66,11 +84,51 @@ def comments_example() -> None:
     analyzer = PublicCommentAnalyzer()
     analyzer.add_comments(
         [
-            PublicComment("c01", "mtg_005", CommentCategory.SUPPORT, 150, 1705276900.0, "p001", "zoning"),
-            PublicComment("c02", "mtg_005", CommentCategory.OPPOSITION, 280, 1705277000.0, "p002", "zoning"),
-            PublicComment("c03", "mtg_005", CommentCategory.QUESTION, 45, 1705277100.0, "p003", "zoning"),
-            PublicComment("c04", "mtg_005", CommentCategory.CONCERN, 120, 1705277300.0, "p004", "transit"),
-            PublicComment("c05", "mtg_005", CommentCategory.SUGGESTION, 200, 1705277200.0, "p005", "transit"),
+            PublicComment(
+                "c01",
+                "mtg_005",
+                CommentCategory.SUPPORT,
+                150,
+                1705276900.0,
+                "p001",
+                "zoning",
+            ),
+            PublicComment(
+                "c02",
+                "mtg_005",
+                CommentCategory.OPPOSITION,
+                280,
+                1705277000.0,
+                "p002",
+                "zoning",
+            ),
+            PublicComment(
+                "c03",
+                "mtg_005",
+                CommentCategory.QUESTION,
+                45,
+                1705277100.0,
+                "p003",
+                "zoning",
+            ),
+            PublicComment(
+                "c04",
+                "mtg_005",
+                CommentCategory.CONCERN,
+                120,
+                1705277300.0,
+                "p004",
+                "transit",
+            ),
+            PublicComment(
+                "c05",
+                "mtg_005",
+                CommentCategory.SUGGESTION,
+                200,
+                1705277200.0,
+                "p005",
+                "transit",
+            ),
         ]
     )
     analysis = analyzer.analyze(meeting_id="mtg_005")
@@ -86,7 +144,9 @@ def cost_benefit_example() -> None:
     cba.add_items(
         [
             CostBenefitItem("construction", 250_000.0, is_benefit=False),
-            CostBenefitItem("flood avoidance", 900_000.0, is_benefit=True, time_horizon_years=10),
+            CostBenefitItem(
+                "flood avoidance", 900_000.0, is_benefit=True, time_horizon_years=10
+            ),
         ]
     )
     result = cba.analyze()

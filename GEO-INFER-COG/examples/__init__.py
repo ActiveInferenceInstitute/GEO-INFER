@@ -23,7 +23,6 @@ and can serve as starting points for custom implementations.
 __all__ = [
     # Core demonstration examples
     "cognitive_processing_demo",
-
     # Specialized examples (to be added)
     # "spatial_language_examples",
     # "user_profiling_examples",

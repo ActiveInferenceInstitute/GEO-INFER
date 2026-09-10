@@ -35,11 +35,11 @@ def setup_geospatial_data_integration() -> tuple[GitHubAPI, RepoCloner]:
 
     # Configuration for cloning operations
     clone_config = CloneConfig(
-        output_dir='./geospatial_datasets',
+        output_dir="./geospatial_datasets",
         concurrency_enabled=True,
         max_workers=4,
-        default_branch='main',
-        clone_depth=1
+        default_branch="main",
+        clone_depth=1,
     )
 
     # Initialize repository cloner
@@ -48,7 +48,9 @@ def setup_geospatial_data_integration() -> tuple[GitHubAPI, RepoCloner]:
     return api_client, cloner
 
 
-def discover_geospatial_datasets(api_client: GitHubAPI, cloner: RepoCloner) -> dict[str, bool]:
+def discover_geospatial_datasets(
+    api_client: GitHubAPI, cloner: RepoCloner
+) -> dict[str, bool]:
     """
     Discover and clone geospatial datasets from various sources.
 
@@ -59,15 +61,15 @@ def discover_geospatial_datasets(api_client: GitHubAPI, cloner: RepoCloner) -> d
     logger.info("Discovering geospatial datasets...")
 
     # List geospatial data repositories published by an organization
-    search_results = api_client.get_organization_repositories('USGS', max_repos=50)
+    search_results = api_client.get_organization_repositories("USGS", max_repos=50)
 
     # Filter for repositories likely to contain geospatial data
     geospatial_repos = api_client.filter_repositories(
         search_results,
         min_stars=10,
-        languages=['Python', 'R', 'JavaScript'],
+        languages=["Python", "R", "JavaScript"],
         exclude_forks=True,
-        has_topics=['geospatial', 'gis', 'data', 'dataset']
+        has_topics=["geospatial", "gis", "data", "dataset"],
     )
 
     logger.info(f"Found {len(geospatial_repos)} geospatial repositories")
@@ -77,11 +79,7 @@ def discover_geospatial_datasets(api_client: GitHubAPI, cloner: RepoCloner) -> d
     repositories_to_clone: list[tuple[str, str, str]] = []
 
     for repo in geospatial_repos[:10]:  # Clone top 10
-        repositories_to_clone.append((
-            repo.owner,
-            repo.name,
-            repo.default_branch
-        ))
+        repositories_to_clone.append((repo.owner, repo.name, repo.default_branch))
 
     # Clone repositories
     clone_results = cloner.clone_multiple_repositories(repositories_to_clone)
@@ -104,14 +102,14 @@ def integrate_with_data_module(clone_results: dict[str, bool]) -> dict[str, obje
     """
     logger.info("Integrating with GEO-INFER-DATA workflows...")
 
-    datasets_dir = Path('./geospatial_datasets')
+    datasets_dir = Path("./geospatial_datasets")
 
     # Scan cloned repositories for data files
     data_files = []
-    for repo_path in datasets_dir.rglob('*'):
+    for repo_path in datasets_dir.rglob("*"):
         if repo_path.is_file():
             # Look for common geospatial data formats
-            if repo_path.suffix.lower() in ['.geojson', '.shp', '.tif', '.nc', '.csv']:
+            if repo_path.suffix.lower() in [".geojson", ".shp", ".tif", ".nc", ".csv"]:
                 data_files.append(repo_path)
 
     logger.info(f"Found {len(data_files)} geospatial data files")
@@ -123,11 +121,11 @@ def integrate_with_data_module(clone_results: dict[str, bool]) -> dict[str, obje
     # 4. Configure data transformation workflows
 
     integration_report = {
-        'total_datasets': len(clone_results),
-        'successful_clones': sum(1 for success in clone_results.values() if success),
-        'data_files_discovered': len(data_files),
-        'datasets_directory': str(datasets_dir),
-        'integration_ready': True
+        "total_datasets": len(clone_results),
+        "successful_clones": sum(1 for success in clone_results.values() if success),
+        "data_files_discovered": len(data_files),
+        "datasets_directory": str(datasets_dir),
+        "integration_ready": True,
     }
 
     return integration_report
@@ -155,9 +153,9 @@ def cleanup_and_maintenance(cloner: RepoCloner) -> dict[str, object]:
     logger.info(f"Disk usage: {disk_usage}")
 
     return {
-        'cleanup_performed': cleaned_count > 0,
-        'disk_usage': disk_usage,
-        'repository_count': stats.get('total', 0)
+        "cleanup_performed": cleaned_count > 0,
+        "disk_usage": disk_usage,
+        "repository_count": stats.get("total", 0),
     }
 
 
@@ -182,9 +180,9 @@ def main() -> dict[str, object] | None:
 
         # Generate final report
         final_report = {
-            'integration': integration_report,
-            'maintenance': maintenance_report,
-            'clone_results': clone_results
+            "integration": integration_report,
+            "maintenance": maintenance_report,
+            "clone_results": clone_results,
         }
 
         logger.info("Integration example completed successfully")
@@ -197,9 +195,9 @@ def main() -> dict[str, object] | None:
         raise
     finally:
         # Clean up resources
-        if 'cloner' in locals():
+        if "cloner" in locals():
             cloner.close()
-        if 'api_client' in locals():
+        if "api_client" in locals():
             api_client.close()
 
 

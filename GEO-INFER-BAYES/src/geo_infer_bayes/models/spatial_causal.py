@@ -95,7 +95,9 @@ class SpatialCausalModel(BayesianModel):
         )
         mean_prediction: np.ndarray = np.asarray(predictions.mean(axis=0))
         if return_std:
-            std_prediction: np.ndarray = np.asarray(np.std(predictions, axis=0)) + np.finfo(float).eps
+            std_prediction: np.ndarray = (
+                np.asarray(np.std(predictions, axis=0)) + np.finfo(float).eps
+            )
             return mean_prediction, std_prediction
         return mean_prediction
 

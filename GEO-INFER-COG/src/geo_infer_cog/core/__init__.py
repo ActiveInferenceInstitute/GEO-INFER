@@ -18,46 +18,28 @@ Integration Points:
 - GEO-INFER-APP: Improved interface design with cognitive principles
 """
 
-from .cognitive_engine import (
-    CognitiveProcessingEngine,
-    CognitiveState
-)
+from .cognitive_engine import CognitiveProcessingEngine, CognitiveState
 
-from .spatial_perception import (
-    SpatialPerceptionModel,
-    SpatialPercept,
-    AttentionModel
-)
+from .spatial_perception import SpatialPerceptionModel, SpatialPercept, AttentionModel
 
-from .spatial_reasoning import (
-    SpatialReasoningEngine,
-    SpatialRelation,
-    ReasoningStep
-)
+from .spatial_reasoning import SpatialReasoningEngine, SpatialRelation, ReasoningStep
 
-from .spatial_memory import (
-    SpatialMemoryModel,
-    SpatialMemoryItem,
-    MemoryConsolidation
-)
+from .spatial_memory import SpatialMemoryModel, SpatialMemoryItem, MemoryConsolidation
 
 __all__ = [
     # Main cognitive processing components
     "CognitiveProcessingEngine",
     "CognitiveState",
-
     # Spatial perception components
     "SpatialPerceptionModel",
     "SpatialPercept",
     "AttentionModel",
-
     # Spatial reasoning components
     "SpatialReasoningEngine",
     "SpatialRelation",
     "ReasoningStep",
-
     # Spatial memory components
     "SpatialMemoryModel",
     "SpatialMemoryItem",
-    "MemoryConsolidation"
+    "MemoryConsolidation",
 ]

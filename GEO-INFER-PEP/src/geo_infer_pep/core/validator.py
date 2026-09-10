@@ -17,6 +17,7 @@ from ..models.talent_models import Candidate, CandidateStatus, JobRequisition
 
 logger = logging.getLogger(__name__)
 
+
 class ValidationResult:
     """Result of a validation operation."""
 
@@ -48,8 +49,9 @@ class ValidationResult:
             "warnings": self.warnings,
             "validated_at": self.validated_at.isoformat(),
             "error_count": len(self.errors),
-            "warning_count": len(self.warnings)
+            "warning_count": len(self.warnings),
         }
+
 
 class PEPValidator:
     """
@@ -64,10 +66,14 @@ class PEPValidator:
     """
 
     def __init__(self) -> None:
-        self.email_regex = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
-        self.phone_regex = re.compile(r'^[\+]?[1-9][\d]{0,15}$')
+        self.email_regex = re.compile(
+            r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+        )
+        self.phone_regex = re.compile(r"^[\+]?[1-9][\d]{0,15}$")
 
-    def validate_employee(self, employee: Employee, strict: bool = False) -> ValidationResult:
+    def validate_employee(
+        self, employee: Employee, strict: bool = False
+    ) -> ValidationResult:
         """
         Comprehensive validation of Employee data.
 
@@ -127,10 +133,16 @@ class PEPValidator:
                 result.add_warning("Employee age seems unusually high (>100 years)")
 
         # Status validation
-        if employee.employment_status == EmploymentStatus.TERMINATED and not employee.termination_date:
+        if (
+            employee.employment_status == EmploymentStatus.TERMINATED
+            and not employee.termination_date
+        ):
             result.add_warning("Terminated employee should have termination date")
 
-        if employee.employment_status == EmploymentStatus.ACTIVE and employee.termination_date:
+        if (
+            employee.employment_status == EmploymentStatus.ACTIVE
+            and employee.termination_date
+        ):
             result.add_error("Active employee cannot have termination date")
 
         # Manager validation
@@ -141,7 +153,9 @@ class PEPValidator:
         if employee.custom_fields:
             for key, value in employee.custom_fields.items():
                 if key.startswith("_"):
-                    result.add_warning(f"Custom field '{key}' starts with underscore (convention violation)")
+                    result.add_warning(
+                        f"Custom field '{key}' starts with underscore (convention violation)"
+                    )
 
         if strict and result.warnings:
             for warning in result.warnings:
@@ -149,7 +163,9 @@ class PEPValidator:
 
         return result
 
-    def validate_customer(self, customer: Customer, strict: bool = False) -> ValidationResult:
+    def validate_customer(
+        self, customer: Customer, strict: bool = False
+    ) -> ValidationResult:
         """
         Comprehensive validation of Customer data.
 
@@ -183,18 +199,29 @@ class PEPValidator:
 
         # Website validation
         if customer.website:
-            if not customer.website.startswith(('http://', 'https://')):
+            if not customer.website.startswith(("http://", "https://")):
                 result.add_error("Website URL must start with http:// or https://")
 
         # LinkedIn validation
         if customer.linkedin_profile:
-            if not customer.linkedin_profile.startswith(('http://', 'https://')):
-                result.add_error("LinkedIn profile URL must start with http:// or https://")
+            if not customer.linkedin_profile.startswith(("http://", "https://")):
+                result.add_error(
+                    "LinkedIn profile URL must start with http:// or https://"
+                )
 
         # Status validation
-        valid_statuses = ["active", "inactive", "lead", "prospect", "customer", "churned"]
+        valid_statuses = [
+            "active",
+            "inactive",
+            "lead",
+            "prospect",
+            "customer",
+            "churned",
+        ]
         if customer.status and customer.status.lower() not in valid_statuses:
-            result.add_error(f"Invalid status '{customer.status}'. Must be one of: {valid_statuses}")
+            result.add_error(
+                f"Invalid status '{customer.status}'. Must be one of: {valid_statuses}"
+            )
 
         # Date validations
         if customer.created_at and customer.created_at > datetime.now():
@@ -208,8 +235,10 @@ class PEPValidator:
             for tag in customer.tags:
                 if len(tag) > 50:
                     result.add_warning(f"Tag '{tag}' is very long (>50 characters)")
-                if any(char in tag for char in [',', ';', '|']):
-                    result.add_warning(f"Tag '{tag}' contains special characters that may cause parsing issues")
+                if any(char in tag for char in [",", ";", "|"]):
+                    result.add_warning(
+                        f"Tag '{tag}' contains special characters that may cause parsing issues"
+                    )
 
         # Interaction history validation
         if customer.interaction_history:
@@ -226,7 +255,9 @@ class PEPValidator:
 
         return result
 
-    def validate_candidate(self, candidate: Candidate, strict: bool = False) -> ValidationResult:
+    def validate_candidate(
+        self, candidate: Candidate, strict: bool = False
+    ) -> ValidationResult:
         """
         Comprehensive validation of Candidate data.
 
@@ -266,16 +297,18 @@ class PEPValidator:
 
         # LinkedIn validation
         if candidate.linkedin_profile:
-            if not candidate.linkedin_profile.startswith(('http://', 'https://')):
-                result.add_error("LinkedIn profile URL must start with http:// or https://")
+            if not candidate.linkedin_profile.startswith(("http://", "https://")):
+                result.add_error(
+                    "LinkedIn profile URL must start with http:// or https://"
+                )
 
         # Resume/portfolio validation
         if candidate.resume_url:
-            if not candidate.resume_url.startswith(('http://', 'https://')):
+            if not candidate.resume_url.startswith(("http://", "https://")):
                 result.add_error("Resume URL must start with http:// or https://")
 
         if candidate.portfolio_url:
-            if not candidate.portfolio_url.startswith(('http://', 'https://')):
+            if not candidate.portfolio_url.startswith(("http://", "https://")):
                 result.add_error("Portfolio URL must start with http:// or https://")
 
         # Date validations
@@ -288,23 +321,34 @@ class PEPValidator:
 
         # Offer validation
         if candidate.offer:
-            if candidate.offer.accepted_at and candidate.offer.accepted_at < candidate.applied_at:
-                result.add_error("Offer acceptance date cannot be before application date")
+            if (
+                candidate.offer.accepted_at
+                and candidate.offer.accepted_at < candidate.applied_at
+            ):
+                result.add_error(
+                    "Offer acceptance date cannot be before application date"
+                )
 
             if candidate.offer.expires_at and candidate.offer.accepted_at:
                 if candidate.offer.expires_at < candidate.offer.accepted_at:
-                    result.add_error("Offer expiration date cannot be before acceptance date")
+                    result.add_error(
+                        "Offer expiration date cannot be before acceptance date"
+                    )
 
         # Interview validation
         if candidate.interviews:
             for interview in candidate.interviews:
                 if interview.scheduled_at < candidate.applied_at:
-                    result.add_error("Interview cannot be scheduled before application date")
+                    result.add_error(
+                        "Interview cannot be scheduled before application date"
+                    )
 
                 if interview.feedback:
                     for feedback in interview.feedback:
                         if feedback.feedback_submitted_at < interview.scheduled_at:
-                            result.add_warning("Interview feedback submitted before interview date")
+                            result.add_warning(
+                                "Interview feedback submitted before interview date"
+                            )
 
         # Skills validation
         if candidate.skills:
@@ -312,7 +356,9 @@ class PEPValidator:
                 if len(skill.strip()) == 0:
                     result.add_error("Skills cannot be empty strings")
                 elif len(skill) > 100:
-                    result.add_warning(f"Skill '{skill}' is very long (>100 characters)")
+                    result.add_warning(
+                        f"Skill '{skill}' is very long (>100 characters)"
+                    )
 
         if strict and result.warnings:
             for warning in result.warnings:
@@ -320,7 +366,9 @@ class PEPValidator:
 
         return result
 
-    def validate_job_requisition(self, requisition: JobRequisition, strict: bool = False) -> ValidationResult:
+    def validate_job_requisition(
+        self, requisition: JobRequisition, strict: bool = False
+    ) -> ValidationResult:
         """
         Comprehensive validation of JobRequisition data.
 
@@ -374,8 +422,13 @@ class PEPValidator:
 
         # Priority validation
         valid_priorities = ["low", "medium", "high", "urgent"]
-        if requisition.priority and requisition.priority.lower() not in valid_priorities:
-            result.add_error(f"Invalid priority '{requisition.priority}'. Must be one of: {valid_priorities}")
+        if (
+            requisition.priority
+            and requisition.priority.lower() not in valid_priorities
+        ):
+            result.add_error(
+                f"Invalid priority '{requisition.priority}'. Must be one of: {valid_priorities}"
+            )
 
         if strict and result.warnings:
             for warning in result.warnings:
@@ -383,7 +436,9 @@ class PEPValidator:
 
         return result
 
-    def validate_onboarding_workflow(self, candidate_id: str, employees: List[Employee], candidates: List[Candidate]) -> ValidationResult:
+    def validate_onboarding_workflow(
+        self, candidate_id: str, employees: List[Employee], candidates: List[Candidate]
+    ) -> ValidationResult:
         """
         Validate onboarding workflow prerequisites and data integrity.
 
@@ -410,12 +465,16 @@ class PEPValidator:
 
         # Check candidate status
         if candidate.status != CandidateStatus.OFFER_ACCEPTED:
-            result.add_error(f"candidate {candidate_id} has status {candidate.status}, expected OFFER_ACCEPTED")
+            result.add_error(
+                f"candidate {candidate_id} has status {candidate.status}, expected OFFER_ACCEPTED"
+            )
 
         # Check if employee already exists
         for emp in employees:
             if emp.email == candidate.email:
-                result.add_error(f"Employee with email {candidate.email} already exists")
+                result.add_error(
+                    f"Employee with email {candidate.email} already exists"
+                )
 
         # Check required candidate data
         if not candidate.email:
@@ -433,9 +492,12 @@ class PEPValidator:
 
         return result
 
-    def validate_data_integrity(self, employees: Optional[List[Employee]] = None,
-                               customers: Optional[List[Customer]] = None,
-                               candidates: Optional[List[Candidate]] = None) -> Dict[str, ValidationResult]:
+    def validate_data_integrity(
+        self,
+        employees: Optional[List[Employee]] = None,
+        customers: Optional[List[Customer]] = None,
+        candidates: Optional[List[Candidate]] = None,
+    ) -> Dict[str, ValidationResult]:
         """
         Perform comprehensive data integrity validation across all data types.
 
@@ -450,17 +512,25 @@ class PEPValidator:
         results = {}
 
         if employees:
-            results["employees"] = self._validate_collection(employees, self.validate_employee)
+            results["employees"] = self._validate_collection(
+                employees, self.validate_employee
+            )
 
         if customers:
-            results["customers"] = self._validate_collection(customers, self.validate_customer)
+            results["customers"] = self._validate_collection(
+                customers, self.validate_customer
+            )
 
         if candidates:
-            results["candidates"] = self._validate_collection(candidates, self.validate_candidate)
+            results["candidates"] = self._validate_collection(
+                candidates, self.validate_candidate
+            )
 
         # Cross-reference validation
         if employees and candidates:
-            results["cross_references"] = self._validate_cross_references(employees, candidates)
+            results["cross_references"] = self._validate_cross_references(
+                employees, candidates
+            )
 
         return results
 
@@ -479,21 +549,27 @@ class PEPValidator:
                     valid_count += 1
                 else:
                     invalid_count += 1
-                    collection_result.add_error(f"Item validation failed: {result.errors}")
+                    collection_result.add_error(
+                        f"Item validation failed: {result.errors}"
+                    )
                     for warning in result.warnings:
                         collection_result.add_warning(f"Item warning: {warning}")
             except Exception as e:
                 invalid_count += 1
                 collection_result.add_error(f"Validation error: {str(e)}")
 
-        collection_result.add_warning(f"Validation summary: {valid_count} valid, {invalid_count} invalid items")
+        collection_result.add_warning(
+            f"Validation summary: {valid_count} valid, {invalid_count} invalid items"
+        )
 
         if invalid_count > 0:
             collection_result.is_valid = False
 
         return collection_result
 
-    def _validate_cross_references(self, employees: List[Employee], candidates: List[Candidate]) -> ValidationResult:
+    def _validate_cross_references(
+        self, employees: List[Employee], candidates: List[Candidate]
+    ) -> ValidationResult:
         """Validate cross-references between employees and candidates."""
         result = ValidationResult(True)
 
@@ -503,13 +579,17 @@ class PEPValidator:
 
         duplicate_emails = employee_emails.intersection(candidate_emails)
         if duplicate_emails:
-            result.add_error(f"Duplicate emails found between employees and candidates: {duplicate_emails}")
+            result.add_error(
+                f"Duplicate emails found between employees and candidates: {duplicate_emails}"
+            )
 
         # Validate manager references
         manager_ids = {emp.employee_id for emp in employees}
         for emp in employees:
             if emp.manager_id and emp.manager_id not in manager_ids:
-                result.add_warning(f"Employee {emp.employee_id} references non-existent manager {emp.manager_id}")
+                result.add_warning(
+                    f"Employee {emp.employee_id} references non-existent manager {emp.manager_id}"
+                )
 
         return result
 
@@ -530,11 +610,11 @@ class PEPValidator:
             return {"valid": False, "error": "Phone is empty"}
 
         # Remove all non-digit characters except +
-        clean_phone = ''.join(c for c in phone if c.isdigit() or c == '+')
+        clean_phone = "".join(c for c in phone if c.isdigit() or c == "+")
 
         if self.phone_regex.match(clean_phone):
             # Check length constraints
-            digits_only = ''.join(c for c in clean_phone if c.isdigit())
+            digits_only = "".join(c for c in clean_phone if c.isdigit())
             if len(digits_only) >= 7 and len(digits_only) <= 15:
                 return {"valid": True}
             else:

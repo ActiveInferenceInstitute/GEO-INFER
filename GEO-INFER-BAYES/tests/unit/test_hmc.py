@@ -132,6 +132,6 @@ def test_step_size_adaptation_converges_to_target_acceptance() -> None:
     assert samples["weights"].shape == (400, 2)
     assert np.all(np.isfinite(samples["weights"]))
     assert sampler.sampling_acceptance_rates is not None
-    assert np.all(
-        np.abs(sampler.sampling_acceptance_rates - 0.8) <= 0.15
-    ), f"sampling acceptance {sampler.sampling_acceptance_rates} off target"
+    assert np.all(np.abs(sampler.sampling_acceptance_rates - 0.8) <= 0.15), (
+        f"sampling acceptance {sampler.sampling_acceptance_rates} off target"
+    )

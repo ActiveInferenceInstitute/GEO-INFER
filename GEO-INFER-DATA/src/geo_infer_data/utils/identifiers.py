@@ -38,9 +38,7 @@ def validate_sql_identifier(name: Any) -> str:
             identifier pattern.
     """
     if not isinstance(name, str):
-        raise ValueError(
-            f"SQL identifier must be a string, got {type(name).__name__}"
-        )
+        raise ValueError(f"SQL identifier must be a string, got {type(name).__name__}")
     if not _IDENTIFIER_RE.match(name):
         raise ValueError(
             f"Invalid SQL identifier {name!r}: must match "

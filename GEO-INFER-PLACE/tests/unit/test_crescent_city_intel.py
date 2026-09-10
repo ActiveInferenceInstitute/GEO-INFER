@@ -311,9 +311,7 @@ class TestCoastlineAgnosticOrientation(unittest.TestCase):
             mid_lat = (b["south"] + b["north"]) / 2.0
             # Eastern shoreline scores one; the inland western flank scores zero.
             assert mapper._coast_proximity(mid_lat, b["east"], b) == 1.0
-            self.assertAlmostEqual(
-                mapper._coast_proximity(mid_lat, b["west"], b), 0.0
-            )
+            self.assertAlmostEqual(mapper._coast_proximity(mid_lat, b["west"], b), 0.0)
 
             # End-to-end: coastal-weighted cells are denser east of the midpoint.
             cells = mapper.generate_h3_cells()
@@ -525,9 +523,7 @@ class TestModuleEnrichment(unittest.TestCase):
         rows = enriched["moduleWeights"]
         block = dashboard._module_rows_popup_html(rows)
         assert "Module results" in block
-        assert block == dashboard._module_rows_popup_html(
-            enriched["moduleWeights"]
-        )
+        assert block == dashboard._module_rows_popup_html(enriched["moduleWeights"])
         # The block is reused verbatim per cell, so it is identical across the
         # whole layer (single build, not per-cell recompute).
         assert dashboard._module_rows_popup_html(enriched["moduleWeights"]) == block

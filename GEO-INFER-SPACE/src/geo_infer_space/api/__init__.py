@@ -16,20 +16,20 @@ from .schemas import (
     HotspotRequest,
     NetworkAnalysisRequest,
     H3AnalysisRequest,
-    ErrorResponse
+    ErrorResponse,
 )
 
 __all__ = [
-    'app',
-    'router',
-    'SpatialAnalysisRequest',
-    'SpatialAnalysisResponse', 
-    'BufferAnalysisRequest',
-    'ProximityAnalysisRequest',
-    'InterpolationRequest',
-    'ClusteringRequest',
-    'HotspotRequest',
-    'NetworkAnalysisRequest',
-    'H3AnalysisRequest',
-    'ErrorResponse'
+    "app",
+    "router",
+    "SpatialAnalysisRequest",
+    "SpatialAnalysisResponse",
+    "BufferAnalysisRequest",
+    "ProximityAnalysisRequest",
+    "InterpolationRequest",
+    "ClusteringRequest",
+    "HotspotRequest",
+    "NetworkAnalysisRequest",
+    "H3AnalysisRequest",
+    "ErrorResponse",
 ]

@@ -69,4 +69,3 @@ __all__ = [
     "IntegrationConvenience",
     "cross_module_helper",
 ]
-

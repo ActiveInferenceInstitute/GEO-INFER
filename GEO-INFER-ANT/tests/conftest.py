@@ -64,9 +64,7 @@ def pheromone_grid() -> List[Dict[str, Any]]:
     """
     import h3
 
-    cells = [
-        h3.latlng_to_cell(47.6 + i * 0.01, -122.3 + i * 0.01, 9) for i in range(5)
-    ]
+    cells = [h3.latlng_to_cell(47.6 + i * 0.01, -122.3 + i * 0.01, 9) for i in range(5)]
 
     return [
         {"cell": cells[0], "concentration": 10.0},

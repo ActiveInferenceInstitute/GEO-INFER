@@ -236,7 +236,9 @@ def _process_temporal_data(temporal_data: pd.Series) -> np.ndarray:
     # Convert to numerical representation
     if pd.api.types.is_datetime64_any_dtype(temporal_data):
         # Convert to Unix timestamp
-        temporal_numeric: np.ndarray = temporal_data.astype(np.int64).to_numpy() // 10**9
+        temporal_numeric: np.ndarray = (
+            temporal_data.astype(np.int64).to_numpy() // 10**9
+        )
     else:
         temporal_numeric = np.asarray(temporal_data.values)
 
@@ -263,13 +265,15 @@ def validate_spatial_data(
     """
     errors: List[str] = []
     warnings: List[str] = []
-    validation_results: Dict[str, Any] = {"is_valid": True, "warnings": warnings, "errors": errors}
+    validation_results: Dict[str, Any] = {
+        "is_valid": True,
+        "warnings": warnings,
+        "errors": errors,
+    }
 
     # Check spatial coordinates
     if spatial_coords.shape[1] != 2:
-        errors.append(
-            "Spatial coordinates must have 2 columns (lat, lon)"
-        )
+        errors.append("Spatial coordinates must have 2 columns (lat, lon)")
         validation_results["is_valid"] = False
 
     # Check for NaN values
@@ -293,22 +297,16 @@ def validate_spatial_data(
 
     # Check data consistency
     if len(spatial_coords) != len(values):
-        errors.append(
-            "Spatial coordinates and values have different lengths"
-        )
+        errors.append("Spatial coordinates and values have different lengths")
         validation_results["is_valid"] = False
 
     if temporal_coords is not None:
         if len(temporal_coords) != len(values):
-            errors.append(
-                "Temporal coordinates and values have different lengths"
-            )
+            errors.append("Temporal coordinates and values have different lengths")
             validation_results["is_valid"] = False
 
         if np.any(np.isnan(temporal_coords)):
-            warnings.append(
-                "Temporal coordinates contain NaN values"
-            )
+            warnings.append("Temporal coordinates contain NaN values")
 
     # Check for duplicate coordinates
     unique_coords = np.unique(spatial_coords, axis=0)
@@ -426,9 +424,7 @@ def sample_spatial_data(
         if remaining > 0:
             used_indices = set(stratified_indices)
             available_indices = [i for i in range(n_total) if i not in used_indices]
-            additional_indices = rng.choice(
-                available_indices, remaining, replace=False
-            )
+            additional_indices = rng.choice(available_indices, remaining, replace=False)
             stratified_indices.extend(list(additional_indices))
 
         indices = np.array(stratified_indices)
@@ -445,7 +441,10 @@ def sample_spatial_data(
 
 
 def save_processed_data(
-    data: pd.DataFrame, output_path: Union[str, Path], format: str = "csv", **kwargs: Any
+    data: pd.DataFrame,
+    output_path: Union[str, Path],
+    format: str = "csv",
+    **kwargs: Any,
 ) -> None:
     """
     Save processed data to file.

@@ -135,7 +135,9 @@ class SystemDynamicsModel:
             time_step: Time step duration
         """
         # Get current stock values
-        stock_values = {name: stock.current_value for name, stock in self.stocks.items()}
+        stock_values = {
+            name: stock.current_value for name, stock in self.stocks.items()
+        }
 
         # Calculate flow rates
         flow_rates = {}
@@ -202,6 +204,3 @@ class SystemDynamicsModel:
         self.time = 0.0
         self.history = []
         logger.info("System dynamics model reset")
-
-
-

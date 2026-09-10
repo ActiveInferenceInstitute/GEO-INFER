@@ -25,9 +25,7 @@ class CascadianMortgageDataSources:
         )
         os.makedirs(self.data_dir, exist_ok=True)
 
-        config_path = os.path.join(
-            os.path.dirname(__file__), "..", "config", "data_urls.json"
-        )
+        config_path = os.path.join(os.path.dirname(__file__), "..", "config", "data_urls.json")
         try:
             with open(config_path) as f:
                 self.config = json.load(f).get("mortgage_debt", {})
@@ -136,9 +134,7 @@ class CascadianMortgageDataSources:
             hmda_df[col] = pd.to_numeric(hmda_df[col], errors="coerce")
 
         # Drop rows where key financial data is missing
-        hmda_df.dropna(
-            subset=["loan_amount", "property_value", "census_tract"], inplace=True
-        )
+        hmda_df.dropna(subset=["loan_amount", "property_value", "census_tract"], inplace=True)
 
         # Filter out nonsensical values
         hmda_df = hmda_df[hmda_df["loan_amount"] > 1000]
@@ -148,9 +144,7 @@ class CascadianMortgageDataSources:
             logger.warning("No valid mortgage records after cleaning.")
             return pd.DataFrame(columns=["census_tract", "loan_to_value_ratio"])
 
-        logger.info(
-            f"Aggregating HMDA data by census tract ({len(hmda_df)} records)..."
-        )
+        logger.info(f"Aggregating HMDA data by census tract ({len(hmda_df)} records)...")
 
         # Aggregate by census tract
         agg_df = (
@@ -167,13 +161,9 @@ class CascadianMortgageDataSources:
 
         # Calculate Loan to Value Ratio: Sum(Loan Amount) / Sum(Property Value) per tract
         tract_sums = (
-            hmda_df.groupby("census_tract")[["loan_amount", "property_value"]]
-            .sum()
-            .reset_index()
+            hmda_df.groupby("census_tract")[["loan_amount", "property_value"]].sum().reset_index()
         )
-        agg_df["loan_to_value_ratio"] = (
-            tract_sums["loan_amount"] / tract_sums["property_value"]
-        )
+        agg_df["loan_to_value_ratio"] = tract_sums["loan_amount"] / tract_sums["property_value"]
 
         agg_df["loan_to_value_ratio"].replace([np.inf, -np.inf], np.nan, inplace=True)
 

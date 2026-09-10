@@ -12,7 +12,6 @@ from ..models.talent_models import (
 
 logger = logging.getLogger(__name__)
 from ..talent.transformer import (
-
     convert_candidates_to_dataframe,
     convert_requisitions_to_dataframe,
 )

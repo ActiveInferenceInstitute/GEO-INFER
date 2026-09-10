@@ -356,7 +356,9 @@ class TestAgriculturalWorkflow:
                     "stress_level": (
                         "low"
                         if health_score > 0.7
-                        else "medium" if health_score > 0.5 else "high"
+                        else "medium"
+                        if health_score > 0.5
+                        else "high"
                     ),
                 }
             )

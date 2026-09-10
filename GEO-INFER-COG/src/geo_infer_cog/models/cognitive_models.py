@@ -48,7 +48,9 @@ class SpatialNode:
     accessibility: float = 1.0
     uncertainty: float = 0.0
 
-    def calculate_cognitive_weight(self, user_profile: Optional[UserCognitiveProfile] = None) -> float:
+    def calculate_cognitive_weight(
+        self, user_profile: Optional[UserCognitiveProfile] = None
+    ) -> float:
         """Calculate cognitive weight for this node."""
         base_weight = self.saliency * self.accessibility
 
@@ -57,9 +59,14 @@ class SpatialNode:
             expertise_bonus = user_profile.spatial_expertise * 0.2
             preference_multiplier = 1.0
 
-            if user_profile.cognitive_load_preference == 'low' and self.uncertainty > 0.5:
+            if (
+                user_profile.cognitive_load_preference == "low"
+                and self.uncertainty > 0.5
+            ):
                 preference_multiplier = 0.8
-            elif user_profile.cognitive_load_preference == 'high' and self.saliency > 0.7:
+            elif (
+                user_profile.cognitive_load_preference == "high" and self.saliency > 0.7
+            ):
                 preference_multiplier = 1.2
 
             return min(1.0, base_weight + expertise_bonus * preference_multiplier)
@@ -74,25 +81,31 @@ class SpatialEdge:
     edge_id: str
     source_node: str
     target_node: str
-    relation_type: str  # 'topological', 'directional', 'distance', 'functional', 'conceptual'
+    relation_type: (
+        str  # 'topological', 'directional', 'distance', 'functional', 'conceptual'
+    )
     properties: Dict[str, Any] = field(default_factory=dict)
     confidence: float = 1.0
     strength: float = 1.0
-    directionality: str = 'bidirectional'  # 'unidirectional', 'bidirectional', 'asymmetric'
+    directionality: str = (
+        "bidirectional"  # 'unidirectional', 'bidirectional', 'asymmetric'
+    )
 
-    def get_effective_strength(self, user_profile: Optional[UserCognitiveProfile] = None) -> float:
+    def get_effective_strength(
+        self, user_profile: Optional[UserCognitiveProfile] = None
+    ) -> float:
         """Get effective relationship strength considering user factors."""
         base_strength = self.strength * self.confidence
 
         if user_profile:
             # Adjust based on user cognitive style
-            if user_profile.spatial_reasoning_style == 'qualitative':
+            if user_profile.spatial_reasoning_style == "qualitative":
                 # Prefer topological and functional relations
-                if self.relation_type in ['topological', 'functional']:
+                if self.relation_type in ["topological", "functional"]:
                     return min(1.0, base_strength * 1.1)
-            elif user_profile.spatial_reasoning_style == 'quantitative':
+            elif user_profile.spatial_reasoning_style == "quantitative":
                 # Prefer distance and directional relations
-                if self.relation_type in ['distance', 'directional']:
+                if self.relation_type in ["distance", "directional"]:
                     return min(1.0, base_strength * 1.1)
 
         return base_strength
@@ -114,11 +127,13 @@ class CognitiveMap:
     - Integration with long-term spatial memory
     """
 
-    def __init__(self,
-                 map_id: str,
-                 spatial_bounds: Dict[str, Any],
-                 cognitive_framework: str = 'landmark_based',
-                 config: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self,
+        map_id: str,
+        spatial_bounds: Dict[str, Any],
+        cognitive_framework: str = "landmark_based",
+        config: Optional[Dict[str, Any]] = None,
+    ):
         """
         Initialize cognitive map.
 
@@ -135,37 +150,41 @@ class CognitiveMap:
 
         # Map components
         self.landmarks: Dict[str, SpatialNode] = {}  # Landmark nodes
-        self.routes: Dict[str, Any] = {}     # Route segments
-        self.regions: Dict[str, Any] = {}    # Regional organization
-        self.connections: Dict[str, List[Dict[str, Any]]] = {} # Interconnections
+        self.routes: Dict[str, Any] = {}  # Route segments
+        self.regions: Dict[str, Any] = {}  # Regional organization
+        self.connections: Dict[str, List[Dict[str, Any]]] = {}  # Interconnections
 
         # Cognitive properties
         self.distortion_factors = {
-            'distance_distortion': 0.1,
-            'direction_distortion': 0.05,
-            'landmark_bias': 0.2
+            "distance_distortion": 0.1,
+            "direction_distortion": 0.05,
+            "landmark_bias": 0.2,
         }
 
         # Performance tracking
         self.map_metrics = {
-            'landmarks_count': 0,
-            'routes_count': 0,
-            'regions_count': 0,
-            'navigation_accuracy': 0.0,
-            'cognitive_load': 0.0
+            "landmarks_count": 0,
+            "routes_count": 0,
+            "regions_count": 0,
+            "navigation_accuracy": 0.0,
+            "cognitive_load": 0.0,
         }
 
         # Integration with spatial memory
         self.memory_integration = True
         self.last_memory_sync = None
 
-        logger.info(f"Cognitive Map {map_id} initialized with framework: {cognitive_framework}")
+        logger.info(
+            f"Cognitive Map {map_id} initialized with framework: {cognitive_framework}"
+        )
 
-    def add_landmark(self,
-                    landmark_id: str,
-                    geometry: Dict[str, Any],
-                    properties: Dict[str, Any],
-                    saliency: float = 0.5) -> None:
+    def add_landmark(
+        self,
+        landmark_id: str,
+        geometry: Dict[str, Any],
+        properties: Dict[str, Any],
+        saliency: float = 0.5,
+    ) -> None:
         """
         Add a landmark to the cognitive map.
 
@@ -177,23 +196,25 @@ class CognitiveMap:
         """
         landmark = SpatialNode(
             node_id=landmark_id,
-            node_type='landmark',
+            node_type="landmark",
             geometry=geometry,
             properties=properties,
-            saliency=saliency
+            saliency=saliency,
         )
 
         self.landmarks[landmark_id] = landmark
-        self.map_metrics['landmarks_count'] += 1
+        self.map_metrics["landmarks_count"] += 1
 
         logger.info(f"Landmark {landmark_id} added to cognitive map")
 
-    def add_route(self,
-                 route_id: str,
-                 start_landmark: str,
-                 end_landmark: str,
-                 segments: List[Dict[str, Any]],
-                 properties: Dict[str, Any]) -> None:
+    def add_route(
+        self,
+        route_id: str,
+        start_landmark: str,
+        end_landmark: str,
+        segments: List[Dict[str, Any]],
+        properties: Dict[str, Any],
+    ) -> None:
         """
         Add a route between landmarks.
 
@@ -208,16 +229,18 @@ class CognitiveMap:
             raise ValueError("Route landmarks must be added to map first")
 
         route = {
-            'route_id': route_id,
-            'start_landmark': start_landmark,
-            'end_landmark': end_landmark,
-            'segments': segments,
-            'properties': properties,
-            'cognitive_complexity': self._calculate_route_complexity(segments, properties)
+            "route_id": route_id,
+            "start_landmark": start_landmark,
+            "end_landmark": end_landmark,
+            "segments": segments,
+            "properties": properties,
+            "cognitive_complexity": self._calculate_route_complexity(
+                segments, properties
+            ),
         }
 
         self.routes[route_id] = route
-        self.map_metrics['routes_count'] += 1
+        self.map_metrics["routes_count"] += 1
 
         # Add bidirectional connections
         if start_landmark not in self.connections:
@@ -225,25 +248,25 @@ class CognitiveMap:
         if end_landmark not in self.connections:
             self.connections[end_landmark] = []
 
-        self.connections[start_landmark].append({
-            'target': end_landmark,
-            'route_id': route_id,
-            'connection_type': 'route'
-        })
+        self.connections[start_landmark].append(
+            {"target": end_landmark, "route_id": route_id, "connection_type": "route"}
+        )
 
-        self.connections[end_landmark].append({
-            'target': start_landmark,
-            'route_id': route_id,
-            'connection_type': 'route'
-        })
+        self.connections[end_landmark].append(
+            {"target": start_landmark, "route_id": route_id, "connection_type": "route"}
+        )
 
-        logger.info(f"Route {route_id} added between {start_landmark} and {end_landmark}")
+        logger.info(
+            f"Route {route_id} added between {start_landmark} and {end_landmark}"
+        )
 
-    def add_region(self,
-                  region_id: str,
-                  boundary: List[Tuple[float, float]],
-                  properties: Dict[str, Any],
-                  landmark_composition: List[str]) -> None:
+    def add_region(
+        self,
+        region_id: str,
+        boundary: List[Tuple[float, float]],
+        properties: Dict[str, Any],
+        landmark_composition: List[str],
+    ) -> None:
         """
         Add a region to the cognitive map.
 
@@ -255,39 +278,41 @@ class CognitiveMap:
         """
         region = SpatialNode(
             node_id=region_id,
-            node_type='region',
-            geometry={'type': 'Polygon', 'coordinates': [boundary]},
+            node_type="region",
+            geometry={"type": "Polygon", "coordinates": [boundary]},
             properties=properties,
-            saliency=self._calculate_region_saliency(landmark_composition)
+            saliency=self._calculate_region_saliency(landmark_composition),
         )
 
         self.regions[region_id] = region
-        self.map_metrics['regions_count'] += 1
+        self.map_metrics["regions_count"] += 1
 
         # Update landmark-region relationships
         for landmark_id in landmark_composition:
             if landmark_id in self.landmarks:
-                self.landmarks[landmark_id].properties['region'] = region_id
+                self.landmarks[landmark_id].properties["region"] = region_id
 
         logger.info(f"Region {region_id} added to cognitive map")
 
-    def _calculate_route_complexity(self, segments: List[Dict[str, Any]], properties: Dict[str, Any]) -> float:
+    def _calculate_route_complexity(
+        self, segments: List[Dict[str, Any]], properties: Dict[str, Any]
+    ) -> float:
         """Calculate cognitive complexity of a route."""
         # Base complexity from length and turns
-        length = properties.get('length', 0)
+        length = properties.get("length", 0)
         turns = len(segments) - 1 if segments else 0
 
         complexity = min(1.0, (length / 1000.0) + (turns / 10.0))
 
         # Adjust for route mode
         mode_multipliers = {
-            'walking': 1.0,
-            'driving': 0.8,
-            'public_transport': 1.2,
-            'cycling': 1.1
+            "walking": 1.0,
+            "driving": 0.8,
+            "public_transport": 1.2,
+            "cycling": 1.1,
         }
 
-        mode_multiplier = mode_multipliers.get(properties.get('mode', 'walking'), 1.0)
+        mode_multiplier = mode_multipliers.get(properties.get("mode", "walking"), 1.0)
         complexity *= mode_multiplier
 
         return cast(float, complexity)
@@ -299,16 +324,18 @@ class CognitiveMap:
 
         # Average saliency of contained landmarks
         landmark_saliencies = [
-            self.landmarks.get(lid, SpatialNode(lid, 'landmark')).saliency
+            self.landmarks.get(lid, SpatialNode(lid, "landmark")).saliency
             for lid in landmark_composition
         ]
 
         return float(np.mean(landmark_saliencies))
 
-    def get_navigation_path(self,
-                          start_landmark: str,
-                          end_landmark: str,
-                          user_profile: Optional[UserCognitiveProfile] = None) -> List[str]:
+    def get_navigation_path(
+        self,
+        start_landmark: str,
+        end_landmark: str,
+        user_profile: Optional[UserCognitiveProfile] = None,
+    ) -> List[str]:
         """
         Generate navigation path between landmarks.
 
@@ -334,9 +361,9 @@ class CognitiveMap:
 
             # Add edges based on routes
             for route in self.routes.values():
-                start = route['start_landmark']
-                end = route['end_landmark']
-                complexity = route['cognitive_complexity']
+                start = route["start_landmark"]
+                end = route["end_landmark"]
+                complexity = route["cognitive_complexity"]
 
                 # Use inverse complexity as weight (simpler routes preferred)
                 weight = 1.0 / (1.0 + complexity)
@@ -344,7 +371,9 @@ class CognitiveMap:
 
             # Find shortest path
             if nx.has_path(graph, start_landmark, end_landmark):
-                path = nx.shortest_path(graph, start_landmark, end_landmark, weight='weight')
+                path = nx.shortest_path(
+                    graph, start_landmark, end_landmark, weight="weight"
+                )
 
                 # Apply cognitive distortions
                 distorted_path = self._apply_cognitive_distortions(path, user_profile)
@@ -357,9 +386,9 @@ class CognitiveMap:
 
         return []
 
-    def _apply_cognitive_distortions(self,
-                                   path: List[str],
-                                   user_profile: Optional[UserCognitiveProfile] = None) -> List[str]:
+    def _apply_cognitive_distortions(
+        self, path: List[str], user_profile: Optional[UserCognitiveProfile] = None
+    ) -> List[str]:
         """Apply cognitive distortions to navigation path."""
         if len(path) <= 2:
             return path
@@ -368,22 +397,22 @@ class CognitiveMap:
 
         for i in range(1, len(path) - 1):
             current = path[i]
-            prev = path[i-1]
-            next_ = path[i+1]
+            prev = path[i - 1]
+            next_ = path[i + 1]
 
             # Get route complexity between current and neighbors
             prev_route = self._find_route_between(prev, current)
             next_route = self._find_route_between(current, next_)
 
             if prev_route and next_route:
-                prev_complexity = prev_route['cognitive_complexity']
-                next_complexity = next_route['cognitive_complexity']
+                prev_complexity = prev_route["cognitive_complexity"]
+                next_complexity = next_route["cognitive_complexity"]
 
                 # Apply distortion based on relative complexity
                 if next_complexity > prev_complexity * 1.5:
                     # Skip intermediate landmark if next route is much more complex
                     # (cognitive shortcut)
-                    if user_profile and user_profile.cognitive_load_preference == 'low':
+                    if user_profile and user_profile.cognitive_load_preference == "low":
                         continue
 
             distorted_path.append(current)
@@ -391,22 +420,31 @@ class CognitiveMap:
         distorted_path.append(path[-1])
         return distorted_path
 
-    def _find_route_between(self, landmark1: str, landmark2: str) -> Optional[Dict[str, Any]]:
+    def _find_route_between(
+        self, landmark1: str, landmark2: str
+    ) -> Optional[Dict[str, Any]]:
         """Find route between two landmarks."""
         for route in self.routes.values():
-            if ((route['start_landmark'] == landmark1 and route['end_landmark'] == landmark2) or
-                (route['start_landmark'] == landmark2 and route['end_landmark'] == landmark1)):
+            if (
+                route["start_landmark"] == landmark1
+                and route["end_landmark"] == landmark2
+            ) or (
+                route["start_landmark"] == landmark2
+                and route["end_landmark"] == landmark1
+            ):
                 return cast(Dict[str, Any], route)
         return None
 
-    def calculate_cognitive_load(self, user_profile: Optional[UserCognitiveProfile] = None) -> float:
+    def calculate_cognitive_load(
+        self, user_profile: Optional[UserCognitiveProfile] = None
+    ) -> float:
         """Calculate cognitive load for using this map."""
         # Base load from map complexity
         landmark_count = len(self.landmarks)
         route_count = len(self.routes)
         region_count = len(self.regions)
 
-        complexity_score = (landmark_count * 0.1 + route_count * 0.2 + region_count * 0.3)
+        complexity_score = landmark_count * 0.1 + route_count * 0.2 + region_count * 0.3
 
         # Adjust for user profile
         if user_profile:
@@ -418,32 +456,32 @@ class CognitiveMap:
                 complexity_score *= 0.8
 
             # Adjust for cognitive load preference
-            if user_profile.cognitive_load_preference == 'low':
+            if user_profile.cognitive_load_preference == "low":
                 complexity_score *= 1.2
-            elif user_profile.cognitive_load_preference == 'high':
+            elif user_profile.cognitive_load_preference == "high":
                 complexity_score *= 0.9
 
-        self.map_metrics['cognitive_load'] = min(1.0, complexity_score)
-        return self.map_metrics['cognitive_load']
+        self.map_metrics["cognitive_load"] = min(1.0, complexity_score)
+        return self.map_metrics["cognitive_load"]
 
     def get_map_statistics(self) -> Dict[str, Any]:
         """Get comprehensive statistics about the cognitive map."""
         stats = {
-            'map_id': self.map_id,
-            'framework': self.cognitive_framework,
-            'spatial_bounds': self.spatial_bounds,
-            'components': {
-                'landmarks': len(self.landmarks),
-                'routes': len(self.routes),
-                'regions': len(self.regions)
+            "map_id": self.map_id,
+            "framework": self.cognitive_framework,
+            "spatial_bounds": self.spatial_bounds,
+            "components": {
+                "landmarks": len(self.landmarks),
+                "routes": len(self.routes),
+                "regions": len(self.regions),
             },
-            'connectivity': self._analyze_connectivity(),
-            'cognitive_properties': {
-                'average_saliency': self._calculate_average_saliency(),
-                'complexity_distribution': self._analyze_complexity_distribution(),
-                'distortion_factors': self.distortion_factors
+            "connectivity": self._analyze_connectivity(),
+            "cognitive_properties": {
+                "average_saliency": self._calculate_average_saliency(),
+                "complexity_distribution": self._analyze_complexity_distribution(),
+                "distortion_factors": self.distortion_factors,
             },
-            'performance': self.map_metrics.copy()
+            "performance": self.map_metrics.copy(),
         }
 
         return stats
@@ -451,7 +489,7 @@ class CognitiveMap:
     def _analyze_connectivity(self) -> Dict[str, Any]:
         """Analyze connectivity of the landmark network."""
         if not self.landmarks:
-            return {'connected_components': 0, 'average_degree': 0}
+            return {"connected_components": 0, "average_degree": 0}
 
         # Create network graph
         graph = nx.Graph()
@@ -460,17 +498,21 @@ class CognitiveMap:
 
         for connection_list in self.connections.values():
             for connection in connection_list:
-                graph.add_edge(landmark_id, connection['target'])
+                graph.add_edge(landmark_id, connection["target"])
 
         # Calculate connectivity metrics
         connected_components = nx.number_connected_components(graph)
-        average_degree = sum(dict(graph.degree()).values()) / len(graph.nodes()) if graph.nodes() else 0
+        average_degree = (
+            sum(dict(graph.degree()).values()) / len(graph.nodes())
+            if graph.nodes()
+            else 0
+        )
 
         return {
-            'connected_components': connected_components,
-            'average_degree': average_degree,
-            'is_connected': connected_components == 1,
-            'network_density': nx.density(graph)
+            "connected_components": connected_components,
+            "average_degree": average_degree,
+            "is_connected": connected_components == 1,
+            "network_density": nx.density(graph),
         }
 
     def _calculate_average_saliency(self) -> float:
@@ -484,57 +526,57 @@ class CognitiveMap:
     def _analyze_complexity_distribution(self) -> Dict[str, float]:
         """Analyze distribution of route complexities."""
         if not self.routes:
-            return {'mean': 0.0, 'std': 0.0, 'min': 0.0, 'max': 0.0}
+            return {"mean": 0.0, "std": 0.0, "min": 0.0, "max": 0.0}
 
-        complexities = [route['cognitive_complexity'] for route in self.routes.values()]
+        complexities = [route["cognitive_complexity"] for route in self.routes.values()]
 
         return {
-            'mean': float(np.mean(complexities)),
-            'std': float(np.std(complexities)),
-            'min': float(np.min(complexities)),
-            'max': float(np.max(complexities))
+            "mean": float(np.mean(complexities)),
+            "std": float(np.std(complexities)),
+            "min": float(np.min(complexities)),
+            "max": float(np.max(complexities)),
         }
 
     def export_to_geojson(self) -> Dict[str, Any]:
         """Export cognitive map as GeoJSON for visualization."""
         geojson: Dict[str, Any] = {
-            'type': 'FeatureCollection',
-            'features': [],
-            'metadata': {
-                'map_id': self.map_id,
-                'framework': self.cognitive_framework,
-                'export_time': datetime.now().isoformat()
-            }
+            "type": "FeatureCollection",
+            "features": [],
+            "metadata": {
+                "map_id": self.map_id,
+                "framework": self.cognitive_framework,
+                "export_time": datetime.now().isoformat(),
+            },
         }
 
         # Add landmark features
         for landmark_id, landmark in self.landmarks.items():
             feature = {
-                'type': 'Feature',
-                'geometry': landmark.geometry,
-                'properties': {
-                    'id': landmark_id,
-                    'type': 'landmark',
-                    'name': landmark.properties.get('name', landmark_id),
-                    'saliency': landmark.saliency,
-                    'accessibility': landmark.accessibility
-                }
+                "type": "Feature",
+                "geometry": landmark.geometry,
+                "properties": {
+                    "id": landmark_id,
+                    "type": "landmark",
+                    "name": landmark.properties.get("name", landmark_id),
+                    "saliency": landmark.saliency,
+                    "accessibility": landmark.accessibility,
+                },
             }
-            geojson['features'].append(feature)
+            geojson["features"].append(feature)
 
         # Add region features
         for region_id, region in self.regions.items():
             feature = {
-                'type': 'Feature',
-                'geometry': region.geometry,
-                'properties': {
-                    'id': region_id,
-                    'type': 'region',
-                    'name': region.properties.get('name', region_id),
-                    'saliency': region.saliency
-                }
+                "type": "Feature",
+                "geometry": region.geometry,
+                "properties": {
+                    "id": region_id,
+                    "type": "region",
+                    "name": region.properties.get("name", region_id),
+                    "saliency": region.saliency,
+                },
             }
-            geojson['features'].append(feature)
+            geojson["features"].append(feature)
 
         return geojson
 
@@ -555,11 +597,13 @@ class SpatialKnowledgeGraph:
     - Temporal aspects of spatial knowledge
     """
 
-    def __init__(self,
-                 graph_id: str,
-                 domain: str = 'general',
-                 config: Optional[Dict[str, Any]] = None,
-                 rng: Optional[np.random.Generator] = None):
+    def __init__(
+        self,
+        graph_id: str,
+        domain: str = "general",
+        config: Optional[Dict[str, Any]] = None,
+        rng: Optional[np.random.Generator] = None,
+    ):
         """
         Initialize spatial knowledge graph.
 
@@ -581,12 +625,14 @@ class SpatialKnowledgeGraph:
 
         # Graph structure using NetworkX
         self.graph = nx.DiGraph()
-        self.graph.graph['domain'] = domain
-        self.graph.graph['created'] = datetime.now().isoformat()
+        self.graph.graph["domain"] = domain
+        self.graph.graph["created"] = datetime.now().isoformat()
 
         # Node and edge indexes for efficient querying
         self.node_index: Dict[str, Any] = {}  # node_id -> node_data
-        self.edge_index: Dict[Tuple[str, str], Any] = {}  # (source, target) -> edge_data
+        self.edge_index: Dict[
+            Tuple[str, str], Any
+        ] = {}  # (source, target) -> edge_data
 
         # Knowledge organization
 
@@ -595,20 +641,24 @@ class SpatialKnowledgeGraph:
 
         # Performance tracking
         self.graph_metrics = {
-            'nodes_count': 0,
-            'edges_count': 0,
-            'average_degree': 0.0,
-            'connected_components': 0,
-            'knowledge_density': 0.0
+            "nodes_count": 0,
+            "edges_count": 0,
+            "average_degree": 0.0,
+            "connected_components": 0,
+            "knowledge_density": 0.0,
         }
 
-        logger.info(f"Spatial Knowledge Graph {graph_id} initialized for domain: {domain}")
+        logger.info(
+            f"Spatial Knowledge Graph {graph_id} initialized for domain: {domain}"
+        )
 
-    def add_spatial_entity(self,
-                          entity_id: str,
-                          entity_type: str,
-                          geometry: Optional[Dict[str, Any]] = None,
-                          properties: Optional[Dict[str, Any]] = None) -> None:
+    def add_spatial_entity(
+        self,
+        entity_id: str,
+        entity_type: str,
+        geometry: Optional[Dict[str, Any]] = None,
+        properties: Optional[Dict[str, Any]] = None,
+    ) -> None:
         """
         Add a spatial entity to the knowledge graph.
 
@@ -622,13 +672,13 @@ class SpatialKnowledgeGraph:
 
         # Create node data
         node_data = {
-            'entity_id': entity_id,
-            'entity_type': entity_type,
-            'geometry': geometry,
-            'properties': properties,
-            'created': datetime.now().isoformat(),
-            'confidence': properties.get('confidence', 1.0),
-            'saliency': properties.get('saliency', 0.5)
+            "entity_id": entity_id,
+            "entity_type": entity_type,
+            "geometry": geometry,
+            "properties": properties,
+            "created": datetime.now().isoformat(),
+            "confidence": properties.get("confidence", 1.0),
+            "saliency": properties.get("saliency", 0.5),
         }
 
         # Add to NetworkX graph
@@ -638,16 +688,18 @@ class SpatialKnowledgeGraph:
         self.node_index[entity_id] = node_data
 
         # Update metrics
-        self.graph_metrics['nodes_count'] = self.graph.number_of_nodes()
-        self.graph_metrics['average_degree'] = self._calculate_average_degree()
+        self.graph_metrics["nodes_count"] = self.graph.number_of_nodes()
+        self.graph_metrics["average_degree"] = self._calculate_average_degree()
 
         logger.info(f"Spatial entity {entity_id} added to knowledge graph")
 
-    def add_spatial_relationship(self,
-                               source_entity: str,
-                               target_entity: str,
-                               relation_type: str,
-                               properties: Optional[Dict[str, Any]] = None) -> None:
+    def add_spatial_relationship(
+        self,
+        source_entity: str,
+        target_entity: str,
+        relation_type: str,
+        properties: Optional[Dict[str, Any]] = None,
+    ) -> None:
         """
         Add a spatial relationship between entities.
 
@@ -660,15 +712,17 @@ class SpatialKnowledgeGraph:
         properties = properties or {}
 
         if source_entity not in self.graph or target_entity not in self.graph:
-            raise ValueError("Both entities must exist in graph before adding relationship")
+            raise ValueError(
+                "Both entities must exist in graph before adding relationship"
+            )
 
         # Create edge data
         edge_data = {
-            'relation_type': relation_type,
-            'properties': properties,
-            'confidence': properties.get('confidence', 1.0),
-            'strength': properties.get('strength', 1.0),
-            'created': datetime.now().isoformat()
+            "relation_type": relation_type,
+            "properties": properties,
+            "confidence": properties.get("confidence", 1.0),
+            "strength": properties.get("strength", 1.0),
+            "created": datetime.now().isoformat(),
         }
 
         # Add to NetworkX graph
@@ -679,15 +733,19 @@ class SpatialKnowledgeGraph:
         self.edge_index[edge_key] = edge_data
 
         # Update metrics
-        self.graph_metrics['edges_count'] = self.graph.number_of_edges()
-        self.graph_metrics['average_degree'] = self._calculate_average_degree()
+        self.graph_metrics["edges_count"] = self.graph.number_of_edges()
+        self.graph_metrics["average_degree"] = self._calculate_average_degree()
 
-        logger.info(f"Spatial relationship {relation_type} added: {source_entity} -> {target_entity}")
+        logger.info(
+            f"Spatial relationship {relation_type} added: {source_entity} -> {target_entity}"
+        )
 
-    def query_spatial_relationships(self,
-                                  entity_id: str,
-                                  relation_types: Optional[List[str]] = None,
-                                  max_depth: int = 1) -> List[Dict[str, Any]]:
+    def query_spatial_relationships(
+        self,
+        entity_id: str,
+        relation_types: Optional[List[str]] = None,
+        max_depth: int = 1,
+    ) -> List[Dict[str, Any]]:
         """
         Query spatial relationships for an entity.
 
@@ -708,22 +766,24 @@ class SpatialKnowledgeGraph:
         for neighbor in self.graph.neighbors(entity_id):
             edge_data = self.graph.get_edge_data(entity_id, neighbor)
             if edge_data:
-                relation_type = edge_data.get('relation_type', 'unknown')
+                relation_type = edge_data.get("relation_type", "unknown")
 
                 if relation_types is None or relation_type in relation_types:
-                    relationships.append({
-                        'source': entity_id,
-                        'target': neighbor,
-                        'relation_type': relation_type,
-                        'confidence': edge_data.get('confidence', 1.0),
-                        'strength': edge_data.get('strength', 1.0),
-                        'properties': edge_data.get('properties', {})
-                    })
+                    relationships.append(
+                        {
+                            "source": entity_id,
+                            "target": neighbor,
+                            "relation_type": relation_type,
+                            "confidence": edge_data.get("confidence", 1.0),
+                            "strength": edge_data.get("strength", 1.0),
+                            "properties": edge_data.get("properties", {}),
+                        }
+                    )
 
         # Multi-hop traversal for deeper queries
         if max_depth > 1:
             visited = {entity_id}
-            frontier = [r['target'] for r in relationships]
+            frontier = [r["target"] for r in relationships]
             for depth in range(2, max_depth + 1):
                 next_frontier: List[str] = []
                 for node in frontier:
@@ -733,24 +793,27 @@ class SpatialKnowledgeGraph:
                     for neighbor in self.graph.neighbors(node):
                         edge_data = self.graph.get_edge_data(node, neighbor)
                         if edge_data:
-                            rel_type = edge_data.get('relation_type', 'unknown')
+                            rel_type = edge_data.get("relation_type", "unknown")
                             if relation_types is None or rel_type in relation_types:
-                                relationships.append({
-                                    'source': node,
-                                    'target': neighbor,
-                                    'relation_type': rel_type,
-                                    'confidence': edge_data.get('confidence', 1.0),
-                                    'strength': edge_data.get('strength', 1.0),
-                                    'properties': edge_data.get('properties', {}),
-                                    'depth': depth,
-                                })
+                                relationships.append(
+                                    {
+                                        "source": node,
+                                        "target": neighbor,
+                                        "relation_type": rel_type,
+                                        "confidence": edge_data.get("confidence", 1.0),
+                                        "strength": edge_data.get("strength", 1.0),
+                                        "properties": edge_data.get("properties", {}),
+                                        "depth": depth,
+                                    }
+                                )
                                 next_frontier.append(neighbor)
                 frontier = next_frontier
 
         return relationships
 
-    def find_spatial_patterns(self,
-                            pattern_type: str = 'clusters') -> List[Dict[str, Any]]:
+    def find_spatial_patterns(
+        self, pattern_type: str = "clusters"
+    ) -> List[Dict[str, Any]]:
         """
         Find spatial patterns in the knowledge graph.
 
@@ -762,31 +825,35 @@ class SpatialKnowledgeGraph:
         """
         patterns = []
 
-        if pattern_type == 'clusters':
+        if pattern_type == "clusters":
             # Find densely connected components
             clusters = list(nx.connected_components(self.graph.to_undirected()))
 
             for i, cluster in enumerate(clusters):
                 if len(cluster) > 2:  # Only meaningful clusters
-                    patterns.append({
-                        'pattern_id': f'cluster_{i}',
-                        'pattern_type': 'spatial_cluster',
-                        'entities': list(cluster),
-                        'size': len(cluster),
-                        'density': self._calculate_cluster_density(cluster)
-                    })
+                    patterns.append(
+                        {
+                            "pattern_id": f"cluster_{i}",
+                            "pattern_type": "spatial_cluster",
+                            "entities": list(cluster),
+                            "size": len(cluster),
+                            "density": self._calculate_cluster_density(cluster),
+                        }
+                    )
 
-        elif pattern_type == 'hierarchies':
+        elif pattern_type == "hierarchies":
             # Find hierarchical structures
             hierarchies = self._find_hierarchical_structures()
 
             for hierarchy in hierarchies:
-                patterns.append({
-                    'pattern_id': hierarchy['hierarchy_id'],
-                    'pattern_type': 'spatial_hierarchy',
-                    'levels': hierarchy['levels'],
-                    'entities': hierarchy['entities']
-                })
+                patterns.append(
+                    {
+                        "pattern_id": hierarchy["hierarchy_id"],
+                        "pattern_type": "spatial_hierarchy",
+                        "levels": hierarchy["levels"],
+                        "entities": hierarchy["entities"],
+                    }
+                )
 
         return patterns
 
@@ -810,21 +877,22 @@ class SpatialKnowledgeGraph:
 
         # Simple hierarchy detection based on containment relationships
         containment_relations = [
-            edge for edge in self.graph.edges(data=True)
-            if edge[2].get('relation_type') == 'contains'
+            edge
+            for edge in self.graph.edges(data=True)
+            if edge[2].get("relation_type") == "contains"
         ]
 
         for relation in containment_relations:
             source, target, edge_data = relation
 
             hierarchy = {
-                'hierarchy_id': f'hierarchy_{source}_{target}',
-                'root': source,
-                'levels': [
-                    {'level': 0, 'entities': [source]},
-                    {'level': 1, 'entities': [target]}
+                "hierarchy_id": f"hierarchy_{source}_{target}",
+                "root": source,
+                "levels": [
+                    {"level": 0, "entities": [source]},
+                    {"level": 1, "entities": [target]},
                 ],
-                'entities': [source, target]
+                "entities": [source, target],
             }
 
             hierarchies.append(hierarchy)
@@ -836,114 +904,118 @@ class SpatialKnowledgeGraph:
         if self.graph.number_of_nodes() == 0:
             return 0.0
 
-        return cast(float, sum(dict(self.graph.degree()).values()) / self.graph.number_of_nodes())
+        return cast(
+            float,
+            sum(dict(self.graph.degree()).values()) / self.graph.number_of_nodes(),
+        )
 
     def get_graph_statistics(self) -> Dict[str, Any]:
         """Get comprehensive statistics about the knowledge graph."""
         if self.graph.number_of_nodes() == 0:
-            return {'nodes': 0, 'edges': 0, 'density': 0.0}
+            return {"nodes": 0, "edges": 0, "density": 0.0}
 
         # Basic metrics
         stats = {
-            'graph_id': self.graph_id,
-            'domain': self.domain,
-            'nodes': self.graph.number_of_nodes(),
-            'edges': self.graph.number_of_edges(),
-            'density': nx.density(self.graph),
-            'average_degree': self._calculate_average_degree(),
-            'connected_components': nx.number_weakly_connected_components(self.graph)
+            "graph_id": self.graph_id,
+            "domain": self.domain,
+            "nodes": self.graph.number_of_nodes(),
+            "edges": self.graph.number_of_edges(),
+            "density": nx.density(self.graph),
+            "average_degree": self._calculate_average_degree(),
+            "connected_components": nx.number_weakly_connected_components(self.graph),
         }
 
         # Entity type distribution
         entity_types: Dict[str, int] = {}
         for node, node_data in self.graph.nodes(data=True):
-            entity_type = node_data.get('entity_type', 'unknown')
+            entity_type = node_data.get("entity_type", "unknown")
             entity_types[entity_type] = entity_types.get(entity_type, 0) + 1
 
-        stats['entity_types'] = entity_types
+        stats["entity_types"] = entity_types
 
         # Relationship type distribution
         relation_types: Dict[str, int] = {}
         for edge_data in self.graph.edges.values():
-            relation_type = edge_data.get('relation_type', 'unknown')
+            relation_type = edge_data.get("relation_type", "unknown")
             relation_types[relation_type] = relation_types.get(relation_type, 0) + 1
 
-        stats['relation_types'] = relation_types
+        stats["relation_types"] = relation_types
 
         return stats
 
     def export_to_jsonld(self) -> Dict[str, Any]:
         """Export knowledge graph as JSON-LD for semantic web compatibility."""
         jsonld: Dict[str, Any] = {
-            '@context': {
-                'spatial': 'https://schema.org/spatial#',
-                'geo': 'https://schema.org/geo#',
-                'entity_type': 'spatial:entityType',
-                'relation_type': 'spatial:relationType',
-                'confidence': 'spatial:confidence',
-                'geometry': 'geo:geometry'
+            "@context": {
+                "spatial": "https://schema.org/spatial#",
+                "geo": "https://schema.org/geo#",
+                "entity_type": "spatial:entityType",
+                "relation_type": "spatial:relationType",
+                "confidence": "spatial:confidence",
+                "geometry": "geo:geometry",
             },
-            '@graph': []
+            "@graph": [],
         }
 
         # Add entities as nodes
         for node_id, node_data in self.graph.nodes(data=True):
             entity = {
-                '@id': f'entity:{node_id}',
-                '@type': f'spatial:{node_data.get("entity_type", "Entity")}',
-                'entity_id': node_id,
-                'confidence': node_data.get('confidence', 1.0),
-                'saliency': node_data.get('saliency', 0.5)
+                "@id": f"entity:{node_id}",
+                "@type": f"spatial:{node_data.get('entity_type', 'Entity')}",
+                "entity_id": node_id,
+                "confidence": node_data.get("confidence", 1.0),
+                "saliency": node_data.get("saliency", 0.5),
             }
 
-            if node_data.get('geometry'):
-                entity['geometry'] = node_data['geometry']
+            if node_data.get("geometry"):
+                entity["geometry"] = node_data["geometry"]
 
-            if node_data.get('properties'):
-                entity.update(node_data['properties'])
+            if node_data.get("properties"):
+                entity.update(node_data["properties"])
 
-            jsonld['@graph'].append(entity)
+            jsonld["@graph"].append(entity)
 
         # Add relationships as edges
         for source, target, edge_data in self.graph.edges(data=True):
             relationship = {
-                '@id': f'relation:{source}_{target}',
-                '@type': 'spatial:Relationship',
-                'source_entity': f'entity:{source}',
-                'target_entity': f'entity:{target}',
-                'relation_type': edge_data.get('relation_type', 'unknown'),
-                'confidence': edge_data.get('confidence', 1.0),
-                'strength': edge_data.get('strength', 1.0)
+                "@id": f"relation:{source}_{target}",
+                "@type": "spatial:Relationship",
+                "source_entity": f"entity:{source}",
+                "target_entity": f"entity:{target}",
+                "relation_type": edge_data.get("relation_type", "unknown"),
+                "confidence": edge_data.get("confidence", 1.0),
+                "strength": edge_data.get("strength", 1.0),
             }
 
-            if edge_data.get('properties'):
-                relationship.update(edge_data['properties'])
+            if edge_data.get("properties"):
+                relationship.update(edge_data["properties"])
 
-            jsonld['@graph'].append(relationship)
+            jsonld["@graph"].append(relationship)
 
         return jsonld
 
     def import_from_geojson(self, geojson_data: Dict[str, Any]) -> None:
         """Import spatial entities from GeoJSON format."""
-        features = geojson_data.get('features', [])
+        features = geojson_data.get("features", [])
 
         for feature in features:
-            geometry = feature.get('geometry', {})
-            properties = feature.get('properties', {})
+            geometry = feature.get("geometry", {})
+            properties = feature.get("properties", {})
 
             # Generate a deterministic fallback ID from the module-level
             # monotonic counter plus the graph's generator when supplied.
             entity_id = properties.get(
-                'id', f"entity_{next(_ENTITY_ID_SEQUENCE)}_{int(self._rng.integers(0, 10000))}"
+                "id",
+                f"entity_{next(_ENTITY_ID_SEQUENCE)}_{int(self._rng.integers(0, 10000))}",
             )
-            entity_type = properties.get('type', 'location')
+            entity_type = properties.get("type", "location")
 
             # Add entity to graph
             self.add_spatial_entity(
                 entity_id=entity_id,
                 entity_type=entity_type,
                 geometry=geometry,
-                properties=properties
+                properties=properties,
             )
 
         logger.info(f"Imported {len(features)} spatial entities from GeoJSON")

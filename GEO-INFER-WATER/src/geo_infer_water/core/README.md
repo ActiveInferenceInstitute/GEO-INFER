@@ -7,6 +7,7 @@ Core workspace within `GEO-INFER-WATER`.
 - `__init__.py`
 - `flood_drought.py`
 - `hydrology.py`
+- `infiltration.py`
 - `water_balance.py`
 - `water_infrastructure.py`
 - `water_quality.py`
@@ -16,6 +17,7 @@ Core workspace within `GEO-INFER-WATER`.
 
 - `flood_drought.py:FloodDroughtAnalyzer` (class)
 - `hydrology.py:HydrologicalModeler` (class)
+- `infiltration.py:InfiltrationModeler` (class)
 - `water_balance.py:WaterBalanceModeler` (class)
 - `water_infrastructure.py:WaterInfrastructurePlanner` (class)
 - `water_quality.py:WaterBodyType` (class)

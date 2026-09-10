@@ -75,9 +75,7 @@ router = APIRouter(prefix="/api/v1", tags=["spatial"])
 
 
 @app.exception_handler(Exception)
-async def general_exception_handler(
-    request: Request, exc: Exception
-) -> JSONResponse:
+async def general_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """Handle general exceptions."""
     logger.error(f"Unhandled exception: {exc}")
     return JSONResponse(
@@ -142,9 +140,7 @@ def _reproject_geometry_series(
 
     transformer = Transformer.from_crs(source_crs, target_crs, always_xy=True)
 
-    def transform_coordinates(
-        x: Any, y: Any, z: Any = None
-    ) -> Tuple[Any, Any]:
+    def transform_coordinates(x: Any, y: Any, z: Any = None) -> Tuple[Any, Any]:
         try:
             x_values = [float(value) for value in x]
             y_values = [float(value) for value in y]
@@ -180,9 +176,7 @@ def _buffer_geometry(
     # ``estimate_utm_crs`` helper. Older GeoPandas releases implement that
     # helper through a NumPy scalar conversion that is now a warning/error
     # under the repository's strict warning policy.
-    wgs84_geometry = _reproject_geometry_series(
-        gdf.geometry, gdf.crs, "EPSG:4326"
-    )
+    wgs84_geometry = _reproject_geometry_series(gdf.geometry, gdf.crs, "EPSG:4326")
     minx, miny, maxx, maxy = wgs84_geometry.total_bounds
     longitude = float((minx + maxx) / 2.0)
     latitude = float((miny + maxy) / 2.0)
@@ -201,9 +195,7 @@ def _buffer_geometry(
             "+datum=WGS84 +units=m +no_defs"
         )
 
-    projected_geometry = _reproject_geometry_series(
-        gdf.geometry, gdf.crs, metric_crs
-    )
+    projected_geometry = _reproject_geometry_series(gdf.geometry, gdf.crs, metric_crs)
     buffered = projected_geometry.buffer(distance)
     return _reproject_geometry_series(buffered, metric_crs, gdf.crs), {
         "buffer_crs": str(metric_crs),
@@ -223,9 +215,7 @@ async def buffer_analysis_endpoint(
     """
     try:
         # Convert GeoJSON to GeoDataFrame
-        gdf = geojson_to_gdf(
-            request.data.model_dump(), cast(str, request.crs)
-        )
+        gdf = geojson_to_gdf(request.data.model_dump(), cast(str, request.crs))
 
         # Project geographic input locally so that buffers are metric and
         # accurate instead of operating directly on longitude/latitude.
@@ -276,12 +266,8 @@ async def proximity_analysis_endpoint(
     try:
         # Convert GeoJSON to GeoDataFrames
         request_crs = cast(str, request.crs)
-        source_gdf = geojson_to_gdf(
-            request.source_data.model_dump(), request_crs
-        )
-        target_gdf = geojson_to_gdf(
-            request.target_data.model_dump(), request_crs
-        )
+        source_gdf = geojson_to_gdf(request.source_data.model_dump(), request_crs)
+        target_gdf = geojson_to_gdf(request.target_data.model_dump(), request_crs)
 
         # Perform proximity analysis
         result_gdf = proximity_analysis(source_gdf, target_gdf, request.max_distance)
@@ -320,9 +306,7 @@ async def interpolation_endpoint(
     """
     try:
         # Convert points to GeoDataFrame
-        points_gdf = geojson_to_gdf(
-            request.points.model_dump(), cast(str, request.crs)
-        )
+        points_gdf = geojson_to_gdf(request.points.model_dump(), cast(str, request.crs))
 
         # Validate value column exists
         if request.value_column not in points_gdf.columns:
@@ -335,9 +319,7 @@ async def interpolation_endpoint(
         result_gdf = spatial_interpolation(
             points_gdf=points_gdf,
             value_column=request.value_column,
-            grid_bounds=cast(
-                Tuple[float, float, float, float], tuple(request.bounds)
-            ),
+            grid_bounds=cast(Tuple[float, float, float, float], tuple(request.bounds)),
             grid_resolution=request.resolution,
             method=request.method,
             **(request.parameters or {}),
@@ -378,9 +360,7 @@ async def clustering_endpoint(
     """
     try:
         # Convert points to GeoDataFrame
-        points_gdf = geojson_to_gdf(
-            request.points.model_dump(), cast(str, request.crs)
-        )
+        points_gdf = geojson_to_gdf(request.points.model_dump(), cast(str, request.crs))
 
         # Perform clustering
         result_gdf = clustering_analysis(
@@ -433,9 +413,7 @@ async def hotspot_detection_endpoint(
     """
     try:
         # Convert points to GeoDataFrame
-        points_gdf = geojson_to_gdf(
-            request.points.model_dump(), cast(str, request.crs)
-        )
+        points_gdf = geojson_to_gdf(request.points.model_dump(), cast(str, request.crs))
 
         # Validate value column if provided
         if request.value_column and request.value_column not in points_gdf.columns:
@@ -522,9 +500,7 @@ async def network_analysis_endpoint(
                     detail="Service area analysis requires origin points",
                 )
 
-            origins_gdf = geojson_to_gdf(
-                request.origins.model_dump(), request_crs
-            )
+            origins_gdf = geojson_to_gdf(request.origins.model_dump(), request_crs)
             center_point = origins_gdf.geometry.iloc[0]
 
             max_distance = parameters.get("max_distance", 1000)
@@ -556,9 +532,7 @@ async def network_analysis_endpoint(
                     status_code=400,
                     detail="shortest_path requires origins and destinations",
                 )
-            origins_gdf = geojson_to_gdf(
-                request.origins.model_dump(), request_crs
-            )
+            origins_gdf = geojson_to_gdf(request.origins.model_dump(), request_crs)
             destinations_gdf = geojson_to_gdf(
                 request.destinations.model_dump(), request_crs
             )
@@ -593,9 +567,7 @@ async def network_analysis_endpoint(
                     status_code=400,
                     detail="routing requires origins and destinations",
                 )
-            origins_gdf = geojson_to_gdf(
-                request.origins.model_dump(), request_crs
-            )
+            origins_gdf = geojson_to_gdf(request.origins.model_dump(), request_crs)
             destinations_gdf = geojson_to_gdf(
                 request.destinations.model_dump(), request_crs
             )
@@ -622,9 +594,7 @@ async def network_analysis_endpoint(
                     status_code=400,
                     detail="accessibility requires origins and destinations",
                 )
-            origins_gdf = geojson_to_gdf(
-                request.origins.model_dump(), request_crs
-            )
+            origins_gdf = geojson_to_gdf(request.origins.model_dump(), request_crs)
             destinations_gdf = geojson_to_gdf(
                 request.destinations.model_dump(), request_crs
             )
@@ -726,9 +696,13 @@ async def h3_analysis_endpoint(
                     detail="Grid disk operation requires 'center_cell' parameter",
                 )
             if not is_valid_cell(center_cell):
-                raise HTTPException(status_code=400, detail="center_cell is not a valid H3 cell")
+                raise HTTPException(
+                    status_code=400, detail="center_cell is not a valid H3 cell"
+                )
             if isinstance(k, bool) or not isinstance(k, int) or k < 0:
-                raise HTTPException(status_code=400, detail="k must be a non-negative integer")
+                raise HTTPException(
+                    status_code=400, detail="k must be a non-negative integer"
+                )
 
             disk_cells = grid_disk(center_cell, k)
 
@@ -751,7 +725,11 @@ async def h3_analysis_endpoint(
                     status_code=400,
                     detail="compact_cells requires a non-empty 'cells' list",
                 )
-            invalid = [cell for cell in cells if not isinstance(cell, str) or not is_valid_cell(cell)]
+            invalid = [
+                cell
+                for cell in cells
+                if not isinstance(cell, str) or not is_valid_cell(cell)
+            ]
             if invalid:
                 raise HTTPException(
                     status_code=400,
@@ -790,9 +768,7 @@ async def h3_analysis_endpoint(
                 )
             from ..utils.h3_utils import cell_to_latlng_boundary
 
-            ring = [
-                [lng, lat] for lat, lng in cell_to_latlng_boundary(center_cell)
-            ]
+            ring = [[lng, lat] for lat, lng in cell_to_latlng_boundary(center_cell)]
             if ring and ring[0] != ring[-1]:
                 ring.append(ring[0])
             return SpatialAnalysisResponse(

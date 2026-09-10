@@ -246,7 +246,9 @@ class ClaimsProcessor:
             config: Claims processing configuration
         """
         self.config = config or ClaimsProcessingConfig()
-        self.logger = logging.getLogger("geo_infer_insurance.underwriting.claims_processor")
+        self.logger = logging.getLogger(
+            "geo_infer_insurance.underwriting.claims_processor"
+        )
 
         # Claims storage
         self.claims: Dict[str, Claim] = {}
@@ -895,7 +897,9 @@ class ClaimsEngine:
             config: Claims processing configuration
         """
         self.config = config or ClaimsProcessingConfig()
-        self.logger = logging.getLogger("geo_infer_insurance.underwriting.claims_engine")
+        self.logger = logging.getLogger(
+            "geo_infer_insurance.underwriting.claims_engine"
+        )
 
         # ML models are loaded lazily on first prediction call
         self.claim_assessment_model = None

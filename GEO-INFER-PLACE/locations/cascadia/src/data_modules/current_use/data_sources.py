@@ -84,8 +84,7 @@ class CascadianCurrentUseDataSources:
     ) -> Tuple[float, float, float, float]:
         """Calculates a bounding box from a list of H3 hexagons."""
         boundaries = [
-            Polygon([(lng, lat) for lat, lng in cell_to_latlng_boundary(h)])
-            for h in hexagons
+            Polygon([(lng, lat) for lat, lng in cell_to_latlng_boundary(h)]) for h in hexagons
         ]
         min_lon = min(b.bounds[0] for b in boundaries)
         min_lat = min(b.bounds[1] for b in boundaries)
@@ -135,19 +134,11 @@ class CascadianCurrentUseDataSources:
         """Initialize standardized crop classification system"""
         return {
             1: CropClassification(1, "Corn", "Field Crops", "High", 800.0, "Annual"),
-            5: CropClassification(
-                5, "Soybeans", "Field Crops", "Medium", 600.0, "Annual"
-            ),
-            24: CropClassification(
-                24, "Winter Wheat", "Field Crops", "Low", 400.0, "Annual"
-            ),
+            5: CropClassification(5, "Soybeans", "Field Crops", "Medium", 600.0, "Annual"),
+            24: CropClassification(24, "Winter Wheat", "Field Crops", "Low", 400.0, "Annual"),
             36: CropClassification(36, "Alfalfa", "Forage", "High", 600.0, "Perennial"),
-            61: CropClassification(
-                61, "Fallow/Idle Cropland", "Fallow", "None", 0.0, "Seasonal"
-            ),
-            111: CropClassification(
-                111, "Open Water", "Water", "None", 0.0, "Permanent"
-            ),
+            61: CropClassification(61, "Fallow/Idle Cropland", "Fallow", "None", 0.0, "Seasonal"),
+            111: CropClassification(111, "Open Water", "Water", "None", 0.0, "Permanent"),
             121: CropClassification(
                 121, "Developed/Open Space", "Developed", "None", 0.0, "Permanent"
             ),
@@ -160,9 +151,7 @@ class CascadianCurrentUseDataSources:
             124: CropClassification(
                 124, "Developed/High Intensity", "Developed", "None", 0.0, "Permanent"
             ),
-            141: CropClassification(
-                141, "Deciduous Forest", "Forest", "Low", 100.0, "Perennial"
-            ),
+            141: CropClassification(141, "Deciduous Forest", "Forest", "Low", 100.0, "Perennial"),
             176: CropClassification(
                 176, "Grassland/Pasture", "Grassland", "Low", 200.0, "Perennial"
             ),
@@ -199,10 +188,7 @@ class CascadianCurrentUseDataSources:
             for h3_index in state_hexagons:
                 try:
                     hex_poly = Polygon(
-                        [
-                            (lng, lat)
-                            for lat, lng in cell_to_latlng_boundary(h3_index)
-                        ]
+                        [(lng, lat) for lat, lng in cell_to_latlng_boundary(h3_index)]
                     )
                     out_image, out_transform = mask(src, [hex_poly], crop=True)
 
@@ -218,9 +204,7 @@ class CascadianCurrentUseDataSources:
                         ]
                         hex_results[h3_index] = crop_percentages
                 except Exception as e:
-                    logger.error(
-                        f"Error processing hexagon {h3_index} with raster data: {e}"
-                    )
+                    logger.error(f"Error processing hexagon {h3_index} with raster data: {e}")
 
             src.close()  # Important to close the raster file
 
@@ -301,12 +285,8 @@ class CascadianCurrentUseDataSources:
 
         try:
             # Load state boundary
-            state_boundaries = gpd.read_file(
-                "path/to/state_boundaries.shp"
-            )  # Add actual path
-            state_geom = state_boundaries[
-                state_boundaries["STUSPS"] == state
-            ].geometry.iloc[0]
+            state_boundaries = gpd.read_file("path/to/state_boundaries.shp")  # Add actual path
+            state_geom = state_boundaries[state_boundaries["STUSPS"] == state].geometry.iloc[0]
 
             # Clip national raster to state
             with rasterio.open(national_tif_path) as src:
@@ -341,16 +321,11 @@ class CascadianCurrentUseDataSources:
         downloading, caching, and clipping the national dataset.
         """
         for year_to_try in range(year, year - 4, -1):
-
-            clipped_raster_path = self._download_and_clip_national_cdl(
-                year_to_try, state
-            )
+            clipped_raster_path = self._download_and_clip_national_cdl(year_to_try, state)
 
             if clipped_raster_path and clipped_raster_path.exists():
                 try:
-                    logger.info(
-                        f"Opening raster {clipped_raster_path} for state {state}"
-                    )
+                    logger.info(f"Opening raster {clipped_raster_path} for state {state}")
                     src = rasterio.open(clipped_raster_path)
                     # Further mask to the specific bbox of the hexagon batch
                     masked_src, masked_transform = mask(
@@ -495,9 +470,7 @@ class CascadianCurrentUseDataSources:
             return [2014, 2016, 2018, 2020]  # Example years
         elif source == "oregon_efu":
             # Scan local directory for available report years
-            data_dir = os.path.join(
-                os.path.dirname(__file__), "..", "data", "oregon_efu"
-            )
+            data_dir = os.path.join(os.path.dirname(__file__), "..", "data", "oregon_efu")
             if not os.path.exists(data_dir):
                 return []
             years = []

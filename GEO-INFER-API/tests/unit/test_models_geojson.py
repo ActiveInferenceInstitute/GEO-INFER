@@ -80,17 +80,23 @@ class TestPolygonFeature:
 
 class TestFeatureCollection:
     def test_collection(self):
-        fc = FeatureCollection(features=[
-            Feature(properties={"a": 1}),
-            Feature(properties={"b": 2}),
-        ])
+        fc = FeatureCollection(
+            features=[
+                Feature(properties={"a": 1}),
+                Feature(properties={"b": 2}),
+            ]
+        )
         assert len(fc.features) == 2
 
 
 class TestPolygonFeatureCollection:
     def test_polygon_collection(self):
         ring = [(0, 0), (1, 0), (1, 1), (0, 0)]
-        pfc = PolygonFeatureCollection(features=[
-            PolygonFeature(geometry=Polygon(coordinates=[ring]), properties={}, id="p1"),
-        ])
+        pfc = PolygonFeatureCollection(
+            features=[
+                PolygonFeature(
+                    geometry=Polygon(coordinates=[ring]), properties={}, id="p1"
+                ),
+            ]
+        )
         assert len(pfc.features) == 1

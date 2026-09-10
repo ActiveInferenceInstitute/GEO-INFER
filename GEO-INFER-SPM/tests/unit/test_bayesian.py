@@ -104,11 +104,13 @@ class TestBayesianSPM:
         self.bayesian_spm.model_type = "empirical_bayes"
 
         model1 = self.bayesian_spm.fit_bayesian_glm(
-            self.spm_data, self.design_matrix.matrix[:, :2]  # Fewer parameters
+            self.spm_data,
+            self.design_matrix.matrix[:, :2],  # Fewer parameters
         )
 
         model2 = self.bayesian_spm.fit_bayesian_glm(
-            self.spm_data, self.design_matrix.matrix  # All parameters
+            self.spm_data,
+            self.design_matrix.matrix,  # All parameters
         )
 
         comparison = self.bayesian_spm.bayesian_model_comparison([model1, model2])

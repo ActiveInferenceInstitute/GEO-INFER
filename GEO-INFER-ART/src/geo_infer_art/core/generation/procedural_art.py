@@ -1,6 +1,7 @@
 """
 ProceduralArt module for creating procedural and algorithmic art from geospatial data.
 """
+
 import logging
 import os
 from typing import Any, Dict, List, Optional, Tuple
@@ -13,6 +14,7 @@ from PIL import Image
 from geo_infer_art.core.aesthetics import ColorPalette
 
 logger = logging.getLogger(__name__)
+
 
 class ProceduralArt:
     """
@@ -1814,7 +1816,9 @@ class ProceduralArt:
         )
 
         # Generate Hilbert curve points
-        def hilbert_curve(order: int, x: int, y: int, lg: int, i1: int, i2: int) -> None:
+        def hilbert_curve(
+            order: int, x: int, y: int, lg: int, i1: int, i2: int
+        ) -> None:
             if order == 0:
                 color_idx = (lg // 2) % len(palette.colors)
                 color = palette.colors[color_idx]
@@ -1865,9 +1869,7 @@ class ProceduralArt:
         )
 
         # Generate Koch snowflake
-        def koch_curve(
-            x1: float, y1: float, x2: float, y2: float, depth: int
-        ) -> None:
+        def koch_curve(x1: float, y1: float, x2: float, y2: float, depth: int) -> None:
             if depth <= 0:
                 color_idx = (depth + iterations) % len(palette.colors)
                 color = palette.colors[color_idx]

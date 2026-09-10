@@ -74,7 +74,16 @@ class CellularAutomata:
 
         if neighborhood == "moore":
             # 8 neighbors (including diagonals)
-            offsets = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+            offsets = [
+                (-1, -1),
+                (-1, 0),
+                (-1, 1),
+                (0, -1),
+                (0, 1),
+                (1, -1),
+                (1, 0),
+                (1, 1),
+            ]
         elif neighborhood == "von_neumann":
             # 4 neighbors (no diagonals)
             offsets = [(-1, 0), (0, -1), (0, 1), (1, 0)]
@@ -173,13 +182,8 @@ class CellularAutomata:
         if initial_states is not None:
             self.grid = initial_states.copy()
         else:
-            self.grid = self.rng.integers(
-                0, self.num_states, size=self.grid_shape
-            )
+            self.grid = self.rng.integers(0, self.num_states, size=self.grid_shape)
 
         self.time = 0.0
         self.history = []
         logger.info("Cellular automata reset")
-
-
-

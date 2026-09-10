@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 try:
     import geopandas as gpd
+
     HAS_GEOPANDAS = True
 except ImportError:
     HAS_GEOPANDAS = False
@@ -30,6 +31,7 @@ except ImportError:
 
 try:
     import rasterio
+
     HAS_RASTERIO = True
 except ImportError:
     HAS_RASTERIO = False
@@ -37,6 +39,7 @@ except ImportError:
 
 try:
     import laspy  # type: ignore[import-untyped]
+
     HAS_LASPY = True
 except ImportError:
     HAS_LASPY = False
@@ -44,6 +47,7 @@ except ImportError:
 
 try:
     import xarray as xr
+
     HAS_XARRAY = True
 except ImportError:
     HAS_XARRAY = False
@@ -51,6 +55,7 @@ except ImportError:
 
 try:
     import numpy as np
+
     HAS_NUMPY = True
 except ImportError:
     HAS_NUMPY = False
@@ -60,6 +65,7 @@ except ImportError:
 # ---------------------------------------------------------------------------
 # Abstract base class
 # ---------------------------------------------------------------------------
+
 
 class FormatHandler(ABC):
     """Abstract base class for geospatial format handlers.
@@ -177,6 +183,7 @@ class FormatHandler(ABC):
 # GeoJSON handler
 # ---------------------------------------------------------------------------
 
+
 class GeoJSONHandler(FormatHandler):
     """Handler for GeoJSON files.
 
@@ -215,9 +222,7 @@ class GeoJSONHandler(FormatHandler):
 
         try:
             gdf = gpd.read_file(resolved, driver="GeoJSON", **kwargs)
-            logger.info(
-                "Read %d features from %s", len(gdf), resolved
-            )
+            logger.info("Read %d features from %s", len(gdf), resolved)
             return gdf
         except Exception:
             logger.exception("Failed to read GeoJSON file: %s", resolved)
@@ -242,9 +247,7 @@ class GeoJSONHandler(FormatHandler):
 
         try:
             data.to_file(resolved, driver="GeoJSON", **kwargs)
-            logger.info(
-                "Wrote %d features to %s", len(data), resolved
-            )
+            logger.info("Wrote %d features to %s", len(data), resolved)
         except Exception:
             logger.exception("Failed to write GeoJSON file: %s", resolved)
             raise
@@ -269,9 +272,14 @@ class GeoJSONHandler(FormatHandler):
 
             geojson_type = geojson_data.get("type")
             valid_types = {
-                "FeatureCollection", "Feature",
-                "Point", "LineString", "Polygon",
-                "MultiPoint", "MultiLineString", "MultiPolygon",
+                "FeatureCollection",
+                "Feature",
+                "Point",
+                "LineString",
+                "Polygon",
+                "MultiPoint",
+                "MultiLineString",
+                "MultiPolygon",
                 "GeometryCollection",
             }
             if geojson_type not in valid_types:
@@ -317,6 +325,7 @@ class GeoJSONHandler(FormatHandler):
 # ---------------------------------------------------------------------------
 # Shapefile handler
 # ---------------------------------------------------------------------------
+
 
 class ShapefileHandler(FormatHandler):
     """Handler for ESRI Shapefiles.
@@ -412,22 +421,22 @@ class ShapefileHandler(FormatHandler):
         }
 
         if missing:
-            result["error"] = (
-                f"Missing required sidecar files: {', '.join(missing)}"
-            )
+            result["error"] = f"Missing required sidecar files: {', '.join(missing)}"
             result["metadata"] = metadata
             return result
 
         if HAS_GEOPANDAS:
             try:
                 gdf = gpd.read_file(resolved)
-                metadata.update({
-                    "num_features": len(gdf),
-                    "columns": list(gdf.columns),
-                    "geometry_types": list(gdf.geometry.geom_type.unique()),
-                    "crs": str(gdf.crs) if gdf.crs else None,
-                    "bounds": gdf.total_bounds.tolist() if len(gdf) > 0 else None,
-                })
+                metadata.update(
+                    {
+                        "num_features": len(gdf),
+                        "columns": list(gdf.columns),
+                        "geometry_types": list(gdf.geometry.geom_type.unique()),
+                        "crs": str(gdf.crs) if gdf.crs else None,
+                        "bounds": gdf.total_bounds.tolist() if len(gdf) > 0 else None,
+                    }
+                )
                 result["valid"] = True
             except Exception as exc:
                 result["error"] = f"Failed to read Shapefile: {exc}"
@@ -442,6 +451,7 @@ class ShapefileHandler(FormatHandler):
 # ---------------------------------------------------------------------------
 # GeoTIFF handler
 # ---------------------------------------------------------------------------
+
 
 class GeoTIFFHandler(FormatHandler):
     """Handler for GeoTIFF raster files.
@@ -501,9 +511,7 @@ class GeoTIFFHandler(FormatHandler):
         elif arr.ndim == 3:
             count, height, width = arr.shape
         else:
-            raise ValueError(
-                f"Expected 2-D or 3-D array, got shape {arr.shape}"
-            )
+            raise ValueError(f"Expected 2-D or 3-D array, got shape {arr.shape}")
 
         profile: Dict[str, Any] = {
             "driver": "GTiff",
@@ -559,7 +567,10 @@ class GeoTIFFHandler(FormatHandler):
 
             logger.info(
                 "Read GeoTIFF (%dx%d, %d bands) from %s",
-                result["width"], result["height"], result["count"], resolved,
+                result["width"],
+                result["height"],
+                result["count"],
+                resolved,
             )
             return result
         except Exception:
@@ -640,6 +651,7 @@ class GeoTIFFHandler(FormatHandler):
 # Cloud-Optimized GeoTIFF (COG) handler
 # ---------------------------------------------------------------------------
 
+
 class COGHandler(GeoTIFFHandler):
     """Handler for Cloud-Optimized GeoTIFF (COG) files.
 
@@ -695,12 +707,8 @@ class COGHandler(GeoTIFFHandler):
         """
         self._require_rasterio()
 
-        overview_levels: List[int] = kwargs.pop(
-            "overview_levels", [2, 4, 8, 16]
-        )
-        overview_resampling: str = kwargs.pop(
-            "overview_resampling", "nearest"
-        )
+        overview_levels: List[int] = kwargs.pop("overview_levels", [2, 4, 8, 16])
+        overview_resampling: str = kwargs.pop("overview_resampling", "nearest")
 
         resolved = self._ensure_parent_dir(path)
         logger.info("Writing COG file: %s", resolved)
@@ -742,18 +750,16 @@ class COGHandler(GeoTIFFHandler):
             resolved = Path(path)
             with rasterio.open(resolved, "r") as src:
                 is_tiled = src.profile.get("tiled", False)
-                has_overviews = any(
-                    src.overviews(i + 1) for i in range(src.count)
+                has_overviews = any(src.overviews(i + 1) for i in range(src.count))
+                overview_levels = src.overviews(1) if src.count > 0 else []
+                result["metadata"].update(
+                    {
+                        "is_tiled": is_tiled,
+                        "has_overviews": has_overviews,
+                        "overview_levels": overview_levels,
+                        "is_cog_compliant": is_tiled and has_overviews,
+                    }
                 )
-                overview_levels = (
-                    src.overviews(1) if src.count > 0 else []
-                )
-                result["metadata"].update({
-                    "is_tiled": is_tiled,
-                    "has_overviews": has_overviews,
-                    "overview_levels": overview_levels,
-                    "is_cog_compliant": is_tiled and has_overviews,
-                })
         except Exception as exc:
             logger.warning("COG-specific validation failed: %s", exc)
 
@@ -763,6 +769,7 @@ class COGHandler(GeoTIFFHandler):
 # ---------------------------------------------------------------------------
 # LAS / LAZ point cloud handler
 # ---------------------------------------------------------------------------
+
 
 class LASHandler(FormatHandler):
     """Handler for LAS and LAZ point cloud files.
@@ -804,9 +811,7 @@ class LASHandler(FormatHandler):
 
         try:
             las_data = laspy.read(str(resolved), **kwargs)
-            logger.info(
-                "Read %d points from %s", las_data.header.point_count, resolved
-            )
+            logger.info("Read %d points from %s", las_data.header.point_count, resolved)
             return las_data
         except Exception:
             logger.exception("Failed to read LAS file: %s", resolved)
@@ -913,6 +918,7 @@ class LASHandler(FormatHandler):
 # NetCDF handler
 # ---------------------------------------------------------------------------
 
+
 class NetCDFHandler(FormatHandler):
     """Handler for NetCDF files.
 
@@ -956,7 +962,8 @@ class NetCDFHandler(FormatHandler):
             ds = xr.open_dataset(str(resolved), **kwargs)
             logger.info(
                 "Read NetCDF with %d variables from %s",
-                len(ds.data_vars), resolved,
+                len(ds.data_vars),
+                resolved,
             )
             return ds
         except Exception:

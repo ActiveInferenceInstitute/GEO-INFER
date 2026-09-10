@@ -115,7 +115,9 @@ def _assert_probability_vector(values, label: str) -> None:
 
 
 def _assert_h3_lattice_animation(result, *, expected_timesteps: int) -> None:
-    html_path = result.output_dir / "visualizations" / "h3_active_inference_lattice.html"
+    html_path = (
+        result.output_dir / "visualizations" / "h3_active_inference_lattice.html"
+    )
     if html_path.exists():
         html = html_path.read_text()
         for marker in (

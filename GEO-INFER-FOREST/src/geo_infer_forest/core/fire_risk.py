@@ -151,7 +151,12 @@ class FireRiskAssessor:
         elif rh < 50.0:
             emc = 2.22749 + 0.160107 * rh - 0.01478 * temperature_c
         else:
-            emc = 21.0606 + 0.005565 * rh ** 2 - 0.00035 * rh * temperature_c - 0.483199 * rh
+            emc = (
+                21.0606
+                + 0.005565 * rh**2
+                - 0.00035 * rh * temperature_c
+                - 0.483199 * rh
+            )
 
         emc = max(1.0, emc)
 

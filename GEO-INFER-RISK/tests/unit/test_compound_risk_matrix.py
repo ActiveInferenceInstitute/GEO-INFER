@@ -68,6 +68,4 @@ def test_directed_interaction_matrix_and_risk_engine_compound_probability(
     with pytest.raises(ValueError, match="shape"):
         MultiHazardInteractionMatrix(hazards, np.eye(2))
     with pytest.raises(ValueError, match="between 0 and 1"):
-        independent.compound_exceedance_probability(
-            {**probabilities, "flood": 1.2}
-        )
+        independent.compound_exceedance_probability({**probabilities, "flood": 1.2})

@@ -124,9 +124,13 @@ class InteractiveVisualizationEngine:
         output_name = dashboard_config.get("output_name")
         if output_name is not None:
             if not isinstance(output_name, str) or not output_name.endswith(".html"):
-                raise ValueError("dashboard_config.output_name must be an .html filename")
+                raise ValueError(
+                    "dashboard_config.output_name must be an .html filename"
+                )
             if Path(output_name).name != output_name:
-                raise ValueError("dashboard_config.output_name must not contain directories")
+                raise ValueError(
+                    "dashboard_config.output_name must not contain directories"
+                )
         logger.info("🎨 Creating comprehensive interactive dashboard...")
 
         # Create base map with professional styling
@@ -201,9 +205,8 @@ class InteractiveVisualizationEngine:
                 ],
                 "accessibility": {
                     "nonempty_html": dashboard_path.stat().st_size > 0,
-                    "has_title": "GEO-INFER Place-Based Analysis" in dashboard_path.read_text(
-                        encoding="utf-8"
-                    ),
+                    "has_title": "GEO-INFER Place-Based Analysis"
+                    in dashboard_path.read_text(encoding="utf-8"),
                 },
             }
             dashboard_path.with_suffix(".manifest.json").write_text(
@@ -287,12 +290,12 @@ class InteractiveVisualizationEngine:
             <div style="font-family: Arial; min-width: 200px;">
                 <h4 style="color: #228B22; margin: 0 0 8px 0;">🌲 Forest Health Site</h4>
                 <table style="font-size: 11px; width: 100%;">
-                    <tr><td><b>Site ID:</b></td><td>{site['site_id']}</td></tr>
-                    <tr><td><b>Health Index:</b></td><td>{site['health_index']:.2f}</td></tr>
-                    <tr><td><b>NDVI:</b></td><td>{site['ndvi']:.3f}</td></tr>
-                    <tr><td><b>Tree Density:</b></td><td>{site['tree_density']}/ha</td></tr>
-                    <tr><td><b>Species Diversity:</b></td><td>{site['species_diversity']:.2f}</td></tr>
-                    <tr><td><b>Last Survey:</b></td><td>{site['last_survey']}</td></tr>
+                    <tr><td><b>Site ID:</b></td><td>{site["site_id"]}</td></tr>
+                    <tr><td><b>Health Index:</b></td><td>{site["health_index"]:.2f}</td></tr>
+                    <tr><td><b>NDVI:</b></td><td>{site["ndvi"]:.3f}</td></tr>
+                    <tr><td><b>Tree Density:</b></td><td>{site["tree_density"]}/ha</td></tr>
+                    <tr><td><b>Species Diversity:</b></td><td>{site["species_diversity"]:.2f}</td></tr>
+                    <tr><td><b>Last Survey:</b></td><td>{site["last_survey"]}</td></tr>
                 </table>
             </div>
             """
@@ -333,11 +336,11 @@ class InteractiveVisualizationEngine:
             <div style="font-family: Arial; min-width: 200px;">
                 <h4 style="color: #4682B4; margin: 0 0 8px 0;">🌊 Coastal Monitoring</h4>
                 <table style="font-size: 11px; width: 100%;">
-                    <tr><td><b>Site ID:</b></td><td>{site['site_id']}</td></tr>
-                    <tr><td><b>Vulnerability:</b></td><td>{site['vulnerability']:.2f}</td></tr>
-                    <tr><td><b>Erosion Rate:</b></td><td>{site['erosion_rate']:.1f} m/yr</td></tr>
-                    <tr><td><b>Sea Level Trend:</b></td><td>{site['sea_level_trend']:.1f} mm/yr</td></tr>
-                    <tr><td><b>Storm Exposure:</b></td><td>{site['storm_exposure']}</td></tr>
+                    <tr><td><b>Site ID:</b></td><td>{site["site_id"]}</td></tr>
+                    <tr><td><b>Vulnerability:</b></td><td>{site["vulnerability"]:.2f}</td></tr>
+                    <tr><td><b>Erosion Rate:</b></td><td>{site["erosion_rate"]:.1f} m/yr</td></tr>
+                    <tr><td><b>Sea Level Trend:</b></td><td>{site["sea_level_trend"]:.1f} mm/yr</td></tr>
+                    <tr><td><b>Storm Exposure:</b></td><td>{site["storm_exposure"]}</td></tr>
                 </table>
             </div>
             """
@@ -378,11 +381,11 @@ class InteractiveVisualizationEngine:
             <div style="font-family: Arial; min-width: 200px;">
                 <h4 style="color: #DC143C; margin: 0 0 8px 0;">🔥 Fire Risk Site</h4>
                 <table style="font-size: 11px; width: 100%;">
-                    <tr><td><b>Site ID:</b></td><td>{site['site_id']}</td></tr>
-                    <tr><td><b>Risk Level:</b></td><td>{site['risk_level']:.2f}</td></tr>
-                    <tr><td><b>Fuel Moisture:</b></td><td>{site['fuel_moisture']:.1f}%</td></tr>
-                    <tr><td><b>Fire Weather Index:</b></td><td>{site['fire_weather_index']:.1f}</td></tr>
-                    <tr><td><b>Suppression Distance:</b></td><td>{site['suppression_distance']:.1f} km</td></tr>
+                    <tr><td><b>Site ID:</b></td><td>{site["site_id"]}</td></tr>
+                    <tr><td><b>Risk Level:</b></td><td>{site["risk_level"]:.2f}</td></tr>
+                    <tr><td><b>Fuel Moisture:</b></td><td>{site["fuel_moisture"]:.1f}%</td></tr>
+                    <tr><td><b>Fire Weather Index:</b></td><td>{site["fire_weather_index"]:.1f}</td></tr>
+                    <tr><td><b>Suppression Distance:</b></td><td>{site["suppression_distance"]:.1f} km</td></tr>
                 </table>
             </div>
             """
@@ -428,12 +431,12 @@ class InteractiveVisualizationEngine:
 
             popup_html = f"""
             <div style="font-family: Arial; min-width: 200px;">
-                <h4 style="color: #4B0082; margin: 0 0 8px 0;">🏘️ {facility['name']}</h4>
+                <h4 style="color: #4B0082; margin: 0 0 8px 0;">🏘️ {facility["name"]}</h4>
                 <table style="font-size: 11px; width: 100%;">
-                    <tr><td><b>Type:</b></td><td>{facility['type'].title()}</td></tr>
-                    <tr><td><b>Capacity:</b></td><td>{facility['capacity']}</td></tr>
-                    <tr><td><b>Service Area:</b></td><td>{facility['service_area']} km²</td></tr>
-                    <tr><td><b>Accessibility:</b></td><td>{facility['accessibility']}</td></tr>
+                    <tr><td><b>Type:</b></td><td>{facility["type"].title()}</td></tr>
+                    <tr><td><b>Capacity:</b></td><td>{facility["capacity"]}</td></tr>
+                    <tr><td><b>Service Area:</b></td><td>{facility["service_area"]} km²</td></tr>
+                    <tr><td><b>Accessibility:</b></td><td>{facility["accessibility"]}</td></tr>
                 </table>
             </div>
             """
@@ -477,8 +480,8 @@ class InteractiveVisualizationEngine:
                 <table style="font-size: 11px; width: 100%;">
                     <tr><td><b>H3 Index:</b></td><td>{h3_cell}</td></tr>
                     <tr><td><b>Integration Score:</b></td><td>{integration_score:.3f}</td></tr>
-                    <tr><td><b>Domain Count:</b></td><td>{cell_data['domain_count']}</td></tr>
-                    <tr><td><b>Risk Factors:</b></td><td>{cell_data['risk_factors']}</td></tr>
+                    <tr><td><b>Domain Count:</b></td><td>{cell_data["domain_count"]}</td></tr>
+                    <tr><td><b>Risk Factors:</b></td><td>{cell_data["risk_factors"]}</td></tr>
                 </table>
             </div>
             """
@@ -509,7 +512,9 @@ class InteractiveVisualizationEngine:
 
         data_path = self.location_config.get("data_paths", {}).get(source_key)
         if data_path is None:
-            logger.info("No %s observations supplied; omitting visualization layer", source_key)
+            logger.info(
+                "No %s observations supplied; omitting visualization layer", source_key
+            )
             return []
         try:
             return cast(
@@ -517,7 +522,9 @@ class InteractiveVisualizationEngine:
                 gpd.read_file(data_path).to_dict("records"),
             )
         except Exception as exc:
-            logger.warning("Unable to read %s data from %s: %s", source_key, data_path, exc)
+            logger.warning(
+                "Unable to read %s data from %s: %s", source_key, data_path, exc
+            )
             return []
 
     def _generate_forest_monitoring_sites(
@@ -592,7 +599,9 @@ class InteractiveVisualizationEngine:
                     continue
                 score = cell_data.get(
                     "integration_score",
-                    cell_data.get("forest_health_score", cell_data.get("risk_level", 0.0)),
+                    cell_data.get(
+                        "forest_health_score", cell_data.get("risk_level", 0.0)
+                    ),
                 )
                 try:
                     numeric_score = float(cast(Any, score))

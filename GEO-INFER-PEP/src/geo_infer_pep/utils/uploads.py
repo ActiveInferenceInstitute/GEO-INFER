@@ -21,7 +21,9 @@ async def save_upload_file_tmp(upload_file: UploadFile) -> Path:
             tmp.write(contents)
             tmp_path = Path(tmp.name)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Could not save uploaded file: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Could not save uploaded file: {e}"
+        )
     finally:
         await upload_file.close()
     return tmp_path

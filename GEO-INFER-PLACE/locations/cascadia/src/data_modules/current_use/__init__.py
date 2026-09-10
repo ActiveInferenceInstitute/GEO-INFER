@@ -11,4 +11,4 @@ except ImportError:
     GeoInferCurrentUse = None
 from .data_sources import CascadianCurrentUseDataSources
 
-__all__ = ['GeoInferCurrentUse', 'CascadianCurrentUseDataSources'] 
+__all__ = ["GeoInferCurrentUse", "CascadianCurrentUseDataSources"]

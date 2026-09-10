@@ -85,9 +85,7 @@ def _operation() -> Dict[str, Any]:
             }
         )
 
-    final_beliefs = np.asarray(
-        agent.current_beliefs["states"], dtype=float
-    ).reshape(-1)
+    final_beliefs = np.asarray(agent.current_beliefs["states"], dtype=float).reshape(-1)
     return {
         "operation": "active_inference_perceive_act_loop",
         "model": {"states": n_states, "observations": n_obs, "actions": n_actions},

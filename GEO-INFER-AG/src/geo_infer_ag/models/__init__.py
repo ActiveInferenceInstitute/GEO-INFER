@@ -12,4 +12,4 @@ __all__ = [
     "SoilHealthModel",
     "WaterUsageModel",
     "CarbonSequestrationModel",
-] 
+]

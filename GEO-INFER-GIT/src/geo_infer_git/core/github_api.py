@@ -19,6 +19,7 @@ from urllib3.util.retry import Retry
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class GitHubRepository:
     """GitHub repository information."""
@@ -44,29 +45,30 @@ class GitHubRepository:
     topics: List[str]
 
     @classmethod
-    def from_api_response(cls, data: Dict[str, Any]) -> 'GitHubRepository':
+    def from_api_response(cls, data: Dict[str, Any]) -> "GitHubRepository":
         """Create repository object from GitHub API response."""
         return cls(
-            name=data.get('name', ''),
-            full_name=data.get('full_name', ''),
-            owner=data.get('owner', {}).get('login', ''),
-            description=data.get('description', ''),
-            url=data.get('html_url', ''),
-            clone_url=data.get('clone_url', ''),
-            ssh_url=data.get('ssh_url', ''),
-            default_branch=data.get('default_branch', 'main'),
-            language=data.get('language', ''),
-            stars=data.get('stargazers_count', 0),
-            forks=data.get('forks_count', 0),
-            size=data.get('size', 0),
-            created_at=data.get('created_at', ''),
-            updated_at=data.get('updated_at', ''),
-            pushed_at=data.get('pushed_at', ''),
-            archived=data.get('archived', False),
-            private=data.get('private', False),
-            fork=data.get('fork', False),
-            topics=data.get('topics', [])
+            name=data.get("name", ""),
+            full_name=data.get("full_name", ""),
+            owner=data.get("owner", {}).get("login", ""),
+            description=data.get("description", ""),
+            url=data.get("html_url", ""),
+            clone_url=data.get("clone_url", ""),
+            ssh_url=data.get("ssh_url", ""),
+            default_branch=data.get("default_branch", "main"),
+            language=data.get("language", ""),
+            stars=data.get("stargazers_count", 0),
+            forks=data.get("forks_count", 0),
+            size=data.get("size", 0),
+            created_at=data.get("created_at", ""),
+            updated_at=data.get("updated_at", ""),
+            pushed_at=data.get("pushed_at", ""),
+            archived=data.get("archived", False),
+            private=data.get("private", False),
+            fork=data.get("fork", False),
+            topics=data.get("topics", []),
         )
+
 
 @dataclass
 class RateLimit:
@@ -82,6 +84,7 @@ class RateLimit:
         """Get reset time as datetime."""
         return self.reset_time
 
+
 class GitHubAPI:
     """
     GitHub API client for repository operations.
@@ -93,9 +96,14 @@ class GitHubAPI:
     - Repository filtering and selection
     """
 
-    def __init__(self, token: Optional[str] = None, api_url: str = "https://api.github.com",
-                 wait_on_rate_limit: bool = True, max_retries: int = 3,
-                 retry_delay: float = 1.0) -> None:
+    def __init__(
+        self,
+        token: Optional[str] = None,
+        api_url: str = "https://api.github.com",
+        wait_on_rate_limit: bool = True,
+        max_retries: int = 3,
+        retry_delay: float = 1.0,
+    ) -> None:
         """
         Initialize GitHub API client.
 
@@ -106,8 +114,8 @@ class GitHubAPI:
             max_retries: Maximum number of retries for requests
             retry_delay: Delay between retries in seconds
         """
-        self.token = token or os.environ.get('GITHUB_TOKEN', '')
-        self.api_url = api_url.rstrip('/')
+        self.token = token or os.environ.get("GITHUB_TOKEN", "")
+        self.api_url = api_url.rstrip("/")
         self.wait_on_rate_limit = wait_on_rate_limit
         self.max_retries = max_retries
         self.retry_delay = retry_delay
@@ -124,17 +132,19 @@ class GitHubAPI:
         self.session.mount("https://", adapter)
 
         # Set default headers
-        self.session.headers.update({
-            'Accept': 'application/vnd.github.v3+json',
-            'User-Agent': 'GEO-INFER-GIT/1.0'
-        })
+        self.session.headers.update(
+            {
+                "Accept": "application/vnd.github.v3+json",
+                "User-Agent": "GEO-INFER-GIT/1.0",
+            }
+        )
 
         if self.token:
-            self.session.headers.update({
-                'Authorization': f'token {self.token}'
-            })
+            self.session.headers.update({"Authorization": f"token {self.token}"})
 
-    def _make_request(self, method: str, endpoint: str, **kwargs: Any) -> requests.Response:
+    def _make_request(
+        self, method: str, endpoint: str, **kwargs: Any
+    ) -> requests.Response:
         """
         Make a request to GitHub API with error handling.
 
@@ -156,13 +166,18 @@ class GitHubAPI:
                 response = self.session.request(method, url, **kwargs)
 
                 # Handle rate limiting
-                if response.status_code == 403 and 'X-RateLimit-Remaining' in response.headers:
-                    remaining = int(response.headers.get('X-RateLimit-Remaining', '0'))
+                if (
+                    response.status_code == 403
+                    and "X-RateLimit-Remaining" in response.headers
+                ):
+                    remaining = int(response.headers.get("X-RateLimit-Remaining", "0"))
                     if remaining == 0:
-                        reset_time = int(response.headers.get('X-RateLimit-Reset', '0'))
+                        reset_time = int(response.headers.get("X-RateLimit-Reset", "0"))
                         if self.wait_on_rate_limit:
                             wait_time = max(0, reset_time - int(time.time())) + 1
-                            logger.warning(f"Rate limit exceeded. Waiting {wait_time} seconds...")
+                            logger.warning(
+                                f"Rate limit exceeded. Waiting {wait_time} seconds..."
+                            )
                             time.sleep(wait_time)
                             continue
                         else:
@@ -173,11 +188,15 @@ class GitHubAPI:
 
             except requests.RequestException as e:
                 if attempt == self.max_retries:
-                    logger.error(f"Request failed after {self.max_retries + 1} attempts: {e}")
+                    logger.error(
+                        f"Request failed after {self.max_retries + 1} attempts: {e}"
+                    )
                     raise
 
-                wait_time = self.retry_delay * (2 ** attempt)  # Exponential backoff
-                logger.warning(f"Request failed (attempt {attempt + 1}), retrying in {wait_time}s: {e}")
+                wait_time = self.retry_delay * (2**attempt)  # Exponential backoff
+                logger.warning(
+                    f"Request failed (attempt {attempt + 1}), retrying in {wait_time}s: {e}"
+                )
                 time.sleep(wait_time)
 
     def get_rate_limit(self) -> RateLimit:
@@ -187,19 +206,24 @@ class GitHubAPI:
         Returns:
             RateLimit object with current rate limit information
         """
-        response = self._make_request('GET', '/rate_limit')
+        response = self._make_request("GET", "/rate_limit")
         data = response.json()
 
-        core = data.get('rate', {})
+        core = data.get("rate", {})
         return RateLimit(
-            limit=core.get('limit', 0),
-            remaining=core.get('remaining', 0),
-            reset_time=core.get('reset', 0),
-            used=core.get('used', 0)
+            limit=core.get("limit", 0),
+            remaining=core.get("remaining", 0),
+            reset_time=core.get("reset", 0),
+            used=core.get("used", 0),
         )
 
-    def get_user_repositories(self, username: str, include_repos: Optional[List[str]] = None,
-                             exclude_repos: Optional[List[str]] = None, max_repos: int = 100) -> List[GitHubRepository]:
+    def get_user_repositories(
+        self,
+        username: str,
+        include_repos: Optional[List[str]] = None,
+        exclude_repos: Optional[List[str]] = None,
+        max_repos: int = 100,
+    ) -> List[GitHubRepository]:
         """
         Get repositories for a specific user.
 
@@ -219,13 +243,13 @@ class GitHubAPI:
         while len(repositories) < max_repos:
             endpoint = f"/users/{username}/repos"
             params = {
-                'sort': 'updated',
-                'direction': 'desc',
-                'per_page': per_page,
-                'page': page
+                "sort": "updated",
+                "direction": "desc",
+                "per_page": per_page,
+                "page": page,
             }
 
-            response = self._make_request('GET', endpoint, params=params)
+            response = self._make_request("GET", endpoint, params=params)
             repos_data = response.json()
 
             if not repos_data:
@@ -257,8 +281,13 @@ class GitHubAPI:
         logger.info(f"Found {len(repositories)} repositories for user {username}")
         return repositories
 
-    def get_organization_repositories(self, org_name: str, include_repos: Optional[List[str]] = None,
-                                    exclude_repos: Optional[List[str]] = None, max_repos: int = 100) -> List[GitHubRepository]:
+    def get_organization_repositories(
+        self,
+        org_name: str,
+        include_repos: Optional[List[str]] = None,
+        exclude_repos: Optional[List[str]] = None,
+        max_repos: int = 100,
+    ) -> List[GitHubRepository]:
         """
         Get repositories for a specific organization.
 
@@ -278,13 +307,13 @@ class GitHubAPI:
         while len(repositories) < max_repos:
             endpoint = f"/orgs/{org_name}/repos"
             params = {
-                'sort': 'updated',
-                'direction': 'desc',
-                'per_page': per_page,
-                'page': page
+                "sort": "updated",
+                "direction": "desc",
+                "per_page": per_page,
+                "page": page,
             }
 
-            response = self._make_request('GET', endpoint, params=params)
+            response = self._make_request("GET", endpoint, params=params)
             repos_data = response.json()
 
             if not repos_data:
@@ -310,10 +339,14 @@ class GitHubAPI:
 
             # Safety check to prevent infinite loops
             if page > 10:
-                logger.warning(f"Reached maximum pages (10) for organization {org_name}")
+                logger.warning(
+                    f"Reached maximum pages (10) for organization {org_name}"
+                )
                 break
 
-        logger.info(f"Found {len(repositories)} repositories for organization {org_name}")
+        logger.info(
+            f"Found {len(repositories)} repositories for organization {org_name}"
+        )
         return repositories
 
     def get_repository(self, owner: str, repo: str) -> GitHubRepository:
@@ -331,15 +364,25 @@ class GitHubAPI:
             requests.RequestException: If repository not found or API error
         """
         endpoint = f"/repos/{owner}/{repo}"
-        response = self._make_request('GET', endpoint)
+        response = self._make_request("GET", endpoint)
         repo_data = response.json()
 
         return GitHubRepository.from_api_response(repo_data)
 
-    def search_repositories(self, query: str, language: Optional[str] = None, stars: Optional[str] = None,
-                           forks: Optional[str] = None, size: Optional[str] = None, followers: Optional[str] = None,
-                           license: Optional[str] = None, sort: str = 'updated', order: str = 'desc',
-                           per_page: int = 30, max_results: int = 100) -> List[GitHubRepository]:
+    def search_repositories(
+        self,
+        query: str,
+        language: Optional[str] = None,
+        stars: Optional[str] = None,
+        forks: Optional[str] = None,
+        size: Optional[str] = None,
+        followers: Optional[str] = None,
+        license: Optional[str] = None,
+        sort: str = "updated",
+        order: str = "desc",
+        per_page: int = 30,
+        max_results: int = 100,
+    ) -> List[GitHubRepository]:
         """
         Search for repositories using GitHub's search API.
 
@@ -368,33 +411,33 @@ class GitHubAPI:
             # Add optional filters
             filters = []
             if language:
-                filters.append(f'language:{language}')
+                filters.append(f"language:{language}")
             if stars:
-                filters.append(f'stars:{stars}')
+                filters.append(f"stars:{stars}")
             if forks:
-                filters.append(f'forks:{forks}')
+                filters.append(f"forks:{forks}")
             if size:
-                filters.append(f'size:{size}')
+                filters.append(f"size:{size}")
             if followers:
-                filters.append(f'followers:{followers}')
+                filters.append(f"followers:{followers}")
             if license:
-                filters.append(f'license:{license}')
+                filters.append(f"license:{license}")
 
             if filters:
-                query_str = query_str + ' ' + ' '.join(filters)
+                query_str = query_str + " " + " ".join(filters)
 
             params: Dict[str, Any] = {
-                'q': query_str,
-                'sort': sort,
-                'order': order,
-                'per_page': min(per_page, 100),
-                'page': page
+                "q": query_str,
+                "sort": sort,
+                "order": order,
+                "per_page": min(per_page, 100),
+                "page": page,
             }
 
-            response = self._make_request('GET', endpoint, params=params)
+            response = self._make_request("GET", endpoint, params=params)
             search_data = response.json()
 
-            items = search_data.get('items', [])
+            items = search_data.get("items", [])
             if not items:
                 break
 
@@ -408,7 +451,7 @@ class GitHubAPI:
             page += 1
 
             # Check if we've reached the end
-            if page > search_data.get('total_count', 0) // per_page + 1:
+            if page > search_data.get("total_count", 0) // per_page + 1:
                 break
 
             # Safety check
@@ -419,10 +462,16 @@ class GitHubAPI:
         logger.info(f"Search returned {len(repositories)} repositories")
         return repositories
 
-    def filter_repositories(self, repositories: List[GitHubRepository],
-                           min_stars: int = 0, max_size: Optional[int] = None,
-                           languages: Optional[List[str]] = None, exclude_forks: bool = False,
-                           exclude_archived: bool = False, has_topics: Optional[List[str]] = None) -> List[GitHubRepository]:
+    def filter_repositories(
+        self,
+        repositories: List[GitHubRepository],
+        min_stars: int = 0,
+        max_size: Optional[int] = None,
+        languages: Optional[List[str]] = None,
+        exclude_forks: bool = False,
+        exclude_archived: bool = False,
+        has_topics: Optional[List[str]] = None,
+    ) -> List[GitHubRepository]:
         """
         Filter repositories based on various criteria.
 
@@ -450,7 +499,11 @@ class GitHubAPI:
                 continue
 
             # Filter by language
-            if languages and repo.language and repo.language.lower() not in [lang.lower() for lang in languages]:
+            if (
+                languages
+                and repo.language
+                and repo.language.lower() not in [lang.lower() for lang in languages]
+            ):
                 continue
 
             # Filter out forks
@@ -470,7 +523,9 @@ class GitHubAPI:
 
             filtered.append(repo)
 
-        logger.info(f"Filtered {len(repositories)} repositories down to {len(filtered)}")
+        logger.info(
+            f"Filtered {len(repositories)} repositories down to {len(filtered)}"
+        )
         return filtered
 
     def get_repository_languages(self, owner: str, repo: str) -> Dict[str, int]:
@@ -485,7 +540,7 @@ class GitHubAPI:
             Dictionary mapping language names to bytes of code
         """
         endpoint = f"/repos/{owner}/{repo}/languages"
-        response = self._make_request('GET', endpoint)
+        response = self._make_request("GET", endpoint)
         return cast(Dict[str, int], response.json())
 
     def get_repository_topics(self, owner: str, repo: str) -> List[str]:
@@ -500,9 +555,9 @@ class GitHubAPI:
             List of topic names
         """
         endpoint = f"/repos/{owner}/{repo}/topics"
-        response = self._make_request('GET', endpoint)
+        response = self._make_request("GET", endpoint)
         data = response.json()
-        return cast(List[str], data.get('names', []))
+        return cast(List[str], data.get("names", []))
 
     def check_repository_exists(self, owner: str, repo: str) -> bool:
         """
@@ -521,7 +576,9 @@ class GitHubAPI:
         except requests.RequestException:
             return False
 
-    def get_repository_contributors(self, owner: str, repo: str, max_contributors: int = 10) -> List[Dict[str, Any]]:
+    def get_repository_contributors(
+        self, owner: str, repo: str, max_contributors: int = 10
+    ) -> List[Dict[str, Any]]:
         """
         Get top contributors for a repository.
 
@@ -534,9 +591,9 @@ class GitHubAPI:
             List of contributor information dictionaries
         """
         endpoint = f"/repos/{owner}/{repo}/contributors"
-        params = {'per_page': min(max_contributors, 100)}
+        params = {"per_page": min(max_contributors, 100)}
 
-        response = self._make_request('GET', endpoint, params=params)
+        response = self._make_request("GET", endpoint, params=params)
         return cast(List[Dict[str, Any]], response.json())[:max_contributors]
 
     def close(self) -> None:

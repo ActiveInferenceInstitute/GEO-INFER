@@ -29,6 +29,7 @@
 - `test_distributional_uncertainty.py`
 - `test_evaluation_metrics.py`
 - `test_gaussian_process.py`
+- `test_geo_observations.py`
 - `test_hmc.py`
 - `test_inference.py`
 - `test_likelihoods.py`

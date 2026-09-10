@@ -11,10 +11,19 @@ import pandas as pd
 import sys
 from datetime import datetime
 
+
 # Colored output
-def success(msg): print(f"✅ {msg}")
-def info(msg): print(f"📊 {msg}")
-def section(msg): print(f"\n{'='*60}\n{msg}\n{'='*60}")
+def success(msg):
+    print(f"✅ {msg}")
+
+
+def info(msg):
+    print(f"📊 {msg}")
+
+
+def section(msg):
+    print(f"\n{'=' * 60}\n{msg}\n{'=' * 60}")
+
 
 section("GEO-INFER-TIME COMPREHENSIVE DEMONSTRATION")
 print(f"Timestamp: {datetime.now().isoformat()}")
@@ -33,6 +42,7 @@ try:
         TemporalVisualization,
     )
     from geo_infer_time.models.timeseries import TimeSeries
+
     success("All core modules imported successfully")
 except ImportError as e:
     print(f"❌ Import error: {e}")
@@ -47,7 +57,7 @@ np.random.seed(42)
 n = 200
 
 # Time index
-dates = pd.date_range(start='2024-01-01', periods=n, freq='D')
+dates = pd.date_range(start="2024-01-01", periods=n, freq="D")
 
 # Generate realistic time series with trend, seasonality, and noise
 trend = np.linspace(50, 100, n)
@@ -76,12 +86,12 @@ analyzer = TemporalAnalyzer()
 info("Testing TemporalAnalyzer methods...")
 
 # 3.1 Trend Detection
-result = analyzer.detect_trend(ts, method='linear')
+result = analyzer.detect_trend(ts, method="linear")
 info(f"Trend direction: {result['trend_direction']}")
 info(f"Trend strength: {result['trend_strength']:.4f}")
 success("detect_trend - Linear")
 
-result = analyzer.detect_trend(ts, method='polynomial')
+result = analyzer.detect_trend(ts, method="polynomial")
 info(f"Trend direction: {result['trend_direction']}")
 success("detect_trend - Polynomial")
 
@@ -93,27 +103,31 @@ info(f"Seasonal strength: {result['strength']:.4f}")
 success("detect_seasonality")
 
 # 3.3 Anomaly Detection
-result = analyzer.detect_anomalies(ts, method='zscore', threshold=2.5)
+result = analyzer.detect_anomalies(ts, method="zscore", threshold=2.5)
 info(f"Anomalies detected: {len(result['anomalies'])}")
 success("detect_anomalies - zscore")
 
-result = analyzer.detect_anomalies(ts, method='iqr')
+result = analyzer.detect_anomalies(ts, method="iqr")
 info(f"Anomalies detected (IQR): {len(result['anomalies'])}")
 success("detect_anomalies - iqr")
 
-result = analyzer.detect_anomalies(ts, method='rolling_zscore')
+result = analyzer.detect_anomalies(ts, method="rolling_zscore")
 info(f"Anomalies detected (rolling): {len(result['anomalies'])}")
 success("detect_anomalies - rolling_zscore")
 
 # 3.4 Change Point Detection
-result = analyzer.detect_change_points(ts, method='cusum')
+result = analyzer.detect_change_points(ts, method="cusum")
 info(f"Change points: {result['change_points_detected']}")
 success("detect_change_points - cusum")
 
 # 3.5 Cross-correlation
-ts2 = TimeSeries(data=pd.Series(np.roll(values, 5) + np.random.randn(n)*3, index=dates))
+ts2 = TimeSeries(
+    data=pd.Series(np.roll(values, 5) + np.random.randn(n) * 3, index=dates)
+)
 result = analyzer.calculate_cross_correlation(ts, ts2, max_lag=10)
-info(f"Peak correlation: {result['peak_correlation']['correlation']:.4f} at lag {result['peak_correlation']['lag']}")
+info(
+    f"Peak correlation: {result['peak_correlation']['correlation']:.4f} at lag {result['peak_correlation']['lag']}"
+)
 success("calculate_cross_correlation")
 
 # 3.6 Autocorrelation
@@ -122,8 +136,12 @@ info(f"Significant lags: {result['summary']['number_significant']}")
 success("calculate_autocorrelation")
 
 # 3.7 Rolling Statistics (NEW)
-result = analyzer.calculate_rolling_statistics(ts, window=10, statistics=['mean', 'std'])
-info(f"Rolling window: {result['window']}, Statistics: {result['summary']['statistics_calculated']}")
+result = analyzer.calculate_rolling_statistics(
+    ts, window=10, statistics=["mean", "std"]
+)
+info(
+    f"Rolling window: {result['window']}, Statistics: {result['summary']['statistics_calculated']}"
+)
 success("calculate_rolling_statistics")
 
 # 3.8 Periodicity Detection (NEW)
@@ -176,7 +194,7 @@ success("forecast_exponential_smoothing")
 
 # 4.4 ARIMA (if available)
 try:
-    result = forecaster.forecast_arima(ts, horizon=30, order=(1,1,1))
+    result = forecaster.forecast_arima(ts, horizon=30, order=(1, 1, 1))
     info(f"ARIMA forecast horizon: {len(result['forecast'])} periods")
     success("forecast_arima")
 except Exception as e:
@@ -191,11 +209,11 @@ detector = EventDetector()
 info("Testing EventDetector methods...")
 
 # 5.1 Detect Anomalies
-result = detector.detect_anomalies(ts, method='z_score')
+result = detector.detect_anomalies(ts, method="z_score")
 info(f"Anomalies: {result['count']}")
 success("detect_anomalies - z_score")
 
-result = detector.detect_anomalies(ts, method='iqr')
+result = detector.detect_anomalies(ts, method="iqr")
 info(f"Anomalies (IQR): {result['count']}")
 success("detect_anomalies - iqr")
 
@@ -268,32 +286,47 @@ section("7. TEMPORAL VISUALIZATION METHODS (NEW)")
 try:
     viz = TemporalVisualization()
     import matplotlib
-    matplotlib.use('Agg')  # Non-interactive backend
+
+    matplotlib.use("Agg")  # Non-interactive backend
     import matplotlib.pyplot as plt
-    
+
     info("Testing TemporalVisualization methods...")
-    
+
     fig = viz.plot_timeseries(values_list[:50], title="Test Plot")
-    if fig: success("plot_timeseries"); plt.close(fig)
-    
+    if fig:
+        success("plot_timeseries")
+        plt.close(fig)
+
     trend_comp = list(np.linspace(50, 100, 50))
     seasonal_comp = list(10 * np.sin(np.arange(50) * 2 * np.pi / 12))
     residual_comp = list(np.random.randn(50) * 3)
     fig = viz.plot_decomposition(trend_comp, seasonal_comp, residual_comp)
-    if fig: success("plot_decomposition"); plt.close(fig)
-    
-    fig = viz.plot_forecast(values_list[:100], list(np.linspace(values_list[99], values_list[99] + 20, 20)))
-    if fig: success("plot_forecast"); plt.close(fig)
-    
+    if fig:
+        success("plot_decomposition")
+        plt.close(fig)
+
+    fig = viz.plot_forecast(
+        values_list[:100], list(np.linspace(values_list[99], values_list[99] + 20, 20))
+    )
+    if fig:
+        success("plot_forecast")
+        plt.close(fig)
+
     fig = viz.plot_acf_pacf([1.0, 0.8, 0.6, 0.4, 0.2])
-    if fig: success("plot_acf_pacf"); plt.close(fig)
-    
+    if fig:
+        success("plot_acf_pacf")
+        plt.close(fig)
+
     fig = viz.plot_anomalies(values_list[:50], [5, 15, 25])
-    if fig: success("plot_anomalies"); plt.close(fig)
-    
+    if fig:
+        success("plot_anomalies")
+        plt.close(fig)
+
     fig = viz.create_dashboard(values_list[:100], anomalies=[10, 50])
-    if fig: success("create_dashboard"); plt.close(fig)
-    
+    if fig:
+        success("create_dashboard")
+        plt.close(fig)
+
 except ImportError:
     info("Visualization skipped (matplotlib not available)")
 

@@ -374,7 +374,9 @@ class MixedEffectsSPM:
 
         # Baseline - full implementation would extract random effects
         # from the fitted model
-        return cast(Dict[str, np.ndarray], {"random_effects": np.array([]), "group_effects": {}})
+        return cast(
+            Dict[str, np.ndarray], {"random_effects": np.array([]), "group_effects": {}}
+        )
 
     def anova(self, other_model: "MixedEffectsSPM") -> Dict[str, Any]:
         """

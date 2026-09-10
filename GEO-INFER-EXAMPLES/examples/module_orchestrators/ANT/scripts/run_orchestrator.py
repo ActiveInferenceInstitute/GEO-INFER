@@ -30,9 +30,7 @@ def _path_length(path: List[int], distances: np.ndarray) -> float:
     Matches the module's fitness semantics: ``_evaluate_solution`` sums
     consecutive edges only (the path is not closed).
     """
-    return float(
-        sum(distances[path[i], path[i + 1]] for i in range(len(path) - 1))
-    )
+    return float(sum(distances[path[i], path[i + 1]] for i in range(len(path) - 1)))
 
 
 def _operation() -> Dict[str, Any]:
@@ -52,16 +50,13 @@ def _operation() -> Dict[str, Any]:
         variant="AS",
         random_seed=42,
     )
-    aco.initialize_problem(
-        nodes=list(range(n_nodes)), distance_matrix=distances
-    )
+    aco.initialize_problem(nodes=list(range(n_nodes)), distance_matrix=distances)
     result = aco.solve()
 
     # Brute-force optimum over all open Hamiltonian paths, matching the
     # module's open-path fitness semantics: 9! = 362,880 permutations.
     optimum = min(
-        _path_length(list(order), distances)
-        for order in permutations(range(n_nodes))
+        _path_length(list(order), distances) for order in permutations(range(n_nodes))
     )
 
     convergence = result.convergence_history
@@ -81,9 +76,7 @@ def _operation() -> Dict[str, Any]:
         "initial_best_fitness": round(float(convergence[0]), 4)
         if convergence
         else None,
-        "final_best_fitness": round(float(convergence[-1]), 4)
-        if convergence
-        else None,
+        "final_best_fitness": round(float(convergence[-1]), 4) if convergence else None,
     }
 
 

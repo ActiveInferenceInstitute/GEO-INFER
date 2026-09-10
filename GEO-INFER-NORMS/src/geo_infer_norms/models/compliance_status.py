@@ -15,11 +15,11 @@ import uuid
 class ComplianceStatus:
     """
     A class representing the compliance status of an entity with a regulation.
-    
+
     This class captures whether an entity complies with a specific regulation,
     along with details about the compliance evaluation.
     """
-    
+
     id: str
     entity_id: str
     regulation_id: str
@@ -32,7 +32,7 @@ class ComplianceStatus:
     metric_results: Optional[List[Dict[str, Any]]] = None
     evidence: Optional[Dict[str, Any]] = None
     attributes: Dict[str, Any] = field(default_factory=dict)
-    
+
     @classmethod
     def create(
         cls,
@@ -45,11 +45,11 @@ class ComplianceStatus:
         evaluation_method: Optional[str] = None,
         metric_results: Optional[List[Dict[str, Any]]] = None,
         evidence: Optional[Dict[str, Any]] = None,
-        attributes: Optional[Dict[str, Any]] = None
-    ) -> 'ComplianceStatus':
+        attributes: Optional[Dict[str, Any]] = None,
+    ) -> "ComplianceStatus":
         """
         Create a new ComplianceStatus with a generated UUID.
-        
+
         Args:
             entity_id: ID of the entity
             regulation_id: ID of the regulation
@@ -61,7 +61,7 @@ class ComplianceStatus:
             metric_results: Optional list of metric-specific evaluation results
             evidence: Optional evidence supporting the compliance status
             attributes: Dictionary of additional attributes
-            
+
         Returns:
             A new ComplianceStatus instance
         """
@@ -77,51 +77,51 @@ class ComplianceStatus:
             evaluation_method=evaluation_method,
             metric_results=metric_results,
             evidence=evidence,
-            attributes=attributes or {}
+            attributes=attributes or {},
         )
-    
+
     def update_attribute(self, key: str, value: Any) -> None:
         """
         Update or add an attribute to the compliance status.
-        
+
         Args:
             key: Attribute key
             value: Attribute value
         """
         self.attributes[key] = value
-    
+
     def add_evidence(self, key: str, value: Any) -> None:
         """
         Add evidence to support the compliance status.
-        
+
         Args:
             key: Evidence key
             value: Evidence value
         """
         if self.evidence is None:
             self.evidence = {}
-            
+
         self.evidence[key] = value
-    
+
     def add_metric_result(self, metric_result: Dict[str, Any]) -> None:
         """
         Add a metric result to the compliance status.
-        
+
         Args:
             metric_result: Dictionary containing metric evaluation results
         """
         if self.metric_results is None:
             self.metric_results = []
-            
+
         self.metric_results.append(metric_result)
-    
+
     def is_recent(self, days: int = 30) -> bool:
         """
         Check if the compliance status is recent.
-        
+
         Args:
             days: Number of days to consider recent
-            
+
         Returns:
             True if the status is within the specified number of days, False otherwise
         """
@@ -133,11 +133,11 @@ class ComplianceStatus:
 class ComplianceMetric:
     """
     A class representing a metric for evaluating compliance with a regulation.
-    
+
     Compliance metrics define specific measurements or criteria used to determine
     whether an entity complies with a particular aspect of a regulation.
     """
-    
+
     id: str
     name: str
     description: str
@@ -150,11 +150,13 @@ class ComplianceMetric:
     range_min: Optional[float] = None
     range_max: Optional[float] = None
     weight: float = 1.0  # For composite metrics
-    sub_metrics: List[str] = field(default_factory=list)  # IDs of sub-metrics for composite metrics
+    sub_metrics: List[str] = field(
+        default_factory=list
+    )  # IDs of sub-metrics for composite metrics
     attributes: Dict[str, Any] = field(default_factory=dict)
     created_at: datetime.datetime = field(default_factory=datetime.datetime.now)
     updated_at: datetime.datetime = field(default_factory=datetime.datetime.now)
-    
+
     @classmethod
     def create(
         cls,
@@ -170,11 +172,11 @@ class ComplianceMetric:
         range_max: Optional[float] = None,
         weight: float = 1.0,
         sub_metrics: Optional[List[str]] = None,
-        attributes: Optional[Dict[str, Any]] = None
-    ) -> 'ComplianceMetric':
+        attributes: Optional[Dict[str, Any]] = None,
+    ) -> "ComplianceMetric":
         """
         Create a new ComplianceMetric with a generated UUID.
-        
+
         Args:
             name: Name of the metric
             description: Description of the metric
@@ -189,7 +191,7 @@ class ComplianceMetric:
             weight: Weight of the metric (for composite metrics)
             sub_metrics: List of sub-metric IDs for composite metrics
             attributes: Dictionary of additional attributes
-            
+
         Returns:
             A new ComplianceMetric instance
         """
@@ -207,71 +209,71 @@ class ComplianceMetric:
             range_max=range_max,
             weight=weight,
             sub_metrics=sub_metrics or [],
-            attributes=attributes or {}
+            attributes=attributes or {},
         )
-    
+
     def update_attribute(self, key: str, value: Any) -> None:
         """
         Update or add an attribute to the metric.
-        
+
         Args:
             key: Attribute key
             value: Attribute value
         """
         self.attributes[key] = value
         self.updated_at = datetime.datetime.now()
-    
+
     def add_required_field(self, field: str) -> None:
         """
         Add a required field to the metric.
-        
+
         Args:
             field: Name of the required field
         """
         if field not in self.required_fields:
             self.required_fields.append(field)
             self.updated_at = datetime.datetime.now()
-    
+
     def add_sub_metric(self, sub_metric_id: str) -> None:
         """
         Add a sub-metric to a composite metric.
-        
+
         Args:
             sub_metric_id: ID of the sub-metric to add
         """
-        if self.evaluation_type != 'composite':
+        if self.evaluation_type != "composite":
             raise ValueError("Can only add sub-metrics to composite metrics")
-            
+
         if sub_metric_id not in self.sub_metrics:
             self.sub_metrics.append(sub_metric_id)
             self.updated_at = datetime.datetime.now()
-    
+
     def set_threshold(self, value: Union[float, int, str], comparison: str) -> None:
         """
         Set the threshold value and comparison for the metric.
-        
+
         Args:
             value: Threshold value
             comparison: Comparison operator (e.g., 'greater_than', 'less_than', 'equal')
         """
-        if self.evaluation_type != 'threshold':
+        if self.evaluation_type != "threshold":
             raise ValueError("Can only set threshold for threshold metrics")
-            
+
         self.threshold_value = value
         self.comparison = comparison
         self.updated_at = datetime.datetime.now()
-    
+
     def set_range(self, min_value: float, max_value: float) -> None:
         """
         Set the range for the metric.
-        
+
         Args:
             min_value: Minimum value
             max_value: Maximum value
         """
-        if self.evaluation_type != 'range':
+        if self.evaluation_type != "range":
             raise ValueError("Can only set range for range metrics")
-            
+
         self.range_min = min_value
         self.range_max = max_value
-        self.updated_at = datetime.datetime.now() 
+        self.updated_at = datetime.datetime.now()

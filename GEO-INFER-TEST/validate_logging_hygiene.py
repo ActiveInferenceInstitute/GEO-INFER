@@ -64,7 +64,7 @@ WHITELIST_FUNCTION = "configure_logging"
 ENTRYPOINT_FILENAMES = frozenset({"cli.py", "main.py"})
 ENTRYPOINT_DIR_MARKERS = frozenset({"examples"})
 
-MAIN_GUARD_TEST = '__name__ == \'__main__\''
+MAIN_GUARD_TEST = "__name__ == '__main__'"
 
 MUTATING_METHODS = ("addHandler", "setLevel")
 CONFIG_METHODS = MUTATING_METHODS + ("basicConfig",)
@@ -201,7 +201,9 @@ def scan_source_file(source_file: Path, report: HygieneReport) -> None:
                 "configuration to the app entry (shared_logging.configure_logging)"
             )
         elif not receiver_is_module_local(node.func.value, local):
-            snippet = lines[node.lineno - 1].strip() if node.lineno <= len(lines) else ""
+            snippet = (
+                lines[node.lineno - 1].strip() if node.lineno <= len(lines) else ""
+            )
             violation = (
                 f"{relative}:{node.lineno}: {attr}() on a non-module-local "
                 f"logger: {snippet}"

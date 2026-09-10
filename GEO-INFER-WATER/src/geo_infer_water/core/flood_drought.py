@@ -9,16 +9,16 @@ logger = logging.getLogger(__name__)
 
 class FloodDroughtAnalyzer:
     """Analyze flood and drought risks."""
-    
+
     def __init__(self, config: Optional[Dict] = None):
         """Initialize flood/drought analyzer."""
         self.config = config or {}
-    
+
     def assess_flood_risk(
         self,
         precipitation: xr.DataArray,
         elevation: xr.DataArray,
-        soil_saturation: Optional[xr.DataArray] = None
+        soil_saturation: Optional[xr.DataArray] = None,
     ) -> xr.Dataset:
         """
         Assess flood risk.
@@ -44,32 +44,38 @@ class FloodDroughtAnalyzer:
             Flood risk assessment
         """
         # Extreme precipitation
-        precip_threshold = precipitation.quantile(0.95, dim='time').drop_vars('quantile')
+        precip_threshold = precipitation.quantile(0.95, dim="time").drop_vars(
+            "quantile"
+        )
         extreme_precip = precipitation > precip_threshold
 
         # Low elevation (flood-prone areas)
-        elevation_threshold = elevation.quantile(0.2).drop_vars('quantile')
+        elevation_threshold = elevation.quantile(0.2).drop_vars("quantile")
         low_elevation = elevation < elevation_threshold
 
         # Combined risk
-        flood_risk = (extreme_precip.astype(float).mean(dim='time') + low_elevation.astype(float)) / 2
+        flood_risk = (
+            extreme_precip.astype(float).mean(dim="time") + low_elevation.astype(float)
+        ) / 2
 
         if soil_saturation is not None:
             # Saturated soil increases risk
             saturated = soil_saturation > 0.8
             flood_risk = (flood_risk + saturated.astype(float)) / 2
 
-        return xr.Dataset({
-            'flood_risk': flood_risk,
-            'extreme_precipitation': extreme_precip,
-            'low_elevation': low_elevation
-        })
-    
+        return xr.Dataset(
+            {
+                "flood_risk": flood_risk,
+                "extreme_precipitation": extreme_precip,
+                "low_elevation": low_elevation,
+            }
+        )
+
     def assess_drought_risk(
         self,
         precipitation: xr.DataArray,
         evapotranspiration: Optional[xr.DataArray] = None,
-        soil_moisture: Optional[xr.DataArray] = None
+        soil_moisture: Optional[xr.DataArray] = None,
     ) -> xr.Dataset:
         """
         Assess drought risk.
@@ -84,7 +90,7 @@ class FloodDroughtAnalyzer:
             ``None`` when no ET data is supplied.
         """
         # Low precipitation
-        precip_threshold = precipitation.quantile(0.1, dim='time')
+        precip_threshold = precipitation.quantile(0.1, dim="time")
         low_precip = precipitation < precip_threshold
 
         # Water deficit (None when no ET data is supplied)
@@ -104,10 +110,10 @@ class FloodDroughtAnalyzer:
             low_moisture = soil_moisture < soil_moisture.quantile(0.2)
             drought_risk = (drought_risk + low_moisture.astype(int)) / 2
 
-        return xr.Dataset({
-            'drought_risk': drought_risk,
-            'low_precipitation': low_precip,
-            'water_deficit': water_deficit
-        })
-
-
+        return xr.Dataset(
+            {
+                "drought_risk": drought_risk,
+                "low_precipitation": low_precip,
+                "water_deficit": water_deficit,
+            }
+        )

@@ -8,10 +8,16 @@ Geo-stack imports (numpy, geopandas, shapely) are performed lazily inside
 the fixtures that need them, so pure-logic tests run without the heavy
 optional geo dependencies.
 """
+
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple
 
 import pytest
+
+if TYPE_CHECKING:
+    # Annotation-only: the real import happens lazily inside fixtures so
+    # pure-logic tests run without the heavy geo dependencies.
+    import geopandas as gpd
 
 
 @pytest.fixture(scope="session")
@@ -60,18 +66,30 @@ def hazard_zone_gdf() -> "gpd.GeoDataFrame":
     from shapely.geometry import Polygon
 
     zones = [
-        Polygon([
-            (-122.4, 47.5), (-122.3, 47.5),
-            (-122.3, 47.6), (-122.4, 47.6),
-        ]),
-        Polygon([
-            (-122.3, 47.55), (-122.2, 47.55),
-            (-122.2, 47.65), (-122.3, 47.65),
-        ]),
-        Polygon([
-            (-122.35, 47.45), (-122.25, 47.45),
-            (-122.25, 47.55), (-122.35, 47.55),
-        ]),
+        Polygon(
+            [
+                (-122.4, 47.5),
+                (-122.3, 47.5),
+                (-122.3, 47.6),
+                (-122.4, 47.6),
+            ]
+        ),
+        Polygon(
+            [
+                (-122.3, 47.55),
+                (-122.2, 47.55),
+                (-122.2, 47.65),
+                (-122.3, 47.65),
+            ]
+        ),
+        Polygon(
+            [
+                (-122.35, 47.45),
+                (-122.25, 47.45),
+                (-122.25, 47.55),
+                (-122.35, 47.55),
+            ]
+        ),
     ]
 
     return gpd.GeoDataFrame(

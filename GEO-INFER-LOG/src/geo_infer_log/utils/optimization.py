@@ -11,6 +11,7 @@ from typing import List, Dict, Tuple, Optional, cast
 try:
     from ortools.constraint_solver import routing_enums_pb2
     from ortools.constraint_solver import pywrapcp
+
     _HAS_ORTOOLS = True
 except ImportError:
     _HAS_ORTOOLS = False
@@ -27,11 +28,13 @@ def _require_ortools() -> None:
         )
 
 
-def solve_tsp(points: List[Tuple[float, float]],
-              start_index: int = 0,
-              end_index: Optional[int] = None,
-              time_windows: Optional[List[Tuple[int, int]]] = None,
-              time_matrix: Optional[List[List[int]]] = None) -> Dict:
+def solve_tsp(
+    points: List[Tuple[float, float]],
+    start_index: int = 0,
+    end_index: Optional[int] = None,
+    time_windows: Optional[List[Tuple[int, int]]] = None,
+    time_matrix: Optional[List[List[int]]] = None,
+) -> Dict:
     """
     Solve a Traveling Salesman Problem (TSP).
 
@@ -108,7 +111,7 @@ def solve_tsp(points: List[Tuple[float, float]],
             30,  # Allow waiting time
             1440,  # Maximum time: 24 hours in minutes
             False,  # Don't force start cumul to zero
-            "Time"
+            "Time",
         )
         time_dimension = routing.GetDimensionOrDie("Time")
 
@@ -130,12 +133,7 @@ def solve_tsp(points: List[Tuple[float, float]],
 
     # Process the solution
     if not solution:
-        return {
-            "status": "No solution found",
-            "route": [],
-            "distance": 0,
-            "time": 0
-        }
+        return {"status": "No solution found", "route": [], "distance": 0, "time": 0}
 
     # Extract the route
     route = []
@@ -162,18 +160,20 @@ def solve_tsp(points: List[Tuple[float, float]],
         "status": "Solution found",
         "route": route,
         "distance": total_distance,
-        "time": total_time
+        "time": total_time,
     }
 
 
-def solve_vrp(depots: List[Tuple[float, float]],
-              deliveries: List[Tuple[float, float]],
-              num_vehicles: int,
-              vehicle_capacities: Optional[List[float]] = None,
-              delivery_demands: Optional[List[float]] = None,
-              time_windows: Optional[List[Tuple[int, int]]] = None,
-              max_distance: Optional[float] = None,
-              max_time: Optional[int] = None) -> Dict:
+def solve_vrp(
+    depots: List[Tuple[float, float]],
+    deliveries: List[Tuple[float, float]],
+    num_vehicles: int,
+    vehicle_capacities: Optional[List[float]] = None,
+    delivery_demands: Optional[List[float]] = None,
+    time_windows: Optional[List[Tuple[int, int]]] = None,
+    max_distance: Optional[float] = None,
+    max_time: Optional[int] = None,
+) -> Dict:
     """
     Solve a Vehicle Routing Problem (VRP).
 
@@ -251,9 +251,11 @@ def solve_vrp(depots: List[Tuple[float, float]],
     routing.AddDimension(
         distance_transit_callback_index,
         0,  # No slack
-        int(max_distance * 1000) if max_distance else 3000000,  # Maximum distance in meters (default: 3000 km)
+        int(max_distance * 1000)
+        if max_distance
+        else 3000000,  # Maximum distance in meters (default: 3000 km)
         True,  # Start cumul to zero
-        "Distance"
+        "Distance",
     )
     distance_dimension = routing.GetDimensionOrDie("Distance")
 
@@ -263,12 +265,13 @@ def solve_vrp(depots: List[Tuple[float, float]],
         30,  # Allow 30 minutes of waiting time
         max_time or 1440,  # Maximum time (default: 24 hours in minutes)
         False,  # Don't force start cumul to zero
-        "Time"
+        "Time",
     )
     time_dimension = routing.GetDimensionOrDie("Time")
 
     # Add capacity constraints if specified
     if vehicle_capacities and delivery_demands:
+
         def demand_callback(from_index: int) -> float:
             """Return the demand of the node."""
             from_node = manager.IndexToNode(from_index)
@@ -284,7 +287,7 @@ def solve_vrp(depots: List[Tuple[float, float]],
             0,  # null capacity slack
             vehicle_capacities,  # vehicle maximum capacities
             True,  # start cumul to zero
-            "Capacity"
+            "Capacity",
         )
 
     # Add time window constraints if specified
@@ -329,7 +332,7 @@ def solve_vrp(depots: List[Tuple[float, float]],
             "routes": [],
             "total_distance": 0,
             "total_time": 0,
-            "num_vehicles_used": 0
+            "num_vehicles_used": 0,
         }
 
     # Extract the routes
@@ -369,13 +372,15 @@ def solve_vrp(depots: List[Tuple[float, float]],
         # Build route with actual locations
         route_locations = [locations[i] for i in route]
 
-        routes.append({
-            "vehicle_id": vehicle_id,
-            "route": route,
-            "locations": route_locations,
-            "distance": route_distance,
-            "time": route_time
-        })
+        routes.append(
+            {
+                "vehicle_id": vehicle_id,
+                "route": route,
+                "locations": route_locations,
+                "distance": route_distance,
+                "time": route_time,
+            }
+        )
 
         total_distance += route_distance
         total_time += route_time
@@ -385,5 +390,5 @@ def solve_vrp(depots: List[Tuple[float, float]],
         "routes": routes,
         "total_distance": total_distance,
         "total_time": total_time,
-        "num_vehicles_used": num_vehicles_used
+        "num_vehicles_used": num_vehicles_used,
     }

@@ -375,7 +375,7 @@ def fill_gaps(
         freq = detect_frequency(ts)
         if freq is None:
             raise ValueError(
-                "Cannot determine frequency automatically. " "Pass freq explicitly."
+                "Cannot determine frequency automatically. Pass freq explicitly."
             )
 
     logger.info("Filling gaps with method='%s', freq='%s'", method, freq)

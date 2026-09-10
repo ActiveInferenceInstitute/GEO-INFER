@@ -77,8 +77,7 @@ class TestNeighborLookupDegradation:
             result = stats.getis_ord_g(cells, values)
 
         assert any(
-            "Neighbor lookup failed" in record.message
-            and "self-only" in record.message
+            "Neighbor lookup failed" in record.message and "self-only" in record.message
             for record in caplog.records
         )
         assert "g_stars" in result

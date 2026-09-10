@@ -22,6 +22,7 @@ try:
         InventoryManager,
     )
     from geo_infer_log.core.transport import EmissionsCalculator
+
     HAS_LOG = True
 except ImportError:
     HAS_LOG = False
@@ -110,7 +111,9 @@ class LogisticsEconomicAnalyzer:
         if not HAS_LOG or self._facility_locator is None:
             # Simplified fallback without LOG
             result["total_landed_cost"] = result["facility_cost"]
-            result["_warning"] = "GEO-INFER-LOG not available; logistics estimates omitted"
+            result["_warning"] = (
+                "GEO-INFER-LOG not available; logistics estimates omitted"
+            )
             return result
 
         # Coverage analysis
@@ -190,7 +193,7 @@ class LogisticsEconomicAnalyzer:
         )
         # Enrich with economic metrics
         result["demand_served"] = sum(dp.get("demand", 1) for dp in demand_points)
-        result["cost_per_unit_demand"] = (
-            result.get("total_cost", 0) / max(result["demand_served"], 1)
+        result["cost_per_unit_demand"] = result.get("total_cost", 0) / max(
+            result["demand_served"], 1
         )
         return cast(Dict[str, Any], result)

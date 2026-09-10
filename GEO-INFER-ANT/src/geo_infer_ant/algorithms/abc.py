@@ -508,17 +508,17 @@ class ArtificialBeeColony:
             if success_rate < 0.3:
                 # Low success - increase exploration
                 self.parameters.max_trials = min(100, self.parameters.max_trials * 1.2)
-                adaptation_results["parameters_updated"][
-                    "max_trials"
-                ] = self.parameters.max_trials
+                adaptation_results["parameters_updated"]["max_trials"] = (
+                    self.parameters.max_trials
+                )
                 adaptation_results["strategy_changes"].append("increased_exploration")
 
             elif success_rate > 0.8:
                 # High success - increase exploitation
                 self.parameters.max_trials = max(20, self.parameters.max_trials * 0.8)
-                adaptation_results["parameters_updated"][
-                    "max_trials"
-                ] = self.parameters.max_trials
+                adaptation_results["parameters_updated"]["max_trials"] = (
+                    self.parameters.max_trials
+                )
                 adaptation_results["strategy_changes"].append("increased_exploitation")
 
         elif behavioral_adaptation == "environmental_response":
@@ -529,9 +529,9 @@ class ArtificialBeeColony:
                 if density < 0.3:
                     # Scarce resources - be more persistent
                     self.parameters.limit = min(200, self.parameters.limit * 1.5)
-                    adaptation_results["parameters_updated"][
-                        "limit"
-                    ] = self.parameters.limit
+                    adaptation_results["parameters_updated"]["limit"] = (
+                        self.parameters.limit
+                    )
                     adaptation_results["strategy_changes"].append(
                         "increased_persistence"
                     )
@@ -539,9 +539,9 @@ class ArtificialBeeColony:
                 elif density > 0.8:
                     # Abundant resources - be less persistent
                     self.parameters.limit = max(50, self.parameters.limit * 0.7)
-                    adaptation_results["parameters_updated"][
-                        "limit"
-                    ] = self.parameters.limit
+                    adaptation_results["parameters_updated"]["limit"] = (
+                        self.parameters.limit
+                    )
                     adaptation_results["strategy_changes"].append(
                         "decreased_persistence"
                     )

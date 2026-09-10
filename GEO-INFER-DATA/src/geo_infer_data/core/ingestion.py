@@ -458,9 +458,7 @@ class MultiSourceDataIngestion:
                         connector_configs[source]
                     )
 
-    async def ingest_multi_source(
-        self, **data_sources: Any
-    ) -> Dict[str, Any]:
+    async def ingest_multi_source(self, **data_sources: Any) -> Dict[str, Any]:
         """
         Ingest data from multiple sources simultaneously.
 

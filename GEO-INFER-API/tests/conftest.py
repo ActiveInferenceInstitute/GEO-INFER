@@ -1,6 +1,7 @@
 """
 Pytest configuration for GEO-INFER-API tests.
 """
+
 import os
 import sys
 import pytest
@@ -12,7 +13,9 @@ from fastapi.testclient import TestClient
 os.environ.setdefault("SECRET_KEY", "test_secret_key_for_pytest_suite")
 
 # Add the src directory to the path so we can import modules
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src"))
+)
 
 from geo_infer_api.app import main_app
 from geo_infer_api.core.config import get_settings

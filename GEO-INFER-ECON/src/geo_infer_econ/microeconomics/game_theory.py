@@ -534,7 +534,10 @@ class GameTheoryModels:
         }
 
     def analyze_auction_game(
-        self, auction_type: str, valuations: List[float], n_bidders: Optional[int] = None
+        self,
+        auction_type: str,
+        valuations: List[float],
+        n_bidders: Optional[int] = None,
     ) -> Dict[str, Any]:
         """
         Analyze auction game

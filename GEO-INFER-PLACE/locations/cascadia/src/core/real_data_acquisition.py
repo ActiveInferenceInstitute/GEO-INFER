@@ -61,9 +61,7 @@ class RealDataAcquisition:
         self.output_dir.mkdir(parents=True, exist_ok=True)
         # Allow optional insecure downloads to work around SSL issues on some hosts
         # Set env CASCADIA_INSECURE_DOWNLOADS=1 to disable certificate verification for HTTP(S) requests
-        self.insecure_downloads = (
-            os.environ.get("CASCADIA_INSECURE_DOWNLOADS", "0") == "1"
-        )
+        self.insecure_downloads = os.environ.get("CASCADIA_INSECURE_DOWNLOADS", "0") == "1"
 
         # Initialize loggers
         self.data_logger = DataSourceLogger("real_data_acquisition")
@@ -290,9 +288,7 @@ class RealDataAcquisition:
                 )
                 return state_data
 
-            raise FileNotFoundError(
-                "No zoning dataset was returned by configured sources"
-            )
+            raise FileNotFoundError("No zoning dataset was returned by configured sources")
 
         except Exception as e:
             raise RuntimeError("Zoning data acquisition failed") from e
@@ -303,9 +299,7 @@ class RealDataAcquisition:
             return None
 
         try:
-            self.driver.get(
-                "https://www.co.del-norte.ca.us/departments/planning-building"
-            )
+            self.driver.get("https://www.co.del-norte.ca.us/departments/planning-building")
 
             # Look for zoning map or data download links
             links = self.driver.find_elements(By.TAG_NAME, "a")
@@ -375,9 +369,7 @@ class RealDataAcquisition:
                             "zip",
                         ]:
                             download_url = resource["url"]
-                            return self._download_file(
-                                download_url, "california_zoning"
-                            )
+                            return self._download_file(download_url, "california_zoning")
 
             return None
 
@@ -432,9 +424,7 @@ class RealDataAcquisition:
                 )
                 return ca_data
 
-            raise FileNotFoundError(
-                "No current-use dataset was returned by configured sources"
-            )
+            raise FileNotFoundError("No current-use dataset was returned by configured sources")
 
         except Exception as e:
             raise RuntimeError("Current-use data acquisition failed") from e
@@ -443,9 +433,7 @@ class RealDataAcquisition:
         """Download USDA Cropland Data Layer for California."""
         try:
             # Try CDL Web Service API first
-            cdl_api_url = (
-                "https://nassgeodata.gmu.edu/axis2/services/CDLService/GetCDLFile"
-            )
+            cdl_api_url = "https://nassgeodata.gmu.edu/axis2/services/CDLService/GetCDLFile"
             params = {"year": "2023", "state": "CA", "format": "geotiff"}  # California
 
             response = requests.get(cdl_api_url, params=params, timeout=60)
@@ -567,7 +555,7 @@ class RealDataAcquisition:
                     ):
                         return output_path
             except Exception as exc:
-                logger.warning('Best-effort acquisition step failed; continuing: %s', exc)
+                logger.warning("Best-effort acquisition step failed; continuing: %s", exc)
 
             # Stream download with progress bar
             with requests.get(
@@ -608,15 +596,11 @@ class RealDataAcquisition:
                         zip_ref.extractall(self.output_dir)
                     # Prefer GeoJSON, then shapefile; constrain search to current prefix
                     extracted = None
-                    for extracted_file in sorted(
-                        self.output_dir.rglob(f"{prefix}*.geojson")
-                    ):
+                    for extracted_file in sorted(self.output_dir.rglob(f"{prefix}*.geojson")):
                         extracted = extracted_file
                         break
                     if not extracted:
-                        for extracted_file in sorted(
-                            self.output_dir.rglob(f"{prefix}*.shp")
-                        ):
+                        for extracted_file in sorted(self.output_dir.rglob(f"{prefix}*.shp")):
                             extracted = extracted_file
                             break
                     if not extracted:
@@ -678,13 +662,17 @@ class RealDataAcquisition:
             # Fallback: try zip+https URI style if GDAL vsicurl is unavailable
             if (gdf is None or gdf.empty) and inner_name:
                 try:
-                    zip_https_uri = f"zip+https://{urlparse(url).netloc}{urlparse(url).path}!{inner_name}"
+                    zip_https_uri = (
+                        f"zip+https://{urlparse(url).netloc}{urlparse(url).path}!{inner_name}"
+                    )
                     gdf = gpd.read_file(zip_https_uri)
                 except Exception:
                     # Try probed names
                     for shp in self._vsi_probe_zip_for_vectors(url):
                         try:
-                            zip_https_uri = f"zip+https://{urlparse(url).netloc}{urlparse(url).path}!{shp}"
+                            zip_https_uri = (
+                                f"zip+https://{urlparse(url).netloc}{urlparse(url).path}!{shp}"
+                            )
                             gdf = gpd.read_file(zip_https_uri)
                             if gdf is not None and not gdf.empty:
                                 inner_name = shp
@@ -703,9 +691,7 @@ class RealDataAcquisition:
                 row_count=len(gdf),
                 file_size_mb=out.stat().st_size / 1024 / 1024,
                 geometry_types=(
-                    list(gdf.geometry.geom_type.unique())
-                    if not gdf.empty
-                    else ["Unknown"]
+                    list(gdf.geometry.geom_type.unique()) if not gdf.empty else ["Unknown"]
                 ),
                 crs=str(gdf.crs) if gdf.crs else "Unknown",
             )
@@ -723,9 +709,7 @@ class RealDataAcquisition:
         try:
             vsi = f"/vsizip/vsicurl/{url}"
             # Run gdalinfo to list contents; suppress stdout on failure
-            proc = subprocess.run(
-                ["gdalinfo", vsi], capture_output=True, text=True, timeout=30
-            )
+            proc = subprocess.run(["gdalinfo", vsi], capture_output=True, text=True, timeout=30)
             text = proc.stdout or ""
             # Extract .shp and .geojson entries
             candidates: List[str] = []

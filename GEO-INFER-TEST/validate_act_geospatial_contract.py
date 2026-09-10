@@ -146,7 +146,13 @@ def validate_docstrings() -> None:
             fail(f"Missing docstring: {module_name}.{dotted_name}")
 
     for path in [
-        REPO_ROOT / "GEO-INFER-AI" / "src" / "geo_infer_ai" / "models" / "predictive" / "geospatial_ai.py",
+        REPO_ROOT
+        / "GEO-INFER-AI"
+        / "src"
+        / "geo_infer_ai"
+        / "models"
+        / "predictive"
+        / "geospatial_ai.py",
     ]:
         tree = ast.parse(path.read_text(), filename=str(path))
         for node in ast.walk(tree):

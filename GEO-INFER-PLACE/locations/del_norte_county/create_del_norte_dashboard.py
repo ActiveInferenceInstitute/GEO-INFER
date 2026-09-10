@@ -11,6 +11,7 @@ Usage:
   python3 create_del_norte_dashboard.py            # use cache when available
   python3 create_del_norte_dashboard.py --refresh  # force refetch
 """
+
 from __future__ import annotations
 
 import argparse
@@ -21,7 +22,9 @@ from geo_infer_place.locations.del_norte_county.dashboard import AdvancedDashboa
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Create Del Norte dashboard")
-    parser.add_argument("--refresh", action="store_true", help="Fetch new data instead of using cache")
+    parser.add_argument(
+        "--refresh", action="store_true", help="Fetch new data instead of using cache"
+    )
     args = parser.parse_args()
 
     # Output directory is del_norte_dashboard/ subfolder
@@ -38,5 +41,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-

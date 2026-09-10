@@ -17,7 +17,10 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # SC-27: 90-minute wall budget (~1.5x observed leg time); the per-category
+    # summary in run_unified_tests.py makes a leg approaching its ceiling
+    # visible before the job timeout trips.
+    timeout-minutes: 90
     env:
       UV_PYTHON: ${{ matrix.python-version }}
     strategy:
@@ -274,6 +277,12 @@ jobs:
         run: |
           uv run python manuscript/generate_research_artifacts.py --verify
 
+      - name: Check published artifacts converge
+        # output/ is gitignored: --check runs AFTER regeneration as the
+        # shim-style post-condition, failing when the render did not converge.
+        run: |
+          uv run python manuscript/generate_research_artifacts.py --check
+          echo "Manuscript staleness gate (--check): converged" >> "$GITHUB_STEP_SUMMARY"
       - name: Install the LaTeX render toolchain
         # Minimal fail-closed set: xelatex plus the packages the preamble
         # and pandoc's defaults need (seqsplit, fvextra, cleveref,

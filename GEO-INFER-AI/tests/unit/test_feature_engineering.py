@@ -116,7 +116,9 @@ class TestGeospatialFeatureEngineer:
         assert engineer.scaler is not None
         fitted_scaler_mean = engineer.scaler.mean_.copy()
 
-        probe_alone = engineer.transform(np.array([[1.0]]), coordinates=np.array([[1.0, 0.0]]))
+        probe_alone = engineer.transform(
+            np.array([[1.0]]), coordinates=np.array([[1.0, 0.0]])
+        )
         probe_with_outlier = engineer.transform(
             np.array([[1.0], [1.0]]),
             coordinates=np.array([[1.0, 0.0], [1000.0, 0.0]]),
@@ -157,4 +159,6 @@ class TestGeospatialFeatureEngineer:
 
         feature_names = engineer.get_feature_names()
         assert feature_names is not None
-        assert len(feature_names) >= X.shape[1]  # Should have at least original features
+        assert (
+            len(feature_names) >= X.shape[1]
+        )  # Should have at least original features

@@ -105,9 +105,7 @@ class SpatialBackendDispatcher:
         """
         return self.default_backends.get(operation_type)
 
-    def _resolve_backend_name(
-        self, operation_type: str, backend: Optional[str]
-    ) -> str:
+    def _resolve_backend_name(self, operation_type: str, backend: Optional[str]) -> str:
         """Resolve the backend for a dispatch call or raise a precise error.
 
         Raises:

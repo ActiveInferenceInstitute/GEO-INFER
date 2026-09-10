@@ -60,7 +60,9 @@ class TestModelTrainer:
         y = np.random.randn(100)
         return X, y
 
-    def test_train_classifier(self, trainer: ModelTrainer, classification_data: tuple) -> None:
+    def test_train_classifier(
+        self, trainer: ModelTrainer, classification_data: tuple
+    ) -> None:
         """Test classifier training."""
         X, y = classification_data
         model = RandomForestClassifier(n_estimators=10, random_state=42)
@@ -73,7 +75,9 @@ class TestModelTrainer:
         assert results["accuracy"] >= 0.0
         assert results["accuracy"] <= 1.0
 
-    def test_train_regressor(self, trainer: ModelTrainer, regression_data: tuple) -> None:
+    def test_train_regressor(
+        self, trainer: ModelTrainer, regression_data: tuple
+    ) -> None:
         """Test regressor training."""
         X, y = regression_data
         model = RandomForestRegressor(n_estimators=10, random_state=42)
@@ -87,7 +91,9 @@ class TestModelTrainer:
         assert "model" in results
         assert results["r2"] <= 1.0
 
-    def test_evaluate_classifier(self, trainer: ModelTrainer, classification_data: tuple) -> None:
+    def test_evaluate_classifier(
+        self, trainer: ModelTrainer, classification_data: tuple
+    ) -> None:
         """Test classifier evaluation."""
         X, y = classification_data
         X_train, X_test = X[:80], X[80:]
@@ -96,14 +102,18 @@ class TestModelTrainer:
         model = RandomForestClassifier(n_estimators=10, random_state=42)
         model.fit(X_train, y_train)
 
-        results = trainer.evaluate_model(model, X_test, y_test, task_type="classification")
+        results = trainer.evaluate_model(
+            model, X_test, y_test, task_type="classification"
+        )
 
         assert "accuracy" in results
         assert "classification_report" in results
         assert "predictions" in results
         assert len(results["predictions"]) == len(y_test)
 
-    def test_evaluate_regressor(self, trainer: ModelTrainer, regression_data: tuple) -> None:
+    def test_evaluate_regressor(
+        self, trainer: ModelTrainer, regression_data: tuple
+    ) -> None:
         """Test regressor evaluation."""
         X, y = regression_data
         X_train, X_test = X[:80], X[80:]
@@ -121,7 +131,9 @@ class TestModelTrainer:
         assert "predictions" in results
         assert len(results["predictions"]) == len(y_test)
 
-    def test_save_and_load_model(self, trainer: ModelTrainer, classification_data: tuple, tmp_path) -> None:
+    def test_save_and_load_model(
+        self, trainer: ModelTrainer, classification_data: tuple, tmp_path
+    ) -> None:
         """Test model saving and loading."""
         X, y = classification_data
         model = RandomForestClassifier(n_estimators=10, random_state=42)
@@ -135,6 +147,3 @@ class TestModelTrainer:
         loaded_model = trainer.load_model(model_path)
         assert loaded_model is not None
         assert hasattr(loaded_model, "predict")
-
-
-

@@ -29,7 +29,9 @@ class TestOptimizeWaterAllocation:
         # Total allocated cannot exceed supply.
         assert float(result["allocation"].sum()) <= 50.0 + 1e-9
         # Larger demanders receive a larger share.
-        assert float(result["allocation"].values[0]) > float(result["allocation"].values[2])
+        assert float(result["allocation"].values[0]) > float(
+            result["allocation"].values[2]
+        )
 
     def test_priority_weighting_favours_high_priority_demand(self, planner):
         # Equal demands, different priorities: the higher-priority demander
@@ -37,14 +39,20 @@ class TestOptimizeWaterAllocation:
         demand = xr.DataArray([50.0, 50.0], dims=["user"])
         priorities = xr.DataArray([1.0, 9.0], dims=["user"])
         supply = xr.DataArray(50.0)
-        result = planner.optimize_water_allocation(supply, demand, priorities=priorities)
-        assert float(result["allocation"].values[1]) > float(result["allocation"].values[0])
+        result = planner.optimize_water_allocation(
+            supply, demand, priorities=priorities
+        )
+        assert float(result["allocation"].values[1]) > float(
+            result["allocation"].values[0]
+        )
 
     def test_allocation_never_exceeds_demand(self, planner):
         demand = xr.DataArray([10.0, 90.0], dims=["user"])
         priorities = xr.DataArray([9.0, 1.0], dims=["user"])
         supply = xr.DataArray(100.0)
-        result = planner.optimize_water_allocation(supply, demand, priorities=priorities)
+        result = planner.optimize_water_allocation(
+            supply, demand, priorities=priorities
+        )
         assert float(result["allocation"].values[0]) <= 10.0 + 1e-9
         assert float(result["allocation"].values[1]) <= 90.0 + 1e-9
 

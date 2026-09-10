@@ -13,6 +13,7 @@ from enum import Enum
 
 class ParticipationMethod(Enum):
     """Methods through which citizens can participate."""
+
     SURVEY = "survey"
     PUBLIC_COMMENT = "public_comment"
     TOWN_HALL = "town_hall"
@@ -26,6 +27,7 @@ class ParticipationMethod(Enum):
 @dataclass
 class ParticipantRecord:
     """Record of a single participant's engagement."""
+
     participant_id: str
     method: ParticipationMethod
     timestamp: float
@@ -38,6 +40,7 @@ class ParticipantRecord:
 @dataclass
 class EngagementScore:
     """Computed engagement score with breakdown."""
+
     overall_score: float
     method_scores: Dict[str, float]
     temporal_consistency: float
@@ -48,6 +51,7 @@ class EngagementScore:
 @dataclass
 class RepresentationReport:
     """Report on demographic representation in participation."""
+
     group_proportions: Dict[str, float]
     population_proportions: Dict[str, float]
     representation_indices: Dict[str, float]
@@ -64,7 +68,9 @@ class ParticipationAnalyzer:
     indices, and analyzing demographic representation in civic processes.
     """
 
-    def __init__(self, method_weights: Optional[Dict[ParticipationMethod, float]] = None) -> None:
+    def __init__(
+        self, method_weights: Optional[Dict[ParticipationMethod, float]] = None
+    ) -> None:
         """
         Initialize the participation analyzer.
 
@@ -227,7 +233,9 @@ class ParticipationAnalyzer:
         group_counts: Dict[str, int] = {}
         for r in records_with_demographics:
             if r.demographic_group is not None:
-                group_counts[r.demographic_group] = group_counts.get(r.demographic_group, 0) + 1
+                group_counts[r.demographic_group] = (
+                    group_counts.get(r.demographic_group, 0) + 1
+                )
 
         group_proportions: Dict[str, float] = {}
         if total_with_demo > 0:
@@ -284,7 +292,9 @@ class ParticipationAnalyzer:
             "total_records": len(self._records),
             "unique_participants": unique_ids,
             "method_counts": method_counts,
-            "average_sentiment": round(avg_sentiment, 4) if avg_sentiment is not None else None,
+            "average_sentiment": round(avg_sentiment, 4)
+            if avg_sentiment is not None
+            else None,
         }
 
     # ---- private helpers ----
@@ -297,7 +307,9 @@ class ParticipationAnalyzer:
         start, end = time_window
         return [r for r in self._records if start <= r.timestamp <= end]
 
-    def _compute_method_scores(self, records: List[ParticipantRecord]) -> Dict[str, float]:
+    def _compute_method_scores(
+        self, records: List[ParticipantRecord]
+    ) -> Dict[str, float]:
         method_counts: Dict[str, int] = {}
         for r in records:
             method_counts[r.method.value] = method_counts.get(r.method.value, 0) + 1

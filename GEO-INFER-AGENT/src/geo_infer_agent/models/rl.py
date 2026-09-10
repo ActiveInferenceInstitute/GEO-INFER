@@ -25,7 +25,6 @@ from geo_infer_agent.core.agent_base import BaseAgent, AgentState
 logger = logging.getLogger("geo_infer_agent.models.rl")
 
 
-
 class Experience:
     """
     Represents a single experience tuple (s, a, r, s', done).
@@ -355,9 +354,7 @@ class RLState(AgentState):
         # If state is a numpy array, hash its raw bytes.  ascontiguousarray
         # normalizes layout/striding so equal arrays hash equal.
         if isinstance(state, np.ndarray):
-            digest = hashlib.sha256(
-                np.ascontiguousarray(state).tobytes()
-            ).digest()
+            digest = hashlib.sha256(np.ascontiguousarray(state).tobytes()).digest()
             return int.from_bytes(digest, "big") % self.q_table.state_size
 
         # Any other state type: stable hash of its repr

@@ -15,18 +15,18 @@ from geo_infer_log.models.schemas import (
     Route,
     RoutingParameters,
     FacilityLocation,
-    SupplyChainNetwork
+    SupplyChainNetwork,
 )
 
 __all__ = [
-    'VehicleType',
-    'FuelType',
-    'DeliveryStatus',
-    'Vehicle',
-    'Location',
-    'Shipment',
-    'Route',
-    'RoutingParameters',
-    'FacilityLocation',
-    'SupplyChainNetwork'
-] 
+    "VehicleType",
+    "FuelType",
+    "DeliveryStatus",
+    "Vehicle",
+    "Location",
+    "Shipment",
+    "Route",
+    "RoutingParameters",
+    "FacilityLocation",
+    "SupplyChainNetwork",
+]

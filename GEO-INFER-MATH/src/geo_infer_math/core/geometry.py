@@ -17,19 +17,27 @@ WGS84_SEMI_MAJOR_AXIS = 6378137.0  # WGS84 semi-major axis in meters
 WGS84_SEMI_MINOR_AXIS = 6356752.314245  # WGS84 semi-minor axis in meters
 WGS84_FLATTENING = 1 / 298.257223563  # WGS84 flattening
 
+
 @dataclass
 class Point:
     """Representation of a 2D point with optional z-coordinate."""
+
     x: float
     y: float
     z: Optional[float] = None
 
-    def distance_to(self, other: 'Point') -> float:
+    def distance_to(self, other: "Point") -> float:
         """Calculate Euclidean distance to another point."""
         if self.z is not None and other.z is not None:
-            return float(np.sqrt((self.x - other.x)**2 + (self.y - other.y)**2 + (self.z - other.z)**2))
+            return float(
+                np.sqrt(
+                    (self.x - other.x) ** 2
+                    + (self.y - other.y) ** 2
+                    + (self.z - other.z) ** 2
+                )
+            )
         else:
-            return float(np.sqrt((self.x - other.x)**2 + (self.y - other.y)**2))
+            return float(np.sqrt((self.x - other.x) ** 2 + (self.y - other.y) ** 2))
 
     def to_array(self) -> np.ndarray:
         """Convert to numpy array."""
@@ -38,9 +46,11 @@ class Point:
         else:
             return np.array([self.x, self.y])
 
+
 @dataclass
 class LineString:
     """Representation of a line string (sequence of points)."""
+
     points: List[Point]
 
     def length(self) -> float:
@@ -50,7 +60,7 @@ class LineString:
 
         length = 0.0
         for i in range(len(self.points) - 1):
-            length += self.points[i].distance_to(self.points[i+1])
+            length += self.points[i].distance_to(self.points[i + 1])
 
         return length
 
@@ -64,9 +74,11 @@ class LineString:
         else:
             return np.array([[p.x, p.y] for p in self.points])
 
+
 @dataclass
 class Polygon:
     """Representation of a polygon (exterior ring and optional interior rings)."""
+
     exterior: List[Point]
     interiors: Optional[List[List[Point]]] = None
 
@@ -108,6 +120,7 @@ class Polygon:
 
         return Point(x=x_sum / len(self.exterior), y=y_sum / len(self.exterior))
 
+
 def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """
     Calculate the great circle distance between two points on the Earth's surface.
@@ -131,14 +144,24 @@ def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> fl
     dlon = lon2_rad - lon1_rad
     dlat = lat2_rad - lat1_rad
 
-    a = np.sin(dlat/2)**2 + np.cos(lat1_rad) * np.cos(lat2_rad) * np.sin(dlon/2)**2
+    a = (
+        np.sin(dlat / 2) ** 2
+        + np.cos(lat1_rad) * np.cos(lat2_rad) * np.sin(dlon / 2) ** 2
+    )
     c = 2 * np.arcsin(np.sqrt(a))
 
     # Return distance in kilometers
     return float(EARTH_RADIUS_KM * c)
 
-def vincenty_distance(lat1: float, lon1: float, lat2: float, lon2: float,
-                      max_iterations: int = 100, tolerance: float = 1e-12) -> float:
+
+def vincenty_distance(
+    lat1: float,
+    lon1: float,
+    lat2: float,
+    lon2: float,
+    max_iterations: int = 100,
+    tolerance: float = 1e-12,
+) -> float:
     """
     Calculate the geodesic distance between two points using Vincenty's formula.
 
@@ -180,8 +203,10 @@ def vincenty_distance(lat1: float, lon1: float, lat2: float, lon2: float,
         sin_lambda = np.sin(lambda_old)
         cos_lambda = np.cos(lambda_old)
 
-        sin_sigma = np.sqrt((cos_U2 * sin_lambda) ** 2 +
-                          (cos_U1 * sin_U2 - sin_U1 * cos_U2 * cos_lambda) ** 2)
+        sin_sigma = np.sqrt(
+            (cos_U2 * sin_lambda) ** 2
+            + (cos_U1 * sin_U2 - sin_U1 * cos_U2 * cos_lambda) ** 2
+        )
 
         if sin_sigma == 0:
             return 0.0  # Coincident points
@@ -190,7 +215,7 @@ def vincenty_distance(lat1: float, lon1: float, lat2: float, lon2: float,
         sigma = np.arctan2(sin_sigma, cos_sigma)
 
         sin_alpha = cos_U1 * cos_U2 * sin_lambda / sin_sigma
-        cos_sq_alpha = 1 - sin_alpha ** 2
+        cos_sq_alpha = 1 - sin_alpha**2
 
         if cos_sq_alpha == 0:
             cos_2sigma_m = 0
@@ -199,23 +224,43 @@ def vincenty_distance(lat1: float, lon1: float, lat2: float, lon2: float,
 
         C = f / 16 * cos_sq_alpha * (4 + f * (4 - 3 * cos_sq_alpha))
 
-        lambda_new = L + (1 - C) * f * sin_alpha * (sigma + C * sin_sigma *
-                   (cos_2sigma_m + C * cos_sigma * (-1 + 2 * cos_2sigma_m ** 2)))
+        lambda_new = L + (1 - C) * f * sin_alpha * (
+            sigma
+            + C
+            * sin_sigma
+            * (cos_2sigma_m + C * cos_sigma * (-1 + 2 * cos_2sigma_m**2))
+        )
 
         if abs(lambda_new - lambda_old) < tolerance:
             break
 
         lambda_old = lambda_new
 
-    u2 = cos_sq_alpha * ((a ** 2 - b ** 2) / b ** 2)
+    u2 = cos_sq_alpha * ((a**2 - b**2) / b**2)
     A = 1 + u2 / 16384 * (4096 + u2 * (-768 + u2 * (320 - 175 * u2)))
     B = u2 / 1024 * (256 + u2 * (-128 + u2 * (74 - 47 * u2)))
 
-    delta_sigma = B * sin_sigma * (cos_2sigma_m + B / 4 * (cos_sigma * (-1 + 2 * cos_2sigma_m ** 2) -
-               B / 6 * cos_2sigma_m * (-3 + 4 * sin_sigma ** 2) * (-3 + 4 * cos_2sigma_m ** 2)))
+    delta_sigma = (
+        B
+        * sin_sigma
+        * (
+            cos_2sigma_m
+            + B
+            / 4
+            * (
+                cos_sigma * (-1 + 2 * cos_2sigma_m**2)
+                - B
+                / 6
+                * cos_2sigma_m
+                * (-3 + 4 * sin_sigma**2)
+                * (-3 + 4 * cos_2sigma_m**2)
+            )
+        )
+    )
 
     # Return distance in meters
     return float(b * A * (sigma - delta_sigma))
+
 
 def bearing(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """
@@ -237,7 +282,9 @@ def bearing(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     lon2_rad = np.radians(lon2)
 
     y = np.sin(lon2_rad - lon1_rad) * np.cos(lat2_rad)
-    x = np.cos(lat1_rad) * np.sin(lat2_rad) - np.sin(lat1_rad) * np.cos(lat2_rad) * np.cos(lon2_rad - lon1_rad)
+    x = np.cos(lat1_rad) * np.sin(lat2_rad) - np.sin(lat1_rad) * np.cos(
+        lat2_rad
+    ) * np.cos(lon2_rad - lon1_rad)
 
     bearing_rad = np.arctan2(y, x)
 
@@ -245,7 +292,10 @@ def bearing(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     bearing_deg = np.degrees(bearing_rad)
     return float((bearing_deg + 360) % 360)
 
-def destination_point(lat: float, lon: float, bearing: float, distance: float) -> Tuple[float, float]:
+
+def destination_point(
+    lat: float, lon: float, bearing: float, distance: float
+) -> Tuple[float, float]:
     """
     Calculate the destination point given a starting point, bearing, and distance.
 
@@ -267,7 +317,9 @@ def destination_point(lat: float, lon: float, bearing: float, distance: float) -
     angular_dist = distance / EARTH_RADIUS_KM
 
     # Calculate destination point
-    sin_lat = np.sin(lat_rad) * np.cos(angular_dist) + np.cos(lat_rad) * np.sin(angular_dist) * np.cos(bearing_rad)
+    sin_lat = np.sin(lat_rad) * np.cos(angular_dist) + np.cos(lat_rad) * np.sin(
+        angular_dist
+    ) * np.cos(bearing_rad)
     dest_lat_rad = np.arcsin(sin_lat)
 
     y = np.sin(bearing_rad) * np.sin(angular_dist) * np.cos(lat_rad)
@@ -282,6 +334,7 @@ def destination_point(lat: float, lon: float, bearing: float, distance: float) -
     dest_lon = np.degrees(dest_lon_rad)
 
     return (dest_lat, dest_lon)
+
 
 def point_in_polygon(point: Point, polygon: Polygon) -> bool:
     """
@@ -298,10 +351,15 @@ def point_in_polygon(point: Point, polygon: Polygon) -> bool:
     j = len(polygon.exterior) - 1
 
     for i in range(len(polygon.exterior)):
-        if (((polygon.exterior[i].y > point.y) != (polygon.exterior[j].y > point.y)) and
-            (point.x < (polygon.exterior[j].x - polygon.exterior[i].x) *
-             (point.y - polygon.exterior[i].y) / (polygon.exterior[j].y - polygon.exterior[i].y) +
-             polygon.exterior[i].x)):
+        if (
+            (polygon.exterior[i].y > point.y) != (polygon.exterior[j].y > point.y)
+        ) and (
+            point.x
+            < (polygon.exterior[j].x - polygon.exterior[i].x)
+            * (point.y - polygon.exterior[i].y)
+            / (polygon.exterior[j].y - polygon.exterior[i].y)
+            + polygon.exterior[i].x
+        ):
             inside = not inside
         j = i
 
@@ -312,10 +370,13 @@ def point_in_polygon(point: Point, polygon: Polygon) -> bool:
             in_hole = False
 
             for i in range(len(interior)):
-                if (((interior[i].y > point.y) != (interior[j].y > point.y)) and
-                    (point.x < (interior[j].x - interior[i].x) *
-                     (point.y - interior[i].y) / (interior[j].y - interior[i].y) +
-                     interior[i].x)):
+                if ((interior[i].y > point.y) != (interior[j].y > point.y)) and (
+                    point.x
+                    < (interior[j].x - interior[i].x)
+                    * (point.y - interior[i].y)
+                    / (interior[j].y - interior[i].y)
+                    + interior[i].x
+                ):
                     in_hole = not in_hole
                 j = i
 
@@ -382,7 +443,10 @@ def points_in_polygon_vectorized(
     inside = np.sum(crossings, axis=1) % 2 == 1
     return cast(np.ndarray, inside)
 
-def buffer_point(lat: float, lon: float, distance: float, segments: int = 32) -> List[Tuple[float, float]]:
+
+def buffer_point(
+    lat: float, lon: float, distance: float, segments: int = 32
+) -> List[Tuple[float, float]]:
     """
     Create a circular buffer around a point.
 
@@ -406,7 +470,10 @@ def buffer_point(lat: float, lon: float, distance: float, segments: int = 32) ->
 
     return buffer
 
-def line_intersection(line1_start: Point, line1_end: Point, line2_start: Point, line2_end: Point) -> Optional[Point]:
+
+def line_intersection(
+    line1_start: Point, line1_end: Point, line2_start: Point, line2_end: Point
+) -> Optional[Point]:
     """
     Find the intersection point of two line segments.
 
@@ -439,16 +506,22 @@ def line_intersection(line1_start: Point, line1_end: Point, line2_start: Point, 
 
     # Check if intersection point lies within both line segments
     def is_on_segment(p: Point, q: Point, r: Point) -> bool:
-        return (q.x <= max(p.x, r.x) and q.x >= min(p.x, r.x) and
-                q.y <= max(p.y, r.y) and q.y >= min(p.y, r.y))
+        return (
+            q.x <= max(p.x, r.x)
+            and q.x >= min(p.x, r.x)
+            and q.y <= max(p.y, r.y)
+            and q.y >= min(p.y, r.y)
+        )
 
     intersection = Point(x=x, y=y)
 
-    if (is_on_segment(line1_start, intersection, line1_end) and
-        is_on_segment(line2_start, intersection, line2_end)):
+    if is_on_segment(line1_start, intersection, line1_end) and is_on_segment(
+        line2_start, intersection, line2_end
+    ):
         return intersection
 
     return None
+
 
 def polygon_area_spherical(polygon: List[Tuple[float, float]]) -> float:
     """
@@ -479,6 +552,7 @@ def polygon_area_spherical(polygon: List[Tuple[float, float]]) -> float:
 
     return float(area)
 
+
 def great_circle_distance(coords1: np.ndarray, coords2: np.ndarray) -> np.ndarray:
     """
     Calculate the great circle distance between arrays of points.
@@ -508,10 +582,11 @@ def great_circle_distance(coords1: np.ndarray, coords2: np.ndarray) -> np.ndarra
     dlon = lon2 - lon1
 
     # Haversine formula
-    a = np.sin(dlat/2)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon/2)**2
+    a = np.sin(dlat / 2) ** 2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon / 2) ** 2
     c = 2 * np.arcsin(np.sqrt(np.clip(a, 0, 1)))
 
     return cast(np.ndarray, EARTH_RADIUS_KM * c)
+
 
 __all__ = [
     "Point",
@@ -530,5 +605,5 @@ __all__ = [
     "EARTH_RADIUS_M",
     "WGS84_SEMI_MAJOR_AXIS",
     "WGS84_SEMI_MINOR_AXIS",
-    "WGS84_FLATTENING"
+    "WGS84_FLATTENING",
 ]

@@ -48,9 +48,7 @@ def _build_spatial_canvas() -> Dict[str, Any]:
     assert len(cells) > 10, f"expected a real grid, got {len(cells)} cells"
 
     centers = {cell: indexer.cell_to_latlng(cell) for cell in cells[:6]}
-    distances = {
-        cell: indexer.get_cell_distance(cells[0], cell) for cell in cells[1:6]
-    }
+    distances = {cell: indexer.get_cell_distance(cells[0], cell) for cell in cells[1:6]}
     return {"cells": cells, "centers": centers, "distances": distances}
 
 

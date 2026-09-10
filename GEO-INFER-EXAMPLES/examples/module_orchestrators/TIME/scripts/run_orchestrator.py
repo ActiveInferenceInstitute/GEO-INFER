@@ -53,9 +53,7 @@ def _operation() -> Dict[str, Any]:
         "operation": "rolling_window_statistics_on_daily_series",
         "series_length": int(rolling["series_length"]),
         "window": int(rolling["window"]),
-        "valid_rolling_observations": int(
-            rolling["summary"]["valid_observations"]
-        ),
+        "valid_rolling_observations": int(rolling["summary"]["valid_observations"]),
         "rolling_latest": {
             name: rolling_stats[name]["latest"]
             for name in ("mean", "std", "min", "max")

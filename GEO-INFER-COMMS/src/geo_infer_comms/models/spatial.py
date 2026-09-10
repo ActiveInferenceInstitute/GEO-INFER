@@ -13,12 +13,16 @@ from datetime import datetime, timezone
 import math
 
 from geo_infer_comms.utils.validation import (
-    SUPPORTED_CRS, validate_coordinates, validate_crs, validate_geojson_geometry
+    SUPPORTED_CRS,
+    validate_coordinates,
+    validate_crs,
+    validate_geojson_geometry,
 )
 
 
 class CoordinateSystem(str):
     """Supported coordinate reference systems."""
+
     WGS84 = SUPPORTED_CRS["WGS84"]
     UTM = SUPPORTED_CRS["UTM"]
     WEB_MERCATOR = SUPPORTED_CRS["WEB_MERCATOR"]
@@ -30,24 +34,22 @@ class GeospatialPoint:
     """Represents a geospatial point with coordinates and metadata."""
 
     longitude: float  # X coordinate
-    latitude: float   # Y coordinate
+    latitude: float  # Y coordinate
     altitude: Optional[float] = None
     crs: str = CoordinateSystem.WGS84
 
     def __post_init__(self) -> None:
         """Validate coordinates after initialization."""
         if not validate_coordinates(self.longitude, self.latitude):
-            raise ValueError(f"Invalid coordinates: ({self.longitude}, {self.latitude})")
+            raise ValueError(
+                f"Invalid coordinates: ({self.longitude}, {self.latitude})"
+            )
         if not validate_crs(self.crs):
             raise ValueError(f"Invalid CRS: {self.crs}")
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert point to dictionary representation."""
-        data = {
-            "longitude": self.longitude,
-            "latitude": self.latitude,
-            "crs": self.crs
-        }
+        data = {"longitude": self.longitude, "latitude": self.latitude, "crs": self.crs}
         if self.altitude is not None:
             data["altitude"] = self.altitude
         return data
@@ -59,7 +61,7 @@ class GeospatialPoint:
             longitude=data["longitude"],
             latitude=data["latitude"],
             altitude=data.get("altitude"),
-            crs=data.get("crs", CoordinateSystem.WGS84)
+            crs=data.get("crs", CoordinateSystem.WGS84),
         )
 
     def distance_to(self, other: GeospatialPoint, method: str = "haversine") -> float:
@@ -80,8 +82,11 @@ class GeospatialPoint:
         # Haversine formula
         dlat = lat2 - lat1
         dlon = lon2 - lon1
-        a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon/2)**2
-        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+        a = (
+            math.sin(dlat / 2) ** 2
+            + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
+        )
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
         # Earth radius in meters
         earth_radius = 6371000
@@ -91,7 +96,7 @@ class GeospatialPoint:
         """Calculate Euclidean distance (for projected coordinates)."""
         dx = self.longitude - other.longitude
         dy = self.latitude - other.latitude
-        return math.sqrt(dx*dx + dy*dy)
+        return math.sqrt(dx * dx + dy * dy)
 
     def is_within_bounds(self, bounds: GeospatialBounds) -> bool:
         """Check if point is within given bounds."""
@@ -124,7 +129,7 @@ class GeospatialBounds:
             "min_latitude": self.min_latitude,
             "max_longitude": self.max_longitude,
             "max_latitude": self.max_latitude,
-            "crs": self.crs
+            "crs": self.crs,
         }
 
     @classmethod
@@ -135,7 +140,7 @@ class GeospatialBounds:
             min_latitude=data["min_latitude"],
             max_longitude=data["max_longitude"],
             max_latitude=data["max_latitude"],
-            crs=data.get("crs", CoordinateSystem.WGS84)
+            crs=data.get("crs", CoordinateSystem.WGS84),
         )
 
     def contains_point(self, point: GeospatialPoint) -> bool:
@@ -144,17 +149,17 @@ class GeospatialBounds:
             # Simple check - in production, would transform coordinates
             return False
         return (
-            self.min_longitude <= point.longitude <= self.max_longitude and
-            self.min_latitude <= point.latitude <= self.max_latitude
+            self.min_longitude <= point.longitude <= self.max_longitude
+            and self.min_latitude <= point.latitude <= self.max_latitude
         )
 
     def intersects(self, other: GeospatialBounds) -> bool:
         """Check if these bounds intersect with another bounds."""
         return not (
-            self.max_longitude < other.min_longitude or
-            other.max_longitude < self.min_longitude or
-            self.max_latitude < other.min_latitude or
-            other.max_latitude < self.min_latitude
+            self.max_longitude < other.min_longitude
+            or other.max_longitude < self.min_longitude
+            or self.max_latitude < other.min_latitude
+            or other.max_latitude < self.min_latitude
         )
 
     def area(self) -> float:
@@ -173,7 +178,7 @@ class GeospatialBounds:
         avg_lat = (lat1 + lat2) / 2
 
         earth_radius = 6371000  # meters
-        area = (earth_radius ** 2) * dlon * math.sin(avg_lat) * dlat
+        area = (earth_radius**2) * dlon * math.sin(avg_lat) * dlat
         return abs(area)
 
     def center(self) -> GeospatialPoint:
@@ -198,7 +203,7 @@ class GeospatialMetadata:
         """Convert geospatial metadata to dictionary."""
         data: Dict[str, Any] = {
             "location": self.location.to_dict(),
-            "timestamp": self.timestamp.isoformat()
+            "timestamp": self.timestamp.isoformat(),
         }
         if self.bounds:
             data["bounds"] = self.bounds.to_dict()
@@ -226,14 +231,16 @@ class GeospatialMetadata:
             accuracy=data.get("accuracy"),
             precision=data.get("precision"),
             source=data.get("source"),
-            timestamp=datetime.fromisoformat(data["timestamp"])
+            timestamp=datetime.fromisoformat(data["timestamp"]),
         )
 
     def distance_to(self, other: GeospatialMetadata) -> float:
         """Calculate distance between two geospatial metadata objects."""
         return self.location.distance_to(other.location)
 
-    def is_within_distance(self, other: GeospatialMetadata, distance_meters: float) -> bool:
+    def is_within_distance(
+        self, other: GeospatialMetadata, distance_meters: float
+    ) -> bool:
         """Check if this location is within distance of another."""
         return self.distance_to(other) <= distance_meters
 
@@ -245,7 +252,7 @@ class SpatialFilter:
         self,
         filter_type: Literal["bounds", "radius", "polygon", "proximity"],
         parameters: Dict[str, Any],
-        crs: str = CoordinateSystem.WGS84
+        crs: str = CoordinateSystem.WGS84,
     ):
         self.filter_type = filter_type
         self.parameters = parameters
@@ -256,7 +263,7 @@ class SpatialFilter:
         return {
             "filter_type": self.filter_type,
             "parameters": self.parameters,
-            "crs": self.crs
+            "crs": self.crs,
         }
 
     @classmethod
@@ -265,7 +272,7 @@ class SpatialFilter:
         return cls(
             filter_type=data["filter_type"],
             parameters=data["parameters"],
-            crs=data.get("crs", CoordinateSystem.WGS84)
+            crs=data.get("crs", CoordinateSystem.WGS84),
         )
 
     def matches_location(self, location: GeospatialPoint) -> bool:
@@ -293,7 +300,7 @@ class SpatialFilter:
             min_latitude=bounds_data["min_latitude"],
             max_longitude=bounds_data["max_longitude"],
             max_latitude=bounds_data["max_latitude"],
-            crs=self.crs
+            crs=self.crs,
         )
         return bounds.contains_point(location)
 
@@ -303,7 +310,7 @@ class SpatialFilter:
         center = GeospatialPoint(
             longitude=center_data["longitude"],
             latitude=center_data["latitude"],
-            crs=self.crs
+            crs=self.crs,
         )
         radius = cast(float, self.parameters.get("radius_meters", 0))
         return center.distance_to(location) <= radius
@@ -319,12 +326,17 @@ class SpatialFilter:
         """
         polygon_data = self.parameters.get("polygon", {})
         # Accept either a raw list or a GeoJSON-style dict
-        coords = polygon_data if isinstance(polygon_data, list) else polygon_data.get("coordinates", [])
+        coords = (
+            polygon_data
+            if isinstance(polygon_data, list)
+            else polygon_data.get("coordinates", [])
+        )
         if not coords or len(coords) < 3:
             return False
 
         try:
             from shapely.geometry import Point, Polygon
+
             poly = Polygon([(c[0], c[1]) for c in coords])
             point = Point(location.longitude, location.latitude)
             return cast(bool, poly.contains(point))
@@ -332,14 +344,12 @@ class SpatialFilter:
             # Bounding-box fallback when Shapely is not installed
             lons = [c[0] for c in coords]
             lats = [c[1] for c in coords]
-            in_bounds = (
-                min(lons) <= location.longitude <= max(lons)
-                and min(lats) <= location.latitude <= max(lats)
-            )
+            in_bounds = min(lons) <= location.longitude <= max(lons) and min(
+                lats
+            ) <= location.latitude <= max(lats)
             return cast(bool, in_bounds)
         except Exception:
             return False
-
 
     def _matches_proximity(self, location: GeospatialPoint) -> bool:
         """Check if location matches proximity filter."""
@@ -347,7 +357,7 @@ class SpatialFilter:
         target_location = GeospatialPoint(
             longitude=target_location_data["longitude"],
             latitude=target_location_data["latitude"],
-            crs=self.crs
+            crs=self.crs,
         )
         max_distance = cast(float, self.parameters.get("max_distance_meters", 0))
         return location.distance_to(target_location) <= max_distance
@@ -356,7 +366,9 @@ class SpatialFilter:
 class SpatialIndex:
     """Spatial indexing for efficient geospatial queries."""
 
-    def __init__(self, index_type: str = "quadtree", bounds: Optional[GeospatialBounds] = None):
+    def __init__(
+        self, index_type: str = "quadtree", bounds: Optional[GeospatialBounds] = None
+    ):
         self.index_type = index_type
         self.bounds = bounds
         self._index: Dict[str, List[str]] = {}  # Simplified in-memory index
@@ -419,7 +431,7 @@ def create_bounds_from_points(points: List[GeospatialPoint]) -> GeospatialBounds
         min_longitude=min(lons),
         min_latitude=min(lats),
         max_longitude=max(lons),
-        max_latitude=max(lats)
+        max_latitude=max(lats),
     )
 
 
@@ -440,10 +452,8 @@ def buffer_point(point: GeospatialPoint, distance_meters: float) -> GeospatialBo
         min_latitude=point.latitude - delta_lat,
         max_longitude=point.longitude + delta_lon,
         max_latitude=point.latitude + delta_lat,
-        crs=point.crs
+        crs=point.crs,
     )
-
-
 
 
 def geojson_to_geospatial_point(geojson: Dict[str, Any]) -> GeospatialPoint:
@@ -470,7 +480,4 @@ def geospatial_point_to_geojson(point: GeospatialPoint) -> Dict[str, Any]:
     if point.altitude is not None:
         coordinates.append(point.altitude)
 
-    return {
-        "type": "Point",
-        "coordinates": coordinates
-    }
+    return {"type": "Point", "coordinates": coordinates}

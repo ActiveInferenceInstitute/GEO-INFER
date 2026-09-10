@@ -52,9 +52,7 @@ class TestCorsPolicy:
         assert cors_allow_credentials(["https://app.example.com"]) is True
 
     def test_explicit_origins_with_wildcard_rejected(self):
-        assert (
-            cors_allow_credentials(["https://app.example.com", "*"]) is False
-        )
+        assert cors_allow_credentials(["https://app.example.com", "*"]) is False
 
     def test_wildcard_origin_gets_no_credentials_header(self):
         app = FastAPI()
@@ -71,9 +69,7 @@ class TestCorsPolicy:
             return {"ok": True}
 
         client = TestClient(app)
-        response = client.get(
-            "/probe", headers={"Origin": "https://evil.example.com"}
-        )
+        response = client.get("/probe", headers={"Origin": "https://evil.example.com"})
         assert response.status_code == 200
         assert "access-control-allow-credentials" not in response.headers
 

@@ -321,7 +321,11 @@ class ModuleIntegrator:
         Returns:
             Validation results
         """
-        validation_results: Dict[str, Any] = {"compatible": True, "warnings": [], "errors": []}
+        validation_results: Dict[str, Any] = {
+            "compatible": True,
+            "warnings": [],
+            "errors": [],
+        }
 
         # Define expected data formats for each module
         module_requirements = {

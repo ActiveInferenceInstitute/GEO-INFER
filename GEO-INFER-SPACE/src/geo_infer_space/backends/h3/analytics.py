@@ -30,9 +30,7 @@ else:
     except (AttributeError, TypeError, ValueError):
         _h3_version = None
     H3_AVAILABLE = bool(
-        _h3_version is not None
-        and _h3_version >= MIN_H3_VERSION
-        and _h3_version[0] < 5
+        _h3_version is not None and _h3_version >= MIN_H3_VERSION and _h3_version[0] < 5
     )
 if not H3_AVAILABLE:
     logger.error(
@@ -674,7 +672,6 @@ class H3ClusterAnalyzer:
                     and cell_value_map[neighbor_idx] >= min_density
                     and len(neighbor_neighbors) >= 2
                 ):
-
                     for nn in neighbor_neighbors:
                         if nn not in neighbors:
                             neighbors.append(nn)
@@ -1368,9 +1365,7 @@ class H3DensityAnalyzer:
             for neighbor_index in neighborhood:
                 neighbor = cell_by_index.get(neighbor_index)
                 if neighbor is not None:
-                    local_values.append(
-                        neighbor.properties.get(value_column, 0)
-                    )
+                    local_values.append(neighbor.properties.get(value_column, 0))
             local_density = (
                 sum(local_values) / len(local_values) if local_values else 0.0
             )
@@ -1432,7 +1427,6 @@ class H3NetworkAnalyzer:
                 origin_column in cell.properties
                 and destination_column in cell.properties
             ):
-
                 origin = cell.properties[origin_column]
                 destination = cell.properties[destination_column]
 
@@ -1905,7 +1899,6 @@ class H3TemporalAnalyzer:
                 and cell.properties[timestamp_column] is not None
                 and cell.properties[value_column] is not None
             ):
-
                 try:
                     # Parse timestamp
                     timestamp_str = str(cell.properties[timestamp_column])
@@ -2260,7 +2253,6 @@ class H3TemporalAnalyzer:
                 and cell.properties[timestamp_column] is not None
                 and cell.properties[value_column] is not None
             ):
-
                 try:
                     timestamp_str = str(cell.properties[timestamp_column])
                     timestamp = self._parse_timestamp(timestamp_str)
@@ -2441,7 +2433,9 @@ class H3TemporalAnalyzer:
             trend = (
                 "increasing"
                 if last_value > first_value
-                else "decreasing" if last_value < first_value else "stable"
+                else "decreasing"
+                if last_value < first_value
+                else "stable"
             )
 
             trend_analysis[cell_key] = {

@@ -55,7 +55,9 @@ class SpatialRegression:
         if self.model_type not in valid_types:
             raise ValueError(f"Model type must be one of {valid_types}")
 
-    def fit(self, data: SPMData, design_matrix: DesignMatrix, **kwargs: Any) -> SPMResult:
+    def fit(
+        self, data: SPMData, design_matrix: DesignMatrix, **kwargs: Any
+    ) -> SPMResult:
         """
         Fit spatial regression model.
 

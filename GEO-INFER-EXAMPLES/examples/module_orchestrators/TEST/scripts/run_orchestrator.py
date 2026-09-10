@@ -48,7 +48,9 @@ def _operation() -> Dict[str, Any]:
 
     def _seeded_factory(seed: int) -> np.ndarray:
         draw_rng = np.random.default_rng(seed)
-        return as_finite_array(draw_rng.normal(0.0, 1.0, 16), name="seeded_model_output")
+        return as_finite_array(
+            draw_rng.normal(0.0, 1.0, 16), name="seeded_model_output"
+        )
 
     assert_seed_replay(_seeded_factory, seed=42)
     helpers_passed = True
@@ -74,7 +76,9 @@ def _operation() -> Dict[str, Any]:
         {
             "latitude": lats,
             "longitude": lons,
-            "h3_index": [h3.latlng_to_cell(lat, lon, 8) for lat, lon in zip(lats, lons)],
+            "h3_index": [
+                h3.latlng_to_cell(lat, lon, 8) for lat, lon in zip(lats, lons)
+            ],
         }
     )
 

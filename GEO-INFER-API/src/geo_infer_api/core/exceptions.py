@@ -1,6 +1,7 @@
 """
 Custom exceptions for the GEO-INFER-API.
 """
+
 from typing import Any, Dict, Optional
 
 from fastapi import HTTPException, status
@@ -14,7 +15,7 @@ class APIError(HTTPException):
         status_code: int,
         detail: str,
         error_code: Optional[str] = None,
-        additional_info: Optional[Dict[str, Any]] = None
+        additional_info: Optional[Dict[str, Any]] = None,
     ):
         super().__init__(status_code=status_code, detail=detail)
         self.error_code = error_code or f"API_{status_code}"
@@ -27,7 +28,7 @@ class APIError(HTTPException):
                 "code": self.error_code,
                 "message": self.detail,
                 "status_code": self.status_code,
-                **self.additional_info
+                **self.additional_info,
             }
         }
 
@@ -40,7 +41,7 @@ class ValidationError(APIError):
         detail: str,
         field: Optional[str] = None,
         value: Optional[Any] = None,
-        additional_info: Optional[Dict[str, Any]] = None
+        additional_info: Optional[Dict[str, Any]] = None,
     ):
         error_info = {"field": field, "value": str(value)} if field else {}
         if additional_info:
@@ -50,7 +51,7 @@ class ValidationError(APIError):
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=detail,
             error_code="VALIDATION_ERROR",
-            additional_info=error_info
+            additional_info=error_info,
         )
 
 
@@ -61,7 +62,7 @@ class NotFoundError(APIError):
         self,
         resource: str,
         identifier: Optional[str] = None,
-        additional_info: Optional[Dict[str, Any]] = None
+        additional_info: Optional[Dict[str, Any]] = None,
     ):
         detail = f"{resource} not found"
         if identifier:
@@ -77,7 +78,7 @@ class NotFoundError(APIError):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=detail,
             error_code="RESOURCE_NOT_FOUND",
-            additional_info=error_info
+            additional_info=error_info,
         )
 
 
@@ -89,7 +90,7 @@ class ConflictError(APIError):
         resource: str,
         conflict_reason: str,
         identifier: Optional[str] = None,
-        additional_info: Optional[Dict[str, Any]] = None
+        additional_info: Optional[Dict[str, Any]] = None,
     ):
         detail = f"Conflict for {resource}: {conflict_reason}"
         if identifier:
@@ -105,7 +106,7 @@ class ConflictError(APIError):
             status_code=status.HTTP_409_CONFLICT,
             detail=detail,
             error_code="RESOURCE_CONFLICT",
-            additional_info=error_info
+            additional_info=error_info,
         )
 
 
@@ -117,7 +118,7 @@ class GeometryError(APIError):
         detail: str,
         geometry_type: Optional[str] = None,
         operation: Optional[str] = None,
-        additional_info: Optional[Dict[str, Any]] = None
+        additional_info: Optional[Dict[str, Any]] = None,
     ):
         error_info = {}
         if geometry_type:
@@ -131,7 +132,7 @@ class GeometryError(APIError):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=detail,
             error_code="GEOMETRY_ERROR",
-            additional_info=error_info
+            additional_info=error_info,
         )
 
 
@@ -143,7 +144,7 @@ class ProcessingError(APIError):
         detail: str,
         operation: Optional[str] = None,
         processing_stage: Optional[str] = None,
-        additional_info: Optional[Dict[str, Any]] = None
+        additional_info: Optional[Dict[str, Any]] = None,
     ):
         error_info = {}
         if operation:
@@ -157,7 +158,7 @@ class ProcessingError(APIError):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=detail,
             error_code="PROCESSING_ERROR",
-            additional_info=error_info
+            additional_info=error_info,
         )
 
 
@@ -168,7 +169,7 @@ class BadRequestError(APIError):
         self,
         detail: str,
         field: Optional[str] = None,
-        additional_info: Optional[Dict[str, Any]] = None
+        additional_info: Optional[Dict[str, Any]] = None,
     ):
         error_info = {"field": field} if field else {}
         if additional_info:
@@ -178,5 +179,5 @@ class BadRequestError(APIError):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=detail,
             error_code="BAD_REQUEST",
-            additional_info=error_info
+            additional_info=error_info,
         )

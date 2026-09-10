@@ -27,12 +27,12 @@ def load_config(config_path: Union[str, Path]) -> Dict[str, Any]:
         raise FileNotFoundError(f"Configuration file not found: {config_path}")
 
     suffix = config_path.suffix.lower()
-    if suffix in ['.yaml', '.yml']:
-        with open(config_path, 'r') as f:
+    if suffix in [".yaml", ".yml"]:
+        with open(config_path, "r") as f:
             data = yaml.safe_load(f)
             return data if isinstance(data, dict) else {}
-    elif suffix == '.json':
-        with open(config_path, 'r') as f:
+    elif suffix == ".json":
+        with open(config_path, "r") as f:
             data = json.load(f)
             return data if isinstance(data, dict) else {}
     else:
@@ -77,9 +77,9 @@ def validate_config(config: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
     """
     try:
         schema_path = get_schema_path()
-        with open(schema_path, 'r') as f:
+        with open(schema_path, "r") as f:
             schema = json.load(f)
-        
+
         jsonschema.validate(config, schema)
         return True, None
     except FileNotFoundError as e:
@@ -107,9 +107,9 @@ def get_config_value(
     Raises:
         KeyError: If the key is not found and no default is provided.
     """
-    keys = key_path.split('.')
+    keys = key_path.split(".")
     value = config
-    
+
     for key in keys:
         if isinstance(value, dict) and key in value:
             value = value[key]
@@ -117,11 +117,13 @@ def get_config_value(
             if default is not _MISSING:
                 return default
             raise KeyError(f"Key not found: {key_path}")
-    
+
     return value
 
 
-def merge_configs(base_config: Dict[str, Any], override_config: Dict[str, Any]) -> Dict[str, Any]:
+def merge_configs(
+    base_config: Dict[str, Any], override_config: Dict[str, Any]
+) -> Dict[str, Any]:
     """
     Merge two configuration dictionaries, with override_config taking precedence.
 
@@ -133,13 +135,13 @@ def merge_configs(base_config: Dict[str, Any], override_config: Dict[str, Any]) 
         Merged configuration dictionary.
     """
     result = base_config.copy()
-    
+
     for key, value in override_config.items():
         if key in result and isinstance(result[key], dict) and isinstance(value, dict):
             result[key] = merge_configs(result[key], value)
         else:
             result[key] = value
-    
+
     return result
 
 
@@ -154,18 +156,18 @@ def get_default_config_path() -> Path:
     user_config = Path.home() / ".geo-infer" / "config.yaml"
     if user_config.exists():
         return user_config
-    
+
     # Check for config in current directory
     local_config = Path.cwd() / "config" / "local.yaml"
     if local_config.exists():
         return local_config
-    
+
     # Fall back to example config in package
     package_dir = Path(__file__).parent.parent.parent.parent
     example_config = package_dir / "config" / "example.yaml"
     if example_config.exists():
         return example_config
-    
+
     raise FileNotFoundError("No configuration file found")
 
 
@@ -185,47 +187,38 @@ def load_default_config() -> Dict[str, Any]:
             "general": {
                 "debug_mode": False,
                 "log_level": "INFO",
-                "log_file": str(Path.home() / ".geo-infer" / "logs" / "intra.log")
+                "log_file": str(Path.home() / ".geo-infer" / "logs" / "intra.log"),
             },
             "documentation": {
-                "server": {
-                    "host": "localhost",
-                    "port": 8000
-                },
-                "content_dir": str(Path.home() / ".geo-infer" / "docs")
+                "server": {"host": "localhost", "port": 8000},
+                "content_dir": str(Path.home() / ".geo-infer" / "docs"),
             },
             "ontology": {
                 "base_dir": str(Path.home() / ".geo-infer" / "ontologies"),
-                "default_format": "turtle"
+                "default_format": "turtle",
             },
             "knowledge_base": {
                 "storage_type": "file",
                 "file": {
                     "directory": str(Path.home() / ".geo-infer" / "knowledge_base"),
-                    "format": "json"
-                }
+                    "format": "json",
+                },
             },
             "workflow": {
                 "storage_dir": str(Path.home() / ".geo-infer" / "workflows"),
-                "execution": {
-                    "parallel": True,
-                    "max_workers": 4
-                }
+                "execution": {"parallel": True, "max_workers": 4},
             },
             "api": {
-                "server": {
-                    "host": "localhost",
-                    "port": 8080
-                },
-                "auth": {
-                    "enabled": False
-                }
+                "server": {"host": "localhost", "port": 8080},
+                "auth": {"enabled": False},
             },
             "database": {
                 "type": "sqlite",
                 "sqlite": {
-                    "path": str(Path.home() / ".geo-infer" / "data" / "geo_infer_intra.db")
-                }
+                    "path": str(
+                        Path.home() / ".geo-infer" / "data" / "geo_infer_intra.db"
+                    )
+                },
             },
-            "integration": {}
-        } 
+            "integration": {},
+        }

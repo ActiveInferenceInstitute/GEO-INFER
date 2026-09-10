@@ -64,9 +64,7 @@ def _operation() -> Dict[str, Any]:
 
     # A single unlocated population area is the module's documented coarse
     # regional estimate for incidence-rate denominators.
-    population = [
-        PopulationData(area_id="synthetic-district", population_count=25000)
-    ]
+    population = [PopulationData(area_id="synthetic-district", population_count=25000)]
 
     analyzer = DiseaseHotspotAnalyzer(reports=reports, population_data=population)
 
@@ -79,9 +77,7 @@ def _operation() -> Dict[str, Any]:
             harbor_center, radius_km=2.5, time_window_days=30
         )
     )
-    cases_near_center = len(
-        analyzer.get_cases_in_radius(harbor_center, radius_km=2.5)
-    )
+    cases_near_center = len(analyzer.get_cases_in_radius(harbor_center, radius_km=2.5))
     sir = analyzer.simulate_sir_model(
         initial_infected=12, population=25000, beta=0.3, gamma=0.1, days=60
     )

@@ -16,11 +16,7 @@ class TestThreatIndicatorLoading(unittest.TestCase):
                 "threat_indicators:\n  - bad-actor.example\n"
                 "trusted_ips:\n  - 198.51.100.9\n"
             )
-            manager = DigitalSecurityManager(
-                config_path=str(
-                    Path(tmp) / "config.yaml"
-                )
-            )
+            manager = DigitalSecurityManager(config_path=str(Path(tmp) / "config.yaml"))
             # Point the manager at the indicator file via its config contract.
             manager.config["threat_indicators_file"] = str(indicator_file)
             manager._load_threat_intelligence()

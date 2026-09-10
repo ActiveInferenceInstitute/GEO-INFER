@@ -47,9 +47,7 @@ class GeoInferZoning(BaseAnalysisModule):
             "URBAN": "Urban or Built-up Land",
             "OTHER": "Other Land",
         }
-        logger.info(
-            "Initialized GeoInferZoning module with real OSC H3 v4 integration."
-        )
+        logger.info("Initialized GeoInferZoning module with real OSC H3 v4 integration.")
 
     def acquire_raw_data(self) -> Path:
         """
@@ -78,9 +76,7 @@ class GeoInferZoning(BaseAnalysisModule):
 
         if raw_data_path.exists():
             return raw_data_path
-        raise FileNotFoundError(
-            f"No empirical zoning dataset is available: {raw_data_path}"
-        )
+        raise FileNotFoundError(f"No empirical zoning dataset is available: {raw_data_path}")
 
     def run_final_analysis(self, h3_data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -108,12 +104,7 @@ class GeoInferZoning(BaseAnalysisModule):
         for hex_id, properties in h3_data.items():
             try:
                 # Get hexagon boundary
-                hex_polygon = Polygon(
-                    [
-                        (lng, lat)
-                        for lat, lng in cell_to_latlng_boundary(hex_id)
-                    ]
-                )
+                hex_polygon = Polygon([(lng, lat) for lat, lng in cell_to_latlng_boundary(hex_id)])
 
                 # Find intersecting zoning features using real spatial analysis
                 intersecting_features = zoning_gdf[zoning_gdf.intersects(hex_polygon)]
@@ -144,9 +135,7 @@ class GeoInferZoning(BaseAnalysisModule):
                 properties["zoning_class"] = primary_zone["class"]
                 properties["is_ag_zone"] = primary_zone["is_agricultural"]
                 properties["redevelopment_potential"] = redevelopment_score
-                properties["zoning_coverage"] = zoning_stats.get(
-                    "coverage_percentage", 0.0
-                )
+                properties["zoning_coverage"] = zoning_stats.get("coverage_percentage", 0.0)
                 properties["primary_zone_type"] = primary_zone["name"]
                 properties["zone_breakdown"] = zoning_stats.get("zone_breakdown", {})
 
@@ -154,9 +143,7 @@ class GeoInferZoning(BaseAnalysisModule):
                 logger.error(f"Real error in zoning analysis for hexagon {hex_id}: {e}")
                 continue
 
-        logger.info(
-            f"[{self.module_name}] Completed real final analysis using OSC H3 v4 methods."
-        )
+        logger.info(f"[{self.module_name}] Completed real final analysis using OSC H3 v4 methods.")
         return h3_data
 
     def _calculate_real_zoning_statistics(
@@ -204,17 +191,13 @@ class GeoInferZoning(BaseAnalysisModule):
 
         # Calculate coverage percentage
         if hex_area > 0:
-            zoning_stats["coverage_percentage"] = (
-                total_intersection_area / hex_area
-            ) * 100
+            zoning_stats["coverage_percentage"] = (total_intersection_area / hex_area) * 100
             zoning_stats["total_area"] = total_intersection_area
 
             # Calculate percentages for each zone type
             for zone_class, stats in zoning_stats["zone_breakdown"].items():
                 if total_intersection_area > 0:
-                    stats["percentage"] = (
-                        stats["area"] / total_intersection_area
-                    ) * 100
+                    stats["percentage"] = (stats["area"] / total_intersection_area) * 100
 
         return zoning_stats
 
@@ -342,9 +325,7 @@ class GeoInferZoning(BaseAnalysisModule):
         source = props.get("source", "UNKNOWN").upper()
 
         if "CA_FMMP" in source:
-            class_val = self._find_col_value(
-                props, ["CI_CLASSNM", "CLASS1_LBL"]
-            ).lower()
+            class_val = self._find_col_value(props, ["CI_CLASSNM", "CLASS1_LBL"]).lower()
             if "prime farmland" in class_val:
                 return "PRIME_AG"
             if "farmland of statewide importance" in class_val:
@@ -358,9 +339,7 @@ class GeoInferZoning(BaseAnalysisModule):
             if "urban and built-up land" in class_val:
                 return "URBAN"
         elif "OR_DLCD" in source:
-            class_val = self._find_col_value(
-                props, ["ZONE_CLASS", "ZONE_CODE", "ALT_ZONE"]
-            ).upper()
+            class_val = self._find_col_value(props, ["ZONE_CLASS", "ZONE_CODE", "ALT_ZONE"]).upper()
             if "EFU" in class_val or "EXCLUSIVE FARM USE" in class_val:
                 return "PRIME_AG"
             if "FARM" in class_val or "AGRICULTURE" in class_val:

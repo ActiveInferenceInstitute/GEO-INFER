@@ -675,5 +675,3 @@ class ExampleAgent(BaseAgent):
     async def shutdown(self) -> None:
         """Clean up resources."""
         logger.info(f"Example agent {self.agent_id} shutting down")
-
-

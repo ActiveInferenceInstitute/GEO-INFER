@@ -16,6 +16,7 @@ from geo_infer_place.core.module_bridge import (
 
 # -- PlaceDataManager -------------------------------------------------------
 
+
 class TestPlaceDataManager:
     """Test PlaceDataManager initialization and core methods."""
 
@@ -47,6 +48,7 @@ class TestPlaceDataManager:
 
 
 # -- PlaceTemporalAnalyzer --------------------------------------------------
+
 
 class TestPlaceTemporalAnalyzer:
     """Test PlaceTemporalAnalyzer trend/anomaly/forecast methods."""

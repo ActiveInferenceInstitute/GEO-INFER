@@ -20,20 +20,17 @@ __all__ = [
     "Coverage",
     "Endorsement",
     "Exclusion",
-
     # Claim Models
     "Claim",
     "ClaimStatus",
     "Payment",
     "Reserve",
-
     # Risk Models
     "RiskProfile",
     "ExposureProfile",
     "VulnerabilityProfile",
-
     # Underwriting Models
     "UnderwritingCase",
     "Decision",
-    "Guideline"
+    "Guideline",
 ]

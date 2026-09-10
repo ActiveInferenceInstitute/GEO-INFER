@@ -16,10 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 def posterior_helper(
-    prior: np.ndarray,
-    likelihood: Callable,
-    data: np.ndarray,
-    normalize: bool = True
+    prior: np.ndarray, likelihood: Callable, data: np.ndarray, normalize: bool = True
 ) -> np.ndarray:
     """
     Helper for calculating posterior distribution.
@@ -37,29 +34,31 @@ def posterior_helper(
     """
     prior = np.asarray(prior)
     data = np.asarray(data)
-    
+
     # Normalize prior
     prior = prior / np.sum(prior) if np.sum(prior) > 0 else prior
-    
+
     # Calculate likelihood
     likelihood_vals = likelihood(data, prior)
     likelihood_vals = np.asarray(likelihood_vals)
     likelihood_vals = np.maximum(likelihood_vals, 1e-10)
-    
+
     # Calculate posterior (unnormalized)
     posterior = prior * likelihood_vals
-    
+
     # Normalize if requested
     if normalize:
-        posterior = posterior / np.sum(posterior) if np.sum(posterior) > 0 else posterior
-    
+        posterior = (
+            posterior / np.sum(posterior) if np.sum(posterior) > 0 else posterior
+        )
+
     return cast(np.ndarray, posterior)
 
 
 def prior_builder(
-    distribution_type: str = 'uniform',
+    distribution_type: str = "uniform",
     parameters: Optional[Dict[str, Any]] = None,
-    size: int = 100
+    size: int = 100,
 ) -> np.ndarray:
     """
     Build prior distribution.
@@ -73,36 +72,38 @@ def prior_builder(
         Prior distribution
     """
     parameters = parameters or {}
-    
-    if distribution_type == 'uniform':
+
+    if distribution_type == "uniform":
         prior = np.ones(size) / size
-    
-    elif distribution_type == 'gaussian':
-        mean = parameters.get('mean', 0.0)
-        std = parameters.get('std', 1.0)
+
+    elif distribution_type == "gaussian":
+        mean = parameters.get("mean", 0.0)
+        std = parameters.get("std", 1.0)
         x = np.linspace(mean - 3 * std, mean + 3 * std, size)
         prior = np.exp(-0.5 * ((x - mean) / std) ** 2)
         prior = prior / np.sum(prior)
-    
-    elif distribution_type == 'beta':
-        alpha = parameters.get('alpha', 1.0)
-        beta = parameters.get('beta', 1.0)
+
+    elif distribution_type == "beta":
+        alpha = parameters.get("alpha", 1.0)
+        beta = parameters.get("beta", 1.0)
         from scipy.stats import beta as beta_dist
+
         x = np.linspace(0, 1, size)
         prior = beta_dist.pdf(x, alpha, beta)
         prior = prior / np.sum(prior)
-    
-    elif distribution_type == 'gamma':
-        shape = parameters.get('shape', 1.0)
-        scale = parameters.get('scale', 1.0)
+
+    elif distribution_type == "gamma":
+        shape = parameters.get("shape", 1.0)
+        scale = parameters.get("scale", 1.0)
         from scipy.stats import gamma as gamma_dist
+
         x = np.linspace(0, 10, size)
         prior = gamma_dist.pdf(x, shape, scale=scale)
         prior = prior / np.sum(prior)
-    
+
     else:
         raise ValueError(f"Unknown distribution type: {distribution_type}")
-    
+
     return prior
 
 
@@ -112,8 +113,8 @@ def mcmc_wrapper(
     n_samples: int = 1000,
     n_burnin: int = 100,
     step_size: float = 0.1,
-    method: str = 'metropolis',
-    rng: Optional[np.random.Generator] = None
+    method: str = "metropolis",
+    rng: Optional[np.random.Generator] = None,
 ) -> Tuple[np.ndarray, Dict[str, Any]]:
     """
     Wrapper for MCMC sampling.
@@ -143,7 +144,7 @@ def mcmc_wrapper(
 
     for i in range(n_samples + n_burnin):
         # Propose new state
-        if method == 'metropolis':
+        if method == "metropolis":
             # Metropolis-Hastings
             proposal = current_state + random_gen.normal(0, step_size, n_params)
             proposal_log_prob = log_posterior(proposal)
@@ -156,7 +157,7 @@ def mcmc_wrapper(
                 current_log_prob = proposal_log_prob
                 accepted += 1
 
-        elif method == 'gibbs':
+        elif method == "gibbs":
             # Gibbs-style coordinate update: one parameter at a time
             param_idx = i % n_params
             proposal = current_state.copy()
@@ -177,10 +178,10 @@ def mcmc_wrapper(
     acceptance_rate = accepted / (n_samples + n_burnin)
 
     metadata = {
-        'n_samples': n_samples,
-        'n_burnin': n_burnin,
-        'acceptance_rate': acceptance_rate,
-        'method': method
+        "n_samples": n_samples,
+        "n_burnin": n_burnin,
+        "acceptance_rate": acceptance_rate,
+        "method": method,
     }
 
     return samples, metadata
@@ -190,8 +191,8 @@ def bayesian_optimization_helper(
     objective: Callable,
     prior: np.ndarray,
     n_iterations: int = 10,
-    acquisition: str = 'expected_improvement',
-    rng: Optional[np.random.Generator] = None
+    acquisition: str = "expected_improvement",
+    rng: Optional[np.random.Generator] = None,
 ) -> Tuple[np.ndarray, float, Dict[str, Any]]:
     """
     Helper for Bayesian optimization.
@@ -226,7 +227,7 @@ def bayesian_optimization_helper(
         if not evaluated_values:
             # First iteration: sample proportional to prior
             idx = int(random_gen.choice(n_states, p=prior / prior.sum()))
-        elif acquisition == 'expected_improvement':
+        elif acquisition == "expected_improvement":
             # EI approximated via empirical distribution
             mean_so_far = float(np.mean(evaluated_values))
             std_so_far = float(np.std(evaluated_values)) or 1.0
@@ -243,7 +244,9 @@ def bayesian_optimization_helper(
             idx = int(np.argmax(ucb * prior))
         else:
             # Default UCB
-            scores = np.full(n_states, float(np.mean(evaluated_values)) if evaluated_values else 0.0)
+            scores = np.full(
+                n_states, float(np.mean(evaluated_values)) if evaluated_values else 0.0
+            )
             for i, vi in zip(evaluated_indices, evaluated_values):
                 scores[i] = vi
             visit_counts = np.zeros(n_states)
@@ -261,103 +264,89 @@ def bayesian_optimization_helper(
             best_params = idx
 
     metadata = {
-        'n_iterations': n_iterations,
-        'acquisition': acquisition,
-        'n_evaluated': len(evaluated_values),
-        'final_best': best_params,
+        "n_iterations": n_iterations,
+        "acquisition": acquisition,
+        "n_evaluated": len(evaluated_values),
+        "final_best": best_params,
     }
 
     return np.array([best_params]), best_value, metadata
 
 
-
 class BayesianConvenience:
     """
     Convenience class for Bayesian inference operations.
-    
+
     Provides high-level methods for common Bayesian tasks.
     """
-    
+
     def __init__(self) -> None:
         """Initialize Bayesian convenience class."""
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         self._posterior_cache: Dict[str, np.ndarray] = {}
         self.logger.debug("BayesianConvenience initialized")
-    
+
     def calculate_posterior(
-        self,
-        prior: np.ndarray,
-        likelihood: Callable,
-        data: np.ndarray,
-        **kwargs: Any
+        self, prior: np.ndarray, likelihood: Callable, data: np.ndarray, **kwargs: Any
     ) -> np.ndarray:
         """
         Calculate posterior distribution.
-        
+
         Args:
             prior: Prior distribution
             likelihood: Likelihood function
             data: Observed data
             **kwargs: Additional parameters
-        
+
         Returns:
             Posterior distribution
         """
         return posterior_helper(prior, likelihood, data, **kwargs)
-    
+
     def build_prior(
-        self,
-        distribution_type: str = 'uniform',
-        **kwargs: Any
+        self, distribution_type: str = "uniform", **kwargs: Any
     ) -> np.ndarray:
         """
         Build prior distribution.
-        
+
         Args:
             distribution_type: Type of prior
             **kwargs: Distribution parameters
-        
+
         Returns:
             Prior distribution
         """
-        size = kwargs.pop('size', 100)
+        size = kwargs.pop("size", 100)
         return prior_builder(distribution_type, parameters=kwargs, size=size)
-    
+
     def mcmc_sample(
-        self,
-        log_posterior: Callable,
-        initial_state: np.ndarray,
-        **kwargs: Any
+        self, log_posterior: Callable, initial_state: np.ndarray, **kwargs: Any
     ) -> Tuple[np.ndarray, Dict[str, Any]]:
         """
         Perform MCMC sampling.
-        
+
         Args:
             log_posterior: Log posterior function
             initial_state: Initial state
             **kwargs: Additional parameters
-        
+
         Returns:
             Tuple of (samples, metadata)
         """
         return mcmc_wrapper(log_posterior, initial_state, **kwargs)
-    
+
     def optimize(
-        self,
-        objective: Callable,
-        prior: np.ndarray,
-        **kwargs: Any
+        self, objective: Callable, prior: np.ndarray, **kwargs: Any
     ) -> Tuple[np.ndarray, float, Dict[str, Any]]:
         """
         Perform Bayesian optimization.
-        
+
         Args:
             objective: Objective function
             prior: Prior over parameters
             **kwargs: Additional parameters
-        
+
         Returns:
             Tuple of (optimal_parameters, optimal_value, metadata)
         """
         return bayesian_optimization_helper(objective, prior, **kwargs)
-

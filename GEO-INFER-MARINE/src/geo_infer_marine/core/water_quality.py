@@ -64,7 +64,7 @@ class MarineWaterQuality:
             + a2 * (100.0 / t_kelvin)
             + a3 * np.log(t_scaled)
             + a4 * t_scaled
-            + salinity_psu * (b1 + b2 * t_scaled + b3 * t_scaled ** 2)
+            + salinity_psu * (b1 + b2 * t_scaled + b3 * t_scaled**2)
         )
 
         do_sat = np.exp(ln_do)
@@ -203,9 +203,7 @@ class MarineWaterQuality:
             )
         else:
             wqi = (
-                0.40 * dissolved_oxygen_score
-                + 0.30 * ph_score
-                + 0.30 * turbidity_score
+                0.40 * dissolved_oxygen_score + 0.30 * ph_score + 0.30 * turbidity_score
             )
 
         classification = xr.full_like(wqi, "poor", dtype="U20")

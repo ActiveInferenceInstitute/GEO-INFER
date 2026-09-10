@@ -66,12 +66,14 @@ class TestWaterUsageModelFit:
     def test_statistical_fit(self) -> None:
         model = WaterUsageModel(model_type="statistical")
         np.random.seed(42)
-        field_df = pd.DataFrame({
-            "temperature": np.random.uniform(15, 35, 50),
-            "rainfall": np.random.uniform(0, 10, 50),
-            "area_ha": np.random.uniform(1, 100, 50),
-            "water_usage": np.random.uniform(200, 600, 50),
-        })
+        field_df = pd.DataFrame(
+            {
+                "temperature": np.random.uniform(15, 35, 50),
+                "rainfall": np.random.uniform(0, 10, 50),
+                "area_ha": np.random.uniform(1, 100, 50),
+                "water_usage": np.random.uniform(200, 600, 50),
+            }
+        )
         weather_df = pd.DataFrame({"temp": [25]})
         model.fit(
             {"field_data": field_df, "weather_data": weather_df},
@@ -88,17 +90,21 @@ class TestWaterUsageModelPredict:
         model = WaterUsageModel(crop_type="corn", model_type="reference_et")
         model.fit({})
 
-        field_df = pd.DataFrame({
-            "area_ha": [10.0, 20.0, 15.0],
-            "field_id": ["f1", "f2", "f3"],
-        })
-        weather_df = pd.DataFrame({
-            "temperature": [25.0, 28.0, 22.0],
-            "solar_radiation": [20.0, 22.0, 18.0],
-            "humidity": [60.0, 55.0, 70.0],
-            "wind_speed": [3.0, 4.0, 2.0],
-            "precipitation": [5.0, 2.0, 8.0],
-        })
+        field_df = pd.DataFrame(
+            {
+                "area_ha": [10.0, 20.0, 15.0],
+                "field_id": ["f1", "f2", "f3"],
+            }
+        )
+        weather_df = pd.DataFrame(
+            {
+                "temperature": [25.0, 28.0, 22.0],
+                "solar_radiation": [20.0, 22.0, 18.0],
+                "humidity": [60.0, 55.0, 70.0],
+                "wind_speed": [3.0, 4.0, 2.0],
+                "precipitation": [5.0, 2.0, 8.0],
+            }
+        )
         result = model.predict({"field_data": field_df, "weather_data": weather_df})
         assert "water_requirement_mm" in result
         assert "irrigation_requirement_mm" in result
@@ -118,21 +124,25 @@ class TestWaterUsageModelPredict:
         model.fit({})
 
         field_df = pd.DataFrame({"area_ha": [10.0, 20.0]})
-        weather_df = pd.DataFrame({
-            "temperature": [25.0],
-            "solar_radiation": [20.0],
-            "humidity": [60.0],
-            "wind_speed": [3.0],
-        })
+        weather_df = pd.DataFrame(
+            {
+                "temperature": [25.0],
+                "solar_radiation": [20.0],
+                "humidity": [60.0],
+                "wind_speed": [3.0],
+            }
+        )
         soil_df = pd.DataFrame({"clay": [30]})
         mgmt_df = pd.DataFrame({"practice": ["no_till"]})
 
-        result = model.predict({
-            "field_data": field_df,
-            "weather_data": weather_df,
-            "soil_data": soil_df,
-            "management_data": mgmt_df,
-        })
+        result = model.predict(
+            {
+                "field_data": field_df,
+                "weather_data": weather_df,
+                "soil_data": soil_df,
+                "management_data": mgmt_df,
+            }
+        )
         assert "water_balance" in result
         assert "evapotranspiration" in result["water_balance"]
         assert result["water_requirement_mm"][0] > 0.0

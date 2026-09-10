@@ -1,6 +1,7 @@
 """
 Custom algorithm framework for creating user-defined procedural art algorithms.
 """
+
 import logging
 import os
 import inspect
@@ -16,6 +17,7 @@ from geo_infer_art.core.aesthetics import ColorPalette
 
 
 logger = logging.getLogger(__name__)
+
 
 class CustomAlgorithmFramework:
     """
@@ -36,7 +38,7 @@ class CustomAlgorithmFramework:
         algorithm_function: Callable,
         description: str = "",
         parameters: Optional[Dict] = None,
-        example_usage: str = ""
+        example_usage: str = "",
     ) -> None:
         """
         Register a custom algorithm.
@@ -59,7 +61,7 @@ class CustomAlgorithmFramework:
 
         # Validate function signature
         sig = inspect.signature(algorithm_function)
-        required_params = ['data', 'params', 'width', 'height']
+        required_params = ["data", "params", "width", "height"]
 
         for param in required_params:
             if param not in sig.parameters:
@@ -67,10 +69,10 @@ class CustomAlgorithmFramework:
 
         self.registered_algorithms[name] = algorithm_function
         self.algorithm_metadata[name] = {
-            'description': description,
-            'parameters': parameters or {},
-            'example_usage': example_usage,
-            'signature': str(sig)
+            "description": description,
+            "parameters": parameters or {},
+            "example_usage": example_usage,
+            "signature": str(sig),
         }
 
     def unregister_algorithm(self, name: str) -> None:
@@ -112,12 +114,7 @@ class CustomAlgorithmFramework:
         return list(self.registered_algorithms.keys())
 
     def execute_algorithm(
-        self,
-        name: str,
-        data: Any,
-        width: int = 800,
-        height: int = 800,
-        **params: Any
+        self, name: str, data: Any, width: int = 800, height: int = 800, **params: Any
     ) -> Any:
         """
         Execute a registered custom algorithm.
@@ -141,12 +138,7 @@ class CustomAlgorithmFramework:
         algorithm = self.registered_algorithms[name]
 
         try:
-            result = algorithm(
-                data=data,
-                params=params,
-                width=width,
-                height=height
-            )
+            result = algorithm(data=data, params=params, width=width, height=height)
             return result
 
         except Exception as e:
@@ -169,11 +161,11 @@ class CustomAlgorithmFramework:
                 source = "Function source not available"
 
             algorithms_data[name] = {
-                'metadata': self.algorithm_metadata[name],
-                'source': source
+                "metadata": self.algorithm_metadata[name],
+                "source": source,
             }
 
-        with open(filepath, 'w') as f:
+        with open(filepath, "w") as f:
             json.dump(algorithms_data, f, indent=2)
 
     def load_algorithms_from_file(self, filepath: str) -> None:
@@ -190,12 +182,12 @@ class CustomAlgorithmFramework:
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"Algorithms file not found: {filepath}")
 
-        with open(filepath, 'r') as f:
+        with open(filepath, "r") as f:
             algorithms_data = json.load(f)
 
         for name, data in algorithms_data.items():
-            metadata = data['metadata']
-            source = data['source']
+            metadata = data["metadata"]
+            source = data["source"]
 
             # Try to recreate the function from source
             try:
@@ -205,7 +197,7 @@ class CustomAlgorithmFramework:
                 spec.loader.exec_module(temp_module)
 
                 # Extract the function
-                func_name = metadata['signature'].split('(')[0].split()[-1]
+                func_name = metadata["signature"].split("(")[0].split()[-1]
                 if hasattr(temp_module, func_name):
                     algorithm_function = getattr(temp_module, func_name)
 
@@ -213,15 +205,16 @@ class CustomAlgorithmFramework:
                     self.register_algorithm(
                         name=name,
                         algorithm_function=algorithm_function,
-                        description=metadata['description'],
-                        parameters=metadata['parameters'],
-                        example_usage=metadata['example_usage']
+                        description=metadata["description"],
+                        parameters=metadata["parameters"],
+                        example_usage=metadata["example_usage"],
                     )
             except Exception as e:
                 logger.warning("Could not load algorithm '%s': %s", name, e)
 
 
 # Example custom algorithms for demonstration
+
 
 def example_spiral_algorithm(
     data: Any, params: Dict, width: int, height: int
@@ -238,17 +231,19 @@ def example_spiral_algorithm(
     Returns:
         Matplotlib figure
     """
-    spirals = params.get('spirals', 3)
-    colors = params.get('colors', ['red', 'green', 'blue'])
+    spirals = params.get("spirals", 3)
+    colors = params.get("colors", ["red", "green", "blue"])
 
-    fig, ax = plt.subplots(figsize=(width/100, height/100), dpi=100, facecolor='black')
+    fig, ax = plt.subplots(
+        figsize=(width / 100, height / 100), dpi=100, facecolor="black"
+    )
 
     for i in range(spirals):
         # Create spiral pattern
-        theta = np.linspace(0, 4*np.pi, 1000)
-        r = theta / (4*np.pi) * min(width, height) / 4
-        x = width//2 + r * np.cos(theta + i * 2*np.pi/spirals)
-        y = height//2 + r * np.sin(theta + i * 2*np.pi/spirals)
+        theta = np.linspace(0, 4 * np.pi, 1000)
+        r = theta / (4 * np.pi) * min(width, height) / 4
+        x = width // 2 + r * np.cos(theta + i * 2 * np.pi / spirals)
+        y = height // 2 + r * np.sin(theta + i * 2 * np.pi / spirals)
 
         color = colors[i % len(colors)]
         ax.plot(x, y, color=color, linewidth=2, alpha=0.7)
@@ -274,18 +269,20 @@ def example_cellular_growth_algorithm(
     Returns:
         Matplotlib figure
     """
-    seed_points = params.get('seed_points', 5)
-    growth_rate = params.get('growth_rate', 1.5)
-    max_radius = params.get('max_radius', min(width, height) / 4)
+    seed_points = params.get("seed_points", 5)
+    growth_rate = params.get("growth_rate", 1.5)
+    max_radius = params.get("max_radius", min(width, height) / 4)
 
-    fig, ax = plt.subplots(figsize=(width/100, height/100), dpi=100, facecolor='black')
+    fig, ax = plt.subplots(
+        figsize=(width / 100, height / 100), dpi=100, facecolor="black"
+    )
 
     # Initialize with seed points
     cells = []
     for i in range(seed_points):
         x = np.random.uniform(width * 0.2, width * 0.8)
         y = np.random.uniform(height * 0.2, height * 0.8)
-        cells.append([x, y, 0, i % len(['red', 'green', 'blue', 'yellow'])])
+        cells.append([x, y, 0, i % len(["red", "green", "blue", "yellow"])])
 
     # Simulate growth
     for _ in range(50):
@@ -300,13 +297,15 @@ def example_cellular_growth_algorithm(
         cells = new_cells
 
     # Draw cells
-    colors = ['red', 'green', 'blue', 'yellow']
+    colors = ["red", "green", "blue", "yellow"]
     for cell in cells:
         x, y, radius, color_idx = cell
         color = colors[int(color_idx)]
 
         # Draw cell as circle
-        circle = plt.Circle((x, y), radius, color=color, alpha=0.6, edgecolor='white', linewidth=1)
+        circle = plt.Circle(
+            (x, y), radius, color=color, alpha=0.6, edgecolor="white", linewidth=1
+        )
         ax.add_patch(circle)
 
     ax.set_xlim(0, width)
@@ -332,9 +331,9 @@ def example_fractal_landscape_algorithm(
     Returns:
         Matplotlib figure
     """
-    octaves = params.get('octaves', 6)
-    persistence = params.get('persistence', 0.5)
-    scale = params.get('scale', 100.0)
+    octaves = params.get("octaves", 6)
+    persistence = params.get("persistence", 0.5)
+    scale = params.get("scale", 100.0)
 
     # Create fractal noise
     x = np.linspace(0, scale, width)
@@ -357,18 +356,18 @@ def example_fractal_landscape_algorithm(
     noise = (noise + max_value) / (2 * max_value)
 
     # Get color palette
-    palette_name = params.get('color_palette', 'earth')
+    palette_name = params.get("color_palette", "earth")
     palette = ColorPalette.get_palette(palette_name)
 
     # Create visualization
-    fig, ax = plt.subplots(figsize=(width/100, height/100), dpi=100)
+    fig, ax = plt.subplots(figsize=(width / 100, height / 100), dpi=100)
 
     # Plot the landscape
-    ax.imshow(noise, cmap=palette.cmap, interpolation='bicubic', aspect='auto')
+    ax.imshow(noise, cmap=palette.cmap, interpolation="bicubic", aspect="auto")
 
     # Add contour lines
     contour_levels = np.linspace(0, 1, 11)
-    ax.contour(noise, levels=contour_levels, colors='black', linewidths=0.5, alpha=0.3)
+    ax.contour(noise, levels=contour_levels, colors="black", linewidths=0.5, alpha=0.3)
 
     ax.set_axis_off()
     plt.tight_layout(pad=0)

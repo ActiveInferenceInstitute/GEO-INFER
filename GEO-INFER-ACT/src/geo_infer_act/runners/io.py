@@ -208,7 +208,9 @@ def build_figure_metadata(
 ) -> Dict[str, Any]:
     """Build JSON-safe metadata shared by embedded and sidecar figure records."""
     if config.output_dir is None:
-        raise ValueError("config.output_dir cannot be None when building figure metadata")
+        raise ValueError(
+            "config.output_dir cannot be None when building figure metadata"
+        )
     return {
         "schema_version": FIGURE_ARTIFACT_SCHEMA_VERSION,
         "package": "geo-infer-act",
@@ -237,7 +239,9 @@ def _write_figure_sidecars(
 ) -> tuple[Path, Path]:
     """Write figure metadata and plotted-data sidecars."""
     if config.output_dir is None:
-        raise ValueError("config.output_dir cannot be None when writing figure sidecars")
+        raise ValueError(
+            "config.output_dir cannot be None when writing figure sidecars"
+        )
     metadata_path, data_path = figure_sidecar_paths(artifact_path)
     if (
         prefer_csv
@@ -264,7 +268,9 @@ def _finalize_figure_metadata(
 ) -> Dict[str, Any]:
     """Write final sidecar metadata after the artifact exists on disk."""
     if config.output_dir is None:
-        raise ValueError("config.output_dir cannot be None when finalizing figure metadata")
+        raise ValueError(
+            "config.output_dir cannot be None when finalizing figure metadata"
+        )
     metadata_payload = dict(metadata_payload)
     metadata_payload.update(
         {

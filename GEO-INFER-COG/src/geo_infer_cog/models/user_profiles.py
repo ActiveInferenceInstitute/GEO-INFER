@@ -56,12 +56,14 @@ class UserCognitiveProfile:
     spatial_expertise: float = 0.5  # 0.0 (novice) to 1.0 (expert)
     spatial_memory_capacity: float = 0.5  # Working memory for spatial information
     spatial_attention_span: float = 0.5  # Attention capacity for spatial tasks
-    spatial_reasoning_style: str = 'balanced'  # 'qualitative', 'quantitative', 'balanced'
+    spatial_reasoning_style: str = (
+        "balanced"  # 'qualitative', 'quantitative', 'balanced'
+    )
 
     # Cognitive style preferences
-    cognitive_style: str = 'balanced'  # 'visualizer', 'verbalizer', 'balanced'
-    learning_preference: str = 'moderate'  # 'slow', 'moderate', 'fast'
-    cognitive_load_preference: str = 'moderate'  # 'low', 'moderate', 'high'
+    cognitive_style: str = "balanced"  # 'visualizer', 'verbalizer', 'balanced'
+    learning_preference: str = "moderate"  # 'slow', 'moderate', 'fast'
+    cognitive_load_preference: str = "moderate"  # 'low', 'moderate', 'high'
 
     # Behavioral patterns
     navigation_preferences: Dict[str, Any] = field(default_factory=dict)
@@ -73,13 +75,17 @@ class UserCognitiveProfile:
     adaptation_metrics: Dict[str, float] = field(default_factory=dict)
 
     # Demographic and contextual information
-    age_group: str = 'adult'  # 'child', 'teen', 'adult', 'senior'
-    experience_level: str = 'intermediate'  # 'beginner', 'intermediate', 'advanced', 'expert'
-    domain_experience: Dict[str, float] = field(default_factory=dict)  # Domain-specific expertise
+    age_group: str = "adult"  # 'child', 'teen', 'adult', 'senior'
+    experience_level: str = (
+        "intermediate"  # 'beginner', 'intermediate', 'advanced', 'expert'
+    )
+    domain_experience: Dict[str, float] = field(
+        default_factory=dict
+    )  # Domain-specific expertise
 
-    def update_from_interaction(self,
-                              interaction_data: Dict[str, Any],
-                              outcome: Dict[str, Any]) -> None:
+    def update_from_interaction(
+        self, interaction_data: Dict[str, Any], outcome: Dict[str, Any]
+    ) -> None:
         """
         Update profile based on user interaction and outcome.
 
@@ -88,33 +94,39 @@ class UserCognitiveProfile:
             outcome: Results and performance metrics from the interaction
         """
         # Update spatial expertise based on performance
-        performance_score = outcome.get('performance_score', 0.5)
-        task_complexity = interaction_data.get('task_complexity', 0.5)
+        performance_score = outcome.get("performance_score", 0.5)
+        task_complexity = interaction_data.get("task_complexity", 0.5)
 
         # Adaptive expertise update
         expertise_change = (performance_score - 0.5) * task_complexity * 0.1
-        self.spatial_expertise = max(0.0, min(1.0, self.spatial_expertise + expertise_change))
+        self.spatial_expertise = max(
+            0.0, min(1.0, self.spatial_expertise + expertise_change)
+        )
 
         # Update interaction patterns
-        interaction_type = interaction_data.get('interaction_type', 'unknown')
+        interaction_type = interaction_data.get("interaction_type", "unknown")
         if interaction_type not in self.interaction_patterns:
             self.interaction_patterns[interaction_type] = []
 
-        self.interaction_patterns[interaction_type].append({
-            'timestamp': datetime.now().isoformat(),
-            'task_complexity': task_complexity,
-            'performance_score': performance_score,
-            'duration': interaction_data.get('duration', 0)
-        })
+        self.interaction_patterns[interaction_type].append(
+            {
+                "timestamp": datetime.now().isoformat(),
+                "task_complexity": task_complexity,
+                "performance_score": performance_score,
+                "duration": interaction_data.get("duration", 0),
+            }
+        )
 
         # Update task performance history
-        self.task_performance_history.append({
-            'timestamp': datetime.now().isoformat(),
-            'interaction_type': interaction_type,
-            'performance_score': performance_score,
-            'task_complexity': task_complexity,
-            'cognitive_load': outcome.get('cognitive_load', 0.5)
-        })
+        self.task_performance_history.append(
+            {
+                "timestamp": datetime.now().isoformat(),
+                "interaction_type": interaction_type,
+                "performance_score": performance_score,
+                "task_complexity": task_complexity,
+                "cognitive_load": outcome.get("cognitive_load", 0.5),
+            }
+        )
 
         # Keep history manageable (last 100 interactions)
         if len(self.task_performance_history) > 100:
@@ -124,8 +136,7 @@ class UserCognitiveProfile:
 
         logger.info(f"User profile updated for {self.user_id}")
 
-    def calculate_task_suitability(self,
-                                 task_requirements: Dict[str, Any]) -> float:
+    def calculate_task_suitability(self, task_requirements: Dict[str, Any]) -> float:
         """
         Calculate how suitable this user is for a given spatial task.
 
@@ -138,17 +149,17 @@ class UserCognitiveProfile:
         suitability_factors: List[float] = []
 
         # Spatial expertise match
-        required_expertise = task_requirements.get('required_expertise', 0.5)
+        required_expertise = task_requirements.get("required_expertise", 0.5)
         expertise_match = 1.0 - abs(self.spatial_expertise - required_expertise)
         suitability_factors.append(expertise_match * 0.4)
 
         # Cognitive style compatibility
-        task_style = task_requirements.get('cognitive_style', 'balanced')
+        task_style = task_requirements.get("cognitive_style", "balanced")
         style_compatibility = 1.0 if self.cognitive_style == task_style else 0.7
         suitability_factors.append(style_compatibility * 0.3)
 
         # Cognitive load compatibility
-        task_load = task_requirements.get('cognitive_load', 0.5)
+        task_load = task_requirements.get("cognitive_load", 0.5)
         load_compatibility = 1.0 - abs(self._get_load_preference_score() - task_load)
         suitability_factors.append(load_compatibility * 0.3)
 
@@ -156,15 +167,12 @@ class UserCognitiveProfile:
 
     def _get_load_preference_score(self) -> float:
         """Convert cognitive load preference to numeric score."""
-        preference_scores = {
-            'low': 0.3,
-            'moderate': 0.5,
-            'high': 0.7
-        }
+        preference_scores = {"low": 0.3, "moderate": 0.5, "high": 0.7}
         return preference_scores.get(self.cognitive_load_preference, 0.5)
 
-    def get_personalized_recommendations(self,
-                                       context: Dict[str, Any]) -> Dict[str, Any]:
+    def get_personalized_recommendations(
+        self, context: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Generate personalized recommendations for spatial interface use.
 
@@ -175,62 +183,76 @@ class UserCognitiveProfile:
             Dictionary of personalized recommendations
         """
         recommendations: Dict[str, Any] = {
-            'visualization_suggestions': [],
-            'navigation_aids': [],
-            'complexity_adjustments': [],
-            'learning_support': []
+            "visualization_suggestions": [],
+            "navigation_aids": [],
+            "complexity_adjustments": [],
+            "learning_support": [],
         }
 
         # Visualization recommendations based on cognitive style
-        if self.cognitive_style == 'visualizer':
-            recommendations['visualization_suggestions'].extend([
-                'Use map-based representations',
-                'Highlight spatial relationships visually',
-                'Minimize text-based instructions'
-            ])
-        elif self.cognitive_style == 'verbalizer':
-            recommendations['visualization_suggestions'].extend([
-                'Provide detailed textual descriptions',
-                'Use landmark names and directions',
-                'Include explanatory annotations'
-            ])
+        if self.cognitive_style == "visualizer":
+            recommendations["visualization_suggestions"].extend(
+                [
+                    "Use map-based representations",
+                    "Highlight spatial relationships visually",
+                    "Minimize text-based instructions",
+                ]
+            )
+        elif self.cognitive_style == "verbalizer":
+            recommendations["visualization_suggestions"].extend(
+                [
+                    "Provide detailed textual descriptions",
+                    "Use landmark names and directions",
+                    "Include explanatory annotations",
+                ]
+            )
 
         # Navigation recommendations based on expertise
         if self.spatial_expertise < 0.4:
-            recommendations['navigation_aids'].extend([
-                'Provide step-by-step directions',
-                'Use prominent landmarks as reference points',
-                'Include distance estimates and turn indicators'
-            ])
+            recommendations["navigation_aids"].extend(
+                [
+                    "Provide step-by-step directions",
+                    "Use prominent landmarks as reference points",
+                    "Include distance estimates and turn indicators",
+                ]
+            )
         elif self.spatial_expertise > 0.7:
-            recommendations['navigation_aids'].extend([
-                'Allow flexible route exploration',
-                'Provide overview maps for context',
-                'Enable advanced spatial analysis tools'
-            ])
+            recommendations["navigation_aids"].extend(
+                [
+                    "Allow flexible route exploration",
+                    "Provide overview maps for context",
+                    "Enable advanced spatial analysis tools",
+                ]
+            )
 
         # Complexity adjustments based on load preference
-        if self.cognitive_load_preference == 'low':
-            recommendations['complexity_adjustments'].extend([
-                'Simplify spatial representations',
-                'Reduce information density',
-                'Provide progressive disclosure'
-            ])
-        elif self.cognitive_load_preference == 'high':
-            recommendations['complexity_adjustments'].extend([
-                'Include detailed spatial information',
-                'Show multiple representation layers',
-                'Enable advanced filtering and analysis'
-            ])
+        if self.cognitive_load_preference == "low":
+            recommendations["complexity_adjustments"].extend(
+                [
+                    "Simplify spatial representations",
+                    "Reduce information density",
+                    "Provide progressive disclosure",
+                ]
+            )
+        elif self.cognitive_load_preference == "high":
+            recommendations["complexity_adjustments"].extend(
+                [
+                    "Include detailed spatial information",
+                    "Show multiple representation layers",
+                    "Enable advanced filtering and analysis",
+                ]
+            )
 
         # Learning support based on performance history
         recent_performance = self._get_recent_performance()
         if recent_performance < 0.6:
-            recommendations['learning_support'].extend([
-                'Provide additional context and explanations',
-                'Suggest practice exercises',
-                'Include confidence indicators'
-            ])
+            recommendations["learning_support"].extend(
+                [
+                    "Provide additional context and explanations",
+                    "Suggest practice exercises",
+                    "Include confidence indicators",
+                ]
+            )
 
         return recommendations
 
@@ -242,7 +264,9 @@ class UserCognitiveProfile:
         # Get last 10 interactions or all if fewer
         recent_interactions = self.task_performance_history[-10:]
 
-        performance_scores = [interaction['performance_score'] for interaction in recent_interactions]
+        performance_scores = [
+            interaction["performance_score"] for interaction in recent_interactions
+        ]
         return float(np.mean(performance_scores))
 
     def adapt_to_performance_trends(self) -> Dict[str, Any]:
@@ -253,9 +277,9 @@ class UserCognitiveProfile:
             Dictionary of adaptation recommendations
         """
         adaptations: Dict[str, Any] = {
-            'expertise_adjustments': [],
-            'style_modifications': [],
-            'load_optimizations': []
+            "expertise_adjustments": [],
+            "style_modifications": [],
+            "load_optimizations": [],
         }
 
         if len(self.task_performance_history) < 5:
@@ -266,35 +290,51 @@ class UserCognitiveProfile:
 
         # Expertise level adjustment
         if recent_performance > 0.8 and self.spatial_expertise < 0.8:
-            adaptations['expertise_adjustments'].append('Consider increasing expertise level')
+            adaptations["expertise_adjustments"].append(
+                "Consider increasing expertise level"
+            )
             self.spatial_expertise = min(1.0, self.spatial_expertise + 0.05)
         elif recent_performance < 0.4 and self.spatial_expertise > 0.2:
-            adaptations['expertise_adjustments'].append('Consider reducing expertise expectations')
+            adaptations["expertise_adjustments"].append(
+                "Consider reducing expertise expectations"
+            )
             self.spatial_expertise = max(0.0, self.spatial_expertise - 0.05)
 
         # Cognitive style adaptation
         style_performance = self._analyze_style_performance()
-        if style_performance.get('visual_performance', 0.5) > style_performance.get('verbal_performance', 0.5) + 0.2:
-            adaptations['style_modifications'].append('Strengthen visual processing preferences')
-            if self.cognitive_style == 'balanced':
-                self.cognitive_style = 'visualizer'
-        elif style_performance.get('verbal_performance', 0.5) > style_performance.get('visual_performance', 0.5) + 0.2:
-            adaptations['style_modifications'].append('Strengthen verbal processing preferences')
-            if self.cognitive_style == 'balanced':
-                self.cognitive_style = 'verbalizer'
+        if (
+            style_performance.get("visual_performance", 0.5)
+            > style_performance.get("verbal_performance", 0.5) + 0.2
+        ):
+            adaptations["style_modifications"].append(
+                "Strengthen visual processing preferences"
+            )
+            if self.cognitive_style == "balanced":
+                self.cognitive_style = "visualizer"
+        elif (
+            style_performance.get("verbal_performance", 0.5)
+            > style_performance.get("visual_performance", 0.5) + 0.2
+        ):
+            adaptations["style_modifications"].append(
+                "Strengthen verbal processing preferences"
+            )
+            if self.cognitive_style == "balanced":
+                self.cognitive_style = "verbalizer"
 
         # Load preference optimization
         load_analysis = self._analyze_load_patterns()
-        optimal_load = load_analysis.get('optimal_load', 0.5)
+        optimal_load = load_analysis.get("optimal_load", 0.5)
 
         if abs(self._get_load_preference_score() - optimal_load) > 0.2:
-            adaptations['load_optimizations'].append(f'Adjust load preference toward {optimal_load:.2f}')
+            adaptations["load_optimizations"].append(
+                f"Adjust load preference toward {optimal_load:.2f}"
+            )
 
         return adaptations
 
     def _analyze_style_performance(self) -> Dict[str, float]:
         """Analyze performance across different cognitive styles."""
-        style_performance = {'visual_performance': 0.5, 'verbal_performance': 0.5}
+        style_performance = {"visual_performance": 0.5, "verbal_performance": 0.5}
 
         if not self.task_performance_history:
             return style_performance
@@ -307,7 +347,7 @@ class UserCognitiveProfile:
 
     def _analyze_load_patterns(self) -> Dict[str, float]:
         """Analyze cognitive load patterns in recent interactions."""
-        load_patterns = {'optimal_load': 0.5, 'load_sensitivity': 0.5}
+        load_patterns = {"optimal_load": 0.5, "load_sensitivity": 0.5}
 
         if not self.task_performance_history:
             return load_patterns
@@ -315,83 +355,87 @@ class UserCognitiveProfile:
         # Analyze relationship between cognitive load and performance
         recent_interactions = self.task_performance_history[-20:]
 
-        loads = [interaction['cognitive_load'] for interaction in recent_interactions]
-        performances = [interaction['performance_score'] for interaction in recent_interactions]
+        loads = [interaction["cognitive_load"] for interaction in recent_interactions]
+        performances = [
+            interaction["performance_score"] for interaction in recent_interactions
+        ]
 
         if loads and performances:
             # Find load level that maximizes performance
             correlation = np.corrcoef(loads, performances)[0, 1]
-            load_patterns['load_sensitivity'] = abs(correlation)
+            load_patterns["load_sensitivity"] = abs(correlation)
 
             # Simple optimization - find load with best performance
             best_performance_idx = performances.index(max(performances))
-            load_patterns['optimal_load'] = loads[best_performance_idx]
+            load_patterns["optimal_load"] = loads[best_performance_idx]
 
         return load_patterns
 
     def get_profile_summary(self) -> Dict[str, Any]:
         """Get comprehensive profile summary."""
         return {
-            'user_id': self.user_id,
-            'profile_version': self.profile_version,
-            'spatial_capabilities': {
-                'expertise_level': self.spatial_expertise,
-                'memory_capacity': self.spatial_memory_capacity,
-                'attention_span': self.spatial_attention_span,
-                'reasoning_style': self.spatial_reasoning_style
+            "user_id": self.user_id,
+            "profile_version": self.profile_version,
+            "spatial_capabilities": {
+                "expertise_level": self.spatial_expertise,
+                "memory_capacity": self.spatial_memory_capacity,
+                "attention_span": self.spatial_attention_span,
+                "reasoning_style": self.spatial_reasoning_style,
             },
-            'cognitive_preferences': {
-                'cognitive_style': self.cognitive_style,
-                'learning_preference': self.learning_preference,
-                'load_preference': self.cognitive_load_preference
+            "cognitive_preferences": {
+                "cognitive_style": self.cognitive_style,
+                "learning_preference": self.learning_preference,
+                "load_preference": self.cognitive_load_preference,
             },
-            'performance_metrics': {
-                'recent_performance': self._get_recent_performance(),
-                'interaction_count': len(self.task_performance_history),
-                'adaptation_status': 'active' if len(self.task_performance_history) > 10 else 'learning'
+            "performance_metrics": {
+                "recent_performance": self._get_recent_performance(),
+                "interaction_count": len(self.task_performance_history),
+                "adaptation_status": "active"
+                if len(self.task_performance_history) > 10
+                else "learning",
             },
-            'demographics': {
-                'age_group': self.age_group,
-                'experience_level': self.experience_level,
-                'domain_expertise': self.domain_experience
+            "demographics": {
+                "age_group": self.age_group,
+                "experience_level": self.experience_level,
+                "domain_expertise": self.domain_experience,
             },
-            'last_updated': self.last_updated.isoformat()
+            "last_updated": self.last_updated.isoformat(),
         }
 
     def export_profile(self) -> Dict[str, Any]:
         """Export profile as dictionary for serialization."""
         return {
-            'user_id': self.user_id,
-            'profile_version': self.profile_version,
-            'created_at': self.created_at.isoformat(),
-            'last_updated': self.last_updated.isoformat(),
-            'spatial_expertise': self.spatial_expertise,
-            'spatial_memory_capacity': self.spatial_memory_capacity,
-            'spatial_attention_span': self.spatial_attention_span,
-            'spatial_reasoning_style': self.spatial_reasoning_style,
-            'cognitive_style': self.cognitive_style,
-            'learning_preference': self.learning_preference,
-            'cognitive_load_preference': self.cognitive_load_preference,
-            'navigation_preferences': self.navigation_preferences,
-            'visualization_preferences': self.visualization_preferences,
-            'interaction_patterns': self.interaction_patterns,
-            'task_performance_history': self.task_performance_history,
-            'adaptation_metrics': self.adaptation_metrics,
-            'age_group': self.age_group,
-            'experience_level': self.experience_level,
-            'domain_experience': self.domain_experience
+            "user_id": self.user_id,
+            "profile_version": self.profile_version,
+            "created_at": self.created_at.isoformat(),
+            "last_updated": self.last_updated.isoformat(),
+            "spatial_expertise": self.spatial_expertise,
+            "spatial_memory_capacity": self.spatial_memory_capacity,
+            "spatial_attention_span": self.spatial_attention_span,
+            "spatial_reasoning_style": self.spatial_reasoning_style,
+            "cognitive_style": self.cognitive_style,
+            "learning_preference": self.learning_preference,
+            "cognitive_load_preference": self.cognitive_load_preference,
+            "navigation_preferences": self.navigation_preferences,
+            "visualization_preferences": self.visualization_preferences,
+            "interaction_patterns": self.interaction_patterns,
+            "task_performance_history": self.task_performance_history,
+            "adaptation_metrics": self.adaptation_metrics,
+            "age_group": self.age_group,
+            "experience_level": self.experience_level,
+            "domain_experience": self.domain_experience,
         }
 
     @classmethod
-    def import_profile(cls, profile_data: Dict[str, Any]) -> 'UserCognitiveProfile':
+    def import_profile(cls, profile_data: Dict[str, Any]) -> "UserCognitiveProfile":
         """Import profile from dictionary data."""
         # Create instance with basic fields
-        profile = cls(user_id=profile_data['user_id'])
+        profile = cls(user_id=profile_data["user_id"])
 
         # Update all fields from imported data
         for key, value in profile_data.items():
             if hasattr(profile, key):
-                if key in ['created_at', 'last_updated']:
+                if key in ["created_at", "last_updated"]:
                     # Convert ISO strings back to datetime objects
                     setattr(profile, key, datetime.fromisoformat(value))
                 else:
@@ -420,22 +464,24 @@ class ProfileManager:
             config: Configuration parameters for profile management
         """
         self.config = config or {}
-        self.profiles: Dict[str, UserCognitiveProfile] = {}  # user_id -> UserCognitiveProfile
-        self.profile_learning_enabled = self.config.get('learning_enabled', True)
-        self.adaptation_enabled = self.config.get('adaptation_enabled', True)
+        self.profiles: Dict[
+            str, UserCognitiveProfile
+        ] = {}  # user_id -> UserCognitiveProfile
+        self.profile_learning_enabled = self.config.get("learning_enabled", True)
+        self.adaptation_enabled = self.config.get("adaptation_enabled", True)
 
         # Profile learning parameters
         self.learning_parameters = {
-            'expertise_learning_rate': self.config.get('expertise_learning_rate', 0.1),
-            'style_adaptation_rate': self.config.get('style_adaptation_rate', 0.05),
-            'load_optimization_rate': self.config.get('load_optimization_rate', 0.02)
+            "expertise_learning_rate": self.config.get("expertise_learning_rate", 0.1),
+            "style_adaptation_rate": self.config.get("style_adaptation_rate", 0.05),
+            "load_optimization_rate": self.config.get("load_optimization_rate", 0.02),
         }
 
         logger.info("Profile Manager initialized")
 
-    def create_profile(self,
-                      user_id: str,
-                      initial_assessment: Optional[Dict[str, Any]] = None) -> UserCognitiveProfile:
+    def create_profile(
+        self, user_id: str, initial_assessment: Optional[Dict[str, Any]] = None
+    ) -> UserCognitiveProfile:
         """
         Create a new user cognitive profile.
 
@@ -458,36 +504,35 @@ class ProfileManager:
         logger.info(f"Profile created for user {user_id}")
         return profile
 
-    def _apply_initial_assessment(self,
-                                profile: UserCognitiveProfile,
-                                assessment: Dict[str, Any]) -> None:
+    def _apply_initial_assessment(
+        self, profile: UserCognitiveProfile, assessment: Dict[str, Any]
+    ) -> None:
         """Apply initial assessment data to profile."""
         # Update profile based on assessment results
-        if 'spatial_expertise_score' in assessment:
-            profile.spatial_expertise = min(1.0, max(0.0, assessment['spatial_expertise_score']))
+        if "spatial_expertise_score" in assessment:
+            profile.spatial_expertise = min(
+                1.0, max(0.0, assessment["spatial_expertise_score"])
+            )
 
-        if 'cognitive_style' in assessment:
-            profile.cognitive_style = assessment['cognitive_style']
+        if "cognitive_style" in assessment:
+            profile.cognitive_style = assessment["cognitive_style"]
 
-        if 'preferred_load_level' in assessment:
-            load_map = {
-                'light': 'low',
-                'normal': 'moderate',
-                'heavy': 'high'
-            }
-            profile.cognitive_load_preference = load_map.get(assessment['preferred_load_level'], 'moderate')
+        if "preferred_load_level" in assessment:
+            load_map = {"light": "low", "normal": "moderate", "heavy": "high"}
+            profile.cognitive_load_preference = load_map.get(
+                assessment["preferred_load_level"], "moderate"
+            )
 
         # Store assessment metadata
-        profile.navigation_preferences['initial_assessment'] = assessment
+        profile.navigation_preferences["initial_assessment"] = assessment
 
     def get_profile(self, user_id: str) -> Optional[UserCognitiveProfile]:
         """Retrieve user profile by ID."""
         return self.profiles.get(user_id)
 
-    def update_profile_from_interaction(self,
-                                      user_id: str,
-                                      interaction_data: Dict[str, Any],
-                                      outcome: Dict[str, Any]) -> None:
+    def update_profile_from_interaction(
+        self, user_id: str, interaction_data: Dict[str, Any], outcome: Dict[str, Any]
+    ) -> None:
         """
         Update user profile based on interaction and outcome.
 
@@ -512,24 +557,33 @@ class ProfileManager:
         if self.adaptation_enabled:
             self._apply_adaptation(profile)
 
-    def _apply_learning(self,
-                       profile: UserCognitiveProfile,
-                       interaction_data: Dict[str, Any],
-                       outcome: Dict[str, Any]) -> None:
+    def _apply_learning(
+        self,
+        profile: UserCognitiveProfile,
+        interaction_data: Dict[str, Any],
+        outcome: Dict[str, Any],
+    ) -> None:
         """Apply learning algorithms to update profile."""
         # Expertise learning based on performance feedback
-        performance_score = outcome.get('performance_score', 0.5)
-        task_difficulty = interaction_data.get('task_difficulty', 0.5)
+        performance_score = outcome.get("performance_score", 0.5)
+        task_difficulty = interaction_data.get("task_difficulty", 0.5)
 
         # Adaptive expertise update
         if performance_score > 0.7 and task_difficulty > 0.5:
             # Good performance on difficult task -> increase expertise
-            profile.spatial_expertise = min(1.0, profile.spatial_expertise +
-                                          self.learning_parameters['expertise_learning_rate'] * task_difficulty)
+            profile.spatial_expertise = min(
+                1.0,
+                profile.spatial_expertise
+                + self.learning_parameters["expertise_learning_rate"] * task_difficulty,
+            )
         elif performance_score < 0.4 and task_difficulty < 0.5:
             # Poor performance on easy task -> decrease expertise
-            profile.spatial_expertise = max(0.0, profile.spatial_expertise -
-                                          self.learning_parameters['expertise_learning_rate'] * (1 - task_difficulty))
+            profile.spatial_expertise = max(
+                0.0,
+                profile.spatial_expertise
+                - self.learning_parameters["expertise_learning_rate"]
+                * (1 - task_difficulty),
+            )
 
     def _apply_adaptation(self, profile: UserCognitiveProfile) -> None:
         """Apply adaptation strategies to optimize profile."""
@@ -537,32 +591,34 @@ class ProfileManager:
         adaptations = profile.adapt_to_performance_trends()
 
         # Apply style modifications
-        if adaptations['style_modifications']:
+        if adaptations["style_modifications"]:
             # Gradually adapt cognitive style based on performance
             style_performance = profile._analyze_style_performance()
 
-            if (style_performance.get('visual_performance', 0.5) >
-                style_performance.get('verbal_performance', 0.5) + 0.1):
-                if profile.cognitive_style != 'visualizer':
+            if (
+                style_performance.get("visual_performance", 0.5)
+                > style_performance.get("verbal_performance", 0.5) + 0.1
+            ):
+                if profile.cognitive_style != "visualizer":
                     # Move toward visualizer style
-                    profile.cognitive_style = 'visualizer'
+                    profile.cognitive_style = "visualizer"
 
         # Apply load optimizations
-        if adaptations['load_optimizations']:
+        if adaptations["load_optimizations"]:
             load_analysis = profile._analyze_load_patterns()
-            optimal_load = load_analysis.get('optimal_load', 0.5)
+            optimal_load = load_analysis.get("optimal_load", 0.5)
 
             # Map numeric load to preference category
             if optimal_load < 0.4:
-                profile.cognitive_load_preference = 'low'
+                profile.cognitive_load_preference = "low"
             elif optimal_load > 0.6:
-                profile.cognitive_load_preference = 'high'
+                profile.cognitive_load_preference = "high"
             else:
-                profile.cognitive_load_preference = 'moderate'
+                profile.cognitive_load_preference = "moderate"
 
-    def get_user_recommendations(self,
-                               user_id: str,
-                               context: Dict[str, Any]) -> Dict[str, Any]:
+    def get_user_recommendations(
+        self, user_id: str, context: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Get personalized recommendations for a user.
 
@@ -584,19 +640,19 @@ class ProfileManager:
     def export_all_profiles(self) -> Dict[str, Any]:
         """Export all profiles for backup or analysis."""
         return {
-            'export_time': datetime.now().isoformat(),
-            'profile_count': len(self.profiles),
-            'profiles': {
+            "export_time": datetime.now().isoformat(),
+            "profile_count": len(self.profiles),
+            "profiles": {
                 user_id: profile.export_profile()
                 for user_id, profile in self.profiles.items()
-            }
+            },
         }
 
     def import_profiles(self, profiles_data: Dict[str, Any]) -> int:
         """Import profiles from exported data."""
         imported_count = 0
 
-        for user_id, profile_data in profiles_data.get('profiles', {}).items():
+        for user_id, profile_data in profiles_data.get("profiles", {}).items():
             profile = UserCognitiveProfile.import_profile(profile_data)
             self.profiles[user_id] = profile
             imported_count += 1

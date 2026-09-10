@@ -21,6 +21,7 @@ from ..utils.error_handler import NetworkError
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class GitLabRepository:
     """GitLab repository information."""
@@ -45,28 +46,29 @@ class GitLabRepository:
     topics: List[str]
 
     @classmethod
-    def from_api_response(cls, data: Dict[str, Any]) -> 'GitLabRepository':
+    def from_api_response(cls, data: Dict[str, Any]) -> "GitLabRepository":
         """Create repository object from GitLab API response."""
         return cls(
-            id=data.get('id', 0),
-            name=data.get('name', ''),
-            full_name=data.get('path_with_namespace', ''),
-            owner=data.get('namespace', {}).get('name', ''),
-            description=data.get('description', ''),
-            url=data.get('web_url', ''),
-            clone_url=data.get('http_url_to_repo', ''),
-            ssh_url=data.get('ssh_url_to_repo', ''),
-            default_branch=data.get('default_branch', 'main'),
-            visibility=data.get('visibility', 'private'),
+            id=data.get("id", 0),
+            name=data.get("name", ""),
+            full_name=data.get("path_with_namespace", ""),
+            owner=data.get("namespace", {}).get("name", ""),
+            description=data.get("description", ""),
+            url=data.get("web_url", ""),
+            clone_url=data.get("http_url_to_repo", ""),
+            ssh_url=data.get("ssh_url_to_repo", ""),
+            default_branch=data.get("default_branch", "main"),
+            visibility=data.get("visibility", "private"),
             stars=0,  # GitLab doesn't have stars
-            forks=data.get('forks_count', 0),
-            size=data.get('statistics', {}).get('repository_size', 0),
-            created_at=data.get('created_at', ''),
-            updated_at=data.get('last_activity_at', ''),
-            last_activity_at=data.get('last_activity_at', ''),
-            archived=data.get('archived', False),
-            topics=data.get('topics', []) if data.get('topics') else []
+            forks=data.get("forks_count", 0),
+            size=data.get("statistics", {}).get("repository_size", 0),
+            created_at=data.get("created_at", ""),
+            updated_at=data.get("last_activity_at", ""),
+            last_activity_at=data.get("last_activity_at", ""),
+            archived=data.get("archived", False),
+            topics=data.get("topics", []) if data.get("topics") else [],
         )
+
 
 @dataclass
 class BitbucketRepository:
@@ -90,26 +92,29 @@ class BitbucketRepository:
     topics: List[str]
 
     @classmethod
-    def from_api_response(cls, data: Dict[str, Any]) -> 'BitbucketRepository':
+    def from_api_response(cls, data: Dict[str, Any]) -> "BitbucketRepository":
         """Create repository object from Bitbucket API response."""
         return cls(
-            name=data.get('name', ''),
-            full_name=data.get('full_name', ''),
-            owner=data.get('owner', {}).get('username', ''),
-            description=data.get('description', ''),
-            url=data.get('links', {}).get('html', {}).get('href', ''),
-            clone_url=data.get('links', {}).get('clone', [{}])[0].get('href', ''),
-            ssh_url=data.get('links', {}).get('clone', [{}])[-1].get('href', ''),  # SSH is usually last
-            default_branch=data.get('mainbranch', {}).get('name', 'main'),
-            language=data.get('language', ''),
+            name=data.get("name", ""),
+            full_name=data.get("full_name", ""),
+            owner=data.get("owner", {}).get("username", ""),
+            description=data.get("description", ""),
+            url=data.get("links", {}).get("html", {}).get("href", ""),
+            clone_url=data.get("links", {}).get("clone", [{}])[0].get("href", ""),
+            ssh_url=data.get("links", {})
+            .get("clone", [{}])[-1]
+            .get("href", ""),  # SSH is usually last
+            default_branch=data.get("mainbranch", {}).get("name", "main"),
+            language=data.get("language", ""),
             stars=0,  # Bitbucket doesn't have stars in the same way
-            forks=data.get('forks_count', 0),
-            size=data.get('size', 0),
-            created_at=data.get('created_on', ''),
-            updated_at=data.get('updated_on', ''),
-            is_private=data.get('is_private', False),
-            topics=[]  # Bitbucket doesn't have topics in basic API
+            forks=data.get("forks_count", 0),
+            size=data.get("size", 0),
+            created_at=data.get("created_on", ""),
+            updated_at=data.get("updated_on", ""),
+            is_private=data.get("is_private", False),
+            topics=[],  # Bitbucket doesn't have topics in basic API
         )
+
 
 @dataclass
 class LocalRepository:
@@ -124,7 +129,7 @@ class LocalRepository:
     last_modified: str
 
     @classmethod
-    def from_path(cls, path: Path) -> 'LocalRepository':
+    def from_path(cls, path: Path) -> "LocalRepository":
         """Create repository object from local path."""
         try:
             import git
@@ -139,15 +144,19 @@ class LocalRepository:
 
             # Get description from README if available
             description = ""
-            readme_files = ['README.md', 'README.txt', 'README.rst']
+            readme_files = ["README.md", "README.txt", "README.rst"]
             for readme in readme_files:
                 readme_path = path / readme
                 if readme_path.exists():
                     try:
-                        with open(readme_path, 'r', encoding='utf-8') as f:
+                        with open(readme_path, "r", encoding="utf-8") as f:
                             content = f.read()
                             # Extract first non-empty line as description
-                            lines = [line.strip() for line in content.split('\n') if line.strip()]
+                            lines = [
+                                line.strip()
+                                for line in content.split("\n")
+                                if line.strip()
+                            ]
                             if lines:
                                 description = lines[0][:200]  # Limit to 200 chars
                                 break
@@ -162,10 +171,10 @@ class LocalRepository:
                 name=name,
                 path=str(path),
                 description=description,
-                default_branch=repo.active_branch.name if repo.heads else 'main',
+                default_branch=repo.active_branch.name if repo.heads else "main",
                 remote_urls=remote_urls,
                 size=path.stat().st_size if path.exists() else 0,
-                last_modified=str(path.stat().st_mtime) if path.exists() else ""
+                last_modified=str(path.stat().st_mtime) if path.exists() else "",
             )
 
         except Exception as e:
@@ -177,8 +186,9 @@ class LocalRepository:
                 default_branch="main",
                 remote_urls=[],
                 size=path.stat().st_size if path.exists() else 0,
-                last_modified=str(path.stat().st_mtime) if path.exists() else ""
+                last_modified=str(path.stat().st_mtime) if path.exists() else "",
             )
+
 
 class PlatformAPI(Protocol):
     """Protocol for Git platform API clients."""
@@ -195,6 +205,7 @@ class PlatformAPI(Protocol):
         """Check if credentials are valid."""
         ...
 
+
 class GitLabAPI:
     """
     GitLab API client for repository operations.
@@ -205,9 +216,14 @@ class GitLabAPI:
     - Authentication management
     """
 
-    def __init__(self, token: Optional[str] = None, api_url: str = "https://gitlab.com/api/v4",
-                 wait_on_rate_limit: bool = True, max_retries: int = 3,
-                 retry_delay: float = 1.0) -> None:
+    def __init__(
+        self,
+        token: Optional[str] = None,
+        api_url: str = "https://gitlab.com/api/v4",
+        wait_on_rate_limit: bool = True,
+        max_retries: int = 3,
+        retry_delay: float = 1.0,
+    ) -> None:
         """
         Initialize GitLab API client.
 
@@ -218,25 +234,24 @@ class GitLabAPI:
             max_retries: Maximum number of retries for requests
             retry_delay: Delay between retries in seconds
         """
-        self.token = token or os.environ.get('GITLAB_TOKEN', '')
-        self.api_url = api_url.rstrip('/')
+        self.token = token or os.environ.get("GITLAB_TOKEN", "")
+        self.api_url = api_url.rstrip("/")
         self.wait_on_rate_limit = wait_on_rate_limit
         self.max_retries = max_retries
         self.retry_delay = retry_delay
 
         # Setup session
         self.session = requests.Session()
-        self.session.headers.update({
-            'Accept': 'application/json',
-            'User-Agent': 'GEO-INFER-GIT/1.0'
-        })
+        self.session.headers.update(
+            {"Accept": "application/json", "User-Agent": "GEO-INFER-GIT/1.0"}
+        )
 
         if self.token:
-            self.session.headers.update({
-                'Private-Token': self.token
-            })
+            self.session.headers.update({"Private-Token": self.token})
 
-    def _make_request(self, method: str, endpoint: str, **kwargs: Any) -> requests.Response:
+    def _make_request(
+        self, method: str, endpoint: str, **kwargs: Any
+    ) -> requests.Response:
         """Make a request to GitLab API with error handling."""
         url = f"{self.api_url}{endpoint}"
 
@@ -246,9 +261,11 @@ class GitLabAPI:
 
                 # Handle rate limiting
                 if response.status_code == 429:
-                    if self.wait_on_rate_limit and 'Retry-After' in response.headers:
-                        wait_time = int(response.headers['Retry-After'])
-                        logger.warning(f"Rate limit exceeded. Waiting {wait_time} seconds...")
+                    if self.wait_on_rate_limit and "Retry-After" in response.headers:
+                        wait_time = int(response.headers["Retry-After"])
+                        logger.warning(
+                            f"Rate limit exceeded. Waiting {wait_time} seconds..."
+                        )
                         time.sleep(wait_time)
                         continue
                     else:
@@ -259,15 +276,24 @@ class GitLabAPI:
 
             except requests.RequestException as e:
                 if attempt == self.max_retries:
-                    logger.error(f"Request failed after {self.max_retries + 1} attempts: {e}")
+                    logger.error(
+                        f"Request failed after {self.max_retries + 1} attempts: {e}"
+                    )
                     raise
 
-                wait_time = self.retry_delay * (2 ** attempt)
-                logger.warning(f"Request failed (attempt {attempt + 1}), retrying in {wait_time}s: {e}")
+                wait_time = self.retry_delay * (2**attempt)
+                logger.warning(
+                    f"Request failed (attempt {attempt + 1}), retrying in {wait_time}s: {e}"
+                )
                 time.sleep(wait_time)
 
-    def get_user_repositories(self, username: str, include_repos: Optional[List[str]] = None,
-                             exclude_repos: Optional[List[str]] = None, max_repos: int = 100) -> List[GitLabRepository]:
+    def get_user_repositories(
+        self,
+        username: str,
+        include_repos: Optional[List[str]] = None,
+        exclude_repos: Optional[List[str]] = None,
+        max_repos: int = 100,
+    ) -> List[GitLabRepository]:
         """Get repositories for a GitLab user."""
         repositories: List[GitLabRepository] = []
         page = 1
@@ -276,13 +302,13 @@ class GitLabAPI:
         while len(repositories) < max_repos:
             endpoint = f"/users/{username}/projects"
             params = {
-                'per_page': per_page,
-                'page': page,
-                'order_by': 'last_activity_at',
-                'sort': 'desc'
+                "per_page": per_page,
+                "page": page,
+                "order_by": "last_activity_at",
+                "sort": "desc",
             }
 
-            response = self._make_request('GET', endpoint, params=params)
+            response = self._make_request("GET", endpoint, params=params)
             repos_data = response.json()
 
             if not repos_data:
@@ -310,7 +336,9 @@ class GitLabAPI:
                 logger.warning(f"Reached maximum pages (10) for user {username}")
                 break
 
-        logger.info(f"Found {len(repositories)} repositories for GitLab user {username}")
+        logger.info(
+            f"Found {len(repositories)} repositories for GitLab user {username}"
+        )
         return repositories
 
     def get_repository(self, owner: str, repo: str) -> GitLabRepository:
@@ -319,19 +347,16 @@ class GitLabAPI:
         try:
             # Method 1: By project path (owner/repo)
             endpoint = f"/projects/{owner}%2F{repo}"
-            response = self._make_request('GET', endpoint)
+            response = self._make_request("GET", endpoint)
             repo_data = response.json()
             return GitLabRepository.from_api_response(repo_data)
 
         except requests.RequestException:
             # Method 2: Search by name
             endpoint = "/projects"
-            params = {
-                'search': repo,
-                'per_page': 1
-            }
+            params = {"search": repo, "per_page": 1}
 
-            response = self._make_request('GET', endpoint, params=params)
+            response = self._make_request("GET", endpoint, params=params)
             projects = response.json()
 
             if projects:
@@ -342,10 +367,11 @@ class GitLabAPI:
     def check_credentials(self) -> bool:
         """Check if GitLab credentials are valid."""
         try:
-            response = self._make_request('GET', '/user')
+            response = self._make_request("GET", "/user")
             return bool(response.status_code == 200)
         except requests.RequestException:
             return False
+
 
 class BitbucketAPI:
     """
@@ -357,10 +383,15 @@ class BitbucketAPI:
     - Authentication management
     """
 
-    def __init__(self, username: Optional[str] = None, app_password: Optional[str] = None,
-                 api_url: str = "https://api.bitbucket.org/2.0",
-                 wait_on_rate_limit: bool = True, max_retries: int = 3,
-                 retry_delay: float = 1.0) -> None:
+    def __init__(
+        self,
+        username: Optional[str] = None,
+        app_password: Optional[str] = None,
+        api_url: str = "https://api.bitbucket.org/2.0",
+        wait_on_rate_limit: bool = True,
+        max_retries: int = 3,
+        retry_delay: float = 1.0,
+    ) -> None:
         """
         Initialize Bitbucket API client.
 
@@ -372,30 +403,30 @@ class BitbucketAPI:
             max_retries: Maximum number of retries for requests
             retry_delay: Delay between retries in seconds
         """
-        self.username = username or os.environ.get('BITBUCKET_USERNAME', '')
-        self.app_password = app_password or os.environ.get('BITBUCKET_APP_PASSWORD', '')
-        self.api_url = api_url.rstrip('/')
+        self.username = username or os.environ.get("BITBUCKET_USERNAME", "")
+        self.app_password = app_password or os.environ.get("BITBUCKET_APP_PASSWORD", "")
+        self.api_url = api_url.rstrip("/")
         self.wait_on_rate_limit = wait_on_rate_limit
         self.max_retries = max_retries
         self.retry_delay = retry_delay
 
         # Setup session
         self.session = requests.Session()
-        self.session.headers.update({
-            'Accept': 'application/json',
-            'User-Agent': 'GEO-INFER-GIT/1.0'
-        })
+        self.session.headers.update(
+            {"Accept": "application/json", "User-Agent": "GEO-INFER-GIT/1.0"}
+        )
 
         if self.username and self.app_password:
             # Basic auth for Bitbucket
             auth_string = f"{self.username}:{self.app_password}"
             import base64
-            encoded_auth = base64.b64encode(auth_string.encode()).decode()
-            self.session.headers.update({
-                'Authorization': f'Basic {encoded_auth}'
-            })
 
-    def _make_request(self, method: str, endpoint: str, **kwargs: Any) -> requests.Response:
+            encoded_auth = base64.b64encode(auth_string.encode()).decode()
+            self.session.headers.update({"Authorization": f"Basic {encoded_auth}"})
+
+    def _make_request(
+        self, method: str, endpoint: str, **kwargs: Any
+    ) -> requests.Response:
         """Make a request to Bitbucket API with error handling."""
         url = f"{self.api_url}{endpoint}"
 
@@ -407,15 +438,24 @@ class BitbucketAPI:
 
             except requests.RequestException as e:
                 if attempt == self.max_retries:
-                    logger.error(f"Request failed after {self.max_retries + 1} attempts: {e}")
+                    logger.error(
+                        f"Request failed after {self.max_retries + 1} attempts: {e}"
+                    )
                     raise
 
-                wait_time = self.retry_delay * (2 ** attempt)
-                logger.warning(f"Request failed (attempt {attempt + 1}), retrying in {wait_time}s: {e}")
+                wait_time = self.retry_delay * (2**attempt)
+                logger.warning(
+                    f"Request failed (attempt {attempt + 1}), retrying in {wait_time}s: {e}"
+                )
                 time.sleep(wait_time)
 
-    def get_user_repositories(self, username: str, include_repos: Optional[List[str]] = None,
-                             exclude_repos: Optional[List[str]] = None, max_repos: int = 100) -> List[BitbucketRepository]:
+    def get_user_repositories(
+        self,
+        username: str,
+        include_repos: Optional[List[str]] = None,
+        exclude_repos: Optional[List[str]] = None,
+        max_repos: int = 100,
+    ) -> List[BitbucketRepository]:
         """Get repositories for a Bitbucket user."""
         repositories: List[BitbucketRepository] = []
         page = 1
@@ -423,16 +463,12 @@ class BitbucketAPI:
 
         while len(repositories) < max_repos:
             endpoint = f"/repositories/{username}"
-            params = {
-                'pagelen': per_page,
-                'page': page,
-                'sort': '-updated_on'
-            }
+            params = {"pagelen": per_page, "page": page, "sort": "-updated_on"}
 
-            response = self._make_request('GET', endpoint, params=params)
+            response = self._make_request("GET", endpoint, params=params)
             repos_data = response.json()
 
-            values = repos_data.get('values', [])
+            values = repos_data.get("values", [])
             if not values:
                 break
 
@@ -458,13 +494,15 @@ class BitbucketAPI:
                 logger.warning(f"Reached maximum pages (10) for user {username}")
                 break
 
-        logger.info(f"Found {len(repositories)} repositories for Bitbucket user {username}")
+        logger.info(
+            f"Found {len(repositories)} repositories for Bitbucket user {username}"
+        )
         return repositories
 
     def get_repository(self, owner: str, repo: str) -> BitbucketRepository:
         """Get information about a specific Bitbucket repository."""
         endpoint = f"/repositories/{owner}/{repo}"
-        response = self._make_request('GET', endpoint)
+        response = self._make_request("GET", endpoint)
         repo_data = response.json()
 
         return BitbucketRepository.from_api_response(repo_data)
@@ -472,10 +510,11 @@ class BitbucketAPI:
     def check_credentials(self) -> bool:
         """Check if Bitbucket credentials are valid."""
         try:
-            response = self._make_request('GET', '/user')
+            response = self._make_request("GET", "/user")
             return bool(response.status_code == 200)
         except requests.RequestException:
             return False
+
 
 class LocalGitAPI:
     """
@@ -494,7 +533,7 @@ class LocalGitAPI:
         Args:
             base_paths: List of base directories to search for repositories
         """
-        raw_paths: List[str] = base_paths or ['.']
+        raw_paths: List[str] = base_paths or ["."]
         self.base_paths: List[Path] = [Path(p).resolve() for p in raw_paths]
 
     def discover_repositories(self, max_depth: int = 3) -> List[LocalRepository]:
@@ -514,7 +553,7 @@ class LocalGitAPI:
                 continue
 
             # Search for .git directories
-            for git_dir in base_path.rglob('.git'):
+            for git_dir in base_path.rglob(".git"):
                 if git_dir.is_dir():
                     repo_path = git_dir.parent
 
@@ -538,9 +577,10 @@ class LocalGitAPI:
     def check_repository(self, path: str) -> bool:
         """Check if a path contains a valid Git repository."""
         repo_path = Path(path)
-        git_dir = repo_path / '.git'
+        git_dir = repo_path / ".git"
 
         return git_dir.exists() and git_dir.is_dir()
+
 
 class MultiPlatformAPI:
     """
@@ -550,7 +590,9 @@ class MultiPlatformAPI:
     and local repositories.
     """
 
-    def __init__(self, platform_configs: Optional[Dict[str, Dict[str, Any]]] = None) -> None:
+    def __init__(
+        self, platform_configs: Optional[Dict[str, Dict[str, Any]]] = None
+    ) -> None:
         """
         Initialize multi-platform API client.
 
@@ -566,26 +608,28 @@ class MultiPlatformAPI:
     def _initialize_clients(self) -> None:
         """Initialize API clients for each platform."""
         # GitHub
-        if 'github' in self.platform_configs:
-            github_config = self.platform_configs['github']
-            self.clients['github'] = GitHubAPI(**github_config)
+        if "github" in self.platform_configs:
+            github_config = self.platform_configs["github"]
+            self.clients["github"] = GitHubAPI(**github_config)
 
         # GitLab
-        if 'gitlab' in self.platform_configs:
-            gitlab_config = self.platform_configs['gitlab']
-            self.clients['gitlab'] = GitLabAPI(**gitlab_config)
+        if "gitlab" in self.platform_configs:
+            gitlab_config = self.platform_configs["gitlab"]
+            self.clients["gitlab"] = GitLabAPI(**gitlab_config)
 
         # Bitbucket
-        if 'bitbucket' in self.platform_configs:
-            bitbucket_config = self.platform_configs['bitbucket']
-            self.clients['bitbucket'] = BitbucketAPI(**bitbucket_config)
+        if "bitbucket" in self.platform_configs:
+            bitbucket_config = self.platform_configs["bitbucket"]
+            self.clients["bitbucket"] = BitbucketAPI(**bitbucket_config)
 
         # Local
-        if 'local' in self.platform_configs:
-            local_config = self.platform_configs['local']
-            self.clients['local'] = LocalGitAPI(**local_config)
+        if "local" in self.platform_configs:
+            local_config = self.platform_configs["local"]
+            self.clients["local"] = LocalGitAPI(**local_config)
 
-    def get_user_repositories(self, platform: str, username: str, **kwargs: Any) -> List[Any]:
+    def get_user_repositories(
+        self, platform: str, username: str, **kwargs: Any
+    ) -> List[Any]:
         """
         Get repositories for a user across platforms.
 
@@ -602,13 +646,13 @@ class MultiPlatformAPI:
 
         client = cast(PlatformAPI, self.clients[platform])
 
-        if platform == 'github':
+        if platform == "github":
             return client.get_user_repositories(username, **kwargs)
-        elif platform == 'gitlab':
+        elif platform == "gitlab":
             return client.get_user_repositories(username, **kwargs)
-        elif platform == 'bitbucket':
+        elif platform == "bitbucket":
             return client.get_user_repositories(username, **kwargs)
-        elif platform == 'local':
+        elif platform == "local":
             # For local, username is ignored, just discover repositories
             local_client: Any = self.clients[platform]
             return cast(List[Any], local_client.discover_repositories(**kwargs))
@@ -632,9 +676,9 @@ class MultiPlatformAPI:
 
         client = self.clients[platform]
 
-        if platform in ['github', 'gitlab', 'bitbucket']:
+        if platform in ["github", "gitlab", "bitbucket"]:
             return client.get_repository(owner, repo)
-        elif platform == 'local':
+        elif platform == "local":
             # For local, owner/repo is interpreted as path
             return client.get_repository(f"{owner}/{repo}")
         else:
@@ -655,9 +699,9 @@ class MultiPlatformAPI:
 
         client = cast(PlatformAPI, self.clients[platform])
 
-        if platform in ['github', 'gitlab', 'bitbucket']:
+        if platform in ["github", "gitlab", "bitbucket"]:
             return client.check_credentials()
-        elif platform == 'local':
+        elif platform == "local":
             return True  # Local doesn't need credentials
         else:
             return False
@@ -665,6 +709,7 @@ class MultiPlatformAPI:
     def get_supported_platforms(self) -> List[str]:
         """Get list of supported platforms."""
         return list(self.clients.keys())
+
 
 def create_platform_api(config: Dict[str, Any]) -> MultiPlatformAPI:
     """
@@ -679,44 +724,44 @@ def create_platform_api(config: Dict[str, Any]) -> MultiPlatformAPI:
     platform_configs = {}
 
     # GitHub configuration
-    if 'github' in config:
-        github_config = config['github']
-        platform_configs['github'] = {
-            'token': github_config.get('token'),
-            'api_url': github_config.get('api_url', 'https://api.github.com'),
-            'wait_on_rate_limit': github_config.get('wait_on_rate_limit', True),
-            'max_retries': github_config.get('max_retries', 3),
-            'retry_delay': github_config.get('retry_delay', 1.0)
+    if "github" in config:
+        github_config = config["github"]
+        platform_configs["github"] = {
+            "token": github_config.get("token"),
+            "api_url": github_config.get("api_url", "https://api.github.com"),
+            "wait_on_rate_limit": github_config.get("wait_on_rate_limit", True),
+            "max_retries": github_config.get("max_retries", 3),
+            "retry_delay": github_config.get("retry_delay", 1.0),
         }
 
     # GitLab configuration
-    if 'gitlab' in config:
-        gitlab_config = config['gitlab']
-        platform_configs['gitlab'] = {
-            'token': gitlab_config.get('token'),
-            'api_url': gitlab_config.get('api_url', 'https://gitlab.com/api/v4'),
-            'wait_on_rate_limit': gitlab_config.get('wait_on_rate_limit', True),
-            'max_retries': gitlab_config.get('max_retries', 3),
-            'retry_delay': gitlab_config.get('retry_delay', 1.0)
+    if "gitlab" in config:
+        gitlab_config = config["gitlab"]
+        platform_configs["gitlab"] = {
+            "token": gitlab_config.get("token"),
+            "api_url": gitlab_config.get("api_url", "https://gitlab.com/api/v4"),
+            "wait_on_rate_limit": gitlab_config.get("wait_on_rate_limit", True),
+            "max_retries": gitlab_config.get("max_retries", 3),
+            "retry_delay": gitlab_config.get("retry_delay", 1.0),
         }
 
     # Bitbucket configuration
-    if 'bitbucket' in config:
-        bitbucket_config = config['bitbucket']
-        platform_configs['bitbucket'] = {
-            'username': bitbucket_config.get('username'),
-            'app_password': bitbucket_config.get('app_password'),
-            'api_url': bitbucket_config.get('api_url', 'https://api.bitbucket.org/2.0'),
-            'wait_on_rate_limit': bitbucket_config.get('wait_on_rate_limit', True),
-            'max_retries': bitbucket_config.get('max_retries', 3),
-            'retry_delay': bitbucket_config.get('retry_delay', 1.0)
+    if "bitbucket" in config:
+        bitbucket_config = config["bitbucket"]
+        platform_configs["bitbucket"] = {
+            "username": bitbucket_config.get("username"),
+            "app_password": bitbucket_config.get("app_password"),
+            "api_url": bitbucket_config.get("api_url", "https://api.bitbucket.org/2.0"),
+            "wait_on_rate_limit": bitbucket_config.get("wait_on_rate_limit", True),
+            "max_retries": bitbucket_config.get("max_retries", 3),
+            "retry_delay": bitbucket_config.get("retry_delay", 1.0),
         }
 
     # Local configuration
-    if 'local' in config:
-        local_config = config['local']
-        platform_configs['local'] = {
-            'base_paths': local_config.get('base_paths', ['.'])
+    if "local" in config:
+        local_config = config["local"]
+        platform_configs["local"] = {
+            "base_paths": local_config.get("base_paths", ["."])
         }
 
     return MultiPlatformAPI(platform_configs)

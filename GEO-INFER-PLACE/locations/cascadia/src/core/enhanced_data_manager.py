@@ -50,8 +50,10 @@ except ImportError:
     latlng_to_cell = h3.latlng_to_cell
     cell_to_latlng = h3.cell_to_latlng
     cell_to_latlng_boundary = h3.cell_to_boundary
+
     def polygon_to_cells(geojson, res):
         return list(h3.geo_to_cells(geojson, res))
+
     grid_disk = h3.grid_disk
     grid_distance = h3.grid_distance
     cell_area = h3.cell_area
@@ -111,9 +113,7 @@ class EnhancedDataManager:
         self.data_logger = DataSourceLogger("data_manager")
         self.processing_logger = ProcessingLogger("data_manager")
 
-        logger.info(
-            f"Enhanced Data Manager initialized with H3 resolution {h3_resolution}"
-        )
+        logger.info(f"Enhanced Data Manager initialized with H3 resolution {h3_resolution}")
         logger.info(f"SPACE H3 utilities available: {SPACE_H3_AVAILABLE}")
 
     def get_comprehensive_data_quality_report(self, module_name: str) -> Dict[str, Any]:
@@ -169,9 +169,7 @@ class EnhancedDataManager:
                             "completeness": validation["data_quality_metrics"].get(
                                 "completeness_score", 0
                             ),
-                            "validity": validation["data_quality_metrics"].get(
-                                "validity_score", 0
-                            ),
+                            "validity": validation["data_quality_metrics"].get("validity_score", 0),
                             "consistency": validation["data_quality_metrics"].get(
                                 "consistency_score", 0
                             ),
@@ -218,9 +216,7 @@ class EnhancedDataManager:
 
             # Generate recommendations
             empirical_sources = [
-                k
-                for k, v in report["data_sources"].items()
-                if v.get("is_empirical", False)
+                k for k, v in report["data_sources"].items() if v.get("is_empirical", False)
             ]
             if len(empirical_sources) == 0:
                 report["recommendations"].append(
@@ -362,9 +358,7 @@ class EnhancedDataManager:
             self._generate_performance_recommendations(benchmark_results)
 
         except Exception as e:
-            logger.error(
-                f"Error during performance benchmarking for {module_name}: {e}"
-            )
+            logger.error(f"Error during performance benchmarking for {module_name}: {e}")
             benchmark_results["error"] = str(e)
 
         return benchmark_results
@@ -375,10 +369,7 @@ class EnhancedDataManager:
             return {
                 "cpu_count": psutil.cpu_count(),
                 "memory_total_gb": psutil.virtual_memory().total / 1024 / 1024 / 1024,
-                "memory_available_gb": psutil.virtual_memory().available
-                / 1024
-                / 1024
-                / 1024,
+                "memory_available_gb": psutil.virtual_memory().available / 1024 / 1024 / 1024,
                 "python_version": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
             }
         except Exception:
@@ -399,17 +390,13 @@ class EnhancedDataManager:
             Performance score (0-1, higher is better)
         """
         # Score based on time (faster is better)
-        time_score = max(
-            0, 1.0 - (load_time / 10.0)
-        )  # Assume 10 seconds is poor performance
+        time_score = max(0, 1.0 - (load_time / 10.0))  # Assume 10 seconds is poor performance
 
         # Score based on memory efficiency (lower memory increase is better)
         memory_score = max(0, 1.0 - (memory_mb / 1000.0))  # Assume 1GB increase is poor
 
         # Score based on data throughput (more data per second is better)
-        throughput_score = (
-            min(1.0, data_size / load_time / 1000.0) if load_time > 0 else 1.0
-        )
+        throughput_score = min(1.0, data_size / load_time / 1000.0) if load_time > 0 else 1.0
 
         # Weighted average
         return time_score * 0.4 + memory_score * 0.3 + throughput_score * 0.3
@@ -490,8 +477,7 @@ class EnhancedDataManager:
             "h3_cache": cache_dir / f"{module_name}_h3_res{self.h3_resolution}.json",
             "processed_data": processed_dir / f"processed_{module_name}_data.geojson",
             "metadata": module_data_dir / f"{module_name}_metadata.json",
-            "validation_report": module_data_dir
-            / f"{module_name}_validation_report.json",
+            "validation_report": module_data_dir / f"{module_name}_validation_report.json",
         }
 
     def acquire_data_with_caching(
@@ -614,11 +600,9 @@ class EnhancedDataManager:
             try:
                 invalid_mask = ~gdf.geometry.is_valid
                 if invalid_mask.any():
-                    gdf.loc[invalid_mask, "geometry"] = gdf.loc[
-                        invalid_mask, "geometry"
-                    ].buffer(0)
+                    gdf.loc[invalid_mask, "geometry"] = gdf.loc[invalid_mask, "geometry"].buffer(0)
             except Exception as exc:
-                logger.warning('Data quality step failed; continuing without it: %s', exc)
+                logger.warning("Data quality step failed; continuing without it: %s", exc)
 
             # Log comprehensive data summary
             log_geodataframe_summary(logger, gdf, f"{module_name}_raw_data")
@@ -647,9 +631,7 @@ class EnhancedDataManager:
 
                     # Log real data acquisition with comprehensive details
                     bbox = gdf.total_bounds if not gdf.empty else None
-                    geometry_types = (
-                        list(gdf.geometry.geom_type.unique()) if not gdf.empty else []
-                    )
+                    geometry_types = list(gdf.geometry.geom_type.unique()) if not gdf.empty else []
                     attributes = list(gdf.columns) if not gdf.empty else []
 
                     self.data_logger.log_real_data_acquisition(
@@ -698,9 +680,7 @@ class EnhancedDataManager:
         except Exception as e:
             raise RuntimeError(f"Data validation failed for {module_name}") from e
 
-    def _validate_geodataframe(
-        self, gdf: gpd.GeoDataFrame, module_name: str
-    ) -> Dict[str, Any]:
+    def _validate_geodataframe(self, gdf: gpd.GeoDataFrame, module_name: str) -> Dict[str, Any]:
         """
         Validate a GeoDataFrame for quality and consistency.
 
@@ -717,9 +697,7 @@ class EnhancedDataManager:
             "warnings": [],
             "quality_score": 0.0,
             "feature_count": len(gdf),
-            "geometry_types": (
-                gdf.geometry.geom_type.unique().tolist() if not gdf.empty else []
-            ),
+            "geometry_types": (gdf.geometry.geom_type.unique().tolist() if not gdf.empty else []),
             "crs": str(gdf.crs) if gdf.crs else "None",
             "attribute_summary": {},
             "spatial_summary": {},
@@ -737,9 +715,7 @@ class EnhancedDataManager:
         actual_geometry_types = set(gdf.geometry.geom_type.unique())
         if not actual_geometry_types.intersection(valid_geometry_types):
             validation_result["is_valid"] = False
-            validation_result["errors"].append(
-                f"Invalid geometry types: {actual_geometry_types}"
-            )
+            validation_result["errors"].append(f"Invalid geometry types: {actual_geometry_types}")
 
         # CRS validation
         if not gdf.crs:
@@ -757,16 +733,12 @@ class EnhancedDataManager:
             invalid_mask = ~gdf.geometry.is_valid
             invalid_geometries = invalid_mask.sum()
         except Exception as exc:
-            logger.warning('Data quality step failed; continuing without it: %s', exc)
+            logger.warning("Data quality step failed; continuing without it: %s", exc)
 
         if null_geometries > 0:
-            validation_result["warnings"].append(
-                f"{null_geometries} null geometries found"
-            )
+            validation_result["warnings"].append(f"{null_geometries} null geometries found")
         if invalid_geometries > 0:
-            validation_result["warnings"].append(
-                f"{invalid_geometries} invalid geometries found"
-            )
+            validation_result["warnings"].append(f"{invalid_geometries} invalid geometries found")
 
         # Attribute quality analysis
         attribute_quality = {}
@@ -804,9 +776,7 @@ class EnhancedDataManager:
                     float(gdf.geometry.area.sum()) if gdf.geometry.area.sum() > 0 else 0
                 ),
                 "mean_area": (
-                    float(gdf.geometry.area.mean())
-                    if gdf.geometry.area.mean() > 0
-                    else 0
+                    float(gdf.geometry.area.mean()) if gdf.geometry.area.mean() > 0 else 0
                 ),
                 "null_geometries": int(null_geometries),
                 "invalid_geometries": int(invalid_geometries),
@@ -817,22 +787,14 @@ class EnhancedDataManager:
             # Check for unrealistic coordinates (outside reasonable bounds)
             if bounds is not None:
                 if not (-180 <= bounds[0] <= 180) or not (-180 <= bounds[2] <= 180):
-                    validation_result["warnings"].append(
-                        "Longitude values outside valid range"
-                    )
+                    validation_result["warnings"].append("Longitude values outside valid range")
                 if not (-90 <= bounds[1] <= 90) or not (-90 <= bounds[3] <= 90):
-                    validation_result["warnings"].append(
-                        "Latitude values outside valid range"
-                    )
+                    validation_result["warnings"].append("Latitude values outside valid range")
 
         # Data quality metrics
         quality_metrics = {
-            "completeness_score": (
-                1.0 - (null_geometries / len(gdf)) if len(gdf) > 0 else 0
-            ),
-            "validity_score": (
-                1.0 - (invalid_geometries / len(gdf)) if len(gdf) > 0 else 0
-            ),
+            "completeness_score": (1.0 - (null_geometries / len(gdf)) if len(gdf) > 0 else 0),
+            "validity_score": (1.0 - (invalid_geometries / len(gdf)) if len(gdf) > 0 else 0),
             "consistency_score": 1.0,
             "accuracy_score": 0.9,  # Default assumption, could be improved with ground truth
         }
@@ -844,11 +806,9 @@ class EnhancedDataManager:
                 validation_result["warnings"].append(
                     f"{duplicate_geoms} duplicate geometries found"
                 )
-                quality_metrics["consistency_score"] = 1.0 - (
-                    duplicate_geoms / len(gdf)
-                )
+                quality_metrics["consistency_score"] = 1.0 - (duplicate_geoms / len(gdf))
         except Exception as exc:
-            logger.warning('Data quality step failed; continuing without it: %s', exc)
+            logger.warning("Data quality step failed; continuing without it: %s", exc)
 
         validation_result["data_quality_metrics"] = quality_metrics
 
@@ -924,8 +884,9 @@ class EnhancedDataManager:
             "value": lambda x: 1000 <= float(x) <= 10000000,
             "year": lambda x: 1900 <= int(x) <= 2030,
             "parcel_id": lambda x: len(str(x)) >= 5,
-            "owner_name": lambda x: len(str(x)) >= 3
-            and not str(x).lower().startswith(("test", "generated", "sample")),
+            "owner_name": lambda x: (
+                len(str(x)) >= 3 and not str(x).lower().startswith(("test", "generated", "sample"))
+            ),
         }
 
         for col in gdf.columns:
@@ -939,9 +900,7 @@ class EnhancedDataManager:
                         for val in sample_values:
                             if validator(val):
                                 valid_count += 1
-                        if (
-                            valid_count >= 3
-                        ):  # At least 3 out of 5 values should be realistic
+                        if valid_count >= 3:  # At least 3 out of 5 values should be realistic
                             empirical_score += 0.5
                             break
                     except (ValueError, TypeError):
@@ -1071,9 +1030,7 @@ class EnhancedDataManager:
             gdf = gpd.read_file(data_path)
 
             # Process to H3 using SPACE utilities
-            h3_data = self._process_geodataframe_to_h3(
-                gdf, target_hexagons, module_name
-            )
+            h3_data = self._process_geodataframe_to_h3(gdf, target_hexagons, module_name)
 
             # Normalize to a dict with 'hexagons' for downstream compatibility
             normalized = {"hexagons": h3_data, "input_features": int(len(gdf))}
@@ -1082,11 +1039,7 @@ class EnhancedDataManager:
                 json.dump(normalized, f, indent=2)
 
             # Log H3 processing results
-            coverage_pct = (
-                (len(h3_data) / len(target_hexagons) * 100.0)
-                if target_hexagons
-                else 0.0
-            )
+            coverage_pct = (len(h3_data) / len(target_hexagons) * 100.0) if target_hexagons else 0.0
             self.data_logger.log_h3_processing(
                 input_features=len(gdf),
                 output_hexagons=len(h3_data),
@@ -1214,9 +1167,7 @@ class EnhancedDataManager:
         target_hex_set = set(target_hexagons)
 
         # Require at least 60% coverage (more reasonable threshold)
-        coverage = len(cached_hexagons.intersection(target_hex_set)) / len(
-            target_hex_set
-        )
+        coverage = len(cached_hexagons.intersection(target_hex_set)) / len(target_hex_set)
 
         return coverage >= 0.6
 

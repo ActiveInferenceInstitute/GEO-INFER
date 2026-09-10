@@ -35,9 +35,7 @@ def _grid_with_invalid_cell(n_valid: int = 5) -> H3Grid:
     ]
     # Malformed index: H3Cell.__post_init__ logs an init error but survives,
     # and h3.grid_disk raises ValueError for it during neighborhood lookup.
-    cells.append(
-        H3Cell(index=INVALID_CELL, resolution=9, properties={"value": 10.0})
-    )
+    cells.append(H3Cell(index=INVALID_CELL, resolution=9, properties={"value": 10.0}))
     return H3Grid(cells=cells)
 
 
@@ -67,8 +65,7 @@ def test_getis_ord_fallback_logs_warning(caplog: pytest.LogCaptureFixture) -> No
     ]
     assert fallback_records, "expected a warning for the invalid cell"
     assert any(
-        "self-only neighborhood in Getis-Ord Gi*" in r.message
-        for r in fallback_records
+        "self-only neighborhood in Getis-Ord Gi*" in r.message for r in fallback_records
     )
 
 
@@ -108,5 +105,3 @@ def test_backend_cluster_fallback_logs_warning(
     clustered_cells = {c for cluster in result["clusters"] for c in cluster["cells"]}
     assert INVALID_CELL not in clustered_cells
     assert clustered_cells == set(valid_indices)
-
-

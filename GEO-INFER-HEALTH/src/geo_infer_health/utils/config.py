@@ -208,7 +208,6 @@ def resolve_environment_variables(config: Dict[str, Any]) -> Dict[str, Any]:
 
     def resolve_value(value: Any) -> Any:
         if isinstance(value, str):
-
             # Pattern to match ${VAR_NAME} or ${VAR_NAME:default}
             pattern = r"\$\{([^:}]+)(?::([^}]*))?\}"
 

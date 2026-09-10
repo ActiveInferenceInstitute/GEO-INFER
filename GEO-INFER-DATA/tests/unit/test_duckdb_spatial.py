@@ -55,14 +55,13 @@ def test_has_duckdb_is_boolean() -> None:
 
 def test_read_layer_arg(tmp_path: Path) -> None:
     """The fallback path forwards the layer kwarg without error for GeoJSON."""
-    gdf = gpd.GeoDataFrame(
-        {"x": [1]}, geometry=[shapely.Point(0, 0)], crs="EPSG:4326"
-    )
+    gdf = gpd.GeoDataFrame({"x": [1]}, geometry=[shapely.Point(0, 0)], crs="EPSG:4326")
     path = tmp_path / "single.geojson"
     gdf.to_file(path, driver="GeoJSON")
     # layer=None is safe on the fallback path.
     out = read_cloud_native_vector(path, layer=None)
     assert len(out) == 1
+
 
 def test_read_quote_containing_path(tmp_path: Path) -> None:
     """A path containing a single quote must round-trip, not inject SQL."""

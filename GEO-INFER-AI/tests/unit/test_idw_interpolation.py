@@ -14,12 +14,14 @@ class TestIDWInterpolator:
     @pytest.fixture
     def simple_data(self) -> tuple:
         """Known points with a simple spatial pattern."""
-        coords = np.array([
-            [0.0, 0.0],
-            [1.0, 0.0],
-            [0.0, 1.0],
-            [1.0, 1.0],
-        ])
+        coords = np.array(
+            [
+                [0.0, 0.0],
+                [1.0, 0.0],
+                [0.0, 1.0],
+                [1.0, 1.0],
+            ]
+        )
         values = np.array([0.0, 1.0, 1.0, 2.0])
         return coords, values
 

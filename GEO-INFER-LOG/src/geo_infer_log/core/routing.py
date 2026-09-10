@@ -11,7 +11,11 @@ import geopandas as gpd
 import networkx as nx
 from typing import Any, Dict, List, Optional, Tuple, cast
 import logging
-from geo_infer_log.models.schemas import Vehicle, RoutingParameters, VehicleType as VehicleType
+from geo_infer_log.models.schemas import (
+    Vehicle,
+    RoutingParameters,
+    VehicleType as VehicleType,
+)
 from geo_infer_log.utils.geo import haversine_distance
 from scipy.spatial import KDTree
 from shapely.geometry import LineString
@@ -19,7 +23,6 @@ from shapely.geometry import LineString
 logger = logging.getLogger(__name__)
 
 _DEFAULT_SPEED_KMH = 30.0  # Default urban speed for network-free routing
-
 
 
 def _load_gpickle(path: str) -> nx.Graph:
@@ -37,8 +40,6 @@ def _load_gpickle(path: str) -> nx.Graph:
     """
     with open(path, "rb") as handle:
         return pickle.load(handle)
-
-
 
 
 class RouteOptimizer:
@@ -219,9 +220,7 @@ class RouteOptimizer:
             current = nearest
 
         stops = [origin] + ordered + [destination]
-        distance = sum(
-            haversine_distance(a, b) for a, b in zip(stops, stops[1:])
-        )
+        distance = sum(haversine_distance(a, b) for a, b in zip(stops, stops[1:]))
         travel_time = distance / _DEFAULT_SPEED_KMH * 60.0
 
         coords = [(float(p[0]), float(p[1])) for p in stops]

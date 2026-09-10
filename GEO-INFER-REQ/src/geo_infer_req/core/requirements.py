@@ -13,6 +13,7 @@ from geo_infer_req.core.validation import find_dependency_cycles
 
 class RequirementType(Enum):
     """Classification of requirement types."""
+
     FUNCTIONAL = "functional"
     NON_FUNCTIONAL = "non_functional"
     INTERFACE = "interface"
@@ -24,6 +25,7 @@ class RequirementType(Enum):
 
 class RequirementStatus(Enum):
     """Status of a requirement in its lifecycle."""
+
     DRAFT = "draft"
     REVIEWED = "reviewed"
     APPROVED = "approved"
@@ -34,6 +36,7 @@ class RequirementStatus(Enum):
 
 class PriorityLevel(Enum):
     """Priority classification for requirements."""
+
     CRITICAL = 4
     HIGH = 3
     MEDIUM = 2
@@ -43,6 +46,7 @@ class PriorityLevel(Enum):
 @dataclass
 class Requirement:
     """Represents a single requirement."""
+
     req_id: str
     title: str
     description: str
@@ -59,6 +63,7 @@ class Requirement:
 @dataclass
 class DependencyGraph:
     """Representation of requirement dependency relationships."""
+
     nodes: List[str]
     edges: List[Tuple[str, str]]
     topological_order: List[str]
@@ -70,6 +75,7 @@ class DependencyGraph:
 @dataclass
 class CompletenessReport:
     """Report on requirements completeness."""
+
     total_requirements: int
     completeness_score: float
     missing_descriptions: List[str]
@@ -217,7 +223,11 @@ class RequirementsAnalyzer:
             (len(r.stakeholders) for r in self._requirements.values()), default=1
         )
         max_effort = max(
-            (r.effort_estimate for r in self._requirements.values() if r.effort_estimate),
+            (
+                r.effort_estimate
+                for r in self._requirements.values()
+                if r.effort_estimate
+            ),
             default=1.0,
         )
 
@@ -227,10 +237,16 @@ class RequirementsAnalyzer:
             priority_norm = req.priority.value / PriorityLevel.CRITICAL.value
 
             # Normalize dependents
-            dep_norm = dependent_counts[rid] / max_dependents if max_dependents > 0 else 0.0
+            dep_norm = (
+                dependent_counts[rid] / max_dependents if max_dependents > 0 else 0.0
+            )
 
             # Normalize stakeholder count
-            stake_norm = len(req.stakeholders) / max_stakeholders if max_stakeholders > 0 else 0.0
+            stake_norm = (
+                len(req.stakeholders) / max_stakeholders
+                if max_stakeholders > 0
+                else 0.0
+            )
 
             # Effort: inverse normalized (low effort = higher priority)
             if req.effort_estimate and max_effort > 0:
@@ -284,21 +300,23 @@ class RequirementsAnalyzer:
             t = req.req_type.value
             type_counts[t] = type_counts.get(t, 0) + 1
             is_complete = (
-                len(req.description.strip()) >= 10
-                and len(req.acceptance_criteria) > 0
+                len(req.description.strip()) >= 10 and len(req.acceptance_criteria) > 0
             )
             if is_complete:
                 type_complete[t] = type_complete.get(t, 0) + 1
 
         coverage_by_type = {}
         for t, count in type_counts.items():
-            coverage_by_type[t] = round(type_complete.get(t, 0) / count, 4) if count > 0 else 0.0
+            coverage_by_type[t] = (
+                round(type_complete.get(t, 0) / count, 4) if count > 0 else 0.0
+            )
 
         # Overall completeness
         total = len(self._requirements)
         if total > 0:
             complete_count = sum(
-                1 for req in self._requirements.values()
+                1
+                for req in self._requirements.values()
                 if len(req.description.strip()) >= 10
                 and len(req.acceptance_criteria) > 0
             )
@@ -327,7 +345,9 @@ class RequirementsAnalyzer:
         """
         return [r for r in self._requirements.values() if r.req_type == req_type]
 
-    def get_requirements_by_status(self, status: RequirementStatus) -> List[Requirement]:
+    def get_requirements_by_status(
+        self, status: RequirementStatus
+    ) -> List[Requirement]:
         """
         Filter requirements by status.
 

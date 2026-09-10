@@ -151,9 +151,7 @@ class EmailProvider(ABC):
         enhanced_subject = subject
         if geospatial_context:
             location = geospatial_context.location
-            enhanced_subject = (
-                f"[Location: {location.latitude:.4f}, {location.longitude:.4f}] {subject}"
-            )
+            enhanced_subject = f"[Location: {location.latitude:.4f}, {location.longitude:.4f}] {subject}"
 
         # Enhance body with geospatial details
         enhanced_body = body
@@ -244,7 +242,9 @@ class SendGridProvider(EmailProvider):
 
         try:
             # Format content with geospatial context
-            formatted = self.format_email_with_geospatial_context(subject, body, geospatial_context)
+            formatted = self.format_email_with_geospatial_context(
+                subject, body, geospatial_context
+            )
 
             # Create SendGrid payload
             payload = {
@@ -263,7 +263,9 @@ class SendGridProvider(EmailProvider):
                 timeout=30,
             )
             response.raise_for_status()
-            self.logger.info("SendGrid email sent to %s: %s", to_email, formatted["subject"])
+            self.logger.info(
+                "SendGrid email sent to %s: %s", to_email, formatted["subject"]
+            )
             self.emails_sent += 1
 
             return True
@@ -316,7 +318,9 @@ class SESProvider(EmailProvider):
 
         try:
             # Format content with geospatial context
-            formatted = self.format_email_with_geospatial_context(subject, body, geospatial_context)
+            formatted = self.format_email_with_geospatial_context(
+                subject, body, geospatial_context
+            )
 
             try:
                 import boto3
@@ -362,9 +366,7 @@ class MailgunProvider(EmailProvider):
     def __init__(self, config: Dict[str, Any]):
         super().__init__(config)
         self.provider_name = "mailgun"
-        self.api_url = (
-            f"https://api.mailgun.net/v3/{config.get('domain', 'geo-infer.org')}/messages"
-        )
+        self.api_url = f"https://api.mailgun.net/v3/{config.get('domain', 'geo-infer.org')}/messages"
         self.api_username = "api"
 
     async def send_email(
@@ -389,7 +391,9 @@ class MailgunProvider(EmailProvider):
 
         try:
             # Format content with geospatial context
-            formatted = self.format_email_with_geospatial_context(subject, body, geospatial_context)
+            formatted = self.format_email_with_geospatial_context(
+                subject, body, geospatial_context
+            )
 
             response = await asyncio.to_thread(
                 requests.post,
@@ -404,7 +408,9 @@ class MailgunProvider(EmailProvider):
                 timeout=30,
             )
             response.raise_for_status()
-            self.logger.info("Mailgun email sent to %s: %s", to_email, formatted["subject"])
+            self.logger.info(
+                "Mailgun email sent to %s: %s", to_email, formatted["subject"]
+            )
             self.emails_sent += 1
 
             return True

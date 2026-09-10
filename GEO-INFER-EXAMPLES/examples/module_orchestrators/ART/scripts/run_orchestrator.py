@@ -49,7 +49,9 @@ def _operation() -> Dict[str, Any]:
     from geo_infer_art import ColorPalette, ProceduralArt
 
     # --- Palette construction from color theory --------------------------
-    base_palette = ColorPalette.from_color_theory("#2d6a4f", scheme="complementary", n_colors=6)
+    base_palette = ColorPalette.from_color_theory(
+        "#2d6a4f", scheme="complementary", n_colors=6
+    )
     forest_palette = ColorPalette.get_palette("forest")
     blended = forest_palette.blend_with(base_palette, ratio=0.5)
     dimmed = blended.adjust_brightness(0.6)

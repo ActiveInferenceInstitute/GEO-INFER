@@ -64,7 +64,9 @@ def test_get_unknown_raises() -> None:
 
 def test_list_sorted_by_id() -> None:
     def mk(aid: str) -> ProcessingAlgorithm:
-        return ProcessingAlgorithm(id=aid, name=aid, description=aid, run=lambda ctx: aid)
+        return ProcessingAlgorithm(
+            id=aid, name=aid, description=aid, run=lambda ctx: aid
+        )
 
     reg = AlgorithmRegistry([mk("z"), mk("a"), mk("m")])
     assert [a.id for a in reg.list()] == ["a", "m", "z"]
@@ -73,7 +75,9 @@ def test_list_sorted_by_id() -> None:
 def test_run_dispatches() -> None:
     reg = AlgorithmRegistry()
     reg.register(
-        ProcessingAlgorithm(id="double", name="Double", description="D", run=lambda ctx: 21 * 2)
+        ProcessingAlgorithm(
+            id="double", name="Double", description="D", run=lambda ctx: 21 * 2
+        )
     )
     assert reg.run("double", ProcessingContext()) == 42
 

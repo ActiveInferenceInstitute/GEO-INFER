@@ -12,21 +12,26 @@ from datetime import datetime
 from dataclasses import dataclass, field
 from enum import Enum
 
+
 class RiskLevel(Enum):
     """Risk level enumeration."""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
     CRITICAL = "critical"
 
+
 class RiskCategory(Enum):
     """Risk category enumeration."""
+
     PROPERTY = "property"
     LIABILITY = "liability"
     BUSINESS_INTERRUPTION = "business_interruption"
     CATASTROPHE = "catastrophe"
     CYBER = "cyber"
     REPUTATIONAL = "reputational"
+
 
 @dataclass
 class RiskProfile:
@@ -57,21 +62,23 @@ class RiskProfile:
     assessment_method: str = "comprehensive"
     data_sources: List[str] = field(default_factory=list)
 
-    def calculate_weighted_risk_score(self, weights: Optional[Dict[str, float]] = None) -> float:
+    def calculate_weighted_risk_score(
+        self, weights: Optional[Dict[str, float]] = None
+    ) -> float:
         """Calculate weighted risk score."""
         if weights is None:
             weights = {
-                'location_risk': 0.3,
-                'historical_risk': 0.25,
-                'operational_risk': 0.2,
-                'financial_risk': 0.15
+                "location_risk": 0.3,
+                "historical_risk": 0.25,
+                "operational_risk": 0.2,
+                "financial_risk": 0.15,
             }
 
         weighted_score = (
-            weights.get('location_risk', 0.3) * self.location_risk +
-            weights.get('historical_risk', 0.25) * self.historical_risk +
-            weights.get('operational_risk', 0.2) * self.operational_risk +
-            weights.get('financial_risk', 0.15) * self.financial_risk
+            weights.get("location_risk", 0.3) * self.location_risk
+            + weights.get("historical_risk", 0.25) * self.historical_risk
+            + weights.get("operational_risk", 0.2) * self.operational_risk
+            + weights.get("financial_risk", 0.15) * self.financial_risk
         )
 
         return min(1.0, max(0.0, weighted_score))
@@ -90,23 +97,24 @@ class RiskProfile:
     def to_dict(self) -> Dict[str, Any]:
         """Convert risk profile to dictionary."""
         return {
-            'profile_id': self.profile_id,
-            'entity_id': self.entity_id,
-            'entity_type': self.entity_type,
-            'overall_risk_score': self.overall_risk_score,
-            'risk_level': self.risk_level.value,
-            'risk_categories': {k.value: v for k, v in self.risk_categories.items()},
-            'location_risk': self.location_risk,
-            'historical_risk': self.historical_risk,
-            'operational_risk': self.operational_risk,
-            'financial_risk': self.financial_risk,
-            'confidence_level': self.confidence_level,
-            'uncertainty_range': self.uncertainty_range,
-            'created_at': self.created_at.isoformat(),
-            'updated_at': self.updated_at.isoformat(),
-            'assessment_method': self.assessment_method,
-            'data_sources': self.data_sources
+            "profile_id": self.profile_id,
+            "entity_id": self.entity_id,
+            "entity_type": self.entity_type,
+            "overall_risk_score": self.overall_risk_score,
+            "risk_level": self.risk_level.value,
+            "risk_categories": {k.value: v for k, v in self.risk_categories.items()},
+            "location_risk": self.location_risk,
+            "historical_risk": self.historical_risk,
+            "operational_risk": self.operational_risk,
+            "financial_risk": self.financial_risk,
+            "confidence_level": self.confidence_level,
+            "uncertainty_range": self.uncertainty_range,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+            "assessment_method": self.assessment_method,
+            "data_sources": self.data_sources,
         }
+
 
 @dataclass
 class ExposureProfile:
@@ -145,20 +153,21 @@ class ExposureProfile:
     def to_dict(self) -> Dict[str, Any]:
         """Convert exposure profile to dictionary."""
         return {
-            'profile_id': self.profile_id,
-            'entity_id': self.entity_id,
-            'exposure_type': self.exposure_type,
-            'total_value': self.total_value,
-            'replacement_cost': self.replacement_cost,
-            'market_value': self.market_value,
-            'location': self.location,
-            'area': self.area,
-            'elevation': self.elevation,
-            'time_variants': self.time_variants,
-            'seasonality_factors': self.seasonality_factors,
-            'created_at': self.created_at.isoformat(),
-            'data_sources': self.data_sources
+            "profile_id": self.profile_id,
+            "entity_id": self.entity_id,
+            "exposure_type": self.exposure_type,
+            "total_value": self.total_value,
+            "replacement_cost": self.replacement_cost,
+            "market_value": self.market_value,
+            "location": self.location,
+            "area": self.area,
+            "elevation": self.elevation,
+            "time_variants": self.time_variants,
+            "seasonality_factors": self.seasonality_factors,
+            "created_at": self.created_at.isoformat(),
+            "data_sources": self.data_sources,
         }
+
 
 @dataclass
 class VulnerabilityProfile:
@@ -199,18 +208,18 @@ class VulnerabilityProfile:
     def to_dict(self) -> Dict[str, Any]:
         """Convert vulnerability profile to dictionary."""
         return {
-            'profile_id': self.profile_id,
-            'entity_id': self.entity_id,
-            'vulnerability_type': self.vulnerability_type,
-            'vulnerability_score': self.vulnerability_score,
-            'damage_ratios': self.damage_ratios,
-            'recovery_time': self.recovery_time,
-            'construction_type': self.construction_type,
-            'building_age': self.building_age,
-            'occupancy_type': self.occupancy_type,
-            'soil_type': self.soil_type,
-            'flood_zone': self.flood_zone,
-            'seismic_zone': self.seismic_zone,
-            'created_at': self.created_at.isoformat(),
-            'assessment_method': self.assessment_method
+            "profile_id": self.profile_id,
+            "entity_id": self.entity_id,
+            "vulnerability_type": self.vulnerability_type,
+            "vulnerability_score": self.vulnerability_score,
+            "damage_ratios": self.damage_ratios,
+            "recovery_time": self.recovery_time,
+            "construction_type": self.construction_type,
+            "building_age": self.building_age,
+            "occupancy_type": self.occupancy_type,
+            "soil_type": self.soil_type,
+            "flood_zone": self.flood_zone,
+            "seismic_zone": self.seismic_zone,
+            "created_at": self.created_at.isoformat(),
+            "assessment_method": self.assessment_method,
         }

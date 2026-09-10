@@ -280,10 +280,18 @@ def validate_geographic_bounds(locations: List[Location]) -> Dict[str, Any]:
         lat_str = str(loc.latitude)
         lon_str = str(loc.longitude)
 
-        if lat_str != "None" and "." in lat_str and len(lat_str.rstrip("0").split(".")[-1]) > 6:
+        if (
+            lat_str != "None"
+            and "." in lat_str
+            and len(lat_str.rstrip("0").split(".")[-1]) > 6
+        ):
             issues.append("Latitude has unrealistic precision")
 
-        if lon_str != "None" and "." in lon_str and len(lon_str.rstrip("0").split(".")[-1]) > 6:
+        if (
+            lon_str != "None"
+            and "." in lon_str
+            and len(lon_str.rstrip("0").split(".")[-1]) > 6
+        ):
             issues.append("Longitude has unrealistic precision")
 
         if issues:

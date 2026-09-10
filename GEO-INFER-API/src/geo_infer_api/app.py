@@ -1,13 +1,17 @@
 """
 Main application entry point for GEO-INFER-API.
 """
+
 from typing import List
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from geo_infer_api.core.config import get_settings
-from geo_infer_api.core.middleware import ErrorHandlerMiddleware, RequestLoggingMiddleware
+from geo_infer_api.core.middleware import (
+    ErrorHandlerMiddleware,
+    RequestLoggingMiddleware,
+)
 from geo_infer_api.endpoints import (
     algorithms_router,
     geojson_router,
@@ -55,9 +59,7 @@ def create_app() -> FastAPI:
     # Include routers
     app.include_router(health_router.router, tags=["Health"])
     app.include_router(geojson_router.router, prefix="/api/v1", tags=["GeoJSON"])
-    app.include_router(
-        algorithms_router.router, prefix="/api/v1", tags=["Algorithms"]
-    )
+    app.include_router(algorithms_router.router, prefix="/api/v1", tags=["Algorithms"])
     return app
 
 
@@ -70,6 +72,8 @@ def __getattr__(name: str):
         return app
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
+
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run("geo_infer_api.app:main_app", host="0.0.0.0", port=8000, reload=True)

@@ -1031,7 +1031,7 @@ class UrbanTrafficSwarm:
                             "priority": (
                                 "high" if hotspot.get("severity", 0) > 0.8 else "medium"
                             ),
-                            "description": f'Improve intersection at {hotspot.get("location")}',
+                            "description": f"Improve intersection at {hotspot.get('location')}",
                             "expected_impact": hotspot.get("severity", 0) * 0.3,
                             "cost_estimate": "medium",
                         }

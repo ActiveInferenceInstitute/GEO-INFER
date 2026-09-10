@@ -6,7 +6,6 @@ from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 from ..models.hr_models import (
-
     Employee,
     EmploymentStatus,
     Gender,
@@ -86,7 +85,9 @@ class CSVHRImporter(BaseHRImporter):
                 for row in reader:
                     # Add date filtering if last_sync_date and relevant date column in CSV
                     records.append(dict(row))
-            logger.info(f"Fetched {len(records)} employee records from {self.file_path}")
+            logger.info(
+                f"Fetched {len(records)} employee records from {self.file_path}"
+            )
             return records
         except Exception as e:
             logger.error(f"Error fetching employee data from CSV {self.file_path}: {e}")
@@ -124,9 +125,7 @@ class CSVHRImporter(BaseHRImporter):
                     ),
                     "job_title": record.get("job_title"),
                     "department": record.get("department"),
-                    "gender": (
-                        Gender(gender_raw.lower()) if gender_raw else None
-                    ),
+                    "gender": (Gender(gender_raw.lower()) if gender_raw else None),
                     # Add other fields as necessary from your CSV
                 }
                 # Filter out None values for fields that are optional and not provided

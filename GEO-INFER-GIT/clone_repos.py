@@ -11,7 +11,7 @@ import sys
 import logging
 
 # Add the src directory to allow imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "src")))
 
 # Import the main module
 from geo_infer_git.main import main
@@ -20,9 +20,9 @@ if __name__ == "__main__":
     # Configure basic logging
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
-    
+
     # Run the main function
     try:
         main()
@@ -31,4 +31,4 @@ if __name__ == "__main__":
         sys.exit(1)
     except Exception as e:
         print(f"Error: {e}")
-        sys.exit(1) 
+        sys.exit(1)

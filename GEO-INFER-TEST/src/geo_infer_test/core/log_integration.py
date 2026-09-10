@@ -20,6 +20,7 @@ from typing import Any, Dict, List, Optional, Iterator
 # Check if GEO-INFER-LOG is available
 try:
     import geo_infer_log  # noqa: F401
+
     LOG_MODULE_AVAILABLE = True
 except ImportError:
     LOG_MODULE_AVAILABLE = False
@@ -87,7 +88,9 @@ class LogIntegration:
     # ------------------------------------------------------------------
 
     @contextmanager
-    def test_context(self, test_id: str, module: str, test_name: str) -> Iterator[TestLogEntry]:
+    def test_context(
+        self, test_id: str, module: str, test_name: str
+    ) -> Iterator[TestLogEntry]:
         """
         Context manager that records a test's outcome and duration.
 
@@ -112,7 +115,10 @@ class LogIntegration:
             entry.message = "Test passed"
             self.logger.info(
                 "PASS %s::%s::%s (%.3fs)",
-                module, test_name, test_id, time.time() - start,
+                module,
+                test_name,
+                test_id,
+                time.time() - start,
             )
         except (AssertionError, ValueError) as exc:
             entry.status = "FAIL"
@@ -123,7 +129,11 @@ class LogIntegration:
                 "traceback": traceback.format_exc(),
             }
             self.logger.warning(
-                "FAIL %s::%s::%s – %s", module, test_name, test_id, exc,
+                "FAIL %s::%s::%s – %s",
+                module,
+                test_name,
+                test_id,
+                exc,
             )
             raise
         except Exception as exc:
@@ -135,7 +145,11 @@ class LogIntegration:
                 "traceback": traceback.format_exc(),
             }
             self.logger.error(
-                "ERROR %s::%s::%s – %s", module, test_name, test_id, exc,
+                "ERROR %s::%s::%s – %s",
+                module,
+                test_name,
+                test_id,
+                exc,
             )
             raise
         finally:
@@ -183,9 +197,7 @@ class LoggingTestReporter:
         self.log_integration = log_integration
         self.logger = log_integration.logger
 
-    def generate_test_report(
-        self, output_dir: Optional[Path] = None
-    ) -> Dict[str, Any]:
+    def generate_test_report(self, output_dir: Optional[Path] = None) -> Dict[str, Any]:
         """
         Build a comprehensive report dict and, when *output_dir* is given,
         persist it as ``test_report_<timestamp>.json``.
@@ -260,9 +272,7 @@ class _TestLoggerImpl:
         self._health_log: Dict[str, Dict[str, Any]] = {}
         self._interactions: List[Dict[str, Any]] = []
 
-    def log_performance_metrics(
-        self, test_id: str, metrics: Dict[str, Any]
-    ) -> None:
+    def log_performance_metrics(self, test_id: str, metrics: Dict[str, Any]) -> None:
         """Attach performance metrics to an existing test entry."""
         for entry in self.log_integration.test_entries:
             if entry.test_id == test_id:
@@ -273,15 +283,15 @@ class _TestLoggerImpl:
                 return
         self.logger.warning("Test entry %s not found for metrics", test_id)
 
-    def log_module_health(
-        self, module: str, health_data: Dict[str, Any]
-    ) -> None:
+    def log_module_health(self, module: str, health_data: Dict[str, Any]) -> None:
         """Record module health snapshot."""
         self._health_log[module] = {
             "timestamp": datetime.now(timezone.utc).isoformat(),
             **health_data,
         }
-        self.logger.info("Module %s health: %s", module, health_data.get("status", "unknown"))
+        self.logger.info(
+            "Module %s health: %s", module, health_data.get("status", "unknown")
+        )
 
     def log_cross_module_interaction(
         self,
@@ -301,7 +311,10 @@ class _TestLoggerImpl:
         self._interactions.append(record)
         self.logger.info(
             "Cross-module %s→%s (%s): %s",
-            source_module, target_module, interaction_type, result,
+            source_module,
+            target_module,
+            interaction_type,
+            result,
         )
 
 

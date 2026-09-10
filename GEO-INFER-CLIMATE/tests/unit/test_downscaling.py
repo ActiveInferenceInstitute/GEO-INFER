@@ -17,7 +17,9 @@ def _gridded(values: np.ndarray) -> xr.DataArray:
     lat = np.linspace(30.0, 40.0, values.shape[1])
     lon = np.linspace(-110.0, -100.0, values.shape[2])
     return xr.DataArray(
-        values, dims=["time", "lat", "lon"], coords={"time": time, "lat": lat, "lon": lon}
+        values,
+        dims=["time", "lat", "lon"],
+        coords={"time": time, "lat": lat, "lon": lon},
     )
 
 

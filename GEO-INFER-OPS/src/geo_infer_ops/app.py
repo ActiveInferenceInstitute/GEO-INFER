@@ -22,6 +22,7 @@ from geo_infer_ops.utils import load_config, configure_logging, get_logger
 # Initialize logger
 logger = get_logger("geo_infer_ops.app")
 
+
 def create_app() -> Tuple[FastAPI, Dict[str, Any]]:
     """Create and configure the FastAPI application."""
     # Load configuration
@@ -31,7 +32,7 @@ def create_app() -> Tuple[FastAPI, Dict[str, Any]]:
         configure_logging(
             log_level=config["logging"]["level"],
             json_format=config["logging"]["format"] == "json",
-            log_file=config["logging"]["file"]
+            log_file=config["logging"]["file"],
         )
     except Exception as e:
         # Fall back to default logging if config fails
@@ -49,7 +50,7 @@ def create_app() -> Tuple[FastAPI, Dict[str, Any]]:
     app = FastAPI(
         title="GEO-INFER-OPS",
         description="Operational kernel for system orchestration, logging, testing, and architecture",
-        version="0.1.0"
+        version="0.1.0",
     )
 
     # Configure CORS
@@ -76,9 +77,11 @@ def create_app() -> Tuple[FastAPI, Dict[str, Any]]:
     @app.get("/version")
     def version() -> Dict[str, str]:
         from geo_infer_ops import __version__
+
         return {"version": __version__}
 
     return app, config
+
 
 app, config = create_app()
 
@@ -87,12 +90,12 @@ if __name__ == "__main__":
     logger.info(
         "Starting GEO-INFER-OPS",
         host=config["service"]["host"],
-        port=config["service"]["port"]
+        port=config["service"]["port"],
     )
-    
+
     uvicorn.run(
         "geo_infer_ops.app:app",
         host=config["service"]["host"],
         port=config["service"]["port"],
         reload=config["development"].get("hot_reload", False),
-    ) 
+    )

@@ -121,7 +121,11 @@ class FireRiskAssessor:
             bounds.get("north"),
         )
 
-        fire_data: Dict[str, Any] = {"bbox": bbox, "temporal_range": temporal_range, "data_sources": {}}
+        fire_data: Dict[str, Any] = {
+            "bbox": bbox,
+            "temporal_range": temporal_range,
+            "data_sources": {},
+        }
 
         # Historical fire perimeters
         try:
@@ -206,9 +210,7 @@ class FireRiskAssessor:
             raise ValueError("Fuel-moisture source returned no measurements")
         return payload
 
-    def _analyze_fire_weather(
-        self, fire_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _analyze_fire_weather(self, fire_data: Dict[str, Any]) -> Dict[str, Any]:
         """Analyze fire weather conditions."""
         weather_data = fire_data["data_sources"].get("fire_weather", {})
         measurements = weather_data.get("measurements", [])
@@ -246,7 +248,7 @@ class FireRiskAssessor:
                 ).sum(),
             },
             "fire_danger_distribution": {
-                "low": ((df["fire_weather_index"] < 20)).sum(),
+                "low": (df["fire_weather_index"] < 20).sum(),
                 "moderate": (
                     (df["fire_weather_index"] >= 20) & (df["fire_weather_index"] < 40)
                 ).sum(),
@@ -262,18 +264,14 @@ class FireRiskAssessor:
 
         return analysis
 
-    def _analyze_historical_fires(
-        self, fire_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _analyze_historical_fires(self, fire_data: Dict[str, Any]) -> Dict[str, Any]:
         """Analyze historical fire patterns."""
         fire_perimeters = fire_data["data_sources"].get("fire_perimeters", {})
         features = fire_perimeters.get("features", [])
         if not features:
             return {"status": "no_data", "fire_statistics": {"total_fires": 0}}
 
-        def property_value(
-            properties: Dict[str, Any], *names: str
-        ) -> Any:
+        def property_value(properties: Dict[str, Any], *names: str) -> Any:
             for name in names:
                 value = properties.get(name)
                 if value not in (None, ""):
@@ -332,9 +330,7 @@ class FireRiskAssessor:
             "fires_by_month": months,
         }
 
-    def _assess_fuel_conditions(
-        self, fire_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _assess_fuel_conditions(self, fire_data: Dict[str, Any]) -> Dict[str, Any]:
         """Assess current fuel moisture and loading conditions."""
         fuel_data = fire_data["data_sources"].get("fuel_moisture", {})
         measurements = fuel_data.get("measurements", [])
@@ -445,7 +441,9 @@ class FireRiskAssessor:
             "risk_level": (
                 "High"
                 if overall_risk > 0.7
-                else "Moderate" if overall_risk > 0.4 else "Low"
+                else "Moderate"
+                if overall_risk > 0.4
+                else "Low"
             ),
             "priority_areas": [],
             "recommendations": [],
@@ -465,9 +463,7 @@ class FireRiskAssessor:
 
         return risk_assessment
 
-    def _prepare_spatial_data(
-        self, analysis_results: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _prepare_spatial_data(self, analysis_results: Dict[str, Any]) -> Dict[str, Any]:
         """Prepare spatial data for integration."""
         spatial_data = {
             "h3_resolution": self.h3_resolution,

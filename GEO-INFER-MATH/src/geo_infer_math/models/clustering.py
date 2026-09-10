@@ -18,9 +18,11 @@ from ..utils.rng import resolve_rng
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class ClusteringResults:
     """Container for clustering analysis results."""
+
     labels: np.ndarray
     n_clusters: int
     centroids: Optional[np.ndarray] = None
@@ -28,12 +30,19 @@ class ClusteringResults:
     cluster_sizes: Optional[np.ndarray] = None
     within_cluster_distances: Optional[np.ndarray] = None
 
+
 class SpatialKMeans:
     """Spatially constrained K-means clustering."""
 
-    def __init__(self, n_clusters: int = 8, init: str = 'k-means++',
-                 n_init: int = 10, max_iter: int = 300,
-                 tol: float = 1e-4, random_state: Optional[int] = None):
+    def __init__(
+        self,
+        n_clusters: int = 8,
+        init: str = "k-means++",
+        n_init: int = 10,
+        max_iter: int = 300,
+        tol: float = 1e-4,
+        random_state: Optional[int] = None,
+    ):
         """
         Initialize spatial K-means.
 
@@ -58,7 +67,9 @@ class SpatialKMeans:
         self.n_iter_: Optional[int] = None
         self.is_fitted = False
 
-    def fit(self, X: np.ndarray, coordinates: Optional[np.ndarray] = None) -> 'SpatialKMeans':
+    def fit(
+        self, X: np.ndarray, coordinates: Optional[np.ndarray] = None
+    ) -> "SpatialKMeans":
         """
         Fit K-means clustering.
 
@@ -73,9 +84,9 @@ class SpatialKMeans:
         n_samples, n_features = X.shape
 
         # Initialize centroids
-        if self.init == 'k-means++':
+        if self.init == "k-means++":
             self.cluster_centers_ = self._kmeans_plus_plus_init(X, rng)
-        elif self.init == 'random':
+        elif self.init == "random":
             indices = rng.choice(n_samples, self.n_clusters, replace=False)
             self.cluster_centers_ = X[indices].copy()
         else:
@@ -89,7 +100,7 @@ class SpatialKMeans:
             old_centers = self.cluster_centers_.copy()
 
             for i in range(n_samples):
-                distances = np.sum((self.cluster_centers_ - X[i])**2, axis=1)
+                distances = np.sum((self.cluster_centers_ - X[i]) ** 2, axis=1)
                 self.labels_[i] = np.argmin(distances)
 
             # Update centroids
@@ -102,7 +113,7 @@ class SpatialKMeans:
                     self.cluster_centers_[k] = X[rng.choice(n_samples)]
 
             # Check convergence
-            center_shift = np.sum((self.cluster_centers_ - old_centers)**2)
+            center_shift = np.sum((self.cluster_centers_ - old_centers) ** 2)
             if center_shift < self.tol:
                 self.n_iter_ = iteration + 1
                 break
@@ -110,12 +121,16 @@ class SpatialKMeans:
         # Calculate inertia
         self.inertia_ = 0
         for i in range(n_samples):
-            self.inertia_ += np.sum((X[i] - self.cluster_centers_[self.labels_[i]])**2)
+            self.inertia_ += np.sum(
+                (X[i] - self.cluster_centers_[self.labels_[i]]) ** 2
+            )
 
         self.is_fitted = True
         return self
 
-    def _kmeans_plus_plus_init(self, X: np.ndarray, rng: Optional[np.random.Generator] = None) -> np.ndarray:
+    def _kmeans_plus_plus_init(
+        self, X: np.ndarray, rng: Optional[np.random.Generator] = None
+    ) -> np.ndarray:
         """K-means++ initialization."""
         if rng is None:
             rng = resolve_rng(self.random_state)
@@ -129,9 +144,9 @@ class SpatialKMeans:
             # Calculate distances to nearest existing center
             distances = np.zeros(n_samples)
             for i in range(n_samples):
-                min_dist = float('inf')
+                min_dist = float("inf")
                 for j in range(k):
-                    dist = np.sum((X[i] - centers[j])**2)
+                    dist = np.sum((X[i] - centers[j]) ** 2)
                     min_dist = min(min_dist, dist)
                 distances[i] = min_dist
 
@@ -162,12 +177,14 @@ class SpatialKMeans:
         labels = np.zeros(len(X), dtype=int)
 
         for i in range(len(X)):
-            distances = np.sum((self.cluster_centers_ - X[i])**2, axis=1)
+            distances = np.sum((self.cluster_centers_ - X[i]) ** 2, axis=1)
             labels[i] = np.argmin(distances)
 
         return labels
 
-    def fit_predict(self, X: np.ndarray, coordinates: Optional[np.ndarray] = None) -> np.ndarray:
+    def fit_predict(
+        self, X: np.ndarray, coordinates: Optional[np.ndarray] = None
+    ) -> np.ndarray:
         """
         Fit model and return cluster labels.
 
@@ -180,11 +197,17 @@ class SpatialKMeans:
         """
         return cast(np.ndarray, self.fit(X, coordinates).labels_)
 
+
 class SpatiallyConstrainedKMeans:
     """Spatially constrained K-means clustering."""
 
-    def __init__(self, n_clusters: int = 8, spatial_weight: float = 0.5,
-                 max_iter: int = 100, random_state: Optional[int] = None):
+    def __init__(
+        self,
+        n_clusters: int = 8,
+        spatial_weight: float = 0.5,
+        max_iter: int = 100,
+        random_state: Optional[int] = None,
+    ):
         """
         Initialize spatially constrained K-means.
 
@@ -203,7 +226,9 @@ class SpatiallyConstrainedKMeans:
         self.labels_: Optional[np.ndarray] = None
         self.is_fitted = False
 
-    def fit(self, X: np.ndarray, coordinates: np.ndarray) -> 'SpatiallyConstrainedKMeans':
+    def fit(
+        self, X: np.ndarray, coordinates: np.ndarray
+    ) -> "SpatiallyConstrainedKMeans":
         """
         Fit spatially constrained K-means.
 
@@ -229,7 +254,7 @@ class SpatiallyConstrainedKMeans:
             # Assign points to clusters
             for i in range(n_samples):
                 # Calculate feature distance
-                feature_distances = np.sum((self.cluster_centers_ - X[i])**2, axis=1)
+                feature_distances = np.sum((self.cluster_centers_ - X[i]) ** 2, axis=1)
 
                 # Calculate spatial distances to cluster centroids
                 spatial_centers = np.zeros((self.n_clusters, 2))
@@ -240,11 +265,14 @@ class SpatiallyConstrainedKMeans:
                     else:
                         spatial_centers[k] = coordinates[indices[k]]
 
-                spatial_distances = np.sum((spatial_centers - coordinates[i])**2, axis=1)
+                spatial_distances = np.sum(
+                    (spatial_centers - coordinates[i]) ** 2, axis=1
+                )
 
                 # Combine distances
-                combined_distances = (1 - self.spatial_weight) * feature_distances + \
-                                   self.spatial_weight * spatial_distances
+                combined_distances = (
+                    1 - self.spatial_weight
+                ) * feature_distances + self.spatial_weight * spatial_distances
 
                 self.labels_[i] = np.argmin(combined_distances)
 
@@ -289,21 +317,28 @@ class SpatiallyConstrainedKMeans:
 
         for i in range(n_samples):
             # Calculate distances
-            feature_distances = np.sum((self.cluster_centers_ - X[i])**2, axis=1)
-            spatial_distances = np.sum((spatial_centers - coordinates[i])**2, axis=1)
+            feature_distances = np.sum((self.cluster_centers_ - X[i]) ** 2, axis=1)
+            spatial_distances = np.sum((spatial_centers - coordinates[i]) ** 2, axis=1)
 
-            combined_distances = (1 - self.spatial_weight) * feature_distances + \
-                               self.spatial_weight * spatial_distances
+            combined_distances = (
+                1 - self.spatial_weight
+            ) * feature_distances + self.spatial_weight * spatial_distances
 
             labels[i] = np.argmin(combined_distances)
 
         return labels
 
+
 class SpatialDBSCAN:
     """Density-based spatial clustering of applications with noise (DBSCAN)."""
 
-    def __init__(self, eps: float = 0.5, min_samples: int = 5,
-                 metric: str = 'euclidean', algorithm: str = 'auto'):
+    def __init__(
+        self,
+        eps: float = 0.5,
+        min_samples: int = 5,
+        metric: str = "euclidean",
+        algorithm: str = "auto",
+    ):
         """
         Initialize spatial DBSCAN.
 
@@ -324,7 +359,9 @@ class SpatialDBSCAN:
         self.n_features_in_: Optional[int] = None
         self.is_fitted = False
 
-    def fit(self, X: np.ndarray, coordinates: Optional[np.ndarray] = None) -> 'SpatialDBSCAN':
+    def fit(
+        self, X: np.ndarray, coordinates: Optional[np.ndarray] = None
+    ) -> "SpatialDBSCAN":
         """
         Fit DBSCAN clustering.
 
@@ -339,16 +376,25 @@ class SpatialDBSCAN:
             coordinates = X
 
         # Use sklearn's DBSCAN for efficiency
-        if self.metric == 'euclidean':
-            dbscan = DBSCAN(eps=self.eps, min_samples=self.min_samples,
-                          metric='euclidean', algorithm=self.algorithm)
+        if self.metric == "euclidean":
+            dbscan = DBSCAN(
+                eps=self.eps,
+                min_samples=self.min_samples,
+                metric="euclidean",
+                algorithm=self.algorithm,
+            )
             dbscan.fit(coordinates)
         else:
             # For other metrics, use precomputed distance matrix
             from scipy.spatial.distance import pdist, squareform
+
             distance_matrix = squareform(pdist(coordinates, metric=self.metric))
-            dbscan = DBSCAN(eps=self.eps, min_samples=self.min_samples,
-                          metric='precomputed', algorithm=self.algorithm)
+            dbscan = DBSCAN(
+                eps=self.eps,
+                min_samples=self.min_samples,
+                metric="precomputed",
+                algorithm=self.algorithm,
+            )
             dbscan.fit(distance_matrix)
 
         self.core_sample_indices_ = dbscan.core_sample_indices_
@@ -359,7 +405,9 @@ class SpatialDBSCAN:
         self.is_fitted = True
         return self
 
-    def fit_predict(self, X: np.ndarray, coordinates: Optional[np.ndarray] = None) -> np.ndarray:
+    def fit_predict(
+        self, X: np.ndarray, coordinates: Optional[np.ndarray] = None
+    ) -> np.ndarray:
         """
         Fit model and return cluster labels.
 
@@ -371,6 +419,7 @@ class SpatialDBSCAN:
             Cluster labels (-1 for noise)
         """
         return cast(np.ndarray, self.fit(X, coordinates).labels_)
+
 
 class SKATERClustering:
     """Spatial 'K'luster Analysis by Tree Edge Removal (SKATER) clustering."""
@@ -389,7 +438,7 @@ class SKATERClustering:
         self.labels_: Optional[np.ndarray] = None
         self.is_fitted = False
 
-    def fit(self, X: np.ndarray, coordinates: np.ndarray) -> 'SKATERClustering':
+    def fit(self, X: np.ndarray, coordinates: np.ndarray) -> "SKATERClustering":
         """
         Fit SKATER clustering.
 
@@ -406,10 +455,10 @@ class SKATERClustering:
         from scipy.spatial.distance import pdist, squareform
 
         # Spatial distance matrix
-        spatial_distances = squareform(pdist(coordinates, metric='euclidean'))
+        spatial_distances = squareform(pdist(coordinates, metric="euclidean"))
 
         # Feature distance matrix (normalized)
-        feature_distances = squareform(pdist(X, metric='euclidean'))
+        feature_distances = squareform(pdist(X, metric="euclidean"))
         if np.max(feature_distances) > 0:
             feature_distances /= np.max(feature_distances)
 
@@ -466,8 +515,10 @@ class SKATERClustering:
             cluster_i = cluster_ids[i]
             cluster_j = cluster_ids[j]
 
-            if cluster_sizes[cluster_i] > self.min_cluster_size and \
-               cluster_sizes[cluster_j] > self.min_cluster_size:
+            if (
+                cluster_sizes[cluster_i] > self.min_cluster_size
+                and cluster_sizes[cluster_j] > self.min_cluster_size
+            ):
                 edges_to_remove.append(edge)
 
                 # Merge clusters
@@ -492,11 +543,17 @@ class SKATERClustering:
         self.is_fitted = True
         return self
 
+
 class HierarchicalClustering:
     """Hierarchical clustering with spatial constraints."""
 
-    def __init__(self, n_clusters: int = 8, method: str = 'ward',
-                 metric: str = 'euclidean', spatial_weight: float = 0.0):
+    def __init__(
+        self,
+        n_clusters: int = 8,
+        method: str = "ward",
+        metric: str = "euclidean",
+        spatial_weight: float = 0.0,
+    ):
         """
         Initialize hierarchical clustering.
 
@@ -515,7 +572,9 @@ class HierarchicalClustering:
         self.linkage_matrix_: Optional[np.ndarray] = None
         self.is_fitted = False
 
-    def fit(self, X: np.ndarray, coordinates: Optional[np.ndarray] = None) -> 'HierarchicalClustering':
+    def fit(
+        self, X: np.ndarray, coordinates: Optional[np.ndarray] = None
+    ) -> "HierarchicalClustering":
         """
         Fit hierarchical clustering.
 
@@ -530,7 +589,7 @@ class HierarchicalClustering:
         feature_distances = pdist(X, metric=self.metric)
 
         if coordinates is not None and self.spatial_weight > 0:
-            spatial_distances = pdist(coordinates, metric='euclidean')
+            spatial_distances = pdist(coordinates, metric="euclidean")
 
             # Normalize distances
             if np.max(feature_distances) > 0:
@@ -539,8 +598,9 @@ class HierarchicalClustering:
                 spatial_distances = spatial_distances / np.max(spatial_distances)
 
             # Combine distances
-            combined_distances = (1 - self.spatial_weight) * feature_distances + \
-                               self.spatial_weight * spatial_distances
+            combined_distances = (
+                1 - self.spatial_weight
+            ) * feature_distances + self.spatial_weight * spatial_distances
         else:
             combined_distances = feature_distances
 
@@ -548,7 +608,9 @@ class HierarchicalClustering:
         self.linkage_matrix_ = linkage(combined_distances, method=self.method)
 
         # Cut tree to get clusters
-        self.labels_ = fcluster(self.linkage_matrix_, self.n_clusters, criterion='maxclust')
+        self.labels_ = fcluster(
+            self.linkage_matrix_, self.n_clusters, criterion="maxclust"
+        )
 
         # Convert to zero-based indexing
         self.labels_ = self.labels_ - 1
@@ -556,7 +618,9 @@ class HierarchicalClustering:
         self.is_fitted = True
         return self
 
-    def fit_predict(self, X: np.ndarray, coordinates: Optional[np.ndarray] = None) -> np.ndarray:
+    def fit_predict(
+        self, X: np.ndarray, coordinates: Optional[np.ndarray] = None
+    ) -> np.ndarray:
         """
         Fit model and return cluster labels.
 
@@ -569,10 +633,10 @@ class HierarchicalClustering:
         """
         return cast(np.ndarray, self.fit(X, coordinates).labels_)
 
-def spatial_clustering_analysis(X: np.ndarray,
-                              coordinates: np.ndarray,
-                              method: str = 'kmeans',
-                              **kwargs: Any) -> ClusteringResults:
+
+def spatial_clustering_analysis(
+    X: np.ndarray, coordinates: np.ndarray, method: str = "kmeans", **kwargs: Any
+) -> ClusteringResults:
     """
     Perform spatial clustering analysis.
 
@@ -585,8 +649,8 @@ def spatial_clustering_analysis(X: np.ndarray,
     Returns:
         Clustering results
     """
-    if method == 'kmeans':
-        n_clusters = kwargs.get('n_clusters', 8)
+    if method == "kmeans":
+        n_clusters = kwargs.get("n_clusters", 8)
         model_kmeans = SpatialKMeans(n_clusters=n_clusters)
         model_kmeans.fit(X, coordinates)
         labels = cast(np.ndarray, model_kmeans.labels_)
@@ -601,65 +665,61 @@ def spatial_clustering_analysis(X: np.ndarray,
             if np.any(mask):
                 cluster_points = X[mask]
                 centroid = cast(np.ndarray, model_kmeans.cluster_centers_)[k]
-                within_distances[k] = np.mean(np.sum((cluster_points - centroid)**2, axis=1))
+                within_distances[k] = np.mean(
+                    np.sum((cluster_points - centroid) ** 2, axis=1)
+                )
 
         results = ClusteringResults(
             labels=labels,
             n_clusters=n_clusters,
             centroids=model_kmeans.cluster_centers_,
             cluster_sizes=cluster_sizes,
-            within_cluster_distances=within_distances
+            within_cluster_distances=within_distances,
         )
 
-    elif method == 'constrained_kmeans':
-        n_clusters = kwargs.get('n_clusters', 8)
-        spatial_weight = kwargs.get('spatial_weight', 0.5)
+    elif method == "constrained_kmeans":
+        n_clusters = kwargs.get("n_clusters", 8)
+        spatial_weight = kwargs.get("spatial_weight", 0.5)
         model_constrained = SpatiallyConstrainedKMeans(
             n_clusters=n_clusters, spatial_weight=spatial_weight
         )
         model_constrained.fit(X, coordinates)
 
         results = ClusteringResults(
-            labels=cast(np.ndarray, model_constrained.labels_),
-            n_clusters=n_clusters
+            labels=cast(np.ndarray, model_constrained.labels_), n_clusters=n_clusters
         )
 
-    elif method == 'dbscan':
-        eps = kwargs.get('eps', 0.5)
-        min_samples = kwargs.get('min_samples', 5)
+    elif method == "dbscan":
+        eps = kwargs.get("eps", 0.5)
+        min_samples = kwargs.get("min_samples", 5)
         model_dbscan = SpatialDBSCAN(eps=eps, min_samples=min_samples)
         model_dbscan.fit(X, coordinates)
         labels = cast(np.ndarray, model_dbscan.labels_)
 
         n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
 
-        results = ClusteringResults(
-            labels=labels,
-            n_clusters=n_clusters
-        )
+        results = ClusteringResults(labels=labels, n_clusters=n_clusters)
 
-    elif method == 'skater':
-        n_clusters = kwargs.get('n_clusters', 8)
+    elif method == "skater":
+        n_clusters = kwargs.get("n_clusters", 8)
         model_skater = SKATERClustering(n_clusters=n_clusters)
         model_skater.fit(X, coordinates)
 
         results = ClusteringResults(
-            labels=cast(np.ndarray, model_skater.labels_),
-            n_clusters=n_clusters
+            labels=cast(np.ndarray, model_skater.labels_), n_clusters=n_clusters
         )
 
-    elif method == 'hierarchical':
-        n_clusters = kwargs.get('n_clusters', 8)
-        linkage_method = kwargs.get('linkage_method', 'ward')
-        spatial_weight = kwargs.get('spatial_weight', 0.0)
+    elif method == "hierarchical":
+        n_clusters = kwargs.get("n_clusters", 8)
+        linkage_method = kwargs.get("linkage_method", "ward")
+        spatial_weight = kwargs.get("spatial_weight", 0.0)
         model_hier = HierarchicalClustering(
             n_clusters=n_clusters, method=linkage_method, spatial_weight=spatial_weight
         )
         model_hier.fit(X, coordinates)
 
         results = ClusteringResults(
-            labels=cast(np.ndarray, model_hier.labels_),
-            n_clusters=n_clusters
+            labels=cast(np.ndarray, model_hier.labels_), n_clusters=n_clusters
         )
 
     else:

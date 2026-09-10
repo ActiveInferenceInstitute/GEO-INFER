@@ -65,13 +65,19 @@ class TestBboxTerrain:
     def test_different_extents_differ(self):
         """Distinct bounding boxes produce distinct relief."""
         a = GenerativeMap._generate_bbox_terrain((-1.0, 50.0, 1.0, 52.0), resolution=32)
-        b = GenerativeMap._generate_bbox_terrain((10.0, 20.0, 12.0, 22.0), resolution=32)
+        b = GenerativeMap._generate_bbox_terrain(
+            (10.0, 20.0, 12.0, 22.0), resolution=32
+        )
         assert not np.array_equal(a, b)
 
     def test_larger_extent_has_gentler_relief(self):
         """Relief amplitude falls as the covered area grows."""
-        small = GenerativeMap._generate_bbox_terrain((0.0, 0.0, 0.5, 0.5), resolution=64)
-        large = GenerativeMap._generate_bbox_terrain((0.0, 0.0, 20.0, 20.0), resolution=64)
+        small = GenerativeMap._generate_bbox_terrain(
+            (0.0, 0.0, 0.5, 0.5), resolution=64
+        )
+        large = GenerativeMap._generate_bbox_terrain(
+            (0.0, 0.0, 20.0, 20.0), resolution=64
+        )
         assert small.std() > large.std()
 
     @pytest.mark.parametrize(

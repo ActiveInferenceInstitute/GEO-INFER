@@ -6,6 +6,7 @@ This module provides a unified interface for integrating multiple data sources
 through H3 spatial indexing, enabling cross-border analysis between California
 and Oregon agricultural areas with full GEO-INFER-SPACE integration.
 """
+
 import json
 import hashlib
 import time
@@ -228,9 +229,9 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                         for county, geom in counties.items():
                             if hasattr(geom, "__geo_interface__"):
                                 # Convert Shapely geometry to GeoJSON
-                                serializable_geoms[state][
-                                    county
-                                ] = geom.__geo_interface__
+                                serializable_geoms[state][county] = (
+                                    geom.__geo_interface__
+                                )
                             else:
                                 # Already in GeoJSON format
                                 serializable_geoms[state][county] = geom
@@ -960,9 +961,7 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                     # Create polygon from H3 boundary
                     boundary_coords = hex_data["boundary"]
                     # H3 returns (lat, lng); Shapely uses (x, y) = (lng, lat).
-                    polygon = Polygon(
-                        [(lng, lat) for lat, lng in boundary_coords]
-                    )
+                    polygon = Polygon([(lng, lat) for lat, lng in boundary_coords])
 
                     # Add properties
                     properties = {
@@ -1463,9 +1462,7 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
         else:
             # Calculate the centroid of the entire target region for the map center
             all_boundaries = [
-                Polygon(
-                    [(lng, lat) for lat, lng in h3.cell_to_boundary(h)]
-                )
+                Polygon([(lng, lat) for lat, lng in h3.cell_to_boundary(h)])
                 for h in self.target_hexagons
             ]
             gdf_all = gpd.GeoDataFrame({"geometry": all_boundaries}, crs="EPSG:4326")
@@ -1487,7 +1484,7 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                 🔷 Powered by GEO-INFER-SPACE with H3 spatial indexing and OSC integration
             </p>
             <p style="text-align: center; color: #888; font-size: 10px;">
-                📊 Spatial Analysis: {len(self.spatial_analysis_results)} features | 🔥 Hotspots: {len(self.hotspot_analysis.get('hotspot_hexagons', []))} | 📈 Correlations: {len(self.h3_spatial_correlations)}
+                📊 Spatial Analysis: {len(self.spatial_analysis_results)} features | 🔥 Hotspots: {len(self.hotspot_analysis.get("hotspot_hexagons", []))} | 📈 Correlations: {len(self.h3_spatial_correlations)}
             </p>
         """
         m.get_root().header.add_child(folium.Element(title_html))  # type: ignore[attr-defined]
@@ -1524,9 +1521,9 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
             popup_html = f"""
                 <b>H3:</b> {h3_index}<br>
                 <b>Score:</b> {score:.3f}<br>
-                <b>Neighbors:</b> {spatial_context.get('neighbor_count', 0)}<br>
-                <b>Cluster:</b> {spatial_context.get('spatial_cluster', 'Unknown')}<br>
-                <b>Hotspot:</b> {'Yes' if spatial_context.get('is_hotspot', False) else 'No'}
+                <b>Neighbors:</b> {spatial_context.get("neighbor_count", 0)}<br>
+                <b>Cluster:</b> {spatial_context.get("spatial_cluster", "Unknown")}<br>
+                <b>Hotspot:</b> {"Yes" if spatial_context.get("is_hotspot", False) else "No"}
             """
 
             folium.Polygon(
@@ -1570,8 +1567,8 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                 sa_popup = f"""
                     <b>H3:</b> {h3_index}<br>
                     <b>Hotspot:</b> Yes<br>
-                    <b>Threshold:</b> {self.hotspot_analysis.get('hotspot_threshold', 0):.3f}<br>
-                    <b>Mean Score:</b> {self.hotspot_analysis.get('mean_score', 0):.3f}
+                    <b>Threshold:</b> {self.hotspot_analysis.get("hotspot_threshold", 0):.3f}<br>
+                    <b>Mean Score:</b> {self.hotspot_analysis.get("mean_score", 0):.3f}
                 """
                 folium.Polygon(
                     locations=boundary,

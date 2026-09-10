@@ -34,9 +34,7 @@ TINY_CONFIG = ActiveInferenceConfig(
 
 def _tiny_model() -> GenerativeModel:
     torch.manual_seed(0)
-    return GenerativeModel(
-        state_dim=2, obs_dim=2, action_dim=2, config=TINY_CONFIG
-    )
+    return GenerativeModel(state_dim=2, obs_dim=2, action_dim=2, config=TINY_CONFIG)
 
 
 class TestGenerativeModel:

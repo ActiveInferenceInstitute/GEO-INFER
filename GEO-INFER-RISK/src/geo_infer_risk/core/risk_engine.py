@@ -243,7 +243,9 @@ class EnhancedRiskEngine:
         if SPACE_AVAILABLE:
             try:
                 # Try to configure backends
-                configure_backends({"default_backends": {"indexing": "h3", "analytics": "srai"}})
+                configure_backends(
+                    {"default_backends": {"indexing": "h3", "analytics": "srai"}}
+                )
                 SpatialIndexingInterface()
                 SpatialAnalyticsInterface()
                 status.spatial_indexing_available = True
@@ -282,7 +284,9 @@ class EnhancedRiskEngine:
                     for method in ("__init__", "run", "update")
                 )
                 if not status.bayesian_inference_available:
-                    raise TypeError("BayesianInference does not expose the required API")
+                    raise TypeError(
+                        "BayesianInference does not expose the required API"
+                    )
                 status.bayes_integration = True
             except Exception as e:
                 self.logger.warning(f"BAYES integration check failed: {e}")
@@ -414,7 +418,9 @@ class EnhancedRiskEngine:
             # Update job status
             self._update_job_status(job_id, "completed", results=results)
 
-            self.logger.info(f"Enhanced {analysis_type} analysis completed successfully")
+            self.logger.info(
+                f"Enhanced {analysis_type} analysis completed successfully"
+            )
             return results
 
         except Exception as e:
@@ -479,7 +485,10 @@ class EnhancedRiskEngine:
             # Convert region to spatial format
             bounds = region.get("bounds", {})
             if bounds:
-                min_lon, max_lon = bounds.get("min_lon", -180), bounds.get("max_lon", 180)
+                min_lon, max_lon = (
+                    bounds.get("min_lon", -180),
+                    bounds.get("max_lon", 180),
+                )
                 min_lat, max_lat = bounds.get("min_lat", -90), bounds.get("max_lat", 90)
 
                 # Create spatial analysis region
@@ -492,9 +501,11 @@ class EnhancedRiskEngine:
 
                 # Run spatial analytics
                 if hasattr(self.spatial_analytics, "analyze_risk_concentration"):
-                    concentration_analysis = self.spatial_analytics.analyze_risk_concentration(
-                        region=spatial_region,
-                        resolution=kwargs.get("spatial_resolution", 9),
+                    concentration_analysis = (
+                        self.spatial_analytics.analyze_risk_concentration(
+                            region=spatial_region,
+                            resolution=kwargs.get("spatial_resolution", 9),
+                        )
                     )
                 else:
                     concentration_analysis = {}
@@ -659,7 +670,9 @@ class EnhancedRiskEngine:
         self.job_counter += 1
         job_id = f"analysis_{self.job_counter}_{int(time.time())}"
 
-        job = AnalysisJob(job_id=job_id, job_type=job_type, status="queued", metadata=kwargs)
+        job = AnalysisJob(
+            job_id=job_id, job_type=job_type, status="queued", metadata=kwargs
+        )
 
         self.active_jobs[job_id] = job
         return job_id
@@ -749,9 +762,7 @@ class EnhancedRiskEngine:
             hazards, interaction_matrix
         )
 
-    def set_hazard_interaction(
-        self, source: str, target: str, strength: float
-    ) -> None:
+    def set_hazard_interaction(self, source: str, target: str, strength: float) -> None:
         """Set one directed source-to-target hazard interaction."""
         self._ensure_open()
         self.catastrophe_manager.set_hazard_interaction(source, target, strength)
@@ -834,8 +845,9 @@ class EnhancedRiskEngine:
             "maximum_likelihood calibration requires a model-specific likelihood adapter"
         )
 
-
-    def _calibrate_with_cross_validation(self, calibration_data: Dict[str, Any]) -> Dict[str, Any]:
+    def _calibrate_with_cross_validation(
+        self, calibration_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Fit and cross-validate an empirical mean-loss baseline.
 
         The generic risk engine cannot safely mutate heterogeneous hazard,
@@ -852,7 +864,9 @@ class EnhancedRiskEngine:
         if len(samples) < 2:
             raise ValueError("at least two calibration samples are required")
         if not all(
-            isinstance(sample, dict) and "loss" in sample and np.isfinite(float(sample["loss"]))
+            isinstance(sample, dict)
+            and "loss" in sample
+            and np.isfinite(float(sample["loss"]))
             for sample in samples
         ):
             raise ValueError("calibration samples must contain finite loss values")
@@ -907,13 +921,17 @@ class EnhancedRiskEngine:
         """
         self._ensure_open()
         if num_iterations is None:
-            num_iterations = self.config.get("risk_model", {}).get("monte_carlo_iterations", 1000)
+            num_iterations = self.config.get("risk_model", {}).get(
+                "monte_carlo_iterations", 1000
+            )
         if not isinstance(num_iterations, int) or num_iterations < 1:
             raise ValueError("num_iterations must be a positive integer")
         if convergence_threshold <= 0:
             raise ValueError("convergence_threshold must be positive")
 
-        self.logger.info(f"Running Monte Carlo analysis with {num_iterations} iterations")
+        self.logger.info(
+            f"Running Monte Carlo analysis with {num_iterations} iterations"
+        )
 
         # Initialize results tracking
         all_losses = []
@@ -944,7 +962,9 @@ class EnhancedRiskEngine:
                 mean_change = abs(recent_means[-1] - recent_means[0]) / denominator
 
                 if mean_change < convergence_threshold:
-                    self.logger.info(f"Convergence reached at iteration {i + batch_iterations}")
+                    self.logger.info(
+                        f"Convergence reached at iteration {i + batch_iterations}"
+                    )
                     break
 
         # Calculate final statistics
@@ -1007,7 +1027,9 @@ class EnhancedRiskEngine:
             and not model.historical_data.empty
         ]
         if not candidates:
-            raise ValueError("Monte Carlo analysis requires at least one fitted hazard model")
+            raise ValueError(
+                "Monte Carlo analysis requires at least one fitted hazard model"
+            )
 
         hazard_type, model = candidates[self.rng.integers(len(candidates))]
         row = model.historical_data.iloc[self.rng.integers(len(model.historical_data))]
@@ -1034,7 +1056,8 @@ class EnhancedRiskEngine:
         exposure_records = [
             model.exposure_data
             for model in self.exposure_models.values()
-            if getattr(model, "exposure_data", None) is not None and not model.exposure_data.empty
+            if getattr(model, "exposure_data", None) is not None
+            and not model.exposure_data.empty
         ]
         if not exposure_records:
             raise ValueError("Monte Carlo analysis requires configured exposure data")
@@ -1047,12 +1070,16 @@ class EnhancedRiskEngine:
             if column in frame.columns
         ]
         if not exposure_values:
-            raise ValueError("Configured exposure data must contain a numeric value column")
+            raise ValueError(
+                "Configured exposure data must contain a numeric value column"
+            )
         base_exposure = float(np.concatenate(exposure_values).sum())
 
         vulnerability_models = list(self.vulnerability_models.values())
         if not vulnerability_models:
-            raise ValueError("Monte Carlo analysis requires a configured vulnerability model")
+            raise ValueError(
+                "Monte Carlo analysis requires a configured vulnerability model"
+            )
         vulnerability_model = vulnerability_models[0]
         damage = vulnerability_model.calculate_enhanced_damage(
             event["hazard_type"],
@@ -1060,9 +1087,13 @@ class EnhancedRiskEngine:
             {"asset_type": "building"},
             include_uncertainty=False,
         )
-        return float(base_exposure * damage["damage_ratio"] * self.rng.lognormal(0, 0.3))
+        return float(
+            base_exposure * damage["damage_ratio"] * self.rng.lognormal(0, 0.3)
+        )
 
-    def save_enhanced_results(self, results: Dict[str, Any], filename: Optional[str] = None) -> str:
+    def save_enhanced_results(
+        self, results: Dict[str, Any], filename: Optional[str] = None
+    ) -> str:
         """
         Save enhanced analysis results with comprehensive metadata.
 
@@ -1200,7 +1231,9 @@ class EnhancedRiskEngine:
                 ),
                 "inter_peril_correlation_is_illustrative_default": True,
             },
-            "diversification_benefits": {"benefit_ratio": max(0, 1 - 1 / max(hazard_count, 1))},
+            "diversification_benefits": {
+                "benefit_ratio": max(0, 1 - 1 / max(hazard_count, 1))
+            },
         }
 
     def _run_climate_analysis(self, **kwargs: Any) -> Dict[str, Any]:
@@ -1234,7 +1267,9 @@ class EnhancedRiskEngine:
         for sc in scenarios:
             factor = scenario_factors.get(sc, 1.2)
             projected[sc] = {
-                str(yr): {"risk_multiplier": 1 + (factor - 1) * (yr - baseline_year) / 100}
+                str(yr): {
+                    "risk_multiplier": 1 + (factor - 1) * (yr - baseline_year) / 100
+                }
                 for yr in target_years
             }
         return {

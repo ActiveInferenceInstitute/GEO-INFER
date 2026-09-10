@@ -47,14 +47,10 @@ class GeoInferImprovements(BaseAnalysisModule):
                 empirical_data_path = paths["empirical_data"]
                 raw_data_path = paths["raw_data"]
             else:
-                empirical_data_path = Path(
-                    "output/data/empirical_improvements_data.geojson"
-                )
+                empirical_data_path = Path("output/data/empirical_improvements_data.geojson")
                 raw_data_path = Path("output/data/raw_improvements_data.geojson")
         except Exception:
-            empirical_data_path = Path(
-                "output/data/empirical_improvements_data.geojson"
-            )
+            empirical_data_path = Path("output/data/empirical_improvements_data.geojson")
             raw_data_path = Path("output/data/raw_improvements_data.geojson")
 
         # Cache-first: empirical, then raw.
@@ -71,9 +67,7 @@ class GeoInferImprovements(BaseAnalysisModule):
         # Attempt real acquisition via data source using target hexagon bbox
         try:
             if not self.target_hexagons:
-                raise ValueError(
-                    "Target hexagons are required for improvements acquisition"
-                )
+                raise ValueError("Target hexagons are required for improvements acquisition")
 
             gdf = self.improvements_data_source.fetch_all_improvements_data(
                 list(self.target_hexagons)
@@ -83,14 +77,10 @@ class GeoInferImprovements(BaseAnalysisModule):
 
             raw_data_path.parent.mkdir(parents=True, exist_ok=True)
             gdf.to_file(raw_data_path, driver="GeoJSON")
-            logger.info(
-                f"[{self.module_name}] 💾 Saved raw improvements data: {raw_data_path}"
-            )
+            logger.info(f"[{self.module_name}] 💾 Saved raw improvements data: {raw_data_path}")
             return raw_data_path
         except Exception as e:
-            raise RuntimeError(
-                f"[{self.module_name}] Improvements acquisition failed"
-            ) from e
+            raise RuntimeError(f"[{self.module_name}] Improvements acquisition failed") from e
 
     def run_final_analysis(self, h3_data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -125,34 +115,22 @@ class GeoInferImprovements(BaseAnalysisModule):
             improvement_metrics = self._analyze_improvements(improvements_gdf)
 
             analysis_results[h3_id] = {
-                "total_improvement_value": improvement_metrics.get(
-                    "total_improvement_value", 0.0
-                ),
+                "total_improvement_value": improvement_metrics.get("total_improvement_value", 0.0),
                 "total_land_value": improvement_metrics.get("total_land_value", 0.0),
                 "improvement_to_land_value_ratio": improvement_metrics.get(
                     "improvement_ratio", 0.0
                 ),
-                "number_of_improvements": improvement_metrics.get(
-                    "improvement_count", 0
-                ),
-                "modernization_score": improvement_metrics.get(
-                    "modernization_score", 0.0
-                ),
+                "number_of_improvements": improvement_metrics.get("improvement_count", 0),
+                "modernization_score": improvement_metrics.get("modernization_score", 0.0),
                 "building_density": improvement_metrics.get("building_density", 0.0),
-                "average_building_value": improvement_metrics.get(
-                    "avg_building_value", 0.0
-                ),
+                "average_building_value": improvement_metrics.get("avg_building_value", 0.0),
                 "score": improvement_metrics.get("redevelopment_score", 0.0),
             }
 
-        logger.info(
-            f"Completed improvements analysis for {len(analysis_results)} cells"
-        )
+        logger.info(f"Completed improvements analysis for {len(analysis_results)} cells")
         return analysis_results
 
-    def _analyze_improvements(
-        self, improvements_gdf: gpd.GeoDataFrame
-    ) -> Dict[str, Any]:
+    def _analyze_improvements(self, improvements_gdf: gpd.GeoDataFrame) -> Dict[str, Any]:
         """
         Analyze improvements and building patterns.
 
@@ -192,21 +170,15 @@ class GeoInferImprovements(BaseAnalysisModule):
 
         # Calculate basic metrics
         improvement_count = len(improvements_gdf)
-        total_improvement_value = (
-            improvements_gdf[imp_val_col].sum() if imp_val_col else 0.0
-        )
+        total_improvement_value = improvements_gdf[imp_val_col].sum() if imp_val_col else 0.0
         total_land_value = improvements_gdf[land_val_col].sum() if land_val_col else 0.0
         avg_building_value = (
-            total_improvement_value / improvement_count
-            if improvement_count > 0
-            else 0.0
+            total_improvement_value / improvement_count if improvement_count > 0 else 0.0
         )
 
         # Calculate improvement-to-land ratio
         improvement_ratio = (
-            (total_improvement_value / total_land_value)
-            if total_land_value > 0
-            else 0.0
+            (total_improvement_value / total_land_value) if total_land_value > 0 else 0.0
         )
 
         # Calculate building density (buildings per km²)
@@ -314,12 +286,7 @@ class GeoInferImprovements(BaseAnalysisModule):
             count_score = 0.0
 
         # Weighted combination
-        score = (
-            ratio_score * 0.35
-            + density_score * 0.25
-            + value_score * 0.25
-            + count_score * 0.15
-        )
+        score = ratio_score * 0.35 + density_score * 0.25 + value_score * 0.25 + count_score * 0.15
 
         return min(1.0, max(0.0, score))
 
@@ -352,9 +319,7 @@ class GeoInferImprovements(BaseAnalysisModule):
         # Infrastructure readiness factor
         if building_count > 0:
             # Some infrastructure exists (good for redevelopment)
-            infrastructure_score = min(
-                1.0, building_count / 5
-            )  # Up to 5 buildings = full score
+            infrastructure_score = min(1.0, building_count / 5)  # Up to 5 buildings = full score
         else:
             infrastructure_score = 0.0  # No infrastructure
 

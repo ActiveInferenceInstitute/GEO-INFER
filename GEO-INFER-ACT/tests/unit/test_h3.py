@@ -354,7 +354,9 @@ class TestH3Methods(unittest.TestCase):
 
     def test_environmental_active_inference(self):
         """Test environmental modeling integration with H3."""
-        from geo_infer_ai.models.predictive.geospatial_ai import EnvironmentalActiveInferenceEngine
+        from geo_infer_ai.models.predictive.geospatial_ai import (
+            EnvironmentalActiveInferenceEngine,
+        )
 
         # Initialize environmental engine
         engine = EnvironmentalActiveInferenceEngine(h3_resolution=8)
@@ -388,7 +390,9 @@ class TestH3Integration(unittest.TestCase):
 
     def test_h3_with_resource_optimization(self):
         """Test H3 integration with resource optimization."""
-        from geo_infer_ai.models.predictive.geospatial_ai import EnvironmentalActiveInferenceEngine
+        from geo_infer_ai.models.predictive.geospatial_ai import (
+            EnvironmentalActiveInferenceEngine,
+        )
 
         boundary = {
             "coordinates": [
@@ -443,7 +447,9 @@ class TestH3Integration(unittest.TestCase):
 
     def test_h3_multi_scale_analysis(self):
         """Test multi-scale analysis with H3."""
-        from geo_infer_ai.models.predictive.geospatial_ai import MultiScaleHierarchicalAnalyzer
+        from geo_infer_ai.models.predictive.geospatial_ai import (
+            MultiScaleHierarchicalAnalyzer,
+        )
 
         boundary = {
             "coordinates": [
@@ -498,9 +504,9 @@ if __name__ == "__main__":
     result = runner.run(test_suite)
 
     # Print summary
-    print(f"\n{'='*50}")
+    print(f"\n{'=' * 50}")
     print("H3 GEOSPATIAL TEST SUMMARY")
-    print(f"{'='*50}")
+    print(f"{'=' * 50}")
     print(f"Tests run: {result.testsRun}")
     print(f"Failures: {len(result.failures)}")
     print(f"Errors: {len(result.errors)}")

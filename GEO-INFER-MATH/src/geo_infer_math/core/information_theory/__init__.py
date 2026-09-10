@@ -84,4 +84,3 @@ __all__ = [
     "coding_gain",
     "SpatialCodingCalculator",
 ]
-

@@ -302,5 +302,3 @@ class DataAPI:
         """Stop the API server."""
         logger.info("Stopping DataAPI server")
         # Implementation for graceful shutdown
-
-

@@ -3,6 +3,20 @@ Policy selection for active inference models.
 
 This module implements policy selection mechanisms based on expected
 free energy minimization and other active inference principles.
+
+References:
+    - Friston, K. (2010). The free-energy principle: a unified brain theory?
+    - Friston, K., FitzGerald, T., Rigoli, F., Schwartenbeck, P., &
+      Pezzulo, G. (2017). Active inference: a process theory
+    - Formal analogue: fep_lean topic fep-021 (EFE epistemic-pragmatic
+      balance), fep-008 (finite policy objective minimizer)
+
+The fep_lean topic ids are correspondence-of-constructs references into a
+separate Lean formalization catalogue, canonically mapped in
+`fep_lean/specs/geo-infer-notation-bridge/data/notation-map.yaml` and
+documented in `GEO-INFER-ACT/docs/fep_lean_notation_bridge.md`. They state
+no verification relationship between this numerical implementation and the
+Lean proofs.
 """
 
 from typing import Dict, List, Any, Optional, Union
@@ -10,8 +24,12 @@ import logging
 
 import numpy as np
 
+from geo_infer_act.core.free_energy import (
+    _coerce_probability_vector,
+    compute_policy_expected_free_energy,
+)
 from geo_infer_act.core.types import FreeEnergyBreakdown, PolicyEvaluation
-from geo_infer_act.utils.math import kl_divergence, softmax
+from geo_infer_act.utils.math import softmax
 
 logger = logging.getLogger(__name__)
 EPSILON = 1e-12
@@ -23,32 +41,11 @@ PreferenceInput = Union[np.ndarray, Dict[str, Any]]
 
 
 def _normalize_vector(values: Any, target_length: Optional[int] = None) -> np.ndarray:
+    """Normalize a finite belief/preference vector (raises on empty input)."""
     vector = np.asarray(values, dtype=float).reshape(-1)
     if vector.size == 0:
         raise ValueError("belief and preference vectors must not be empty")
-    if target_length is not None and len(vector) != target_length:
-        if len(vector) < target_length:
-            vector = np.pad(vector, (0, target_length - len(vector)), mode="constant")
-        else:
-            vector = vector[:target_length]
-    vector = np.nan_to_num(vector, nan=0.0, posinf=0.0, neginf=0.0)
-    vector = np.clip(vector, EPSILON, None)
-    total = float(np.sum(vector))
-    if total <= EPSILON:
-        return np.ones_like(vector) / max(len(vector), 1)
-    return vector / total
-
-
-def _preferences_to_vector(preferences: Any, target_length: int) -> np.ndarray:
-    """Normalize supported preference shapes to a vector aligned with beliefs."""
-    if isinstance(preferences, dict):
-        for key in ("states", "observations", "preferences"):
-            if preferences.get(key) is not None:
-                preferences = preferences[key]
-                break
-        else:
-            preferences = np.ones(target_length) / max(target_length, 1)
-    return _normalize_vector(preferences, target_length)
+    return _coerce_probability_vector(vector, target_length)
 
 
 def _policy_to_dict(policy: Any) -> Dict[str, Any]:
@@ -64,6 +61,12 @@ class PolicySelector:
 
     Selects actions/policies based on expected free energy minimization,
     balancing exploration (epistemic value) and exploitation (pragmatic value).
+
+    References:
+        - Parr, T., Pezzulo, G., & Friston, K. (2022). Active Inference
+        - Formal analogue: fep_lean topic fep-028 (support-aware finite softmax
+          policy), fep-031 (finite Boltzmann-Gibbs weights for the inverse
+          temperature), fep-008 (finite policy objective minimizer)
     """
 
     def __init__(
@@ -164,9 +167,15 @@ class PolicySelector:
         """
         Compute expected free energy for a policy.
 
+        Delegates to the shared module-level implementation in
+        ``geo_infer_act.core.free_energy`` so this selector and
+        ``FreeEnergyCalculator`` produce identical expected free energies
+        for identical inputs (pinned by the parity tests).
+
         Args:
             beliefs: Current beliefs
-            policy: Policy to evaluate
+            policy: Policy to evaluate; non-dict policies are wrapped as
+                ``{"action": policy, "exploration_bonus": 0.1}``.
             preferences: Prior preferences
 
         Returns:
@@ -174,99 +183,9 @@ class PolicySelector:
             ``return_breakdown`` is true.
         """
         policy = _policy_to_dict(policy)
-        if "expected_free_energy" in policy:
-            expected_free_energy = float(policy["expected_free_energy"])
-            if return_breakdown:
-                return FreeEnergyBreakdown(
-                    free_energy=expected_free_energy,
-                    metadata={"policy_supplied_expected_free_energy": True},
-                )
-            return expected_free_energy
-
-        beliefs = _normalize_vector(beliefs)
-
-        if "predicted_beliefs" in policy:
-            predictive_beliefs = _normalize_vector(
-                policy["predicted_beliefs"], len(beliefs)
-            )
-        elif "expected_observation" in policy:
-            predictive_beliefs = _normalize_vector(
-                policy["expected_observation"], len(beliefs)
-            )
-        else:
-            predictive_beliefs = beliefs
-
-        entropy = float(
-            -np.sum(predictive_beliefs * np.log(predictive_beliefs + EPSILON))
+        return compute_policy_expected_free_energy(
+            beliefs, policy, preferences, return_breakdown=return_breakdown
         )
-        if "expected_posterior" in policy or "posterior_beliefs" in policy:
-            expected_posterior = _normalize_vector(
-                policy.get("expected_posterior", policy.get("posterior_beliefs")),
-                len(beliefs),
-            )
-            # Information gain is the KL divergence between the expected
-            # posterior and the predictive prior. Policies without an
-            # expected posterior use entropy as their exploration term.
-            epistemic_value = kl_divergence(expected_posterior, predictive_beliefs)
-        else:
-            expected_posterior = None
-            epistemic_value = entropy
-
-        if preferences is not None:
-            preferences = _preferences_to_vector(preferences, len(predictive_beliefs))
-            pragmatic_value = float(
-                -np.sum(predictive_beliefs * np.log(preferences + EPSILON))
-            )
-        elif "expected_observation" in policy:
-            uniform_preferences = np.ones_like(predictive_beliefs) / len(
-                predictive_beliefs
-            )
-            pragmatic_value = float(
-                -np.sum(predictive_beliefs * np.log(uniform_preferences + EPSILON))
-            )
-        else:
-            pragmatic_value = 0.0
-
-        exploration_bonus = float(policy.get("exploration_bonus", 0.1))
-        risk_preference = float(policy.get("risk_preference", 0.0))
-        temporal_discount = float(policy.get("temporal_discount", 0.9))
-        ambiguity = float(policy.get("ambiguity", 0.0))
-
-        risk = float(risk_preference * np.var(predictive_beliefs))
-
-        expected_free_energy = float(
-            temporal_discount * pragmatic_value
-            - exploration_bonus * epistemic_value
-            + risk
-            + ambiguity
-        )
-
-        if return_breakdown:
-            return FreeEnergyBreakdown(
-                free_energy=expected_free_energy,
-                entropy=entropy,
-                pragmatic_value=pragmatic_value,
-                epistemic_value=epistemic_value,
-                risk=risk,
-                ambiguity=ambiguity,
-                metadata={
-                    "predictive_beliefs": predictive_beliefs.copy(),
-                    "expected_posterior": (
-                        expected_posterior.copy()
-                        if expected_posterior is not None
-                        else None
-                    ),
-                    "epistemic_value_source": (
-                        "expected_posterior_kl"
-                        if expected_posterior is not None
-                        else "predictive_entropy"
-                    ),
-                    "temporal_discount": temporal_discount,
-                    "exploration_bonus": exploration_bonus,
-                },
-            )
-
-        return expected_free_energy
 
     def compute_policy_precision(
         self, expected_free_energies: np.ndarray, baseline_precision: float = 1.0
@@ -401,9 +320,11 @@ class PolicySelector:
                 if breakdown.epistemic_value >= abs(breakdown.pragmatic_value)
                 else "pragmatic"
             )
-        exploration_share = float(
-            np.mean([int(item == "epistemic") for item in dominance])
-        ) if dominance else 0.0
+        exploration_share = (
+            float(np.mean([int(item == "epistemic") for item in dominance]))
+            if dominance
+            else 0.0
+        )
         return {
             "policies": policies,
             "efe_scores": efe_scores,

@@ -78,9 +78,7 @@ class BayesianSpatialInference:
 
         except ImportError:
             self.gp_model = None
-            logger.warning(
-                "GEO-INFER-BAYES not available, spatial inference disabled"
-            )
+            logger.warning("GEO-INFER-BAYES not available, spatial inference disabled")
 
     def infer_spatial_distribution(
         self,

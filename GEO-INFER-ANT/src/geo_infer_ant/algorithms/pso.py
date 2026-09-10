@@ -700,7 +700,7 @@ class ParticleSwarmOptimization:
 
         # Run each sub-swarm
         for i, sub_swarm in enumerate(sub_swarms):
-            logger.info(f"Running sub-swarm {i+1}/{len(sub_swarms)}")
+            logger.info(f"Running sub-swarm {i + 1}/{len(sub_swarms)}")
 
             if objective_function is not None:
                 sub_swarm.optimize(objective_function)
@@ -836,9 +836,9 @@ class ParticleSwarmOptimization:
                     # Increase exploration
                     old_inertia = self.parameters.inertia_weight
                     self.parameters.inertia_weight = min(0.9, old_inertia * 1.1)
-                    adaptation_results["parameters_updated"][
-                        "inertia_weight"
-                    ] = self.parameters.inertia_weight
+                    adaptation_results["parameters_updated"]["inertia_weight"] = (
+                        self.parameters.inertia_weight
+                    )
                     adaptation_results["changes_applied"].append(
                         "increased_exploration"
                     )
@@ -847,9 +847,9 @@ class ParticleSwarmOptimization:
                     # Increase exploitation
                     old_inertia = self.parameters.inertia_weight
                     self.parameters.inertia_weight = max(0.4, old_inertia * 0.9)
-                    adaptation_results["parameters_updated"][
-                        "inertia_weight"
-                    ] = self.parameters.inertia_weight
+                    adaptation_results["parameters_updated"]["inertia_weight"] = (
+                        self.parameters.inertia_weight
+                    )
                     adaptation_results["changes_applied"].append(
                         "increased_exploitation"
                     )
@@ -870,9 +870,9 @@ class ParticleSwarmOptimization:
                     adaptation_results["parameters_updated"][
                         "cognitive_acceleration"
                     ] = self.parameters.cognitive_acceleration
-                    adaptation_results["parameters_updated"][
-                        "social_acceleration"
-                    ] = self.parameters.social_acceleration
+                    adaptation_results["parameters_updated"]["social_acceleration"] = (
+                        self.parameters.social_acceleration
+                    )
                     adaptation_results["changes_applied"].append("adapted_to_noise")
 
         adaptation_results["performance_improvement"] = adaptation_results.get(

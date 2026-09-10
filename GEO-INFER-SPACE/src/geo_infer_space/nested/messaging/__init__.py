@@ -7,12 +7,11 @@ from .routing import MessageRouter, RoutingStrategy
 from .protocols import MessageProtocol, ProtocolType
 
 __all__ = [
-    'H3MessageBroker',
-    'Message',
-    'MessageType',
-    'MessageRouter',
-    'RoutingStrategy',
-    'MessageProtocol',
-    'ProtocolType',
+    "H3MessageBroker",
+    "Message",
+    "MessageType",
+    "MessageRouter",
+    "RoutingStrategy",
+    "MessageProtocol",
+    "ProtocolType",
 ]
-

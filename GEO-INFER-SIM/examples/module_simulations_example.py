@@ -85,10 +85,41 @@ def main() -> None:
     # Example 11: Simulate all modules programmatically
     print("\n11. Simulating all modules programmatically...")
     module_names = [
-        "act", "ag", "ai", "agent", "ant", "api", "app", "art", "bayes",
-        "bio", "civ", "cog", "comms", "data", "econ", "git", "health",
-        "intra", "iot", "math", "norms", "ops", "org", "pep", "req", "sec",
-        "sim", "space", "spm", "time", "risk", "log", "place", "test", "examples",
+        "act",
+        "ag",
+        "ai",
+        "agent",
+        "ant",
+        "api",
+        "app",
+        "art",
+        "bayes",
+        "bio",
+        "civ",
+        "cog",
+        "comms",
+        "data",
+        "econ",
+        "git",
+        "health",
+        "intra",
+        "iot",
+        "math",
+        "norms",
+        "ops",
+        "org",
+        "pep",
+        "req",
+        "sec",
+        "sim",
+        "space",
+        "spm",
+        "time",
+        "risk",
+        "log",
+        "place",
+        "test",
+        "examples",
     ]
 
     results_summary = {}
@@ -106,7 +137,9 @@ def main() -> None:
                 "error": str(e),
             }
 
-    print(f"\n   Simulated {len([r for r in results_summary.values() if r['status'] == 'success'])} modules successfully")
+    print(
+        f"\n   Simulated {len([r for r in results_summary.values() if r['status'] == 'success'])} modules successfully"
+    )
 
     print("\n" + "=" * 60)
     print("Module simulation examples completed successfully!")
@@ -118,4 +151,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

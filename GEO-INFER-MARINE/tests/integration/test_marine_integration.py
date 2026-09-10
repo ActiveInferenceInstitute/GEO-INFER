@@ -218,9 +218,9 @@ class TestMarineProtectedAreas:
         )
 
         assert result["mpa_name"] == "Test Reef MPA"
-        assert (
-            result["abundance_ratio"] > 1.0
-        ), "Inside should be more abundant than outside"
+        assert result["abundance_ratio"] > 1.0, (
+            "Inside should be more abundant than outside"
+        )
         assert result["richness_ratio"] > 1.0, "Inside should have more species"
         assert 0 <= result["effectiveness_score"] <= 100
         assert "recommendation" in result

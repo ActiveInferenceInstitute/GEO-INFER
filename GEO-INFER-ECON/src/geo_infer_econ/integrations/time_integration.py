@@ -95,7 +95,9 @@ class TimeIntegration:
                     "trend": (
                         "increasing"
                         if slope > 0
-                        else "decreasing" if slope < 0 else "stable"
+                        else "decreasing"
+                        if slope < 0
+                        else "stable"
                     ),
                 }
             except Exception as e:
@@ -133,9 +135,7 @@ class TimeIntegration:
             timeseries = self._as_timeseries(time_series)
             return cast(
                 Dict[str, Any],
-                self.analyzer.detect_seasonality(
-                    timeseries, max_periods=period or 12
-                ),
+                self.analyzer.detect_seasonality(timeseries, max_periods=period or 12),
             )
         except Exception as e:
             logger.error(f"Failed to analyze seasonality: {e}")

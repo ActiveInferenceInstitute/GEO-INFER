@@ -775,7 +775,6 @@ class CoastalResilienceAnalyzer:
             "data_type": "coastal_resilience",
         }
 
-
         # Get coastal H3 cells from various analyses
         erosion_analysis = analysis_results.get("erosion_analysis", {})
         high_risk_areas = erosion_analysis.get("high_risk_areas", [])

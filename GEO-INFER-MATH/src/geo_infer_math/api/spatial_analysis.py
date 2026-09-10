@@ -203,9 +203,7 @@ class SpatialAnalysisAPI:
             moran = MoranI(weights_matrix)
             results = cast(
                 Dict[str, Any],
-                moran.compute(
-                    values, coordinates if weights_matrix is None else None
-                ),
+                moran.compute(values, coordinates if weights_matrix is None else None),
             )
 
             # Add interpretation
@@ -380,7 +378,9 @@ class SpatialAnalysisAPI:
                 "interpretation": (
                     "Clustered"
                     if r_statistic < 1
-                    else "Dispersed" if r_statistic > 1 else "Random"
+                    else "Dispersed"
+                    if r_statistic > 1
+                    else "Random"
                 ),
             }
 

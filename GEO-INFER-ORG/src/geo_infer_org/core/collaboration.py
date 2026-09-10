@@ -13,10 +13,9 @@ from enum import Enum
 logger = logging.getLogger(__name__)
 
 
-
-
 class CollaborationType(Enum):
     """Types of collaboration interactions."""
+
     KNOWLEDGE_SHARE = "knowledge_share"
     TASK_COORDINATION = "task_coordination"
     DECISION_MAKING = "decision_making"
@@ -28,6 +27,7 @@ class CollaborationType(Enum):
 @dataclass
 class CollaborationEdge:
     """An edge in the collaboration network between two entities."""
+
     source_id: str
     target_id: str
     collaboration_type: CollaborationType
@@ -39,6 +39,7 @@ class CollaborationEdge:
 @dataclass
 class TeamMember:
     """A member with skills that can be assigned to teams."""
+
     member_id: str
     name: str
     skills: List[str]
@@ -50,6 +51,7 @@ class TeamMember:
 @dataclass
 class NetworkMetrics:
     """Metrics for a collaboration network."""
+
     node_count: int
     edge_count: int
     density: float
@@ -62,6 +64,7 @@ class NetworkMetrics:
 @dataclass
 class TeamFormationResult:
     """Result of a team formation optimization."""
+
     team_members: List[str]
     skill_coverage: float
     team_diversity: float
@@ -111,7 +114,10 @@ class CollaborationNetwork:
         self._edges.append(edge)
         logger.debug(
             "Collaboration edge added: %s -> %s (%s, strength=%.2f)",
-            edge.source_id, edge.target_id, edge.collaboration_type.value, edge.strength,
+            edge.source_id,
+            edge.target_id,
+            edge.collaboration_type.value,
+            edge.strength,
         )
 
     def compute_metrics(self) -> NetworkMetrics:
@@ -126,9 +132,13 @@ class CollaborationNetwork:
 
         if n == 0:
             return NetworkMetrics(
-                node_count=0, edge_count=0, density=0.0,
-                avg_degree=0.0, clustering_coefficient=0.0,
-                connected_components=0, most_central_nodes=[],
+                node_count=0,
+                edge_count=0,
+                density=0.0,
+                avg_degree=0.0,
+                clustering_coefficient=0.0,
+                connected_components=0,
+                most_central_nodes=[],
             )
 
         # Density (for directed graph)
@@ -162,9 +172,15 @@ class CollaborationNetwork:
                     if nbr_list[j] in neighbors[nbr_list[i]]:
                         links_between += 1
             possible = k * (k - 1) / 2
-            clustering_coefficients.append(links_between / possible if possible > 0 else 0.0)
+            clustering_coefficients.append(
+                links_between / possible if possible > 0 else 0.0
+            )
 
-        avg_clustering = sum(clustering_coefficients) / len(clustering_coefficients) if clustering_coefficients else 0.0
+        avg_clustering = (
+            sum(clustering_coefficients) / len(clustering_coefficients)
+            if clustering_coefficients
+            else 0.0
+        )
 
         # Connected components (undirected)
         visited: Set[str] = set()
@@ -181,7 +197,7 @@ class CollaborationNetwork:
 
         # Most central nodes (by degree)
         sorted_by_degree = sorted(degree.items(), key=lambda x: x[1], reverse=True)
-        top_central = [node_id for node_id, _ in sorted_by_degree[:min(5, n)]]
+        top_central = [node_id for node_id, _ in sorted_by_degree[: min(5, n)]]
 
         return NetworkMetrics(
             node_count=n,
@@ -197,7 +213,14 @@ class CollaborationNetwork:
         """
         Compute betweenness centrality for each node.
 
-        Uses a simplified BFS-based approach.
+        Uses unweighted Brandes' algorithm: BFS shortest-path counting with
+        dependency accumulation from every source, then normalization.
+
+        Documented contract: the graph is treated as undirected and edge
+        weights are ignored; the directed normalization factor is applied to
+        the undirected per-source accumulation, which matches
+        ``networkx.betweenness_centrality`` for the same graph exactly
+        (pinned by TestBetweennessVsNetworkx).
 
         Returns:
             Mapping of node_id to betweenness centrality score.
@@ -268,12 +291,22 @@ class CollaborationNetwork:
 
         for edge in self._edges:
             if edge.collaboration_type == CollaborationType.KNOWLEDGE_SHARE:
-                outbound[edge.source_id] = outbound.get(edge.source_id, 0.0) + edge.strength
-                inbound[edge.target_id] = inbound.get(edge.target_id, 0.0) + edge.strength
+                outbound[edge.source_id] = (
+                    outbound.get(edge.source_id, 0.0) + edge.strength
+                )
+                inbound[edge.target_id] = (
+                    inbound.get(edge.target_id, 0.0) + edge.strength
+                )
 
         return {
-            "sources": {k: round(v, 4) for k, v in sorted(outbound.items(), key=lambda x: x[1], reverse=True)},
-            "sinks": {k: round(v, 4) for k, v in sorted(inbound.items(), key=lambda x: x[1], reverse=True)},
+            "sources": {
+                k: round(v, 4)
+                for k, v in sorted(outbound.items(), key=lambda x: x[1], reverse=True)
+            },
+            "sinks": {
+                k: round(v, 4)
+                for k, v in sorted(inbound.items(), key=lambda x: x[1], reverse=True)
+            },
         }
 
 
@@ -355,7 +388,11 @@ class TeamFormation:
                 member_skills = set(member.skills)
                 new_coverage = len(member_skills & required_set - covered)
                 diversity_bonus = 0.0
-                if prefer_diverse_units and member.unit_id and member.unit_id not in selected_units:
+                if (
+                    prefer_diverse_units
+                    and member.unit_id
+                    and member.unit_id not in selected_units
+                ):
                     diversity_bonus = 0.5
 
                 # Capacity weights the contribution: a member at full
@@ -380,18 +417,30 @@ class TeamFormation:
         skill_coverage = len(covered) / len(required_set) if required_set else 1.0
 
         # Team diversity: number of unique units / team size
-        units = {self._members[mid].unit_id for mid in selected if self._members[mid].unit_id}
+        units = {
+            self._members[mid].unit_id for mid in selected if self._members[mid].unit_id
+        }
         team_diversity = len(units) / len(selected) if selected else 0.0
 
         # Coordination cost: scales with team size squared (communication overhead)
-        coordination_cost = len(selected) * (len(selected) - 1) / 2.0 if len(selected) > 1 else 0.0
-        normalized_cost = coordination_cost / (max_size * (max_size - 1) / 2.0) if max_size > 1 else 0.0
+        coordination_cost = (
+            len(selected) * (len(selected) - 1) / 2.0 if len(selected) > 1 else 0.0
+        )
+        normalized_cost = (
+            coordination_cost / (max_size * (max_size - 1) / 2.0)
+            if max_size > 1
+            else 0.0
+        )
 
-        overall = 0.5 * skill_coverage + 0.3 * team_diversity + 0.2 * (1.0 - normalized_cost)
+        overall = (
+            0.5 * skill_coverage + 0.3 * team_diversity + 0.2 * (1.0 - normalized_cost)
+        )
 
         logger.info(
             "Team formed: members=%s coverage=%.2f diversity=%.2f",
-            selected, skill_coverage, team_diversity,
+            selected,
+            skill_coverage,
+            team_diversity,
         )
         return TeamFormationResult(
             team_members=selected,
@@ -430,6 +479,8 @@ class TeamFormation:
             "required": sorted(required_set),
             "covered": sorted(covered),
             "missing": sorted(missing),
-            "coverage_ratio": round(len(covered) / len(required_set), 4) if required_set else 1.0,
+            "coverage_ratio": round(len(covered) / len(required_set), 4)
+            if required_set
+            else 1.0,
             "skill_frequency": skill_freq,
         }

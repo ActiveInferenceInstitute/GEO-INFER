@@ -645,8 +645,14 @@ class IntelligentETLPipeline:
                 ),
                 "load_result": load_result,
                 "execution_time": (
-                    (self.current_execution.completed_at - self.current_execution.started_at)
-                    if (self.current_execution.completed_at and self.current_execution.started_at)
+                    (
+                        self.current_execution.completed_at
+                        - self.current_execution.started_at
+                    )
+                    if (
+                        self.current_execution.completed_at
+                        and self.current_execution.started_at
+                    )
                     else timedelta()
                 ),
                 "performance_metrics": self._get_performance_metrics(),
@@ -1068,7 +1074,10 @@ class IntelligentETLPipeline:
 
         execution_time = (
             (self.current_execution.completed_at - self.current_execution.started_at)
-            if (self.current_execution.completed_at and self.current_execution.started_at)
+            if (
+                self.current_execution.completed_at
+                and self.current_execution.started_at
+            )
             else timedelta()
         )
 
