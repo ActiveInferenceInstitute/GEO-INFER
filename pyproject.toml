@@ -1,7 +1,3 @@
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "geo-infer-framework"
 version = "0.2.0"
@@ -240,12 +236,6 @@ Discord = "https://discord.activeinference.institute/"
 # NOTE: Intentionally omitted at root. Use module-provided CLIs and
 # `GEO-INFER-TEST/run_unified_tests.py` for testing.
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["geo_infer_*"]
-
-[tool.setuptools.package-data]
-"*" = ["*.yaml", "*.yml", "*.json", "*.md", "*.txt"]
 
 [tool.black]
 line-length = 88

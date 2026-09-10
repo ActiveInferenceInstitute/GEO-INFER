@@ -20,10 +20,16 @@ import re
 import subprocess
 import sys
 import tomllib
-from dataclasses import dataclass, field
 from pathlib import Path
-
 from import_probe import run_import_probe
+from _validator_common import (
+    ContractReport,
+    STDLIB_REQUIREMENT_NAMES,
+    discover_module_dirs,
+    internal_requirement_names,
+    normalize_dependency_name,
+    read_toml,
+)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 EXPECTED_MODULE_COUNT = 45
@@ -71,185 +77,6 @@ SOURCE_LANGUAGE_ALLOWLIST = (
     "for testing",
     "fake data",
 )
-STDLIB_REQUIREMENT_NAMES = {
-    "argparse",
-    "asyncio",
-    "ast",
-    "bz2",
-    "colorsys",
-    "concurrent",
-    "configparser",
-    "contextlib",
-    "csv",
-    "email",
-    "functools",
-    "gc",
-    "gzip",
-    "hashlib",
-    "heapq",
-    "inspect",
-    "io",
-    "itertools",
-    "json",
-    "math",
-    "pickle",
-    "queue",
-    "random",
-    "re",
-    "secrets",
-    "shutil",
-    "sqlite3",
-    "statistics",
-    "subprocess",
-    "tempfile",
-    "threading",
-    "unittest",
-    "urllib",
-    "uuid",
-    "weakref",
-}
-INTERNAL_REQUIREMENT_NAMES = {
-    "adapters",
-    "agent-base",
-    "algorithms",
-    "analysis",
-    "api",
-    "applications",
-    "base",
-    "bayesian",
-    "bayesian-network",
-    "bayesian-timeseries",
-    "behavioral-economics",
-    "bioregional",
-    "bioregional-governance",
-    "bioregional-markets",
-    "catastrophe-models",
-    "claim-models",
-    "claims-processing",
-    "cloud",
-    "cognitive-engine",
-    "cognitive-models",
-    "cognitive-security",
-    "compliance-status",
-    "compliance-tracking",
-    "config",
-    "contrasts",
-    "core",
-    "crm",
-    "crm-endpoints",
-    "crm-models",
-    "crm-reports",
-    "crm-visuals",
-    "data-integration",
-    "data-io",
-    "data-loader",
-    "data-models",
-    "data-processing",
-    "database",
-    "delivery",
-    "diagnostics",
-    "digital-security",
-    "digital-stigmergy",
-    "dirichlet-process",
-    "disaster",
-    "dynamic-spatial",
-    "economic-api",
-    "econometrics-engine",
-    "ecological-economics",
-    "ecosystem-services",
-    "endpoints",
-    "environmental",
-    "error-handling",
-    "file",
-    "generic-report-generator",
-    "geospatial-utils",
-    "github-api",
-    "glm",
-    "growth-models",
-    "hazard-model",
-    "helpers",
-    "hierarchical",
-    "hmc",
-    "hr",
-    "hr-endpoints",
-    "hr-models",
-    "hr-reports",
-    "hr-visuals",
-    "importer",
-    "indicators",
-    "inference",
-    "integration-models",
-    "legal-entity",
-    "legal-frameworks",
-    "likelihoods",
-    "log-integration",
-    "market-structure",
-    "metrics",
-    "microeconomics",
-    "model-comparison",
-    "model-validation",
-    "modeling-engine",
-    "models",
-    "monitoring",
-    "multilevel",
-    "normative-inference",
-    "patterns",
-    "pep-engine",
-    "physical-security",
-    "policy",
-    "policy-engine",
-    "policy-impact",
-    "posterior",
-    "priors",
-    "processor",
-    "producer-theory",
-    "pymc-interface",
-    "registry",
-    "regulation",
-    "risk-assessment",
-    "risk-engine",
-    "risk-models",
-    "routing",
-    "smc",
-    "space-integration",
-    "spatial-analysis",
-    "spatial-causal",
-    "spatial-clustering",
-    "spatial-ecology",
-    "spatial-gp",
-    "spatial-language",
-    "spatial-memory",
-    "spatial-perception",
-    "spatial-reasoning",
-    "spatial-regression",
-    "spatiotemporal-gp",
-    "stan-interface",
-    "support",
-    "supply-chain",
-    "sustainability-metrics",
-    "talent",
-    "talent-endpoints",
-    "talent-models",
-    "talent-reports",
-    "talent-visuals",
-    "test-discoverer",
-    "test-orchestrator",
-    "test-runner",
-    "tfp-interface",
-    "time-integration",
-    "transport",
-    "underwriting-models",
-    "underwriting-rules",
-    "user-profiles",
-    "utils",
-    "validation",
-    "validator",
-    "variational",
-    "visualization",
-    "visualizations",
-    "zoning",
-    "zoning-analysis",
-}
 MARKDOWN_LINK_PATTERN = re.compile(r"!?\[[^\]]+\]\(([^)]+)\)")
 LEGACY_PYTHON_METADATA_PATTERN = re.compile(
     r"Programming Language :: Python :: 3\.(8|9|10)"
@@ -260,25 +87,15 @@ LEGACY_H3_PATTERN = re.compile(r"\bh3\s*>=\s*(?:3\.|4\.0\.0)", re.IGNORECASE)
 LEGACY_PYMDP_RUNTIME_IMPORTS = ("pymdp.control", "pymdp.inference")
 BLACK_TARGET_VERSION_MINIMUM = 11
 
-
-@dataclass
-class ContractReport:
-    errors: list[str] = field(default_factory=list)
-    warnings: list[str] = field(default_factory=list)
-
-    def error(self, message: str) -> None:
-        self.errors.append(message)
-
-    def warning(self, message: str) -> None:
-        self.warnings.append(message)
+# Internal distributions are derived from the workspace tree (each member's
+# geo-infer-* distribution name) instead of a hand-maintained allowlist; see
+# _validator_common.internal_requirement_names for the derivation rule and
+# its documented limits.
+INTERNAL_REQUIREMENT_NAMES = internal_requirement_names(REPO_ROOT)
 
 
 def find_module_dirs() -> list[Path]:
-    return sorted(
-        path
-        for path in REPO_ROOT.iterdir()
-        if path.is_dir() and path.name.startswith("GEO-INFER-")
-    )
+    return discover_module_dirs(REPO_ROOT)
 
 
 def parse_pyproject(module_dir: Path, report: ContractReport) -> dict:
@@ -287,7 +104,7 @@ def parse_pyproject(module_dir: Path, report: ContractReport) -> dict:
         report.error(f"{module_dir.name}: missing pyproject.toml")
         return {}
     try:
-        return tomllib.loads(pyproject.read_text(encoding="utf-8"))
+        return read_toml(pyproject)
     except tomllib.TOMLDecodeError as exc:
         report.error(f"{module_dir.name}: invalid pyproject.toml: {exc}")
         return {}
@@ -804,10 +621,14 @@ def validate_source_language(report: ContractReport, strict: bool) -> None:
 
 
 def requirement_name(requirement: str) -> str:
+    """Normalize a requirement line to its distribution name.
+
+    Thin delegate to the shared normalizer; strips inline comments, environment
+    markers, extras and version specifiers the same way for requirements.txt
+    lines and pyproject dependency strings.
+    """
     cleaned = requirement.split("#", 1)[0].split(";", 1)[0].strip()
-    for token in ("==", ">=", "<=", "~=", "!=", ">", "<"):
-        cleaned = cleaned.split(token, 1)[0]
-    return cleaned.split("[", 1)[0].strip().replace("_", "-").lower()
+    return normalize_dependency_name(cleaned)
 
 
 def validate_requirements_files(report: ContractReport) -> None:

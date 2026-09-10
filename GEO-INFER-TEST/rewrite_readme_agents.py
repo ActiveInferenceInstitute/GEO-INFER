@@ -8,15 +8,15 @@ test entry points, and public symbols discoverable from Python source files.
 
 from __future__ import annotations
 
-import ast
 import argparse
+import ast
 import subprocess
 import sys
-import tomllib
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
 
+from _validator_common import discover_module_dirs, read_pyproject
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MODULE_PREFIX = "GEO-INFER-"
@@ -59,13 +59,6 @@ def tracked_files() -> set[Path]:
     return _TRACKED_FILES
 
 
-def read_pyproject(module_dir: Path) -> dict:
-    pyproject = module_dir / "pyproject.toml"
-    if not pyproject.exists():
-        return {}
-    return tomllib.loads(pyproject.read_text(encoding="utf-8"))
-
-
 def requirement_lines(module_dir: Path, limit: int = 12) -> list[str]:
     requirements = module_dir / "requirements.txt"
     if not requirements.exists():
@@ -83,9 +76,7 @@ def requirement_lines(module_dir: Path, limit: int = 12) -> list[str]:
 
 def discover_modules() -> dict[str, ModuleInfo]:
     modules: dict[str, ModuleInfo] = {}
-    for module_dir in sorted(REPO_ROOT.glob(f"{MODULE_PREFIX}*")):
-        if not module_dir.is_dir():
-            continue
+    for module_dir in discover_module_dirs(REPO_ROOT):
         pyproject = read_pyproject(module_dir)
         project = pyproject.get("project", {})
         package = str(project.get("name", module_dir.name.lower())).replace("-", "_")
@@ -1066,9 +1057,10 @@ Agent-facing documentation must be operational: current paths, commands, package
 """
 
 
-def render_readme(path: Path, module: ModuleInfo | None) -> str:
+def render_readme(
+    path: Path, module: ModuleInfo | None, modules: dict[str, ModuleInfo]
+) -> str:
     if path.parent == REPO_ROOT:
-        modules = discover_modules()
         readmes, agents = repository_doc_files()
         return render_root_readme(modules, len(readmes), len(agents))
 
@@ -1153,9 +1145,11 @@ This README describes current repository state only. Keep examples and claims ti
 """
 
 
-def render_agents(path: Path, module: ModuleInfo | None) -> str:
+def render_agents(
+    path: Path, module: ModuleInfo | None, modules: dict[str, ModuleInfo]
+) -> str:
     if path.parent == REPO_ROOT:
-        return render_root_agents(discover_modules())
+        return render_root_agents(modules)
 
     rel = path.parent.relative_to(REPO_ROOT)
     dirs, py_files, other_files = direct_contents(path.parent)
@@ -1163,21 +1157,39 @@ def render_agents(path: Path, module: ModuleInfo | None) -> str:
         "\n".join(f"- `{item}`" for item in dirs + py_files + other_files)
         or "- No direct tracked child entries."
     )
-    module_name = module.name if module else "GEO-INFER"
-    package = module.package if module else "workspace"
+    # Non-module directories own no Python package; state the honest role
+    # instead of emitting a bogus package name (the generator fallback).
+    if module:
+        scope_lines = (
+            f"- Owning module: `{module.name}`\n"
+            f"- Python package: `{module.package}`\n"
+            f"- Directory role: {purpose_for(path, module)}"
+        )
+        integration_line = (
+            f"- Integrates through `{module.package}` and the owning "
+            "module's public contracts."
+        )
+    else:
+        scope_lines = (
+            "- Owning module: none (repository-level directory outside the "
+            "GEO-INFER-* module fleet)\n"
+            f"- Directory role: {purpose_for(path, module)}"
+        )
+        integration_line = (
+            "- Integrates through the repository's module-level public "
+            "contracts; this directory defines no Python package."
+        )
     return f"""# Agent Instructions: {rel.as_posix()}
 
 ## Scope
 
-- Owning module: `{module_name}`
-- Python package: `{package}`
-- Directory role: {purpose_for(path, module)}
+{scope_lines}
 
 ## Capabilities
 
 - Maintains the tracked files and subdirectories listed below for this workspace.
 - Validates behavior with the command in the Validation section.
-- Integrates through `{package}` and the owning module's public contracts.
+{integration_line}
 
 ## Working Rules
 
@@ -1211,10 +1223,15 @@ def expected_doc_files() -> list[tuple[Path, str]]:
     expected: list[tuple[Path, str]] = []
 
     for readme in readmes:
-        expected.append((readme, render_readme(readme, module_for(readme, modules))))
+        expected.append(
+            (readme, render_readme(readme, module_for(readme, modules), modules))
+        )
     for agents_file in agents:
         expected.append(
-            (agents_file, render_agents(agents_file, module_for(agents_file, modules)))
+            (
+                agents_file,
+                render_agents(agents_file, module_for(agents_file, modules), modules),
+            )
         )
 
     return expected
@@ -1223,9 +1240,9 @@ def expected_doc_files() -> list[tuple[Path, str]]:
 def check_docs_current() -> list[Path]:
     """Return generated documentation files whose tracked content is stale."""
     stale: list[Path] = []
-    for path, expected in expected_doc_files():
+    for path, expected_text in expected_doc_files():
         current = path.read_text(encoding="utf-8")
-        if current != expected:
+        if current != expected_text:
             stale.append(path)
     return stale
 
