@@ -52,9 +52,7 @@ class ModuleSimulations:
         """
         self.config = config or ModuleSimulationConfig()
         # Deterministic-by-default: isolated Generator instead of global state
-        self.rng: np.random.Generator = np.random.default_rng(
-            self.config.random_seed
-        )
+        self.rng: np.random.Generator = np.random.default_rng(self.config.random_seed)
 
     def simulate_act(
         self,
@@ -117,7 +115,11 @@ class ModuleSimulations:
             belief_update = 0.1 * observation + 0.9 * beliefs["state_belief"]
             beliefs["state_belief"] = belief_update / belief_update.sum()
 
-            # Calculate free energy (simplified)
+            # Documented contract: free energy here is the negative entropy
+            # (surprisal) of the categorical state belief, -sum(b * log b).
+            # No complexity/accuracy decomposition, observation-likelihood
+            # term or policy conditioning is modeled on this simulation
+            # surface; it is a trajectory proxy, not the ACT EFE.
             free_energy = -np.sum(
                 beliefs["state_belief"] * np.log(beliefs["state_belief"] + 1e-10)
             )
@@ -321,7 +323,9 @@ class ModuleSimulations:
             # Simulate agent movement and interactions
             for i in range(agent_count):
                 # Random walk with some interaction
-                movement = self.rng.standard_normal(2) * behavior_rules["movement_speed"]
+                movement = (
+                    self.rng.standard_normal(2) * behavior_rules["movement_speed"]
+                )
                 agent_positions[i] += movement
 
                 # Keep within bounds
@@ -678,11 +682,15 @@ class ModuleSimulations:
             n_obs = min(int(time) + 1, len(observations))
             obs_subset = observations[:n_obs]
 
-            # Update posterior (simplified)
+            # Documented contract: the "posterior update" is a fixed 50/50
+            # blend of prior and sample moments, not the exact Normal
+            # conjugate posterior (no precision/n weighting, no known-variance
+            # update). Adequate for illustrative trajectories only.
             sample_mean = np.mean(obs_subset)
             sample_std = np.std(obs_subset)
 
-            # Bayesian update (simplified)
+            # Posterior contract: mean is the 50/50 prior-sample blend; std
+            # is the pooled RMS of the prior and sample standard deviations.
             posterior_mean = (prior_params["mean"] + sample_mean) / 2
             posterior_std = np.sqrt((prior_params["std"] ** 2 + sample_std**2) / 2)
 
@@ -814,7 +822,9 @@ class ModuleSimulations:
         engine = SimulationEngine(config)
 
         engagement_history = []
-        participation_history: Dict[str, List[int]] = {group: [] for group in stakeholder_groups}
+        participation_history: Dict[str, List[int]] = {
+            group: [] for group in stakeholder_groups
+        }
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate engagement events
@@ -958,7 +968,9 @@ class ModuleSimulations:
         )
         engine = SimulationEngine(config)
 
-        message_history: Dict[str, List[int]] = {channel: [] for channel in communication_channels}
+        message_history: Dict[str, List[int]] = {
+            channel: [] for channel in communication_channels
+        }
         engagement_history = []
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
@@ -974,7 +986,10 @@ class ModuleSimulations:
                 channel_messages[channel] = messages
                 total_messages += messages
 
-            engagement = total_messages * 0.1  # Simplified engagement metric
+            # Documented contract: engagement is a fixed linear proxy — 10%
+            # of the step's total messages; no per-channel weighting, decay
+            # or normalization is applied.
+            engagement = total_messages * 0.1
             engagement_history.append(engagement)
 
             return {
@@ -1170,7 +1185,9 @@ class ModuleSimulations:
         )
         engine = SimulationEngine(config)
 
-        commit_history: Dict[str, List[int]] = {commit_type: [] for commit_type in commit_rates.keys()}
+        commit_history: Dict[str, List[int]] = {
+            commit_type: [] for commit_type in commit_rates.keys()
+        }
         branch_history = []
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
@@ -1242,7 +1259,9 @@ class ModuleSimulations:
             }
 
         if environmental_factors is None:
-            environmental_factors = self.rng.random((100, 2))  # air_quality, water_quality
+            environmental_factors = self.rng.random(
+                (100, 2)
+            )  # air_quality, water_quality
 
         config = SimulationConfig(
             time_step=self.config.time_step,
@@ -1254,7 +1273,12 @@ class ModuleSimulations:
         recovery_history = []
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
-            # Simulate epidemiological dynamics (SIR model simplified)
+            # Documented contract: aggregate deterministic case-count
+            # dynamics, not a compartmental SIR model — transmission scales
+            # the current case count by transmission_rate * env[0] (air
+            # quality) and recovery by recovery_rate; the "mortality_rate"
+            # entry is accepted but unused, and no S/I/R compartments are
+            # tracked.
             current_cases = state.get("cases", health_data["initial_cases"])
             env = environmental_factors[int(time) % len(environmental_factors)]
 
@@ -1397,7 +1421,9 @@ class ModuleSimulations:
         )
         engine = SimulationEngine(config)
 
-        sensor_data_history: Dict[str, List[float]] = {network: [] for network in sensor_networks}
+        sensor_data_history: Dict[str, List[float]] = {
+            network: [] for network in sensor_networks
+        }
         data_quality_scores = []
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
@@ -1624,7 +1650,9 @@ class ModuleSimulations:
         )
         engine = SimulationEngine(config)
 
-        metric_history: Dict[str, List[float]] = {metric: [] for metric in system_metrics.keys()}
+        metric_history: Dict[str, List[float]] = {
+            metric: [] for metric in system_metrics.keys()
+        }
         health_scores = []
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
@@ -1778,7 +1806,9 @@ class ModuleSimulations:
         engine = SimulationEngine(config)
 
         satisfaction_history = []
-        skill_coverage: Dict[str, List[float]] = {skill: [] for skill in skill_requirements}
+        skill_coverage: Dict[str, List[float]] = {
+            skill: [] for skill in skill_requirements
+        }
 
         def step_func(time: float, state: Dict[str, Any]) -> Dict[str, Any]:
             # Simulate people management
@@ -2115,7 +2145,9 @@ class ModuleSimulations:
             statistical_models = ["GLM", "random_field", "cluster_inference", "FWE"]
 
         if spatial_temporal_data is None:
-            spatial_temporal_data = self.rng.random((100, 10, 5))  # time, space, features
+            spatial_temporal_data = self.rng.random(
+                (100, 10, 5)
+            )  # time, space, features
 
         config = SimulationConfig(
             time_step=self.config.time_step,

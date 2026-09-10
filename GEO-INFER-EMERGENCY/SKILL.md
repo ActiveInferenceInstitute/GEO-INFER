@@ -66,9 +66,9 @@ uv run --no-sync python examples/multi_hazard_assessment.py
 
 ## Guidelines
 
-- Resource-deployment optimization is heuristic (nearest-resource under a
-  response-time constraint), not a true mixed-integer solver, despite the
-  `optimization_algorithm` label.
+- Resource-deployment optimization is a greedy nearest-available-resource
+  heuristic under a response-time constraint, not a true mixed-integer solver;
+  the default `optimization_algorithm` value is `greedy_nearest_resource`.
 - `EvacuationPlanner.optimize_routes` requires every origin/destination to be
   a node of the `road_network` NetworkX graph passed at construction.
 - `estimate_clearance_time` returns a scenario-keyed dict

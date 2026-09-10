@@ -31,86 +31,90 @@ from typing import Any, Dict, List, Optional, Union
 
 class MarkdownToPDFConverter:
     """Markdown to PDF converter with Mermaid diagram support."""
-    
+
     def __init__(self, log_level: str = "INFO"):
         """Initialize the converter (library-passive logging)."""
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
-    
+
     def check_node_js(self) -> bool:
         """Check if Node.js is installed and accessible."""
         try:
-            result = subprocess.run(['node', '--version'], 
-                                  capture_output=True, text=True, check=True)
+            result = subprocess.run(
+                ["node", "--version"], capture_output=True, text=True, check=True
+            )
             version = result.stdout.strip()
             self.logger.info(f"Node.js found: {version}")
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
-    
+
     def check_npm(self) -> bool:
         """Check if npm is installed and accessible."""
         try:
-            result = subprocess.run(['npm', '--version'], 
-                                  capture_output=True, text=True, check=True)
+            result = subprocess.run(
+                ["npm", "--version"], capture_output=True, text=True, check=True
+            )
             version = result.stdout.strip()
             self.logger.info(f"npm found: {version}")
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
-    
+
     def check_md_to_pdf(self) -> bool:
         """Check if md-to-pdf is installed globally."""
         try:
-            result = subprocess.run(['md-to-pdf', '--version'], 
-                                  capture_output=True, text=True, check=True)
+            result = subprocess.run(
+                ["md-to-pdf", "--version"], capture_output=True, text=True, check=True
+            )
             version = result.stdout.strip()
             self.logger.info(f"md-to-pdf found: {version}")
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
-    
+
     def install_md_to_pdf(self) -> bool:
         """Install md-to-pdf globally via npm."""
         try:
             self.logger.info("Installing md-to-pdf globally...")
-            subprocess.run(['npm', 'install', '-g', 'md-to-pdf'], 
-                         check=True, capture_output=True)
+            subprocess.run(
+                ["npm", "install", "-g", "md-to-pdf"], check=True, capture_output=True
+            )
             self.logger.info("md-to-pdf installed successfully")
             return True
         except subprocess.CalledProcessError as e:
             self.logger.error(f"Failed to install md-to-pdf: {e}")
             return False
-    
+
     def ensure_dependencies(self) -> bool:
         """Ensure all required dependencies are available."""
         self.logger.info("Checking dependencies...")
-        
+
         # Check Node.js
         if not self.check_node_js():
             self.logger.error("Node.js is not installed. Please install Node.js first.")
             self.logger.info("Visit: https://nodejs.org/en/download/")
             return False
-        
+
         # Check npm
         if not self.check_npm():
             self.logger.error("npm is not installed. Please install npm first.")
             return False
-        
+
         # Check and install md-to-pdf
         if not self.check_md_to_pdf():
             self.logger.info("md-to-pdf not found. Installing...")
             if not self.install_md_to_pdf():
                 return False
-            
+
             # Verify installation
             if not self.check_md_to_pdf():
                 self.logger.error("md-to-pdf installation verification failed")
                 return False
-        
+
         self.logger.info("All dependencies are ready!")
         return True
-    
+
     def get_default_config(self) -> Dict:
         """Get default configuration for PDF generation."""
         return {
@@ -149,81 +153,77 @@ class MarkdownToPDFConverter:
                 "format": "A4",
                 "margin": "20mm",
                 "printBackground": True,
-                "preferCSSPageSize": True
+                "preferCSSPageSize": True,
             },
-            "launch_options": {
-                "args": ["--no-sandbox", "--disable-setuid-sandbox"]
-            }
+            "launch_options": {"args": ["--no-sandbox", "--disable-setuid-sandbox"]},
         }
-    
+
     def load_custom_config(self, config_path: Path) -> Dict[str, Any]:
         """Load custom configuration from file."""
         try:
-            with open(config_path, 'r') as f:
+            with open(config_path, "r") as f:
                 data = json.load(f)
                 return data if isinstance(data, dict) else {}
         except Exception as e:
             self.logger.warning(f"Failed to load config from {config_path}: {e}")
             return {}
-    
+
     def create_config_file(self, config: Dict, output_path: Path) -> Path:
         """Create a temporary config file for md-to-pdf."""
         config_file = output_path.parent / f".md-to-pdf-config-{output_path.stem}.json"
         try:
-            with open(config_file, 'w') as f:
+            with open(config_file, "w") as f:
                 json.dump(config, f, indent=2)
             return config_file
         except Exception as e:
             self.logger.error(f"Failed to create config file: {e}")
             raise
-    
-    def convert_file(self, 
-                    input_path: Path, 
-                    output_path: Optional[Path] = None,
-                    config: Optional[Dict] = None) -> bool:
+
+    def convert_file(
+        self,
+        input_path: Path,
+        output_path: Optional[Path] = None,
+        config: Optional[Dict] = None,
+    ) -> bool:
         """Convert a single markdown file to PDF."""
         if not input_path.exists():
             self.logger.error(f"Input file not found: {input_path}")
             return False
-        
+
         # Determine output path
         if output_path is None:
-            output_path = input_path.with_suffix('.pdf')
+            output_path = input_path.with_suffix(".pdf")
         else:
             # Ensure output directory exists
             output_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         # Use default config if none provided
         if config is None:
             config = self.get_default_config()
-        
+
         # Set destination in config
-        config['dest'] = str(output_path)
-        
+        config["dest"] = str(output_path)
+
         # Create temporary config file
         config_file = None
         try:
             config_file = self.create_config_file(config, output_path)
-            
+
             # Build command
-            cmd = [
-                'md-to-pdf',
-                '--config-file', str(config_file),
-                str(input_path)
-            ]
-            
+            cmd = ["md-to-pdf", "--config-file", str(config_file), str(input_path)]
+
             self.logger.info(f"Converting {input_path} to {output_path}")
-            
+
             # Execute conversion
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-            
+
             if output_path.exists():
                 self.logger.info(f"Successfully created: {output_path}")
                 return True
             else:
                 self.logger.error(f"PDF was not created: {output_path}")
                 return False
-                
+
         except subprocess.CalledProcessError as e:
             self.logger.error(f"Conversion failed: {e}")
             if e.stderr:
@@ -239,14 +239,16 @@ class MarkdownToPDFConverter:
                     config_file.unlink()
                 except Exception as e:
                     self.logger.warning(f"Failed to clean up config file: {e}")
-    
-    def convert_multiple(self,
-                        input_patterns: List[str],
-                        output_dir: Optional[Path] = None,
-                        config: Optional[Dict] = None) -> Dict[str, bool]:
+
+    def convert_multiple(
+        self,
+        input_patterns: List[str],
+        output_dir: Optional[Path] = None,
+        config: Optional[Dict] = None,
+    ) -> Dict[str, bool]:
         """Convert multiple markdown files to PDF."""
         results: Dict[str, bool] = {}
-        
+
         # Collect all matching files
         input_files = []
         for pattern in input_patterns:
@@ -255,27 +257,37 @@ class MarkdownToPDFConverter:
                 input_files.append(pattern_path)
             else:
                 # Use glob to find matching files
-                parent_dir = pattern_path.parent if pattern_path.parent != Path('.') else Path.cwd()
+                parent_dir = (
+                    pattern_path.parent
+                    if pattern_path.parent != Path(".")
+                    else Path.cwd()
+                )
                 pattern_name = pattern_path.name
                 matching_files = list(parent_dir.glob(pattern_name))
-                input_files.extend([f for f in matching_files if f.suffix.lower() in ['.md', '.markdown']])
-        
+                input_files.extend(
+                    [
+                        f
+                        for f in matching_files
+                        if f.suffix.lower() in [".md", ".markdown"]
+                    ]
+                )
+
         if not input_files:
             self.logger.warning("No markdown files found matching the patterns")
             return results
-        
+
         self.logger.info(f"Found {len(input_files)} markdown files to convert")
-        
+
         # Convert each file
         for input_file in input_files:
             if output_dir:
                 output_path = output_dir / f"{input_file.stem}.pdf"
             else:
-                output_path = input_file.with_suffix('.pdf')
-            
+                output_path = input_file.with_suffix(".pdf")
+
             success = self.convert_file(input_file, output_path, config)
             results[str(input_file)] = success
-        
+
         return results
 
 
@@ -291,76 +303,70 @@ Examples:
   %(prog)s docs/*.md --output-dir ./output/
   %(prog)s document.md --config custom-config.json
   %(prog)s document.md --log-level DEBUG
-        """
+        """,
     )
-    
+
     parser.add_argument(
-        'input_files',
-        nargs='*',
-        help='Input markdown file(s) or glob patterns'
+        "input_files", nargs="*", help="Input markdown file(s) or glob patterns"
     )
-    
+
     parser.add_argument(
-        '--output-dir',
+        "--output-dir",
         type=Path,
-        help='Output directory for PDF files (default: same as input file)'
+        help="Output directory for PDF files (default: same as input file)",
     )
-    
+
     parser.add_argument(
-        '--config',
-        type=Path,
-        help='Custom configuration file (JSON format)'
+        "--config", type=Path, help="Custom configuration file (JSON format)"
     )
-    
+
     parser.add_argument(
-        '--log-level',
-        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
-        default='INFO',
-        help='Set logging level (default: INFO)'
+        "--log-level",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        default="INFO",
+        help="Set logging level (default: INFO)",
     )
-    
+
     parser.add_argument(
-        '--check-deps',
-        action='store_true',
-        help='Only check dependencies and exit'
+        "--check-deps", action="store_true", help="Only check dependencies and exit"
     )
-    
+
     args = parser.parse_args()
     # Initialize converter
     converter = MarkdownToPDFConverter(log_level=args.log_level)
-    
+
     # Check dependencies
     if not converter.ensure_dependencies():
         sys.exit(1)
-    
+
     if args.check_deps:
         converter.logger.info("Dependency check completed successfully")
         sys.exit(0)
-    
+
     # Check if input files are provided
     if not args.input_files:
-        converter.logger.error("No input files provided. Use --help for usage information.")
+        converter.logger.error(
+            "No input files provided. Use --help for usage information."
+        )
         sys.exit(1)
-    
+
     # Load configuration
     config = converter.get_default_config()
     if args.config:
         custom_config = converter.load_custom_config(args.config)
         config.update(custom_config)
-    
+
     # Perform conversions
     results = converter.convert_multiple(
-        input_patterns=args.input_files,
-        output_dir=args.output_dir,
-        config=config
+        input_patterns=args.input_files, output_dir=args.output_dir, config=config
     )
-    
+
     # Report results
     successful = sum(1 for success in results.values() if success)
     total = len(results)
-    
+
     converter.logger.info(f"Conversion completed: {successful}/{total} successful")
-    
+
     if successful < total:
         converter.logger.warning("Some conversions failed:")
         for file_path, success in results.items():

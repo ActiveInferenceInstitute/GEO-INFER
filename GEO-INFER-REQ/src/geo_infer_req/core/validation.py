@@ -12,6 +12,7 @@ from enum import Enum
 
 class ConflictType(Enum):
     """Types of requirement conflicts."""
+
     CONTRADICTORY = "contradictory"
     OVERLAPPING = "overlapping"
     RESOURCE_CONFLICT = "resource_conflict"
@@ -21,6 +22,7 @@ class ConflictType(Enum):
 
 class ValidationSeverity(Enum):
     """Severity levels for validation issues."""
+
     ERROR = "error"
     WARNING = "warning"
     INFO = "info"
@@ -29,6 +31,7 @@ class ValidationSeverity(Enum):
 @dataclass
 class ValidationIssue:
     """A single validation issue found during checking."""
+
     issue_id: str
     severity: ValidationSeverity
     req_ids: List[str]
@@ -39,6 +42,7 @@ class ValidationIssue:
 @dataclass
 class ConflictDetectionResult:
     """Result of conflict detection analysis."""
+
     total_conflicts: int
     conflicts: List[ValidationIssue]
     conflict_pairs: List[Tuple[str, str]]
@@ -48,6 +52,7 @@ class ConflictDetectionResult:
 @dataclass
 class ConsistencyReport:
     """Report on requirement specification consistency."""
+
     is_consistent: bool
     total_issues: int
     errors: List[ValidationIssue]
@@ -59,6 +64,7 @@ class ConsistencyReport:
 @dataclass
 class FeasibilityAssessment:
     """Feasibility assessment for a set of requirements."""
+
     overall_feasibility: float
     per_requirement_scores: Dict[str, float]
     risk_factors: List[str]
@@ -68,7 +74,16 @@ class FeasibilityAssessment:
 
 @dataclass
 class RequirementSpec:
-    """Simplified requirement spec for validation purposes."""
+    """Minimal requirement specification for REQ validation surfaces.
+
+    Documented contract: this dataclass is deliberately narrower than a full
+    requirements-management schema — it carries the identity, priority, effort,
+    dependency, constraint, tag and resource-name fields consumed by the
+    in-module ``RequirementValidator`` / ``RequirementsAnalyzer`` checks, and
+    those checks operate only on these fields. Richer requirement semantics
+    are out of scope for GEO-INFER-REQ validation.
+    """
+
     req_id: str
     title: str
     description: str
@@ -78,7 +93,6 @@ class RequirementSpec:
     constraints: List[str] = field(default_factory=list)
     tags: List[str] = field(default_factory=list)
     resources_required: List[str] = field(default_factory=list)
-
 
 
 def find_dependency_cycles(adjacency: Dict[str, List[str]]) -> List[List[str]]:
@@ -193,25 +207,29 @@ class RequirementValidator:
             for dep in spec.dependencies:
                 if dep not in all_ids:
                     issue_counter += 1
-                    errors.append(ValidationIssue(
-                        issue_id=f"E{issue_counter:04d}",
-                        severity=ValidationSeverity.ERROR,
-                        req_ids=[rid],
-                        description=f"Dependency '{dep}' referenced by {rid} does not exist",
-                        suggestion=f"Add requirement '{dep}' or remove the dependency",
-                    ))
+                    errors.append(
+                        ValidationIssue(
+                            issue_id=f"E{issue_counter:04d}",
+                            severity=ValidationSeverity.ERROR,
+                            req_ids=[rid],
+                            description=f"Dependency '{dep}' referenced by {rid} does not exist",
+                            suggestion=f"Add requirement '{dep}' or remove the dependency",
+                        )
+                    )
 
         # Check for circular dependencies
         cycles = self._detect_dependency_cycles()
         for cycle in cycles:
             issue_counter += 1
-            errors.append(ValidationIssue(
-                issue_id=f"E{issue_counter:04d}",
-                severity=ValidationSeverity.ERROR,
-                req_ids=cycle,
-                description=f"Circular dependency detected: {' -> '.join(cycle)}",
-                suggestion="Break the circular dependency by removing one link",
-            ))
+            errors.append(
+                ValidationIssue(
+                    issue_id=f"E{issue_counter:04d}",
+                    severity=ValidationSeverity.ERROR,
+                    req_ids=cycle,
+                    description=f"Circular dependency detected: {' -> '.join(cycle)}",
+                    suggestion="Break the circular dependency by removing one link",
+                )
+            )
 
         # Check for duplicate titles
         titles: Dict[str, List[str]] = {}
@@ -224,43 +242,53 @@ class RequirementValidator:
         for title, rids in titles.items():
             if len(rids) > 1:
                 issue_counter += 1
-                warnings.append(ValidationIssue(
-                    issue_id=f"W{issue_counter:04d}",
-                    severity=ValidationSeverity.WARNING,
-                    req_ids=rids,
-                    description=f"Duplicate title found: '{title}' in requirements {rids}",
-                    suggestion="Consider merging or differentiating these requirements",
-                ))
+                warnings.append(
+                    ValidationIssue(
+                        issue_id=f"W{issue_counter:04d}",
+                        severity=ValidationSeverity.WARNING,
+                        req_ids=rids,
+                        description=f"Duplicate title found: '{title}' in requirements {rids}",
+                        suggestion="Consider merging or differentiating these requirements",
+                    )
+                )
 
         # Check description quality
         for rid, spec in self._specs.items():
             if len(spec.description.strip()) < 10:
                 issue_counter += 1
-                warnings.append(ValidationIssue(
-                    issue_id=f"W{issue_counter:04d}",
-                    severity=ValidationSeverity.WARNING,
-                    req_ids=[rid],
-                    description=f"Requirement {rid} has a very short description",
-                    suggestion="Provide a more detailed description (at least 10 characters)",
-                ))
+                warnings.append(
+                    ValidationIssue(
+                        issue_id=f"W{issue_counter:04d}",
+                        severity=ValidationSeverity.WARNING,
+                        req_ids=[rid],
+                        description=f"Requirement {rid} has a very short description",
+                        suggestion="Provide a more detailed description (at least 10 characters)",
+                    )
+                )
 
         # Informational: untagged requirements are hard to categorize or
         # cross-reference in coverage reports.
         for rid, spec in self._specs.items():
             if not spec.tags:
                 issue_counter += 1
-                info_items.append(ValidationIssue(
-                    issue_id=f"I{issue_counter:04d}",
-                    severity=ValidationSeverity.INFO,
-                    req_ids=[rid],
-                    description=f"Requirement {rid} has no tags for categorization",
-                    suggestion="Add tags to enable coverage grouping and duplicate checks",
-                ))
+                info_items.append(
+                    ValidationIssue(
+                        issue_id=f"I{issue_counter:04d}",
+                        severity=ValidationSeverity.INFO,
+                        req_ids=[rid],
+                        description=f"Requirement {rid} has no tags for categorization",
+                        suggestion="Add tags to enable coverage grouping and duplicate checks",
+                    )
+                )
 
         total = len(errors) + len(warnings) + len(info_items)
         is_consistent = len(errors) == 0
         max_possible_issues = len(self._specs) * 3
-        consistency_score = max(0.0, 1.0 - total / max_possible_issues) if max_possible_issues > 0 else 1.0
+        consistency_score = (
+            max(0.0, 1.0 - total / max_possible_issues)
+            if max_possible_issues > 0
+            else 1.0
+        )
 
         return ConsistencyReport(
             is_consistent=is_consistent,
@@ -299,32 +327,38 @@ class RequirementValidator:
                 shared_constraints = set(s1.constraints) & set(s2.constraints)
                 if shared_constraints:
                     issue_counter += 1
-                    conflicts.append(ValidationIssue(
-                        issue_id=f"C{issue_counter:04d}",
-                        severity=ValidationSeverity.WARNING,
-                        req_ids=[s1.req_id, s2.req_id],
-                        description=f"Overlapping constraints between {s1.req_id} and {s2.req_id}: {shared_constraints}",
-                    ))
+                    conflicts.append(
+                        ValidationIssue(
+                            issue_id=f"C{issue_counter:04d}",
+                            severity=ValidationSeverity.WARNING,
+                            req_ids=[s1.req_id, s2.req_id],
+                            description=f"Overlapping constraints between {s1.req_id} and {s2.req_id}: {shared_constraints}",
+                        )
+                    )
                     conflict_pairs.append((s1.req_id, s2.req_id))
 
                 # Check for resource conflicts
-                shared_resources = set(s1.resources_required) & set(s2.resources_required)
+                shared_resources = set(s1.resources_required) & set(
+                    s2.resources_required
+                )
                 if shared_resources:
                     for resource in shared_resources:
                         capacity = self._resource_capacity.get(resource, float("inf"))
                         if s1.effort_estimate + s2.effort_estimate > capacity:
                             issue_counter += 1
-                            conflicts.append(ValidationIssue(
-                                issue_id=f"C{issue_counter:04d}",
-                                severity=ValidationSeverity.ERROR,
-                                req_ids=[s1.req_id, s2.req_id],
-                                description=(
-                                    f"Resource conflict: {resource} needed by both "
-                                    f"{s1.req_id} ({s1.effort_estimate}d) and "
-                                    f"{s2.req_id} ({s2.effort_estimate}d), "
-                                    f"capacity={capacity}d"
-                                ),
-                            ))
+                            conflicts.append(
+                                ValidationIssue(
+                                    issue_id=f"C{issue_counter:04d}",
+                                    severity=ValidationSeverity.ERROR,
+                                    req_ids=[s1.req_id, s2.req_id],
+                                    description=(
+                                        f"Resource conflict: {resource} needed by both "
+                                        f"{s1.req_id} ({s1.effort_estimate}d) and "
+                                        f"{s2.req_id} ({s2.effort_estimate}d), "
+                                        f"capacity={capacity}d"
+                                    ),
+                                )
+                            )
                             if (s1.req_id, s2.req_id) not in conflict_pairs:
                                 conflict_pairs.append((s1.req_id, s2.req_id))
 
@@ -332,13 +366,15 @@ class RequirementValidator:
                 shared_tags = set(s1.tags) & set(s2.tags)
                 if len(shared_tags) >= 3:
                     issue_counter += 1
-                    conflicts.append(ValidationIssue(
-                        issue_id=f"C{issue_counter:04d}",
-                        severity=ValidationSeverity.INFO,
-                        req_ids=[s1.req_id, s2.req_id],
-                        description=f"High tag overlap between {s1.req_id} and {s2.req_id}: {shared_tags}",
-                        suggestion="Check if these requirements are duplicates",
-                    ))
+                    conflicts.append(
+                        ValidationIssue(
+                            issue_id=f"C{issue_counter:04d}",
+                            severity=ValidationSeverity.INFO,
+                            req_ids=[s1.req_id, s2.req_id],
+                            description=f"High tag overlap between {s1.req_id} and {s2.req_id}: {shared_tags}",
+                            suggestion="Check if these requirements are duplicates",
+                        )
+                    )
 
         severity_dist: Dict[str, int] = {"error": 0, "warning": 0, "info": 0}
         for c in conflicts:
@@ -376,7 +412,9 @@ class RequirementValidator:
             raise ValueError("No requirement specs to assess")
 
         total_effort = sum(s.effort_estimate for s in self._specs.values())
-        resource_utilization = total_effort / available_effort if available_effort > 0 else float("inf")
+        resource_utilization = (
+            total_effort / available_effort if available_effort > 0 else float("inf")
+        )
 
         # Per-requirement feasibility scores
         per_req_scores: Dict[str, float] = {}
@@ -405,7 +443,9 @@ class RequirementValidator:
             if dep_count >= 3:
                 bottlenecks.append(rid)
             if effort_ratio > risk_tolerance:
-                risk_factors.append(f"{rid}: effort ({spec.effort_estimate}d) exceeds risk threshold")
+                risk_factors.append(
+                    f"{rid}: effort ({spec.effort_estimate}d) exceeds risk threshold"
+                )
 
         if resource_utilization > 1.0:
             risk_factors.append(

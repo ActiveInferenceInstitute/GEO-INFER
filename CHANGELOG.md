@@ -7,6 +7,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### September 9 scope-wave close-out
+
+- Implemented the SCOPE-2026-09-09.md improvement spec (27 items; 5 major,
+  15 medium, 7 minor) via eight parallel lanes; the ledger gained CODE-01
+  (GEO side), DOCS-04, EMERGENCY-01, CODE-02, HYG-05 and HYG-06 as delivered
+  and SEC-02, WATER-01, HYG-04 as precise partials.
+- ACT core: deduplicated the expected-free-energy computation and unified the
+  drifted `temporal_discount` default to 1.0 (parity tests now pin the two
+  surfaces); extracted the duplicated belief-propagation prologue and brought
+  `variational_inference.py` under the complexity thresholds; narrowed the
+  blind `except Exception` in the belief coercion and made the Gaussian-KL
+  singular-covariance fallback logged and documented; bounded the
+  importance-sampling covariance memory (O(n·d²) broadcast → einsum) and
+  switched the inversion to a solve.
+- Civic-intel family: moved the shared validator family into BAYES (kept
+  private), published the generic `decode_contract_json` helper, deleted the
+  duplicated parsers in ACT/RISK, renamed RISK's misleading `seed` parameter
+  to `source` (DeprecationWarning alias), and aligned the ACT parser's
+  schema-mismatch handling with the fail-closed BAYES/RISK behavior. The
+  guarded-degradation contract pinned by the PLACE enrichment test was
+  restored after integration caught the wave regression it had introduced;
+  bundled Crescent City seeds were re-synced byte-identical and the
+  contract-sync canonical surface updated to the 2026-09-08 producer seed.
+- Manuscript pipeline: replaced the two source-text-pinning assertions with
+  behavior tests (build_variables token contract; publication refusal through
+  a monkeypatched failing `run_verification`); added direct `run_verification`
+  tests, the CLI tier-widening seam test, the shim failure-path test, and the
+  count-vs-record / tier-axis tests; hardened the worktree mirror fixture
+  (returncode asserts, `worktree prune` backstop, portable PATH) and
+  deduplicated the shared test helpers. Root suite now 124 tests, green.
+- CI/packaging: wired the stale-artifact gate (`generate_research_artifacts
+  .py --check`) into the manuscript job post-regeneration (`output/` is
+  gitignored); aligned action majors across all four workflows at ci.yml's
+  pinned SHAs; added a fail-closed gitleaks job (org `GITLEAKS_LICENSE`
+  secret required, cadence still open as TODO SEC-02); added per-category
+  timeout budget lines to the unified runner; orphaned
+  `validate_act_script_orchestration.py` wired into the H3 lane; `.aii`
+  sidecar test command set to the unified runner. Validators gained shared
+  discovery plumbing (`_validator_common.py`), glob-vs-disk package-data
+  checking, fleet version-uniformity (INSURANCE 0.1.0 as a registered known
+  deviation pending REL-01), and the dead root setuptools packaging config was
+  removed (root `[build-system]` dropped with it, lock updated; the root is a
+  virtual workspace root). Member-level `uv.lock` files removed from PLACE and
+  TIME.
+- Water: delivered mass-conservative Green-Ampt infiltration
+  (`InfiltrationModeler`) with explicit parameters, 19 new tests, and the
+  SKILL.md truth line; WATER-01 remainder re-scoped.
+- Hygiene: tests-suite import audit swept 398 → 5 sanctioned residuals (all
+  F841 with constructor/copy RHS needing side-effect analysis, documented in
+  the ledger); INTRA maintenance scripts reformatted; the obsolete
+  documentation generator was deleted.
+- Docs: CHANGELOG `[Unreleased]` structure repaired (orphaned September-2
+  block headed); README/generated-signpost drift regenerated (823 READMEs,
+  820 AGENTS.md files current); the fep_lean notation-bridge sentence break
+  fixed and the manuscript AGENTS package-name emission made honest in the
+  generator; GitNexus index rebuilt (64,684 nodes / 91,155 edges) and the
+  receipt recorded per TODO CODE-01.
+
 ### September 7 root health and CI integration
 
 - Run the root manuscript regression suite (102 of 109 tests) in the CI
@@ -286,6 +344,7 @@ pass at that SHA.
 - Deleted empty stray root directories (`repos/`, `del_norte_dashboard/`) and
   fixed the PLACE cwd-relative dashboard default that created them.
 
+### September 2 delivery wave
 
 - Deliver real WebSocket/Kafka ingestion with explicit replay and acknowledgements
   after processing; preserve upstream adapter injection and broker timestamps.
@@ -331,7 +390,7 @@ pass at that SHA.
 - `CLIMATE` module climate change adaptation modeling with Bayesian uncertainty quantification
 
 
-### Changed and Fixed (2026-09-02 fix wave)
+### September 2 fix wave
 
 - Merged `codex/act-categorical-runtime` hardening into `main`; the
   2026-09-02 fix wave then applied real-implementation, contract, and

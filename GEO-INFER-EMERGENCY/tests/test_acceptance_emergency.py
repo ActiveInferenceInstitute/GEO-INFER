@@ -22,32 +22,21 @@ import pytest
 
 from geo_infer_emergency.core.sar import (
     SearchAndRescue,
-    SearchPattern,
     SubjectType,
-    SearchSubject,
-    SearchTeam,
 )
 from geo_infer_emergency.core.coordinator import (
     EmergencyCoordinator,
-    IncidentType,
-    IncidentScale,
-    Agency,
-    IncidentCommand,
 )
 from geo_infer_emergency.core.evacuation import (
     EvacuationPlanner,
-    EvacuationLevel,
     EvacuationZone,
-    Shelter,
 )
 from geo_infer_emergency.core.awareness import (
     SituationalAwareness,
     ThreatLevel,
-    DataSource,
 )
 from geo_infer_emergency.core.resources import (
     ResourceDeployer,
-    ResourceStatus,
     ResourceType,
     Resource,
 )
@@ -56,6 +45,7 @@ from geo_infer_emergency.core.resources import (
 # ---------------------------------------------------------------------------
 # SearchAndRescue
 # ---------------------------------------------------------------------------
+
 
 class TestSearchAndRescue:
     """Acceptance: SAR mission planning and probability modeling."""
@@ -66,12 +56,14 @@ class TestSearchAndRescue:
 
     def test_register_subject(self, sar):
         """register_subject creates a SearchSubject with correct type."""
-        subject = sar.register_subject({
-            "id": "s1",
-            "name": "John Doe",
-            "type": "hiker",
-            "age": 35,
-        })
+        subject = sar.register_subject(
+            {
+                "id": "s1",
+                "name": "John Doe",
+                "type": "hiker",
+                "age": 35,
+            }
+        )
         assert subject.subject_id == "s1"
         assert subject.subject_type == SubjectType.HIKER
         assert subject.name == "John Doe"
@@ -79,12 +71,14 @@ class TestSearchAndRescue:
 
     def test_register_team(self, sar):
         """register_team creates a SearchTeam with capabilities."""
-        team = sar.register_team({
-            "id": "t1",
-            "name": "Alpha Team",
-            "size": 6,
-            "capabilities": ["ground", "k9"],
-        })
+        team = sar.register_team(
+            {
+                "id": "t1",
+                "name": "Alpha Team",
+                "size": 6,
+                "capabilities": ["ground", "k9"],
+            }
+        )
         assert team.team_id == "t1"
         assert team.size == 6
         assert "k9" in team.capabilities
@@ -170,6 +164,7 @@ class TestSearchAndRescue:
 # EmergencyCoordinator
 # ---------------------------------------------------------------------------
 
+
 class TestEmergencyCoordinator:
     """Acceptance: ICS coordination and situation reporting."""
 
@@ -190,7 +185,12 @@ class TestEmergencyCoordinator:
     def test_coordinate(self, coordinator):
         """coordinate creates an incident and returns a coordination plan."""
         plan = coordinator.coordinate(
-            incident={"id": "inc1", "type": "wildfire", "name": "Hill Fire", "scale": "type_3"},
+            incident={
+                "id": "inc1",
+                "type": "wildfire",
+                "name": "Hill Fire",
+                "scale": "type_3",
+            },
             agencies=["agency_fire", "agency_police"],
             resources={"engines": ["e1", "e2"], "patrol_units": ["p1"]},
         )
@@ -200,7 +200,9 @@ class TestEmergencyCoordinator:
         assert "communication_channels" in plan
         assert len(plan["resource_assignments"]) == 2
         # Fire agency gets engines
-        fire_assignment = [a for a in plan["resource_assignments"] if a["agency"] == "agency_fire"][0]
+        fire_assignment = [
+            a for a in plan["resource_assignments"] if a["agency"] == "agency_fire"
+        ][0]
         assert any(r["type"] == "engines" for r in fire_assignment["resources"])
 
     def test_establish_command(self, coordinator):
@@ -269,6 +271,7 @@ class TestEmergencyCoordinator:
 # EvacuationPlanner
 # ---------------------------------------------------------------------------
 
+
 class TestEvacuationPlanner:
     """Acceptance: evacuation planning and shelter management."""
 
@@ -279,12 +282,18 @@ class TestEvacuationPlanner:
 
         graph = nx.DiGraph()
         for origin, destination in [
-            ("zone1", "sh1"), ("zone1", "sh2"),
-            ("zone2", "sh1"), ("zone2", "sh2"),
-            ("zone_a", "shelter_1"), ("zone_a", "shelter_2"),
-            ("zone_b", "shelter_1"), ("zone_b", "shelter_2"),
+            ("zone1", "sh1"),
+            ("zone1", "sh2"),
+            ("zone2", "sh1"),
+            ("zone2", "sh2"),
+            ("zone_a", "shelter_1"),
+            ("zone_a", "shelter_2"),
+            ("zone_b", "shelter_1"),
+            ("zone_b", "shelter_2"),
         ]:
-            graph.add_edge(origin, destination, distance=8.0, travel_time=12.0, capacity=1500)
+            graph.add_edge(
+                origin, destination, distance=8.0, travel_time=12.0, capacity=1500
+            )
         return graph
 
     @pytest.fixture
@@ -293,13 +302,15 @@ class TestEvacuationPlanner:
 
     def test_register_shelter(self, planner):
         """register_shelter stores a Shelter."""
-        shelter = planner.register_shelter({
-            "id": "sh1",
-            "name": "High School Gym",
-            "location": {"lat": 45.5, "lon": -122.6},
-            "capacity": 500,
-            "services": ["medical", "food"],
-        })
+        shelter = planner.register_shelter(
+            {
+                "id": "sh1",
+                "name": "High School Gym",
+                "location": {"lat": 45.5, "lon": -122.6},
+                "capacity": 500,
+                "services": ["medical", "food"],
+            }
+        )
         assert shelter.shelter_id == "sh1"
         assert shelter.capacity == 500
         assert "sh1" in planner._shelters
@@ -307,7 +318,12 @@ class TestEvacuationPlanner:
     def test_plan_creates_evacuation_plan(self, planner):
         """plan() creates a complete evacuation plan with routes and phases."""
         plan = planner.plan(
-            affected_zone={"id": "zone1", "name": "Riverside", "geometry": {}, "level": "order"},
+            affected_zone={
+                "id": "zone1",
+                "name": "Riverside",
+                "geometry": {},
+                "level": "order",
+            },
             population={"total": 5000, "special_populations": ["hospitals"]},
             destinations=[{"id": "sh1", "name": "Shelter A", "capacity": 2000}],
             phasing="staged",
@@ -363,8 +379,14 @@ class TestEvacuationPlanner:
         assert "expected" in estimates
         assert "worst_case" in estimates
         # Worst case > expected > best case
-        assert estimates["worst_case"]["clearance_hours"] > estimates["expected"]["clearance_hours"]
-        assert estimates["expected"]["clearance_hours"] > estimates["best_case"]["clearance_hours"]
+        assert (
+            estimates["worst_case"]["clearance_hours"]
+            > estimates["expected"]["clearance_hours"]
+        )
+        assert (
+            estimates["expected"]["clearance_hours"]
+            > estimates["best_case"]["clearance_hours"]
+        )
 
     def test_plan_shelters(self, planner):
         """plan_shelters allocates population across shelters."""
@@ -399,6 +421,7 @@ class TestEvacuationPlanner:
 # SituationalAwareness
 # ---------------------------------------------------------------------------
 
+
 class TestSituationalAwareness:
     """Acceptance: sensor integration, COP, and threat assessment."""
 
@@ -411,8 +434,18 @@ class TestSituationalAwareness:
         result = sa.integrate_sensors(
             sensor_network={
                 "sensors": [
-                    {"id": "temp1", "type": "temperature", "location": {"lat": 45, "lon": -122}, "readings": {"temp": 72}},
-                    {"id": "wind1", "type": "wind", "location": {"lat": 45.1, "lon": -122.1}, "readings": {"speed": 15}},
+                    {
+                        "id": "temp1",
+                        "type": "temperature",
+                        "location": {"lat": 45, "lon": -122},
+                        "readings": {"temp": 72},
+                    },
+                    {
+                        "id": "wind1",
+                        "type": "wind",
+                        "location": {"lat": 45.1, "lon": -122.1},
+                        "readings": {"speed": 15},
+                    },
                 ]
             },
             data_types=["temperature", "wind"],
@@ -458,8 +491,14 @@ class TestSituationalAwareness:
             assets_at_risk=[{"population": 80000, "critical": True}],
         )
         assert result["threat_score"] >= 0.6
-        assert result["threat_level"] in [ThreatLevel.EXTREME.value, ThreatLevel.CATASTROPHIC.value]
-        assert "Issue evacuation orders" in result["recommendations"] or "Mass evacuation" in result["recommendations"]
+        assert result["threat_level"] in [
+            ThreatLevel.EXTREME.value,
+            ThreatLevel.CATASTROPHIC.value,
+        ]
+        assert (
+            "Issue evacuation orders" in result["recommendations"]
+            or "Mass evacuation" in result["recommendations"]
+        )
 
     def test_fuse_data_weighted_average(self, sa):
         """fuse_data computes weighted average of numeric fields."""
@@ -494,6 +533,7 @@ class TestSituationalAwareness:
 # ResourceDeployer
 # ---------------------------------------------------------------------------
 
+
 class TestResourceDeployer:
     """Acceptance: resource deployment and tracking."""
 
@@ -519,8 +559,16 @@ class TestResourceDeployer:
         """optimize_allocation assigns nearest resources to demand points."""
         result = deployer.optimize_allocation(
             resources=[
-                {"id": "r1", "type": "engine", "location": {"lat": 45.5, "lon": -122.6}},
-                {"id": "r2", "type": "ambulance", "location": {"lat": 45.4, "lon": -122.7}},
+                {
+                    "id": "r1",
+                    "type": "engine",
+                    "location": {"lat": 45.5, "lon": -122.6},
+                },
+                {
+                    "id": "r2",
+                    "type": "ambulance",
+                    "location": {"lat": 45.4, "lon": -122.7},
+                },
             ],
             demand_points=[
                 {"id": "d1", "location": {"lat": 45.51, "lon": -122.61}},
@@ -569,8 +617,18 @@ class TestResourceDeployer:
         # Register resources first
         deployer.optimize_allocation(
             resources=[
-                {"id": "r1", "type": "engine", "location": {"lat": 45.5, "lon": -122.6}, "status": "available"},
-                {"id": "r2", "type": "engine", "location": {"lat": 45.4, "lon": -122.7}, "status": "available"},
+                {
+                    "id": "r1",
+                    "type": "engine",
+                    "location": {"lat": 45.5, "lon": -122.6},
+                    "status": "available",
+                },
+                {
+                    "id": "r2",
+                    "type": "engine",
+                    "location": {"lat": 45.4, "lon": -122.7},
+                    "status": "available",
+                },
             ],
             demand_points=[],
             constraints={},

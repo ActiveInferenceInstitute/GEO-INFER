@@ -23,7 +23,9 @@ class SolarAnalyzer:
         """Initialize solar analyzer.
 
         Args:
-            config: Configuration dictionary.
+            config: Configuration dictionary. Reserved contract: stored for
+                API stability but currently ignored (only ``WindAnalyzer``
+                consumes config keys).
         """
         self.config = config or {}
         self.solar_constant: float = 1361.0  # W/m^2
@@ -91,9 +93,10 @@ class SolarAnalyzer:
         Returns:
             Extraterrestrial irradiance (W/m^2).
         """
-        return float(self.solar_constant * (
-            1.0 + 0.033 * np.cos(np.radians(360.0 * day_of_year / 365.0))
-        ))
+        return float(
+            self.solar_constant
+            * (1.0 + 0.033 * np.cos(np.radians(360.0 * day_of_year / 365.0)))
+        )
 
     def clear_sky_ghi(
         self,
@@ -104,7 +107,12 @@ class SolarAnalyzer:
     ) -> float:
         """Estimate clear-sky Global Horizontal Irradiance.
 
-        Uses simplified Hottel (1976) clear-sky model with altitude correction.
+        Uses the Hottel (1976) clear-sky model with altitude correction.
+
+        Documented contract: standard-atmosphere clear-sky estimate only —
+        beam transmittance via the Hottel a0/a1/k altitude terms and a fixed
+        diffuse fraction (0.3); no cloud cover, aerosol variability or
+        site-specific atmospheric data are modeled.
 
         Args:
             latitude_deg: Latitude (degrees).
@@ -206,10 +214,9 @@ class SolarAnalyzer:
         elev = np.radians(solar_elevation_deg)
         saz = np.radians(solar_azimuth_deg)
 
-        cos_incidence = (
-            np.sin(elev) * np.cos(tilt)
-            + np.cos(elev) * np.sin(tilt) * np.cos(saz - azm)
-        )
+        cos_incidence = np.sin(elev) * np.cos(tilt) + np.cos(elev) * np.sin(
+            tilt
+        ) * np.cos(saz - azm)
 
         cos_zenith = np.sin(elev)
 
