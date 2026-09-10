@@ -5,7 +5,8 @@ The runner intentionally mirrors the commands documented in the root README:
 
 * ``--module NAME`` runs one module's tests.
 * ``--category unit|integration|performance|coverage`` runs a focused suite.
-* ``--h3-migration`` runs the H3/Active Inference contract validators.
+* ``--h3-migration`` runs the H3/Active Inference and ACT script-orchestration
+  contract validators.
 
 With no arguments, the runner executes the same broad module sweep that older
 versions performed.
@@ -16,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -41,6 +43,7 @@ class CommandResult:
     command: list[str]
     stdout: str = ""
     stderr: str = ""
+    timeout: int = 0
 
 
 @dataclass
@@ -107,7 +110,9 @@ def build_subprocess_env() -> dict[str, str]:
     pythonpath_parts = [str(path) for path in workspace_src_paths()]
     existing_pythonpath = env.get("PYTHONPATH")
     if existing_pythonpath:
-        pythonpath_parts.extend(part for part in existing_pythonpath.split(os.pathsep) if part)
+        pythonpath_parts.extend(
+            part for part in existing_pythonpath.split(os.pathsep) if part
+        )
     env["PYTHONPATH"] = os.pathsep.join(dict.fromkeys(pythonpath_parts))
     return env
 
@@ -130,7 +135,11 @@ def junit_contract_errors(path: Path | None) -> list[str]:
     for testcase in root.iter("testcase"):
         skipped = testcase.find("skipped")
         if skipped is not None:
-            name = testcase.attrib.get("classname", "") + "::" + testcase.attrib.get("name", "")
+            name = (
+                testcase.attrib.get("classname", "")
+                + "::"
+                + testcase.attrib.get("name", "")
+            )
             reason = skipped.attrib.get("message", "") or (skipped.text or "")
             errors.append(f"forbidden skipped/xfail testcase {name}: {reason}")
     return errors
@@ -170,6 +179,7 @@ def run_command(
             command=command,
             stdout=exc.stdout or "",
             stderr=exc.stderr or f"Timed out after {timeout}s",
+            timeout=timeout,
         )
 
     duration = time.time() - started
@@ -195,6 +205,7 @@ def run_command(
         command=command,
         stdout=completed.stdout,
         stderr=completed.stderr,
+        timeout=timeout,
     )
 
 
@@ -445,6 +456,7 @@ def run_h3_contracts(timeout: int) -> SuiteReport:
     report = SuiteReport()
     validators = [
         "validate_act_geospatial_contract.py",
+        "validate_act_script_orchestration.py",
         "validate_h3_active_inference_contract.py",
     ]
     for validator in validators:
@@ -481,6 +493,33 @@ def _text_tail(value: object, limit: int = 2000) -> str:
     return value[-limit:]
 
 
+def category_budget_lines(report: SuiteReport) -> list[str]:
+    """Render one line per category with its aggregate timeout budget.
+
+    Each module command runs under the per-command ``--timeout``; the budget
+    below is the worst case for the whole category, which is what a CI
+    ``timeout-minutes`` job ceiling must exceed. Commands whose names carry a
+    canonical category suffix (``<module> unit tests``) aggregate under that
+    category; everything else (validators, coverage plumbing) aggregates
+    under ``validators``.
+    """
+    category_re = re.compile(r" (unit|integration|system|performance|coverage) tests$")
+    budgets: dict[str, int] = {}
+    for result in report.results:
+        if result.timeout <= 0:
+            continue
+        match = category_re.search(result.name)
+        category = match.group(1) if match else "validators"
+        budgets[category] = budgets.get(category, 0) + result.timeout
+    lines = [
+        f"{name}: {seconds}s budget ({seconds // 60}m {seconds % 60}s)"
+        for name, seconds in sorted(budgets.items())
+    ]
+    if budgets:
+        lines.append(f"total: {sum(budgets.values())}s")
+    return lines
+
+
 def write_summary(report: SuiteReport) -> None:
     ensure_results_dir()
     summary = {
@@ -507,6 +546,11 @@ def write_summary(report: SuiteReport) -> None:
     passed = sum(1 for result in report.results if result.success)
     print("\n== Summary")
     print(f"Passed: {passed}/{total}")
+    budget_lines = category_budget_lines(report)
+    if budget_lines:
+        print("\n== Per-category timeout budget")
+        for line in budget_lines:
+            print(line)
     print(f"Summary: {RESULTS_DIR / 'summary.json'}")
 
 

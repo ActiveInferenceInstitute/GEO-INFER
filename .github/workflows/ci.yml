@@ -17,7 +17,17 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # Wall-time budget (SC-27): each matrix leg runs the 8 full-tree
+    # validators, then the unified runner categories. Every command runs
+    # under --timeout 600; the per-category worst case is 45 unit + 45
+    # integration + 4 performance + 1 system module commands plus the
+    # 3-validator h3 lane, a pathological ceiling of ~980 minutes per leg
+    # that assumes every command burns its full 600s. In practice commands
+    # finish well under budget; 90 minutes is ~1.5x observed leg wall time.
+    # run_unified_tests.py now prints a per-category budget summary
+    # ("== Per-category timeout budget") so a leg approaching its ceiling is
+    # visible in the runner output before the job timeout trips.
+    timeout-minutes: 90
     env:
       UV_PYTHON: ${{ matrix.python-version }}
     strategy:
@@ -237,6 +247,17 @@ jobs:
         run: |
           uv run python manuscript/generate_research_artifacts.py --verify
 
+      - name: Check published artifacts converge
+        # output/ is gitignored, so there is no committed bundle to check
+        # BEFORE regeneration; --check therefore runs AFTER regeneration as
+        # the shim-style post-condition: it re-measures RESEARCH_SOURCE_HASH
+        # against the freshly rendered bundle and fails when the render did
+        # not converge -- the stale-record drift the --verify path alone can
+        # mask.
+        run: |
+          uv run python manuscript/generate_research_artifacts.py --check
+          echo "Manuscript staleness gate (--check): converged after regeneration" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Run root manuscript regression tests
         # run_unified_tests.py only enumerates GEO-INFER-* module
         # directories, so the root tests/ suite never ran in CI. These 100+
@@ -249,3 +270,29 @@ jobs:
           uv run --with pytest python -m pytest tests/ \
             --ignore=tests/test_manuscript_pdf_layout.py \
             --deselect "tests/test_manuscript_paths.py::TestFigurePathLiterals::test_the_combined_document_keeps_the_rewrite_inside_image_targets"
+
+  gitleaks:
+    # Full-history secret scan (SEC-02). gitleaks-action@v2 requires the
+    # GITLEAKS_LICENSE secret for organization-owned repositories (free from
+    # gitleaks.io); it must exist at the org or repo level before this job
+    # can pass.
+    #
+    # Policy note on pre-rewrite objects: this repository's git history was
+    # rewritten on 2026-09-07 (git-filter-repo mailmap re-attribution).
+    # Commits and blobs from before the rewrite may still be served by
+    # GitHub for a time when requested by exact SHA (forks, cached PR refs,
+    # API access to dangling objects). gitleaks scans only the history
+    # reachable from this checkout; any secret surfaced in a pre-rewrite
+    # object must be treated as live and rotated regardless of its absence
+    # from the current history.
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
