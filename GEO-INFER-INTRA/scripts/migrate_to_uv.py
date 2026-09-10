@@ -306,12 +306,12 @@ class UVMigrator:
                 import tomli
 
                 existing_pyproject = tomli.loads(pyproject_path.read_text())
-            except:
+            except BaseException:
                 try:
                     import tomllib
 
                     existing_pyproject = tomllib.loads(pyproject_path.read_bytes())
-                except:
+                except BaseException:
                     pass
 
         # Merge dependencies (setup.py takes precedence, then requirements.txt, then existing pyproject.toml)

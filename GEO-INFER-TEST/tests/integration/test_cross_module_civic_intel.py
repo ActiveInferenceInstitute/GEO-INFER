@@ -32,9 +32,8 @@ from geo_infer_act import (
     hazard_policy_prior,
     parse_crescent_city_intel,
 )
-from geo_infer_bayes import (
-    load_crescent_city_intel,
-)
+from geo_infer_bayes import load_crescent_city_intel
+
 
 from geo_infer_act.core import civic_intel as act_civic
 from geo_infer_bayes import civic_intel as bayes_civic

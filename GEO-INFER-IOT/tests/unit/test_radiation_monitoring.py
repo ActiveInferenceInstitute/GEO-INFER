@@ -38,7 +38,7 @@ class TestRadiationMonitoringSystem:
         assert system.metrics["measurements_processed"] == 0
 
     def test_process_empirical_measurements(self, rad_config):
-        system = RadiationMonitoringSystem(rad_config)
+        _system = RadiationMonitoringSystem(rad_config)
         timestamp = datetime.now(timezone.utc).isoformat()
         data = [
             {

@@ -1,0 +1,546 @@
+{
+ "schema": "geo-infer-docs01-verification/v1",
+ "generated_at": "2026-09-08T10:26:55.682Z",
+ "row": "DOCS-01",
+ "browser": {
+  "engine": "Chromium (headless, Puppeteer)",
+  "raster_note": "captureScreenshot unavailable in the hidden shared browser; page versions captured via printToPDF"
+ },
+ "server": "http://127.0.0.1:8791 (python3 http.server over GEO-INFER-INTRA/docs/modules)",
+ "online_dependencies": {
+  "leaflet": "https://unpkg.com/leaflet@1.9.4",
+  "tiles": "https://tile.openstreetmap.org/"
+ },
+ "checks": [
+  {
+   "check": "all_45_pages_load_no_unexpected_console_errors",
+   "status": "pass",
+   "evidence": {
+    "pages": 45,
+    "http_200": 45,
+    "console_errors_total": 0,
+    "unexpected": 0
+   }
+  },
+  {
+   "check": "map_renders_online_representative",
+   "status": "pass",
+   "evidence": {
+    "representative": [
+     "ACT",
+     "SPACE",
+     "WATER",
+     "CLIMATE",
+     "TRANSPORT"
+    ],
+    "leaflet_online": true,
+    "map_visible": true,
+    "zoom_controls": true,
+    "tile_source": "https://tile.openstreetmap.org/"
+   }
+  },
+  {
+   "check": "cdn_failure_static_fallback_usable",
+   "status": "pass",
+   "evidence": {
+    "method": "CDP Fetch.enable failRequest on unpkg.com and openstreetmap.org, cold-cache incognito context",
+    "cold_cache": {
+     "leaflet_loaded": false,
+     "map_display": "none",
+     "static_svg_renderable": true,
+     "h3_polygons_on_act": 7,
+     "page_errors": 0
+    },
+    "warm_cache_blocked": {
+     "leaflet_loaded": true,
+     "map_visible": true,
+     "note": "graceful - assets served from cache"
+    },
+    "keyboard_toggle_offline": true,
+    "representatives_verified": [
+     "ACT",
+     "SPACE",
+     "WATER",
+     "CLIMATE",
+     "TRANSPORT"
+    ],
+    "climate_transport_cold": {
+     "climate": {
+      "leaflet": false,
+      "map_display": "none",
+      "svg_renderable": true,
+      "page_errors": 0
+     },
+     "transport": {
+      "leaflet": false,
+      "map_display": "none",
+      "svg_renderable": true,
+      "page_errors": 0
+     }
+    }
+   }
+  },
+  {
+   "check": "narrow_viewport_usable",
+   "status": "pass",
+   "evidence": {
+    "viewport": "375x667",
+    "no_horizontal_overflow": true,
+    "summary_visible": true,
+    "svg_visible": true,
+    "captured": [
+     "act_narrow_375px_cold.pdf",
+     "geo-infer-climate_narrow.pdf",
+     "geo-infer-transport_narrow.pdf"
+    ]
+   }
+  },
+  {
+   "check": "keyboard_navigation_operable",
+   "status": "pass",
+   "evidence": {
+    "target": "#static-preview summary",
+    "enter_toggles": true,
+    "online": {
+     "openBefore": true,
+     "openAfterEnter": false,
+     "openRestored": true,
+     "toggled": true
+    },
+    "cold_cache_offline": {
+     "openAfterEnter": false,
+     "openRestored": true,
+     "note": "Enter toggled the details closed then restored it while offline (cold cache)"
+    }
+   }
+  },
+  {
+   "check": "accessible_labels_present",
+   "status": "pass",
+   "evidence": {
+    "map_aria_label": "Interactive H3 geometry",
+    "svg_role_img": true,
+    "svg_title_and_desc": true,
+    "details_summary": "Static preview (available offline)",
+    "h1_title": true,
+    "across_all_45": true
+   }
+  },
+  {
+   "check": "asset_receipts_match_45_bundles",
+   "status": "pass",
+   "evidence": {
+    "method": "sha256+bytes recomputed from disk against manifests (receipt never trusted)",
+    "artifacts": 180,
+    "mismatches": 0
+   }
+  },
+  {
+   "check": "representative_page_versions_saved",
+   "status": "pass",
+   "evidence": {
+    "format": "PDF (printToPDF at viewport size)",
+    "note": "raster captureScreenshot is unavailable in the hidden headless browser (CDP captureScreenshot times out even on about:blank); page.pdf works and is the recorded browser/viewport version",
+    "files": [
+     "act_online.pdf",
+     "act_cdn_blocked.pdf",
+     "act_cold_cache_cdn_blocked.pdf",
+     "act_cold_narrow.pdf",
+     "geo-infer-space_online.pdf",
+     "geo-infer-water_online.pdf",
+     "geo-infer-climate_cold_cache_cdn_blocked.pdf",
+     "geo-infer-climate_narrow.pdf",
+     "geo-infer-climate_online.pdf",
+     "geo-infer-transport_cold_cache_cdn_blocked.pdf",
+     "geo-infer-transport_narrow.pdf",
+     "geo-infer-transport_online.pdf"
+    ]
+   }
+  },
+  {
+   "check": "verification_receipt_present",
+   "status": "pass",
+   "evidence": {
+    "receipt": "previews/verification/verification.json",
+    "doc": "previews/verification/verification.md"
+   }
+  }
+ ],
+ "pages": {
+  "geo-infer-act": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-ag": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-agent": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-ai": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-ant": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-api": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-app": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-art": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-bayes": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-bio": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-civ": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-climate": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-cog": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-comms": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-data": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-econ": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-edu": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-emergency": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-energy": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-examples": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-forest": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-git": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-health": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-insurance": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-intra": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-iot": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-log": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-marine": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-math": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-metagov": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-norms": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-ops": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-org": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-pep": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-place": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-req": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-risk": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-sec": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-sim": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-space": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-spm": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-test": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-time": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-transport": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  },
+  "geo-infer-water": {
+   "http": 200,
+   "console_errors": 0,
+   "leaflet_online": true,
+   "map_visible": true,
+   "static_svg": true,
+   "aria": "Interactive H3 geometry"
+  }
+ },
+ "index_links": {
+  "total": 90,
+  "missing": 0
+ },
+ "notes": [
+  "Warm-cache CDN-blocked reload still rendered the map from cache (graceful); the authoritative fallback check used a cold-cache incognito context with unpkg.com and openstreetmap.org blocked at the CDP Fetch layer.",
+  "Under cold-cache CDN failure Leaflet does not load (typeof L === 'undefined'), the map container stays display:none, and the always-present details#static-preview SVG (7 H3 polygons on ACT) is the usable surface; the page guard produces zero page errors.",
+  "Keyboard: Enter on the details summary toggles the static preview open/closed both online and offline.",
+  "Narrow viewport 375x667: no horizontal overflow; summary and SVG remain visible (warm and cold)."
+ ],
+ "tools": {
+  "browser": "session headless Chromium via Puppeteer (raw CDP); no Interceptor, no agent-browser (not installed)",
+  "interception": "CDP Fetch.enable + failRequest (unpkg.com, openstreetmap.org) in cold-cache incognito contexts",
+  "captures": "page.printToPDF at viewport size; raster captureScreenshot unavailable in the hidden browser"
+ }
+}

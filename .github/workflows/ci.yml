@@ -17,16 +17,9 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
-    # Wall-time budget (SC-27): each matrix leg runs the 8 full-tree
-    # validators, then the unified runner categories. Every command runs
-    # under --timeout 600; the per-category worst case is 45 unit + 45
-    # integration + 4 performance + 1 system module commands plus the
-    # 3-validator h3 lane, a pathological ceiling of ~980 minutes per leg
-    # that assumes every command burns its full 600s. In practice commands
-    # finish well under budget; 90 minutes is ~1.5x observed leg wall time.
-    # run_unified_tests.py now prints a per-category budget summary
-    # ("== Per-category timeout budget") so a leg approaching its ceiling is
-    # visible in the runner output before the job timeout trips.
+    # SC-27: 90-minute wall budget (~1.5x observed leg time); the per-category
+    # summary in run_unified_tests.py makes a leg approaching its ceiling
+    # visible before the job timeout trips.
     timeout-minutes: 90
     env:
       UV_PYTHON: ${{ matrix.python-version }}
@@ -125,6 +118,41 @@ jobs:
         run: |
           uv run --with 'ruff>=0.15.6,<0.16' ruff check \
             GEO-INFER-*/src --select F821,F823,E721,E722
+          # HYG-04: the module test suites carry no dead imports or unused
+          # locals; sanctioned availability probes are preserved as
+          # redundant-alias re-exports, which this rule set does not flag.
+          uv run --with 'ruff>=0.15.6,<0.16' ruff check \
+            GEO-INFER-*/tests --select F401,F841,F811
+
+      - name: Install pinned gitleaks
+        run: |
+          curl -fsSL -o /tmp/gitleaks.tar.gz \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  /tmp/gitleaks.tar.gz" | sha256sum -c -
+          sudo tar -xzf /tmp/gitleaks.tar.gz -C /usr/local/bin --no-same-owner gitleaks
+          gitleaks version
+
+      - name: Scan full history for secrets
+        # SEC-02: fail-closed scan over the full history with the committed
+        # policy; allowlists are file- and rule-scoped with written
+        # justifications (GEO-INFER-TEST/docs/secret_scan_policy.md).
+        run: |
+          gitleaks detect --source . --config .gitleaks.toml --redact --verbose
+
+      - name: Enforce module coverage floors
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          # TEST-03: modules whose src or tests changed in this event are
+          # re-measured and must meet their recorded floor
+          # (GEO-INFER-TEST/coverage_baseline.json).
+          base_sha="$BASE_SHA"
+          if ! [[ "$base_sha" =~ ^[0-9a-f]{40}$ ]] || ! git cat-file -e "$base_sha^{commit}" 2>/dev/null; then
+            base_sha="$(git rev-parse --verify "$HEAD_SHA^" 2>/dev/null || echo "$HEAD_SHA")"
+          fi
+          uv run --with pytest-cov python GEO-INFER-TEST/check_coverage_floor.py \
+            --base "$base_sha" --head "$HEAD_SHA"
 
       - name: Run unit tests
         id: unit_tests
@@ -216,7 +244,9 @@ jobs:
     # it is kept out of the fast test lane so a slow or broken render cannot
     # fail or delay the per-matrix validation jobs.
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # The render stage adds an apt LaTeX toolchain install and a full
+    # pandoc + XeLaTeX build to the existing verification run.
+    timeout-minutes: 45
     env:
       UV_PYTHON: "3.11"
     steps:
@@ -248,51 +278,76 @@ jobs:
           uv run python manuscript/generate_research_artifacts.py --verify
 
       - name: Check published artifacts converge
-        # output/ is gitignored, so there is no committed bundle to check
-        # BEFORE regeneration; --check therefore runs AFTER regeneration as
-        # the shim-style post-condition: it re-measures RESEARCH_SOURCE_HASH
-        # against the freshly rendered bundle and fails when the render did
-        # not converge -- the stale-record drift the --verify path alone can
-        # mask.
+        # output/ is gitignored: --check runs AFTER regeneration as the
+        # shim-style post-condition, failing when the render did not converge.
         run: |
           uv run python manuscript/generate_research_artifacts.py --check
-          echo "Manuscript staleness gate (--check): converged after regeneration" >> "$GITHUB_STEP_SUMMARY"
+          echo "Manuscript staleness gate (--check): converged" >> "$GITHUB_STEP_SUMMARY"
+      - name: Install the LaTeX render toolchain
+        # Minimal fail-closed set: xelatex plus the packages the preamble
+        # and pandoc's defaults need (seqsplit, fvextra, cleveref,
+        # longtable), and poppler for the layout tests' pdftotext and
+        # pdfinfo.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            texlive-xetex texlive-latex-recommended texlive-latex-extra \
+            texlive-fonts-recommended lmodern poppler-utils
+
+      - name: Install pinned pandoc and pandoc-crossref
+        # pandoc-crossref is built against one pandoc version, so the pair
+        # is installed from pinned release tarballs rather than from apt.
+        run: |
+          curl -fsSL -o /tmp/pandoc.tar.gz \
+            https://github.com/jgm/pandoc/releases/download/3.11/pandoc-3.11-linux-amd64.tar.gz
+          echo "37edb3bbcf722f921a009941bf5874e2e0c09263226c9b4a2d980788cb062ab6  /tmp/pandoc.tar.gz" | sha256sum -c -
+          sudo tar -xzf /tmp/pandoc.tar.gz -C /usr/local --strip-components=1 \
+            --no-same-owner pandoc-3.11/bin
+          curl -fsSL -o /tmp/pandoc-crossref.tar.xz \
+            https://github.com/lierdakil/pandoc-crossref/releases/download/v0.3.25/pandoc-crossref-Linux-X64.tar.xz
+          echo "2319816e3545ee78e44e4a97c2174c72eedf4b51d436b32721b48f43458eb0f6  /tmp/pandoc-crossref.tar.xz" | sha256sum -c -
+          sudo tar -xJf /tmp/pandoc-crossref.tar.xz -C /usr/local/bin --no-same-owner \
+            pandoc-crossref
+          pandoc --version | head -1
+          pandoc-crossref --version | head -1
+
+      - name: Render the manuscript PDF
+        # The in-repo render stage ROOT-01 deferred: it hydrates the
+        # evidence bundle, combines the published sections, and runs pandoc
+        # and XeLaTeX fail-closed. Its artifacts are the receipts the
+        # render-dependent tests read.
+        run: |
+          uv run python scripts/render_manuscript_pdf.py
+
+      - name: Run render-dependent root tests
+        run: |
+          uv run --with pytest python -m pytest \
+            tests/test_manuscript_pdf_layout.py \
+            "tests/test_manuscript_paths.py::TestFigurePathLiterals::test_the_combined_document_keeps_the_rewrite_inside_image_targets"
+
+      - name: Retain render receipts
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: geo-infer-manuscript-render-receipts
+          path: |
+            output/pdf/GEO-INFER_combined.pdf
+            output/pdf/_combined_manuscript.md
+            output/pdf/_combined_manuscript.tex
+            output/pdf/_combined_manuscript.log
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Run root manuscript regression tests
         # run_unified_tests.py only enumerates GEO-INFER-* module
         # directories, so the root tests/ suite never ran in CI. These 100+
         # tests guard the generator, its verification record and the
-        # shipped-bundle contract. The render-dependent files need the
-        # docxology LaTeX pass (output/pdf/*), which this repository's CI
-        # does not produce, so they are excluded here with their own
-        # receipts; pytest is layered on because the locked env omits it.
+        # shipped-bundle contract. The 7 render-dependent tests (6 in
+        # test_manuscript_pdf_layout.py and the deselected paths test) run
+        # in this same workflow's manuscript job above, which renders
+        # output/pdf/* first; pytest is layered on because the locked env
+        # omits it.
         run: |
           uv run --with pytest python -m pytest tests/ \
             --ignore=tests/test_manuscript_pdf_layout.py \
             --deselect "tests/test_manuscript_paths.py::TestFigurePathLiterals::test_the_combined_document_keeps_the_rewrite_inside_image_targets"
-
-  gitleaks:
-    # Full-history secret scan (SEC-02). gitleaks-action@v2 requires the
-    # GITLEAKS_LICENSE secret for organization-owned repositories (free from
-    # gitleaks.io); it must exist at the org or repo level before this job
-    # can pass.
-    #
-    # Policy note on pre-rewrite objects: this repository's git history was
-    # rewritten on 2026-09-07 (git-filter-repo mailmap re-attribution).
-    # Commits and blobs from before the rewrite may still be served by
-    # GitHub for a time when requested by exact SHA (forks, cached PR refs,
-    # API access to dangling objects). gitleaks scans only the history
-    # reachable from this checkout; any secret surfaced in a pre-rewrite
-    # object must be treated as live and rotated regardless of its absence
-    # from the current history.
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}

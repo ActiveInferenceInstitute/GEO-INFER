@@ -1,6 +1,6 @@
 # AII sidecar — InstituteOS metadata. Schema: instituteos.platform.aii_sidecar
 meta:
-  updated: '2026-09-09'
+  updated: '2026-09-07'
 repo:
   name: GEO-INFER
   slug: geo-infer
@@ -48,5 +48,5 @@ capabilities:
 - tested
 tasks:
   test:
-    cmd: uv run python GEO-INFER-TEST/run_unified_tests.py
-    description: Run the unified test and validation suites.
+    cmd: uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
+    description: Run the test suite.

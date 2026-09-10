@@ -56,5 +56,10 @@ config/
 /cache/
 GEO-INFER-PLACE/locations/cascadia/generated/cache/region_cache_*.json
 GEO-INFER-PLACE/locations/cascadia/output/data/cache/region_cache_*.json
-.gitnexus/
-.claude/
+
+# GitNexus local knowledge-graph index (created by `gitnexus analyze`).
+/.gitnexus/
+
+# Coverage measurement artifacts (TEST-03)
+/.coverage
+/.coverage.*

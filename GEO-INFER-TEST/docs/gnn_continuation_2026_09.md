@@ -4,6 +4,13 @@ This continuation starts at GEO `634b61b9` and GNN `92255b125`. Both isolated
 worktrees were clean. The original concurrently edited repositories were
 preserved. GNN includes the explicitly documented prior fleet ancestry.
 
+> History note (2026-09-07): the published history was rewritten to re-attribute
+> hum-side personal commit identities to docxology
+> <docxology@users.noreply.github.com>. Every commit SHA recorded in this
+> receipt before that rewrite refers to pre-rewrite history and no longer
+> resolves; the recorded evidence and run results remain valid, only the
+> identifiers changed.
+
 ## Delivered contracts
 
 - ACT legacy perception and policy evaluation now condition each observation

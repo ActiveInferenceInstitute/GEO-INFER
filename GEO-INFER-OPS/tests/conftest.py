@@ -14,9 +14,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from prometheus_client import CollectorRegistry
 
-from geo_infer_ops.core.config import (
-    Config,
-)
+from geo_infer_ops.core.config import Config
 from geo_infer_ops.utils.shared_logging import configure_logging
 from geo_infer_ops.core.monitoring import reset_metrics
 

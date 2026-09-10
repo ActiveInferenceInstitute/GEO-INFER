@@ -7,63 +7,218 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### September 9 scope-wave close-out
+### Deep horizon 2026-09-08 - Green-Ampt infiltration (WATER-01)
 
-- Implemented the SCOPE-2026-09-09.md improvement spec (27 items; 5 major,
-  15 medium, 7 minor) via eight parallel lanes; the ledger gained CODE-01
-  (GEO side), DOCS-04, EMERGENCY-01, CODE-02, HYG-05 and HYG-06 as delivered
-  and SEC-02, WATER-01, HYG-04 as precise partials.
-- ACT core: deduplicated the expected-free-energy computation and unified the
-  drifted `temporal_discount` default to 1.0 (parity tests now pin the two
-  surfaces); extracted the duplicated belief-propagation prologue and brought
-  `variational_inference.py` under the complexity thresholds; narrowed the
-  blind `except Exception` in the belief coercion and made the Gaussian-KL
-  singular-covariance fallback logged and documented; bounded the
-  importance-sampling covariance memory (O(n·d²) broadcast → einsum) and
-  switched the inversion to a solve.
-- Civic-intel family: moved the shared validator family into BAYES (kept
-  private), published the generic `decode_contract_json` helper, deleted the
-  duplicated parsers in ACT/RISK, renamed RISK's misleading `seed` parameter
-  to `source` (DeprecationWarning alias), and aligned the ACT parser's
-  schema-mismatch handling with the fail-closed BAYES/RISK behavior. The
-  guarded-degradation contract pinned by the PLACE enrichment test was
-  restored after integration caught the wave regression it had introduced;
-  bundled Crescent City seeds were re-synced byte-identical and the
-  contract-sync canonical surface updated to the 2026-09-08 producer seed.
-- Manuscript pipeline: replaced the two source-text-pinning assertions with
-  behavior tests (build_variables token contract; publication refusal through
-  a monkeypatched failing `run_verification`); added direct `run_verification`
-  tests, the CLI tier-widening seam test, the shim failure-path test, and the
-  count-vs-record / tier-axis tests; hardened the worktree mirror fixture
-  (returncode asserts, `worktree prune` backstop, portable PATH) and
-  deduplicated the shared test helpers. Root suite now 124 tests, green.
-- CI/packaging: wired the stale-artifact gate (`generate_research_artifacts
-  .py --check`) into the manuscript job post-regeneration (`output/` is
-  gitignored); aligned action majors across all four workflows at ci.yml's
-  pinned SHAs; added a fail-closed gitleaks job (org `GITLEAKS_LICENSE`
-  secret required, cadence still open as TODO SEC-02); added per-category
-  timeout budget lines to the unified runner; orphaned
-  `validate_act_script_orchestration.py` wired into the H3 lane; `.aii`
-  sidecar test command set to the unified runner. Validators gained shared
-  discovery plumbing (`_validator_common.py`), glob-vs-disk package-data
-  checking, fleet version-uniformity (INSURANCE 0.1.0 as a registered known
-  deviation pending REL-01), and the dead root setuptools packaging config was
-  removed (root `[build-system]` dropped with it, lock updated; the root is a
-  virtual workspace root). Member-level `uv.lock` files removed from PLACE and
-  TIME.
-- Water: delivered mass-conservative Green-Ampt infiltration
-  (`InfiltrationModeler`) with explicit parameters, 19 new tests, and the
-  SKILL.md truth line; WATER-01 remainder re-scoped.
-- Hygiene: tests-suite import audit swept 398 → 5 sanctioned residuals (all
-  F841 with constructor/copy RHS needing side-effect analysis, documented in
-  the ledger); INTRA maintenance scripts reformatted; the obsolete
-  documentation generator was deleted.
-- Docs: CHANGELOG `[Unreleased]` structure repaired (orphaned September-2
-  block headed); README/generated-signpost drift regenerated (823 READMEs,
-  820 AGENTS.md files current); the fep_lean notation-bridge sentence break
-  fixed and the manuscript AGENTS package-name emission made honest in the
-  generator; GitNexus index rebuilt (64,684 nodes / 91,155 edges) and the
-  receipt recorded per TODO CODE-01.
+- Implemented physically based Green-Ampt infiltration in
+  `HydrologicalModeler.green_ampt_infiltration`: capacity
+  `f = Ks*(1 + S/F)` with `S = suction_head * delta_theta`; pre-ponding
+  steps absorb all rain; ponded steps advance cumulative infiltration
+  with the implicit Green-Ampt relation
+  `F' = F + Ks*dt + S*ln((F'+S)/(F+S))` solved by Newton iteration
+  (unconditionally stable); the partition is mass-exact
+  (`runoff + infiltration == precipitation`).
+- Shipped 10 physics tests (`tests/unit/test_green_ampt.py`): S=0
+  degenerate capacity, capacity declining toward Ks, implicit-equation
+  residual < 1e-8, mass balance exact, wet-vs-dry soil ordering,
+  ponding flags, first-contact absorption, runoff feeding
+  `water_balance_closure` with zero residual, invalid-parameter
+  rejection. Full WATER suite green (94 tests); diff-scoped coverage
+  gate: WATER 96.0% vs floor 90%.
+- Re-scoped `GEO-INFER-WATER/SKILL.md`: Green-Ampt moved to capabilities
+  with a usage snippet; the remaining three surfaces
+  (aquifer/well-drawdown, flood-frequency, inundation mapping) stay
+  explicitly not-implemented.
+- Extended the autoresearch harness
+  (`GEO-INFER-TEST/water_surface_metric.py`) with the instrument:
+  `water_not_implemented_surfaces` (4 → 3).
+
+
+### Deep horizon 2026-09-07 - maintenance-script conformance
+
+- Close the HYG-05 drift: canonicalize the 10 non-canonical scripts under
+  `GEO-INFER-INTRA/scripts/` with one bounded `ruff format` pass
+  (`>=0.15.6,<0.16`), verified semantics-preserving by AST-dump equality on
+  all 13 files in the scope.
+- Convert the three E722 bare `except:` handlers (`audit_agents_docs.py`,
+  `migrate_to_uv.py`) to `except BaseException:` — identical runtime
+  semantics to a bare except, so no behavior change.
+- Settle DOCS-04: `.aii/config.yaml` `tasks.test.cmd` now runs
+  `uv run python GEO-INFER-TEST/run_unified_tests.py --category unit`
+  instead of bare `python -m pytest`, matching the AGENTS.md test-command
+  surfaces and the CI unit lane.
+- Close HYG-06: delete the obsolete generator
+  `update_documentation_signposts.py` (uninvoked dynamic orphan — CI runs
+  only the canonical `rewrite_readme_agents.py --check`) and regenerate its
+  generated README/AGENTS listings; no dangling references remain.
+
+### Deep horizon 2026-09-07 - geo-code01 index refresh
+
+- Refreshed the CODE-01 GitNexus index in the geo-code01 worktree: `gitnexus
+  analyze` (GitNexus 1.6.9) indexed the tree at
+  `61f697fc84f3070edeab8da80a3db7212bb086fd` (4,162 files, 64,530 nodes,
+  90,952 edges, 1,623 clusters, 300 flows, no embeddings), wrote the local
+  `.gitnexus/` store (now gitignored) and registered the repository in
+  `~/.gitnexus/registry.json`. Indexed/current-commit parity and the
+  explicit-file Gaussian-contract (`validate_gaussian_artifact`) and
+  sparse-transition (`SparseTransitionArtifact`) lookups verified through
+  `gitnexus context -r GEO-INFER`. `analyze` rewrites the AGENTS.md/CLAUDE.md
+  context sections and creates `.claude/`; both were restored to the canonical
+  generator output.
+- Added the dated pre-rewrite history note to ISA.md: its recorded SHAs
+  (including `fc62502c`, `cee1b5f0…`, `b45f108…` and the GNN-side
+  identifiers) are historical after the published-history identity rewrite,
+  and TODO.md and CHANGELOG.md already carried the note while ISA.md did not.
+  All 12 historical identifiers in ISA.md are now covered by a file-level
+  note, consistent with the other two ledger surfaces.
+- Extended the dated pre-rewrite history notes to the two GEO-INFER-TEST GNN
+  receipt files (`gnn_continuation_2026_09.md`, `gnn_space_time_2026_09.md`;
+  22 further historical identifiers now covered), hardened the
+  `autoresearch.sh` benchmark (ellipsis-truncated content digests excluded,
+  receipt SHA must be a HEAD ancestor, dated-note requirement), and recorded
+  the indexed branch name in the CODE-01 receipt.
+- CODE-01 acceptance reconciliation: the Gaussian exporter lives in the GNN
+  repository (artifacts are exported in a separate GNN environment per the
+  continuation receipt), so the GEO-side explicit-file lookup target is the
+  Gaussian contract surface (`validate_gaussian_artifact` /
+  `GaussianGNNArtifact`), verified through the index receipt.
+
+### Deep horizon 2026-09-07 - geo-render-lane
+
+- Delivered the permanent in-repo CI render lane (ROOT-01): the manuscript
+  job renders the manuscript in-runner through the repository's own render
+  path (`scripts/render_manuscript_pdf.py`: generator hydration,
+  published-section combine with the image-target-scoped figure-prefix
+  rewrite, preamble injection, pandoc, XeLaTeX to a clean final pass) and
+  then runs the 7 render-dependent root tests the main job excludes
+  (6 × `test_manuscript_pdf_layout.py` plus the deselected paths test);
+  receipts (PDF, combined document, LaTeX source, final log) upload as
+  artifacts. The union of the tracked CI selections covers all 109 root
+  tests per PR.
+- The render pins the template text block to the measured geometry
+  (430.00462 × 556.47656 pt), wraps code-block lines at spaces via fvextra,
+  forbids 1-3-line widow/orphan remainders, and raises tolerance with 8em
+  emergency stretch for the runner TeX's denser line breaking of
+  machine-token paragraphs; LaTeX `!` errors, `Missing character` reports,
+  and missing artifacts fail the build. The runner toolchain is a minimal
+  fail-closed apt set plus a sha256-pinned pandoc 3.11 / pandoc-crossref
+  0.3.25 pair.
+- Added the ROOT-01 benchmark harness (`autoresearch.sh` +
+  `GEO-INFER-TEST/render_lane_metric.py`): it collects the root battery,
+  replays every tracked workflow's pytest selection through real pytest
+  collection, and reports the union of collected test ids
+  (`ci_root_tests_covered`, 102 → 109) plus local render-path health
+  (`render_dependent_tests_local_passing`, 0 → 7).
+
+### Deep horizon 2026-09-08 - tests hygiene (HYG-04)
+
+- Cleared the module test suites' dead-import surface: the 398
+  F401/F841/F811 hits (361 F401, 35 F841, 2 F811 across 214 files) in
+  `GEO-INFER-*/tests` measured at the 2026-09-07 recount are 0, by the
+  HYG-01 per-site method — pure dead imports and pointless assignments
+  removed, sanctioned availability probes and deliberate re-exports
+  preserved as redundant-alias re-exports (which F401 exempts), F841
+  side-effect calls bare-called or underscore-prefixed. No `# noqa`, no
+  test semantics changed; every touched file's test subset passes, and
+  compileall plus full-suite collection cover the whole tree.
+- Added the durable sanctioned-select gate to the ci.yml
+  source-runtime-hygiene step: `ruff check GEO-INFER-*/tests --select
+  F401,F841,F811` keeps the floor at zero.
+- Extended the autoresearch harness (`autoresearch.sh` +
+  `GEO-INFER-TEST/tests_lint_metric.py`) with the HYG-04 instrument:
+  `tests_lint_hits` plus per-rule and top-file ASI diagnostics.
+
+### Deep horizon 2026-09-08 - secret-scan gate (SEC-02)
+
+- Added the fail-closed secret-scanning gate to ci.yml: gitleaks 8.30.1
+  (sha256-pinned release tarball) scans the full git history on every pull
+  request and every push to `main`; any non-allowlisted finding fails the
+  job.
+- Audited the 29 default-rule baseline findings (426 commits) site by
+  site — none is a live credential: documented API examples, synthetic
+  test-fixture credentials, and one historical untracked egg-info
+  artifact. The committed `.gitleaks.toml` allowlists exactly those sites,
+  file-path- and rule-scoped, each with a written justification.
+- Documented the scan policy and the pre-rewrite-object rule in
+  `GEO-INFER-TEST/docs/secret_scan_policy.md` (surfaced pre-rewrite
+  objects are treated as historical, revoke-first, and recorded).
+- Extended the autoresearch harness
+  (`GEO-INFER-TEST/secret_scan_metric.py`) with the instrument:
+  `secret_scan_findings` (29 → 0 after policy).
+
+### Deep horizon 2026-09-08 - assessment-artifact banners (DOCS-03)
+
+- Banner-marked all 27 tracked assessment artifacts (INTRA/EXAMPLES
+  assessment_results plus the EXAMPLES documentation analysis) with a
+  visible dated historical-artifact banner (markdown blockquote; JSON
+  `_historical_artifact` key), so stale point-in-time snapshots —
+  DEPENDENCY_ANALYSIS.md's wrong dependency counts,
+  COMPREHENSIVE_DOCUMENTATION_ANALYSIS.md's contradicted claims — can no
+  longer read as live guidance. The generated README/AGENTS pairs inside
+  those directories are canonical generator output and are excluded.
+- Recorded the recurring drift review: the per-commit
+  `rewrite_readme_agents.py --check` in ci.yml is the cadence.
+- Extended the autoresearch harness
+  (`GEO-INFER-TEST/stale_assessment_metric.py`) with the instrument:
+  `stale_assessment_artifacts` (27 → 0).
+
+### Deep horizon 2026-09-08 - coverage floors (TEST-03)
+
+- Measured per-module line coverage across all 45 modules (each module's
+  unit and integration suites under pytest-cov, xdist -n 4; performance
+  and system suites excluded and noted) and committed the baseline as
+  `GEO-INFER-TEST/coverage_baseline.json` with a per-module floor =
+  measured rounded down to the nearest 5 percent (rationale: floors catch
+  coverage collapses, not refactor churn; sweep range 16.7-98.6).
+- Enforcement is diff-scoped: `GEO-INFER-TEST/check_coverage_floor.py`
+  re-measures only modules whose src or tests changed in the event and
+  fails below the recorded floor; wired into ci.yml after the
+  secret-scan step and proven both ways locally (raised floor exits 1,
+  real floor exits 0).
+- Extended the autoresearch harness
+  (`GEO-INFER-TEST/coverage_baseline_metric.py`) with the instrument:
+  `modules_missing_coverage_baseline` (45 → 0). The sweep script
+  (`measure_module_coverage.py`) uses pytest-cov because plain
+  `coverage run` cannot see xdist's execnet workers.
+
+### Deep horizon 2026-09-08 - orchestrator coverage (EXAMPLES-01)
+
+- Added the eight missing thin orchestrators (CLIMATE, EDU, EMERGENCY,
+  ENERGY, FOREST, MARINE, TRANSPORT, WATER) on the delivered INSURANCE
+  exemplar: `examples/module_orchestrators/<MOD>/scripts/run_orchestrator.py`
+  plus `config/orchestrator_config.yaml` on the ACT pattern. Each drives
+  one documented end-to-end operation through the module's real public API
+  on deterministic synthetic data and was executed twice with exit 0 and
+  byte-identical results; FOREST/MARINE real-data upgrades stay gated on
+  the acquisition rule.
+- Registry entries added to `generate_orchestrators.py`;
+  `docs/index.md` gallery table and Examples-by-Module cross-reference
+  updated — all 45 modules are now listed.
+- Extended the autoresearch harness
+  (`GEO-INFER-TEST/orchestrator_coverage_metric.py`) with the instrument:
+  `modules_without_orchestrator_example` (8 → 0).
+
+### Deep horizon 2026-09-08 - preview browser verification (DOCS-01)
+
+- Executed the deferred browser verification of the 45 spatial preview
+  cards with real Chromium (headless, Puppeteer) against a local server:
+  all 45 pages load with Leaflet online, the map rendered, the static SVG
+  fallback present, and zero console errors; accessible labels verified on
+  every page.
+- Cold-cache incognito CDN failure (unpkg.com and openstreetmap.org
+  blocked at the CDP Fetch layer) degrades to the always-present
+  `details#static-preview` SVG — the map container stays `display:none`
+  via the page's own guard, zero page errors — and Enter on the details
+  summary toggles the preview online and offline; the 375×667 viewport
+  shows no horizontal overflow.
+- Asset receipts recomputed from disk against all 45 manifests:
+  180/180 artifacts match (sha256+bytes). The committed receipt lives at
+  `GEO-INFER-INTRA/docs/modules/previews/verification/` (JSON + markdown +
+  six printToPDF page versions; raster captureScreenshot is unavailable in
+  the hidden headless browser, documented in the receipt).
+- Extended the autoresearch harness
+  (`GEO-INFER-TEST/preview_receipt_metric.py`) with the instruments:
+  `docs01_verification_checks_open` (9 → 0) and
+  `preview_receipt_mismatches`.
 
 ### September 7 root health and CI integration
 
@@ -344,7 +499,6 @@ pass at that SHA.
 - Deleted empty stray root directories (`repos/`, `del_norte_dashboard/`) and
   fixed the PLACE cwd-relative dashboard default that created them.
 
-### September 2 delivery wave
 
 - Deliver real WebSocket/Kafka ingestion with explicit replay and acknowledgements
   after processing; preserve upstream adapter injection and broker timestamps.
@@ -390,7 +544,7 @@ pass at that SHA.
 - `CLIMATE` module climate change adaptation modeling with Bayesian uncertainty quantification
 
 
-### September 2 fix wave
+### Changed and Fixed (2026-09-02 fix wave)
 
 - Merged `codex/act-categorical-runtime` hardening into `main`; the
   2026-09-02 fix wave then applied real-implementation, contract, and

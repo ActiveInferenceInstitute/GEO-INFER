@@ -29,11 +29,20 @@
 - `tests/`
 - `_validator_common.py`
 - `build_package_wheels.py`
+- `check_coverage_floor.py`
+- `coverage_baseline_metric.py`
 - `import_probe.py`
+- `measure_module_coverage.py`
+- `orchestrator_coverage_metric.py`
+- `preview_receipt_metric.py`
+- `render_lane_metric.py`
 - `rewrite_readme_agents.py`
 - `run_model_audit.py`
 - `run_unified_tests.py`
+- `secret_scan_metric.py`
 - `setup.py`
+- `stale_assessment_metric.py`
+- `tests_lint_metric.py`
 - `validate_act_geospatial_contract.py`
 - `validate_act_script_orchestration.py`
 - `validate_active_inference_contract.py`
@@ -46,9 +55,11 @@
 - `validate_repo_contracts.py`
 - `validate_skills.py`
 - `validate_test_contracts.py`
+- `water_surface_metric.py`
 - `.gitignore`
 - `SKILL.md`
 - `TESTING.md`
+- `coverage_baseline.json`
 - `pyproject.toml`
 - `requirements.txt`
 

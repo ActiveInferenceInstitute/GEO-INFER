@@ -78,6 +78,7 @@ class TestAgentConfiguration:
         assert any("must be a number" in e for e in errors)
 
     def test_validate_geolocation_field(self):
+        AgentConfiguration.get_schema(AgentType.BDI)
         errors = AgentConfiguration.validate_config(
             AgentType.BDI,
             {

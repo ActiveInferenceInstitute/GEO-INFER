@@ -100,7 +100,7 @@ class TestGeneralLinearModel:
     def test_prediction(self):
         """Test prediction functionality."""
         glm = GeneralLinearModel(self.design_matrix)
-        result = glm.fit(self.spm_data, method="OLS")
+        _result = glm.fit(self.spm_data, method="OLS")
 
         # Predict on training data
         predictions = glm.predict()
@@ -111,7 +111,7 @@ class TestGeneralLinearModel:
     def test_coefficient_testing(self):
         """Test coefficient significance testing."""
         glm = GeneralLinearModel(self.design_matrix)
-        result = glm.fit(self.spm_data, method="OLS")
+        _result = glm.fit(self.spm_data, method="OLS")
 
         # Test first coefficient (should be significant)
         test_result = glm.get_coefficient_test(0)

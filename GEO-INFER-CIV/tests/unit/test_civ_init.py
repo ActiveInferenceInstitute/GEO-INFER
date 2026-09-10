@@ -16,6 +16,8 @@ class TestCivImports:
     def test_import_participation(self):
         from geo_infer_civ import (
             ParticipationAnalyzer,
+            ParticipationMethod as ParticipationMethod,
+            ParticipantRecord as ParticipantRecord,
         )
 
         assert ParticipationAnalyzer is not None

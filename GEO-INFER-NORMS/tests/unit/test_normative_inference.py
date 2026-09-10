@@ -321,6 +321,12 @@ class TestNormativeInference:
                 assert suggestion["current_compliance"] < 0.7
 
             # Check for specific norm suggestions if they exist
+            _speed_suggestion = next(
+                (s for s in suggestions if s["norm_id"] == self.speed_limit_id), None
+            )
+            _helmet_suggestion = next(
+                (s for s in suggestions if s["norm_id"] == self.helmet_id), None
+            )
 
             # Removed specific assertions that these must exist
             # Original assertions removed:

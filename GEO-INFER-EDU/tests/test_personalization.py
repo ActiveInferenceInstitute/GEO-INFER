@@ -225,5 +225,5 @@ class TestMasteryUpdate:
 
     def test_mastery_creates_learner_data(self) -> None:
         pl = PersonalizedLearning()
-        new_mastery = pl.update_mastery("new_learner", "topic", 0.5)
+        pl.update_mastery("new_learner", "topic", 0.5)
         assert "new_learner" in pl._mastery_data

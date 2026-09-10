@@ -8,7 +8,6 @@ produces consistent, deterministic behaviour for a simple task.
 """
 
 import asyncio
-
 from geo_infer_agent.models.bdi.agent import BDIAgent
 
 

@@ -9,7 +9,10 @@ from geo_infer_emergency.core.evacuation import (
     EvacuationZone,
     EvacuationLevel,
 )
-from geo_infer_emergency.core.awareness import SituationalAwareness, ThreatLevel
+from geo_infer_emergency.core.awareness import (
+    SituationalAwareness,
+    ThreatLevel,
+)
 from geo_infer_emergency.core.sar import SearchAndRescue, SubjectType
 
 

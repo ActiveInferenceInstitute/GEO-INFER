@@ -439,7 +439,7 @@ class TestBDIAgent:
         agent.state.set_current_intention(plan)
 
         # Perceive - in a real scenario, this would get data from sensors
-        perceptions = await agent.perceive()
+        await agent.perceive()
 
         # Decide
         action = await agent.decide()

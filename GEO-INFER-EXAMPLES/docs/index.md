@@ -168,16 +168,22 @@ uv run python GEO-INFER-EXAMPLES/examples/module_orchestrators/<MODULE>/scripts/
 | BAYES | `module_orchestrators/BAYES/` | Bayesian Inference |
 | BIO | `module_orchestrators/BIO/` | Biodiversity |
 | CIV | `module_orchestrators/CIV/` | Civic Engagement |
+| CLIMATE | `module_orchestrators/CLIMATE/` | Climate Science |
 | COG | `module_orchestrators/COG/` | Cognitive Science |
 | COMMS | `module_orchestrators/COMMS/` | Communications |
 | DATA | `module_orchestrators/DATA/` | Data Integration |
+| EDU | `module_orchestrators/EDU/` | Education |
 | ECON | `module_orchestrators/ECON/` | Economics |
+| EMERGENCY | `module_orchestrators/EMERGENCY/` | Emergency Response |
+| ENERGY | `module_orchestrators/ENERGY/` | Energy Systems |
+| FOREST | `module_orchestrators/FOREST/` | Forestry |
 | GIT | `module_orchestrators/GIT/` | Version Control |
 | HEALTH | `module_orchestrators/HEALTH/` | Health Analytics |
 | INSURANCE | `module_orchestrators/INSURANCE/` | Insurance Operations |
 | INTRA | `module_orchestrators/INTRA/` | Internal Documentation |
 | IOT | `module_orchestrators/IOT/` | IoT Sensors |
 | LOG | `module_orchestrators/LOG/` | Logistics |
+| MARINE | `module_orchestrators/MARINE/` | Marine Science |
 | MATH | `module_orchestrators/MATH/` | Mathematics |
 | NORMS | `module_orchestrators/NORMS/` | Normative Compliance |
 | OPS | `module_orchestrators/OPS/` | Operations |
@@ -192,8 +198,11 @@ uv run python GEO-INFER-EXAMPLES/examples/module_orchestrators/<MODULE>/scripts/
 | SPM | `module_orchestrators/SPM/` | Spatial Process Models |
 | TEST | `module_orchestrators/TEST/` | Testing Framework |
 | TIME | `module_orchestrators/TIME/` | Temporal Analysis |
-Note: Modules not listed (CLIMATE, EDU, EMERGENCY, ENERGY, FOREST, MARINE, TRANSPORT, WATER) do not yet have dedicated orchestrator examples. Contributions are welcome.
+| TRANSPORT | `module_orchestrators/TRANSPORT/` | Transportation |
+| WATER | `module_orchestrators/WATER/` | Water Resources |
+
 ---
+
 ## Examples by Module
 Cross-reference of which examples use each module.
 | Module | Examples |
@@ -207,7 +216,7 @@ Cross-reference of which examples use each module.
 | HEALTH | Health Surveillance, Area Study |
 | BAYES | Health Surveillance, Climate Microbiome |
 | RISK | IoT Radiation, Area Study |
-| CLIMATE | Climate Microbiome |
+| CLIMATE | Climate Microbiome, Climate Operations Orchestrator (`examples/module_orchestrators/CLIMATE/`) |
 | INSURANCE | Insurance Operations Orchestrator (`examples/module_orchestrators/INSURANCE/`) |
 | BIO | Climate Microbiome, Area Study |
 | PLACE | Area Study |
@@ -216,7 +225,15 @@ Cross-reference of which examples use each module.
 | API | Area Study |
 | APP | Area Study |
 | NORMS | Area Study |
+| EDU | Education Operations Orchestrator (`examples/module_orchestrators/EDU/`) |
+| EMERGENCY | Emergency Response Operations Orchestrator (`examples/module_orchestrators/EMERGENCY/`) |
+| ENERGY | Energy Operations Orchestrator (`examples/module_orchestrators/ENERGY/`) |
+| FOREST | Forest Operations Orchestrator (`examples/module_orchestrators/FOREST/`) |
+| MARINE | Marine Operations Orchestrator (`examples/module_orchestrators/MARINE/`) |
+| TRANSPORT | Transportation Operations Orchestrator (`examples/module_orchestrators/TRANSPORT/`) |
+| WATER | Water Operations Orchestrator (`examples/module_orchestrators/WATER/`) |
 ---
+
 ## Core Library Components
 Beyond the runnable examples, the `GEO-INFER-EXAMPLES` module includes library code under `src/geo_infer_examples/`:
 | Component | Path | Description |

@@ -214,7 +214,6 @@ class TestCheckpointReproducibility:
     """Loading a checkpoint must restore config and re-seed the RNG."""
 
     def test_load_checkpoint_restores_config_and_rng(self, tmp_path) -> None:
-
         config = SimulationConfig(
             time_step=0.5, max_time=10.0, output_interval=0.5, random_seed=123
         )

@@ -59,7 +59,7 @@ class TestSpatialAnalyzer:
     def test_spatial_weights_creation(self):
         """Test spatial weights matrix creation."""
         # Estimate variogram first
-        variogram = self.analyzer.estimate_variogram(self.data)
+        _variogram = self.analyzer.estimate_variogram(self.data)
 
         # Create weights
         weights = self.analyzer.create_spatial_weights()

@@ -5,6 +5,7 @@ Unit tests for GEO-INFER-TIME core functionality.
 import pandas as pd
 import numpy as np
 
+
 from geo_infer_time import __version__
 from geo_infer_time.core.analysis import TemporalAnalyzer
 from geo_infer_time.models.timeseries import TimeSeries

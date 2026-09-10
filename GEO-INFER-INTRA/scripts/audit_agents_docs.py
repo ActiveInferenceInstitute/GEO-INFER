@@ -135,7 +135,7 @@ class ModuleChecker:
                         if isinstance(node, ast.ClassDef) and node.name == class_name:
                             self.class_cache[cache_key] = True
                             return True
-                except:
+                except BaseException:
                     pass
 
         self.class_cache[cache_key] = False

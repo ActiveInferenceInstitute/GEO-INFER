@@ -28,7 +28,7 @@ from os import PathLike
 from pathlib import Path
 from typing import Final, TypedDict
 
-from .civic_intel import decode_contract_json
+from .civic_intel import _decode_contract_json
 
 __all__ = [
     "CRESCENT_CITY_OBSERVATIONS_SCHEMA",
@@ -119,9 +119,7 @@ def _bundled_observations_text() -> str | None:
         return None
 
 
-def _require_fields(
-    raw: Mapping[str, object], fields: tuple[str, ...], origin: str
-) -> None:
+def _require_fields(raw: Mapping[str, object], fields: tuple[str, ...], origin: str) -> None:
     missing = [name for name in fields if name not in raw]
     if missing:
         raise ValueError(f"{origin}: missing required field(s): {', '.join(missing)}")
@@ -134,9 +132,7 @@ def _require_str(raw: Mapping[str, object], name: str, origin: str) -> str:
     return value
 
 
-def _require_optional_str(
-    raw: Mapping[str, object], name: str, origin: str
-) -> str | None:
+def _require_optional_str(raw: Mapping[str, object], name: str, origin: str) -> str | None:
     value = raw.get(name)
     if value is None:
         return None
@@ -174,19 +170,13 @@ def _validate_composite(composite: object, origin: str) -> None:
         return
     if not isinstance(composite, Mapping):
         raise ValueError(f"{origin}: 'composite' must be an object or null")
-    _require_fields(
-        composite,
-        ("level", "reason", "assessedAt", "hasUnavailableMonitors"),
-        f"{origin} composite",
-    )
+    _require_fields(composite, ("level", "reason", "assessedAt", "hasUnavailableMonitors"), f"{origin} composite")
     _require_str(composite, "level", f"{origin} composite")
     if not isinstance(composite.get("reason"), str):
         raise ValueError(f"{origin}: composite 'reason' must be a string")
     _require_optional_str(composite, "assessedAt", f"{origin} composite")
     if not isinstance(composite.get("hasUnavailableMonitors"), bool):
-        raise ValueError(
-            f"{origin}: composite 'hasUnavailableMonitors' must be a boolean"
-        )
+        raise ValueError(f"{origin}: composite 'hasUnavailableMonitors' must be a boolean")
 
 
 def _validate_monitors(monitors: object, origin: str) -> None:
@@ -207,14 +197,10 @@ def _validate_monitors(monitors: object, origin: str) -> None:
             )
         _require_optional_str(monitor, "checkedAt", label)
         item_count = monitor.get("itemCount")
-        if item_count is not None and (
-            isinstance(item_count, bool) or not isinstance(item_count, int)
-        ):
+        if item_count is not None and (isinstance(item_count, bool) or not isinstance(item_count, int)):
             raise ValueError(f"{label}: 'itemCount' must be an integer or null")
         age_ms = monitor.get("ageMs")
-        if age_ms is not None and (
-            isinstance(age_ms, bool) or not isinstance(age_ms, int)
-        ):
+        if age_ms is not None and (isinstance(age_ms, bool) or not isinstance(age_ms, int)):
             raise ValueError(f"{label}: 'ageMs' must be an integer or null")
         url = monitor.get("url")
         if url is not None and not isinstance(url, str):
@@ -239,13 +225,8 @@ def _validate_hazard_summary(hazard_summary: object, origin: str) -> None:
 def _validate_freshness(freshness: object, origin: str) -> None:
     if not isinstance(freshness, Mapping):
         raise ValueError(f"{origin}: 'freshness' must be an object")
-    _require_fields(
-        freshness, ("contractSchema", "contractGeneratedAt"), f"{origin} freshness"
-    )
-    if (
-        _require_str(freshness, "contractSchema", f"{origin} freshness")
-        != GEO_INTEL_CONTRACT_SCHEMA_REF
-    ):
+    _require_fields(freshness, ("contractSchema", "contractGeneratedAt"), f"{origin} freshness")
+    if _require_str(freshness, "contractSchema", f"{origin} freshness") != GEO_INTEL_CONTRACT_SCHEMA_REF:
         raise ValueError(
             f"{origin}: freshness 'contractSchema' must be {GEO_INTEL_CONTRACT_SCHEMA_REF!r}"
         )
@@ -264,15 +245,7 @@ def validate_geo_observations(envelope: object, origin: str) -> Mapping[str, obj
         raise ValueError(f"{origin}: observations envelope must be a JSON object")
     _require_fields(
         envelope,
-        (
-            "schema",
-            "anchor",
-            "generatedAt",
-            "composite",
-            "monitors",
-            "hazardSummary",
-            "freshness",
-        ),
+        ("schema", "anchor", "generatedAt", "composite", "monitors", "hazardSummary", "freshness"),
         origin,
     )
     schema = _require_str(envelope, "schema", origin)
@@ -316,9 +289,7 @@ def load_crescent_city_geo_observations(
         if text is None:
             return None
         return validate_geo_observations(
-            decode_contract_json(
-                text, f"geo_infer_bayes/{_BUNDLED_OBSERVATIONS_RESOURCE}"
-            ),
+            _decode_contract_json(text, f"geo_infer_bayes/{_BUNDLED_OBSERVATIONS_RESOURCE}"),
             f"geo_infer_bayes/{_BUNDLED_OBSERVATIONS_RESOURCE}",
         )
 
@@ -328,6 +299,6 @@ def load_crescent_city_geo_observations(
     except FileNotFoundError:
         return None
     return validate_geo_observations(
-        decode_contract_json(text, str(path)),
+        _decode_contract_json(text, str(path)),
         str(path),
     )
