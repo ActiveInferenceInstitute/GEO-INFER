@@ -42,8 +42,9 @@ jobs:
           PY
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
-          path: geo
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          repository: ActiveInferenceInstitute/GeneralizedNotationNotation
+          ref: ${{ steps.pair.outputs.revision }}
+          path: gnn
           persist-credentials: false
       - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
