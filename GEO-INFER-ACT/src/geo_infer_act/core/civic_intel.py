@@ -1,9 +1,9 @@
 """Crescent City civic-intel ingestion and municipal hazard policy-prior plating.
 
-This module pulls the sibling ``crescent-city-intel`` geo-intel contract
-(``crescent-city-geo-intel/v1``) into GEO-INFER-ACT so that Active Inference
-over Crescent City can treat municipal hazard policy as structured priors and
-observables rather than hand-authored constants.
+This module consumes the canonical ``crescent-city-geo-intel/v1`` contract
+(the reviewed bundled copy resolved through GEO-INFER-BAYES) so that Active
+Inference over Crescent City can treat municipal hazard policy as structured
+priors and observables rather than hand-authored constants.
 
 The contract exposes a Crescent City anchor, twelve civic domains, and a
 hazard-relevant subset (tsunami/seismic/flood/fire-tagged municipal code
@@ -22,54 +22,108 @@ deterministic result.
 from __future__ import annotations
 
 import json
-import os
+import math
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence, Union
+from typing import Any, Dict, List, Mapping, Optional, Sequence, TypeAlias, Union
 
 import numpy as np
 
-# Shared civic-intel ingestion core: the canonical schema constant and raw
-# contract resolver live in GEO-INFER-BAYES, so every consumer resolves the
-# SAME objects and reads the ONE reviewed crescent-city-geo-intel.json copy.
-# The import is guarded: when the sibling is absent this module still imports
-# and its policy-prior surface keeps working (cross-module identity tests pin
-# object identity when the sibling IS importable).
+# Shared civic-intel ingestion core: the canonical schema constant, raw
+# contract resolver, JSON decoder, and validator family live in
+# GEO-INFER-BAYES, so every consumer resolves the SAME objects and reads the
+# ONE reviewed crescent-city-geo-intel.json copy. The import stays guarded:
+# the sibling-absent degradation path is a pinned contract (GEO-INFER-PLACE's
+# dashboard suite simulates the absence through the real import machinery),
+# so the fallback block below keeps this module's own parse-and-prior surface
+# fully working without BAYES.
+CivicIntelSource: TypeAlias = Union[None, str, Path, Dict[str, Any], Mapping[str, Any]]
+
 try:
     from geo_infer_bayes.civic_intel import (
         CRESCENT_CITY_INTEL_SCHEMA,
+        _parse_contract_bounds,
+        _require_list,
+        _require_mapping,
+        decode_contract_json,
         load_crescent_city_contract,
     )
     from geo_infer_bayes.geo_observations import (
-        CRESCENT_CITY_OBSERVATIONS_SCHEMA,
-        load_crescent_city_geo_observations,
+        CRESCENT_CITY_OBSERVATIONS_SCHEMA,  # noqa: F401 - re-exported for ACT consumers
+        load_crescent_city_geo_observations,  # noqa: F401 - re-exported for ACT consumers
     )
 except ImportError:  # pragma: no cover - sibling-absent degradation path
     CRESCENT_CITY_INTEL_SCHEMA = "crescent-city-geo-intel/v1"
     CRESCENT_CITY_OBSERVATIONS_SCHEMA = "crescent-city-geo-observations/v1"
 
-    def load_crescent_city_contract():
+    def load_crescent_city_contract(
+        source: CivicIntelSource = None,
+    ) -> Mapping[str, object] | None:
         raise ImportError(
             "load_crescent_city_contract requires geo-infer-bayes; the canonical"
             " crescent-city-geo-intel.json copy ships with geo-infer-bayes"
         )
 
-    def load_crescent_city_geo_observations(source=None):
+    def load_crescent_city_geo_observations(
+        source: Any = None,
+    ) -> Mapping[str, object] | None:
         raise ImportError(
             "load_crescent_city_geo_observations requires geo-infer-bayes; the"
             " canonical crescent-city-geo-observations.json copy ships with"
             " geo-infer-bayes"
         )
 
+    def decode_contract_json(text: str, path_label: str) -> Dict[str, Any]:
+        """Degraded-mode decoder matching the BAYES core's contract."""
+        try:
+            loaded = json.loads(text)
+        except json.JSONDecodeError as exc:
+            raise ValueError(
+                f"invalid Crescent City intel JSON at {path_label}: {exc}"
+            ) from exc
+        if not isinstance(loaded, dict):
+            raise ValueError(
+                f"Crescent City intel JSON from {path_label} must be an object"
+            )
+        return loaded
+
+    def _require_mapping(value: object, field_name: str) -> Mapping[str, Any]:
+        if not isinstance(value, Mapping):
+            raise ValueError(f"{field_name} must be an object")
+        return value
+
+    def _require_list(value: object, field_name: str) -> List[Any]:
+        if not isinstance(value, list):
+            raise ValueError(f"{field_name} must be an array")
+        return value
+
+    def _require_finite_float(value: object, field_name: str) -> float:
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise ValueError(f"{field_name} must be a finite number")
+        number = float(value)
+        if not math.isfinite(number):
+            raise ValueError(f"{field_name} must be a finite number")
+        return number
+
+    def _parse_contract_bounds(value: object) -> Dict[str, Any]:
+        """Degraded-mode WGS84 bounds validation matching the BAYES core."""
+        raw = _require_mapping(value, "anchor.bounds")
+        bounds = {
+            "west": _require_finite_float(raw.get("west"), "anchor.bounds.west"),
+            "south": _require_finite_float(raw.get("south"), "anchor.bounds.south"),
+            "east": _require_finite_float(raw.get("east"), "anchor.bounds.east"),
+            "north": _require_finite_float(raw.get("north"), "anchor.bounds.north"),
+        }
+        if not -180.0 <= bounds["west"] < bounds["east"] <= 180.0:
+            raise ValueError("anchor.bounds must satisfy -180 <= west < east <= 180")
+        if not -90.0 <= bounds["south"] < bounds["north"] <= 90.0:
+            raise ValueError("anchor.bounds must satisfy -90 <= south < north <= 90")
+        return bounds
+
 
 SUPPORTED_SCHEMA = CRESCENT_CITY_INTEL_SCHEMA
-ENV_CONTRACT_PATH = "CRESCENT_CITY_INTEL_CONTRACT_PATH"
 
-# Path to the sibling crescent-city-intel contract relative to this checkout.
-_DEFAULT_CONTRACT_RELATIVE = (
-    Path("crescent-city-intel") / "pages-data" / "geo-intel.json"
-)
 
 # Municipal hazard tags recognised in the contract and how strongly a policy
 # should avoid the state they mark. A higher value means the state is less
@@ -192,40 +246,8 @@ class CrescentCityIntel:
         }
 
 
-def default_contract_path() -> Path:
-    """Return the path to the sibling crescent-city-intel contract.
-
-    Honors ``CRESCENT_CITY_INTEL_CONTRACT_PATH`` when set, otherwise resolves
-    ``crescent-city-intel/pages-data/geo-intel.json`` relative to the
-    GEO-INFER checkout that contains this module.
-    """
-    override = os.environ.get(ENV_CONTRACT_PATH)
-    if override:
-        return Path(override)
-    # GEO-INFER-ACT/src/geo_infer_act/core/civic_intel.py
-    # -> parents[4] is the GEO-INFER repository root, whose sibling is
-    #    crescent-city-intel.
-    geo_infer_root = Path(__file__).resolve().parents[4]
-    return geo_infer_root.parent / _DEFAULT_CONTRACT_RELATIVE
-
-
-def _decode_contract_json(text: str, source_label: str) -> Dict[str, Any]:
-    """Decode one JSON object or raise a contract-facing ``ValueError``."""
-    try:
-        loaded = json.loads(text)
-    except json.JSONDecodeError as exc:
-        raise ValueError(
-            f"invalid Crescent City intel JSON from {source_label}: {exc}"
-        ) from exc
-    if not isinstance(loaded, dict):
-        raise ValueError(
-            f"Crescent City intel JSON from {source_label} must be an object"
-        )
-    return loaded
-
-
 def _coerce_contract(source: Any) -> Optional[Dict[str, Any]]:
-    """Load a raw contract from a dict, a path, or a JSON string.
+    """Load a raw contract from a mapping, a path, or a JSON string.
 
     Returns ``None`` when a requested path is absent. Existing but unreadable
     paths and malformed JSON fail closed with ``ValueError``.
@@ -236,39 +258,13 @@ def _coerce_contract(source: Any) -> Optional[Dict[str, Any]]:
     if isinstance(source, str):
         stripped = source.lstrip()
         if stripped.startswith(("{", "[")):
-            return _decode_contract_json(source, "injected string")
+            return dict(decode_contract_json(source, "injected string"))
 
     # None, path strings, and os.PathLike values delegate to the canonical
     # GEO-INFER-BAYES contract resolver: a missing file yields ``None`` while
     # existing but unreadable or malformed JSON fails closed with ``ValueError``.
     contract = load_crescent_city_contract(source)
     return dict(contract) if contract is not None else None
-
-
-def _require_dict(value: Any, field_name: str) -> Dict[str, Any]:
-    """Return a dict-shaped contract field or fail closed."""
-    if not isinstance(value, dict):
-        raise ValueError(f"{field_name} must be an object")
-    return value
-
-
-def _require_list(value: Any, field_name: str) -> List[Any]:
-    """Return a list-shaped contract field or fail closed."""
-    if not isinstance(value, list):
-        raise ValueError(f"{field_name} must be an array")
-    return value
-
-
-def _require_finite_float(value: Any, field_name: str) -> float:
-    """Return a finite numeric contract field or fail closed."""
-    if isinstance(value, bool) or not isinstance(
-        value, (int, float, np.integer, np.floating)
-    ):
-        raise ValueError(f"{field_name} must be a finite number")
-    number = float(value)
-    if not np.isfinite(number):
-        raise ValueError(f"{field_name} must be a finite number")
-    return number
 
 
 def _base_hazard_tag(tag: str) -> Optional[str]:
@@ -280,12 +276,14 @@ def _base_hazard_tag(tag: str) -> Optional[str]:
     return None
 
 
-def _read_topic(raw: Dict[str, Any], field_name: str = "hazard topic") -> GeoIntelTopic:
+def _read_topic(
+    raw: Mapping[str, Any], field_name: str = "hazard topic"
+) -> GeoIntelTopic:
     raw_tags = _require_list(raw.get("tags", []), f"{field_name}.tags")
     raw_sections = _require_list(raw.get("sections", []), f"{field_name}.sections")
     sections: List[GeoIntelSection] = []
     for index, section_value in enumerate(raw_sections):
-        section = _require_dict(section_value, f"{field_name}.sections[{index}]")
+        section = _require_mapping(section_value, f"{field_name}.sections[{index}]")
         sections.append(
             GeoIntelSection(
                 sectionNumber=str(section.get("sectionNumber", "")),
@@ -300,7 +298,7 @@ def _read_topic(raw: Dict[str, Any], field_name: str = "hazard topic") -> GeoInt
 
 
 def _read_hazard_domain(
-    raw: Dict[str, Any],
+    raw: Mapping[str, Any],
     field_name: str = "hazard domain",
     *,
     fallback_to_domain_tags: bool = False,
@@ -316,7 +314,7 @@ def _read_hazard_domain(
     raw_topics = _require_list(raw.get("topics", []), f"{field_name}.topics")
     topics: List[GeoIntelTopic] = []
     for index, topic_value in enumerate(raw_topics):
-        topic = _require_dict(topic_value, f"{field_name}.topics[{index}]")
+        topic = _require_mapping(topic_value, f"{field_name}.topics[{index}]")
         topics.append(_read_topic(topic, f"{field_name}.topics[{index}]"))
 
     return HazardDomain(
@@ -328,7 +326,7 @@ def _read_hazard_domain(
     )
 
 
-def _has_hazard_signal(raw: Dict[str, Any]) -> bool:
+def _has_hazard_signal(raw: Mapping[str, Any]) -> bool:
     """True when a raw domain references any recognised hazard tag."""
     raw_tags = _require_list(raw.get("tags", []), "domain.tags")
     tag_sources: List[str] = [str(item) for item in raw_tags]
@@ -345,14 +343,14 @@ def _extract_hazard_domains(contract: Dict[str, Any]) -> List[HazardDomain]:
     result is stable regardless of source shape.
     """
     hazard_value = contract.get("hazard", {})
-    hazard = _require_dict(hazard_value, "hazard")
+    hazard = _require_mapping(hazard_value, "hazard")
     explicit = _require_list(
         hazard.get("relevantDomains", []), "hazard.relevantDomains"
     )
     if explicit:
         domains = [
             _read_hazard_domain(
-                _require_dict(item, f"hazard.relevantDomains[{index}]"),
+                _require_mapping(item, f"hazard.relevantDomains[{index}]"),
                 f"hazard.relevantDomains[{index}]",
             )
             for index, item in enumerate(explicit)
@@ -361,7 +359,7 @@ def _extract_hazard_domains(contract: Dict[str, Any]) -> List[HazardDomain]:
 
     full_domain_values = _require_list(contract.get("domains", []), "domains")
     full_domains = [
-        _require_dict(item, f"domains[{index}]")
+        _require_mapping(item, f"domains[{index}]")
         for index, item in enumerate(full_domain_values)
     ]
     domains = [
@@ -376,22 +374,11 @@ def _extract_hazard_domains(contract: Dict[str, Any]) -> List[HazardDomain]:
     return _dedupe_domains([domain for domain in domains if domain.id])
 
 
-def _read_bounds(anchor: Dict[str, Any]) -> Optional[CivicIntelBounds]:
+def _read_bounds(anchor: Mapping[str, Any]) -> Optional[CivicIntelBounds]:
     """Parse and validate optional WGS84 municipal bounds."""
     if "bounds" not in anchor:
         return None
-    raw = _require_dict(anchor["bounds"], "anchor.bounds")
-    bounds = CivicIntelBounds(
-        west=_require_finite_float(raw.get("west"), "anchor.bounds.west"),
-        south=_require_finite_float(raw.get("south"), "anchor.bounds.south"),
-        east=_require_finite_float(raw.get("east"), "anchor.bounds.east"),
-        north=_require_finite_float(raw.get("north"), "anchor.bounds.north"),
-    )
-    if not -180.0 <= bounds.west < bounds.east <= 180.0:
-        raise ValueError("anchor.bounds must satisfy -180 <= west < east <= 180")
-    if not -90.0 <= bounds.south < bounds.north <= 90.0:
-        raise ValueError("anchor.bounds must satisfy -90 <= south < north <= 90")
-    return bounds
+    return CivicIntelBounds(**_parse_contract_bounds(anchor["bounds"]))
 
 
 def _dedupe_domains(domains: Sequence[HazardDomain]) -> List[HazardDomain]:
@@ -404,7 +391,7 @@ def _dedupe_domains(domains: Sequence[HazardDomain]) -> List[HazardDomain]:
 
 def parse_crescent_city_intel(
     seed: Optional[int] = None,
-    source: Union[None, str, Path, Dict[str, Any]] = None,
+    source: CivicIntelSource = None,
 ) -> Dict[str, Any]:
     """Parse the ``crescent-city-geo-intel/v1`` contract into a helper record.
 
@@ -414,22 +401,21 @@ def parse_crescent_city_intel(
             with the policy-prior builder and reserved for future stochastic
             defaults, so callers can rely on identical output for identical
             input regardless of the seed value.
-        source: The contract as a dict, a path to a JSON file, or a JSON string.
-            Defaults to the sibling ``crescent-city-intel/pages-data/geo-intel.json``.
+        source: The contract as a mapping, a path to a JSON file, or a JSON
+            string. Defaults to the reviewed bundled contract copy shipped
+            with geo-infer-bayes.
 
     Returns:
         A dict with ``schema``, ``city``, ``anchor``, ``generatedAt``,
-        ``bounds`` and ``hazardDomains`` keys. When the contract path is absent,
-        returns a graceful empty record (empty city, empty hazard subset, empty
-        bounds). Malformed JSON or v1 structures fail closed with ``ValueError``.
+        ``bounds`` and ``hazardDomains`` keys. When the contract source is
+        absent (for example a missing path), returns a graceful empty record
+        (empty city, empty hazard subset, empty bounds). Malformed JSON and
+        schema mismatches fail closed with ``ValueError``, matching the
+        GEO-INFER-BAYES and GEO-INFER-RISK ingestion contract.
     """
-    contract = (
-        _coerce_contract(source)
-        if source is not None
-        else _coerce_contract(default_contract_path())
-    )
+    contract = _coerce_contract(source)
 
-    if not contract or contract.get("schema") != SUPPORTED_SCHEMA:
+    if contract is None:
         return {
             "schema": None,
             "city": "",
@@ -439,7 +425,14 @@ def parse_crescent_city_intel(
             "hazardDomains": [],
         }
 
-    anchor = _require_dict(contract.get("anchor", {}), "anchor")
+    schema = contract.get("schema")
+    if schema != SUPPORTED_SCHEMA:
+        raise ValueError(
+            f"unexpected Crescent City intel schema {schema!r}; "
+            f"expected {SUPPORTED_SCHEMA!r}"
+        )
+
+    anchor = _require_mapping(contract.get("anchor", {}), "anchor")
     bounds = _read_bounds(anchor)
 
     record = CrescentCityIntel(
