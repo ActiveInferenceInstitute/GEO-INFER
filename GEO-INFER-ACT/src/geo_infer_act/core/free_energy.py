@@ -30,6 +30,11 @@ logger = logging.getLogger(__name__)
 
 EPSILON = 1e-12
 
+# Preferences may be a plain vector or the structured dict shape produced by
+# helpers such as ``hazard_policy_prior``; ``_preferences_to_vector`` lowers
+# both into a belief-aligned vector before use.
+PreferenceInput = Union[np.ndarray, Dict[str, Any]]
+
 
 def _coerce_probability_vector(
     values: Union[np.ndarray, list, tuple],
@@ -58,6 +63,191 @@ def _coerce_probability_vector(
             vector = vector / total
 
     return np.clip(vector, EPSILON, 1.0)
+
+
+def validate_spd_precision(name: str, matrix: np.ndarray) -> None:
+    """Validate one precision matrix as finite, symmetric, positive definite.
+
+    Shared by ``FreeEnergyCalculator``, ``VariationalInference``, and
+    ``BayesianBeliefUpdate`` so the Gaussian surface enforces one contract.
+
+    Args:
+        name: Parameter name used in error messages.
+        matrix: Candidate precision matrix.
+
+    Raises:
+        ValueError: If the matrix is non-finite, asymmetric, or not
+            positive definite.
+    """
+    if not np.all(np.isfinite(matrix)) or not np.allclose(matrix, matrix.T):
+        raise ValueError(f"{name} must be finite and symmetric")
+    try:
+        np.linalg.cholesky(matrix)
+    except np.linalg.LinAlgError as exc:
+        raise ValueError(f"{name} must be positive definite") from exc
+
+
+def _preferences_to_vector(preferences: Any, target_length: int) -> np.ndarray:
+    """Normalize supported preference shapes to a vector aligned with beliefs."""
+    if isinstance(preferences, dict):
+        for key in ("states", "observations", "preferences"):
+            if preferences.get(key) is not None:
+                preferences = preferences[key]
+                break
+        else:
+            preferences = np.ones(target_length) / max(target_length, 1)
+    return _coerce_probability_vector(preferences, target_length)
+
+
+def compute_policy_expected_free_energy(
+    beliefs: np.ndarray,
+    policy: Dict[str, Any],
+    preferences: Optional[Union[np.ndarray, Dict[str, Any]]] = None,
+    return_breakdown: bool = False,
+) -> Union[float, FreeEnergyBreakdown]:
+    """Compute expected free energy for one policy (single shared implementation).
+
+    This is the canonical expected-free-energy (EFE) evaluator for discrete
+    policies: :meth:`FreeEnergyCalculator.compute_expected_free_energy` and
+    :meth:`PolicySelector.compute_expected_free_energy` both delegate here so
+    the two classes cannot drift.
+
+    The score decomposes as
+
+        G = temporal_discount * pragmatic_value
+            - exploration_bonus * epistemic_value
+            + risk + ambiguity
+
+    where the epistemic term is the KL divergence between the policy's
+    expected posterior and its predictive prior when the policy supplies one
+    (``expected_posterior`` / ``posterior_beliefs``), and the predictive
+    entropy otherwise.
+
+    Args:
+        beliefs: Current beliefs.
+        policy: Policy to evaluate. Supported diagnostic keys include
+            ``expected_free_energy`` for externally supplied scores,
+            ``predicted_beliefs`` or ``expected_observation`` for
+            policy-conditioned predictive distributions,
+            ``expected_posterior``/``posterior_beliefs`` for the
+            policy-conditioned posterior, ``exploration_bonus``,
+            ``risk_preference``, ``ambiguity``, and ``temporal_discount``.
+        preferences: Prior preferences; either a vector or a structured dict
+            with ``states``/``observations``/``preferences`` keys.
+        return_breakdown: When true, return the decomposed
+            :class:`FreeEnergyBreakdown` instead of the scalar.
+
+    Returns:
+        Expected free energy value, or a decomposed result object when
+        ``return_breakdown`` is true.
+
+    Raises:
+        ValueError: If ``beliefs`` is empty or cannot be coerced to a
+            normalized probability vector.
+
+    Notes:
+        ``temporal_discount`` defaults to ``1.0`` (no temporal discounting of
+        the pragmatic term) at this single definition site; the historical
+        ``PolicySelector`` default of ``0.9`` was an accidental drift, not a
+        per-class contract (no test or caller pins it).  Policies that need a
+        discount pass ``temporal_discount`` explicitly, as
+        ``PolicySelector._create_default_policies`` already does.
+    """
+    if "expected_free_energy" in policy:
+        expected_free_energy = float(policy["expected_free_energy"])
+        if return_breakdown:
+            return FreeEnergyBreakdown(
+                free_energy=expected_free_energy,
+                metadata={"policy_supplied_expected_free_energy": True},
+            )
+        return expected_free_energy
+
+    beliefs = _coerce_probability_vector(beliefs)
+    if beliefs.size == 0:
+        raise ValueError("belief and preference vectors must not be empty")
+
+    if "predicted_beliefs" in policy:
+        predictive = _coerce_probability_vector(
+            policy["predicted_beliefs"], len(beliefs)
+        )
+    elif "expected_observation" in policy:
+        predictive = _coerce_probability_vector(
+            policy["expected_observation"], len(beliefs)
+        )
+    else:
+        predictive = beliefs
+
+    entropy = float(-np.sum(predictive * np.log(predictive + EPSILON)))
+    if "expected_posterior" in policy or "posterior_beliefs" in policy:
+        expected_posterior = _coerce_probability_vector(
+            cast(
+                Any,
+                policy.get("expected_posterior", policy.get("posterior_beliefs")),
+            ),
+            len(beliefs),
+        )
+        # Information gain is the KL divergence between the expected
+        # posterior and the predictive prior. Policies without an
+        # expected posterior use entropy as their exploration term.
+        epistemic_value = kl_divergence(expected_posterior, predictive)
+    else:
+        expected_posterior = None
+        epistemic_value = entropy
+
+    if preferences is not None:
+        preference_vector = _preferences_to_vector(preferences, len(predictive))
+        pragmatic_value = float(
+            -np.sum(predictive * np.log(preference_vector + EPSILON))
+        )
+    elif "expected_observation" in policy:
+        # Without stated preferences an expected observation is scored
+        # against the maximally uninformative uniform preference vector.
+        uniform_preferences = np.ones_like(predictive) / len(predictive)
+        pragmatic_value = float(
+            -np.sum(predictive * np.log(uniform_preferences + EPSILON))
+        )
+    else:
+        pragmatic_value = 0.0
+
+    exploration_bonus = float(policy.get("exploration_bonus", 0.1))
+    risk_preference = float(policy.get("risk_preference", 0.0))
+    temporal_discount = float(policy.get("temporal_discount", 1.0))
+    ambiguity = float(policy.get("ambiguity", 0.0))
+
+    risk = float(risk_preference * np.var(predictive))
+    expected_free_energy = float(
+        temporal_discount * pragmatic_value
+        - exploration_bonus * epistemic_value
+        + risk
+        + ambiguity
+    )
+
+    if return_breakdown:
+        return FreeEnergyBreakdown(
+            free_energy=expected_free_energy,
+            entropy=entropy,
+            pragmatic_value=pragmatic_value,
+            epistemic_value=epistemic_value,
+            risk=risk,
+            ambiguity=ambiguity,
+            metadata={
+                "model_type": "expected_policy",
+                "predictive_beliefs": predictive.copy(),
+                "expected_posterior": (
+                    expected_posterior.copy()
+                    if expected_posterior is not None
+                    else None
+                ),
+                "epistemic_value_source": (
+                    "expected_posterior_kl"
+                    if expected_posterior is not None
+                    else "predictive_entropy"
+                ),
+                "temporal_discount": temporal_discount,
+                "exploration_bonus": exploration_bonus,
+            },
+        )
+    return expected_free_energy
 
 
 class FreeEnergyCalculator:
@@ -125,9 +315,12 @@ class FreeEnergyCalculator:
         beliefs = np.asarray(beliefs)
         if beliefs.dtype == object:
             try:
-                beliefs = np.stack([np.asarray(b) for b in beliefs.flat]).astype(float)
-            except Exception:
-                beliefs = np.asarray(beliefs, dtype=float)
+                beliefs = np.stack([np.asarray(b, dtype=float) for b in beliefs.flat])
+            except (TypeError, ValueError) as exc:
+                raise ValueError(
+                    "object-dtype beliefs must contain numeric values that "
+                    "stack into one numeric array"
+                ) from exc
         else:
             beliefs = beliefs.astype(float)
         beliefs = _coerce_probability_vector(beliefs)
@@ -207,12 +400,7 @@ class FreeEnergyCalculator:
             ("precision", precision),
             ("prior_precision", prior_precision),
         ):
-            if not np.all(np.isfinite(matrix)) or not np.allclose(matrix, matrix.T):
-                raise ValueError(f"{name} must be finite and symmetric")
-            try:
-                np.linalg.cholesky(matrix)
-            except np.linalg.LinAlgError as exc:
-                raise ValueError(f"{name} must be positive definite") from exc
+            validate_spd_precision(name, matrix)
         if not np.all(np.isfinite(mean)) or not np.all(np.isfinite(observations)):
             raise ValueError("mean and observations must be finite")
 
@@ -243,11 +431,16 @@ class FreeEnergyCalculator:
         self,
         beliefs: np.ndarray,
         policy: Dict[str, Any],
-        preferences: Optional[np.ndarray] = None,
+        preferences: Optional[PreferenceInput] = None,
         return_breakdown: bool = False,
     ) -> Union[float, FreeEnergyBreakdown]:
         """
         Compute expected free energy for policy evaluation.
+
+        Delegates to the module-level
+        :func:`compute_policy_expected_free_energy` — the single shared
+        implementation also used by ``PolicySelector.compute_expected_free_energy``
+        — and records the score in the calculator's bookkeeping counters.
 
         Args:
             beliefs: Current beliefs
@@ -255,96 +448,24 @@ class FreeEnergyCalculator:
                 ``expected_free_energy`` for externally supplied scores,
                 ``predicted_beliefs`` or ``expected_observation`` for
                 policy-conditioned predictive distributions,
-                ``exploration_bonus``, ``risk_preference``, and ``ambiguity``.
+                ``exploration_bonus``, ``risk_preference``, ``ambiguity``,
+                and ``temporal_discount`` (default ``1.0``, no temporal
+                discounting; see the shared implementation's Notes).
             preferences: Prior preferences
 
         Returns:
             Expected free energy value, or a decomposed result object when
             ``return_breakdown`` is true.
         """
-        if isinstance(policy, dict) and "expected_free_energy" in policy:
-            expected_free_energy = float(policy["expected_free_energy"])
-            if return_breakdown:
-                return FreeEnergyBreakdown(
-                    free_energy=expected_free_energy,
-                    metadata={"policy_supplied_expected_free_energy": True},
-                )
-            return expected_free_energy
-
-        beliefs = _coerce_probability_vector(beliefs)
-        if "predicted_beliefs" in policy:
-            predictive = _coerce_probability_vector(
-                policy["predicted_beliefs"], len(beliefs)
-            )
-        elif "expected_observation" in policy:
-            predictive = _coerce_probability_vector(
-                policy["expected_observation"], len(beliefs)
-            )
-        else:
-            predictive = beliefs
-
-        entropy = float(-np.sum(predictive * np.log(predictive + EPSILON)))
-        if "expected_posterior" in policy or "posterior_beliefs" in policy:
-            expected_posterior = _coerce_probability_vector(
-                cast(
-                    Any,
-                    policy.get("expected_posterior", policy.get("posterior_beliefs")),
-                ),
-                len(beliefs),
-            )
-            epistemic_value = kl_divergence(expected_posterior, predictive)
-        else:
-            expected_posterior = None
-            epistemic_value = entropy
-
-        if preferences is not None:
-            preferences = _coerce_probability_vector(preferences, len(beliefs))
-            pragmatic_value = float(-np.sum(predictive * np.log(preferences + EPSILON)))
-        else:
-            pragmatic_value = 0.0
-
-        exploration_bonus = float(policy.get("exploration_bonus", 0.1))
-        risk_preference = float(policy.get("risk_preference", 0.0))
-        temporal_discount = float(policy.get("temporal_discount", 1.0))
-        ambiguity = float(policy.get("ambiguity", 0.0))
-
-        risk = float(risk_preference * np.var(predictive))
-        expected_free_energy = float(
-            temporal_discount * pragmatic_value
-            - exploration_bonus * epistemic_value
-            + risk
-            + ambiguity
+        policy_supplied = isinstance(policy, dict) and "expected_free_energy" in policy
+        result = compute_policy_expected_free_energy(
+            beliefs, policy, preferences, return_breakdown=return_breakdown
         )
-
-        self.last_computed_energy = expected_free_energy
-        self.computation_count += 1
-
-        if return_breakdown:
-            return FreeEnergyBreakdown(
-                free_energy=expected_free_energy,
-                entropy=entropy,
-                pragmatic_value=pragmatic_value,
-                epistemic_value=epistemic_value,
-                risk=risk,
-                ambiguity=ambiguity,
-                metadata={
-                    "model_type": "expected_policy",
-                    "predictive_beliefs": predictive.copy(),
-                    "expected_posterior": (
-                        expected_posterior.copy()
-                        if expected_posterior is not None
-                        else None
-                    ),
-                    "epistemic_value_source": (
-                        "expected_posterior_kl"
-                        if expected_posterior is not None
-                        else "predictive_entropy"
-                    ),
-                    "temporal_discount": temporal_discount,
-                    "exploration_bonus": exploration_bonus,
-                },
-            )
-        return expected_free_energy
+        if not policy_supplied:
+            value = result.free_energy if return_breakdown else result
+            self.last_computed_energy = float(value)
+            self.computation_count += 1
+        return result
 
     def compute(
         self,

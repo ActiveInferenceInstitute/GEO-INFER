@@ -22,7 +22,132 @@ import numpy as np
 from typing import Callable, Dict, Any, Optional
 import logging
 
+from geo_infer_act.core.free_energy import validate_spd_precision
+
 logger = logging.getLogger(__name__)
+
+
+def _variable_dimension(name: str, info: Any) -> int:
+    """Validate and return a factor-graph variable's state dimension."""
+    if not isinstance(info, dict):
+        raise ValueError(f"variable '{name}' must be described by a mapping")
+    dimension = info.get("dimension", 2)
+    if isinstance(dimension, bool) or int(dimension) != dimension or dimension <= 0:
+        raise ValueError(f"variable '{name}' must have a positive integer dimension")
+    return int(dimension)
+
+
+def _normalize_message(values: Any, dimension: int) -> np.ndarray:
+    """Normalize a finite non-negative message to a categorical vector."""
+    message = np.asarray(values, dtype=float).reshape(-1)
+    if message.shape != (dimension,):
+        raise ValueError(f"factor message must have shape ({dimension},)")
+    if not np.all(np.isfinite(message)) or np.any(message < 0):
+        raise ValueError("factor messages must be finite and non-negative")
+    total = float(np.sum(message))
+    if total <= 0:
+        return np.ones(dimension, dtype=float) / dimension
+    return message / total
+
+
+def _parse_factor_table(
+    factor_name: str, raw_factor: Any, dimensions: Dict[str, int]
+) -> tuple[str, list[str], np.ndarray]:
+    """Validate and parse one categorical factor entry."""
+    if not isinstance(raw_factor, dict):
+        raise ValueError("each factor must be a mapping with variables and potential")
+    factor_vars = raw_factor.get("variables", raw_factor.get("scope"))
+    if not isinstance(factor_vars, (list, tuple)) or not factor_vars:
+        raise ValueError(
+            f"factor '{factor_name}' must define a non-empty variables list"
+        )
+    factor_vars = [str(variable) for variable in factor_vars]
+    if len(set(factor_vars)) != len(factor_vars) or any(
+        variable not in dimensions for variable in factor_vars
+    ):
+        raise ValueError(
+            f"factor '{factor_name}' references an unknown or duplicate variable"
+        )
+    return (
+        factor_name,
+        factor_vars,
+        _parse_factor_potential(factor_name, raw_factor, factor_vars, dimensions),
+    )
+
+
+def _parse_factor_potential(
+    factor_name: str,
+    raw_factor: Dict[str, Any],
+    factor_vars: list[str],
+    dimensions: Dict[str, int],
+) -> np.ndarray:
+    """Validate and return one factor's potential table."""
+    raw_potential = raw_factor.get(
+        "potential", raw_factor.get("values", raw_factor.get("table"))
+    )
+    if raw_potential is None:
+        raise ValueError(f"factor '{factor_name}' must define a potential table")
+    potential = np.asarray(raw_potential, dtype=float)
+    expected_shape = tuple(dimensions[variable] for variable in factor_vars)
+    if potential.shape != expected_shape:
+        raise ValueError(
+            f"factor '{factor_name}' potential must have shape {expected_shape}"
+        )
+    if raw_factor.get("log_potential", False):
+        if not np.all(np.isfinite(potential)):
+            raise ValueError("log-potential values must be finite")
+        return np.exp(potential - np.max(potential))
+    if not np.all(np.isfinite(potential)) or np.any(potential < 0):
+        raise ValueError("factor potentials must be finite and non-negative")
+    if not np.any(potential > 0):
+        raise ValueError(f"factor '{factor_name}' has no positive support")
+    return potential
+
+
+def _parse_factors(
+    factor_spec: Any, dimensions: Dict[str, int]
+) -> list[tuple[str, list[str], np.ndarray]]:
+    """Parse common categorical factor-table representations."""
+    if factor_spec is None:
+        return []
+    entries = (
+        list(factor_spec.items())
+        if isinstance(factor_spec, dict)
+        else list(enumerate(factor_spec))
+    )
+    return [
+        _parse_factor_table(str(raw_name), raw_factor, dimensions)
+        for raw_name, raw_factor in entries
+    ]
+
+
+def _parse_factor_graph(
+    factor_graph: Dict[str, Any], observations: Dict[str, np.ndarray]
+) -> tuple[Dict[str, Any], Dict[str, int], list[tuple[str, list[str], np.ndarray]]]:
+    """Shared parse/validate prologue for structured inference methods.
+
+    Validates the variables mapping, rejects observations of unknown
+    variables, resolves per-variable state dimensions, and parses the
+    factor tables.
+
+    Returns:
+        The validated variables mapping, the per-variable dimension map,
+        and the parsed factor list.
+    """
+    variables = factor_graph.get("variables", {})
+    if not isinstance(variables, dict):
+        raise ValueError("factor_graph['variables'] must be a mapping")
+    unknown_observations = set(observations) - set(variables)
+    if unknown_observations:
+        raise ValueError(
+            "observations reference unknown variables: "
+            + ", ".join(sorted(unknown_observations))
+        )
+    dimensions = {
+        name: _variable_dimension(name, info) for name, info in variables.items()
+    }
+    factors = _parse_factors(factor_graph.get("factors", {}), dimensions)
+    return variables, dimensions, factors
 
 
 class VariationalInference:
@@ -83,76 +208,82 @@ class VariationalInference:
             raise ValueError("observations must be a non-empty finite vector")
         # Mean-field update for conjugate categorical and Gaussian cases.
         if "concentration" in prior:
-            # Dirichlet-categorical conjugate update
-            concentration = np.asarray(prior["concentration"], dtype=float).reshape(-1)
-            if concentration.shape != observations.shape:
-                raise ValueError(
-                    "Dirichlet concentration and observations must have the same shape"
-                )
-            if not np.all(np.isfinite(concentration)) or np.any(concentration <= 0):
-                raise ValueError("Dirichlet concentration must be finite and positive")
-            if np.any(observations < 0):
-                raise ValueError("Dirichlet observations must be non-negative")
-            posterior_concentration = concentration + observations
-
-            # Normalize to get mean parameters
-            posterior_mean = posterior_concentration / np.sum(posterior_concentration)
-
-            return {
-                "concentration": posterior_concentration,
-                "mean": posterior_mean,
-                "precision": 1.0 / (posterior_mean * (1 - posterior_mean) + 1e-8),
-            }
-
-        elif "mean" in prior and "precision" in prior:
-            # Gaussian update
-            prior_mean = np.asarray(prior["mean"], dtype=float).reshape(-1)
-            prior_precision = np.asarray(prior["precision"], dtype=float)
-            if prior_precision.shape != (prior_mean.size, prior_mean.size):
-                raise ValueError(
-                    "prior precision must be square with one row per state"
-                )
-
-            # Likelihood precision (assumed known)
-            obs_precision = np.asarray(
-                likelihood.get("precision", np.eye(len(observations))), dtype=float
+            return self._dirichlet_mean_field_update(
+                prior["concentration"], observations
             )
-            if (
-                prior_mean.shape != observations.shape
-                or obs_precision.shape != prior_precision.shape
-            ):
-                raise ValueError(
-                    "Gaussian prior, likelihood, and observations must have matching dimensions"
-                )
-            for name, matrix in (
-                ("prior precision", prior_precision),
-                ("observation precision", obs_precision),
-            ):
-                if not np.all(np.isfinite(matrix)) or not np.allclose(matrix, matrix.T):
-                    raise ValueError(f"{name} must be finite and symmetric")
-                try:
-                    np.linalg.cholesky(matrix)
-                except np.linalg.LinAlgError as exc:
-                    raise ValueError(f"{name} must be positive definite") from exc
+        if "mean" in prior and "precision" in prior:
+            return self._gaussian_mean_field_update(prior, likelihood, observations)
+        # Default update
+        return prior.copy()
 
-            # Posterior parameters
-            posterior_precision = prior_precision + obs_precision
-            posterior_mean = np.linalg.solve(
-                posterior_precision,
-                prior_precision @ prior_mean + obs_precision @ observations,
+    @staticmethod
+    def _dirichlet_mean_field_update(
+        concentration: Any, observations: np.ndarray
+    ) -> Dict[str, np.ndarray]:
+        """Dirichlet-categorical conjugate mean-field update."""
+        concentration = np.asarray(concentration, dtype=float).reshape(-1)
+        if concentration.shape != observations.shape:
+            raise ValueError(
+                "Dirichlet concentration and observations must have the same shape"
             )
+        if not np.all(np.isfinite(concentration)) or np.any(concentration <= 0):
+            raise ValueError("Dirichlet concentration must be finite and positive")
+        if np.any(observations < 0):
+            raise ValueError("Dirichlet observations must be non-negative")
+        posterior_concentration = concentration + observations
 
-            return {
-                "mean": posterior_mean,
-                "precision": posterior_precision,
-                "covariance": np.linalg.solve(
-                    posterior_precision, np.eye(posterior_precision.shape[0])
-                ),
-            }
+        # Normalize to get mean parameters
+        posterior_mean = posterior_concentration / np.sum(posterior_concentration)
 
-        else:
-            # Default update
-            return prior.copy()
+        return {
+            "concentration": posterior_concentration,
+            "mean": posterior_mean,
+            "precision": 1.0 / (posterior_mean * (1 - posterior_mean) + 1e-8),
+        }
+
+    @staticmethod
+    def _gaussian_mean_field_update(
+        prior: Dict[str, np.ndarray],
+        likelihood: Dict[str, np.ndarray],
+        observations: np.ndarray,
+    ) -> Dict[str, np.ndarray]:
+        """Gaussian conjugate mean-field update with known likelihood precision."""
+        prior_mean = np.asarray(prior["mean"], dtype=float).reshape(-1)
+        prior_precision = np.asarray(prior["precision"], dtype=float)
+        if prior_precision.shape != (prior_mean.size, prior_mean.size):
+            raise ValueError("prior precision must be square with one row per state")
+
+        # Likelihood precision (assumed known)
+        obs_precision = np.asarray(
+            likelihood.get("precision", np.eye(len(observations))), dtype=float
+        )
+        if (
+            prior_mean.shape != observations.shape
+            or obs_precision.shape != prior_precision.shape
+        ):
+            raise ValueError(
+                "Gaussian prior, likelihood, and observations must have matching dimensions"
+            )
+        for name, matrix in (
+            ("prior precision", prior_precision),
+            ("observation precision", obs_precision),
+        ):
+            validate_spd_precision(name, matrix)
+
+        # Posterior parameters
+        posterior_precision = prior_precision + obs_precision
+        posterior_mean = np.linalg.solve(
+            posterior_precision,
+            prior_precision @ prior_mean + obs_precision @ observations,
+        )
+
+        return {
+            "mean": posterior_mean,
+            "precision": posterior_precision,
+            "covariance": np.linalg.solve(
+                posterior_precision, np.eye(posterior_precision.shape[0])
+            ),
+        }
 
     def mean_field_update_categorical(
         self, prior: np.ndarray, likelihood: np.ndarray, observations: np.ndarray
@@ -214,45 +345,11 @@ class VariationalInference:
         Returns:
             Marginal beliefs for all variables
         """
-        variables = factor_graph.get("variables", {})
-        if not isinstance(variables, dict):
-            raise ValueError("factor_graph['variables'] must be a mapping")
-        unknown_observations = set(observations) - set(variables)
-        if unknown_observations:
-            raise ValueError(
-                "observations reference unknown variables: "
-                + ", ".join(sorted(unknown_observations))
-            )
-
-        dimensions = {
-            name: self._variable_dimension(name, info)
-            for name, info in variables.items()
-        }
-        clamped: Dict[str, np.ndarray] = {}
-        unary = {}
-        for var_name, dimension in dimensions.items():
-            info = variables[var_name]
-            prior = (
-                info.get("prior", np.ones(dimension))
-                if isinstance(info, dict)
-                else np.ones(dimension)
-            )
-            unary[var_name] = self._normalize_message(prior, dimension)
-            if var_name in observations:
-                observed = np.asarray(observations[var_name], dtype=float).reshape(-1)
-                clamped[var_name] = self._normalize_message(observed, dimension)
-
-        factors = self._parse_factors(factor_graph.get("factors", {}), dimensions)
-        factor_to_var: Dict[tuple[str, str], np.ndarray] = {}
-        var_to_factor: Dict[tuple[str, str], np.ndarray] = {}
-        for factor_name, factor_vars, _ in factors:
-            for variable in factor_vars:
-                factor_to_var[(factor_name, variable)] = (
-                    np.ones(dimensions[variable]) / dimensions[variable]
-                )
-                var_to_factor[(variable, factor_name)] = clamped.get(
-                    variable, unary[variable]
-                ).copy()
+        variables, dimensions, factors = _parse_factor_graph(factor_graph, observations)
+        clamped, unary = self._build_unary_priors(variables, dimensions, observations)
+        factor_to_var, var_to_factor = self._init_message_tables(
+            factors, dimensions, clamped, unary
+        )
 
         beliefs = {name: clamped.get(name, unary[name]).copy() for name in dimensions}
         for iteration in range(self.max_iterations):
@@ -260,48 +357,17 @@ class VariationalInference:
 
             # Factor-to-variable messages marginalize the factor potential
             # over all other variables using their current incoming messages.
-            for factor_name, factor_vars, potential in factors:
-                for target in factor_vars:
-                    message = potential.copy()
-                    for axis, variable in reversed(list(enumerate(factor_vars))):
-                        if variable == target:
-                            continue
-                        incoming = var_to_factor[(variable, factor_name)]
-                        shape = [1] * message.ndim
-                        shape[axis] = dimensions[variable]
-                        message = message * incoming.reshape(shape)
-                        message = np.sum(message, axis=axis)
-                    factor_to_var[(factor_name, target)] = self._normalize_message(
-                        message, dimensions[target]
-                    )
+            self._pass_factor_to_variable_messages(
+                factors, dimensions, var_to_factor, factor_to_var
+            )
+            self._update_variable_beliefs(
+                dimensions, clamped, unary, factors, factor_to_var, beliefs
+            )
+            self._pass_variable_to_factor_messages(
+                dimensions, clamped, unary, factors, factor_to_var, var_to_factor
+            )
 
-            for variable, dimension in dimensions.items():
-                if variable in clamped:
-                    beliefs[variable] = clamped[variable].copy()
-                    continue
-                belief = unary[variable].copy()
-                for factor_name, factor_vars, _ in factors:
-                    if variable in factor_vars:
-                        belief *= factor_to_var[(factor_name, variable)]
-                beliefs[variable] = self._normalize_message(belief, dimension)
-                for factor_name, factor_vars, _ in factors:
-                    if variable not in factor_vars:
-                        continue
-                    message = unary[variable].copy()
-                    for other_factor_name, other_factor_vars, _ in factors:
-                        if (
-                            variable in other_factor_vars
-                            and other_factor_name != factor_name
-                        ):
-                            message *= factor_to_var[(other_factor_name, variable)]
-                    var_to_factor[(variable, factor_name)] = self._normalize_message(
-                        message, dimension
-                    )
-
-            if all(
-                np.max(np.abs(beliefs[name] - old_beliefs[name])) <= self.tolerance
-                for name in beliefs
-            ):
+            if self._beliefs_converged(beliefs, old_beliefs):
                 logger.debug(
                     "Belief propagation converged in %s iterations", iteration + 1
                 )
@@ -319,84 +385,146 @@ class VariationalInference:
         }
 
     @staticmethod
-    def _variable_dimension(name: str, info: Any) -> int:
-        """Validate and return a factor-graph variable's state dimension."""
-        if not isinstance(info, dict):
-            raise ValueError(f"variable '{name}' must be described by a mapping")
-        dimension = info.get("dimension", 2)
-        if isinstance(dimension, bool) or int(dimension) != dimension or dimension <= 0:
-            raise ValueError(
-                f"variable '{name}' must have a positive integer dimension"
+    def _build_unary_priors(
+        variables: Dict[str, Any],
+        dimensions: Dict[str, int],
+        observations: Dict[str, np.ndarray],
+    ) -> tuple[Dict[str, np.ndarray], Dict[str, np.ndarray]]:
+        """Build normalized unary priors and clamped observation messages."""
+        clamped: Dict[str, np.ndarray] = {}
+        unary: Dict[str, np.ndarray] = {}
+        for var_name, dimension in dimensions.items():
+            info = variables[var_name]
+            prior = (
+                info.get("prior", np.ones(dimension))
+                if isinstance(info, dict)
+                else np.ones(dimension)
             )
-        return int(dimension)
+            unary[var_name] = _normalize_message(prior, dimension)
+            if var_name in observations:
+                observed = np.asarray(observations[var_name], dtype=float).reshape(-1)
+                clamped[var_name] = _normalize_message(observed, dimension)
+        return clamped, unary
 
     @staticmethod
-    def _normalize_message(values: Any, dimension: int) -> np.ndarray:
-        """Normalize a finite non-negative message to a categorical vector."""
-        message = np.asarray(values, dtype=float).reshape(-1)
-        if message.shape != (dimension,):
-            raise ValueError(f"factor message must have shape ({dimension},)")
-        if not np.all(np.isfinite(message)) or np.any(message < 0):
-            raise ValueError("factor messages must be finite and non-negative")
-        total = float(np.sum(message))
-        if total <= 0:
-            return np.ones(dimension, dtype=float) / dimension
-        return message / total
+    def _init_message_tables(
+        factors: list[tuple[str, list[str], np.ndarray]],
+        dimensions: Dict[str, int],
+        clamped: Dict[str, np.ndarray],
+        unary: Dict[str, np.ndarray],
+    ) -> tuple[Dict[tuple[str, str], np.ndarray], Dict[tuple[str, str], np.ndarray]]:
+        """Initialize uniform factor-to-variable and variable-to-factor messages."""
+        factor_to_var: Dict[tuple[str, str], np.ndarray] = {}
+        var_to_factor: Dict[tuple[str, str], np.ndarray] = {}
+        for factor_name, factor_vars, _ in factors:
+            for variable in factor_vars:
+                factor_to_var[(factor_name, variable)] = (
+                    np.ones(dimensions[variable]) / dimensions[variable]
+                )
+                var_to_factor[(variable, factor_name)] = clamped.get(
+                    variable, unary[variable]
+                ).copy()
+        return factor_to_var, var_to_factor
+
+    @staticmethod
+    def _factor_to_variable_message(
+        factor_name: str,
+        factor_vars: list[str],
+        potential: np.ndarray,
+        target: str,
+        dimensions: Dict[str, int],
+        var_to_factor: Dict[tuple[str, str], np.ndarray],
+    ) -> np.ndarray:
+        """Marginalize one factor potential toward a target variable."""
+        message = potential.copy()
+        for axis, variable in reversed(list(enumerate(factor_vars))):
+            if variable == target:
+                continue
+            incoming = var_to_factor[(variable, factor_name)]
+            shape = [1] * message.ndim
+            shape[axis] = dimensions[variable]
+            message = message * incoming.reshape(shape)
+            message = np.sum(message, axis=axis)
+        return _normalize_message(message, dimensions[target])
 
     @classmethod
-    def _parse_factors(
-        cls, factor_spec: Any, dimensions: Dict[str, int]
-    ) -> list[tuple[str, list[str], np.ndarray]]:
-        """Parse common categorical factor-table representations."""
-        if factor_spec is None:
-            return []
-        entries = (
-            list(factor_spec.items())
-            if isinstance(factor_spec, dict)
-            else list(enumerate(factor_spec))
+    def _pass_factor_to_variable_messages(
+        cls,
+        factors: list[tuple[str, list[str], np.ndarray]],
+        dimensions: Dict[str, int],
+        var_to_factor: Dict[tuple[str, str], np.ndarray],
+        factor_to_var: Dict[tuple[str, str], np.ndarray],
+    ) -> None:
+        """Update every factor-to-variable message from current state."""
+        for factor_name, factor_vars, potential in factors:
+            for target in factor_vars:
+                factor_to_var[(factor_name, target)] = cls._factor_to_variable_message(
+                    factor_name,
+                    factor_vars,
+                    potential,
+                    target,
+                    dimensions,
+                    var_to_factor,
+                )
+
+    @staticmethod
+    def _update_variable_beliefs(
+        dimensions: Dict[str, int],
+        clamped: Dict[str, np.ndarray],
+        unary: Dict[str, np.ndarray],
+        factors: list[tuple[str, list[str], np.ndarray]],
+        factor_to_var: Dict[tuple[str, str], np.ndarray],
+        beliefs: Dict[str, np.ndarray],
+    ) -> None:
+        """Multiply incoming factor messages into each variable belief."""
+        for variable, dimension in dimensions.items():
+            if variable in clamped:
+                beliefs[variable] = clamped[variable].copy()
+                continue
+            belief = unary[variable].copy()
+            for factor_name, factor_vars, _ in factors:
+                if variable in factor_vars:
+                    belief *= factor_to_var[(factor_name, variable)]
+            beliefs[variable] = _normalize_message(belief, dimension)
+
+    @classmethod
+    def _pass_variable_to_factor_messages(
+        cls,
+        dimensions: Dict[str, int],
+        clamped: Dict[str, np.ndarray],
+        unary: Dict[str, np.ndarray],
+        factors: list[tuple[str, list[str], np.ndarray]],
+        factor_to_var: Dict[tuple[str, str], np.ndarray],
+        var_to_factor: Dict[tuple[str, str], np.ndarray],
+    ) -> None:
+        """Update each variable's outgoing messages to its factors."""
+        for variable, dimension in dimensions.items():
+            if variable in clamped:
+                continue
+            for factor_name, factor_vars, _ in factors:
+                if variable not in factor_vars:
+                    continue
+                message = unary[variable].copy()
+                for other_factor_name, other_factor_vars, _ in factors:
+                    if (
+                        variable in other_factor_vars
+                        and other_factor_name != factor_name
+                    ):
+                        message *= factor_to_var[(other_factor_name, variable)]
+                var_to_factor[(variable, factor_name)] = _normalize_message(
+                    message, dimension
+                )
+
+    def _beliefs_converged(
+        self,
+        beliefs: Dict[str, np.ndarray],
+        old_beliefs: Dict[str, np.ndarray],
+    ) -> bool:
+        """Check whether every marginal moved within tolerance."""
+        return all(
+            np.max(np.abs(beliefs[name] - old_beliefs[name])) <= self.tolerance
+            for name in beliefs
         )
-        parsed = []
-        for raw_name, raw_factor in entries:
-            if not isinstance(raw_factor, dict):
-                raise ValueError(
-                    "each factor must be a mapping with variables and potential"
-                )
-            factor_name = str(raw_name)
-            factor_vars = raw_factor.get("variables", raw_factor.get("scope"))
-            if not isinstance(factor_vars, (list, tuple)) or not factor_vars:
-                raise ValueError(
-                    f"factor '{factor_name}' must define a non-empty variables list"
-                )
-            factor_vars = [str(variable) for variable in factor_vars]
-            if len(set(factor_vars)) != len(factor_vars) or any(
-                variable not in dimensions for variable in factor_vars
-            ):
-                raise ValueError(
-                    f"factor '{factor_name}' references an unknown or duplicate variable"
-                )
-            raw_potential = raw_factor.get(
-                "potential", raw_factor.get("values", raw_factor.get("table"))
-            )
-            if raw_potential is None:
-                raise ValueError(
-                    f"factor '{factor_name}' must define a potential table"
-                )
-            potential = np.asarray(raw_potential, dtype=float)
-            expected_shape = tuple(dimensions[variable] for variable in factor_vars)
-            if potential.shape != expected_shape:
-                raise ValueError(
-                    f"factor '{factor_name}' potential must have shape {expected_shape}"
-                )
-            if raw_factor.get("log_potential", False):
-                if not np.all(np.isfinite(potential)):
-                    raise ValueError("log-potential values must be finite")
-                potential = np.exp(potential - np.max(potential))
-            elif not np.all(np.isfinite(potential)) or np.any(potential < 0):
-                raise ValueError("factor potentials must be finite and non-negative")
-            if not np.any(potential > 0):
-                raise ValueError(f"factor '{factor_name}' has no positive support")
-            parsed.append((factor_name, factor_vars, potential))
-        return parsed
 
     def _structured_mean_field(
         self, factor_graph: Dict[str, Any], observations: Dict[str, np.ndarray]
@@ -411,26 +539,8 @@ class VariationalInference:
         Returns:
             Variational posterior approximations
         """
-        variables = factor_graph.get("variables", {})
-        unknown_observations = set(observations) - set(variables)
-        if unknown_observations:
-            raise ValueError(
-                "observations reference unknown variables: "
-                + ", ".join(sorted(unknown_observations))
-            )
-        dimensions = {
-            name: self._variable_dimension(name, info)
-            for name, info in variables.items()
-        }
-        factors = self._parse_factors(factor_graph.get("factors", {}), dimensions)
-        q_params = {}
-        for var_name, dimension in dimensions.items():
-            if var_name in observations:
-                # Preserve clamped values in the public result.
-                q_params[var_name] = np.asarray(observations[var_name]).copy()
-            else:
-                prior = variables[var_name].get("prior", np.ones(dimension))
-                q_params[var_name] = self._normalize_message(prior, dimension)
+        variables, dimensions, factors = _parse_factor_graph(factor_graph, observations)
+        q_params = self._init_q_params(variables, dimensions, observations)
 
         # Coordinate ascent updates
         for iteration in range(self.max_iterations):
@@ -439,54 +549,98 @@ class VariationalInference:
             for var_name, dimension in dimensions.items():
                 if var_name in observations:
                     continue
-                log_belief = np.log(
-                    self._normalize_message(
-                        variables[var_name].get("prior", np.ones(dimension)),
-                        dimension,
-                    )
-                    + 1e-12
-                )
-                for _, factor_vars, potential in factors:
-                    if var_name not in factor_vars:
-                        continue
-                    expected_log_potential = np.log(np.maximum(potential, 1e-300))
-                    for axis, other in reversed(list(enumerate(factor_vars))):
-                        if other == var_name:
-                            continue
-                        other_q = self._normalize_message(
-                            q_params[other], dimensions[other]
-                        )
-                        shape = [1] * expected_log_potential.ndim
-                        shape[axis] = dimensions[other]
-                        expected_log_potential = np.sum(
-                            expected_log_potential * other_q.reshape(shape), axis=axis
-                        )
-                    log_belief += expected_log_potential
-                shifted = log_belief - np.max(log_belief)
-                q_params[var_name] = np.exp(shifted)
-                q_params[var_name] = self._normalize_message(
-                    q_params[var_name], dimension
+                q_params[var_name] = self._mean_field_variable_update(
+                    var_name, dimension, variables, dimensions, factors, q_params
                 )
 
-            # Check convergence
-            converged = True
-            for var_name in q_params:
-                if var_name in observations:
-                    continue
-                if (
-                    np.max(np.abs(q_params[var_name] - old_params[var_name]))
-                    > self.tolerance
-                ):
-                    converged = False
-                    break
-
-            if converged:
+            if self._mean_field_converged(q_params, old_params, observations):
                 logger.debug(
                     f"Structured mean-field converged in {iteration + 1} iterations"
                 )
                 break
 
         return q_params
+
+    @staticmethod
+    def _init_q_params(
+        variables: Dict[str, Any],
+        dimensions: Dict[str, int],
+        observations: Dict[str, np.ndarray],
+    ) -> Dict[str, np.ndarray]:
+        """Initialize variational parameters from priors and clamped values."""
+        q_params: Dict[str, np.ndarray] = {}
+        for var_name, dimension in dimensions.items():
+            if var_name in observations:
+                # Preserve clamped values in the public result.
+                q_params[var_name] = np.asarray(observations[var_name]).copy()
+            else:
+                prior = variables[var_name].get("prior", np.ones(dimension))
+                q_params[var_name] = _normalize_message(prior, dimension)
+        return q_params
+
+    @staticmethod
+    def _mean_field_variable_update(
+        var_name: str,
+        dimension: int,
+        variables: Dict[str, Any],
+        dimensions: Dict[str, int],
+        factors: list[tuple[str, list[str], np.ndarray]],
+        q_params: Dict[str, np.ndarray],
+    ) -> np.ndarray:
+        """Coordinate-ascent update of one variable's categorical posterior."""
+        log_belief = np.log(
+            _normalize_message(
+                variables[var_name].get("prior", np.ones(dimension)),
+                dimension,
+            )
+            + 1e-12
+        )
+        for _, factor_vars, potential in factors:
+            if var_name not in factor_vars:
+                continue
+            log_belief += VariationalInference._expected_log_potential(
+                var_name, factor_vars, potential, dimensions, q_params
+            )
+        shifted = log_belief - np.max(log_belief)
+        return _normalize_message(np.exp(shifted), dimension)
+
+    @staticmethod
+    def _expected_log_potential(
+        var_name: str,
+        factor_vars: list[str],
+        potential: np.ndarray,
+        dimensions: Dict[str, int],
+        q_params: Dict[str, np.ndarray],
+    ) -> np.ndarray:
+        """Marginalize one factor's log-potential over the other variables."""
+        expected_log_potential = np.log(np.maximum(potential, 1e-300))
+        for axis, other in reversed(list(enumerate(factor_vars))):
+            if other == var_name:
+                continue
+            other_q = _normalize_message(q_params[other], dimensions[other])
+            shape = [1] * expected_log_potential.ndim
+            shape[axis] = dimensions[other]
+            expected_log_potential = np.sum(
+                expected_log_potential * other_q.reshape(shape), axis=axis
+            )
+        return expected_log_potential
+
+    def _mean_field_converged(
+        self,
+        q_params: Dict[str, np.ndarray],
+        old_params: Dict[str, np.ndarray],
+        observations: Dict[str, np.ndarray],
+    ) -> bool:
+        """Check whether all unobserved posteriors moved within tolerance."""
+        for var_name in q_params:
+            if var_name in observations:
+                continue
+            if (
+                np.max(np.abs(q_params[var_name] - old_params[var_name]))
+                > self.tolerance
+            ):
+                return False
+        return True
 
     def importance_sampling_update(
         self,
@@ -524,21 +678,27 @@ class VariationalInference:
 
         # Compute weighted statistics
         posterior_mean = np.sum(samples * weights[:, np.newaxis], axis=0)
-
-        # Weighted covariance
         centered_samples = samples - posterior_mean
-        posterior_cov = np.sum(
-            weights[:, np.newaxis, np.newaxis]
-            * centered_samples[:, :, np.newaxis]
-            * centered_samples[:, np.newaxis, :],
-            axis=0,
+
+        # Weighted covariance.  einsum fuses the weights into the outer
+        # product so the O(n * d^2) intermediate tensor of the naive
+        # broadcast ``weights[:, None, None] * centered[:, :, None] *
+        # centered[:, None, :]`` is never materialized; peak memory is the
+        # d x d output plus the n x d samples.
+        posterior_cov = np.einsum(
+            "n,ni,nj->ij",
+            weights,
+            centered_samples,
+            centered_samples,
+            optimize=True,
         )
 
         return {
             "mean": posterior_mean,
             "covariance": posterior_cov,
-            "precision": np.linalg.inv(
-                posterior_cov + 1e-6 * np.eye(posterior_cov.shape[0])
+            "precision": np.linalg.solve(
+                posterior_cov + 1e-6 * np.eye(posterior_cov.shape[0]),
+                np.eye(posterior_cov.shape[0]),
             ),
             "samples": samples,
             "weights": weights,
@@ -562,6 +722,18 @@ class VariationalInference:
 
         Returns:
             ELBO value
+
+        Notes:
+            When the Gaussian KL divergence cannot be evaluated because the
+            prior or posterior precision is singular or otherwise fails a
+            linear solve (``numpy.linalg.LinAlgError``), the KL term falls
+            back to the squared-mean-difference proxy
+            ``0.5 * ||post_mean - prior_mean||^2``.  The proxy omits the
+            trace and log-determinant terms, so the returned value is a
+            pessimistic lower surrogate of the true ELBO (it subtracts a
+            smaller KL), not the exact evidence bound.  The substitution is
+            logged as a warning; treat the score as degenerate when it
+            appears.
         """
         # Expected log likelihood term
         if "mean" in posterior:
@@ -591,7 +763,14 @@ class VariationalInference:
                     - len(post_mean)
                     + np.log(np.linalg.det(prior_prec) / np.linalg.det(post_prec))
                 )
-            except np.linalg.LinAlgError:
+            except np.linalg.LinAlgError as exc:
+                logger.warning(
+                    "Gaussian ELBO KL term degraded to the squared-mean-difference "
+                    "proxy because the precision matrices are not jointly solvable "
+                    "(%s); the returned value omits the trace and log-determinant "
+                    "terms of the true KL divergence.",
+                    exc,
+                )
                 kl_div = 0.5 * np.sum((post_mean - prior_mean) ** 2)
         else:
             # Categorical KL divergence.

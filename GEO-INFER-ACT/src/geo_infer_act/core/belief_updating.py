@@ -17,6 +17,7 @@ Lean proofs.
 from typing import Dict
 import numpy as np
 
+from geo_infer_act.core.free_energy import validate_spd_precision
 from geo_infer_act.utils.math import (
     categorical_posterior,
     compute_surprise as _compute_surprise,
@@ -110,12 +111,7 @@ class BayesianBeliefUpdate:
             ("prior_precision", prior_precision),
             ("observation_precision", observation_precision),
         ):
-            if not np.all(np.isfinite(matrix)) or not np.allclose(matrix, matrix.T):
-                raise ValueError(f"{name} must be finite and symmetric")
-            try:
-                np.linalg.cholesky(matrix)
-            except np.linalg.LinAlgError as exc:
-                raise ValueError(f"{name} must be positive definite") from exc
+            validate_spd_precision(name, matrix)
         if not np.all(np.isfinite(prior_mean)) or not np.all(np.isfinite(observation)):
             raise ValueError("Gaussian belief vectors must be finite")
 

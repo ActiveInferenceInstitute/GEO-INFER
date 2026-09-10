@@ -16,6 +16,7 @@ from geo_infer_act import (
     PolicyEvaluation,
 )
 from geo_infer_act.core.free_energy import FreeEnergyCalculator
+from geo_infer_act.core.policy_selection import PolicySelector
 
 
 class TestFreeEnergyInit:
@@ -220,6 +221,109 @@ class TestExpectedFreeEnergy:
             breakdown.metadata["predictive_beliefs"],
             np.array([0.1, 0.8, 0.1]),
         )
+
+
+class TestPolicySelectorEfeParity:
+    """FreeEnergyCalculator and PolicySelector must agree on identical inputs.
+
+    Both classes delegate to the shared
+    ``compute_policy_expected_free_energy`` implementation; these tests pin
+    that contract so the historical ``temporal_discount`` drift (1.0 vs 0.9)
+    cannot reintroduce a class-dependent policy score.
+    """
+
+    def test_efe_parity_with_matching_inputs(self) -> None:
+        """Identical beliefs, policy, and preferences give identical scores."""
+        beliefs = np.array([0.4, 0.3, 0.2, 0.1])
+        policy = {
+            "exploration_bonus": 0.2,
+            "risk_preference": 0.1,
+            "ambiguity": 0.05,
+        }
+        preferences = np.array([0.1, 0.2, 0.3, 0.4])
+        calculator = FreeEnergyCalculator()
+        selector = PolicySelector()
+
+        assert calculator.compute_expected_free_energy(
+            beliefs, policy, preferences
+        ) == selector.compute_expected_free_energy(beliefs, policy, preferences)
+
+    def test_efe_parity_with_explicit_temporal_discount(self) -> None:
+        """An explicit temporal_discount is honoured identically by both."""
+        beliefs = np.array([0.5, 0.3, 0.2])
+        policy = {"exploration_bonus": 0.1, "temporal_discount": 0.9}
+        preferences = np.array([0.1, 0.3, 0.6])
+        calculator = FreeEnergyCalculator()
+        selector = PolicySelector()
+
+        assert calculator.compute_expected_free_energy(
+            beliefs, policy, preferences
+        ) == selector.compute_expected_free_energy(beliefs, policy, preferences)
+
+    def test_efe_parity_default_temporal_discount(self) -> None:
+        """Both classes default temporal_discount to 1.0 (no discounting)."""
+        beliefs = np.array([0.4, 0.3, 0.2, 0.1])
+        policy = {"exploration_bonus": 0.2, "risk_preference": 0.1}
+        preferences = np.array([0.1, 0.2, 0.3, 0.4])
+
+        calculator_breakdown = FreeEnergyCalculator().compute_expected_free_energy(
+            beliefs, policy, preferences, return_breakdown=True
+        )
+        selector_breakdown = PolicySelector().compute_expected_free_energy(
+            beliefs, policy, preferences, return_breakdown=True
+        )
+
+        assert isinstance(calculator_breakdown, FreeEnergyBreakdown)
+        assert isinstance(selector_breakdown, FreeEnergyBreakdown)
+        assert (
+            calculator_breakdown.metadata["temporal_discount"]
+            == selector_breakdown.metadata["temporal_discount"]
+            == 1.0
+        )
+        assert calculator_breakdown.free_energy == selector_breakdown.free_energy
+        assert (
+            calculator_breakdown.pragmatic_value == selector_breakdown.pragmatic_value
+        )
+        assert (
+            calculator_breakdown.epistemic_value == selector_breakdown.epistemic_value
+        )
+
+    def test_efe_parity_policy_conditioned_predictive(self) -> None:
+        """Policy-conditioned predictive distributions score identically."""
+        beliefs = np.array([0.6, 0.3, 0.1])
+        policy = {
+            "predicted_beliefs": np.array([0.1, 0.8, 0.1]),
+            "exploration_bonus": 0.2,
+            "ambiguity": 0.05,
+        }
+        preferences = np.array([0.1, 0.8, 0.1])
+
+        calculator_breakdown = FreeEnergyCalculator().compute_expected_free_energy(
+            beliefs, policy, preferences, return_breakdown=True
+        )
+        selector_breakdown = PolicySelector().compute_expected_free_energy(
+            beliefs, policy, preferences, return_breakdown=True
+        )
+
+        assert calculator_breakdown.free_energy == selector_breakdown.free_energy
+        np.testing.assert_allclose(
+            calculator_breakdown.metadata["predictive_beliefs"],
+            selector_breakdown.metadata["predictive_beliefs"],
+        )
+
+    def test_calculator_bookkeeping_tracks_delegated_efe(self) -> None:
+        """Delegated EFE scores update the calculator's bookkeeping counters."""
+        calc = FreeEnergyCalculator()
+        beliefs = np.array([0.4, 0.3, 0.2, 0.1])
+        policy = {"exploration_bonus": 0.2}
+
+        efe = calc.compute_expected_free_energy(beliefs, policy)
+        assert calc.computation_count == 1
+        assert calc.last_computed_energy == pytest.approx(efe)
+
+        # Externally supplied scores short-circuit without new bookkeeping.
+        calc.compute_expected_free_energy(beliefs, {"expected_free_energy": 2.5})
+        assert calc.computation_count == 1
 
 
 class TestComputeDispatch:
