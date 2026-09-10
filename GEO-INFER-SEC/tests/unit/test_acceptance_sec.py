@@ -28,8 +28,6 @@ from geo_infer_sec.core.cognitive_security import (
 from geo_infer_sec.models.security_models import (
     SecurityEvent,
     SecurityEventCategory,
-    ThreatLevel,
-    SecurityAlert,
 )
 from geo_infer_sec.models.risk_assessment import (
     RiskAssessment,
@@ -49,6 +47,7 @@ from geo_infer_sec import SecurityFramework
 # ---------------------------------------------------------------------------
 # DigitalSecurityManager threat detection
 # ---------------------------------------------------------------------------
+
 
 class TestDigitalThreatDetection:
     """Acceptance: the digital security manager classifies real threats."""
@@ -80,7 +79,10 @@ class TestDigitalThreatDetection:
 
     def test_data_exfiltration_large_volume(self, manager):
         """Data volume above 100 MB threshold triggers exfiltration flag."""
-        assert manager._detect_data_exfiltration({"data_volume": 200 * 1024 * 1024}) is True
+        assert (
+            manager._detect_data_exfiltration({"data_volume": 200 * 1024 * 1024})
+            is True
+        )
 
     def test_data_exfiltration_normal_volume(self, manager):
         """Normal data volume does not trigger exfiltration."""
@@ -103,7 +105,9 @@ class TestDigitalThreatDetection:
 
     def test_classify_benign_returns_none(self, manager):
         """_classify_threat returns None for benign events."""
-        result = manager._classify_threat({"request_data": "hello", "event_type": "api_call"})
+        result = manager._classify_threat(
+            {"request_data": "hello", "event_type": "api_call"}
+        )
         assert result is None
 
     def test_detect_threat_stores_in_active_threats(self, manager):
@@ -118,10 +122,12 @@ class TestDigitalThreatDetection:
             alert_callback_calls.append(alert)
 
         manager.alert_callbacks.append(on_alert)
-        threat = manager.detect_threat({
-            "event_type": "login_failure",
-            "source_ip": "10.0.0.99",
-        })
+        threat = manager.detect_threat(
+            {
+                "event_type": "login_failure",
+                "source_ip": "10.0.0.99",
+            }
+        )
         assert len(manager.active_threats) >= 1
         stored = list(manager.active_threats.values())[0]
         assert stored.threat_type == ThreatType.UNAUTHORIZED_ACCESS
@@ -137,6 +143,7 @@ class TestDigitalThreatDetection:
 # ---------------------------------------------------------------------------
 # CognitiveSecurityManager behavioral profiling
 # ---------------------------------------------------------------------------
+
 
 class TestCognitiveSecurityManager:
     """Acceptance: behavioral profiling and anomaly detection."""
@@ -225,6 +232,7 @@ class TestCognitiveSecurityManager:
 # RiskAssessment / GeospatialSecurityRisk
 # ---------------------------------------------------------------------------
 
+
 class TestRiskAssessment:
     """Acceptance: risk scoring, filtering, and serialization."""
 
@@ -258,7 +266,7 @@ class TestRiskAssessment:
     def test_risk_score_values(self, high_risk, low_risk):
         """Score = severity × likelihood per the documented mapping."""
         assert high_risk.calculate_risk_score() == 3 * 4  # HIGH=3, LIKELY=4
-        assert low_risk.calculate_risk_score() == 1 * 1   # LOW=1, RARE=1
+        assert low_risk.calculate_risk_score() == 1 * 1  # LOW=1, RARE=1
 
     def test_risk_to_dict_round_trip(self, high_risk):
         """to_dict → from_dict preserves the risk."""
@@ -318,32 +326,39 @@ class TestRiskAssessment:
 # ComplianceFramework
 # ---------------------------------------------------------------------------
 
+
 class TestComplianceFramework:
     """Acceptance: compliance rule management and checking."""
 
     @pytest.fixture
     def framework(self) -> ComplianceFramework:
         cf = ComplianceFramework()
-        cf.add_rule(ComplianceRule(
-            name="no_null_coords",
-            regime=ComplianceRegime.GDPR,
-            description="Coordinates must not be null",
-            validator=lambda data: data is not None,
-            priority=2,
-        ))
-        cf.add_rule(ComplianceRule(
-            name="must_be_dict",
-            regime=ComplianceRegime.GDPR,
-            description="Data must be a dict",
-            validator=lambda data: isinstance(data, dict),
-            priority=1,
-        ))
-        cf.add_rule(ComplianceRule(
-            name="hipaa_check",
-            regime=ComplianceRegime.HIPAA,
-            description="PHI must be encrypted",
-            validator=lambda data: True,
-        ))
+        cf.add_rule(
+            ComplianceRule(
+                name="no_null_coords",
+                regime=ComplianceRegime.GDPR,
+                description="Coordinates must not be null",
+                validator=lambda data: data is not None,
+                priority=2,
+            )
+        )
+        cf.add_rule(
+            ComplianceRule(
+                name="must_be_dict",
+                regime=ComplianceRegime.GDPR,
+                description="Data must be a dict",
+                validator=lambda data: isinstance(data, dict),
+                priority=1,
+            )
+        )
+        cf.add_rule(
+            ComplianceRule(
+                name="hipaa_check",
+                regime=ComplianceRegime.HIPAA,
+                description="PHI must be encrypted",
+                validator=lambda data: True,
+            )
+        )
         return cf
 
     def test_get_rules_by_regime(self, framework):
@@ -395,17 +410,20 @@ class TestComplianceFramework:
 # SecurityFramework (high-level)
 # ---------------------------------------------------------------------------
 
+
 class TestSecurityFramework:
     """Acceptance: the high-level SecurityFramework data protection."""
 
     def test_secure_data_processing_anonymizes_coordinates(self):
         """secure_data_processing anonymizes lat/lon columns."""
         sf = SecurityFramework()
-        df = pd.DataFrame({
-            "lat": [40.7128, 34.0522],
-            "lon": [-74.0060, -118.2437],
-            "value": [1, 2],
-        })
+        df = pd.DataFrame(
+            {
+                "lat": [40.7128, 34.0522],
+                "lon": [-74.0060, -118.2437],
+                "value": [1, 2],
+            }
+        )
         protected = sf.secure_data_processing(df, privacy_level="standard")
         assert protected.shape == df.shape
         # Lat/lon should be modified (rounded precision)

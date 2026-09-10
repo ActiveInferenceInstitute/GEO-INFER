@@ -7,7 +7,6 @@ from geo_infer_org.core.governance import (
     VotingMethod,
     Vote,
     Proposal,
-    DecisionStatus,
 )
 
 
@@ -21,7 +20,11 @@ def consensus():
     return ConsensusModel()
 
 
-def make_proposal(pid: str = "p1", method: VotingMethod = VotingMethod.SIMPLE_MAJORITY, eligible: int = 10):
+def make_proposal(
+    pid: str = "p1",
+    method: VotingMethod = VotingMethod.SIMPLE_MAJORITY,
+    eligible: int = 10,
+):
     return Proposal(
         proposal_id=pid,
         title="Test Proposal",
@@ -72,7 +75,9 @@ class TestVotingEngine:
             engine.cast_vote("p1", Vote(voter_id="v1", choice="maybe"))
 
     def test_supermajority_pass(self, engine):
-        engine.create_proposal(make_proposal(method=VotingMethod.SUPERMAJORITY, eligible=9))
+        engine.create_proposal(
+            make_proposal(method=VotingMethod.SUPERMAJORITY, eligible=9)
+        )
         for i in range(7):
             engine.cast_vote("p1", Vote(voter_id=f"v{i}", choice="yes"))
         for i in range(2):
@@ -81,7 +86,9 @@ class TestVotingEngine:
         assert result.winner == "yes"
 
     def test_supermajority_fail(self, engine):
-        engine.create_proposal(make_proposal(method=VotingMethod.SUPERMAJORITY, eligible=10))
+        engine.create_proposal(
+            make_proposal(method=VotingMethod.SUPERMAJORITY, eligible=10)
+        )
         for i in range(6):
             engine.cast_vote("p1", Vote(voter_id=f"v{i}", choice="yes"))
         for i in range(4):
@@ -114,10 +121,15 @@ class TestVotingEngine:
         assert result.winner == "yes"  # Weight 10 vs 2
 
     def test_ranked_choice(self, engine):
-        prop = Proposal("rc", "Ranked", "D", "a",
-                        options=["A", "B", "C"],
-                        voting_method=VotingMethod.RANKED_CHOICE,
-                        eligible_voters=5)
+        prop = Proposal(
+            "rc",
+            "Ranked",
+            "D",
+            "a",
+            options=["A", "B", "C"],
+            voting_method=VotingMethod.RANKED_CHOICE,
+            eligible_voters=5,
+        )
         engine.create_proposal(prop)
         engine.cast_vote("rc", Vote(voter_id="v1", choice="A", rank=["A", "B", "C"]))
         engine.cast_vote("rc", Vote(voter_id="v2", choice="A", rank=["A", "B", "C"]))
@@ -129,10 +141,15 @@ class TestVotingEngine:
         assert result.winner is not None
 
     def test_approval_voting(self, engine):
-        prop = Proposal("ap", "Approval", "D", "a",
-                        options=["A", "B", "C"],
-                        voting_method=VotingMethod.APPROVAL,
-                        eligible_voters=3)
+        prop = Proposal(
+            "ap",
+            "Approval",
+            "D",
+            "a",
+            options=["A", "B", "C"],
+            voting_method=VotingMethod.APPROVAL,
+            eligible_voters=3,
+        )
         engine.create_proposal(prop)
         engine.cast_vote("ap", Vote(voter_id="v1", choice="A", approvals=["A", "B"]))
         engine.cast_vote("ap", Vote(voter_id="v2", choice="B", approvals=["B", "C"]))
@@ -140,13 +157,19 @@ class TestVotingEngine:
         result = engine.tally("ap")
         assert result.winner == "B"  # B has 3 approvals
 
+
 class TestRankedChoiceIRV:
     def _rc_proposal(self, engine: VotingEngine, pid: str, options=None) -> None:
-        engine.create_proposal(Proposal(
-            pid, "RC", "Ranked choice", "proposer",
-            options=options or ["A", "B", "C"],
-            voting_method=VotingMethod.RANKED_CHOICE,
-        ))
+        engine.create_proposal(
+            Proposal(
+                pid,
+                "RC",
+                "Ranked choice",
+                "proposer",
+                options=options or ["A", "B", "C"],
+                voting_method=VotingMethod.RANKED_CHOICE,
+            )
+        )
 
     def test_single_elimination_recovers_blocked_winner(self, engine):
         """Multi-elimination would wipe B, C, and D together and crown A;
@@ -172,12 +195,14 @@ class TestRankedChoiceIRV:
         """Candidates tied at the minimum eliminate the lexicographically
         first id, so repeated tallies agree."""
         self._rc_proposal(engine, "rc2")
-        for i, rank in enumerate([
-            ["B", "A", "C"],
-            ["B", "A", "C"],
-            ["A", "C", "B"],
-            ["C", "A", "B"],
-        ]):
+        for i, rank in enumerate(
+            [
+                ["B", "A", "C"],
+                ["B", "A", "C"],
+                ["A", "C", "B"],
+                ["C", "A", "B"],
+            ]
+        ):
             engine.cast_vote("rc2", Vote(f"v{i}", rank[0], rank=rank))
         r1 = engine.tally("rc2")
         r2 = engine.tally("rc2")
@@ -190,11 +215,7 @@ class TestRankedChoiceIRV:
         """A candidate eliminated mid-run transfers its ballots, letting a
         trailing candidate overtake the round-1 leader."""
         self._rc_proposal(engine, "rc3")
-        ballots = (
-            [["A", "C", "B"]] * 2
-            + [["B", "A", "C"]] * 2
-            + [["C", "B", "A"]]
-        )
+        ballots = [["A", "C", "B"]] * 2 + [["B", "A", "C"]] * 2 + [["C", "B", "A"]]
         for i, rank in enumerate(ballots):
             engine.cast_vote("rc3", Vote(f"v{i}", rank[0], rank=rank))
         result = engine.tally("rc3")

@@ -1,7 +1,6 @@
 """Tests for game theory module."""
 
 import numpy as np
-import pytest
 from geo_infer_econ.microeconomics.game_theory import (
     Game,
     NashEquilibrium,
@@ -92,7 +91,9 @@ class TestEvolutionaryGames:
     def test_replicator_dynamics_hawk_dove(self) -> None:
         payoff_matrix = np.array([[0.0, 3.0], [1.0, 2.0]])
         initial_freq = np.array([0.5, 0.5])
-        result = self.evo.replicator_dynamics(payoff_matrix, initial_freq, time_steps=200)
+        result = self.evo.replicator_dynamics(
+            payoff_matrix, initial_freq, time_steps=200
+        )
         assert "converged_frequencies" in result
         assert len(result["converged_frequencies"]) == 2
         assert abs(sum(result["converged_frequencies"]) - 1.0) < 0.01
@@ -100,14 +101,18 @@ class TestEvolutionaryGames:
     def test_replicator_dynamics_dominant_strategy(self) -> None:
         payoff_matrix = np.array([[5.0, 5.0], [1.0, 1.0]])
         initial_freq = np.array([0.3, 0.7])
-        result = self.evo.replicator_dynamics(payoff_matrix, initial_freq, time_steps=200)
+        result = self.evo.replicator_dynamics(
+            payoff_matrix, initial_freq, time_steps=200
+        )
         # Strategy 0 dominates, should converge toward high freq
         assert result["converged_frequencies"][0] > 0.5
 
     def test_frequency_paths_recorded(self) -> None:
         payoff_matrix = np.array([[2.0, 1.0], [1.0, 2.0]])
         initial_freq = np.array([0.5, 0.5])
-        result = self.evo.replicator_dynamics(payoff_matrix, initial_freq, time_steps=10)
+        result = self.evo.replicator_dynamics(
+            payoff_matrix, initial_freq, time_steps=10
+        )
         assert len(result["frequency_paths"]) == 11  # initial + 10 steps
 
 
@@ -133,13 +138,15 @@ class TestBargainingTheory:
         self.bt = BargainingTheory()
 
     def test_nash_bargaining_symmetric(self) -> None:
-        utility_possibilities = np.array([
-            [0.0, 10.0],
-            [2.0, 8.0],
-            [5.0, 5.0],
-            [8.0, 2.0],
-            [10.0, 0.0],
-        ])
+        utility_possibilities = np.array(
+            [
+                [0.0, 10.0],
+                [2.0, 8.0],
+                [5.0, 5.0],
+                [8.0, 2.0],
+                [10.0, 0.0],
+            ]
+        )
         disagreement = np.array([0.0, 0.0])
         result = self.bt.nash_bargaining_solution(
             utility_possibilities, disagreement, risk_aversion=0.5
@@ -149,13 +156,15 @@ class TestBargainingTheory:
         assert result["optimal_utilities"][1] == 5.0
 
     def test_nash_bargaining_asymmetric(self) -> None:
-        utility_possibilities = np.array([
-            [1.0, 9.0],
-            [3.0, 7.0],
-            [5.0, 5.0],
-            [7.0, 3.0],
-            [9.0, 1.0],
-        ])
+        utility_possibilities = np.array(
+            [
+                [1.0, 9.0],
+                [3.0, 7.0],
+                [5.0, 5.0],
+                [7.0, 3.0],
+                [9.0, 1.0],
+            ]
+        )
         disagreement = np.array([0.0, 0.0])
         result = self.bt.nash_bargaining_solution(
             utility_possibilities, disagreement, risk_aversion=0.8
@@ -185,7 +194,9 @@ class TestGameTheoryModels:
         assert result["n_players"] == 2
 
     def test_analyze_auction_game_first_price(self) -> None:
-        result = self.gtm.analyze_auction_game("first_price", [100.0, 80.0], n_bidders=2)
+        result = self.gtm.analyze_auction_game(
+            "first_price", [100.0, 80.0], n_bidders=2
+        )
         assert "optimal_bids" in result
 
     def test_analyze_auction_game_second_price(self) -> None:

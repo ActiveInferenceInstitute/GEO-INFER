@@ -1,7 +1,4 @@
 """Tests for GIT repo analyzer module."""
-import pytest
-import tempfile
-from pathlib import Path
 
 from geo_infer_git.core.repo_analyzer import DependencyAnalyzer
 

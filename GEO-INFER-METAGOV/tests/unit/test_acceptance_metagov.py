@@ -42,12 +42,12 @@ from geo_infer_metagov.core.accountability import (
 from geo_infer_metagov.core.multi_level import (
     MultiLevelGovernanceFramework,
 )
-from geo_infer_metagov.core.institutional import InstitutionalDesigner
 
 
 # ---------------------------------------------------------------------------
 # PolycentricGovernanceSystem
 # ---------------------------------------------------------------------------
+
 
 class TestPolycentricGovernance:
     """Acceptance: polycentric governance design and authority analysis."""
@@ -70,7 +70,9 @@ class TestPolycentricGovernance:
         )
         assert isinstance(design, PolycentricDesign)
         assert design.design_id == "polycentric_0"
-        assert "redundancy_assessment" in design.__dict__ or hasattr(design, "redundancy_assessment")
+        assert "redundancy_assessment" in design.__dict__ or hasattr(
+            design, "redundancy_assessment"
+        )
         assert "polycentric_0" in system.polycentric_designs
 
     def test_assess_redundancy_returns_metrics(self, system):
@@ -88,7 +90,11 @@ class TestPolycentricGovernance:
         """analyze_authority_relationships computes coordination index and density."""
         authorities = [
             {"id": "auth1", "domains": ["water"], "jurisdiction": ["zone_a"]},
-            {"id": "auth2", "domains": ["water", "energy"], "jurisdiction": ["zone_a", "zone_b"]},
+            {
+                "id": "auth2",
+                "domains": ["water", "energy"],
+                "jurisdiction": ["zone_a", "zone_b"],
+            },
             {"id": "auth3", "domains": ["energy"], "jurisdiction": ["zone_c"]},
         ]
         result = system.analyze_authority_relationships(
@@ -116,6 +122,7 @@ class TestPolycentricGovernance:
 # ---------------------------------------------------------------------------
 # StakeholderGovernanceCoordinator
 # ---------------------------------------------------------------------------
+
 
 class TestStakeholderGovernance:
     """Acceptance: stakeholder analysis and governance platform management."""
@@ -162,8 +169,18 @@ class TestStakeholderGovernance:
     def test_establish_governance_platform(self, coordinator):
         """establish_governance_platform stores and returns a GovernancePlatform."""
         participants = [
-            {"name": "City Council", "category": "government", "influence": 0.9, "power": 0.85},
-            {"name": "Citizens Group", "category": "community", "influence": 0.4, "power": 0.35},
+            {
+                "name": "City Council",
+                "category": "government",
+                "influence": 0.9,
+                "power": 0.85,
+            },
+            {
+                "name": "Citizens Group",
+                "category": "community",
+                "influence": 0.4,
+                "power": 0.35,
+            },
         ]
         platform = coordinator.establish_governance_platform(
             participants=participants,
@@ -195,6 +212,7 @@ class TestStakeholderGovernance:
 # ConflictResolver
 # ---------------------------------------------------------------------------
 
+
 class TestConflictResolver:
     """Acceptance: conflict resolution methods and auto-selection."""
 
@@ -207,8 +225,18 @@ class TestConflictResolver:
         resolution = resolver.resolve_conflict(
             conflict={"id": "c1", "type": "resource_dispute", "severity": "medium"},
             stakeholders=[
-                {"id": "s1", "decision_power": 0.8, "interest_level": 0.7, "batna": 0.3},
-                {"id": "s2", "decision_power": 0.6, "interest_level": 0.6, "batna": 0.2},
+                {
+                    "id": "s1",
+                    "decision_power": 0.8,
+                    "interest_level": 0.7,
+                    "batna": 0.3,
+                },
+                {
+                    "id": "s2",
+                    "decision_power": 0.6,
+                    "interest_level": 0.6,
+                    "batna": 0.2,
+                },
             ],
             method=ConflictResolutionMethod.NEGOTIATION,
         )
@@ -222,8 +250,18 @@ class TestConflictResolver:
         resolution = resolver.resolve_conflict(
             conflict={"id": "c2", "type": "resource"},
             stakeholders=[
-                {"id": "s1", "decision_power": 0.1, "interest_level": 0.1, "batna": 0.5},
-                {"id": "s2", "decision_power": 0.5, "interest_level": 0.5, "batna": 0.2},
+                {
+                    "id": "s1",
+                    "decision_power": 0.1,
+                    "interest_level": 0.1,
+                    "batna": 0.5,
+                },
+                {
+                    "id": "s2",
+                    "decision_power": 0.5,
+                    "interest_level": 0.5,
+                    "batna": 0.2,
+                },
             ],
             method=ConflictResolutionMethod.NEGOTIATION,
         )
@@ -285,6 +323,7 @@ class TestConflictResolver:
 # ---------------------------------------------------------------------------
 # AccountabilityFramework
 # ---------------------------------------------------------------------------
+
 
 class TestAccountabilityFramework:
     """Acceptance: accountability mechanisms and transparency."""
@@ -364,6 +403,7 @@ class TestAccountabilityFramework:
 # MultiLevelGovernanceFramework
 # ---------------------------------------------------------------------------
 
+
 class TestMultiLevelGovernance:
     """Acceptance: multi-level governance structure design."""
 
@@ -374,7 +414,10 @@ class TestMultiLevelGovernance:
     def test_design_governance_structure(self, framework):
         """design_governance_structure creates a multi-level structure."""
         structure = framework.design_governance_structure(
-            spatial_scope={"region": "watershed", "levels": ["local", "regional", "national"]},
+            spatial_scope={
+                "region": "watershed",
+                "levels": ["local", "regional", "national"],
+            },
             stakeholder_groups=[
                 {"id": "farmers", "interests": ["water_access"]},
                 {"id": "city", "interests": ["water_supply"]},

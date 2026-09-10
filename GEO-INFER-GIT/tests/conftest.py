@@ -4,9 +4,9 @@ Pytest fixtures for GEO-INFER-GIT tests.
 Provides sample git repository paths, commit metadata lists,
 git configurations, and standard spatial fixtures.
 """
+
 import pytest
 import numpy as np
-import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
 from pathlib import Path
@@ -57,11 +57,15 @@ def sample_repo_path(tmp_path: Path) -> Path:
     subprocess.run(["git", "init"], cwd=repo_dir, capture_output=True, check=True)
     subprocess.run(
         ["git", "config", "user.email", "test@example.com"],
-        cwd=repo_dir, capture_output=True, check=True,
+        cwd=repo_dir,
+        capture_output=True,
+        check=True,
     )
     subprocess.run(
         ["git", "config", "user.name", "Test User"],
-        cwd=repo_dir, capture_output=True, check=True,
+        cwd=repo_dir,
+        capture_output=True,
+        check=True,
     )
 
     readme = repo_dir / "README.md"
@@ -70,7 +74,9 @@ def sample_repo_path(tmp_path: Path) -> Path:
     subprocess.run(["git", "add", "."], cwd=repo_dir, capture_output=True, check=True)
     subprocess.run(
         ["git", "commit", "-m", "Initial commit"],
-        cwd=repo_dir, capture_output=True, check=True,
+        cwd=repo_dir,
+        capture_output=True,
+        check=True,
     )
 
     return repo_dir

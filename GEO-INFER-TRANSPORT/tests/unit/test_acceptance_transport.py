@@ -23,20 +23,17 @@ from geo_infer_transport.core.traffic import (
 )
 from geo_infer_transport.core.network import (
     TransportNetwork,
-    RoadClass,
-    TransportMode,
 )
 from geo_infer_transport.core.routing import (
     RoutingEngine,
     Route,
-    RoutingAlgorithm,
-    OptimizationCriteria,
 )
 
 
 # ---------------------------------------------------------------------------
 # TrafficAnalyzer
 # ---------------------------------------------------------------------------
+
 
 class TestTrafficAnalyzer:
     """Acceptance: traffic flow analysis, congestion, and forecasting."""
@@ -121,7 +118,10 @@ class TestTrafficAnalyzer:
         assert "confidence_upper" in first
         # Confidence interval should widen over horizon
         first_width = first["confidence_upper"] - first["confidence_lower"]
-        last_width = result["forecasts"][-1]["confidence_upper"] - result["forecasts"][-1]["confidence_lower"]
+        last_width = (
+            result["forecasts"][-1]["confidence_upper"]
+            - result["forecasts"][-1]["confidence_lower"]
+        )
         assert last_width >= first_width
 
     def test_forecast_traffic_empty_data(self, analyzer):
@@ -158,6 +158,7 @@ class TestTrafficAnalyzer:
 # TransportNetwork
 # ---------------------------------------------------------------------------
 
+
 class TestTransportNetwork:
     """Acceptance: network topology construction and analysis."""
 
@@ -165,10 +166,38 @@ class TestTransportNetwork:
     def edges(self) -> list:
         """Simple grid network edges."""
         return [
-            {"id": "e1", "from": "A", "to": "B", "road_class": "primary", "length_m": 1000, "speed_limit": 60},
-            {"id": "e2", "from": "B", "to": "C", "road_class": "secondary", "length_m": 800, "speed_limit": 50},
-            {"id": "e3", "from": "C", "to": "D", "road_class": "secondary", "length_m": 600, "speed_limit": 50},
-            {"id": "e4", "from": "A", "to": "D", "road_class": "motorway", "length_m": 2000, "speed_limit": 100},
+            {
+                "id": "e1",
+                "from": "A",
+                "to": "B",
+                "road_class": "primary",
+                "length_m": 1000,
+                "speed_limit": 60,
+            },
+            {
+                "id": "e2",
+                "from": "B",
+                "to": "C",
+                "road_class": "secondary",
+                "length_m": 800,
+                "speed_limit": 50,
+            },
+            {
+                "id": "e3",
+                "from": "C",
+                "to": "D",
+                "road_class": "secondary",
+                "length_m": 600,
+                "speed_limit": 50,
+            },
+            {
+                "id": "e4",
+                "from": "A",
+                "to": "D",
+                "road_class": "motorway",
+                "length_m": 2000,
+                "speed_limit": 100,
+            },
         ]
 
     @pytest.fixture
@@ -189,9 +218,18 @@ class TestTransportNetwork:
     def test_build_from_edges_one_way(self):
         """One-way edges are not duplicated in reverse."""
         net = TransportNetwork()
-        net.build_from_edges([
-            {"id": "e1", "from": "A", "to": "B", "road_class": "primary", "length_m": 500, "one_way": True},
-        ])
+        net.build_from_edges(
+            [
+                {
+                    "id": "e1",
+                    "from": "A",
+                    "to": "B",
+                    "road_class": "primary",
+                    "length_m": 500,
+                    "one_way": True,
+                },
+            ]
+        )
         assert net.graph.number_of_edges() == 1
 
     def test_analyze_connectivity_components(self, network):
@@ -211,7 +249,9 @@ class TestTransportNetwork:
 
     def test_calculate_centrality_betweenness(self, network):
         """calculate_centrality returns top nodes by betweenness."""
-        result = network.calculate_centrality(centrality_type="betweenness", weight="length")
+        result = network.calculate_centrality(
+            centrality_type="betweenness", weight="length"
+        )
         assert "top_nodes" in result
         assert len(result["top_nodes"]) <= 4
         assert all("node_id" in n for n in result["top_nodes"])
@@ -230,6 +270,7 @@ class TestTransportNetwork:
 # RoutingEngine
 # ---------------------------------------------------------------------------
 
+
 class TestRoutingEngine:
     """Acceptance: routing and optimization."""
 
@@ -237,11 +278,46 @@ class TestRoutingEngine:
     def network_with_routes(self) -> tuple:
         """Build a network and routing engine for route tests."""
         edges = [
-            {"id": "e1", "from": "A", "to": "B", "road_class": "primary", "length_m": 1000, "speed_limit": 60},
-            {"id": "e2", "from": "B", "to": "C", "road_class": "secondary", "length_m": 800, "speed_limit": 50},
-            {"id": "e3", "from": "C", "to": "D", "road_class": "secondary", "length_m": 600, "speed_limit": 50},
-            {"id": "e4", "from": "A", "to": "D", "road_class": "motorway", "length_m": 2000, "speed_limit": 100},
-            {"id": "e5", "from": "B", "to": "D", "road_class": "primary", "length_m": 500, "speed_limit": 60},
+            {
+                "id": "e1",
+                "from": "A",
+                "to": "B",
+                "road_class": "primary",
+                "length_m": 1000,
+                "speed_limit": 60,
+            },
+            {
+                "id": "e2",
+                "from": "B",
+                "to": "C",
+                "road_class": "secondary",
+                "length_m": 800,
+                "speed_limit": 50,
+            },
+            {
+                "id": "e3",
+                "from": "C",
+                "to": "D",
+                "road_class": "secondary",
+                "length_m": 600,
+                "speed_limit": 50,
+            },
+            {
+                "id": "e4",
+                "from": "A",
+                "to": "D",
+                "road_class": "motorway",
+                "length_m": 2000,
+                "speed_limit": 100,
+            },
+            {
+                "id": "e5",
+                "from": "B",
+                "to": "D",
+                "road_class": "primary",
+                "length_m": 500,
+                "speed_limit": 60,
+            },
         ]
         net = TransportNetwork()
         net.build_from_edges(edges)
@@ -276,10 +352,24 @@ class TestRoutingEngine:
     def test_route_no_path_returns_empty(self):
         """route() on disconnected network returns empty path."""
         net = TransportNetwork()
-        net.build_from_edges([
-            {"id": "e1", "from": "A", "to": "B", "road_class": "primary", "length_m": 500},
-            {"id": "e2", "from": "C", "to": "D", "road_class": "primary", "length_m": 500},
-        ])
+        net.build_from_edges(
+            [
+                {
+                    "id": "e1",
+                    "from": "A",
+                    "to": "B",
+                    "road_class": "primary",
+                    "length_m": 500,
+                },
+                {
+                    "id": "e2",
+                    "from": "C",
+                    "to": "D",
+                    "road_class": "primary",
+                    "length_m": 500,
+                },
+            ]
+        )
         engine = RoutingEngine(network=net, algorithm="dijkstra")
         route = engine.route({"node_id": "A"}, {"node_id": "D"})
         assert route.path == []
@@ -293,7 +383,9 @@ class TestRoutingEngine:
             {"id": "w2", "lat": 40.02, "lon": -74.02},
             {"id": "w3", "lat": 40.005, "lon": -74.005},
         ]
-        result = engine.optimize_route(waypoints, constraints={}, objective="minimize_time")
+        result = engine.optimize_route(
+            waypoints, constraints={}, objective="minimize_time"
+        )
         assert "optimized_order" in result
         assert len(result["optimized_order"]) == 4
         assert result["estimated_distance_m"] > 0

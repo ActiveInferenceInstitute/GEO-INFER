@@ -1,5 +1,4 @@
 """Tests for COMMS validation utilities."""
-import pytest
 
 from geo_infer_comms.utils.validation import (
     validate_coordinates,

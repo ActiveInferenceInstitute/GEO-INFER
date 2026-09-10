@@ -5,7 +5,7 @@ Validates schema construction, field validation, serialization,
 and constraint enforcement for all core data models.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime
 import pytest
 
 from geo_infer_data.models.schemas import (
@@ -18,7 +18,6 @@ from geo_infer_data.models.schemas import (
     DataType,
     Dataset,
     DatasetMetadata,
-    DatasetSummary,
     ETLPipeline,
     ExecutionState,
     ExecutionStatus,
@@ -36,6 +35,7 @@ from geo_infer_data.models.schemas import (
 # ---------------------------------------------------------------------------
 # SpatialExtent
 # ---------------------------------------------------------------------------
+
 
 class TestSpatialExtent:
     def test_valid_4_element_bbox(self):
@@ -63,6 +63,7 @@ class TestSpatialExtent:
 # TemporalExtent
 # ---------------------------------------------------------------------------
 
+
 class TestTemporalExtent:
     def test_valid_temporal_extent(self):
         te = TemporalExtent(
@@ -83,6 +84,7 @@ class TestTemporalExtent:
 # QualityCheck
 # ---------------------------------------------------------------------------
 
+
 class TestQualityCheck:
     def test_valid_quality_check(self):
         qc = QualityCheck(score=0.85, status=QualityStatus.PASS)
@@ -100,6 +102,7 @@ class TestQualityCheck:
 # ---------------------------------------------------------------------------
 # DatasetMetadata
 # ---------------------------------------------------------------------------
+
 
 class TestDatasetMetadata:
     def _make_metadata(self) -> DatasetMetadata:
@@ -128,6 +131,7 @@ class TestDatasetMetadata:
 # ---------------------------------------------------------------------------
 # Dataset
 # ---------------------------------------------------------------------------
+
 
 class TestDataset:
     def test_dataset_creation(self):
@@ -164,6 +168,7 @@ class TestDataset:
 # DataQualityReport
 # ---------------------------------------------------------------------------
 
+
 class TestDataQualityReport:
     def test_report_creation(self):
         report = DataQualityReport(
@@ -182,12 +187,15 @@ class TestDataQualityReport:
 # ETLPipeline
 # ---------------------------------------------------------------------------
 
+
 class TestETLPipeline:
     def test_pipeline_creation(self):
         pipeline = ETLPipeline(
             name="test_pipeline",
             source=DataSource(type="file", configuration={"path": "/data"}),
-            destination=DataDestination(type="database", configuration={"table": "out"}),
+            destination=DataDestination(
+                type="database", configuration={"table": "out"}
+            ),
         )
         assert pipeline.name == "test_pipeline"
         assert pipeline.status == "inactive"
@@ -208,6 +216,7 @@ class TestETLPipeline:
 # ExecutionStatus
 # ---------------------------------------------------------------------------
 
+
 class TestExecutionStatus:
     def test_execution_status_defaults(self):
         es = ExecutionStatus(
@@ -222,6 +231,7 @@ class TestExecutionStatus:
 # Pagination & HealthStatus
 # ---------------------------------------------------------------------------
 
+
 class TestPaginationAndHealth:
     def test_pagination(self):
         p = Pagination(page=1, limit=20, total=100)
@@ -235,6 +245,7 @@ class TestPaginationAndHealth:
 # ---------------------------------------------------------------------------
 # Enums
 # ---------------------------------------------------------------------------
+
 
 class TestEnums:
     def test_data_type_values(self):

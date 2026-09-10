@@ -1,6 +1,5 @@
 """Tests for API custom exceptions."""
 
-import pytest
 from geo_infer_api.core.exceptions import (
     APIError,
     ValidationError,
@@ -60,7 +59,9 @@ class TestConflictError:
 
 class TestGeometryError:
     def test_geometry_error(self):
-        err = GeometryError("Invalid polygon", geometry_type="Polygon", operation="buffer")
+        err = GeometryError(
+            "Invalid polygon", geometry_type="Polygon", operation="buffer"
+        )
         assert err.status_code == 400
         result = err.to_dict()
         assert result["error"]["geometry_type"] == "Polygon"
@@ -68,7 +69,9 @@ class TestGeometryError:
 
 class TestProcessingError:
     def test_processing_error(self):
-        err = ProcessingError("Timeout", operation="intersection", processing_stage="compute")
+        err = ProcessingError(
+            "Timeout", operation="intersection", processing_stage="compute"
+        )
         assert err.status_code == 500
         result = err.to_dict()
         assert result["error"]["operation"] == "intersection"

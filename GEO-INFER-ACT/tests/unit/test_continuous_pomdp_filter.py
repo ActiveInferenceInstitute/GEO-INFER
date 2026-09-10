@@ -5,7 +5,6 @@ Unit tests for Continuous POMDP Active Inference and Gaussian filter engine.
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from geo_infer_act.models.continuous_pomdp import ContinuousPOMDPActiveInference
 

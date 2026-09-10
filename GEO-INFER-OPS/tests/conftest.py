@@ -16,9 +16,6 @@ from prometheus_client import CollectorRegistry
 
 from geo_infer_ops.core.config import (
     Config,
-    LoggingConfig,
-    MonitoringConfig,
-    TestingConfig,
 )
 from geo_infer_ops.utils.shared_logging import configure_logging
 from geo_infer_ops.core.monitoring import reset_metrics

@@ -4,7 +4,6 @@ Tests for cloud storage connectors in geo_infer_data.connectors.cloud.
 
 import asyncio
 
-import boto3
 import pytest
 
 from geo_infer_data.connectors.cloud import (
@@ -126,9 +125,7 @@ class TestCloudConnectorBase:
         assert data_footer == b"PAR1"
 
         with pytest.raises(ValueError):
-            _run(
-                connector.read_byte_range(str(file_path), start_byte=-1, end_byte=5)
-            )
+            _run(connector.read_byte_range(str(file_path), start_byte=-1, end_byte=5))
 
 
 # ---------------------------------------------------------------------------

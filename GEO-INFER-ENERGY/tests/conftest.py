@@ -4,9 +4,9 @@ Pytest fixtures for GEO-INFER-ENERGY tests.
 Provides solar irradiance grids, wind speed grids on H3 cells,
 energy system configurations, and standard spatial fixtures.
 """
+
 import pytest
 import numpy as np
-import pandas as pd
 import geopandas as gpd
 import h3
 from shapely.geometry import Point

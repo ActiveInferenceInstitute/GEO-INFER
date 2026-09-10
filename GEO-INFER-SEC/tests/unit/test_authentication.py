@@ -5,13 +5,10 @@ Unit tests for authentication functionality.
 import base64
 
 import pytest
-from datetime import datetime, timedelta
 
 from geo_infer_sec.core.authentication import (
     generate_totp,
     AuthenticationManager,
-    UserCredentials,
-    TokenInfo,
 )
 
 
@@ -27,7 +24,9 @@ class TestAuthenticationManager:
         """Test password hashing."""
         password = "test_password_123"
         hash1, salt1 = auth_manager.hash_password(password)
-        hash2, salt2 = auth_manager.hash_password(password, salt=bytes.fromhex(salt1.encode().hex()))
+        hash2, salt2 = auth_manager.hash_password(
+            password, salt=bytes.fromhex(salt1.encode().hex())
+        )
 
         assert hash1 != password
         assert len(hash1) > 0
@@ -39,7 +38,9 @@ class TestAuthenticationManager:
         password_hash, salt = auth_manager.hash_password(password)
 
         assert auth_manager.verify_password(password, password_hash, salt) is True
-        assert auth_manager.verify_password("wrong_password", password_hash, salt) is False
+        assert (
+            auth_manager.verify_password("wrong_password", password_hash, salt) is False
+        )
 
     def test_register_user(self, auth_manager: AuthenticationManager) -> None:
         """Test user registration."""
@@ -61,7 +62,9 @@ class TestAuthenticationManager:
         with pytest.raises(ValueError, match="already exists"):
             auth_manager.register_user(username="testuser", password="password456")
 
-    def test_register_user_short_password(self, auth_manager: AuthenticationManager) -> None:
+    def test_register_user_short_password(
+        self, auth_manager: AuthenticationManager
+    ) -> None:
         """Test that short passwords are rejected."""
         with pytest.raises(ValueError, match="at least"):
             auth_manager.register_user(username="testuser", password="short")
@@ -125,9 +128,6 @@ class TestAuthenticationManager:
         # Try to refresh with revoked token
         new_token = auth_manager.refresh_access_token(token_info.refresh_token)
         assert new_token is None
-
-
-
 
 
 class TestMultiFactorAuthentication:

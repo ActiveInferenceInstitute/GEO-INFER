@@ -1,8 +1,9 @@
 """Regression tests for the fix-wave: import wiring, async processing,
 batch filtering, config key paths, candidate derivation, meter distances,
 and streaming API catalog honesty."""
+
 import asyncio
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 import h3
 import numpy as np
@@ -18,7 +19,6 @@ from geo_infer_iot import (
     StreamingAPI,
 )
 from geo_infer_iot.core.quality_control import QualityController
-from geo_infer_iot.core.registry import SensorRegistry
 
 
 def _measurement(sensor_id: str, score: float) -> Measurement:
@@ -162,7 +162,9 @@ class TestInterpolationUnits:
     def test_uncertainty_grows_with_real_distance(self):
         interp = SpatialInterpolation()
         near = interp.interpolate_to_grid(self._sensors(), [(40.0005, -74.0005)])
-        far = interp.interpolate_to_grid(self._sensors(), [(40.2, -74.0)], method="nearest_neighbor")
+        far = interp.interpolate_to_grid(
+            self._sensors(), [(40.2, -74.0)], method="nearest_neighbor"
+        )
         near_unc = near["uncertainty"][0]
         far_unc = far["uncertainty"][0]
         assert far_unc > near_unc
@@ -221,7 +223,12 @@ class TestDuplicateNames:
             network_id="n1",
             name="N",
             protocol="MQTT",
-            spatial_bounds={"lat_min": 0.0, "lat_max": 1.0, "lon_min": 0.0, "lon_max": 1.0},
+            spatial_bounds={
+                "lat_min": 0.0,
+                "lat_max": 1.0,
+                "lon_min": 0.0,
+                "lon_max": 1.0,
+            },
             sensor_types=["temperature"],
         )
         assert network.get_coverage_area() > 0

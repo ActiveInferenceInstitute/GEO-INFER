@@ -6,7 +6,7 @@ data storage, health checks, and system lifecycle operations.
 """
 
 import pytest
-from datetime import date, datetime
+from datetime import date
 
 pytestmark = [pytest.mark.integration]
 
@@ -26,7 +26,9 @@ def employees():
             job_title="Senior Engineer",
             department="Engineering",
             hire_date=date(2020, 3, 15),
-            compensation=Compensation(salary=150000, currency="USD", pay_frequency="annual"),
+            compensation=Compensation(
+                salary=150000, currency="USD", pay_frequency="annual"
+            ),
         ),
         Employee(
             employee_id="EMP002",
@@ -37,7 +39,9 @@ def employees():
             job_title="Product Manager",
             department="Product",
             hire_date=date(2021, 7, 1),
-            compensation=Compensation(salary=130000, currency="USD", pay_frequency="annual"),
+            compensation=Compensation(
+                salary=130000, currency="USD", pay_frequency="annual"
+            ),
         ),
         Employee(
             employee_id="EMP003",
@@ -226,7 +230,9 @@ class TestPEPEngineWithDataManager:
         engine.data_manager.add_employees(employees)
 
         # Query
-        eng_team = engine.data_manager.get_employees(filters={"department": "Engineering"})
+        eng_team = engine.data_manager.get_employees(
+            filters={"department": "Engineering"}
+        )
         assert len(eng_team) == 3
 
         # Check status
@@ -275,7 +281,9 @@ class TestEmployeeModel:
     def test_employee_with_job_history(self):
         """Test employee with job history entries."""
         from geo_infer_pep.models.hr_models import (
-            Employee, EmploymentStatus, JobHistoryEntry,
+            Employee,
+            EmploymentStatus,
+            JobHistoryEntry,
         )
 
         emp = Employee(

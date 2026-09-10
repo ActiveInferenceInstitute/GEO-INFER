@@ -3,7 +3,6 @@ Unit tests for forest inventory.
 """
 
 import numpy as np
-import pytest
 import xarray as xr
 
 from geo_infer_forest.core.forest_inventory import ForestInventory
@@ -11,12 +10,12 @@ from geo_infer_forest.core.forest_inventory import ForestInventory
 
 class TestForestInventory:
     """Test suite for ForestInventory."""
-    
+
     def test_initialization(self):
         """Test inventory initialization."""
         inventory = ForestInventory()
         assert inventory is not None
-    
+
     def test_estimate_biomass(self):
         """Test biomass estimation."""
         inventory = ForestInventory()
@@ -27,5 +26,3 @@ class TestForestInventory:
         result = inventory.estimate_biomass(forest_cover)
         assert result is not None
         assert float(result.max()) > 0
-
-

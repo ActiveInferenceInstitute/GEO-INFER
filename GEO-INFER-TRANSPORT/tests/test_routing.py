@@ -1,11 +1,9 @@
 """Tests for transport routing module."""
 
-import pytest
 from geo_infer_transport.core.routing import (
     RoutingEngine,
     RoutingAlgorithm,
     OptimizationCriteria,
-    Route,
 )
 
 

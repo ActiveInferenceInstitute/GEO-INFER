@@ -1,11 +1,11 @@
 """
 Tests for the sequence analysis module.
 """
+
 import pytest
 import pandas as pd
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-from Bio.Align import MultipleSeqAlignment
 
 from geo_infer_bio.core.sequence_analysis import SequenceAnalyzer
 
@@ -29,10 +29,12 @@ def sample_sequences():
 @pytest.fixture
 def sample_spatial_data():
     """Create sample spatial data for testing."""
-    return pd.DataFrame({
-        "latitude": [40.7128, 34.0522, 51.5074],
-        "longitude": [-74.0060, -118.2437, -0.1278],
-    })
+    return pd.DataFrame(
+        {
+            "latitude": [40.7128, 34.0522, 51.5074],
+            "longitude": [-74.0060, -118.2437, -0.1278],
+        }
+    )
 
 
 def test_load_sequence(sequence_analyzer, tmp_path):
@@ -112,7 +114,5 @@ def test_visualize_spatial_patterns(
         sample_sequences, sample_spatial_data
     )
     output_path = tmp_path / "spatial_patterns.png"
-    sequence_analyzer.visualize_spatial_patterns(
-        results, output_path=str(output_path)
-    )
-    assert output_path.exists() 
+    sequence_analyzer.visualize_spatial_patterns(results, output_path=str(output_path))
+    assert output_path.exists()

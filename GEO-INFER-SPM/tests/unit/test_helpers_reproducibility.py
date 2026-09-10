@@ -8,7 +8,6 @@ default where that behavior remains part of a helper's documented contract.
 from __future__ import annotations
 
 import numpy as np
-import pytest
 
 from geo_infer_spm.utils.helpers import (
     compute_power_analysis,

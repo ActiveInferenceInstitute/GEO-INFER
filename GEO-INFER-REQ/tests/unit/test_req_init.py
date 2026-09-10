@@ -16,9 +16,6 @@ class TestReqImports:
     def test_import_requirements(self):
         from geo_infer_req import (
             RequirementsAnalyzer,
-            Requirement,
-            RequirementType,
-            PriorityLevel,
         )
 
         assert RequirementsAnalyzer is not None
@@ -26,7 +23,7 @@ class TestReqImports:
         assert analyzer is not None
 
     def test_import_traceability(self):
-        from geo_infer_req import TraceabilityManager, TraceLink, ArtifactType
+        from geo_infer_req import TraceabilityManager, TraceLink
 
         assert TraceabilityManager is not None
         assert TraceLink is not None
@@ -35,7 +32,6 @@ class TestReqImports:
         from geo_infer_req import (
             RequirementValidator,
             RequirementSpec,
-            ValidationSeverity,
         )
 
         assert RequirementValidator is not None

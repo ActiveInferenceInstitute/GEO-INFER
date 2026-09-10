@@ -7,10 +7,8 @@ Tests for plan generation, selection, and execution in BDI agents.
 
 import asyncio
 import unittest
-from datetime import datetime, timedelta
 
-from geo_infer_agent.models.bdi.agent import Plan, Belief, Desire
-from geo_infer_agent.models import BDIAgent, BDIState
+from geo_infer_agent.models import BDIAgent
 
 
 class TestPlanLibrary(unittest.TestCase):
@@ -51,7 +49,9 @@ class TestPlanLibrary(unittest.TestCase):
                 "actions": [{"type": "log", "message": "monitoring", "level": "info"}],
             }
         ]
-        desires = [{"name": "monitor", "description": "Monitor sources", "priority": 0.8}]
+        desires = [
+            {"name": "monitor", "description": "Monitor sources", "priority": 0.8}
+        ]
         agent = self._make_agent(plans=plans, desires=desires)
 
         plan = agent._find_plan_for_desire("monitor")

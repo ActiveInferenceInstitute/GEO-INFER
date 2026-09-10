@@ -9,7 +9,6 @@ as ``agent_id``.  The helper below patches the attribute for compatibility.
 """
 
 import unittest
-from datetime import datetime
 
 from geo_infer_agent.core.agent_base import ExampleAgent
 from geo_infer_agent.models.hybrid import HybridState, SubAgentWrapper
@@ -64,9 +63,7 @@ class TestSubAgentWrapper(unittest.TestCase):
 
     def test_activation_conditions_not_met(self) -> None:
         """Wrapper does not activate when conditions are unmet."""
-        wrapper = self._make_wrapper(
-            activation_conditions={"mode": "analysis"}
-        )
+        wrapper = self._make_wrapper(activation_conditions={"mode": "analysis"})
         self.assertFalse(wrapper.check_activation({"mode": "monitoring"}))
         self.assertFalse(wrapper.check_activation({}))
 
@@ -98,9 +95,7 @@ class TestHybridState(unittest.TestCase):
 
     def _make_wrapper(self, agent_id: str, priority: int = 5) -> SubAgentWrapper:
         agent = _patch_agent(ExampleAgent(agent_id=agent_id))
-        return SubAgentWrapper(
-            agent_type="default", agent=agent, priority=priority
-        )
+        return SubAgentWrapper(agent_type="default", agent=agent, priority=priority)
 
     def test_add_and_remove_sub_agent(self) -> None:
         """Sub-agents can be added to and removed from HybridState."""

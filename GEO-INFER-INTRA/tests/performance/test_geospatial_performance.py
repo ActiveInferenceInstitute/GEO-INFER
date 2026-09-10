@@ -4,7 +4,6 @@ import pytest
 import time
 import random
 from typing import List, Dict, Any
-from pathlib import Path
 
 from geo_infer_intra.utils.geospatial_utils import (
     create_point,
@@ -65,9 +64,9 @@ class TestGeospatialPerformance:
 
         # Performance threshold (adjust based on actual performance)
         max_duration = 0.1 * n_points / 1000  # Scale with number of points
-        assert (
-            duration < max_duration
-        ), f"Performance too slow: {duration:.4f}s > {max_duration:.4f}s"
+        assert duration < max_duration, (
+            f"Performance too slow: {duration:.4f}s > {max_duration:.4f}s"
+        )
 
     @pytest.mark.parametrize("n_points", [100, 1000])
     def test_distance_calculation(self, random_points, n_points):
@@ -100,9 +99,9 @@ class TestGeospatialPerformance:
 
         # Performance threshold (adjust based on actual performance)
         max_duration = 0.05 * n_points / 1000  # Scale with number of points
-        assert (
-            duration < max_duration
-        ), f"Performance too slow: {duration:.4f}s > {max_duration:.4f}s"
+        assert duration < max_duration, (
+            f"Performance too slow: {duration:.4f}s > {max_duration:.4f}s"
+        )
 
     @pytest.mark.parametrize("n_coords", [10, 100, 1000])
     def test_polygon_creation(self, n_coords):
@@ -137,6 +136,6 @@ class TestGeospatialPerformance:
 
         # Performance threshold (adjust based on actual performance)
         max_duration = 0.05 * n_coords / 1000  # Scale with number of coordinates
-        assert (
-            duration < max_duration
-        ), f"Performance too slow: {duration:.4f}s > {max_duration:.4f}s"
+        assert duration < max_duration, (
+            f"Performance too slow: {duration:.4f}s > {max_duration:.4f}s"
+        )

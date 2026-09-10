@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
 from geo_infer_bio.utils.validation import DataValidator
 
 
@@ -15,11 +14,17 @@ class TestDataValidator:
 
     def test_validate_spatial_coordinates_valid(self) -> None:
         validator = DataValidator()
-        assert validator.validate_spatial_coordinates(latitude=45.0, longitude=-122.0) is True
+        assert (
+            validator.validate_spatial_coordinates(latitude=45.0, longitude=-122.0)
+            is True
+        )
 
     def test_validate_spatial_coordinates_invalid_lat(self) -> None:
         validator = DataValidator()
-        assert validator.validate_spatial_coordinates(latitude=100.0, longitude=0.0) is False
+        assert (
+            validator.validate_spatial_coordinates(latitude=100.0, longitude=0.0)
+            is False
+        )
 
     def test_validate_sequence_dna(self) -> None:
         validator = DataValidator()

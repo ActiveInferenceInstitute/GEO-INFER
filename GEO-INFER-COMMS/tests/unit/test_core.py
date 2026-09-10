@@ -2,8 +2,6 @@
 Unit tests for GEO-INFER-COMMS core functionality.
 """
 
-import pytest
-
 from geo_infer_comms import __version__, GeospatialCommunicationSystem
 
 
@@ -13,6 +11,7 @@ class TestCommsModule:
     def test_module_import(self) -> None:
         """Test that the module can be imported."""
         import geo_infer_comms
+
         assert geo_infer_comms is not None
 
     def test_module_version(self) -> None:
@@ -24,10 +23,10 @@ class TestCommsModule:
         """Test GeospatialCommunicationSystem initialization."""
         system = GeospatialCommunicationSystem()
         assert system is not None
-        assert hasattr(system, 'message_broker')
-        assert hasattr(system, 'notification_manager')
-        assert hasattr(system, 'channel_manager')
-        assert hasattr(system, 'event_manager')
+        assert hasattr(system, "message_broker")
+        assert hasattr(system, "notification_manager")
+        assert hasattr(system, "channel_manager")
+        assert hasattr(system, "event_manager")
 
     def test_communication_system_start_stop(self) -> None:
         """Test system start and stop functionality."""
@@ -35,10 +34,10 @@ class TestCommsModule:
         system.start()
         assert system._started is True
         assert system.start_time is not None
-        
+
         health = system.get_system_health()
-        assert health['status'] in ['healthy', 'degraded']
-        
+        assert health["status"] in ["healthy", "degraded"]
+
         system.stop()
         assert system._started is False
 
@@ -47,4 +46,3 @@ class TestCommsModule:
         with GeospatialCommunicationSystem() as system:
             assert system._started is True
         assert system._started is False
-

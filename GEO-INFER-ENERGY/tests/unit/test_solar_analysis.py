@@ -1,9 +1,9 @@
 """Tests for solar analysis module."""
 
-import numpy as np
 import pytest
 
 import sys
+
 sys.path.insert(0, "GEO-INFER-ENERGY/src")
 
 from geo_infer_energy.core.solar_analysis import SolarAnalyzer

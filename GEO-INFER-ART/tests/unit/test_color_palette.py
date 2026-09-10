@@ -3,11 +3,9 @@
 Unit tests for the ColorPalette class in geo_infer_art.core.aesthetics.color_palette.
 """
 
-import os
 import tempfile
 import unittest
 import numpy as np
-import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 
 from geo_infer_art.core.aesthetics.color_palette import ColorPalette
@@ -57,18 +55,14 @@ class TestColorPalette(unittest.TestCase):
 
         # Test complementary scheme
         palette = ColorPalette.from_color_theory(
-            base_color=base_color,
-            scheme="complementary",
-            n_colors=4
+            base_color=base_color, scheme="complementary", n_colors=4
         )
         self.assertTrue(palette.name.startswith("complementary"))
         self.assertEqual(len(palette.colors), 4)
 
         # Test analogous scheme
         palette = ColorPalette.from_color_theory(
-            base_color=base_color,
-            scheme="analogous",
-            n_colors=5
+            base_color=base_color, scheme="analogous", n_colors=5
         )
         self.assertTrue(palette.name.startswith("analogous"))
         self.assertEqual(len(palette.colors), 5)
@@ -76,8 +70,7 @@ class TestColorPalette(unittest.TestCase):
         # Test invalid scheme
         with self.assertRaises(ValueError):
             ColorPalette.from_color_theory(
-                base_color=base_color,
-                scheme="invalid_scheme"
+                base_color=base_color, scheme="invalid_scheme"
             )
 
     def test_invert(self):

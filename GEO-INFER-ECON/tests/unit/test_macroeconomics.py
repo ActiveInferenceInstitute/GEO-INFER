@@ -79,7 +79,11 @@ class TestMonetaryPolicyModels:
 
     def test_custom_weights_respected(self) -> None:
         models = MonetaryPolicyModels(
-            config={"inflation_weight": 0.0, "output_gap_weight": 0.0, "neutral_rate": 1.0}
+            config={
+                "inflation_weight": 0.0,
+                "output_gap_weight": 0.0,
+                "neutral_rate": 1.0,
+            }
         )
         result = models.model_policy(
             {"inflation_rate": 3.0, "output_gap": 2.0, "current_rate": 4.0}
@@ -95,8 +99,13 @@ class TestFiscalPolicyModels:
     def test_multiplier_matches_formula(self) -> None:
         models = FiscalPolicyModels()
         result = models.model_fiscal_policy(
-            {"gdp": 1000.0, "government_spending": 200.0, "tax_revenue": 250.0,
-             "public_debt": 800.0, "spending_change": 10.0}
+            {
+                "gdp": 1000.0,
+                "government_spending": 200.0,
+                "tax_revenue": 250.0,
+                "public_debt": 800.0,
+                "spending_change": 10.0,
+            }
         )
         # k = 1 / (1 - 0.75*0.75 + 0.15)
         assert result["fiscal_multiplier"] == pytest.approx(1.701, abs=0.01)
@@ -120,9 +129,11 @@ class TestTradeModels:
         far = {"id": "far", "gdp": 100.0, "lat": 45.0, "lon": -12.0}
         home = {"id": "home", "gdp": 100.0, "lat": 45.0, "lon": -122.0}
         result = models.model_trade({"countries": [home, near, far]})
-        stats = {s["country_id"]: s for s in result["country_statistics"]}
         # Same GDP partners, different distances: closer partner trades more
-        flows = {(f["exporter"], f["importer"]): f["trade_value"] for f in result["bilateral_flows"]}
+        flows = {
+            (f["exporter"], f["importer"]): f["trade_value"]
+            for f in result["bilateral_flows"]
+        }
         assert flows[("home", "near")] > 0
         if ("home", "far") in flows:
             assert flows[("home", "near")] > flows[("home", "far")]
@@ -149,4 +160,11 @@ class TestAggregateGrowthModels:
         expected_tfp = gdp_growth - cap_contrib - lab_contrib
         assert result["tfp_growth"][0] == pytest.approx(expected_tfp, abs=1e-4)
         assert result["capital_contribution"][0] == pytest.approx(cap_contrib, abs=1e-4)
-        assert result["labor_contribution"][0] == pytest.approx(lab_contrib := lab_contrib if False else lab_contrib, abs=1e-4) if False else True
+        assert (
+            result["labor_contribution"][0]
+            == pytest.approx(
+                lab_contrib := lab_contrib if False else lab_contrib, abs=1e-4
+            )
+            if False
+            else True
+        )

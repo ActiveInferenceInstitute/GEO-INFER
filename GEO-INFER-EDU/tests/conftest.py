@@ -4,9 +4,9 @@ Pytest fixtures for GEO-INFER-EDU tests.
 Provides school location GeoDataFrames, population density data,
 education configurations, and standard spatial fixtures.
 """
+
 import pytest
 import numpy as np
-import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
 from pathlib import Path

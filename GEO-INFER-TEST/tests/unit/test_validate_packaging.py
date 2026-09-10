@@ -6,8 +6,6 @@ import importlib.util
 import sys
 from pathlib import Path
 
-import pytest
-
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 VALIDATOR_PATH = REPO_ROOT / "GEO-INFER-TEST" / "validate_packaging.py"
@@ -61,8 +59,12 @@ def test_valid_distribution_namespace_rejects_bad_prefix(tmp_path, monkeypatch):
 
 def test_wheel_filename_namespace_validation(tmp_path, monkeypatch):
     packaging = load_packaging_module()
-    assert packaging.wheel_filename_is_valid("geo_infer_space-0.2.0-py3-none-any.whl", "geo-infer-space")
-    assert not packaging.wheel_filename_is_valid("malicious_pkg-0.2.0-py3-none-any.whl", "geo-infer-space")
+    assert packaging.wheel_filename_is_valid(
+        "geo_infer_space-0.2.0-py3-none-any.whl", "geo-infer-space"
+    )
+    assert not packaging.wheel_filename_is_valid(
+        "malicious_pkg-0.2.0-py3-none-any.whl", "geo-infer-space"
+    )
 
 
 def test_validate_module_accepts_conforming_package(tmp_path):
@@ -88,7 +90,9 @@ def test_validate_module_rejects_bad_namespace(tmp_path):
     (package_dir / "__init__.py").write_text("__version__ = '0.2.0'\n")
     pyproject = _make_pyproject(module_dir)
     pyproject.write_text(
-        pyproject.read_text().replace('name = "geo-infer-sample"', 'name = "bad-package"'),
+        pyproject.read_text().replace(
+            'name = "geo-infer-sample"', 'name = "bad-package"'
+        ),
         encoding="utf-8",
     )
 

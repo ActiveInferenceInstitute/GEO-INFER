@@ -1,5 +1,6 @@
 import matplotlib
-matplotlib.use('Agg')  # Non-interactive backend for CI/headless testing
+
+matplotlib.use("Agg")  # Non-interactive backend for CI/headless testing
 
 """
 Pytest fixtures for GEO-INFER-ART tests.
@@ -9,7 +10,6 @@ color palettes, and standard spatial fixtures.
 """
 import pytest
 import numpy as np
-import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
 from pathlib import Path

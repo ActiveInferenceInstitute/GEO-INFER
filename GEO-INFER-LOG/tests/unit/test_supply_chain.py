@@ -1,6 +1,5 @@
 """Tests for supply chain module."""
 
-import pytest
 from geo_infer_log.core.supply_chain import (
     SupplyChainModel,
     FacilityLocator,

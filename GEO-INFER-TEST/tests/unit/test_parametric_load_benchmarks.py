@@ -11,10 +11,8 @@ from __future__ import annotations
 
 import time
 import numpy as np
-import pytest
 import h3
 
-from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
 from geo_infer_math.core.geometry import points_in_polygon_vectorized
 
 
@@ -51,4 +49,6 @@ def test_vectorized_geometry_load_throughput():
     assert len(inside) == n_points
     assert np.any(inside)
     throughput = n_points / elapsed
-    assert throughput > 50_000, f"Vectorized PIP throughput too low: {throughput:.2f} pts/sec"
+    assert throughput > 50_000, (
+        f"Vectorized PIP throughput too low: {throughput:.2f} pts/sec"
+    )

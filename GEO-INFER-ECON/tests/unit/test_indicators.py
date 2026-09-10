@@ -1,7 +1,6 @@
 """Tests for economic indicators utility module."""
 
 import numpy as np
-import pandas as pd
 import pytest
 from geo_infer_econ.utils.indicators import EconomicIndicators
 
@@ -66,11 +65,13 @@ class TestEconomicIndicators:
             self.ind.calculate_economic_distance(r1, r2)
 
     def test_economic_complexity_index(self) -> None:
-        exports = np.array([
-            [10.0, 5.0, 0.0],
-            [2.0, 8.0, 3.0],
-            [0.0, 1.0, 15.0],
-        ])
+        exports = np.array(
+            [
+                [10.0, 5.0, 0.0],
+                [2.0, 8.0, 3.0],
+                [0.0, 1.0, 15.0],
+            ]
+        )
         result = self.ind.calculate_economic_complexity_index(
             exports,
             countries=["C1", "C2", "C3"],

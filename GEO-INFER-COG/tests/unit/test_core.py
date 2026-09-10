@@ -2,11 +2,11 @@
 Unit tests for GEO-INFER-COG core functionality.
 """
 
-import pytest
-import numpy as np
-
 from geo_infer_cog import __version__
-from geo_infer_cog.core.cognitive_engine import CognitiveProcessingEngine, CognitiveState
+from geo_infer_cog.core.cognitive_engine import (
+    CognitiveProcessingEngine,
+    CognitiveState,
+)
 
 
 class TestCogModule:
@@ -15,6 +15,7 @@ class TestCogModule:
     def test_module_import(self) -> None:
         """Test that the module can be imported."""
         import geo_infer_cog
+
         assert geo_infer_cog is not None
 
     def test_module_version(self) -> None:
@@ -44,5 +45,4 @@ class TestCogModule:
         """Test CognitiveProcessingEngine initialization."""
         engine = CognitiveProcessingEngine()
         assert engine is not None
-        assert hasattr(engine, 'process_spatial_input')
-
+        assert hasattr(engine, "process_spatial_input")

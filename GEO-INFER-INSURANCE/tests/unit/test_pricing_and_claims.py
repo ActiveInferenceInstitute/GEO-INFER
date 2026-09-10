@@ -5,8 +5,6 @@ from geo_infer_insurance.underwriting.core.claims_processing import (
     ClaimStatus,
     ClaimsProcessor,
     ClaimsProcessingConfig,
-    Payment,
-    Reserve,
 )
 from geo_infer_insurance.underwriting.core.pricing_engine import PricingEngine
 
@@ -51,7 +49,9 @@ class TestPremiumPricing:
 
     def test_higher_risk_scores_produce_higher_premiums(self) -> None:
         engine = PricingEngine()
-        low = engine.calculate_premium(_application(), _risk_assessment(), _rule_evaluation())
+        low = engine.calculate_premium(
+            _application(), _risk_assessment(), _rule_evaluation()
+        )
 
         risky = _risk_assessment()
         risky["risk_score"] = 0.95
@@ -62,7 +62,9 @@ class TestPremiumPricing:
 
     def test_validate_premium_accepts_sane_calculation(self) -> None:
         engine = PricingEngine()
-        calc = engine.calculate_premium(_application(), _risk_assessment(), _rule_evaluation())
+        calc = engine.calculate_premium(
+            _application(), _risk_assessment(), _rule_evaluation()
+        )
         assert engine.validate_premium(calc)["is_valid"]
 
 
@@ -81,6 +83,7 @@ class TestClaimsLifecycle:
         claim = process_claim(self._claim_data())
 
         assert claim.claim_number.startswith("CLM")
+
     def test_settlement_requires_approval_and_records_payment(self) -> None:
         processor = ClaimsProcessor(ClaimsProcessingConfig())
         claim = processor.process_claim(self._claim_data())
@@ -90,12 +93,12 @@ class TestClaimsLifecycle:
             assert processor.settle_claim(claim.claim_id, 1500.0) is False
             return
 
-        import uuid
-
         reserves_before = claim.calculate_total_reserves()
         assert processor.settle_claim(claim.claim_id, 1500.0, "agreed") is True
         assert claim.paid_amount == 1500.0
-        assert claim.calculate_outstanding_reserves() == max(0, reserves_before - 1500.0)
+        assert claim.calculate_outstanding_reserves() == max(
+            0, reserves_before - 1500.0
+        )
 
     def test_settlement_of_unknown_claim_fails(self) -> None:
         assert ClaimsProcessor().settle_claim("no-such-id", 100.0) is False

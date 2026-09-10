@@ -1,7 +1,6 @@
 """Tests for GIT repo manager module."""
 
 import git
-import pytest
 
 from geo_infer_git.core.repo_manager import RepoManager
 

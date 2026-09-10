@@ -8,7 +8,6 @@ and edge cases (constant series, short series, zero variance).
 
 import pytest
 import numpy as np
-from scipy import stats as sp_stats
 
 from geo_infer_time.core.statistics import TemporalStatistics
 
@@ -262,7 +261,9 @@ class TestInformationCriteriaExtended:
 
     def test_custom_log_likelihood(self, stats, white_noise):
         """Custom log_likelihood is used when provided."""
-        result = stats.information_criteria(white_noise, num_params=2, log_likelihood=-50.0)
+        result = stats.information_criteria(
+            white_noise, num_params=2, log_likelihood=-50.0
+        )
         assert result["log_likelihood"] == -50.0
         # AIC = -2*LL + 2*k = -2*(-50) + 2*2 = 104
         assert abs(result["aic"] - 104.0) < 1e-10
@@ -359,7 +360,9 @@ class TestResidualDiagnosticsExtended:
         np.random.seed(42)
         n = 200
         # First half: small variance; second half: large variance
-        data = list(np.random.randn(n // 2) * 0.5) + list(np.random.randn(n // 2) * 10.0)
+        data = list(np.random.randn(n // 2) * 0.5) + list(
+            np.random.randn(n // 2) * 10.0
+        )
         result = stats.residual_diagnostics(data)
         assert result["variance_test"]["homoscedastic"] == False
         assert "heteroscedasticity" in " ".join(result["overall"]["issues"]).lower()
@@ -406,7 +409,9 @@ class TestCalculateDifferencesExtended:
 
     def test_seasonal_difference_with_period_12(self, stats, seasonal_values):
         """Seasonal differencing with period=12."""
-        result = stats.calculate_differences(seasonal_values, order=1, seasonal_period=12)
+        result = stats.calculate_differences(
+            seasonal_values, order=1, seasonal_period=12
+        )
         assert "seasonal_differenced" in result
         sd = result["seasonal_differenced"]
         assert sd["period"] == 12

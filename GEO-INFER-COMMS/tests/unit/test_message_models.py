@@ -1,19 +1,14 @@
 """Tests for COMMS message data models."""
-import pytest
-from datetime import datetime, timezone
 
 from geo_infer_comms.models.message import (
     MessagePriority,
     MessageType,
     MessageStatus,
     ChannelType,
-    ChannelStatus,
     NotificationType,
-    NotificationStatus,
     EventType,
     CollaborationType,
     ParticipantRole,
-    ParticipantStatus,
     MessageMetadata,
 )
 
