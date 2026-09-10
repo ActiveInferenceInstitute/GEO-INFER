@@ -30,8 +30,8 @@ domain modeling, agent workflows, and reproducible repository validation in one
 | Metric | Value |
 | --- | ---: |
 | Modules | 45 |
-| Python source files | 917 |
-| Python test files | 616 |
+| Python source files | 919 |
+| Python test files | 618 |
 | Repository README.md files | 823 |
 | Repository AGENTS.md files | 820 |
 
@@ -106,7 +106,7 @@ the exact reproducible exception list.
 | `GEO-INFER-API` | `geo_infer_api` | 14 | 11 |
 | `GEO-INFER-APP` | `geo_infer_app` | 13 | 7 |
 | `GEO-INFER-ART` | `geo_infer_art` | 22 | 10 |
-| `GEO-INFER-BAYES` | `geo_infer_bayes` | 36 | 26 |
+| `GEO-INFER-BAYES` | `geo_infer_bayes` | 37 | 27 |
 | `GEO-INFER-BIO` | `geo_infer_bio` | 9 | 9 |
 | `GEO-INFER-CIV` | `geo_infer_civ` | 5 | 7 |
 | `GEO-INFER-CLIMATE` | `geo_infer_climate` | 11 | 10 |
@@ -142,7 +142,7 @@ the exact reproducible exception list.
 | `GEO-INFER-TEST` | `geo_infer_test` | 12 | 32 |
 | `GEO-INFER-TIME` | `geo_infer_time` | 18 | 19 |
 | `GEO-INFER-TRANSPORT` | `geo_infer_transport` | 7 | 8 |
-| `GEO-INFER-WATER` | `geo_infer_water` | 10 | 8 |
+| `GEO-INFER-WATER` | `geo_infer_water` | 11 | 9 |
 
 ## Modular Hygiene
 
