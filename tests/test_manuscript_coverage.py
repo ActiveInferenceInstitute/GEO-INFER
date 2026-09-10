@@ -14,19 +14,6 @@ from typing import Iterator
 import pytest
 
 
-def _figure_specs(generator: ModuleType):
-    """A minimal, valid figure-spec tuple for variable-building tests."""
-    return (
-        generator.FigureSpec(
-            label="fig:example",
-            filename="example.png",
-            caption="Example caption.",
-            generated_by="tests",
-            alt_text="Example alt text.",
-        ),
-    )
-
-
 class TestModuleTable:
     """Every measured module must reach the manuscript with a described surface."""
 
@@ -78,20 +65,11 @@ class TestModuleTable:
             generator._module_table(broken)
 
     def test_the_token_is_published(
-        self, generator: ModuleType, repo_inventory
+        self, generator: ModuleType, repo_inventory, figure_specs
     ) -> None:
         variables = generator.build_variables(
             repo_inventory,
-            (
-                generator.FigureSpec(
-                    label="fig:example",
-                    filename="example.png",
-                    caption="Example caption.",
-                    generated_by="tests",
-                    alt_text="Example alt text.",
-                    sha256="0" * 64,
-                ),
-            ),
+            figure_specs,
             generator.VerificationRecord.unmeasured(),
         )
         assert variables["MODULE_TABLE"] == generator._module_table(repo_inventory)
@@ -144,7 +122,7 @@ class TestPublishedCountsPartitionTheDefinition:
         )
 
     def test_a_full_record_publishes_the_full_denominator(
-        self, generator: ModuleType, repo_inventory
+        self, generator: ModuleType, repo_inventory, figure_specs
     ) -> None:
         names = generator.defined_command_groups(full_validation=True)
         record = generator.VerificationRecord(
@@ -153,16 +131,14 @@ class TestPublishedCountsPartitionTheDefinition:
             source_hash="0" * 16,
             full_validation_requested=True,
         )
-        variables = generator.build_variables(
-            repo_inventory, _figure_specs(generator), record
-        )
+        variables = generator.build_variables(repo_inventory, figure_specs, record)
         assert variables["VERIFICATION_DEFINED_COUNT"] == str(len(names))
         assert variables["VERIFICATION_PASS_COUNT"] == str(len(names))
         assert variables["VERIFICATION_UNRUN_COUNT"] == "0"
         assert variables["VERIFICATION_RECORD_TIER"] == "full-validation"
 
     def test_the_counts_always_partition_the_denominator(
-        self, generator: ModuleType, repo_inventory
+        self, generator: ModuleType, repo_inventory, figure_specs
     ) -> None:
         for full_validation in (False, True):
             names = generator.defined_command_groups(full_validation=full_validation)
@@ -172,9 +148,7 @@ class TestPublishedCountsPartitionTheDefinition:
                 source_hash="0" * 16,
                 full_validation_requested=full_validation,
             )
-            variables = generator.build_variables(
-                repo_inventory, _figure_specs(generator), record
-            )
+            variables = generator.build_variables(repo_inventory, figure_specs, record)
             total = sum(
                 int(variables[f"VERIFICATION_{key}_COUNT"])
                 for key in ("PASS", "FAIL", "UNRUN")
@@ -182,7 +156,7 @@ class TestPublishedCountsPartitionTheDefinition:
             assert total == int(variables["VERIFICATION_DEFINED_COUNT"]) == len(names)
 
     def test_a_record_wider_than_its_tier_fails_the_build(
-        self, generator: ModuleType, repo_inventory
+        self, generator: ModuleType, repo_inventory, figure_specs
     ) -> None:
         # The exact shipped state: eleven measured results carrying the
         # default tier's seven-group denominator.  It used to render.
@@ -195,10 +169,10 @@ class TestPublishedCountsPartitionTheDefinition:
             full_validation_requested=False,
         )
         with pytest.raises(ValueError, match="must partition the defined"):
-            generator.build_variables(repo_inventory, _figure_specs(generator), record)
+            generator.build_variables(repo_inventory, figure_specs, record)
 
     def test_a_group_no_tier_defines_fails_the_build(
-        self, generator: ModuleType, repo_inventory
+        self, generator: ModuleType, repo_inventory, figure_specs
     ) -> None:
         record = generator.VerificationRecord(
             results=self._results(generator, ("retired-group",)),
@@ -207,7 +181,7 @@ class TestPublishedCountsPartitionTheDefinition:
             full_validation_requested=False,
         )
         with pytest.raises(ValueError, match="must partition the defined"):
-            generator.build_variables(repo_inventory, _figure_specs(generator), record)
+            generator.build_variables(repo_inventory, figure_specs, record)
 
 
 class TestHydrationTierSelection:
@@ -247,6 +221,121 @@ class TestHydrationTierSelection:
         assert shim._verify_requested() is True
 
 
+class TestTierWideningSeam:
+    """A verifying build widens to the stored record's tier; reuse is exact.
+
+    The historical "7 passed, 0 failed" defect lived exactly here: a
+    verifying build that found a default-tier record while it had asked for
+    the full-validation tier replaced the record wholesale, dropping the four
+    measured groups the wider tier re-ran.  The environment flags are tested
+    above and the partition refusal below; this class drives the seam between
+    them — :func:`resolve_verification` fed by ``--verify`` /
+    ``--full-validation`` against a stored record.
+    """
+
+    @staticmethod
+    def _result(generator: ModuleType, name: str):
+        return generator.VerificationResult(
+            name=name,
+            command="run it",
+            status="passed",
+            return_code=0,
+            duration_seconds=1.0,
+            output_tail="",
+        )
+
+    @staticmethod
+    def _store(
+        generator: ModuleType,
+        root: Path,
+        inventory,
+        results,
+        *,
+        full_validation: bool,
+    ) -> None:
+        data = root / "output" / "data"
+        data.mkdir(parents=True, exist_ok=True)
+        record = generator.VerificationRecord(
+            results=tuple(results),
+            source_commit=inventory.commit,
+            source_hash=inventory.source_hash,
+            full_validation_requested=full_validation,
+        )
+        (data / "research_verification.json").write_text(
+            json.dumps(generator._verification_payload(record)), encoding="utf-8"
+        )
+
+    def test_a_full_validation_request_re_measures_rather_than_reusing_a_default_record(
+        self, generator: ModuleType, tmp_path: Path, repo_inventory, monkeypatch
+    ) -> None:
+        # A default-tier record cannot stand in for a full-validation run:
+        # its results cover the narrower tier, and accepting it would publish
+        # the wider tier's groups as evidence they never produced.  The run
+        # widens instead, so every group the record would have replaced is
+        # re-measured and the replacement is lossless.
+        default_name = generator.VERIFICATION_COMMANDS[0][0]
+        self._store(
+            generator,
+            tmp_path,
+            repo_inventory,
+            (self._result(generator, default_name),),
+            full_validation=False,
+        )
+        seen: dict[str, bool] = {}
+
+        def _run(_root, *, full_validation: bool = False, **_kwargs):
+            seen["full_validation"] = full_validation
+            return tuple(
+                self._result(generator, group)
+                for group in generator.defined_command_groups(full_validation=True)
+            )
+
+        monkeypatch.setattr(generator, "run_verification", _run)
+        resolved = generator.resolve_verification(
+            tmp_path,
+            repo_inventory,
+            verify=True,
+            full_validation=True,
+            reuse_verification=True,
+        )
+        assert seen["full_validation"] is True
+        assert resolved.measured_elsewhere is False
+        assert resolved.full_validation_requested is True
+        measured = [result.name for result in resolved.results]
+        assert default_name in measured
+        assert all(group in measured for group in generator.FULL_VALIDATION_GROUPS)
+
+    def test_a_default_tier_verify_build_reuses_the_default_record(
+        self, generator: ModuleType, tmp_path: Path, repo_inventory, monkeypatch
+    ) -> None:
+        # The stored record was measured at the tier the build requests, so
+        # it is this build's evidence and the second tier is left unrun —
+        # asking for the default tier must not silently widen the run.
+        name = generator.VERIFICATION_COMMANDS[0][0]
+        self._store(
+            generator,
+            tmp_path,
+            repo_inventory,
+            (self._result(generator, name),),
+            full_validation=False,
+        )
+
+        def _fail(*_args, **_kwargs):  # pragma: no cover - must not be reached
+            raise AssertionError("a default-tier verify build re-ran commands")
+
+        monkeypatch.setattr(generator, "run_verification", _fail)
+        resolved = generator.resolve_verification(
+            tmp_path,
+            repo_inventory,
+            verify=True,
+            full_validation=False,
+            reuse_verification=True,
+        )
+        assert [result.name for result in resolved.results] == [name]
+        assert resolved.full_validation_requested is False
+        assert resolved.measured_elsewhere is False
+
+
 def _variables(root: Path) -> dict:
     return json.loads(
         (root / "output" / "data" / "manuscript_variables.json").read_text(
@@ -275,12 +364,20 @@ def _mirror_working_tree(repo_root: Path, copy: Path) -> None:
     see, minus the ignored trees the generator does not read.
     """
     deleted = _git(repo_root, "diff", "--name-only", "--diff-filter=D", "HEAD")
+    if deleted.returncode != 0:
+        raise RuntimeError(f"git diff (deletions) failed: {deleted.stderr.strip()}")
     for name in deleted.stdout.split():
         target = copy / name
         if target.is_file():
             target.unlink()
     changed = _git(repo_root, "diff", "--name-only", "--diff-filter=d", "HEAD")
+    if changed.returncode != 0:
+        raise RuntimeError(f"git diff (modifications) failed: {changed.stderr.strip()}")
     untracked = _git(repo_root, "ls-files", "--others", "--exclude-standard")
+    if untracked.returncode != 0:
+        raise RuntimeError(
+            f"git ls-files (untracked) failed: {untracked.stderr.strip()}"
+        )
     for name in (*changed.stdout.split(), *untracked.stdout.split()):
         source = repo_root / name
         if not source.is_file():
@@ -315,6 +412,15 @@ def shim_checkout(
     finally:
         subprocess.run(
             ["git", "-C", str(repo_root), "worktree", "remove", "--force", str(copy)],
+            capture_output=True,
+            check=False,
+        )
+        # A remove can fail (a leaked lock, a busy file on another host) and
+        # leave ``.git/worktrees/<name>`` metadata behind, which makes every
+        # later ``worktree add`` and the repo's own status noisier.  Prune is
+        # the cheap backstop that clears stale registrations.
+        subprocess.run(
+            ["git", "-C", str(repo_root), "worktree", "prune"],
             capture_output=True,
             check=False,
         )
@@ -383,3 +489,44 @@ class TestRenderHydrationShim:
         )
         assert completed.returncode == 0, completed.stderr
         assert generator.check_published_artifacts(shim_checkout) == ()
+
+    def test_a_tier_incoherent_record_fails_the_shim(
+        self, generator: ModuleType, shim_checkout: Path
+    ) -> None:
+        # Invalid JSON is silently read as "no record" and republished clean,
+        # so corruption alone does not move the exit code.  The failure the
+        # shim must surface is a record this build cannot publish coherently:
+        # eleven full-tier results carried under the default tier's
+        # seven-group denominator is exactly the "9 of 7" arithmetic the
+        # partition check exists to refuse.  The shim must exit non-zero
+        # rather than hydrate a bundle it cannot stand behind.
+        record = generator._verification_record_path(shim_checkout)
+        original = record.read_text(encoding="utf-8")
+        payload = json.loads(original)
+        payload["results"] = [
+            {
+                "name": name,
+                "command": "run it",
+                "status": "passed",
+                "return_code": 0,
+                "duration_seconds": 1.0,
+                "output_tail": "",
+            }
+            for name in generator.defined_command_groups(full_validation=True)
+        ]
+        payload["full_validation_requested"] = False
+        try:
+            record.write_text(json.dumps(payload), encoding="utf-8")
+            completed = subprocess.run(
+                [sys.executable, "scripts/z_generate_manuscript_variables.py"],
+                cwd=shim_checkout,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        finally:
+            # The module-scoped checkout outlives this test; leave the
+            # published bundle exactly as the earlier hydrations produced it.
+            record.write_text(original, encoding="utf-8")
+        assert completed.returncode != 0
+        assert "manuscript variable hydration failed" in completed.stderr

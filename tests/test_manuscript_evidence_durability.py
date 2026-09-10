@@ -22,73 +22,11 @@ real ``output/`` tree, and they never execute a verification command.
 from __future__ import annotations
 
 import json
-import subprocess
 from pathlib import Path
 from types import ModuleType
 
-import pytest
-
-GIT_ENV = {
-    "GIT_AUTHOR_NAME": "test",
-    "GIT_AUTHOR_EMAIL": "test@example.invalid",
-    "GIT_COMMITTER_NAME": "test",
-    "GIT_COMMITTER_EMAIL": "test@example.invalid",
-    "PATH": "/usr/bin:/bin:/usr/local/bin:/opt/homebrew/bin",
-}
 FOREIGN_COMMIT = "deadbee"
 FOREIGN_HASH = "0" * 16
-
-
-@pytest.fixture
-def generatable_checkout(generator: ModuleType, tmp_path: Path) -> Path:
-    """A committed checkout with the minimum shape ``generate`` accepts.
-
-    The generator refuses a tree missing any themed module, so every declared
-    module gets a one-file source package.  None of those counts are the
-    subject here; the verification record is.
-    """
-    root = tmp_path / "checkout"
-    root.mkdir()
-    manuscript = root / "manuscript"
-    manuscript.mkdir()
-    (manuscript / "config.yaml").write_text(
-        "paper:\n"
-        '  version: "0.0.0"\n'
-        '  date: "1970-01-01T00:00:00+00:00"\n'
-        "publication:\n"
-        '  year: "1970"\n'
-        "metadata:\n"
-        '  license: "unset"\n',
-        encoding="utf-8",
-    )
-    (manuscript / "00_abstract.md").write_text(
-        "# Abstract\n\nSource hash {{RESEARCH_SOURCE_HASH}}.\n", encoding="utf-8"
-    )
-    (manuscript / "references.bib").write_text("", encoding="utf-8")
-    (root / "pyproject.toml").write_text(
-        '[project]\nname = "example"\nversion = "1.2.3"\nlicense = "MIT"\n',
-        encoding="utf-8",
-    )
-    # The real checkout ignores ``/output/``, so writing the evidence bundle
-    # does not itself make the tree dirty.  Mirroring that is what lets these
-    # tests distinguish "the record moved" from "the tree moved".
-    (root / ".gitignore").write_text("/output/\n", encoding="utf-8")
-    for _theme, names in generator.MODULE_THEMES:
-        for name in names:
-            package = name.removeprefix("GEO-INFER-").lower()
-            source = root / name / "src" / f"geo_infer_{package}"
-            source.mkdir(parents=True)
-            (source / "__init__.py").write_text("VALUE = 1\n", encoding="utf-8")
-    env = {**GIT_ENV, "HOME": str(tmp_path)}
-    for args in (
-        ["init", "-q", "-b", "main"],
-        ["add", "-A"],
-        ["commit", "-q", "-m", "seed"],
-    ):
-        subprocess.run(
-            ["git", "-C", str(root), *args], check=True, env=env, capture_output=True
-        )
-    return root
 
 
 def _measured(generator: ModuleType, name: str, tail: str):

@@ -78,11 +78,11 @@ class TestVerificationUnrunCount:
         assert unrun == len(generator.VERIFICATION_COMMANDS) - 1
 
     def test_published_token_matches_the_summary(
-        self, generator: ModuleType, repo_inventory
+        self, generator: ModuleType, repo_inventory, figure_specs
     ) -> None:
         variables = generator.build_variables(
             repo_inventory,
-            _figure_specs(generator),
+            figure_specs,
             generator.VerificationRecord.unmeasured(),
         )
         assert variables["VERIFICATION_UNRUN_COUNT"] == str(
@@ -141,11 +141,11 @@ class TestWorkingTreeProvenance:
             generator.generate(git_repo)
 
     def test_the_real_checkout_publishes_its_own_dirty_count(
-        self, generator: ModuleType, repo_inventory
+        self, generator: ModuleType, repo_inventory, figure_specs
     ) -> None:
         variables = generator.build_variables(
             repo_inventory,
-            _figure_specs(generator),
+            figure_specs,
             generator.VerificationRecord.unmeasured(),
         )
         published = variables["RESEARCH_TREE_DIRTY_FILE_COUNT"]
@@ -163,16 +163,3 @@ def inventory_commit_is_marked(inventory) -> bool:
     if inventory.dirty_file_count < 0:
         return inventory.commit.endswith("-unverified")
     return not inventory.commit.endswith(("-dirty", "-unverified"))
-
-
-def _figure_specs(generator: ModuleType):
-    """A minimal, valid figure-spec tuple for variable-building tests."""
-    return (
-        generator.FigureSpec(
-            label="fig:example",
-            filename="example.png",
-            caption="Example caption.",
-            generated_by="tests",
-            alt_text="Example alt text.",
-        ),
-    )
