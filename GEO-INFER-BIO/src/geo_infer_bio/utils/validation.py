@@ -1,6 +1,7 @@
 """
 Data validation utilities for GEO-INFER-BIO.
 """
+
 from typing import Dict, List, Union, Optional
 import pandas as pd
 from Bio.Seq import Seq
@@ -51,9 +52,7 @@ class DataValidator:
 
         return all(char in valid_chars[sequence_type] for char in str(sequence))
 
-    def validate_spatial_coordinates(
-        self, latitude: float, longitude: float
-    ) -> bool:
+    def validate_spatial_coordinates(self, latitude: float, longitude: float) -> bool:
         """
         Validate spatial coordinates.
 
@@ -64,8 +63,16 @@ class DataValidator:
         Returns:
             bool: True if coordinates are valid, False otherwise
         """
-        lat_valid = self.valid_coordinates["latitude"][0] <= latitude <= self.valid_coordinates["latitude"][1]
-        lon_valid = self.valid_coordinates["longitude"][0] <= longitude <= self.valid_coordinates["longitude"][1]
+        lat_valid = (
+            self.valid_coordinates["latitude"][0]
+            <= latitude
+            <= self.valid_coordinates["latitude"][1]
+        )
+        lon_valid = (
+            self.valid_coordinates["longitude"][0]
+            <= longitude
+            <= self.valid_coordinates["longitude"][1]
+        )
         return lat_valid and lon_valid
 
     def validate_spatial_dataframe(
@@ -90,9 +97,7 @@ class DataValidator:
 
         # Check coordinate ranges
         for _, row in df.iterrows():
-            if not self.validate_spatial_coordinates(
-                row["latitude"], row["longitude"]
-            ):
+            if not self.validate_spatial_coordinates(row["latitude"], row["longitude"]):
                 return False
 
         return True
@@ -126,9 +131,7 @@ class DataValidator:
 
         return results
 
-    def validate_alignment(
-        self, alignment: MultipleSeqAlignment
-    ) -> Dict[str, bool]:
+    def validate_alignment(self, alignment: MultipleSeqAlignment) -> Dict[str, bool]:
         """
         Validate a multiple sequence alignment.
 
@@ -163,9 +166,7 @@ class DataValidator:
 
         return results
 
-    def validate_gc_content(
-        self, gc_content: float, sequence_length: int
-    ) -> bool:
+    def validate_gc_content(self, gc_content: float, sequence_length: int) -> bool:
         """
         Validate GC content calculation.
 
@@ -180,9 +181,7 @@ class DataValidator:
             return False
         return 0 <= gc_content <= 100
 
-    def validate_motif(
-        self, motif: str, sequence_type: str = "DNA"
-    ) -> bool:
+    def validate_motif(self, motif: str, sequence_type: str = "DNA") -> bool:
         """
         Validate a DNA/RNA motif.
 
@@ -220,4 +219,4 @@ class DataValidator:
             return False
         if end - start + 1 < min_length:
             return False
-        return True 
+        return True

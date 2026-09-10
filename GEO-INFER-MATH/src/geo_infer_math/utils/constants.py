@@ -74,10 +74,10 @@ METER_TO_NAUTICAL_MILE = 0.000539957
 NAUTICAL_MILE_TO_METER = 1852.0
 
 # Area conversion constants
-SQUARE_METER_TO_SQUARE_FEET = METER_TO_FEET ** 2
+SQUARE_METER_TO_SQUARE_FEET = METER_TO_FEET**2
 SQUARE_FEET_TO_SQUARE_METER = 1.0 / SQUARE_METER_TO_SQUARE_FEET
 
-SQUARE_METER_TO_SQUARE_YARD = METER_TO_YARD ** 2
+SQUARE_METER_TO_SQUARE_YARD = METER_TO_YARD**2
 SQUARE_YARD_TO_SQUARE_METER = 1.0 / SQUARE_METER_TO_SQUARE_YARD
 
 SQUARE_METER_TO_ACRE = 0.000247105
@@ -93,7 +93,7 @@ SQUARE_KILOMETER_TO_SQUARE_METER = 1e6
 CUBIC_METER_TO_LITER = 1000.0
 LITER_TO_CUBIC_METER = 0.001
 
-CUBIC_METER_TO_CUBIC_FEET = METER_TO_FEET ** 3
+CUBIC_METER_TO_CUBIC_FEET = METER_TO_FEET**3
 CUBIC_FEET_TO_CUBIC_METER = 1.0 / CUBIC_METER_TO_CUBIC_FEET
 
 # Temperature conversion constants
@@ -155,12 +155,12 @@ DEFAULT_CHUNK_SIZE = 1000  # Default chunk size for processing large datasets
 
 # Statistical distribution constants
 NORMAL_DISTRIBUTION_Z_SCORES = {
-    0.80: 1.282,   # 80% confidence
-    0.85: 1.440,   # 85% confidence
-    0.90: 1.645,   # 90% confidence
-    0.95: 1.960,   # 95% confidence
-    0.99: 2.576,   # 99% confidence
-    0.999: 3.291   # 99.9% confidence
+    0.80: 1.282,  # 80% confidence
+    0.85: 1.440,  # 85% confidence
+    0.90: 1.645,  # 90% confidence
+    0.95: 1.960,  # 95% confidence
+    0.99: 2.576,  # 99% confidence
+    0.999: 3.291,  # 99.9% confidence
 }
 
 # Geospatial analysis constants
@@ -182,97 +182,91 @@ DEFAULT_OPTIMIZATION_POPULATION_SIZE = 50
 # Constants dictionary for easy access
 CONSTANTS = {
     # Earth parameters
-    'earth': {
-        'radius_equatorial': EARTH_RADIUS_EQUATORIAL,
-        'radius_polar': EARTH_RADIUS_POLAR,
-        'radius_mean': EARTH_RADIUS_MEAN,
-        'flattening': EARTH_FLATTENING,
-        'eccentricity': EARTH_ECCENTRICITY,
-        'gravity_equatorial': EARTH_GRAVITY_EQUATORIAL,
-        'gravity_poles': EARTH_GRAVITY_POLES,
-        'gravity_mean': EARTH_GRAVITY_MEAN
+    "earth": {
+        "radius_equatorial": EARTH_RADIUS_EQUATORIAL,
+        "radius_polar": EARTH_RADIUS_POLAR,
+        "radius_mean": EARTH_RADIUS_MEAN,
+        "flattening": EARTH_FLATTENING,
+        "eccentricity": EARTH_ECCENTRICITY,
+        "gravity_equatorial": EARTH_GRAVITY_EQUATORIAL,
+        "gravity_poles": EARTH_GRAVITY_POLES,
+        "gravity_mean": EARTH_GRAVITY_MEAN,
     },
-
     # Unit conversions
-    'unit_conversions': {
-        'length': {
-            'meter_to_feet': METER_TO_FEET,
-            'feet_to_meter': FEET_TO_METER,
-            'meter_to_yard': METER_TO_YARD,
-            'yard_to_meter': YARD_TO_METER,
-            'meter_to_mile': METER_TO_MILE,
-            'mile_to_meter': MILE_TO_METER,
-            'meter_to_kilometer': METER_TO_KILOMETER,
-            'kilometer_to_meter': KILOMETER_TO_METER,
-            'meter_to_nautical_mile': METER_TO_NAUTICAL_MILE,
-            'nautical_mile_to_meter': NAUTICAL_MILE_TO_METER
+    "unit_conversions": {
+        "length": {
+            "meter_to_feet": METER_TO_FEET,
+            "feet_to_meter": FEET_TO_METER,
+            "meter_to_yard": METER_TO_YARD,
+            "yard_to_meter": YARD_TO_METER,
+            "meter_to_mile": METER_TO_MILE,
+            "mile_to_meter": MILE_TO_METER,
+            "meter_to_kilometer": METER_TO_KILOMETER,
+            "kilometer_to_meter": KILOMETER_TO_METER,
+            "meter_to_nautical_mile": METER_TO_NAUTICAL_MILE,
+            "nautical_mile_to_meter": NAUTICAL_MILE_TO_METER,
         },
-        'area': {
-            'square_meter_to_square_feet': SQUARE_METER_TO_SQUARE_FEET,
-            'square_feet_to_square_meter': SQUARE_FEET_TO_SQUARE_METER,
-            'square_meter_to_acre': SQUARE_METER_TO_ACRE,
-            'acre_to_square_meter': ACRE_TO_SQUARE_METER,
-            'square_meter_to_hectare': SQUARE_METER_TO_HECTARE,
-            'hectare_to_square_meter': HECTARE_TO_SQUARE_METER
+        "area": {
+            "square_meter_to_square_feet": SQUARE_METER_TO_SQUARE_FEET,
+            "square_feet_to_square_meter": SQUARE_FEET_TO_SQUARE_METER,
+            "square_meter_to_acre": SQUARE_METER_TO_ACRE,
+            "acre_to_square_meter": ACRE_TO_SQUARE_METER,
+            "square_meter_to_hectare": SQUARE_METER_TO_HECTARE,
+            "hectare_to_square_meter": HECTARE_TO_SQUARE_METER,
         },
-        'temperature': {
-            'celsius_to_fahrenheit_offset': CELSIUS_TO_FAHRENHEIT_OFFSET,
-            'celsius_to_fahrenheit_factor': CELSIUS_TO_FAHRENHEIT_FACTOR,
-            'fahrenheit_to_celsius_factor': FAHRENHEIT_TO_CELSIUS_FACTOR,
-            'kelvin_to_celsius_offset': KELVIN_TO_CELSIUS_OFFSET,
-            'celsius_to_kelvin_offset': CELSIUS_TO_KELVIN_OFFSET
-        }
+        "temperature": {
+            "celsius_to_fahrenheit_offset": CELSIUS_TO_FAHRENHEIT_OFFSET,
+            "celsius_to_fahrenheit_factor": CELSIUS_TO_FAHRENHEIT_FACTOR,
+            "fahrenheit_to_celsius_factor": FAHRENHEIT_TO_CELSIUS_FACTOR,
+            "kelvin_to_celsius_offset": KELVIN_TO_CELSIUS_OFFSET,
+            "celsius_to_kelvin_offset": CELSIUS_TO_KELVIN_OFFSET,
+        },
     },
-
     # Algorithm parameters
-    'algorithms': {
-        'spatial_analysis': {
-            'default_weights_k': DEFAULT_SPATIAL_WEIGHTS_K,
-            'variance_threshold': DEFAULT_VARIANCE_THRESHOLD,
-            'convergence_tolerance': DEFAULT_CONVERGENCE_TOLERANCE,
-            'max_iterations': DEFAULT_MAX_ITERATIONS
+    "algorithms": {
+        "spatial_analysis": {
+            "default_weights_k": DEFAULT_SPATIAL_WEIGHTS_K,
+            "variance_threshold": DEFAULT_VARIANCE_THRESHOLD,
+            "convergence_tolerance": DEFAULT_CONVERGENCE_TOLERANCE,
+            "max_iterations": DEFAULT_MAX_ITERATIONS,
         },
-        'interpolation': {
-            'default_idw_power': DEFAULT_IDW_POWER,
-            'default_kriging_range': DEFAULT_KRIGING_RANGE,
-            'default_kriging_sill': DEFAULT_KRIGING_SILL,
-            'default_kriging_nugget': DEFAULT_KRIGING_NUGGET
+        "interpolation": {
+            "default_idw_power": DEFAULT_IDW_POWER,
+            "default_kriging_range": DEFAULT_KRIGING_RANGE,
+            "default_kriging_sill": DEFAULT_KRIGING_SILL,
+            "default_kriging_nugget": DEFAULT_KRIGING_NUGGET,
         },
-        'statistics': {
-            'confidence_level': DEFAULT_CONFIDENCE_LEVEL,
-            'significance_level': DEFAULT_SIGNIFICANCE_LEVEL,
-            'z_score_threshold': DEFAULT_Z_SCORE_THRESHOLD
+        "statistics": {
+            "confidence_level": DEFAULT_CONFIDENCE_LEVEL,
+            "significance_level": DEFAULT_SIGNIFICANCE_LEVEL,
+            "z_score_threshold": DEFAULT_Z_SCORE_THRESHOLD,
         },
-        'optimization': {
-            'tolerance': DEFAULT_OPTIMIZATION_TOLERANCE,
-            'max_iter': DEFAULT_OPTIMIZATION_MAX_ITER,
-            'population_size': DEFAULT_OPTIMIZATION_POPULATION_SIZE
-        }
+        "optimization": {
+            "tolerance": DEFAULT_OPTIMIZATION_TOLERANCE,
+            "max_iter": DEFAULT_OPTIMIZATION_MAX_ITER,
+            "population_size": DEFAULT_OPTIMIZATION_POPULATION_SIZE,
+        },
     },
-
     # Coordinate systems
-    'coordinate_systems': {
-        'wgs84_epsg': WGS84_EPSG_CODE,
-        'web_mercator_epsg': WEB_MERCATOR_EPSG_CODE,
-        'utm_zone_width': UTM_ZONE_WIDTH_DEGREES,
-        'utm_central_meridian_offset': UTM_CENTRAL_MERIDIAN_OFFSET
+    "coordinate_systems": {
+        "wgs84_epsg": WGS84_EPSG_CODE,
+        "web_mercator_epsg": WEB_MERCATOR_EPSG_CODE,
+        "utm_zone_width": UTM_ZONE_WIDTH_DEGREES,
+        "utm_central_meridian_offset": UTM_CENTRAL_MERIDIAN_OFFSET,
     },
-
     # Quality control
-    'quality_control': {
-        'max_coordinate_value': MAX_COORDINATE_VALUE,
-        'min_coordinate_value': MIN_COORDINATE_VALUE,
-        'max_distance_value': MAX_DISTANCE_VALUE,
-        'min_distance_value': MIN_DISTANCE_VALUE,
-        'max_value_ratio': MAX_VALUE_RATIO,
-        'min_nonzero_value': MIN_NONZERO_VALUE
+    "quality_control": {
+        "max_coordinate_value": MAX_COORDINATE_VALUE,
+        "min_coordinate_value": MIN_COORDINATE_VALUE,
+        "max_distance_value": MAX_DISTANCE_VALUE,
+        "min_distance_value": MIN_DISTANCE_VALUE,
+        "max_value_ratio": MAX_VALUE_RATIO,
+        "min_nonzero_value": MIN_NONZERO_VALUE,
     },
-
     # Statistical distributions
-    'distributions': {
-        'normal_z_scores': NORMAL_DISTRIBUTION_Z_SCORES
-    }
+    "distributions": {"normal_z_scores": NORMAL_DISTRIBUTION_Z_SCORES},
 }
+
 
 def get_constant(category: str, name: str) -> Any:
     """
@@ -295,7 +289,10 @@ def get_constant(category: str, name: str) -> Any:
 
     return CONSTANTS[category][name]
 
-def list_constants(category: Optional[str] = None) -> Union[Dict[str, Any], Dict[str, Dict[str, Any]]]:
+
+def list_constants(
+    category: Optional[str] = None,
+) -> Union[Dict[str, Any], Dict[str, Dict[str, Any]]]:
     """
     List available constants.
 
@@ -312,6 +309,7 @@ def list_constants(category: Optional[str] = None) -> Union[Dict[str, Any], Dict
             raise KeyError(f"Constant category '{category}' not found")
         return CONSTANTS[category]
 
+
 __all__ = [
     # Earth parameters
     "EARTH_RADIUS_EQUATORIAL",
@@ -322,35 +320,29 @@ __all__ = [
     "EARTH_GRAVITY_EQUATORIAL",
     "EARTH_GRAVITY_POLES",
     "EARTH_GRAVITY_MEAN",
-
     # Mathematical constants
     "PI",
     "EULER_GAMMA",
     "GOLDEN_RATIO",
-
     # Spatial analysis constants
     "DEFAULT_SPATIAL_WEIGHTS_K",
     "DEFAULT_VARIANCE_THRESHOLD",
     "DEFAULT_CONVERGENCE_TOLERANCE",
     "DEFAULT_MAX_ITERATIONS",
-
     # Interpolation constants
     "DEFAULT_IDW_POWER",
     "DEFAULT_KRIGING_RANGE",
     "DEFAULT_KRIGING_SILL",
     "DEFAULT_KRIGING_NUGGET",
-
     # Statistical constants
     "DEFAULT_CONFIDENCE_LEVEL",
     "DEFAULT_SIGNIFICANCE_LEVEL",
     "DEFAULT_Z_SCORE_THRESHOLD",
-
     # Coordinate system constants
     "WGS84_EPSG_CODE",
     "WEB_MERCATOR_EPSG_CODE",
     "UTM_ZONE_WIDTH_DEGREES",
     "UTM_CENTRAL_MERIDIAN_OFFSET",
-
     # Time constants
     "SECOND",
     "MINUTE",
@@ -359,7 +351,6 @@ __all__ = [
     "WEEK",
     "MONTH",
     "YEAR",
-
     # Unit conversion constants
     "METER_TO_FEET",
     "FEET_TO_METER",
@@ -371,19 +362,16 @@ __all__ = [
     "KILOMETER_TO_METER",
     "METER_TO_NAUTICAL_MILE",
     "NAUTICAL_MILE_TO_METER",
-
     "SQUARE_METER_TO_SQUARE_FEET",
     "SQUARE_FEET_TO_SQUARE_METER",
     "SQUARE_METER_TO_ACRE",
     "ACRE_TO_SQUARE_METER",
     "SQUARE_METER_TO_HECTARE",
     "HECTARE_TO_SQUARE_METER",
-
     "CELSIUS_TO_FAHRENHEIT_OFFSET",
     "CELSIUS_TO_FAHRENHEIT_FACTOR",
-
     # Constants dictionary and functions
     "CONSTANTS",
     "get_constant",
-    "list_constants"
+    "list_constants",
 ]

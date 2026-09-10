@@ -12,7 +12,7 @@ from .econometrics_engine import SpatialEconometricsEngine
 from .policy_engine import PolicyAnalysisEngine
 
 __all__ = [
-    'EconomicModelingEngine',
-    'SpatialEconometricsEngine', 
-    'PolicyAnalysisEngine'
-] 
+    "EconomicModelingEngine",
+    "SpatialEconometricsEngine",
+    "PolicyAnalysisEngine",
+]

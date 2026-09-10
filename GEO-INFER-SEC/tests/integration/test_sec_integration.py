@@ -104,21 +104,21 @@ class TestAnonymizationPipeline:
             for o, p in zip(original_coords, perturbed_coords)
             if abs(o[0] - p[0]) > 1e-10 or abs(o[1] - p[1]) > 1e-10
         )
-        assert coords_changed == len(
-            sample_geodataframe
-        ), "All coordinates should be perturbed"
+        assert coords_changed == len(sample_geodataframe), (
+            "All coordinates should be perturbed"
+        )
 
         # Perturbation within expected bounds (500m ~ 0.0045 degrees)
         max_displacement_deg = 500.0 / 111000.0  # meters to degrees approximation
         for orig, pert in zip(original_coords, perturbed_coords):
             dx = abs(orig[0] - pert[0])
             dy = abs(orig[1] - pert[1])
-            assert (
-                dx < max_displacement_deg * 2
-            ), f"X displacement {dx} exceeds expected range"
-            assert (
-                dy < max_displacement_deg * 2
-            ), f"Y displacement {dy} exceeds expected range"
+            assert dx < max_displacement_deg * 2, (
+                f"X displacement {dx} exceeds expected range"
+            )
+            assert dy < max_displacement_deg * 2, (
+                f"Y displacement {dy} exceeds expected range"
+            )
 
     def test_perturbation_reproducibility_with_seed(self, sample_geodataframe):
         """Test that same seed produces identical perturbation."""
@@ -188,9 +188,9 @@ class TestEncryptionPipeline:
         original = "Sensitive location data: 34.0522, -118.2437"
 
         encrypted = encryptor.encrypt_text(original)
-        assert (
-            encrypted != original.encode()
-        ), "Encrypted data should differ from original"
+        assert encrypted != original.encode(), (
+            "Encrypted data should differ from original"
+        )
 
         decrypted = encryptor.decrypt_text(encrypted)
         assert decrypted == original, "Decrypted text should match original"

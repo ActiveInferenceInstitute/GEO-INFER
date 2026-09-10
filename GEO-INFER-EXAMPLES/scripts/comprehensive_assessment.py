@@ -108,7 +108,11 @@ def assess_example(path: Path, modules: set[str]) -> dict[str, Any]:
         "entrypoints": scripts,
         "config": any(
             candidate.exists()
-            for candidate in (path / "config", path / "config.yaml", path / "config.json")
+            for candidate in (
+                path / "config",
+                path / "config.yaml",
+                path / "config.json",
+            )
         ),
         "tests": (path / "tests").is_dir()
         or any(candidate.name.startswith("test_") for candidate in _python_files(path)),
@@ -171,7 +175,9 @@ def markdown(report: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def save_report(report: dict[str, Any], output: Path | None = None) -> tuple[Path, Path]:
+def save_report(
+    report: dict[str, Any], output: Path | None = None
+) -> tuple[Path, Path]:
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     basename = output or (
         EXAMPLES_ROOT.parent / "assessment_results" / f"inventory_{stamp}"

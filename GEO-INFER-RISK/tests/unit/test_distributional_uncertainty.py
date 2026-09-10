@@ -110,7 +110,11 @@ class TestEmpiricalBootstrap:
         observations = np.linspace(0.5, 0.9, 40)  # centred near the fitted 0.7
         model.add_damage_observations("flood", "residential", observations.tolist())
         band = model.estimate_curve_uncertainty_band(
-            "flood", "residential", FLOOD_INTENSITY, method="bootstrap", num_samples=8000
+            "flood",
+            "residential",
+            FLOOD_INTENSITY,
+            method="bootstrap",
+            num_samples=8000,
         )
         assert 0.0 < band["band"]["low"] <= band["band"]["high"] < 1.0
         # The observed spread (sd ~0.12) should widen the band well beyond the
@@ -123,15 +127,16 @@ class TestEmpiricalBootstrap:
             "flood", "residential", [0.0, 1.0, 0.5, 0.25, 0.75]
         )
         for _ in range(50):
-            draw = model._apply_uncertainty(
-                0.7, "flood", "residential"
-            )
+            draw = model._apply_uncertainty(0.7, "flood", "residential")
             assert 0.0 <= draw <= 1.0
 
     def test_bootstrap_without_observations_falls_back_to_parametric(self) -> None:
         model = _bootstrap_model(4)
         band = model.estimate_curve_uncertainty_band(
-            "flood", "residential", FLOOD_INTENSITY, method="bootstrap",
+            "flood",
+            "residential",
+            FLOOD_INTENSITY,
+            method="bootstrap",
             num_samples=2000,
         )
         assert band["band"]["low"] < EXPECTED_BASE < band["band"]["high"]
@@ -163,7 +168,9 @@ class TestDistributionalExposure:
             {"data_sources": [f"file://{csv_path}"]},
         )
 
-    def test_deterministic_total_matches_the_book(self, exposure_model: EnhancedExposureModel) -> None:
+    def test_deterministic_total_matches_the_book(
+        self, exposure_model: EnhancedExposureModel
+    ) -> None:
         result = exposure_model.sample_total_exposure(method="deterministic")
         assert result["deterministic_total"] == pytest.approx(1000.0)
         assert result["total"] == pytest.approx(1000.0)
@@ -175,7 +182,9 @@ class TestDistributionalExposure:
             method="bootstrap", num_samples=3000, random_seed=11
         )
         assert abs(result["total"] - 1000.0) < 50.0
-        assert result["percentile_5"] <= result["total_median"] <= result["percentile_95"]
+        assert (
+            result["percentile_5"] <= result["total_median"] <= result["percentile_95"]
+        )
 
     def test_parametric_mean_approaches_the_deterministic_total(
         self, exposure_model: EnhancedExposureModel
@@ -188,15 +197,13 @@ class TestDistributionalExposure:
     def test_seeded_sampling_is_replayable(
         self, exposure_model: EnhancedExposureModel
     ) -> None:
-        a = exposure_model.sample_total_exposure(
-            "bootstrap", 200, random_seed=42
-        )
-        b = exposure_model.sample_total_exposure(
-            "bootstrap", 200, random_seed=42
-        )
+        a = exposure_model.sample_total_exposure("bootstrap", 200, random_seed=42)
+        b = exposure_model.sample_total_exposure("bootstrap", 200, random_seed=42)
         assert a["samples"] == b["samples"]
 
-    def test_rejects_bad_method_and_size(self, exposure_model: EnhancedExposureModel) -> None:
+    def test_rejects_bad_method_and_size(
+        self, exposure_model: EnhancedExposureModel
+    ) -> None:
         with pytest.raises(ValueError, match="method"):
             exposure_model.sample_total_exposure(method="uniform")
         with pytest.raises(ValueError, match="num_samples"):

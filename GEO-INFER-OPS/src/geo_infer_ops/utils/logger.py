@@ -27,6 +27,7 @@ def get_logger(name: str) -> structlog.stdlib.BoundLogger:
     """
     return cast(structlog.stdlib.BoundLogger, structlog.get_logger(name))
 
+
 class LoggingContext:
     """
     Context manager for temporarily adding context to log entries.

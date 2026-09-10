@@ -126,10 +126,7 @@ class MunicipalGeoIntelMapper:
 
     def __post_init__(self) -> None:
         """Resolve the seed path (env override -> passed -> packaged) and load."""
-        if (
-            self.coastal_edge is not None
-            and self.coastal_edge not in _COASTAL_EDGES
-        ):
+        if self.coastal_edge is not None and self.coastal_edge not in _COASTAL_EDGES:
             allowed = ", ".join(_COASTAL_EDGES)
             raise ValueError(
                 f"coastal_edge must be one of {allowed} or None "
@@ -293,18 +290,14 @@ class MunicipalGeoIntelMapper:
             if span <= 0.0:
                 return 0.0
             offset = (
-                float(b["east"]) - lng
-                if edge == "west"
-                else lng - float(b["west"])
+                float(b["east"]) - lng if edge == "west" else lng - float(b["west"])
             )
         else:
             span = float(b["north"] - b["south"])
             if span <= 0.0:
                 return 0.0
             offset = (
-                float(b["north"]) - lat
-                if edge == "south"
-                else lat - float(b["south"])
+                float(b["north"]) - lat if edge == "south" else lat - float(b["south"])
             )
         return _clamp01(offset / span)
 

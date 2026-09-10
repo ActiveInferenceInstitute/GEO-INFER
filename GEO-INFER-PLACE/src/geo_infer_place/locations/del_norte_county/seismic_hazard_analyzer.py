@@ -124,7 +124,9 @@ class SeismicHazardAnalyzer:
             "tsunami_risk": tsunami_risk,
             "liquefaction_risk": liquefaction,
             "csz_scenario": csz_assessment,
-            "summary": self._generate_summary(eq_data, csz_data, hazard_grid, tsunami_risk),
+            "summary": self._generate_summary(
+                eq_data, csz_data, hazard_grid, tsunami_risk
+            ),
         }
 
         # Persist results
@@ -159,7 +161,12 @@ class SeismicHazardAnalyzer:
             )
         except Exception as exc:
             logger.warning("Cascadia seismicity fetch failed: %s", exc)
-            return {"total_events": 0, "events": [], "success": False, "error": str(exc)}
+            return {
+                "total_events": 0,
+                "events": [],
+                "success": False,
+                "error": str(exc),
+            }
 
     # ------------------------------------------------------------------
     # Hazard grid construction
@@ -201,7 +208,11 @@ class SeismicHazardAnalyzer:
             lat, lon = h3.cell_to_latlng(cell)
 
             # Base hazard from proximity to CSZ trench
-            dist_to_trench_km = abs(lon - CSZ_PARAMS["trench_lon_approx"]) * 111 * np.cos(np.radians(lat))
+            dist_to_trench_km = (
+                abs(lon - CSZ_PARAMS["trench_lon_approx"])
+                * 111
+                * np.cos(np.radians(lat))
+            )
             trench_factor = max(0, 1.0 - dist_to_trench_km / 200.0)  # decays over 200km
 
             # Coastal proximity (tsunami exposure increases near coast)
@@ -275,7 +286,10 @@ class SeismicHazardAnalyzer:
         coastal_cells = []
         for cell in cells:
             lat, lon = h3.cell_to_latlng(cell)
-            if south <= lat <= north and coastal_west - 0.01 <= lon <= coastal_east + 0.02:
+            if (
+                south <= lat <= north
+                and coastal_west - 0.01 <= lon <= coastal_east + 0.02
+            ):
                 coastal_cells.append(cell)
 
         risk_zones = {}
@@ -304,7 +318,9 @@ class SeismicHazardAnalyzer:
                 "risk_level": risk_level,
                 "risk_score": round(risk_score, 3),
                 "estimated_elevation_m": round(elevation_proxy, 1),
-                "estimated_travel_time_min": TSUNAMI_TRAVEL_TIMES.get("crescent_city", 15),
+                "estimated_travel_time_min": TSUNAMI_TRAVEL_TIMES.get(
+                    "crescent_city", 15
+                ),
                 "lat": lat,
                 "lon": lon,
             }
@@ -348,10 +364,30 @@ class SeismicHazardAnalyzer:
 
         # Key areas of concern for liquefaction in Del Norte
         high_risk_areas: List[Dict[str, Any]] = [
-            {"name": "Crescent City Harbor", "lat": 41.745, "lon": -124.185, "radius_km": 2.0},
-            {"name": "Smith River Delta", "lat": 41.930, "lon": -124.160, "radius_km": 3.0},
-            {"name": "Lake Earl / Lake Talawa", "lat": 41.810, "lon": -124.165, "radius_km": 2.5},
-            {"name": "Klamath River Mouth", "lat": 41.545, "lon": -124.075, "radius_km": 1.5},
+            {
+                "name": "Crescent City Harbor",
+                "lat": 41.745,
+                "lon": -124.185,
+                "radius_km": 2.0,
+            },
+            {
+                "name": "Smith River Delta",
+                "lat": 41.930,
+                "lon": -124.160,
+                "radius_km": 3.0,
+            },
+            {
+                "name": "Lake Earl / Lake Talawa",
+                "lat": 41.810,
+                "lon": -124.165,
+                "radius_km": 2.5,
+            },
+            {
+                "name": "Klamath River Mouth",
+                "lat": 41.545,
+                "lon": -124.075,
+                "radius_km": 1.5,
+            },
         ]
 
         susceptibility_zones = []
@@ -363,15 +399,24 @@ class SeismicHazardAnalyzer:
             for c in area_cells:
                 lat, lon = h3.cell_to_latlng(c)
                 if south <= lat <= north and west <= lon <= east:
-                    dist = np.sqrt((lat - area["lat"]) ** 2 + (lon - area["lon"]) ** 2) * 111
-                    score = max(0, 1.0 - dist / area["radius_km"]) if area["radius_km"] > 0 else 0
-                    susceptibility_zones.append({
-                        "h3_cell": c,
-                        "area_name": area["name"],
-                        "susceptibility_score": round(float(score), 3),
-                        "lat": lat,
-                        "lon": lon,
-                    })
+                    dist = (
+                        np.sqrt((lat - area["lat"]) ** 2 + (lon - area["lon"]) ** 2)
+                        * 111
+                    )
+                    score = (
+                        max(0, 1.0 - dist / area["radius_km"])
+                        if area["radius_km"] > 0
+                        else 0
+                    )
+                    susceptibility_zones.append(
+                        {
+                            "h3_cell": c,
+                            "area_name": area["name"],
+                            "susceptibility_score": round(float(score), 3),
+                            "lat": lat,
+                            "lon": lon,
+                        }
+                    )
 
         return {
             "total_zones": len(susceptibility_zones),
@@ -452,8 +497,12 @@ class SeismicHazardAnalyzer:
 
         # Tsunami risk summary
         risk_zones = tsunami_risk.get("risk_zones", {})
-        extreme_count = sum(1 for z in risk_zones.values() if z.get("risk_level") == "extreme")
-        high_count = sum(1 for z in risk_zones.values() if z.get("risk_level") == "high")
+        extreme_count = sum(
+            1 for z in risk_zones.values() if z.get("risk_level") == "extreme"
+        )
+        high_count = sum(
+            1 for z in risk_zones.values() if z.get("risk_level") == "high"
+        )
 
         return {
             "recent_earthquakes_del_norte": eq_count,
@@ -463,6 +512,9 @@ class SeismicHazardAnalyzer:
             "max_hazard_score": round(float(max_score), 4),
             "tsunami_extreme_risk_cells": extreme_count,
             "tsunami_high_risk_cells": high_count,
-            "data_sources": ["USGS Earthquake Hazards Program", "NOAA Tsunami Warning Centers"],
+            "data_sources": [
+                "USGS Earthquake Hazards Program",
+                "NOAA Tsunami Warning Centers",
+            ],
             "data_quality": "empirical" if eq_data.get("success") else "limited",
         }

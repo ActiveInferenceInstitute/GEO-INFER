@@ -172,7 +172,6 @@ class MergeResponse(BaseModel):
     conflicts: List[str]
 
 
-
 class HealthResponse(BaseModel):
     """Response model for health checks."""
 
@@ -538,7 +537,9 @@ async def get_system_status() -> SystemStatusResponse:
     try:
         import git
 
-        records: Dict[str, Any] = repo_manager.check_repo_status() if repo_manager else {}
+        records: Dict[str, Any] = (
+            repo_manager.check_repo_status() if repo_manager else {}
+        )
         active_repositories = sum(
             1 for value in records.values() if "error" not in value
         )
@@ -593,7 +594,9 @@ async def clone_repository_background(
         updated_record = repository_records.get(identifier)
         if updated_record is not None:
             updated_record["status"] = "active" if success else "error"
-            updated_record["updated_at"] = datetime.now(timezone.utc).replace(tzinfo=None)
+            updated_record["updated_at"] = datetime.now(timezone.utc).replace(
+                tzinfo=None
+            )
             if success:
                 branches = repo_manager.list_branches(clone_config["name"])
                 updated_record["branch_count"] = len(branches)
@@ -665,7 +668,9 @@ def initialize_api(config_path: Optional[str] = None) -> None:
     )
 
 
-def run_api(host: str = "0.0.0.0", port: int = 8000, config_path: Optional[str] = None) -> None:
+def run_api(
+    host: str = "0.0.0.0", port: int = 8000, config_path: Optional[str] = None
+) -> None:
     """Run the FastAPI server."""
     initialize_api(config_path)
 

@@ -114,7 +114,7 @@ class TestFullDelineation:
         dem_da = xr.DataArray(simple_dem, dims=("y", "x"))
         result = delineator.full_delineation(dem_da, outlet=(2, 2), cell_size=500.0)
         # Area is basin_cells * cell_size^2 / 1e6 km2.
-        expected_km2 = result.attrs["basin_area_cells"] * (500.0 ** 2) / 1e6
+        expected_km2 = result.attrs["basin_area_cells"] * (500.0**2) / 1e6
         assert result.attrs["basin_area_km2"] == pytest.approx(expected_km2)
 
     def test_full_pipeline_outlet_in_basin(self, delineator, simple_dem):

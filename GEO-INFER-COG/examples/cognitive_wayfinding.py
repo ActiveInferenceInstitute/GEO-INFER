@@ -33,9 +33,15 @@ def main() -> None:
     for landmark_id, geometry in landmarks.items():
         cmap.add_landmark(landmark_id, geometry, {"name": landmark_id}, saliency=0.7)
 
-    cmap.add_route("gate_to_library", "gate", "library", segments=[], properties={"mode": "walk"})
-    cmap.add_route("library_to_quad", "library", "quad", segments=[], properties={"mode": "walk"})
-    cmap.add_route("quad_to_lab", "quad", "lab", segments=[], properties={"mode": "walk"})
+    cmap.add_route(
+        "gate_to_library", "gate", "library", segments=[], properties={"mode": "walk"}
+    )
+    cmap.add_route(
+        "library_to_quad", "library", "quad", segments=[], properties={"mode": "walk"}
+    )
+    cmap.add_route(
+        "quad_to_lab", "quad", "lab", segments=[], properties={"mode": "walk"}
+    )
 
     print("Map statistics:", cmap.get_map_statistics())
     print("Cognitive load:", cmap.calculate_cognitive_load(user))

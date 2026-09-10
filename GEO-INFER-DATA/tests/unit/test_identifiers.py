@@ -32,9 +32,9 @@ class TestValidateSqlIdentifier:
             "table--drop",
             "..",
             # Quotes
-            "table\"x",
+            'table"x',
             "tab'le",
-            '`tick`',
+            "`tick`",
             # Semicolon / statement injection
             "tbl; DROP TABLE users",
             "tbl;",
@@ -69,7 +69,7 @@ class TestBuildSelectQuery:
             limit="25",
             enable_geospatial=True,
         )
-        assert "SELECT \"station_id\", \"temperature\" FROM weather_stations" in query
+        assert 'SELECT "station_id", "temperature" FROM weather_stations' in query
         assert "ST_MakeEnvelope(:min_lon, :min_lat, :max_lon, :max_lat, 4326)" in query
         assert "timestamp >= :start_time" in query
         assert "LIMIT 25" in query
@@ -166,7 +166,7 @@ class TestBuildFeaturesQuery:
         assert "minLon: -10.5" in query
         assert "minLat: 40.25" in query
         assert 'createdAfter: "2026-01-01T00:00:00"' in query
-        assert "createdBefore: \"" in query
+        assert 'createdBefore: "' in query
         assert "first: 100" in query
         assert "name, geometry" in query
 

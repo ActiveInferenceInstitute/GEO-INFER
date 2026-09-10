@@ -32,9 +32,7 @@ class CascadianZoningDataSources:
 
         # Load config for URLs
         if config_path is None:
-            config_path = (
-                self.data_dir.parent.parent.parent / "config" / "data_urls.json"
-            )
+            config_path = self.data_dir.parent.parent.parent / "config" / "data_urls.json"
 
         self.config = {}
         if config_path.exists():
@@ -46,12 +44,8 @@ class CascadianZoningDataSources:
                 logger.warning(f"[zoning] Could not load config: {e}")
 
         # Get data source URLs
-        self.fmmp_url = (
-            self.config.get("data_sources", {}).get("ca_fmmp", {}).get("url")
-        )
-        self.zoning_url = (
-            self.config.get("data_sources", {}).get("del_norte_zoning", {}).get("url")
-        )
+        self.fmmp_url = self.config.get("data_sources", {}).get("ca_fmmp", {}).get("url")
+        self.zoning_url = self.config.get("data_sources", {}).get("del_norte_zoning", {}).get("url")
 
     def _query_arcgis_service(
         self, service_url: str, bbox: tuple, max_features: int = 5000
@@ -147,9 +141,7 @@ class CascadianZoningDataSources:
         logger.info("[zoning] Querying OpenStreetMap Overpass API for land use data...")
 
         try:
-            response = requests.post(
-                overpass_url, data={"data": overpass_query}, timeout=120
-            )
+            response = requests.post(overpass_url, data={"data": overpass_query}, timeout=120)
             response.raise_for_status()
             data = response.json()
 
@@ -183,16 +175,16 @@ class CascadianZoningDataSources:
                                     }
                                 )
                         except Exception as exc:
-                            logger.warning('OSM zoning feature construction failed; skipping feature: %s', exc)
+                            logger.warning(
+                                "OSM zoning feature construction failed; skipping feature: %s", exc
+                            )
 
             if not features:
                 logger.info("[zoning] No valid land use features from OSM")
                 return None
 
             gdf = gpd.GeoDataFrame(features, crs="EPSG:4326")
-            logger.info(
-                f"[zoning] Fetched {len(gdf)} land use features from OpenStreetMap"
-            )
+            logger.info(f"[zoning] Fetched {len(gdf)} land use features from OpenStreetMap")
             return gdf
 
         except requests.exceptions.Timeout:
@@ -253,9 +245,7 @@ class CascadianZoningDataSources:
             if zoning_gdf is not None and not zoning_gdf.empty:
                 zoning_gdf["source"] = "DEL_NORTE_ZONING"
                 all_gdfs.append(zoning_gdf)
-                logger.info(
-                    f"[zoning] Added {len(zoning_gdf)} Del Norte zoning features"
-                )
+                logger.info(f"[zoning] Added {len(zoning_gdf)} Del Norte zoning features")
 
         # 3. If no ArcGIS data, try OpenStreetMap Overpass API (global coverage)
         if not all_gdfs:
@@ -272,9 +262,7 @@ class CascadianZoningDataSources:
                 f"[zoning] Combined {len(combined_gdf)} total features from {len(all_gdfs)} sources"
             )
         else:
-            raise RuntimeError(
-                "No authoritative zoning data was returned by configured sources"
-            )
+            raise RuntimeError("No authoritative zoning data was returned by configured sources")
 
         # Standardize column names
         if "CI_CLASSNM" not in combined_gdf.columns:
@@ -287,9 +275,7 @@ class CascadianZoningDataSources:
                 combined_gdf["CI_CLASSNM"] = "Unknown"
 
         # Save
-        logger.info(
-            f"[zoning] Saving {len(combined_gdf)} features to {self.raw_data_path}"
-        )
+        logger.info(f"[zoning] Saving {len(combined_gdf)} features to {self.raw_data_path}")
         combined_gdf.to_file(self.raw_data_path, driver="GeoJSON")
 
         return self.raw_data_path

@@ -25,7 +25,6 @@ from pathlib import Path
 
 
 class TestPrepareSpatialData:
-
     def test_prepare_from_dataframe(self) -> None:
         df = pd.DataFrame(
             {
@@ -100,7 +99,6 @@ class TestPrepareSpatialData:
 
 
 class TestValidateSpatialData:
-
     def test_valid_data(self) -> None:
         coords = np.array([[40.0, -74.0], [41.0, -73.0]])
         values = np.array([1.0, 2.0])
@@ -143,7 +141,6 @@ class TestValidateSpatialData:
 
 
 class TestCreateSpatialGrid:
-
     def test_regular_grid(self) -> None:
         bounds = {
             "lat_min": 0.0,
@@ -170,7 +167,6 @@ class TestCreateSpatialGrid:
 
 
 class TestSampleSpatialData:
-
     def test_random_sampling(self) -> None:
         rng = np.random.default_rng(0)
         coords = rng.standard_normal((100, 2))
@@ -203,7 +199,6 @@ class TestSampleSpatialData:
 
 
 class TestDetectFileFormat:
-
     def test_csv(self) -> None:
         assert _detect_file_format(Path("data.csv")) == "csv"
 

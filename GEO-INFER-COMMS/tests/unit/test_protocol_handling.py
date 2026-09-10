@@ -1,4 +1,5 @@
 """Tests for COMMS protocol handling and message serialization."""
+
 import json
 import pytest
 from datetime import datetime, timezone
@@ -66,7 +67,14 @@ class TestEventTypes:
 
 class TestMessageStatusTransitions:
     def test_valid_status_values(self):
-        valid = {MessageStatus.SENT, MessageStatus.DELIVERED, MessageStatus.READ, MessageStatus.FAILED, MessageStatus.QUEUED, MessageStatus.PROCESSING}
+        valid = {
+            MessageStatus.SENT,
+            MessageStatus.DELIVERED,
+            MessageStatus.READ,
+            MessageStatus.FAILED,
+            MessageStatus.QUEUED,
+            MessageStatus.PROCESSING,
+        }
         assert len(valid) == 6
 
     def test_status_from_string(self):

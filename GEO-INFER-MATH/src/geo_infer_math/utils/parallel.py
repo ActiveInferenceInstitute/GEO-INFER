@@ -20,13 +20,16 @@ DEFAULT_NUM_WORKERS = min(mp.cpu_count(), 8)  # Limit to 8 workers by default
 MAX_CHUNK_SIZE = 10000  # Maximum chunk size for memory efficiency
 MEMORY_THRESHOLD_MB = 1000  # Memory threshold for adaptive chunk sizing
 
-def parallel_compute(func: Callable,
-                    data: Union[List, np.ndarray],
-                    num_workers: Optional[int] = None,
-                    chunk_size: Optional[int] = None,
-                    use_processes: bool = True,
-                    max_memory_mb: Optional[float] = None,
-                    **kwargs: Any) -> List[Any]:
+
+def parallel_compute(
+    func: Callable,
+    data: Union[List, np.ndarray],
+    num_workers: Optional[int] = None,
+    chunk_size: Optional[int] = None,
+    use_processes: bool = True,
+    max_memory_mb: Optional[float] = None,
+    **kwargs: Any,
+) -> List[Any]:
     """
     Apply a function to data in parallel with adaptive chunk sizing and memory monitoring.
 
@@ -59,7 +62,9 @@ def parallel_compute(func: Callable,
     # Split data into chunks with memory-aware sizing
     chunks = _create_memory_aware_chunks(data_list, chunk_size, max_memory_mb)
 
-    logger.info(f"Processing {len(data_list)} items in {len(chunks)} chunks with {num_workers} workers")
+    logger.info(
+        f"Processing {len(data_list)} items in {len(chunks)} chunks with {num_workers} workers"
+    )
 
     # Create partial function with additional arguments
     partial_func = partial(func, **kwargs)
@@ -72,7 +77,9 @@ def parallel_compute(func: Callable,
 
     with executor_class(max_workers=num_workers) as executor:
         # Submit tasks
-        future_to_chunk = {executor.submit(partial_func, chunk): i for i, chunk in enumerate(chunks)}
+        future_to_chunk = {
+            executor.submit(partial_func, chunk): i for i, chunk in enumerate(chunks)
+        }
 
         # Collect results as they complete
         for future in as_completed(future_to_chunk):
@@ -86,7 +93,9 @@ def parallel_compute(func: Callable,
                 if completed % max(1, len(chunks) // 10) == 0:
                     elapsed = time.time() - start_time
                     rate = completed / elapsed if elapsed > 0 else 0
-                    logger.info(f"Progress: {completed}/{len(chunks)} chunks, {rate:.1f} chunks/s")
+                    logger.info(
+                        f"Progress: {completed}/{len(chunks)} chunks, {rate:.1f} chunks/s"
+                    )
 
             except Exception as e:
                 logger.error(f"Error processing chunk: {e}")
@@ -107,9 +116,12 @@ def parallel_compute(func: Callable,
         # Function returns one result per chunk
         return ordered_results
 
-def _calculate_optimal_chunk_size(data: Union[List, np.ndarray],
-                                num_workers: int,
-                                max_memory_mb: Optional[float] = None) -> int:
+
+def _calculate_optimal_chunk_size(
+    data: Union[List, np.ndarray],
+    num_workers: int,
+    max_memory_mb: Optional[float] = None,
+) -> int:
     """Calculate optimal chunk size based on data size and memory constraints."""
     data_size = len(data)
 
@@ -118,19 +130,26 @@ def _calculate_optimal_chunk_size(data: Union[List, np.ndarray],
 
     # Estimate memory per item (rough heuristic)
     if isinstance(data, np.ndarray):
-        bytes_per_item = data.itemsize * data.shape[1] if data.ndim > 1 else data.itemsize
+        bytes_per_item = (
+            data.itemsize * data.shape[1] if data.ndim > 1 else data.itemsize
+        )
     else:
         bytes_per_item = 100  # Assume 100 bytes per item for lists
 
     # Calculate chunk size to stay within memory limits
-    max_items_per_worker = int((max_memory_mb * 1024 * 1024) / (bytes_per_item * num_workers))
+    max_items_per_worker = int(
+        (max_memory_mb * 1024 * 1024) / (bytes_per_item * num_workers)
+    )
 
     # Balance between memory efficiency and parallelization efficiency
     chunk_size = min(max_items_per_worker, max(1, data_size // num_workers))
 
     return chunk_size
 
-def _create_memory_aware_chunks(data: List, chunk_size: int, max_memory_mb: Optional[float] = None) -> List[List]:
+
+def _create_memory_aware_chunks(
+    data: List, chunk_size: int, max_memory_mb: Optional[float] = None
+) -> List[List]:
     """Create chunks that respect memory constraints."""
     if not data:
         return []
@@ -142,15 +161,18 @@ def _create_memory_aware_chunks(data: List, chunk_size: int, max_memory_mb: Opti
     # Create chunks
     chunks = []
     for i in range(0, len(data), chunk_size):
-        chunk = data[i:i + chunk_size]
+        chunk = data[i : i + chunk_size]
         chunks.append(chunk)
 
     return chunks
 
-def parallel_map(func: Callable,
-                iterable: Iterable,
-                num_workers: Optional[int] = None,
-                use_processes: bool = True) -> List[Any]:
+
+def parallel_map(
+    func: Callable,
+    iterable: Iterable,
+    num_workers: Optional[int] = None,
+    use_processes: bool = True,
+) -> List[Any]:
     """
     Parallel version of map function.
 
@@ -173,10 +195,13 @@ def parallel_map(func: Callable,
 
     return results
 
-def parallel_matrix_operation(matrix_a: np.ndarray,
-                            matrix_b: Optional[np.ndarray] = None,
-                            operation: str = 'multiply',
-                            num_workers: Optional[int] = None) -> np.ndarray:
+
+def parallel_matrix_operation(
+    matrix_a: np.ndarray,
+    matrix_b: Optional[np.ndarray] = None,
+    operation: str = "multiply",
+    num_workers: Optional[int] = None,
+) -> np.ndarray:
     """
     Perform parallel matrix operations.
 
@@ -192,24 +217,24 @@ def parallel_matrix_operation(matrix_a: np.ndarray,
     if num_workers is None:
         num_workers = DEFAULT_NUM_WORKERS
 
-    if operation == 'multiply':
+    if operation == "multiply":
         if matrix_b is None:
             raise ValueError("Matrix B required for multiplication")
 
         # Parallel matrix multiplication
         return parallel_matrix_multiply(matrix_a, matrix_b, num_workers)
 
-    elif operation == 'add':
+    elif operation == "add":
         if matrix_b is None:
             raise ValueError("Matrix B required for addition")
         return cast(np.ndarray, matrix_a + matrix_b)
 
-    elif operation == 'subtract':
+    elif operation == "subtract":
         if matrix_b is None:
             raise ValueError("Matrix B required for subtraction")
         return cast(np.ndarray, matrix_a - matrix_b)
 
-    elif operation == 'elementwise_multiply':
+    elif operation == "elementwise_multiply":
         if matrix_b is None:
             raise ValueError("Matrix B required for elementwise multiplication")
         return cast(np.ndarray, matrix_a * matrix_b)
@@ -217,9 +242,10 @@ def parallel_matrix_operation(matrix_a: np.ndarray,
     else:
         raise ValueError(f"Unknown operation: {operation}")
 
-def parallel_matrix_multiply(matrix_a: np.ndarray,
-                           matrix_b: np.ndarray,
-                           num_workers: Optional[int] = None) -> np.ndarray:
+
+def parallel_matrix_multiply(
+    matrix_a: np.ndarray, matrix_b: np.ndarray, num_workers: Optional[int] = None
+) -> np.ndarray:
     """
     Parallel matrix multiplication.
 
@@ -264,10 +290,13 @@ def parallel_matrix_multiply(matrix_a: np.ndarray,
 
     return result
 
-def parallel_distance_matrix(points_a: np.ndarray,
-                           points_b: Optional[np.ndarray] = None,
-                           metric: str = 'euclidean',
-                           num_workers: Optional[int] = None) -> np.ndarray:
+
+def parallel_distance_matrix(
+    points_a: np.ndarray,
+    points_b: Optional[np.ndarray] = None,
+    metric: str = "euclidean",
+    num_workers: Optional[int] = None,
+) -> np.ndarray:
     """
     Compute distance matrix in parallel.
 
@@ -292,6 +321,7 @@ def parallel_distance_matrix(points_a: np.ndarray,
     # For small matrices, use scipy's cdist
     if n_a * n_b < 1000000:  # Less than 1M elements
         from scipy.spatial.distance import cdist
+
         return cast(np.ndarray, cdist(points_a, points_b, metric=metric))
 
     # Parallel computation for large matrices
@@ -302,6 +332,7 @@ def parallel_distance_matrix(points_a: np.ndarray,
     def distance_chunk(start_row: int, end_row: int) -> np.ndarray:
         chunk_points = points_a[start_row:end_row]
         from scipy.spatial.distance import cdist
+
         return cast(np.ndarray, cdist(chunk_points, points_b, metric=metric))
 
     chunks = [(i, min(i + chunk_size, n_a)) for i in range(0, n_a, chunk_size)]
@@ -316,12 +347,15 @@ def parallel_distance_matrix(points_a: np.ndarray,
 
     return result
 
-def parallel_spatial_interpolation(known_points: np.ndarray,
-                                 known_values: np.ndarray,
-                                 query_points: np.ndarray,
-                                 method: str = 'idw',
-                                 num_workers: Optional[int] = None,
-                                 **kwargs: Any) -> np.ndarray:
+
+def parallel_spatial_interpolation(
+    known_points: np.ndarray,
+    known_values: np.ndarray,
+    query_points: np.ndarray,
+    method: str = "idw",
+    num_workers: Optional[int] = None,
+    **kwargs: Any,
+) -> np.ndarray:
     """
     Perform spatial interpolation in parallel.
 
@@ -344,6 +378,7 @@ def parallel_spatial_interpolation(known_points: np.ndarray,
     # For small datasets, use serial computation
     if n_query < 1000:
         from ..core.numerical_methods import SpatialInterpolator
+
         interpolator = SpatialInterpolator(method=method)
         interpolator.fit(known_points, known_values, **kwargs)
         return interpolator.predict(query_points)
@@ -354,12 +389,15 @@ def parallel_spatial_interpolation(known_points: np.ndarray,
     def interpolate_chunk(chunk_indices: np.ndarray) -> np.ndarray:
         chunk_points = query_points[chunk_indices]
         from ..core.numerical_methods import SpatialInterpolator
+
         interpolator = SpatialInterpolator(method=method)
         interpolator.fit(known_points, known_values, **kwargs)
         return interpolator.predict(chunk_points)
 
-    chunks = [np.arange(i, min(i + chunk_size, n_query))
-             for i in range(0, n_query, chunk_size)]
+    chunks = [
+        np.arange(i, min(i + chunk_size, n_query))
+        for i in range(0, n_query, chunk_size)
+    ]
 
     with ProcessPoolExecutor(max_workers=num_workers) as executor:
         futures = [executor.submit(interpolate_chunk, chunk) for chunk in chunks]
@@ -375,10 +413,13 @@ def parallel_spatial_interpolation(known_points: np.ndarray,
 
     return final_result
 
-def parallel_statistical_analysis(data: np.ndarray,
-                                analysis_func: Callable,
-                                num_workers: Optional[int] = None,
-                                **kwargs: Any) -> Any:
+
+def parallel_statistical_analysis(
+    data: np.ndarray,
+    analysis_func: Callable,
+    num_workers: Optional[int] = None,
+    **kwargs: Any,
+) -> Any:
     """
     Perform statistical analysis in parallel.
 
@@ -400,7 +441,7 @@ def parallel_statistical_analysis(data: np.ndarray,
 
     # Split data into chunks for parallel processing
     chunk_size = max(1, len(data) // num_workers)
-    chunks = [data[i:i + chunk_size] for i in range(0, len(data), chunk_size)]
+    chunks = [data[i : i + chunk_size] for i in range(0, len(data), chunk_size)]
 
     def analyze_chunk(chunk: np.ndarray) -> Any:
         return analysis_func(chunk, **kwargs)
@@ -416,8 +457,10 @@ def parallel_statistical_analysis(data: np.ndarray,
     # For now, return the first result as an example
     return results[0] if results else None
 
-def get_optimal_worker_count(data_size: int,
-                           operation_complexity: str = 'medium') -> int:
+
+def get_optimal_worker_count(
+    data_size: int, operation_complexity: str = "medium"
+) -> int:
     """
     Determine optimal number of workers based on data size and operation complexity.
 
@@ -431,11 +474,7 @@ def get_optimal_worker_count(data_size: int,
     cpu_count = mp.cpu_count()
 
     # Complexity multipliers
-    complexity_multiplier = {
-        'low': 1.0,
-        'medium': 0.7,
-        'high': 0.5
-    }
+    complexity_multiplier = {"low": 1.0, "medium": 0.7, "high": 0.5}
 
     multiplier = complexity_multiplier.get(operation_complexity, 0.7)
 
@@ -449,10 +488,13 @@ def get_optimal_worker_count(data_size: int,
     else:
         return min(int(cpu_count * multiplier * 0.8), cpu_count)
 
-def parallel_file_processing(file_list: List[str],
-                           processing_func: Callable,
-                           num_workers: Optional[int] = None,
-                           file_batch_size: int = 1) -> List[Any]:
+
+def parallel_file_processing(
+    file_list: List[str],
+    processing_func: Callable,
+    num_workers: Optional[int] = None,
+    file_batch_size: int = 1,
+) -> List[Any]:
     """
     Process multiple files in parallel.
 
@@ -469,8 +511,10 @@ def parallel_file_processing(file_list: List[str],
         num_workers = DEFAULT_NUM_WORKERS
 
     # Group files into batches
-    file_batches = [file_list[i:i + file_batch_size]
-                   for i in range(0, len(file_list), file_batch_size)]
+    file_batches = [
+        file_list[i : i + file_batch_size]
+        for i in range(0, len(file_list), file_batch_size)
+    ]
 
     def process_batch(batch: List[str]) -> List[Any]:
         return [processing_func(file_path) for file_path in batch]
@@ -485,10 +529,13 @@ def parallel_file_processing(file_list: List[str],
 
     return results
 
-def memory_efficient_parallel(func: Callable,
-                            data: Union[List, np.ndarray],
-                            max_memory_mb: float = 1000.0,
-                            num_workers: Optional[int] = None) -> List[Any]:
+
+def memory_efficient_parallel(
+    func: Callable,
+    data: Union[List, np.ndarray],
+    max_memory_mb: float = 1000.0,
+    num_workers: Optional[int] = None,
+) -> List[Any]:
     """
     Memory-efficient parallel processing.
 
@@ -506,8 +553,10 @@ def memory_efficient_parallel(func: Callable,
 
     # Estimate memory usage per item
     if isinstance(data, np.ndarray):
-        item_size_mb: float = float(data.itemsize * data.shape[1] if len(data.shape) > 1 else data.itemsize)
-        item_size_mb /= (1024 * 1024)  # Convert to MB
+        item_size_mb: float = float(
+            data.itemsize * data.shape[1] if len(data.shape) > 1 else data.itemsize
+        )
+        item_size_mb /= 1024 * 1024  # Convert to MB
     else:
         item_size_mb = 0.001  # Assume 1KB per item
 
@@ -518,6 +567,7 @@ def memory_efficient_parallel(func: Callable,
     logger.info(f"Using chunk size {chunk_size} for memory-efficient processing")
 
     return parallel_compute(func, data, num_workers=num_workers, chunk_size=chunk_size)
+
 
 __all__ = [
     "parallel_compute",
@@ -531,5 +581,5 @@ __all__ = [
     "parallel_file_processing",
     "memory_efficient_parallel",
     "DEFAULT_NUM_WORKERS",
-    "MAX_CHUNK_SIZE"
+    "MAX_CHUNK_SIZE",
 ]

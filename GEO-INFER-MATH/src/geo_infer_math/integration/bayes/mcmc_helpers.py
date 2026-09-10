@@ -46,7 +46,9 @@ class MCMCHelpers:
         self._rng = resolve_rng(rng)
         logger.debug(
             "MCMCHelpers initialized (n_samples=%d, burn_in=%d, thin=%d)",
-            n_samples, burn_in, thin,
+            n_samples,
+            burn_in,
+            thin,
         )
 
     def mcmc_sample(
@@ -114,7 +116,8 @@ class MCMCHelpers:
 
         logger.debug(
             "MCMC complete: %d samples, acceptance=%.2f%%",
-            len(samples), acceptance_rate * 100,
+            len(samples),
+            acceptance_rate * 100,
         )
 
         return {

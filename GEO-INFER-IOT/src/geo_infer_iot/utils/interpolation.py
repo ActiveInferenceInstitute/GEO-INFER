@@ -15,11 +15,13 @@ import h3
 try:
     from scipy import interpolate
     from scipy.spatial.distance import cdist
+
     HAS_SCIPY = True
 except ImportError:
     HAS_SCIPY = False
 
 logger = logging.getLogger(__name__)
+
 
 class SpatialInterpolation:
     """
@@ -38,12 +40,12 @@ class SpatialInterpolation:
 
         # Default interpolation parameters
         self.default_params = {
-            'method': 'inverse_distance_weighted',
-            'power': 2,  # Power parameter for IDW
-            'max_distance': 10000,  # Maximum distance in meters
-            'min_neighbors': 3,
-            'search_radius': 5000,  # Search radius in meters
-            'h3_resolution': 8
+            "method": "inverse_distance_weighted",
+            "power": 2,  # Power parameter for IDW
+            "max_distance": 10000,  # Maximum distance in meters
+            "min_neighbors": 3,
+            "search_radius": 5000,  # Search radius in meters
+            "h3_resolution": 8,
         }
 
         logger.info("SpatialInterpolation initialized")
@@ -68,13 +70,19 @@ class SpatialInterpolation:
         dlon = to_rad[..., 1] - from_rad[..., 1]
         a = (
             np.sin(dlat / 2.0) ** 2
-            + np.cos(from_rad[..., 0]) * np.cos(to_rad[..., 0]) * np.sin(dlon / 2.0) ** 2
+            + np.cos(from_rad[..., 0])
+            * np.cos(to_rad[..., 0])
+            * np.sin(dlon / 2.0) ** 2
         )
         earth_radius_m = 6_371_000.0
         return 2.0 * earth_radius_m * np.arcsin(np.sqrt(np.clip(a, 0.0, 1.0)))
 
-    def interpolate_to_grid(self, measurements: List[Dict[str, Any]], target_grid: List[Tuple[float, float]],
-                          method: Optional[str] = None) -> Dict[str, Any]:
+    def interpolate_to_grid(
+        self,
+        measurements: List[Dict[str, Any]],
+        target_grid: List[Tuple[float, float]],
+        method: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """
         Interpolate sensor measurements to a target grid.
 
@@ -90,7 +98,7 @@ class SpatialInterpolation:
             if len(measurements) < 3:
                 return {"error": "Insufficient measurements for interpolation"}
 
-            method = method or self.config.get('method', 'inverse_distance_weighted')
+            method = method or self.config.get("method", "inverse_distance_weighted")
 
             # Extract sensor coordinates and values. Internal representation
             # is (latitude, longitude) in degrees; all distance thresholds are
@@ -99,11 +107,11 @@ class SpatialInterpolation:
             sensor_values_list = []
 
             for measurement in measurements:
-                if 'latitude' in measurement and 'longitude' in measurement:
+                if "latitude" in measurement and "longitude" in measurement:
                     sensor_latlon_list.append(
-                        [measurement['latitude'], measurement['longitude']]
+                        [measurement["latitude"], measurement["longitude"]]
                     )
-                    sensor_values_list.append(measurement['value'])
+                    sensor_values_list.append(measurement["value"])
 
             sensor_latlon = np.array(sensor_latlon_list)
             sensor_values = np.array(sensor_values_list)
@@ -139,24 +147,28 @@ class SpatialInterpolation:
             )
 
             return {
-                'interpolated_values': interpolated_values.tolist(),
-                'target_coordinates': target_grid,
-                'method': method,
-                'sensor_count': len(sensor_values),
-                'target_points': len(target_grid),
-                'uncertainty': uncertainty.tolist(),
-                'timestamp': datetime.now().isoformat()
+                "interpolated_values": interpolated_values.tolist(),
+                "target_coordinates": target_grid,
+                "method": method,
+                "sensor_count": len(sensor_values),
+                "target_points": len(target_grid),
+                "uncertainty": uncertainty.tolist(),
+                "timestamp": datetime.now().isoformat(),
             }
 
         except Exception as e:
             logger.error(f"Error in grid interpolation: {e}")
             return {"error": f"Interpolation failed: {str(e)}"}
 
-    def _inverse_distance_weighted(self, sensor_latlon: np.ndarray, sensor_values: np.ndarray,
-                                 target_latlon: np.ndarray) -> np.ndarray:
+    def _inverse_distance_weighted(
+        self,
+        sensor_latlon: np.ndarray,
+        sensor_values: np.ndarray,
+        target_latlon: np.ndarray,
+    ) -> np.ndarray:
         """Perform inverse distance weighted interpolation."""
-        power = self.config.get('power', 2)
-        max_distance = self.config.get('max_distance', 10000)  # meters
+        power = self.config.get("power", 2)
+        max_distance = self.config.get("max_distance", 10000)  # meters
 
         distances = self._haversine_meters(sensor_latlon, target_latlon)  # (N, M)
 
@@ -177,7 +189,7 @@ class SpatialInterpolation:
             valid_distances = np.where(valid_distances == 0, 1e-3, valid_distances)
 
             # Calculate weights (inverse distance)
-            weights = 1.0 / (valid_distances ** power)
+            weights = 1.0 / (valid_distances**power)
 
             # Weighted average
             weighted_sum = np.sum(valid_values * weights)
@@ -190,25 +202,35 @@ class SpatialInterpolation:
 
         return np.array(interpolated)
 
-    def _nearest_neighbor(self, sensor_latlon: np.ndarray, sensor_values: np.ndarray,
-                         target_latlon: np.ndarray) -> np.ndarray:
+    def _nearest_neighbor(
+        self,
+        sensor_latlon: np.ndarray,
+        sensor_values: np.ndarray,
+        target_latlon: np.ndarray,
+    ) -> np.ndarray:
         """Perform nearest neighbor interpolation."""
         distances = self._haversine_meters(sensor_latlon, target_latlon)
         nearest_indices = np.argmin(distances, axis=0)
         return sensor_values[nearest_indices]
 
-
-    def _linear_interpolation(self, sensor_latlon: np.ndarray, sensor_values: np.ndarray,
-                             target_latlon: np.ndarray) -> np.ndarray:
+    def _linear_interpolation(
+        self,
+        sensor_latlon: np.ndarray,
+        sensor_values: np.ndarray,
+        target_latlon: np.ndarray,
+    ) -> np.ndarray:
         """Perform linear interpolation using scipy on projected planar meters."""
         if not HAS_SCIPY:
             # Fall back to IDW
-            return self._inverse_distance_weighted(sensor_latlon, sensor_values, target_latlon)
+            return self._inverse_distance_weighted(
+                sensor_latlon, sensor_values, target_latlon
+            )
 
         try:
             # Project degrees to a local equirectangular metric plane so
             # scipy's planar griddata operates in consistent units
             mean_lat = float(np.radians(np.mean(sensor_latlon[:, 0])))
+
             def _project(points: np.ndarray) -> np.ndarray:
                 x = np.radians(points[:, 1]) * 6_371_000.0 * np.cos(mean_lat)
                 y = np.radians(points[:, 0]) * 6_371_000.0
@@ -219,23 +241,28 @@ class SpatialInterpolation:
 
             # Use scipy's griddata for linear interpolation
             interpolated = interpolate.griddata(
-                sensor_xy, sensor_values, target_xy, method='linear'
+                sensor_xy, sensor_values, target_xy, method="linear"
             )
 
             # Fill NaN values with nearest neighbor
             nan_mask = np.isnan(interpolated)
             if np.any(nan_mask):
-                nearest_values = self._nearest_neighbor(sensor_latlon, sensor_values, target_latlon)
+                nearest_values = self._nearest_neighbor(
+                    sensor_latlon, sensor_values, target_latlon
+                )
                 interpolated[nan_mask] = nearest_values[nan_mask]
 
             return cast(np.ndarray, interpolated)
 
         except Exception as e:
             logger.warning(f"Linear interpolation failed, using IDW: {e}")
-            return self._inverse_distance_weighted(sensor_latlon, sensor_values, target_latlon)
+            return self._inverse_distance_weighted(
+                sensor_latlon, sensor_values, target_latlon
+            )
 
-    def _calculate_interpolation_uncertainty(self, sensor_latlon: np.ndarray,
-                                          target_latlon: np.ndarray, method: str) -> np.ndarray:
+    def _calculate_interpolation_uncertainty(
+        self, sensor_latlon: np.ndarray, target_latlon: np.ndarray, method: str
+    ) -> np.ndarray:
         """Calculate uncertainty for interpolated values.
 
         Distances are great-circle meters, so the divisor constants below
@@ -256,7 +283,9 @@ class SpatialInterpolation:
 
         return np.clip(uncertainty, 0.01, 1.0)  # Clamp between 0.01 and 1.0
 
-    def interpolate_h3_cells(self, measurements: List[Dict], target_h3_indices: List[str]) -> Dict:
+    def interpolate_h3_cells(
+        self, measurements: List[Dict], target_h3_indices: List[str]
+    ) -> Dict:
         """
         Interpolate measurements to specific H3 cells.
 
@@ -276,8 +305,9 @@ class SpatialInterpolation:
 
             # Perform interpolation
             interpolation_result = self.interpolate_to_grid(
-                measurements, target_coords,
-                method=self.config.get('method', 'inverse_distance_weighted')
+                measurements,
+                target_coords,
+                method=self.config.get("method", "inverse_distance_weighted"),
             )
 
             if "error" in interpolation_result:
@@ -287,24 +317,27 @@ class SpatialInterpolation:
             h3_results = {}
             for i, h3_index in enumerate(target_h3_indices):
                 h3_results[h3_index] = {
-                    'interpolated_value': interpolation_result['interpolated_values'][i],
-                    'uncertainty': interpolation_result['uncertainty'][i],
-                    'coordinates': target_coords[i]
+                    "interpolated_value": interpolation_result["interpolated_values"][
+                        i
+                    ],
+                    "uncertainty": interpolation_result["uncertainty"][i],
+                    "coordinates": target_coords[i],
                 }
 
             return {
-                'h3_interpolations': h3_results,
-                'method': interpolation_result['method'],
-                'target_cells': len(target_h3_indices),
-                'timestamp': interpolation_result['timestamp']
+                "h3_interpolations": h3_results,
+                "method": interpolation_result["method"],
+                "target_cells": len(target_h3_indices),
+                "timestamp": interpolation_result["timestamp"],
             }
 
         except Exception as e:
             logger.error(f"Error in H3 interpolation: {e}")
             return {"error": f"H3 interpolation failed: {str(e)}"}
 
-    def create_interpolation_grid(self, bounds: Dict[str, float],
-                                resolution_km: float = 1.0) -> List[Tuple[float, float]]:
+    def create_interpolation_grid(
+        self, bounds: Dict[str, float], resolution_km: float = 1.0
+    ) -> List[Tuple[float, float]]:
         """
         Create a regular grid for interpolation within bounds.
 
@@ -316,13 +349,15 @@ class SpatialInterpolation:
             List of (lat, lon) tuples for grid points
         """
         try:
-            lat_min, lat_max = bounds['lat_min'], bounds['lat_max']
-            lon_min, lon_max = bounds['lon_min'], bounds['lon_max']
+            lat_min, lat_max = bounds["lat_min"], bounds["lat_max"]
+            lon_min, lon_max = bounds["lon_min"], bounds["lon_max"]
 
             # Calculate grid spacing in degrees
             # Approximate: 1 km ≈ 0.009 degrees at equator
             lat_spacing = resolution_km * 0.009
-            lon_spacing = resolution_km * 0.009 / np.cos(np.radians((lat_min + lat_max) / 2))
+            lon_spacing = (
+                resolution_km * 0.009 / np.cos(np.radians((lat_min + lat_max) / 2))
+            )
 
             # Create grid
             lat_points = np.arange(lat_min, lat_max + lat_spacing, lat_spacing)
@@ -333,8 +368,8 @@ class SpatialInterpolation:
             if len(lat_points) * len(lon_points) > max_points:
                 # Reduce resolution
                 factor = np.sqrt(max_points / (len(lat_points) * len(lon_points)))
-                lat_points = lat_points[::int(1/factor)]
-                lon_points = lon_points[::int(1/factor)]
+                lat_points = lat_points[:: int(1 / factor)]
+                lon_points = lon_points[:: int(1 / factor)]
 
             # Create mesh grid
             lat_grid, lon_grid = np.meshgrid(lat_points, lon_points)
@@ -346,8 +381,9 @@ class SpatialInterpolation:
             logger.error(f"Error creating interpolation grid: {e}")
             return []
 
-    def cross_validate_interpolation(self, measurements: List[Dict],
-                                   test_fraction: float = 0.2) -> Dict:
+    def cross_validate_interpolation(
+        self, measurements: List[Dict], test_fraction: float = 0.2
+    ) -> Dict:
         """
         Cross-validate interpolation quality using hold-out testing.
 
@@ -367,24 +403,32 @@ class SpatialInterpolation:
             n_test = int(len(measurements) * test_fraction)
             test_indices = np.random.choice(len(measurements), n_test, replace=False)
 
-            train_measurements = [measurements[i] for i in range(len(measurements)) if i not in test_indices]
+            train_measurements = [
+                measurements[i]
+                for i in range(len(measurements))
+                if i not in test_indices
+            ]
             test_measurements = [measurements[i] for i in test_indices]
 
             # Create grid from test locations
-            test_coords = [(m['latitude'], m['longitude']) for m in test_measurements]
+            test_coords = [(m["latitude"], m["longitude"]) for m in test_measurements]
 
             # Interpolate using training data
-            interpolation_result = self.interpolate_to_grid(train_measurements, test_coords)
+            interpolation_result = self.interpolate_to_grid(
+                train_measurements, test_coords
+            )
 
             if "error" in interpolation_result:
                 return interpolation_result
 
             # Calculate errors
-            true_values = [m['value'] for m in test_measurements]
-            predicted_values = interpolation_result['interpolated_values']
+            true_values = [m["value"] for m in test_measurements]
+            predicted_values = interpolation_result["interpolated_values"]
 
             # Filter out NaN predictions
-            valid_indices = [i for i, pred in enumerate(predicted_values) if not np.isnan(pred)]
+            valid_indices = [
+                i for i, pred in enumerate(predicted_values) if not np.isnan(pred)
+            ]
             if not valid_indices:
                 return {"error": "No valid predictions for cross-validation"}
 
@@ -402,17 +446,17 @@ class SpatialInterpolation:
             r_squared = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0
 
             return {
-                'cross_validation_results': {
-                    'mean_absolute_error': mae,
-                    'mean_squared_error': mse,
-                    'root_mean_squared_error': rmse,
-                    'r_squared': r_squared,
-                    'test_points': len(valid_true),
-                    'training_points': len(train_measurements)
+                "cross_validation_results": {
+                    "mean_absolute_error": mae,
+                    "mean_squared_error": mse,
+                    "root_mean_squared_error": rmse,
+                    "r_squared": r_squared,
+                    "test_points": len(valid_true),
+                    "training_points": len(train_measurements),
                 },
-                'method': interpolation_result['method'],
-                'test_fraction': test_fraction,
-                'timestamp': datetime.now().isoformat()
+                "method": interpolation_result["method"],
+                "test_fraction": test_fraction,
+                "timestamp": datetime.now().isoformat(),
             }
 
         except Exception as e:
@@ -432,7 +476,10 @@ class SpatialInterpolation:
         """
         try:
             if len(sensor_coords) < 3:
-                return {"quality_score": 0.0, "issues": ["Insufficient sensors for reliable interpolation"]}
+                return {
+                    "quality_score": 0.0,
+                    "issues": ["Insufficient sensors for reliable interpolation"],
+                }
 
             # Calculate sensor density metrics
             distances = cdist(sensor_coords, sensor_coords)
@@ -449,33 +496,45 @@ class SpatialInterpolation:
             coverage_area = lat_range * lon_range
 
             # Quality factors
-            density_factor = min(1.0, len(sensor_coords) / 50)  # Normalize to 50 sensors
-            distribution_factor = min(1.0, mean_distance / max_distance)  # Better distribution = higher score
-            coverage_factor = min(1.0, 1.0 / (1.0 + coverage_area * 100))  # Smaller area = higher score
+            density_factor = min(
+                1.0, len(sensor_coords) / 50
+            )  # Normalize to 50 sensors
+            distribution_factor = min(
+                1.0, mean_distance / max_distance
+            )  # Better distribution = higher score
+            coverage_factor = min(
+                1.0, 1.0 / (1.0 + coverage_area * 100)
+            )  # Smaller area = higher score
 
             # Weighted quality score
-            quality_score = 0.4 * density_factor + 0.3 * distribution_factor + 0.3 * coverage_factor
+            quality_score = (
+                0.4 * density_factor + 0.3 * distribution_factor + 0.3 * coverage_factor
+            )
 
             # Identify issues
             issues = []
             if mean_distance > 0.1:  # Sensors too spread out
-                issues.append("Sensors are widely dispersed - may affect interpolation quality")
+                issues.append(
+                    "Sensors are widely dispersed - may affect interpolation quality"
+                )
             if len(sensor_coords) < 10:
                 issues.append("Low sensor density - consider adding more sensors")
             if coverage_area > 0.01:  # Large coverage area
-                issues.append("Large coverage area - interpolation may be less accurate")
+                issues.append(
+                    "Large coverage area - interpolation may be less accurate"
+                )
 
             return {
-                'quality_score': quality_score,
-                'sensor_count': len(sensor_coords),
-                'mean_neighbor_distance': mean_distance,
-                'max_neighbor_distance': max_distance,
-                'coverage_area_deg2': coverage_area,
-                'density_factor': density_factor,
-                'distribution_factor': distribution_factor,
-                'coverage_factor': coverage_factor,
-                'issues': issues,
-                'assessment_timestamp': datetime.now().isoformat()
+                "quality_score": quality_score,
+                "sensor_count": len(sensor_coords),
+                "mean_neighbor_distance": mean_distance,
+                "max_neighbor_distance": max_distance,
+                "coverage_area_deg2": coverage_area,
+                "density_factor": density_factor,
+                "distribution_factor": distribution_factor,
+                "coverage_factor": coverage_factor,
+                "issues": issues,
+                "assessment_timestamp": datetime.now().isoformat(),
             }
 
         except Exception as e:

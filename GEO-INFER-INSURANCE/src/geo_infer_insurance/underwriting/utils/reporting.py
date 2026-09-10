@@ -502,7 +502,9 @@ class UnderwritingReporter:
             trend = (
                 "increasing"
                 if recent_claims[-1] > recent_claims[0]
-                else "decreasing" if recent_claims[-1] < recent_claims[0] else "stable"
+                else "decreasing"
+                if recent_claims[-1] < recent_claims[0]
+                else "stable"
             )
         else:
             trend = "insufficient_data"

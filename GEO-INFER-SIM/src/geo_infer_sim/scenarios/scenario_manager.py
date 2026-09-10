@@ -232,7 +232,9 @@ class ScenarioManager:
             # Extract metrics if results available
             if result and metrics:
                 for metric in metrics:
-                    metrics_dict: Dict[str, List[Dict[str, Any]]] = comparison["metrics"]
+                    metrics_dict: Dict[str, List[Dict[str, Any]]] = comparison[
+                        "metrics"
+                    ]
                     if metric not in metrics_dict:
                         metrics_dict[metric] = []
 
@@ -378,7 +380,9 @@ class ScenarioManager:
                 if best_idx is not None:
                     best_scenario_id = metric_scenarios[best_idx]
                     best_scenario = self.scenarios.get(best_scenario_id)
-                    best_scenarios: Dict[str, Dict[str, Any]] = analysis["best_scenarios"]
+                    best_scenarios: Dict[str, Dict[str, Any]] = analysis[
+                        "best_scenarios"
+                    ]
                     best_scenarios[metric_name] = {
                         "scenario_id": best_scenario_id,
                         "value": float(metric_values[best_idx]),

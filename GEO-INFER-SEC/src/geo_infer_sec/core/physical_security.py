@@ -690,11 +690,11 @@ class PhysicalSecurityManager:
         """Mark a threat as resolved."""
         if threat_id in self.active_threats:
             self.active_threats[threat_id].status = "resolved"
-            self.active_threats[threat_id].metadata[
-                "resolution_notes"
-            ] = resolution_notes
-            self.active_threats[threat_id].metadata[
-                "resolved_at"
-            ] = datetime.now().isoformat()
+            self.active_threats[threat_id].metadata["resolution_notes"] = (
+                resolution_notes
+            )
+            self.active_threats[threat_id].metadata["resolved_at"] = (
+                datetime.now().isoformat()
+            )
             return True
         return False

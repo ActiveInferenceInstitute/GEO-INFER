@@ -14,20 +14,25 @@ import heapq
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class GraphNode:
     """Representation of a graph node."""
+
     id: Any
     coordinates: Optional[np.ndarray] = None
     attributes: Dict[str, Any] = field(default_factory=dict)
 
+
 @dataclass
 class GraphEdge:
     """Representation of a graph edge."""
+
     source: Any
     target: Any
     weight: float = 1.0
     attributes: Dict[str, Any] = field(default_factory=dict)
+
 
 class SpatialGraph:
     """Spatial graph representation with geospatial operations."""
@@ -41,14 +46,16 @@ class SpatialGraph:
         """
         self.directed = directed
         self.nodes: Dict[Any, GraphNode] = {}  # node_id -> GraphNode
-        self.edges: Dict[Tuple[Any, Any], GraphEdge] = {}  # (source, target) -> GraphEdge
+        self.edges: Dict[
+            Tuple[Any, Any], GraphEdge
+        ] = {}  # (source, target) -> GraphEdge
         self.adjacency_list: Dict[Any, List[Any]] = defaultdict(list)
         # node_id -> list of connected nodes
         self.weights: Dict[Tuple[Any, Any], float] = {}  # (source, target) -> weight
 
-    def add_node(self, node_id: Any,
-                coordinates: Optional[np.ndarray] = None,
-                **attributes: Any) -> None:
+    def add_node(
+        self, node_id: Any, coordinates: Optional[np.ndarray] = None, **attributes: Any
+    ) -> None:
         """
         Add a node to the graph.
 
@@ -58,13 +65,12 @@ class SpatialGraph:
             **attributes: Additional node attributes
         """
         self.nodes[node_id] = GraphNode(
-            id=node_id,
-            coordinates=coordinates,
-            attributes=attributes
+            id=node_id, coordinates=coordinates, attributes=attributes
         )
 
-    def add_edge(self, source: Any, target: Any,
-                weight: float = 1.0, **attributes: Any) -> None:
+    def add_edge(
+        self, source: Any, target: Any, weight: float = 1.0, **attributes: Any
+    ) -> None:
         """
         Add an edge to the graph.
 
@@ -77,7 +83,9 @@ class SpatialGraph:
         if source not in self.nodes or target not in self.nodes:
             raise ValueError("Both source and target nodes must exist in the graph")
 
-        edge = GraphEdge(source=source, target=target, weight=weight, attributes=attributes)
+        edge = GraphEdge(
+            source=source, target=target, weight=weight, attributes=attributes
+        )
         self.edges[(source, target)] = edge
 
         self.adjacency_list[source].append(target)
@@ -132,8 +140,9 @@ class SpatialGraph:
         """Get weight of edge between two nodes."""
         return self.weights.get((source, target), None)
 
-    def shortest_path(self, start: Any, end: Any,
-                     algorithm: str = 'dijkstra') -> Tuple[List[Any], float]:
+    def shortest_path(
+        self, start: Any, end: Any, algorithm: str = "dijkstra"
+    ) -> Tuple[List[Any], float]:
         """
         Find shortest path between two nodes.
 
@@ -145,16 +154,16 @@ class SpatialGraph:
         Returns:
             Tuple of (path, total_distance)
         """
-        if algorithm == 'dijkstra':
+        if algorithm == "dijkstra":
             return self._dijkstra(start, end)
-        elif algorithm == 'bellman_ford':
+        elif algorithm == "bellman_ford":
             return self._bellman_ford(start, end)
         else:
             raise ValueError(f"Unknown algorithm: {algorithm}")
 
     def _dijkstra(self, start: Any, end: Any) -> Tuple[List[Any], float]:
         """Dijkstra's shortest path algorithm."""
-        distances = {node: float('inf') for node in self.nodes}
+        distances = {node: float("inf") for node in self.nodes}
         distances[start] = 0
         previous = {node: None for node in self.nodes}
 
@@ -183,8 +192,8 @@ class SpatialGraph:
                     heapq.heappush(pq, (distance, neighbor))
 
         # Reconstruct path
-        if distances[end] == float('inf'):
-            return [], float('inf')  # No path found
+        if distances[end] == float("inf"):
+            return [], float("inf")  # No path found
 
         path = []
         current = end
@@ -197,22 +206,22 @@ class SpatialGraph:
 
     def _bellman_ford(self, start: Any, end: Any) -> Tuple[List[Any], float]:
         """Bellman-Ford algorithm for shortest path."""
-        distances = {node: float('inf') for node in self.nodes}
+        distances = {node: float("inf") for node in self.nodes}
         distances[start] = 0
         previous = {node: None for node in self.nodes}
 
         # Relax edges |V| - 1 times
         for _ in range(len(self.nodes) - 1):
             for (source, target), edge in self.edges.items():
-                if distances[source] != float('inf'):
+                if distances[source] != float("inf"):
                     new_distance = distances[source] + edge.weight
                     if new_distance < distances[target]:
                         distances[target] = new_distance
                         previous[target] = source
 
         # Reconstruct path
-        if distances[end] == float('inf'):
-            return [], float('inf')
+        if distances[end] == float("inf"):
+            return [], float("inf")
 
         path = []
         current = end
@@ -223,7 +232,7 @@ class SpatialGraph:
 
         return path, distances[end]
 
-    def minimum_spanning_tree(self, algorithm: str = 'kruskal') -> 'SpatialGraph':
+    def minimum_spanning_tree(self, algorithm: str = "kruskal") -> "SpatialGraph":
         """
         Compute minimum spanning tree of the graph.
 
@@ -233,14 +242,14 @@ class SpatialGraph:
         Returns:
             Minimum spanning tree as a new SpatialGraph
         """
-        if algorithm == 'kruskal':
+        if algorithm == "kruskal":
             return self._kruskal_mst()
-        elif algorithm == 'prim':
+        elif algorithm == "prim":
             return self._prim_mst()
         else:
             raise ValueError(f"Unknown algorithm: {algorithm}")
 
-    def _kruskal_mst(self) -> 'SpatialGraph':
+    def _kruskal_mst(self) -> "SpatialGraph":
         """Kruskal's algorithm for minimum spanning tree."""
         # Sort edges by weight
         sorted_edges = sorted(self.edges.values(), key=lambda x: x.weight)
@@ -250,7 +259,7 @@ class SpatialGraph:
 
         # Add all nodes to MST
         for node_id, node in self.nodes.items():
-            mst.add_node(node_id, node.coordinates, ** (node.attributes or {}))
+            mst.add_node(node_id, node.coordinates, **(node.attributes or {}))
 
         # Union-Find structure
         parent = {node_id: node_id for node_id in self.nodes}
@@ -275,7 +284,7 @@ class SpatialGraph:
 
         return mst
 
-    def _prim_mst(self) -> 'SpatialGraph':
+    def _prim_mst(self) -> "SpatialGraph":
         """Prim's algorithm for minimum spanning tree."""
         if not self.nodes:
             return SpatialGraph(directed=False)
@@ -287,7 +296,7 @@ class SpatialGraph:
 
         # Add all nodes to MST
         for node_id, node in self.nodes.items():
-            mst.add_node(node_id, node.coordinates, ** (node.attributes or {}))
+            mst.add_node(node_id, node.coordinates, **(node.attributes or {}))
 
         # Track visited nodes
         visited = set([start_node])
@@ -404,9 +413,9 @@ class SpatialGraph:
             Dictionary of centrality measures
         """
         centrality = {
-            'degree': self._degree_centrality(),
-            'betweenness': self._betweenness_centrality(),
-            'closeness': self._closeness_centrality()
+            "degree": self._degree_centrality(),
+            "betweenness": self._betweenness_centrality(),
+            "closeness": self._closeness_centrality(),
         }
 
         return centrality
@@ -452,13 +461,15 @@ class SpatialGraph:
             delta = {node: 0.0 for node in self.nodes}
 
             # Process nodes in reverse order of distance
-            nodes_by_distance = sorted(self.nodes.keys(),
-                                     key=lambda x: distances[x],
-                                     reverse=True)
+            nodes_by_distance = sorted(
+                self.nodes.keys(), key=lambda x: distances[x], reverse=True
+            )
 
             for node in nodes_by_distance:
                 for predecessor in predecessors[node]:
-                    delta[predecessor] += (sigma[predecessor] / sigma[node]) * (1 + delta[node])
+                    delta[predecessor] += (sigma[predecessor] / sigma[node]) * (
+                        1 + delta[node]
+                    )
 
                 if node != source:
                     centrality[node] += delta[node]
@@ -482,7 +493,7 @@ class SpatialGraph:
             for target in self.nodes:
                 if node != target:
                     _, distance = self.shortest_path(node, target)
-                    if distance != float('inf'):
+                    if distance != float("inf"):
                         total_distance += distance
                         reachable_nodes += 1
 
@@ -503,32 +514,43 @@ class SpatialGraph:
         analysis: Dict[str, Any] = {}
 
         # Basic network statistics
-        analysis['n_nodes'] = len(self.nodes)
-        analysis['n_edges'] = len(self.edges)
-        analysis['density'] = len(self.edges) / (len(self.nodes) * (len(self.nodes) - 1) / 2) if len(self.nodes) > 1 else 0
+        analysis["n_nodes"] = len(self.nodes)
+        analysis["n_edges"] = len(self.edges)
+        analysis["density"] = (
+            len(self.edges) / (len(self.nodes) * (len(self.nodes) - 1) / 2)
+            if len(self.nodes) > 1
+            else 0
+        )
 
         # Connected components
         components = self.connected_components()
-        analysis['n_components'] = len(components)
-        analysis['components'] = components
-        analysis['largest_component_size'] = max(len(comp) for comp in components) if components else 0
+        analysis["n_components"] = len(components)
+        analysis["components"] = components
+        analysis["largest_component_size"] = (
+            max(len(comp) for comp in components) if components else 0
+        )
 
         # Centrality measures
-        analysis['centrality'] = self.centrality_measures()
+        analysis["centrality"] = self.centrality_measures()
 
         # Minimum spanning tree
         if not self.directed:
             mst = self.minimum_spanning_tree()
-            analysis['mst_edges'] = len(mst.edges)
-            analysis['mst_total_weight'] = sum(edge.weight for edge in mst.edges.values())
+            analysis["mst_edges"] = len(mst.edges)
+            analysis["mst_total_weight"] = sum(
+                edge.weight for edge in mst.edges.values()
+            )
 
         return analysis
+
 
 class NetworkFlow:
     """Network flow algorithms for spatial networks."""
 
     @staticmethod
-    def max_flow(graph: SpatialGraph, source: Any, sink: Any) -> Tuple[float, Dict[Tuple[Any, Any], float]]:
+    def max_flow(
+        graph: SpatialGraph, source: Any, sink: Any
+    ) -> Tuple[float, Dict[Tuple[Any, Any], float]]:
         """
         Calculate maximum flow from source to sink using Ford-Fulkerson algorithm.
 
@@ -554,7 +576,7 @@ class NetworkFlow:
                 break
 
             # Find minimum residual capacity along path
-            path_flow = float('inf')
+            path_flow = float("inf")
             for i in range(len(path) - 1):
                 u, v = path[i], path[i + 1]
                 if residual.get((u, v), 0) < path_flow:
@@ -589,8 +611,9 @@ class NetworkFlow:
         return residual
 
     @staticmethod
-    def _find_augmenting_path(residual: Dict[Tuple[Any, Any], float],
-                            source: Any, sink: Any) -> Optional[List[Any]]:
+    def _find_augmenting_path(
+        residual: Dict[Tuple[Any, Any], float], source: Any, sink: Any
+    ) -> Optional[List[Any]]:
         """Find augmenting path using BFS."""
         visited = set()
         parent = {}
@@ -618,9 +641,5 @@ class NetworkFlow:
 
         return None
 
-__all__ = [
-    "GraphNode",
-    "GraphEdge",
-    "SpatialGraph",
-    "NetworkFlow"
-]
+
+__all__ = ["GraphNode", "GraphEdge", "SpatialGraph", "NetworkFlow"]

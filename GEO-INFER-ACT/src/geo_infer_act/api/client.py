@@ -10,7 +10,9 @@ import requests
 class Client:
     """REST API client for GEO-INFER-ACT."""
 
-    def __init__(self, base_url: str = "http://localhost:8000", timeout: float = 10.0) -> None:
+    def __init__(
+        self, base_url: str = "http://localhost:8000", timeout: float = 10.0
+    ) -> None:
         if timeout <= 0:
             raise ValueError("timeout must be greater than zero")
         self.base_url = base_url.rstrip("/")

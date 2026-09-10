@@ -5,6 +5,7 @@ General Data Integrator Module
 This module provides capabilities for integrating data from multiple sources
 into a unified geospatial dataset.
 """
+
 import logging
 import pandas as pd
 import geopandas as gpd
@@ -16,9 +17,7 @@ from shapely.ops import transform as shapely_transform
 logger = logging.getLogger(__name__)
 
 
-def _reproject(
-    frame: gpd.GeoDataFrame, target_crs: CRS
-) -> gpd.GeoDataFrame:
+def _reproject(frame: gpd.GeoDataFrame, target_crs: CRS) -> gpd.GeoDataFrame:
     """Reproject with scalar Shapely transforms for pyproj 3.7 compatibility."""
     if frame.crs == target_crs:
         return frame

@@ -1,8 +1,13 @@
 """Tests for notification scheduling, delivery, and alert cooldown."""
+
 import time
 from datetime import datetime, timedelta, timezone
 
-from geo_infer_comms.core.notifications import AlertRule, AlertSystem, NotificationManager
+from geo_infer_comms.core.notifications import (
+    AlertRule,
+    AlertSystem,
+    NotificationManager,
+)
 from geo_infer_comms.models.message import (
     NotificationRequest,
     NotificationStatus,

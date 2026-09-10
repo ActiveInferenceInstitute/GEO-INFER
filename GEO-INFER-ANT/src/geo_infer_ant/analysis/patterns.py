@@ -404,9 +404,7 @@ class SwarmPatternAnalyzer:
         cohesion_ok = 0.001 < avg_cohesion < 0.1  # Not too dispersed, not too clustered
         separation_ok = avg_separation > 0.005  # Maintain some separation
 
-        return bool(
-            alignment_ok and cohesion_ok and separation_ok
-        )
+        return bool(alignment_ok and cohesion_ok and separation_ok)
 
     def _analyze_migration_patterns(self, trajectories: np.ndarray) -> Dict[str, Any]:
         """Analyze migration and movement patterns."""
@@ -1169,17 +1167,17 @@ class SwarmPatternAnalyzer:
                     mi_result = self._calculate_mutual_information(
                         individual_behaviors, collective_outcomes
                     )
-                    emergence_results["information_theory"][
-                        "mutual_information"
-                    ] = mi_result
+                    emergence_results["information_theory"]["mutual_information"] = (
+                        mi_result
+                    )
 
                 elif measure == "transfer_entropy":
                     te_result = self._calculate_transfer_entropy(
                         individual_behaviors, collective_outcomes
                     )
-                    emergence_results["information_theory"][
-                        "transfer_entropy"
-                    ] = te_result
+                    emergence_results["information_theory"]["transfer_entropy"] = (
+                        te_result
+                    )
 
             # Calculate complexity measures
             complexity_measures = complexity_measures or [
@@ -1189,15 +1187,15 @@ class SwarmPatternAnalyzer:
             for measure in complexity_measures:
                 if measure == "fractal_dimension":
                     fd_result = self._calculate_fractal_dimension(individual_behaviors)
-                    emergence_results["complexity_analysis"][
-                        "fractal_dimension"
-                    ] = fd_result
+                    emergence_results["complexity_analysis"]["fractal_dimension"] = (
+                        fd_result
+                    )
 
                 elif measure == "lyapunov_exponents":
                     le_result = self._calculate_lyapunov_exponents(individual_behaviors)
-                    emergence_results["complexity_analysis"][
-                        "lyapunov_exponents"
-                    ] = le_result
+                    emergence_results["complexity_analysis"]["lyapunov_exponents"] = (
+                        le_result
+                    )
 
             # Detect emergence based on measures
             emergence_detected = self._assess_emergence(emergence_results)
@@ -1278,15 +1276,11 @@ class SwarmPatternAnalyzer:
 
             individual_binned = np.digitize(
                 individual_array,
-                np.linspace(
-                    np.min(individual_array), np.max(individual_array), n_bins
-                ),
+                np.linspace(np.min(individual_array), np.max(individual_array), n_bins),
             )
             collective_binned = np.digitize(
                 collective_array,
-                np.linspace(
-                    np.min(collective_array), np.max(collective_array), n_bins
-                ),
+                np.linspace(np.min(collective_array), np.max(collective_array), n_bins),
             )
 
             # Calculate mutual information using scikit-learn
@@ -1461,7 +1455,9 @@ class SwarmPatternAnalyzer:
                 "interpretation": (
                     "high"
                     if normalized_te > 0.5
-                    else "medium" if normalized_te > 0.2 else "low"
+                    else "medium"
+                    if normalized_te > 0.2
+                    else "low"
                 ),
             }
 
@@ -1619,7 +1615,9 @@ class SwarmPatternAnalyzer:
                 "interpretation": (
                     "complex"
                     if fractal_dim > 1.5
-                    else "moderate" if fractal_dim > 1.0 else "simple"
+                    else "moderate"
+                    if fractal_dim > 1.0
+                    else "simple"
                 ),
                 "box_sizes": box_sizes,
                 "box_counts": box_counts,
@@ -1724,12 +1722,8 @@ class SwarmPatternAnalyzer:
             if len(divergences) == 0:
                 # Fallback: estimate from variance growth
                 if len(behavior_array) > 5:
-                    first_half_var = np.var(
-                        behavior_array[: len(behavior_array) // 2]
-                    )
-                    second_half_var = np.var(
-                        behavior_array[len(behavior_array) // 2 :]
-                    )
+                    first_half_var = np.var(behavior_array[: len(behavior_array) // 2])
+                    second_half_var = np.var(behavior_array[len(behavior_array) // 2 :])
                     if first_half_var > 0:
                         growth_rate = np.log(second_half_var / first_half_var) / (
                             len(behavior_array) / 2
@@ -1750,7 +1744,9 @@ class SwarmPatternAnalyzer:
                 "predictability": (
                     "low"
                     if lyapunov_exp > 0.1
-                    else "medium" if lyapunov_exp > 0.05 else "high"
+                    else "medium"
+                    if lyapunov_exp > 0.05
+                    else "high"
                 ),
                 "divergence_samples": len(divergences),
             }

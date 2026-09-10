@@ -18,8 +18,10 @@ from enum import Enum
 
 logger = logging.getLogger(__name__)
 
+
 class ComplianceFramework(Enum):
     """Compliance framework enumeration."""
+
     STANDARD = "standard"
     SOLVENCY_II = "solvency_ii"
     BASEL_III = "basel_iii"
@@ -27,13 +29,16 @@ class ComplianceFramework(Enum):
     US_INSURANCE_REGULATION = "us_insurance"
     EU_INSURANCE_DISTRIBUTION = "eu_idd"
 
+
 class ComplianceStatus(Enum):
     """Compliance status enumeration."""
+
     COMPLIANT = "compliant"
     NON_COMPLIANT = "non_compliant"
     PENDING_REVIEW = "pending_review"
     EXEMPT = "exempt"
     UNKNOWN = "unknown"
+
 
 @dataclass
 class RegulatoryRequirement:
@@ -58,15 +63,16 @@ class RegulatoryRequirement:
     def to_dict(self) -> Dict[str, Any]:
         """Convert requirement to dictionary."""
         return {
-            'requirement_id': self.requirement_id,
-            'framework': self.framework.value,
-            'category': self.category,
-            'description': self.description,
-            'regulation_reference': self.regulation_reference,
-            'applicability_criteria': self.applicability_criteria,
-            'compliance_threshold': self.compliance_threshold,
-            'monitoring_frequency': self.monitoring_frequency
+            "requirement_id": self.requirement_id,
+            "framework": self.framework.value,
+            "category": self.category,
+            "description": self.description,
+            "regulation_reference": self.regulation_reference,
+            "applicability_criteria": self.applicability_criteria,
+            "compliance_threshold": self.compliance_threshold,
+            "monitoring_frequency": self.monitoring_frequency,
         }
+
 
 @dataclass
 class ComplianceCheck:
@@ -85,16 +91,19 @@ class ComplianceCheck:
     def to_dict(self) -> Dict[str, Any]:
         """Convert check to dictionary."""
         return {
-            'check_id': self.check_id,
-            'requirement_id': self.requirement_id,
-            'entity_id': self.entity_id,
-            'status': self.status.value,
-            'check_date': self.check_date.isoformat(),
-            'next_check_date': self.next_check_date.isoformat() if self.next_check_date else None,
-            'findings': self.findings,
-            'evidence': self.evidence,
-            'remediation_required': self.remediation_required
+            "check_id": self.check_id,
+            "requirement_id": self.requirement_id,
+            "entity_id": self.entity_id,
+            "status": self.status.value,
+            "check_date": self.check_date.isoformat(),
+            "next_check_date": self.next_check_date.isoformat()
+            if self.next_check_date
+            else None,
+            "findings": self.findings,
+            "evidence": self.evidence,
+            "remediation_required": self.remediation_required,
         }
+
 
 class ComplianceEngine:
     """
@@ -149,7 +158,7 @@ class ComplianceEngine:
                 regulation_reference="Standard Insurance Regulation §1.1",
                 applicability_criteria={"entity_type": "insurer"},
                 compliance_threshold=1.0,
-                monitoring_frequency="quarterly"
+                monitoring_frequency="quarterly",
             ),
             RegulatoryRequirement(
                 requirement_id="std_reporting_accuracy",
@@ -159,8 +168,8 @@ class ComplianceEngine:
                 regulation_reference="Standard Insurance Regulation §2.3",
                 applicability_criteria={},
                 compliance_threshold=0.95,
-                monitoring_frequency="monthly"
-            )
+                monitoring_frequency="monthly",
+            ),
         ]
 
         for req in requirements:
@@ -177,7 +186,7 @@ class ComplianceEngine:
                 regulation_reference="Solvency II Directive Article 101",
                 applicability_criteria={"entity_type": "european_insurer"},
                 compliance_threshold=1.0,
-                monitoring_frequency="quarterly"
+                monitoring_frequency="quarterly",
             ),
             RegulatoryRequirement(
                 requirement_id="sii_or_reporting",
@@ -187,8 +196,8 @@ class ComplianceEngine:
                 regulation_reference="Solvency II Directive Article 45",
                 applicability_criteria={},
                 compliance_threshold=1.0,
-                monitoring_frequency="annual"
-            )
+                monitoring_frequency="annual",
+            ),
         ]
 
         for req in requirements:
@@ -205,7 +214,7 @@ class ComplianceEngine:
                 regulation_reference="Basel III Framework",
                 applicability_criteria={"entity_type": "bank"},
                 compliance_threshold=0.06,  # 6%
-                monitoring_frequency="quarterly"
+                monitoring_frequency="quarterly",
             )
         ]
 
@@ -223,14 +232,16 @@ class ComplianceEngine:
                 regulation_reference="NAIC Risk-Based Capital Model Act",
                 applicability_criteria={"entity_type": "us_insurer"},
                 compliance_threshold=2.0,  # 200% RBC ratio
-                monitoring_frequency="annual"
+                monitoring_frequency="annual",
             )
         ]
 
         for req in requirements:
             self.requirements[req.requirement_id] = req
 
-    def perform_compliance_check(self, entity_id: str, context: Dict[str, Any]) -> Dict[str, Any]:
+    def perform_compliance_check(
+        self, entity_id: str, context: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Perform compliance check for entity.
 
@@ -246,28 +257,41 @@ class ComplianceEngine:
 
         for requirement in self.requirements.values():
             if requirement.is_applicable(context):
-                check_result = self._check_requirement_compliance(requirement, entity_id, context)
+                check_result = self._check_requirement_compliance(
+                    requirement, entity_id, context
+                )
                 check_results.append(check_result)
 
                 # Update overall status
                 if check_result.status == ComplianceStatus.NON_COMPLIANT:
                     overall_status = ComplianceStatus.NON_COMPLIANT
-                elif check_result.status == ComplianceStatus.PENDING_REVIEW and overall_status == ComplianceStatus.COMPLIANT:
+                elif (
+                    check_result.status == ComplianceStatus.PENDING_REVIEW
+                    and overall_status == ComplianceStatus.COMPLIANT
+                ):
                     overall_status = ComplianceStatus.PENDING_REVIEW
 
         return {
-            'entity_id': entity_id,
-            'check_date': datetime.now().isoformat(),
-            'overall_status': overall_status.value,
-            'framework': self.framework.value,
-            'requirement_checks': check_results,
-            'total_requirements': len(check_results),
-            'compliant_requirements': len([r for r in check_results if r.status == ComplianceStatus.COMPLIANT]),
-            'non_compliant_requirements': len([r for r in check_results if r.status == ComplianceStatus.NON_COMPLIANT])
+            "entity_id": entity_id,
+            "check_date": datetime.now().isoformat(),
+            "overall_status": overall_status.value,
+            "framework": self.framework.value,
+            "requirement_checks": check_results,
+            "total_requirements": len(check_results),
+            "compliant_requirements": len(
+                [r for r in check_results if r.status == ComplianceStatus.COMPLIANT]
+            ),
+            "non_compliant_requirements": len(
+                [r for r in check_results if r.status == ComplianceStatus.NON_COMPLIANT]
+            ),
         }
 
-    def _check_requirement_compliance(self, requirement: RegulatoryRequirement,
-                                    entity_id: str, context: Dict[str, Any]) -> ComplianceCheck:
+    def _check_requirement_compliance(
+        self,
+        requirement: RegulatoryRequirement,
+        entity_id: str,
+        context: Dict[str, Any],
+    ) -> ComplianceCheck:
         """Check compliance for specific requirement."""
         check_id = f"check_{entity_id}_{requirement.requirement_id}_{int(time.time())}"
 
@@ -280,10 +304,14 @@ class ComplianceEngine:
             findings = ["Requirement satisfied"]
         else:
             status = ComplianceStatus.NON_COMPLIANT
-            findings = [f"Compliance value {compliance_value} below threshold {requirement.compliance_threshold}"]
+            findings = [
+                f"Compliance value {compliance_value} below threshold {requirement.compliance_threshold}"
+            ]
 
         # Calculate next check date
-        next_check_date = self._calculate_next_check_date(requirement.monitoring_frequency)
+        next_check_date = self._calculate_next_check_date(
+            requirement.monitoring_frequency
+        )
 
         check = ComplianceCheck(
             check_id=check_id,
@@ -292,19 +320,24 @@ class ComplianceEngine:
             status=status,
             next_check_date=next_check_date,
             findings=findings,
-            evidence={'compliance_value': compliance_value, 'threshold': requirement.compliance_threshold}
+            evidence={
+                "compliance_value": compliance_value,
+                "threshold": requirement.compliance_threshold,
+            },
         )
 
         self.compliance_checks[check_id] = check
         return check
 
-    def _get_compliance_value(self, requirement: RegulatoryRequirement, context: Dict[str, Any]) -> float:
+    def _get_compliance_value(
+        self, requirement: RegulatoryRequirement, context: Dict[str, Any]
+    ) -> float:
         """Get compliance value for requirement."""
         # Simplified compliance calculation - in practice would be more sophisticated
         if requirement.category == "capital":
-            return float(context.get('capital_ratio', 1.0))
+            return float(context.get("capital_ratio", 1.0))
         elif requirement.category == "reporting":
-            return float(context.get('reporting_accuracy', 0.95))
+            return float(context.get("reporting_accuracy", 0.95))
         else:
             return 1.0  # Default compliant
 
@@ -325,7 +358,9 @@ class ComplianceEngine:
         else:
             return now + timedelta(days=90)  # Default to quarterly
 
-    def generate_compliance_report(self, entity_id: str, period: str = "quarterly") -> Dict[str, Any]:
+    def generate_compliance_report(
+        self, entity_id: str, period: str = "quarterly"
+    ) -> Dict[str, Any]:
         """
         Generate compliance report for entity.
 
@@ -338,14 +373,17 @@ class ComplianceEngine:
         """
         # Get relevant compliance checks
         entity_checks = [
-            check for check in self.compliance_checks.values()
-            if check.entity_id == entity_id and
-            check.check_date >= datetime.now() - self._get_period_timedelta(period)
+            check
+            for check in self.compliance_checks.values()
+            if check.entity_id == entity_id
+            and check.check_date >= datetime.now() - self._get_period_timedelta(period)
         ]
 
         # Calculate compliance metrics
         total_checks = len(entity_checks)
-        compliant_checks = len([c for c in entity_checks if c.status == ComplianceStatus.COMPLIANT])
+        compliant_checks = len(
+            [c for c in entity_checks if c.status == ComplianceStatus.COMPLIANT]
+        )
         compliance_rate = compliant_checks / total_checks if total_checks > 0 else 0
 
         # Identify issues
@@ -355,17 +393,21 @@ class ComplianceEngine:
                 issues.extend(check.findings)
 
         return {
-            'entity_id': entity_id,
-            'report_period': period,
-            'report_date': datetime.now().isoformat(),
-            'framework': self.framework.value,
-            'compliance_rate': compliance_rate,
-            'total_checks': total_checks,
-            'compliant_checks': compliant_checks,
-            'non_compliant_checks': total_checks - compliant_checks,
-            'issues': issues,
-            'requirements_checked': list(set(check.requirement_id for check in entity_checks)),
-            'next_review_date': (datetime.now() + self._get_period_timedelta(period)).isoformat()
+            "entity_id": entity_id,
+            "report_period": period,
+            "report_date": datetime.now().isoformat(),
+            "framework": self.framework.value,
+            "compliance_rate": compliance_rate,
+            "total_checks": total_checks,
+            "compliant_checks": compliant_checks,
+            "non_compliant_checks": total_checks - compliant_checks,
+            "issues": issues,
+            "requirements_checked": list(
+                set(check.requirement_id for check in entity_checks)
+            ),
+            "next_review_date": (
+                datetime.now() + self._get_period_timedelta(period)
+            ).isoformat(),
         }
 
     def _get_period_timedelta(self, period: str) -> timedelta:
@@ -405,13 +447,14 @@ class ComplianceEngine:
         """Get compliance status for entity."""
         # Get recent checks for entity
         entity_checks = [
-            check for check in self.compliance_checks.values()
-            if check.entity_id == entity_id and
-            check.check_date >= datetime.now() - timedelta(days=30)  # Last 30 days
+            check
+            for check in self.compliance_checks.values()
+            if check.entity_id == entity_id
+            and check.check_date >= datetime.now() - timedelta(days=30)  # Last 30 days
         ]
 
         if not entity_checks:
-            return {'status': ComplianceStatus.UNKNOWN.value, 'last_check': None}
+            return {"status": ComplianceStatus.UNKNOWN.value, "last_check": None}
 
         # Determine overall status
         statuses = [check.status for check in entity_checks]
@@ -424,11 +467,13 @@ class ComplianceEngine:
             overall_status = ComplianceStatus.COMPLIANT
 
         return {
-            'entity_id': entity_id,
-            'status': overall_status.value,
-            'last_check': max(check.check_date for check in entity_checks).isoformat(),
-            'total_checks': len(entity_checks),
-            'compliant_checks': len([c for c in entity_checks if c.status == ComplianceStatus.COMPLIANT])
+            "entity_id": entity_id,
+            "status": overall_status.value,
+            "last_check": max(check.check_date for check in entity_checks).isoformat(),
+            "total_checks": len(entity_checks),
+            "compliant_checks": len(
+                [c for c in entity_checks if c.status == ComplianceStatus.COMPLIANT]
+            ),
         }
 
     def get_framework_requirements(self) -> List[Dict[str, Any]]:
@@ -445,12 +490,16 @@ class ComplianceEngine:
     def health_check(self) -> Dict[str, Any]:
         """Perform health check on compliance engine."""
         return {
-            'status': 'operational',
-            'framework': self.framework.value,
-            'total_requirements': len(self.requirements),
-            'total_checks': len(self.compliance_checks),
-            'last_check': max(self.compliance_checks.values(), key=lambda x: x.check_date).check_date.isoformat() if self.compliance_checks else None,
-            'timestamp': datetime.now().isoformat()
+            "status": "operational",
+            "framework": self.framework.value,
+            "total_requirements": len(self.requirements),
+            "total_checks": len(self.compliance_checks),
+            "last_check": max(
+                self.compliance_checks.values(), key=lambda x: x.check_date
+            ).check_date.isoformat()
+            if self.compliance_checks
+            else None,
+            "timestamp": datetime.now().isoformat(),
         }
 
 
@@ -459,54 +508,69 @@ class RegulatoryFramework:
 
     def __init__(self) -> None:
         """Initialize regulatory framework manager."""
-        self.logger = logging.getLogger("geo_infer_insurance.underwriting.regulatory_framework")
+        self.logger = logging.getLogger(
+            "geo_infer_insurance.underwriting.regulatory_framework"
+        )
 
         # Framework definitions
         self.frameworks = {
             ComplianceFramework.STANDARD: self._define_standard_framework(),
             ComplianceFramework.SOLVENCY_II: self._define_solvency_ii_framework(),
             ComplianceFramework.BASEL_III: self._define_basel_iii_framework(),
-            ComplianceFramework.US_INSURANCE_REGULATION: self._define_us_insurance_framework()
+            ComplianceFramework.US_INSURANCE_REGULATION: self._define_us_insurance_framework(),
         }
 
     def _define_standard_framework(self) -> Dict[str, Any]:
         """Define standard compliance framework."""
         return {
-            'name': 'Standard Insurance Regulation',
-            'description': 'Basic insurance regulatory compliance',
-            'requirements': ['capital_adequacy', 'reporting_accuracy', 'consumer_protection'],
-            'reporting_frequency': 'quarterly',
-            'penalties': ['fines', 'license_suspension']
+            "name": "Standard Insurance Regulation",
+            "description": "Basic insurance regulatory compliance",
+            "requirements": [
+                "capital_adequacy",
+                "reporting_accuracy",
+                "consumer_protection",
+            ],
+            "reporting_frequency": "quarterly",
+            "penalties": ["fines", "license_suspension"],
         }
 
     def _define_solvency_ii_framework(self) -> Dict[str, Any]:
         """Define Solvency II framework."""
         return {
-            'name': 'Solvency II',
-            'description': 'European insurance regulatory framework',
-            'requirements': ['scr_coverage', 'or_reporting', 'governance', 'public_disclosure'],
-            'reporting_frequency': 'quarterly',
-            'penalties': ['fines', 'capital_addons', 'supervisory_intervention']
+            "name": "Solvency II",
+            "description": "European insurance regulatory framework",
+            "requirements": [
+                "scr_coverage",
+                "or_reporting",
+                "governance",
+                "public_disclosure",
+            ],
+            "reporting_frequency": "quarterly",
+            "penalties": ["fines", "capital_addons", "supervisory_intervention"],
         }
 
     def _define_basel_iii_framework(self) -> Dict[str, Any]:
         """Define Basel III framework."""
         return {
-            'name': 'Basel III',
-            'description': 'Banking regulatory framework',
-            'requirements': ['tier1_capital', 'leverage_ratio', 'liquidity_coverage'],
-            'reporting_frequency': 'quarterly',
-            'penalties': ['capital_restrictions', 'supervisory_measures']
+            "name": "Basel III",
+            "description": "Banking regulatory framework",
+            "requirements": ["tier1_capital", "leverage_ratio", "liquidity_coverage"],
+            "reporting_frequency": "quarterly",
+            "penalties": ["capital_restrictions", "supervisory_measures"],
         }
 
     def _define_us_insurance_framework(self) -> Dict[str, Any]:
         """Define US insurance regulation framework."""
         return {
-            'name': 'US Insurance Regulation',
-            'description': 'US state-based insurance regulation',
-            'requirements': ['rbc_requirements', 'market_conduct', 'financial_reporting'],
-            'reporting_frequency': 'annual',
-            'penalties': ['fines', 'license_revocation', 'civil_penalties']
+            "name": "US Insurance Regulation",
+            "description": "US state-based insurance regulation",
+            "requirements": [
+                "rbc_requirements",
+                "market_conduct",
+                "financial_reporting",
+            ],
+            "reporting_frequency": "annual",
+            "penalties": ["fines", "license_revocation", "civil_penalties"],
         }
 
     def get_framework_info(self, framework: ComplianceFramework) -> Dict[str, Any]:
@@ -519,12 +583,17 @@ class RegulatoryFramework:
 
 
 # Convenience functions
-def create_compliance_engine(framework: ComplianceFramework = ComplianceFramework.STANDARD) -> ComplianceEngine:
+def create_compliance_engine(
+    framework: ComplianceFramework = ComplianceFramework.STANDARD,
+) -> ComplianceEngine:
     """Create a new compliance engine."""
     return ComplianceEngine(framework)
 
-def check_policy_compliance(policy_data: Dict[str, Any],
-                           framework: ComplianceFramework = ComplianceFramework.STANDARD) -> Dict[str, Any]:
+
+def check_policy_compliance(
+    policy_data: Dict[str, Any],
+    framework: ComplianceFramework = ComplianceFramework.STANDARD,
+) -> Dict[str, Any]:
     """
     Check policy compliance with regulatory framework.
 
@@ -537,6 +606,9 @@ def check_policy_compliance(policy_data: Dict[str, Any],
     """
     engine = ComplianceEngine(framework)
     return engine.perform_compliance_check(
-        entity_id=policy_data.get('policy_id', 'unknown'),
-        context={'entity_type': 'insurer', 'policy_type': policy_data.get('policy_type', 'standard')}
+        entity_id=policy_data.get("policy_id", "unknown"),
+        context={
+            "entity_type": "insurer",
+            "policy_type": policy_data.get("policy_type", "standard"),
+        },
     )

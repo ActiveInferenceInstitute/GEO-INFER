@@ -398,7 +398,7 @@ def spatial_filter(
             if len(nearby_values) > 1:
                 if method == "gaussian":
                     # Gaussian weighted average
-                    weights = np.exp(-distances[nearby_mask] ** 2 / (2 * sigma**2))
+                    weights = np.exp(-(distances[nearby_mask] ** 2) / (2 * sigma**2))
                     weights /= np.sum(weights)
                     filtered_data[i] = np.sum(nearby_values * weights)
 

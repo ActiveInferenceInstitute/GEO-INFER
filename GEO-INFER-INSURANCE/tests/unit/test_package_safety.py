@@ -47,6 +47,4 @@ def test_root_package_exports_public_api() -> None:
         "underwrite_insurance_policy",
         "process_insurance_claim",
     ):
-        assert hasattr(geo_infer_insurance, name), (
-            f"geo_infer_insurance missing {name}"
-        )
+        assert hasattr(geo_infer_insurance, name), f"geo_infer_insurance missing {name}"

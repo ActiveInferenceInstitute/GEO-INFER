@@ -143,6 +143,7 @@ def spawn_rng(seed: SeedLike, n: int) -> list[np.random.Generator]:
         for child in np.random.SeedSequence(entropy).spawn(n)
     ]
 
+
 def derive_int_seed(seed: SeedLike = None) -> int:
     """Derive a plain ``int`` seed from any seed-like value.
 

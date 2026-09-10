@@ -18,8 +18,4 @@ try:
 except ImportError:
     TFPInterface: Optional[Type[Any]] = None  # type: ignore[no-redef]
 
-__all__ = [
-    'PyMCInterface',
-    'StanInterface', 
-    'TFPInterface'
-] 
+__all__ = ["PyMCInterface", "StanInterface", "TFPInterface"]

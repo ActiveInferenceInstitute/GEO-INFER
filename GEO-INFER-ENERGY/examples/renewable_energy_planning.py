@@ -110,7 +110,7 @@ def main():
     print(
         f"   {'Site':<10} {'Type':<15} {'Resource':>10} {'Suitability':>12} {'Recommended':>12}"
     )
-    print(f"   {'-'*60}")
+    print(f"   {'-' * 60}")
 
     suitable_sites = []
     for site in candidate_sites:
@@ -154,7 +154,7 @@ def main():
 
     print("\n   Capacity Factor Analysis:")
     print(f"   {'Resource':<15} {'Capacity Factor':>18} {'Annual Gen (GWh)':>18}")
-    print(f"   {'-'*53}")
+    print(f"   {'-' * 53}")
     print(
         f"   {'Solar PV':<15} {solar_cf['capacity_factor_pct']:>17.1f}% {solar_cf['annual_generation_gwh']:>18.1f}"
     )
@@ -176,12 +176,12 @@ def main():
     print(
         f"   {'Technology':<18} {'Capacity':>10} {'CF':>8} {'LCOE ($/MWh)':>14} {'Rating':>18}"
     )
-    print(f"   {'-'*70}")
+    print(f"   {'-' * 70}")
 
     for tech, capacity, cf in technologies:
         lcoe = assessor.calculate_lcoe(tech, capacity, cf)
         print(
-            f"   {tech.value:<18} {capacity:>8} MW {cf*100:>6.0f}% ${lcoe['lcoe_usd_mwh']:>12.0f} {lcoe['competitiveness']:>18}"
+            f"   {tech.value:<18} {capacity:>8} MW {cf * 100:>6.0f}% ${lcoe['lcoe_usd_mwh']:>12.0f} {lcoe['competitiveness']:>18}"
         )
 
     # 7. Storage Requirements Analysis
@@ -201,7 +201,7 @@ def main():
             gen_profile, demand_profile, renewable_penetration=penetration
         )
 
-        print(f"\n   {penetration*100:.0f}% Renewable Penetration:")
+        print(f"\n   {penetration * 100:.0f}% Renewable Penetration:")
         print(
             f"   - Storage power needed: {storage['recommended_storage']['power_capacity_mw']:.0f} MW"
         )
@@ -262,11 +262,11 @@ def main():
     print("\n   Portfolio Summary:")
     print(f"   Total sites: {summary['site_count']}")
     print(
-        f"   Total capacity: {summary['total_capacity_mw']:.0f} MW ({summary['total_capacity_mw']/1000:.2f} GW)"
+        f"   Total capacity: {summary['total_capacity_mw']:.0f} MW ({summary['total_capacity_mw'] / 1000:.2f} GW)"
     )
     print(f"   Annual generation: {summary['total_generation_gwh']:.1f} GWh")
     print(
-        f"   Weighted capacity factor: {summary['weighted_capacity_factor']*100:.1f}%"
+        f"   Weighted capacity factor: {summary['weighted_capacity_factor'] * 100:.1f}%"
     )
 
     print("\n   By Resource Type:")
@@ -284,7 +284,7 @@ def main():
     print(f"  - Suitable sites identified: {len(suitable_sites)}")
     print(f"  - Solar PV capacity factor: {solar_cf['capacity_factor_pct']:.1f}%")
     print(f"  - Wind capacity factor: {wind_cf['capacity_factor_pct']:.1f}%")
-    print(f"  - Portfolio capacity: {summary['total_capacity_mw']/1000:.2f} GW")
+    print(f"  - Portfolio capacity: {summary['total_capacity_mw'] / 1000:.2f} GW")
     print(f"  - Annual generation: {summary['total_generation_gwh']:.0f} GWh")
 
 

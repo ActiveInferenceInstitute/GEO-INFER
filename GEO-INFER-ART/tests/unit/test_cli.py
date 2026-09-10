@@ -28,8 +28,14 @@ class TestCli(unittest.TestCase):
         with redirect_stdout(StringIO()) as out:
             with mock.patch(
                 "sys.argv",
-                ["geo-infer-art", "geo-art", "--input", "data.unsupported",
-                 "--output", "out.png"],
+                [
+                    "geo-infer-art",
+                    "geo-art",
+                    "--input",
+                    "data.unsupported",
+                    "--output",
+                    "out.png",
+                ],
             ):
                 code = main()
         self.assertEqual(code, 1)

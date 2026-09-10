@@ -262,7 +262,7 @@ class PrecipitationAnalyzer:
             mean_val = float(np.mean(data))
             var_val = float(np.var(data))
             if var_val > 0:
-                alpha = mean_val ** 2 / var_val
+                alpha = mean_val**2 / var_val
                 beta = var_val / mean_val
             else:
                 alpha = 1.0
@@ -274,6 +274,6 @@ class PrecipitationAnalyzer:
             "beta": float(beta),
             "loc": float(loc),
             "mean": float(alpha * beta),
-            "variance": float(alpha * beta ** 2),
+            "variance": float(alpha * beta**2),
             "n_observations": len(data),
         }

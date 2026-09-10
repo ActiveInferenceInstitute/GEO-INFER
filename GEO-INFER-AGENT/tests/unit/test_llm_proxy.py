@@ -93,7 +93,11 @@ def test_enforce_rate_limit_rejects() -> None:
     policy = LLMProxyPolicy(allowed_models=ALLOWED)
     bucket = TokenBucket(limit=1)
     enforce_llm_proxy_policy(
-        policy, model="gemma3:4b", request_payload="hi", client_id="alice", rate_limiter=bucket
+        policy,
+        model="gemma3:4b",
+        request_payload="hi",
+        client_id="alice",
+        rate_limiter=bucket,
     )
     with pytest.raises(LLMProxyPolicyError):
         enforce_llm_proxy_policy(

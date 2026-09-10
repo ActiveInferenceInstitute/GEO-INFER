@@ -616,7 +616,7 @@ def command_audit(args: argparse.Namespace) -> None:
                 }
             )
             logger.warning(
-                f"Found {outlier_count} potential outliers ({outlier_count/len(df)*100:.1f}%)"
+                f"Found {outlier_count} potential outliers ({outlier_count / len(df) * 100:.1f}%)"
             )
 
     # Save or print audit results

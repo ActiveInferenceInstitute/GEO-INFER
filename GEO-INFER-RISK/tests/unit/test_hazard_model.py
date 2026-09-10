@@ -94,9 +94,10 @@ class TestEnhancedHazardModel:
 
         assert first == second
         # Distinct sites draw from independent per-site streams.
-        assert first != other or self.model._apply_site_effects(
-            40.7128, -74.0060, 10.0
-        ) == first
+        assert (
+            first != other
+            or self.model._apply_site_effects(40.7128, -74.0060, 10.0) == first
+        )
         # Variation stays within the documented +/-3 sigma band.
         assert 0.7 * 10.0 <= first <= 1.3 * 10.0
 

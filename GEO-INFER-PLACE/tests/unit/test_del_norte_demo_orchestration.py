@@ -12,6 +12,7 @@ run_analysis.py) depends on:
 
 These are pure, deterministic logic paths exercised without a network.
 """
+
 from __future__ import annotations
 
 import importlib.util

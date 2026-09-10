@@ -70,7 +70,9 @@ class CancelModel(mesa.Model):
         super().__init__(rng=rng)
         self._cancel_after = cancel_after
         self.bridge: "MesaModelBridge | None" = None  # set by the test before run()
-        self.datacollector = mesa.DataCollector(model_reporters={"steps": lambda m: m.steps})
+        self.datacollector = mesa.DataCollector(
+            model_reporters={"steps": lambda m: m.steps}
+        )
 
     def step(self):
         self.datacollector.collect(self)

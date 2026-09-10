@@ -21,7 +21,6 @@ from geo_infer_bayes.utils.priors import (
 
 
 class TestSpatialPrior:
-
     @pytest.fixture
     def adjacency_matrix(self):
         """Simple 4-node adjacency matrix (line graph)."""
@@ -71,7 +70,6 @@ class TestSpatialPrior:
 
 
 class TestTemporalPrior:
-
     def test_ar1_prior_finite(self) -> None:
         prior = TemporalPrior(prior_type="ar1", phi=0.8, tau=1.0)
         x = np.array([0.1, 0.2, 0.3, 0.4, 0.5])
@@ -111,7 +109,6 @@ class TestTemporalPrior:
 
 
 class TestGaussianProcessPrior:
-
     def test_log_prior_finite_for_valid_params(self) -> None:
         gp_prior = GaussianProcessPrior(kernel="rbf")
         result = gp_prior.log_prior(lengthscale=1.0, variance=1.0)

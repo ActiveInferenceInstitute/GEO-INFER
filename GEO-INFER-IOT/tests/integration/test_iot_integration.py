@@ -236,7 +236,6 @@ class TestCrossModuleIntegration(unittest.TestCase):
             "geo_infer_iot.core.ingestion.GaussianProcess", return_value=mock_gp
         ):
             with patch("geo_infer_iot.core.ingestion.SpatialCovariance"):
-
                 # Setup spatial inference
                 config = type(
                     "Config",
@@ -280,7 +279,6 @@ class TestCrossModuleIntegration(unittest.TestCase):
                     "geo_infer_iot.core.ingestion.h3_resolution_stats",
                     return_value={"area": 1000},
                 ):
-
                     ingestion = IoTDataIngestion(registry, self.config)
 
                     # Test spatial indexing

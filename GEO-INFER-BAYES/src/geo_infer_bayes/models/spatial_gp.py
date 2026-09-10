@@ -378,9 +378,7 @@ class SpatialGP(BayesianModel):
         alpha = solve_triangular(L.T, alpha, lower=False)
         return np.asarray(self.mean_function(X_new) + K_s.T @ alpha, dtype=float)
 
-    def _conditional_mean_std(
-        self, X_new: np.ndarray
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    def _conditional_mean_std(self, X_new: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """Posterior mean and standard deviation of the latent function.
 
         The standard deviation excludes observation noise, which belongs to a
@@ -453,9 +451,7 @@ class SpatialGP(BayesianModel):
                 mean, std = self._conditional_mean_std(X)
             # std is the latent-function uncertainty; a predictive draw of an
             # observation also carries the observation-noise variance.
-            all_samples.append(
-                rng.normal(mean, np.sqrt(std**2 + theta["noise"]))
-            )
+            all_samples.append(rng.normal(mean, np.sqrt(std**2 + theta["noise"])))
 
         if not all_samples:
             raise ValueError("posterior contains no usable parameter samples")
@@ -498,14 +494,18 @@ class SpatialGP(BayesianModel):
         """
         interval_level = float(level)
         if not np.isfinite(interval_level) or not 0.0 < interval_level < 1.0:
-            raise ValueError("level must be a finite probability strictly between zero and one")
+            raise ValueError(
+                "level must be a finite probability strictly between zero and one"
+            )
         draws = self.posterior_predictive(
             posterior, X=X, samples=samples, random_seed=random_seed
         )
         tail = (1.0 - interval_level) / 2.0
         mean = np.asarray(np.mean(draws, axis=0), dtype=float)
         lower = np.asarray(np.percentile(draws, 100.0 * tail, axis=0), dtype=float)
-        upper = np.asarray(np.percentile(draws, 100.0 * (1.0 - tail), axis=0), dtype=float)
+        upper = np.asarray(
+            np.percentile(draws, 100.0 * (1.0 - tail), axis=0), dtype=float
+        )
         return mean, lower, upper
 
     def uncertainty_decomposition(
@@ -554,7 +554,9 @@ class SpatialGP(BayesianModel):
                 mean, latent_std = self._conditional_mean_std(X)
             per_draw_means.append(np.asarray(mean, dtype=float))
             # Predictive variance at this draw: latent + observation noise.
-            per_draw_vars.append(np.asarray(latent_std**2 + theta["noise"], dtype=float))
+            per_draw_vars.append(
+                np.asarray(latent_std**2 + theta["noise"], dtype=float)
+            )
         means_stack = np.stack(per_draw_means)
         var_stack = np.stack(per_draw_vars)
         epistemic = np.var(means_stack, axis=0)
@@ -783,9 +785,7 @@ class SparseSpatialGP(SpatialGP):
 
         alias_locations = kwargs.pop("inducing_locations", None)
         if inducing_points is not None and alias_locations is not None:
-            raise ValueError(
-                "Use only one of inducing_points and inducing_locations"
-            )
+            raise ValueError("Use only one of inducing_points and inducing_locations")
         if inducing_points is None:
             inducing_points = alias_locations
 
@@ -862,9 +862,7 @@ class SparseSpatialGP(SpatialGP):
             values = np.full(X.shape[0], float(values))
         values = values.reshape(-1)
         if values.shape != (X.shape[0],) or not np.all(np.isfinite(values)):
-            raise ValueError(
-                "mean_function must return one finite value per input row"
-            )
+            raise ValueError("mean_function must return one finite value per input row")
         return values
 
     def _resolve_inducing_points(self, X: np.ndarray) -> np.ndarray:
@@ -943,9 +941,7 @@ class SparseSpatialGP(SpatialGP):
             X_batch = X[start:stop]
             residual = y[start:stop] - self._mean_values(X_batch)
             K_mn = self.kernel_fn(inducing_points, X_batch)
-            projected = solve_triangular(
-                L_mm, K_mn, lower=True, check_finite=False
-            )
+            projected = solve_triangular(L_mm, K_mn, lower=True, check_finite=False)
             gram += projected @ projected.T
             cross += projected @ residual
             projected_trace += float(np.sum(projected**2))
@@ -961,9 +957,7 @@ class SparseSpatialGP(SpatialGP):
 
         # Every supported stationary kernel has k(x, x) == variance.  Avoiding
         # kernel_fn(X, X) here is the key large-N memory invariant.
-        trace_residual = max(
-            0.0, X.shape[0] * float(self.variance) - projected_trace
-        )
+        trace_residual = max(0.0, X.shape[0] * float(self.variance) - projected_trace)
         bound = -0.5 * X.shape[0] * np.log(2.0 * np.pi * noise)
         bound -= float(np.sum(np.log(np.diag(L_b))))
         bound -= 0.5 * residual_sum_squares / noise
@@ -1027,15 +1021,17 @@ class SparseSpatialGP(SpatialGP):
                 nonlocal best_elbo, best_parameters
                 self.lengthscale, self.variance, self.noise = np.exp(log_parameters)
                 try:
-                    candidate, _ = self._collapsed_elbo(
-                        X_array, y_array, locations
-                    )
+                    candidate, _ = self._collapsed_elbo(X_array, y_array, locations)
                 except (ValueError, np.linalg.LinAlgError, FloatingPointError):
                     return float(np.finfo(float).max / 100.0)
                 if np.isfinite(candidate) and candidate > best_elbo:
                     best_elbo = candidate
                     best_parameters = np.array(log_parameters, copy=True)
-                return float(-candidate) if np.isfinite(candidate) else float(np.finfo(float).max / 100.0)
+                return (
+                    float(-candidate)
+                    if np.isfinite(candidate)
+                    else float(np.finfo(float).max / 100.0)
+                )
 
             # Log-space optimization preserves positivity.  The broad finite
             # bounds prevent overflow while allowing units from degrees to
@@ -1114,7 +1110,9 @@ class SparseSpatialGP(SpatialGP):
             self._sparse_fitted_state()
         )
         if X_array.shape[1] != locations.shape[1]:
-            raise ValueError("X_new has a different feature dimension from training data")
+            raise ValueError(
+                "X_new has a different feature dimension from training data"
+            )
 
         means: List[np.ndarray] = []
         variances: List[np.ndarray] = []
@@ -1122,9 +1120,7 @@ class SparseSpatialGP(SpatialGP):
             stop = min(start + self.batch_size, X_array.shape[0])
             X_batch = X_array[start:stop]
             K_mx = self.kernel_fn(locations, X_batch)
-            projected = solve_triangular(
-                L_mm, K_mx, lower=True, check_finite=False
-            )
+            projected = solve_triangular(L_mm, K_mx, lower=True, check_finite=False)
             means.append(self._mean_values(X_batch) + projected.T @ whitened_mean)
             if return_std:
                 prior_residual = float(self.variance) - np.sum(projected**2, axis=0)

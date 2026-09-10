@@ -218,7 +218,9 @@ def calculate_aal(
         if losses.size == 0:
             return 0.0
         if exposure_years is not None:
-            years = _resolve_exposure_years(exposure_years, losses.size, "calculate_aal")
+            years = _resolve_exposure_years(
+                exposure_years, losses.size, "calculate_aal"
+            )
             return float(losses.sum() / years)
         return float(np.mean(losses))
 
@@ -561,9 +563,7 @@ def calculate_annual_aggregate_exceedance_probability(
 
     draws = rng.choice(losses, size=total_draws, replace=True)
     year_index = np.repeat(np.arange(int(num_years)), counts)
-    year_totals = np.bincount(
-        year_index, weights=draws, minlength=int(num_years)
-    )
+    year_totals = np.bincount(year_index, weights=draws, minlength=int(num_years))
     return float(np.count_nonzero(year_totals > threshold) / int(num_years))
 
 
@@ -642,9 +642,7 @@ def _fit_exceedance_tail(
     threshold = float(np.quantile(losses, threshold_percentile))
     tail = losses[losses > threshold]
     if tail.size < 3:
-        raise ValueError(
-            "too few losses above the tail threshold to fit a stable tail"
-        )
+        raise ValueError("too few losses above the tail threshold to fit a stable tail")
     ordered = np.sort(tail)
     # Exceedance frequency of the i-th smallest tail loss among the tail.
     exceed_freq = (tail.size - np.arange(tail.size)) / (tail.size + 1)
@@ -696,7 +694,10 @@ def calculate_aep_curve(
         selected = list(thresholds or [0.0])
         if any(not np.isfinite(float(threshold)) for threshold in selected):
             raise ValueError("threshold must be finite")
-        return {"threshold": [float(threshold) for threshold in selected], "aep": [0.0 for _ in selected]}
+        return {
+            "threshold": [float(threshold) for threshold in selected],
+            "aep": [0.0 for _ in selected],
+        }
     if thresholds is None:
         low = float(np.min(losses))
         high = float(np.max(losses))

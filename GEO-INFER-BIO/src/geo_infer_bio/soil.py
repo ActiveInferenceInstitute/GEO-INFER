@@ -309,7 +309,9 @@ class SoilDataset:
         """Get list of available depth intervals."""
         return self.depths
 
-    def get_property_data(self, property_name: str, depth: Optional[str] = None) -> pd.DataFrame:
+    def get_property_data(
+        self, property_name: str, depth: Optional[str] = None
+    ) -> pd.DataFrame:
         """
         Get data for a specific soil property.
 
@@ -376,7 +378,6 @@ class SoilDataset:
                             abs(coord_data["latitude"] - latitude) <= tolerance
                             and abs(coord_data["longitude"] - longitude) <= tolerance
                         ):
-
                             profile_data.append(
                                 {
                                     "property": prop,

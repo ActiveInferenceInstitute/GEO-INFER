@@ -32,7 +32,7 @@ class TestMicrobiomeDataLoader:
         loader = MicrobiomeDataLoader()
         metadata_path = tmp_path / "emp.tsv"
         metadata_path.write_text(
-            "sample_id\tlatitude\tlongitude\tph\n" "sample-1\t37.7\t-122.4\t7.1\n",
+            "sample_id\tlatitude\tlongitude\tph\nsample-1\t37.7\t-122.4\t7.1\n",
             encoding="utf-8",
         )
         dataset = loader.load_emp_data(metadata_path=str(metadata_path))
@@ -69,7 +69,7 @@ class TestMicrobiomeDataLoader:
         loader = MicrobiomeDataLoader()
         metadata_path = tmp_path / "emp.tsv"
         metadata_path.write_text(
-            "sample_id\tlatitude\tlongitude\tph\n" "s1\t37.7\t-122.4\t7.1\n",
+            "sample_id\tlatitude\tlongitude\tph\ns1\t37.7\t-122.4\t7.1\n",
             encoding="utf-8",
         )
         with pytest.raises(ValueError, match="max_samples"):
@@ -99,7 +99,11 @@ class TestMicrobiomeDataset:
 
     def test_get_coordinates(self) -> None:
         dataset = MicrobiomeDataset(metadata=_metadata())
-        assert dataset.get_coordinates() == [(37.7, -122.4), (38.0, -122.0), (41.0, -124.0)]
+        assert dataset.get_coordinates() == [
+            (37.7, -122.4),
+            (38.0, -122.0),
+            (41.0, -124.0),
+        ]
 
     def test_len(self) -> None:
         dataset = MicrobiomeDataset(metadata=_metadata())

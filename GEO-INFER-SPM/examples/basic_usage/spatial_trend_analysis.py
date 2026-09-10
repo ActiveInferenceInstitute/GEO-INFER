@@ -33,6 +33,7 @@ from geo_infer_spm.visualization.maps import create_statistical_map
 # Set random seed for reproducibility
 np.random.seed(42)
 
+
 def main():
     """Run spatial trend analysis example."""
 
@@ -49,21 +50,23 @@ def main():
     air_quality_data = generate_synthetic_data(
         coordinates,
         effects={
-            'trend': 'east_west',  # Pollution increases from west to east
-            'clusters': {           # Pollution hotspots
-                'n_clusters': 3,
-                'effect_size': 2.5
-            }
+            "trend": "east_west",  # Pollution increases from west to east
+            "clusters": {  # Pollution hotspots
+                "n_clusters": 3,
+                "effect_size": 2.5,
+            },
         },
         noise_level=0.8,  # Realistic measurement noise
     )
 
     # Add urban vs rural covariate
     urban_distance = np.linalg.norm(coordinates - np.array([75, 50]), axis=1)
-    air_quality_data.covariates['urban_distance'] = urban_distance
+    air_quality_data.covariates["urban_distance"] = urban_distance
 
     print(f"   Generated {n_stations} monitoring stations")
-    print(f"   Spatial extent: {coordinates.min(axis=0)} to {coordinates.max(axis=0)} km")
+    print(
+        f"   Spatial extent: {coordinates.min(axis=0)} to {coordinates.max(axis=0)} km"
+    )
     print(".2f")
     print()
 
@@ -72,8 +75,8 @@ def main():
 
     processed_data = preprocess_data(
         air_quality_data,
-        steps=['validate', 'handle_missing', 'normalize'],
-        normalize_params={'method': 'zscore'}
+        steps=["validate", "handle_missing", "normalize"],
+        normalize_params={"method": "zscore"},
     )
 
     print("   Data validation: PASSED")
@@ -92,7 +95,7 @@ def main():
     design_matrix = create_design_matrix(
         processed_data,
         formula="pollution ~ longitude + latitude + urban_distance",
-        covariates=['urban_distance']
+        covariates=["urban_distance"],
     )
 
     print(f"   Design matrix shape: {design_matrix.matrix.shape}")
@@ -105,7 +108,7 @@ def main():
     spm_result = fit_glm(
         processed_data,
         design_matrix,
-        method='OLS'  # Ordinary Least Squares
+        method="OLS",  # Ordinary Least Squares
     )
 
     print(".3f")
@@ -117,13 +120,13 @@ def main():
     print("5. Testing statistical hypotheses...")
 
     # Test for east-west pollution gradient
-    ew_contrast = contrast(spm_result, 'longitude')
+    ew_contrast = contrast(spm_result, "longitude")
     print(".3f")
     print(".2e")
     print()
 
     # Test for urban proximity effect
-    urban_contrast = contrast(spm_result, 'urban_distance')
+    urban_contrast = contrast(spm_result, "urban_distance")
     print(".3f")
     print(".2e")
     print()
@@ -132,8 +135,10 @@ def main():
     print("6. Applying multiple comparison correction...")
 
     # Use False Discovery Rate correction for geospatial data
-    corrected_ew = compute_spm(spm_result, ew_contrast, correction='FDR', alpha=0.05)
-    corrected_urban = compute_spm(spm_result, urban_contrast, correction='FDR', alpha=0.05)
+    corrected_ew = compute_spm(spm_result, ew_contrast, correction="FDR", alpha=0.05)
+    corrected_urban = compute_spm(
+        spm_result, urban_contrast, correction="FDR", alpha=0.05
+    )
 
     print("   Correction method: False Discovery Rate (FDR)")
     print("   Significance threshold: α = 0.05")
@@ -149,7 +154,7 @@ def main():
         spm_result,
         contrast_idx=0,  # longitude effect
         threshold=0.05,
-        title="East-West Pollution Gradient (SPM{t})"
+        title="East-West Pollution Gradient (SPM{t})",
     )
 
     # Display results
@@ -190,8 +195,9 @@ if __name__ == "__main__":
 
     # Optionally save results
     save_results = input("\nSave results to file? (y/n): ").lower().strip()
-    if save_results == 'y':
+    if save_results == "y":
         from geo_infer_spm.utils.data_io import save_spm
+
         output_file = "spatial_trend_analysis_results.json"
-        save_spm(results[0], output_file, format='json')
+        save_spm(results[0], output_file, format="json")
         print(f"Results saved to {output_file}")

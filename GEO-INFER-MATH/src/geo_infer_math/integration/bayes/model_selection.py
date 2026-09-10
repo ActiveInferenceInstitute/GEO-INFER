@@ -53,9 +53,7 @@ class ModelSelection:
                     model["log_likelihood"], model["n_params"], model["n_obs"]
                 )
             elif method == "aic":
-                scores[name] = self.aic(
-                    model["log_likelihood"], model["n_params"]
-                )
+                scores[name] = self.aic(model["log_likelihood"], model["n_params"])
             elif method == "aicc":
                 scores[name] = self.aicc(
                     model["log_likelihood"], model["n_params"], model["n_obs"]
@@ -72,7 +70,9 @@ class ModelSelection:
 
         deltas = {name: score - best_score for name, score in scores.items()}
 
-        logger.debug("Model comparison (%s): best=%s, score=%.4f", method, best, best_score)
+        logger.debug(
+            "Model comparison (%s): best=%s, score=%.4f", method, best, best_score
+        )
 
         return {
             "best_model": best,

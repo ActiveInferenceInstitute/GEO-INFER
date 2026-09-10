@@ -86,6 +86,7 @@ class TestAgentBasedModel:
 
 def test_step_neighbor_radius_is_configurable(monkeypatch) -> None:
     """step() must use the constructor's neighbor_radius, not a hardcoded 10.0."""
+
     def make_agents():
         return (
             Agent(agent_id="close", position=np.array([1.0, 0.0])),

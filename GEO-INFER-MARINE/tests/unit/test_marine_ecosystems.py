@@ -89,7 +89,10 @@ class TestBlueCarbon:
         habitats = {"mangrove": 10.0}
         healthy = modeler.estimate_blue_carbon(habitats, condition="healthy")
         degraded = modeler.estimate_blue_carbon(habitats, condition="degraded")
-        assert healthy["total_annual_storage_tonnes"] > degraded["total_annual_storage_tonnes"]
+        assert (
+            healthy["total_annual_storage_tonnes"]
+            > degraded["total_annual_storage_tonnes"]
+        )
 
 
 class TestBiodiversityEdgeCases:

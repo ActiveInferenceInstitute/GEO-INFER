@@ -271,7 +271,10 @@ class FileConnector:
             raise
 
     def _write_geojson(
-        self, data: Union[pd.DataFrame, gpd.GeoDataFrame], file_path: Path, **kwargs: Any
+        self,
+        data: Union[pd.DataFrame, gpd.GeoDataFrame],
+        file_path: Path,
+        **kwargs: Any,
     ) -> None:
         """Write data as GeoJSON."""
         if isinstance(data, gpd.GeoDataFrame):
@@ -290,7 +293,10 @@ class FileConnector:
                 data.to_json(file_path, **kwargs)
 
     def _write_geopackage(
-        self, data: Union[pd.DataFrame, gpd.GeoDataFrame], file_path: Path, **kwargs: Any
+        self,
+        data: Union[pd.DataFrame, gpd.GeoDataFrame],
+        file_path: Path,
+        **kwargs: Any,
     ) -> None:
         """Write data as GeoPackage."""
         if isinstance(data, gpd.GeoDataFrame):
@@ -300,9 +306,7 @@ class FileConnector:
             gdf = gpd.GeoDataFrame(data)
             gdf.to_file(file_path, driver="GPKG", **kwargs)
 
-    def _write_geotiff(
-        self, data: np.ndarray, file_path: Path, **kwargs: Any
-    ) -> None:
+    def _write_geotiff(self, data: np.ndarray, file_path: Path, **kwargs: Any) -> None:
         """Write array as GeoTIFF."""
         # Implementation for GeoTIFF writing
         # Would need coordinate reference and geotransform information
@@ -347,9 +351,7 @@ class FileConnector:
             with open(file_path, "wb") as f:
                 pickle.dump(data, f)
 
-    async def _write_metadata(
-        self, file_path: Path, metadata: DatasetMetadata
-    ) -> None:
+    async def _write_metadata(self, file_path: Path, metadata: DatasetMetadata) -> None:
         """Write metadata file alongside data."""
         metadata_path = file_path.with_suffix(".json")
 

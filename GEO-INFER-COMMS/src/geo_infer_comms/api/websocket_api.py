@@ -18,8 +18,12 @@ from websockets.asyncio.server import ServerConnection
 from websockets.exceptions import ConnectionClosed
 
 from geo_infer_comms import (
-    GeospatialCommunicationSystem, MessageResponse, EventPublishResponse,
-    NotificationResponse, GeospatialPoint, GeospatialMetadata
+    GeospatialCommunicationSystem,
+    MessageResponse,
+    EventPublishResponse,
+    NotificationResponse,
+    GeospatialPoint,
+    GeospatialMetadata,
 )
 
 
@@ -45,20 +49,20 @@ class WebSocketManager:
         try:
             # Create connection wrapper
             connection = WebSocketConnection(
-                connection_id=connection_id,
-                websocket=websocket,
-                manager=self
+                connection_id=connection_id, websocket=websocket, manager=self
             )
 
             # Register connection
             self.connections[connection_id] = connection
 
             # Send welcome message
-            await connection.send_message({
-                "type": "connection_established",
-                "connection_id": connection_id,
-                "timestamp": datetime.now(timezone.utc).isoformat()
-            })
+            await connection.send_message(
+                {
+                    "type": "connection_established",
+                    "connection_id": connection_id,
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                }
+            )
 
             self.logger.info(f"WebSocket connection established: {connection_id}")
 
@@ -106,7 +110,7 @@ class WebSocketManager:
         """Get WebSocket connection statistics."""
         return {
             "active_connections": len(self.connections),
-            "subscriptions": {k: len(v) for k, v in self.subscriptions.items()}
+            "subscriptions": {k: len(v) for k, v in self.subscriptions.items()},
         }
 
 
@@ -119,10 +123,7 @@ class WebSocketConnection:
     """
 
     def __init__(
-        self,
-        connection_id: str,
-        websocket: ServerConnection,
-        manager: WebSocketManager
+        self, connection_id: str, websocket: ServerConnection, manager: WebSocketManager
     ):
         self.connection_id = connection_id
         self.websocket = websocket
@@ -142,7 +143,9 @@ class WebSocketConnection:
                 try:
                     await self._process_message(cast(str, message))
                 except Exception as e:
-                    self.logger.error(f"Error processing message from {self.connection_id}: {e}")
+                    self.logger.error(
+                        f"Error processing message from {self.connection_id}: {e}"
+                    )
                     await self.send_error(f"Message processing error: {str(e)}")
 
         except ConnectionClosed:
@@ -222,13 +225,17 @@ class WebSocketConnection:
         self.authenticated = True
         self.user_id = user_id
 
-        await self.send_message({
-            "type": "authenticated",
-            "user_id": self.user_id,
-            "timestamp": datetime.now(timezone.utc).isoformat()
-        })
+        await self.send_message(
+            {
+                "type": "authenticated",
+                "user_id": self.user_id,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
 
-        self.logger.info(f"WebSocket authenticated: {self.connection_id} as {self.user_id}")
+        self.logger.info(
+            f"WebSocket authenticated: {self.connection_id} as {self.user_id}"
+        )
 
     async def _handle_subscription(self, data: Dict[str, Any]) -> None:
         """Handle subscription message."""
@@ -249,11 +256,13 @@ class WebSocketConnection:
 
         self.subscriptions.update(event_types)
 
-        await self.send_message({
-            "type": "subscribed",
-            "event_types": list(self.subscriptions),
-            "timestamp": datetime.now(timezone.utc).isoformat()
-        })
+        await self.send_message(
+            {
+                "type": "subscribed",
+                "event_types": list(self.subscriptions),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
 
         self.logger.info(f"WebSocket subscribed: {self.connection_id} to {event_types}")
 
@@ -268,12 +277,14 @@ class WebSocketConnection:
 
         self.subscriptions -= set(event_types)
 
-        await self.send_message({
-            "type": "unsubscribed",
-            "event_types": event_types,
-            "remaining_subscriptions": list(self.subscriptions),
-            "timestamp": datetime.now(timezone.utc).isoformat()
-        })
+        await self.send_message(
+            {
+                "type": "unsubscribed",
+                "event_types": event_types,
+                "remaining_subscriptions": list(self.subscriptions),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
 
     async def _handle_location_update(self, data: Dict[str, Any]) -> None:
         """Handle location update message."""
@@ -291,18 +302,20 @@ class WebSocketConnection:
             self.geospatial_context = GeospatialMetadata(
                 location=location,
                 accuracy=location_data.get("accuracy", 10.0),
-                source="websocket"
+                source="websocket",
             )
 
-            await self.send_message({
-                "type": "location_updated",
-                "location": {
-                    "longitude": longitude,
-                    "latitude": latitude,
-                    "accuracy": self.geospatial_context.accuracy
-                },
-                "timestamp": datetime.now(timezone.utc).isoformat()
-            })
+            await self.send_message(
+                {
+                    "type": "location_updated",
+                    "location": {
+                        "longitude": longitude,
+                        "latitude": latitude,
+                        "accuracy": self.geospatial_context.accuracy,
+                    },
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                }
+            )
 
         except Exception as e:
             await self.send_error(f"Invalid location data: {str(e)}")
@@ -325,24 +338,25 @@ class WebSocketConnection:
             message = self.manager.system.send_message(
                 content=content,
                 recipients=recipients,
-                geospatial_data=self.geospatial_context
+                geospatial_data=self.geospatial_context,
             )
 
-            await self.send_message({
-                "type": "message_sent",
-                "message_id": message.message_id,
-                "timestamp": datetime.now(timezone.utc).isoformat()
-            })
+            await self.send_message(
+                {
+                    "type": "message_sent",
+                    "message_id": message.message_id,
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                }
+            )
 
         except Exception as e:
             await self.send_error(f"Failed to send message: {str(e)}")
 
     async def _handle_ping(self, data: Dict[str, Any]) -> None:
         """Handle ping message."""
-        await self.send_message({
-            "type": "pong",
-            "timestamp": datetime.now(timezone.utc).isoformat()
-        })
+        await self.send_message(
+            {"type": "pong", "timestamp": datetime.now(timezone.utc).isoformat()}
+        )
 
     async def send_message(self, message: Dict[str, Any]) -> None:
         """Send a message to this WebSocket connection."""
@@ -355,11 +369,13 @@ class WebSocketConnection:
 
     async def send_error(self, error_message: str) -> None:
         """Send an error message to this connection."""
-        await self.send_message({
-            "type": "error",
-            "message": error_message,
-            "timestamp": datetime.now(timezone.utc).isoformat()
-        })
+        await self.send_message(
+            {
+                "type": "error",
+                "message": error_message,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
 
 
 class WebSocketServer:
@@ -375,7 +391,7 @@ class WebSocketServer:
         system: GeospatialCommunicationSystem,
         host: str = "0.0.0.0",
         port: int = 8001,
-        max_connections: int = 10000
+        max_connections: int = 10000,
     ):
         self.system = system
         self.host = host
@@ -399,7 +415,7 @@ class WebSocketServer:
             max_queue=32,
             ping_interval=30,
             ping_timeout=10,
-            close_timeout=10
+            close_timeout=10,
         )
 
         self.logger.info("WebSocket server started")
@@ -417,16 +433,18 @@ class WebSocketServer:
             "connections": self.websocket_manager.get_connection_count(),
             "subscriptions": self.websocket_manager.get_connection_stats(),
             "host": self.host,
-            "port": self.port
+            "port": self.port,
         }
 
     def broadcast_system_message(self, message: Dict[str, Any]) -> None:
         """Broadcast a system message to all connected clients."""
-        self.websocket_manager.broadcast_message({
-            "type": "system_message",
-            **message,
-            "timestamp": datetime.now(timezone.utc).isoformat()
-        })
+        self.websocket_manager.broadcast_message(
+            {
+                "type": "system_message",
+                **message,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
 
 
 class GeospatialWebSocketHandler:
@@ -444,9 +462,7 @@ class GeospatialWebSocketHandler:
         self.logger = logging.getLogger(__name__)
 
     def add_spatial_filter(
-        self,
-        connection_id: str,
-        filter_config: Dict[str, Any]
+        self, connection_id: str, filter_config: Dict[str, Any]
     ) -> None:
         """Add a spatial filter for a WebSocket connection."""
         self.spatial_filters[connection_id] = filter_config
@@ -459,9 +475,7 @@ class GeospatialWebSocketHandler:
             self.logger.info(f"Spatial filter removed for connection: {connection_id}")
 
     def should_receive_message(
-        self,
-        connection_id: str,
-        message: MessageResponse
+        self, connection_id: str, message: MessageResponse
     ) -> bool:
         """Check if connection should receive a message based on spatial filters."""
         if connection_id not in self.spatial_filters:
@@ -479,8 +493,8 @@ class GeospatialWebSocketHandler:
                 # Get connection location (would be stored in connection)
                 connection_location = getattr(
                     self.websocket_manager.connections.get(connection_id),
-                    'geospatial_context',
-                    None
+                    "geospatial_context",
+                    None,
                 )
 
                 if connection_location:
@@ -492,10 +506,7 @@ class GeospatialWebSocketHandler:
             bounds = spatial_filter.get("bounds")
             if bounds and message.geospatial_data.location:
                 # Check if message location is within bounds
-                if not self._point_in_bounds(
-                    message.geospatial_data.location,
-                    bounds
-                ):
+                if not self._point_in_bounds(message.geospatial_data.location, bounds):
                     return False
 
         return True
@@ -548,9 +559,13 @@ class RealTimeMessageBroadcaster:
                 except Exception as e:
                     self.logger.error(f"Error broadcasting to {connection_id}: {e}")
 
-        self.logger.info(f"Message broadcast to {broadcast_count} connections: {message.message_id}")
+        self.logger.info(
+            f"Message broadcast to {broadcast_count} connections: {message.message_id}"
+        )
 
-    def _should_receive_message(self, connection_id: str, message: MessageResponse) -> bool:
+    def _should_receive_message(
+        self, connection_id: str, message: MessageResponse
+    ) -> bool:
         """Check if connection should receive this message."""
         # Check geospatial filtering
         if not self.geospatial_handler.should_receive_message(connection_id, message):
@@ -558,7 +573,7 @@ class RealTimeMessageBroadcaster:
 
         # Check subscription-based filtering
         connection = self.websocket_manager.connections.get(connection_id)
-        if connection and hasattr(connection, 'subscriptions'):
+        if connection and hasattr(connection, "subscriptions"):
             # If connection has specific subscriptions, check them
             if connection.subscriptions:
                 # In a real implementation, would check message type against subscriptions
@@ -575,7 +590,7 @@ class RealTimeMessageBroadcaster:
             "sender_id": message.sender_id,
             "timestamp": message.timestamp.isoformat(),
             "priority": message.priority.value,
-            "message_type": message.message_type.value
+            "message_type": message.message_type.value,
         }
 
         # Add geospatial data if present
@@ -584,7 +599,7 @@ class RealTimeMessageBroadcaster:
                 "location": {
                     "longitude": message.geospatial_data.location.longitude,
                     "latitude": message.geospatial_data.location.latitude,
-                    "accuracy": message.geospatial_data.accuracy
+                    "accuracy": message.geospatial_data.accuracy,
                 }
             }
 
@@ -593,7 +608,7 @@ class RealTimeMessageBroadcaster:
                     "min_longitude": message.geospatial_data.bounds.min_longitude,
                     "min_latitude": message.geospatial_data.bounds.min_latitude,
                     "max_longitude": message.geospatial_data.bounds.max_longitude,
-                    "max_latitude": message.geospatial_data.bounds.max_latitude
+                    "max_latitude": message.geospatial_data.bounds.max_latitude,
                 }
 
         return formatted
@@ -621,6 +636,7 @@ class WebSocketAPIManager:
 
     def _register_broadcasters(self) -> None:
         """Register message broadcasting callbacks with the system."""
+
         # Register message broadcasting
         def broadcast_message_callback(message: MessageResponse) -> None:
             self.message_broadcaster.broadcast_message(message)
@@ -645,7 +661,7 @@ class WebSocketAPIManager:
             "payload": event.payload,
             "source": event.source,
             "timestamp": event.timestamp.isoformat(),
-            "priority": event.priority.value
+            "priority": event.priority.value,
         }
 
         if event.geospatial_context:
@@ -662,7 +678,7 @@ class WebSocketAPIManager:
             "content": notification.content,
             "notification_type": notification.notification_type.value,
             "priority": notification.priority.value,
-            "timestamp": notification.created_at.isoformat()
+            "timestamp": notification.created_at.isoformat(),
         }
 
         if notification.geospatial_context:
@@ -684,5 +700,5 @@ class WebSocketAPIManager:
             "websocket_server": self.websocket_server.get_stats(),
             "message_broadcaster": {
                 "broadcasts_sent": 0  # Would track in real implementation
-            }
+            },
         }

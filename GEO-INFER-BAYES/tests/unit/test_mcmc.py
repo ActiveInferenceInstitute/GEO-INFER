@@ -73,7 +73,6 @@ class _VectorGaussianModel(BayesianModel):
 
 
 class TestMCMCInitialization:
-
     def test_default_init(self) -> None:
         model = _GaussianModel(name="test")
         mcmc = MCMC(model)
@@ -99,7 +98,6 @@ class TestMCMCInitialization:
 
 
 class TestMCMCProposal:
-
     def test_propose_returns_new_theta(self) -> None:
         model = _GaussianModel(name="test")
         mcmc = MCMC(model, random_seed=0)
@@ -120,7 +118,6 @@ class TestMCMCProposal:
 
 
 class TestMCMCSampling:
-
     def test_run_produces_samples(self) -> None:
         model = _GaussianModel(name="test")
         mcmc = MCMC(model, n_chains=1, random_seed=42)
@@ -151,7 +148,6 @@ class TestMCMCSampling:
 
 
 class TestMCMCLogPosterior:
-
     def test_log_posterior_finite(self) -> None:
         model = _GaussianModel(name="test")
         mcmc = MCMC(model)

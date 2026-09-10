@@ -64,7 +64,9 @@ class DistanceRequest(BaseModel):
 
 
 @router.get("/collections", summary="List available feature collections")
-async def list_collections(settings: Settings = Depends(get_settings)) -> Dict[str, Any]:
+async def list_collections(
+    settings: Settings = Depends(get_settings),
+) -> Dict[str, Any]:
     """
     List available feature collections.
 
@@ -104,7 +106,9 @@ async def list_collections(settings: Settings = Depends(get_settings)) -> Dict[s
 
 
 @router.get("/collections/polygons", summary="Get polygon collection metadata")
-async def get_polygon_collection(settings: Settings = Depends(get_settings)) -> Dict[str, Any]:
+async def get_polygon_collection(
+    settings: Settings = Depends(get_settings),
+) -> Dict[str, Any]:
     """
     Get metadata about the polygon collection.
 
@@ -378,7 +382,9 @@ async def create_buffer_endpoint(
     response_model=PolygonFeature,
     summary="Calculate bounding-box intersection of multiple polygons",
 )
-async def calculate_intersection_endpoint(request: MultiPolygonRequest) -> PolygonFeature:
+async def calculate_intersection_endpoint(
+    request: MultiPolygonRequest,
+) -> PolygonFeature:
     """
     Calculate the bounding-box intersection of multiple polygon features.
 

@@ -20,6 +20,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class PerformanceMetrics:
     """Performance metrics for operations."""
@@ -48,16 +49,19 @@ class PerformanceMetrics:
     def to_dict(self) -> Dict[str, Any]:
         """Convert metrics to dictionary."""
         return {
-            'operation': self.operation_name,
-            'duration_seconds': self.duration,
-            'memory_used_mb': self.memory_used / (1024 * 1024),
-            'cpu_percent': self.cpu_percent,
-            'disk_io': self.disk_io,
-            'network_io': self.network_io,
-            'cache_hits': self.cache_hits,
-            'cache_misses': self.cache_misses,
-            'cache_hit_rate': self.cache_hits / (self.cache_hits + self.cache_misses) if (self.cache_hits + self.cache_misses) > 0 else 0.0
+            "operation": self.operation_name,
+            "duration_seconds": self.duration,
+            "memory_used_mb": self.memory_used / (1024 * 1024),
+            "cpu_percent": self.cpu_percent,
+            "disk_io": self.disk_io,
+            "network_io": self.network_io,
+            "cache_hits": self.cache_hits,
+            "cache_misses": self.cache_misses,
+            "cache_hit_rate": self.cache_hits / (self.cache_hits + self.cache_misses)
+            if (self.cache_hits + self.cache_misses) > 0
+            else 0.0,
         }
+
 
 class PerformanceMonitor:
     """
@@ -124,7 +128,7 @@ class PerformanceMonitor:
             operation_name=operation_name,
             start_time=time.time(),
             memory_start=process.memory_info().rss,
-            cpu_percent=process.cpu_percent()
+            cpu_percent=process.cpu_percent(),
         )
 
         with self.lock:
@@ -169,6 +173,7 @@ class PerformanceMonitor:
         with self.lock:
             return self.metrics.copy()
 
+
 class MemoryManager:
     """
     Memory management utilities for large-scale operations.
@@ -203,11 +208,11 @@ class MemoryManager:
         memory_percent = self.process.memory_percent()
 
         return {
-            'rss_mb': memory_info.rss / (1024 * 1024),
-            'vms_mb': memory_info.vms / (1024 * 1024),
-            'memory_percent': memory_percent,
-            'available_mb': psutil.virtual_memory().available / (1024 * 1024),
-            'total_mb': psutil.virtual_memory().total / (1024 * 1024)
+            "rss_mb": memory_info.rss / (1024 * 1024),
+            "vms_mb": memory_info.vms / (1024 * 1024),
+            "memory_percent": memory_percent,
+            "available_mb": psutil.virtual_memory().available / (1024 * 1024),
+            "total_mb": psutil.virtual_memory().total / (1024 * 1024),
         }
 
     def should_trigger_gc(self) -> bool:
@@ -218,7 +223,7 @@ class MemoryManager:
             True if GC should be triggered
         """
         memory_usage = self.get_memory_usage()
-        return bool(memory_usage['rss_mb'] > self.gc_threshold_mb)
+        return bool(memory_usage["rss_mb"] > self.gc_threshold_mb)
 
     def trigger_gc(self, force: bool = False) -> Dict[str, Any]:
         """
@@ -231,7 +236,7 @@ class MemoryManager:
             Dictionary with GC results
         """
         if not force and not self.should_trigger_gc():
-            return {'triggered': False, 'reason': 'below_threshold'}
+            return {"triggered": False, "reason": "below_threshold"}
 
         # Record memory before GC
         before_memory = self.get_memory_usage()
@@ -246,14 +251,14 @@ class MemoryManager:
         gc.collect()
         gc.collect()
 
-        memory_freed = before_memory['rss_mb'] - after_memory['rss_mb']
+        memory_freed = before_memory["rss_mb"] - after_memory["rss_mb"]
 
         result = {
-            'triggered': True,
-            'memory_before_mb': before_memory['rss_mb'],
-            'memory_after_mb': after_memory['rss_mb'],
-            'memory_freed_mb': memory_freed,
-            'forced': force
+            "triggered": True,
+            "memory_before_mb": before_memory["rss_mb"],
+            "memory_after_mb": after_memory["rss_mb"],
+            "memory_freed_mb": memory_freed,
+            "forced": force,
         }
 
         if memory_freed > 0:
@@ -273,26 +278,27 @@ class MemoryManager:
         pressure_level = "low"
         recommendations = []
 
-        if memory_usage['memory_percent'] > 80:
+        if memory_usage["memory_percent"] > 80:
             pressure_level = "high"
             recommendations.append("Consider reducing batch sizes")
             recommendations.append("Enable memory-efficient processing modes")
-        elif memory_usage['memory_percent'] > 60:
+        elif memory_usage["memory_percent"] > 60:
             pressure_level = "medium"
             recommendations.append("Monitor memory usage closely")
             recommendations.append("Consider enabling automatic GC")
 
-        if memory_usage['rss_mb'] > self.max_memory_mb:
+        if memory_usage["rss_mb"] > self.max_memory_mb:
             pressure_level = "critical"
             recommendations.append("High memory usage detected")
             recommendations.append("Consider processing in smaller batches")
 
         return {
-            'pressure_level': pressure_level,
-            'memory_usage': memory_usage,
-            'recommendations': recommendations,
-            'should_reduce_batch_size': pressure_level in ['high', 'critical']
+            "pressure_level": pressure_level,
+            "memory_usage": memory_usage,
+            "recommendations": recommendations,
+            "should_reduce_batch_size": pressure_level in ["high", "critical"],
         }
+
 
 class CacheManager:
     """
@@ -365,7 +371,9 @@ class CacheManager:
         with self.lock:
             # Remove oldest items if cache is full
             if len(self.cache) >= self.max_cache_size:
-                oldest_key = min(self.access_times.keys(), key=lambda k: self.access_times[k])
+                oldest_key = min(
+                    self.access_times.keys(), key=lambda k: self.access_times[k]
+                )
                 del self.cache[oldest_key]
                 del self.access_times[oldest_key]
 
@@ -386,13 +394,14 @@ class CacheManager:
         hit_rate = self.hit_count / total_requests if total_requests > 0 else 0.0
 
         return {
-            'cache_size': len(self.cache),
-            'max_cache_size': self.max_cache_size,
-            'hit_count': self.hit_count,
-            'miss_count': self.miss_count,
-            'hit_rate': hit_rate,
-            'ttl_seconds': self.ttl_seconds
+            "cache_size": len(self.cache),
+            "max_cache_size": self.max_cache_size,
+            "hit_count": self.hit_count,
+            "miss_count": self.miss_count,
+            "hit_rate": hit_rate,
+            "ttl_seconds": self.ttl_seconds,
         }
+
 
 class BatchProcessor:
     """
@@ -404,8 +413,11 @@ class BatchProcessor:
     - Progress tracking for large operations
     """
 
-    def __init__(self, memory_manager: Optional[MemoryManager] = None,
-                 performance_monitor: Optional[PerformanceMonitor] = None) -> None:
+    def __init__(
+        self,
+        memory_manager: Optional[MemoryManager] = None,
+        performance_monitor: Optional[PerformanceMonitor] = None,
+    ) -> None:
         """
         Initialize batch processor.
 
@@ -417,7 +429,9 @@ class BatchProcessor:
         self.performance_monitor = performance_monitor or PerformanceMonitor()
         self.batch_history: List[Any] = []
 
-    def calculate_optimal_batch_size(self, item_size_bytes: int, target_memory_mb: int = 512) -> int:
+    def calculate_optimal_batch_size(
+        self, item_size_bytes: int, target_memory_mb: int = 512
+    ) -> int:
         """
         Calculate optimal batch size based on memory constraints.
 
@@ -439,13 +453,18 @@ class BatchProcessor:
 
         # Check memory pressure and adjust
         pressure = self.memory_manager.check_memory_pressure()
-        if pressure['should_reduce_batch_size']:
+        if pressure["should_reduce_batch_size"]:
             batch_size = max(1, batch_size // 2)
 
         return batch_size
 
-    def process_in_batches(self, items: List[Any], processor: Callable[[List[Any]], Any],
-                          batch_size: Optional[int] = None, show_progress: bool = True) -> List[Any]:
+    def process_in_batches(
+        self,
+        items: List[Any],
+        processor: Callable[[List[Any]], Any],
+        batch_size: Optional[int] = None,
+        show_progress: bool = True,
+    ) -> List[Any]:
         """
         Process items in batches with memory management.
 
@@ -470,7 +489,7 @@ class BatchProcessor:
         total_items = len(items)
 
         for i in range(0, total_items, batch_size):
-            batch = items[i:i + batch_size]
+            batch = items[i : i + batch_size]
 
             # Trigger GC if needed before processing large batches
             if len(batch) > 100:
@@ -479,17 +498,23 @@ class BatchProcessor:
             # Process batch
             try:
                 batch_results = processor(batch)
-                results.extend(batch_results if isinstance(batch_results, list) else [batch_results])
+                results.extend(
+                    batch_results
+                    if isinstance(batch_results, list)
+                    else [batch_results]
+                )
 
                 # Update batch history
-                self.batch_history.append({
-                    'batch_size': len(batch),
-                    'processing_time': time.time(),
-                    'memory_mb': self.memory_manager.get_memory_usage()['rss_mb']
-                })
+                self.batch_history.append(
+                    {
+                        "batch_size": len(batch),
+                        "processing_time": time.time(),
+                        "memory_mb": self.memory_manager.get_memory_usage()["rss_mb"],
+                    }
+                )
 
             except Exception as e:
-                logger.error(f"Error processing batch {i//batch_size + 1}: {e}")
+                logger.error(f"Error processing batch {i // batch_size + 1}: {e}")
                 # Continue with next batch
                 continue
 
@@ -498,18 +523,23 @@ class BatchProcessor:
     def get_batch_stats(self) -> Dict[str, Any]:
         """Get batch processing statistics."""
         if not self.batch_history:
-            return {'total_batches': 0}
+            return {"total_batches": 0}
 
         total_batches = len(self.batch_history)
-        avg_batch_size = sum(batch['batch_size'] for batch in self.batch_history) / total_batches
-        avg_memory = sum(batch['memory_mb'] for batch in self.batch_history) / total_batches
+        avg_batch_size = (
+            sum(batch["batch_size"] for batch in self.batch_history) / total_batches
+        )
+        avg_memory = (
+            sum(batch["memory_mb"] for batch in self.batch_history) / total_batches
+        )
 
         return {
-            'total_batches': total_batches,
-            'avg_batch_size': avg_batch_size,
-            'avg_memory_mb': avg_memory,
-            'memory_efficiency': avg_memory / max(avg_batch_size, 1)
+            "total_batches": total_batches,
+            "avg_batch_size": avg_batch_size,
+            "avg_memory_mb": avg_memory,
+            "memory_efficiency": avg_memory / max(avg_batch_size, 1),
         }
+
 
 class ResourceManager:
     """
@@ -524,7 +554,9 @@ class ResourceManager:
     def __init__(self) -> None:
         """Initialize resource manager."""
         self.baseline_cpu = psutil.cpu_count()
-        self.baseline_memory = psutil.virtual_memory().total / (1024 * 1024 * 1024)  # GB
+        self.baseline_memory = psutil.virtual_memory().total / (
+            1024 * 1024 * 1024
+        )  # GB
 
     def get_system_load(self) -> Dict[str, Any]:
         """
@@ -535,21 +567,21 @@ class ResourceManager:
         """
         cpu_percent = psutil.cpu_percent(interval=1)
         memory = psutil.virtual_memory()
-        disk = psutil.disk_usage('/')
+        disk = psutil.disk_usage("/")
         network = psutil.net_io_counters()
 
         return {
-            'cpu_percent': cpu_percent,
-            'memory_percent': memory.percent,
-            'memory_available_gb': memory.available / (1024 * 1024 * 1024),
-            'disk_percent': disk.percent,
-            'disk_free_gb': disk.free / (1024 * 1024 * 1024),
-            'network_bytes_sent': network.bytes_sent,
-            'network_bytes_recv': network.bytes_recv,
-            'load_average': os.getloadavg() if hasattr(os, 'getloadavg') else [0, 0, 0]
+            "cpu_percent": cpu_percent,
+            "memory_percent": memory.percent,
+            "memory_available_gb": memory.available / (1024 * 1024 * 1024),
+            "disk_percent": disk.percent,
+            "disk_free_gb": disk.free / (1024 * 1024 * 1024),
+            "network_bytes_sent": network.bytes_sent,
+            "network_bytes_recv": network.bytes_recv,
+            "load_average": os.getloadavg() if hasattr(os, "getloadavg") else [0, 0, 0],
         }
 
-    def calculate_optimal_workers(self, operation_complexity: str = 'medium') -> int:
+    def calculate_optimal_workers(self, operation_complexity: str = "medium") -> int:
         """
         Calculate optimal number of workers based on system resources.
 
@@ -565,17 +597,15 @@ class ResourceManager:
         base_workers = max(1, self.baseline_cpu - 1)  # Reserve one core for system
 
         # Adjust based on memory availability
-        memory_factor = min(1.0, system_load['memory_available_gb'] / 4.0)  # Assume 4GB baseline
+        memory_factor = min(
+            1.0, system_load["memory_available_gb"] / 4.0
+        )  # Assume 4GB baseline
 
         # Adjust based on system load
-        load_factor = 1.0 - (system_load['cpu_percent'] / 100.0)
+        load_factor = 1.0 - (system_load["cpu_percent"] / 100.0)
 
         # Complexity multipliers
-        complexity_multipliers = {
-            'low': 0.8,
-            'medium': 1.0,
-            'high': 1.2
-        }
+        complexity_multipliers = {"low": 0.8, "medium": 1.0, "high": 1.2}
 
         multiplier = complexity_multipliers.get(operation_complexity, 1.0)
 
@@ -597,13 +627,17 @@ class ResourceManager:
 
         # Throttle if CPU > 80% or memory > 85% or disk > 90%
         return bool(
-            system_load['cpu_percent'] > 80
-            or system_load['memory_percent'] > 85
-            or system_load['disk_percent'] > 90
+            system_load["cpu_percent"] > 80
+            or system_load["memory_percent"] > 85
+            or system_load["disk_percent"] > 90
         )
 
-def performance_optimized(func: Optional[Callable] = None, operation_name: Optional[str] = None,
-                         memory_threshold_mb: int = 512) -> Callable:
+
+def performance_optimized(
+    func: Optional[Callable] = None,
+    operation_name: Optional[str] = None,
+    memory_threshold_mb: int = 512,
+) -> Callable:
     """
     Decorator for performance-optimized function execution.
 
@@ -615,6 +649,7 @@ def performance_optimized(func: Optional[Callable] = None, operation_name: Optio
     Returns:
         Decorated function or decorator function
     """
+
     def decorator(f: Callable) -> Callable:
         @functools.wraps(f)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
@@ -639,7 +674,9 @@ def performance_optimized(func: Optional[Callable] = None, operation_name: Optio
                 final_metrics = monitor.end_operation(op_name)
 
                 if final_metrics:
-                    logger.debug(f"Performance metrics for {op_name}: {final_metrics.to_dict()}")
+                    logger.debug(
+                        f"Performance metrics for {op_name}: {final_metrics.to_dict()}"
+                    )
 
                 return result
 
@@ -655,8 +692,10 @@ def performance_optimized(func: Optional[Callable] = None, operation_name: Optio
     else:
         return decorator(func)
 
-def adaptive_batch_size(initial_size: int = 10, max_size: int = 100,
-                       memory_threshold_mb: int = 512) -> Callable:
+
+def adaptive_batch_size(
+    initial_size: int = 10, max_size: int = 100, memory_threshold_mb: int = 512
+) -> Callable:
     """
     Create an adaptive batch size function.
 
@@ -675,15 +714,16 @@ def adaptive_batch_size(initial_size: int = 10, max_size: int = 100,
         memory_usage = memory_manager.get_memory_usage()
 
         # Reduce batch size if memory usage is high
-        if memory_usage['memory_percent'] > 70:
+        if memory_usage["memory_percent"] > 70:
             return max(1, initial_size // 2)
-        elif memory_usage['memory_percent'] > 50:
+        elif memory_usage["memory_percent"] > 50:
             return initial_size
 
         # Increase batch size if memory usage is low
         return min(max_size, initial_size * 2)
 
     return get_batch_size
+
 
 class PerformanceOptimizer:
     """
@@ -704,10 +744,14 @@ class PerformanceOptimizer:
         self.performance_monitor = PerformanceMonitor(enable_monitoring)
         self.memory_manager = MemoryManager(max_memory_mb)
         self.cache_manager = CacheManager()
-        self.batch_processor = BatchProcessor(self.memory_manager, self.performance_monitor)
+        self.batch_processor = BatchProcessor(
+            self.memory_manager, self.performance_monitor
+        )
         self.resource_manager = ResourceManager()
 
-    def optimize_operation(self, operation_name: str, func: Callable, *args: Any, **kwargs: Any) -> Any:
+    def optimize_operation(
+        self, operation_name: str, func: Callable, *args: Any, **kwargs: Any
+    ) -> Any:
         """
         Optimize and execute an operation with full performance monitoring.
 
@@ -725,9 +769,13 @@ class PerformanceOptimizer:
         try:
             # Check for memory pressure and optimize
             pressure = self.memory_manager.check_memory_pressure()
-            if pressure['should_reduce_batch_size']:
-                logger.warning(f"Memory pressure detected: {pressure['pressure_level']}")
-                logger.info(f"Recommendations: {', '.join(pressure['recommendations'])}")
+            if pressure["should_reduce_batch_size"]:
+                logger.warning(
+                    f"Memory pressure detected: {pressure['pressure_level']}"
+                )
+                logger.info(
+                    f"Recommendations: {', '.join(pressure['recommendations'])}"
+                )
 
             # Trigger GC if needed
             self.memory_manager.trigger_gc()
@@ -739,7 +787,9 @@ class PerformanceOptimizer:
             final_metrics = self.performance_monitor.end_operation(operation_name)
 
             if final_metrics:
-                logger.info(f"Operation {operation_name} completed in {final_metrics.duration:.2f}s")
+                logger.info(
+                    f"Operation {operation_name} completed in {final_metrics.duration:.2f}s"
+                )
 
             return result
 
@@ -750,10 +800,10 @@ class PerformanceOptimizer:
     def get_performance_report(self) -> Dict[str, Any]:
         """Get comprehensive performance report."""
         return {
-            'memory_usage': self.memory_manager.get_memory_usage(),
-            'system_load': self.resource_manager.get_system_load(),
-            'cache_stats': self.cache_manager.get_stats(),
-            'batch_stats': self.batch_processor.get_batch_stats(),
-            'active_operations': len(self.performance_monitor.get_all_metrics()),
-            'memory_pressure': self.memory_manager.check_memory_pressure()
+            "memory_usage": self.memory_manager.get_memory_usage(),
+            "system_load": self.resource_manager.get_system_load(),
+            "cache_stats": self.cache_manager.get_stats(),
+            "batch_stats": self.batch_processor.get_batch_stats(),
+            "active_operations": len(self.performance_monitor.get_all_metrics()),
+            "memory_pressure": self.memory_manager.check_memory_pressure(),
         }

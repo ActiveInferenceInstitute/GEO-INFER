@@ -114,9 +114,7 @@ class SpatialIndexer:
                         else geometry
                     )
                 )
-                indexed_data = indexed_data.set_crs(
-                    "EPSG:4326", allow_override=True
-                )
+                indexed_data = indexed_data.set_crs("EPSG:4326", allow_override=True)
         except Exception as exc:
             raise ValueError(
                 f"H3 indexing could not transform data CRS {data.crs!s} to EPSG:4326"
@@ -149,7 +147,6 @@ class SpatialIndexer:
             "indexes": h3_indexes,
             "data": data,
         }
-
 
     def _create_rtree_index(self, data: gpd.GeoDataFrame) -> Dict[str, Any]:
         """Create R-tree spatial index."""
@@ -245,10 +242,11 @@ class SpatialIndexer:
         return index_data["data"].loc[candidate_ids]
 
     @staticmethod
-    def _query_bbox_filter(data: gpd.GeoDataFrame, bbox: List[float]) -> gpd.GeoDataFrame:
+    def _query_bbox_filter(
+        data: gpd.GeoDataFrame, bbox: List[float]
+    ) -> gpd.GeoDataFrame:
         """Filter a GeoDataFrame to geometries within the given bounding box."""
         return data[data.geometry.within(Polygon.from_bounds(*bbox))]
-
 
     def latlng_to_cell(self, lat: float, lng: float, resolution: int = 9) -> str:
         """

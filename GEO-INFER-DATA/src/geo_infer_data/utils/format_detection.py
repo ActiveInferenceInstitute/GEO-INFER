@@ -52,7 +52,7 @@ class FormatDetector:
             DataFormat.PARQUET: self._detect_parquet,
             DataFormat.KML: self._detect_kml,
             DataFormat.WKT: self._detect_wkt,
-            DataFormat.HDF5: self._detect_hdf5
+            DataFormat.HDF5: self._detect_hdf5,
         }
 
         logger.info("Initialized FormatDetector")
@@ -79,21 +79,21 @@ class FormatDetector:
         extension = file_path.suffix.lower()
 
         extension_map = {
-            '.geojson': DataFormat.GEOJSON,
-            '.json': DataFormat.GEOJSON,
-            '.shp': DataFormat.SHAPEFILE,
-            '.gpkg': DataFormat.GEOPACKAGE,
-            '.tif': DataFormat.GEOTIFF,
-            '.tiff': DataFormat.GEOTIFF,
-            '.nc': DataFormat.NETCDF,
-            '.csv': DataFormat.CSV,
-            '.parquet': DataFormat.PARQUET,
-            '.parq': DataFormat.PARQUET,
-            '.kml': DataFormat.KML,
-            '.kmz': DataFormat.KML,
-            '.wkt': DataFormat.WKT,
-            '.h5': DataFormat.HDF5,
-            '.hdf5': DataFormat.HDF5
+            ".geojson": DataFormat.GEOJSON,
+            ".json": DataFormat.GEOJSON,
+            ".shp": DataFormat.SHAPEFILE,
+            ".gpkg": DataFormat.GEOPACKAGE,
+            ".tif": DataFormat.GEOTIFF,
+            ".tiff": DataFormat.GEOTIFF,
+            ".nc": DataFormat.NETCDF,
+            ".csv": DataFormat.CSV,
+            ".parquet": DataFormat.PARQUET,
+            ".parq": DataFormat.PARQUET,
+            ".kml": DataFormat.KML,
+            ".kmz": DataFormat.KML,
+            ".wkt": DataFormat.WKT,
+            ".h5": DataFormat.HDF5,
+            ".hdf5": DataFormat.HDF5,
         }
 
         if extension in extension_map:
@@ -105,7 +105,7 @@ class FormatDetector:
                     # Check for associated files
                     base_name = file_path.stem
                     shp_dir = file_path.parent
-                    required_files = ['.shp', '.shx', '.dbf']
+                    required_files = [".shp", ".shx", ".dbf"]
                     missing_files = []
 
                     for ext in required_files:
@@ -113,12 +113,16 @@ class FormatDetector:
                             missing_files.append(ext)
 
                     if missing_files:
-                        logger.warning(f"Shapefile missing associated files: {missing_files}")
+                        logger.warning(
+                            f"Shapefile missing associated files: {missing_files}"
+                        )
                 elif detected_format == DataFormat.GEOJSON:
-                    with open(file_path, 'r') as f:
+                    with open(file_path, "r") as f:
                         data = json.load(f)
                         if not self._is_geojson_structure(data):
-                            raise ValueError("File extension suggests GeoJSON but structure is invalid")
+                            raise ValueError(
+                                "File extension suggests GeoJSON but structure is invalid"
+                            )
                 elif detected_format == DataFormat.GEOTIFF:
                     with rasterio.open(file_path) as src:
                         _ = src.count  # Opening and reading metadata verifies access.
@@ -188,7 +192,7 @@ class FormatDetector:
     def _detect_geojson(self, file_path: Path) -> bool:
         """Detect GeoJSON format."""
         try:
-            with open(file_path, 'r') as f:
+            with open(file_path, "r") as f:
                 data = json.load(f)
                 return self._is_geojson_structure(data)
         except (json.JSONDecodeError, UnicodeDecodeError):
@@ -197,14 +201,14 @@ class FormatDetector:
     def _detect_shapefile(self, file_path: Path) -> bool:
         """Detect Shapefile format."""
         # Check if it's a .shp file and has associated files
-        if file_path.suffix.lower() != '.shp':
+        if file_path.suffix.lower() != ".shp":
             return False
 
         base_name = file_path.stem
         shp_dir = file_path.parent
 
         # Check for required associated files
-        required_files = ['.shp', '.shx', '.dbf']
+        required_files = [".shp", ".shx", ".dbf"]
         for ext in required_files:
             if not (shp_dir / f"{base_name}{ext}").exists():
                 return False
@@ -236,6 +240,7 @@ class FormatDetector:
         """Detect NetCDF format."""
         try:
             import xarray as xr
+
             xr.open_dataset(file_path)
             return True
         except Exception:
@@ -265,8 +270,8 @@ class FormatDetector:
         except Exception:
             # Try as KMZ (zipped KML)
             try:
-                with zipfile.ZipFile(file_path, 'r') as zip_ref:
-                    kml_files = [f for f in zip_ref.namelist() if f.endswith('.kml')]
+                with zipfile.ZipFile(file_path, "r") as zip_ref:
+                    kml_files = [f for f in zip_ref.namelist() if f.endswith(".kml")]
                     return len(kml_files) > 0
             except Exception:
                 return False
@@ -274,35 +279,46 @@ class FormatDetector:
     def _detect_wkt(self, file_path: Path) -> bool:
         """Detect WKT format."""
         try:
-            with open(file_path, 'r') as f:
+            with open(file_path, "r") as f:
                 content = f.read()
                 # Simple WKT detection
-                return 'POINT' in content or 'POLYGON' in content or 'LINESTRING' in content
+                return (
+                    "POINT" in content
+                    or "POLYGON" in content
+                    or "LINESTRING" in content
+                )
         except Exception:
             return False
 
     def _detect_hdf5(self, file_path: Path) -> bool:
         """Detect HDF5 format."""
         try:
-            with open(file_path, 'rb') as f:
+            with open(file_path, "rb") as f:
                 header = f.read(8)
-                return header.startswith(b'\x89HDF\r\n\x1a\n')
+                return header.startswith(b"\x89HDF\r\n\x1a\n")
         except Exception:
             return False
 
     def _is_geojson_structure(self, data: Dict[str, Any]) -> bool:
         """Check if dictionary has GeoJSON structure."""
         # Check for GeoJSON required fields
-        if 'type' not in data:
+        if "type" not in data:
             return False
 
         # Check for FeatureCollection, Feature, or geometry
-        if data['type'] in ['FeatureCollection', 'Feature']:
+        if data["type"] in ["FeatureCollection", "Feature"]:
             return True
 
         # Check for geometry object
-        if data['type'] in ['Point', 'LineString', 'Polygon', 'MultiPoint', 'MultiLineString', 'MultiPolygon']:
-            return 'coordinates' in data
+        if data["type"] in [
+            "Point",
+            "LineString",
+            "Polygon",
+            "MultiPoint",
+            "MultiLineString",
+            "MultiPolygon",
+        ]:
+            return "coordinates" in data
 
         return False
 
@@ -310,7 +326,9 @@ class FormatDetector:
         """Get list of supported formats."""
         return list(self.format_signatures.keys())
 
-    def validate_format(self, file_path: Union[str, Path], expected_format: DataFormat) -> bool:
+    def validate_format(
+        self, file_path: Union[str, Path], expected_format: DataFormat
+    ) -> bool:
         """
         Validate that file matches expected format.
 

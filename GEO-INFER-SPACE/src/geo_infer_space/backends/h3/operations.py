@@ -21,18 +21,13 @@ try:
             parts = version.lstrip("v").split(".")
             return cast(
                 Tuple[int, int, int],
-                tuple(
-                    int(part.split("+")[0].split("-")[0])
-                    for part in parts[:3]
-                )
+                tuple(int(part.split("+")[0].split("-")[0]) for part in parts[:3])
                 + (0,) * max(0, 3 - len(parts)),
             )
         except (AttributeError, TypeError, ValueError):
             return None
 
-    _h3_version = _version_tuple(
-        cast(str, getattr(h3, "__version__", None))
-    )
+    _h3_version = _version_tuple(cast(str, getattr(h3, "__version__", None)))
     H3_AVAILABLE = bool(
         _h3_version is not None and MIN_H3_VERSION <= _h3_version and _h3_version[0] < 5
     )

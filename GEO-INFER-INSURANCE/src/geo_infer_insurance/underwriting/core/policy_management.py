@@ -375,7 +375,9 @@ class PolicyManager:
             config: Policy management configuration
         """
         self.config = config or {}
-        self.logger = logging.getLogger("geo_infer_insurance.underwriting.policy_manager")
+        self.logger = logging.getLogger(
+            "geo_infer_insurance.underwriting.policy_manager"
+        )
 
         # Policy storage
         self.policies: Dict[str, Policy] = {}

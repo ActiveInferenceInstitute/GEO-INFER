@@ -11,6 +11,7 @@ from ..utils.rng import SeedLike, resolve_rng
 
 logger = logging.getLogger(__name__)
 
+
 class MCMC:
     """
     Markov Chain Monte Carlo (MCMC) for Bayesian inference.

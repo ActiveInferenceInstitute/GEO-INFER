@@ -11,6 +11,7 @@ from typing import Dict, List, Any, Final
 import re
 from datetime import datetime, timezone
 
+
 def validate_coordinates(longitude: Any, latitude: Any) -> bool:
     """
     Validate longitude and latitude coordinates.
@@ -24,7 +25,9 @@ def validate_coordinates(longitude: Any, latitude: Any) -> bool:
     """
     try:
         # Check if numeric
-        if not isinstance(longitude, (int, float)) or not isinstance(latitude, (int, float)):
+        if not isinstance(longitude, (int, float)) or not isinstance(
+            latitude, (int, float)
+        ):
             return False
 
         # Check valid ranges
@@ -40,10 +43,10 @@ def validate_coordinates(longitude: Any, latitude: Any) -> bool:
 
 
 SUPPORTED_CRS: Final[Dict[str, str]] = {
-    "WGS84": "EPSG:4326",       # World Geodetic System 1984
-    "UTM": "UTM",               # Universal Transverse Mercator
+    "WGS84": "EPSG:4326",  # World Geodetic System 1984
+    "UTM": "UTM",  # Universal Transverse Mercator
     "WEB_MERCATOR": "EPSG:3857",  # Web Mercator (used by most web maps)
-    "LOCAL": "LOCAL",           # Local coordinate system
+    "LOCAL": "LOCAL",  # Local coordinate system
 }
 """Supported coordinate reference systems, keyed by short name.
 
@@ -79,7 +82,7 @@ def validate_email(email: Any) -> bool:
         return False
 
     # Basic email regex pattern
-    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
 
     return bool(re.match(pattern, email))
 
@@ -98,7 +101,7 @@ def validate_phone(phone: Any) -> bool:
         return False
 
     # Remove common separators
-    cleaned = re.sub(r'[\s\-\(\)\.]+', '', phone)
+    cleaned = re.sub(r"[\s\-\(\)\.]+", "", phone)
 
     # Check if all digits and reasonable length
     if not cleaned.isdigit():
@@ -158,8 +161,14 @@ def validate_message_type(message_type: str) -> bool:
         True if message type is valid, False otherwise
     """
     valid_types = [
-        "text", "image", "file", "location", "alert",
-        "sensor_data", "command", "status"
+        "text",
+        "image",
+        "file",
+        "location",
+        "alert",
+        "sensor_data",
+        "command",
+        "status",
     ]
     return message_type.lower() in valid_types
 
@@ -181,7 +190,7 @@ def validate_user_id(user_id: Any) -> bool:
         return False
 
     # Allow alphanumeric, hyphens, underscores, and dots
-    if not re.match(r'^[a-zA-Z0-9._-]+$', user_id):
+    if not re.match(r"^[a-zA-Z0-9._-]+$", user_id):
         return False
 
     if len(user_id) > 100:
@@ -296,8 +305,13 @@ def validate_geojson_geometry(geometry: Any) -> bool:
 
     geom_type = geometry["type"]
     valid_types = [
-        "Point", "LineString", "Polygon", "MultiPoint",
-        "MultiLineString", "MultiPolygon", "GeometryCollection"
+        "Point",
+        "LineString",
+        "Polygon",
+        "MultiPoint",
+        "MultiLineString",
+        "MultiPolygon",
+        "GeometryCollection",
     ]
 
     if geom_type not in valid_types:
@@ -309,12 +323,17 @@ def validate_geojson_geometry(geometry: Any) -> bool:
 
     # Basic structure validation based on geometry type
     if geom_type == "Point":
-        return len(coordinates) >= 2 and all(isinstance(coord, (int, float)) for coord in coordinates[:2])
+        return len(coordinates) >= 2 and all(
+            isinstance(coord, (int, float)) for coord in coordinates[:2]
+        )
     elif geom_type == "LineString":
-        return len(coordinates) >= 2 and all(isinstance(coord, list) and len(coord) >= 2 for coord in coordinates)
+        return len(coordinates) >= 2 and all(
+            isinstance(coord, list) and len(coord) >= 2 for coord in coordinates
+        )
     elif geom_type == "Polygon":
-        return (len(coordinates) >= 1 and
-                all(isinstance(ring, list) and len(ring) >= 4 for ring in coordinates))
+        return len(coordinates) >= 1 and all(
+            isinstance(ring, list) and len(ring) >= 4 for ring in coordinates
+        )
     else:
         # For other types, basic list validation
         return True
@@ -362,8 +381,11 @@ def validate_event_type(event_type: str) -> bool:
         True if event type is valid, False otherwise
     """
     valid_types = [
-        "data_update", "system_alert", "user_action",
-        "sensor_trigger", "geospatial_change"
+        "data_update",
+        "system_alert",
+        "user_action",
+        "sensor_trigger",
+        "geospatial_change",
     ]
     return event_type.lower() in valid_types
 
@@ -381,7 +403,7 @@ def validate_timestamp(timestamp: Any) -> bool:
     try:
         if isinstance(timestamp, str):
             # Try to parse ISO format
-            datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+            datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
         elif isinstance(timestamp, datetime):
             # Check if not too far in future or past
             now = datetime.now(timezone.utc)
@@ -409,7 +431,7 @@ def validate_url(url: Any) -> bool:
         return False
 
     # Basic URL regex pattern
-    pattern = r'^https?://[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:/[^\s]*)?$'
+    pattern = r"^https?://[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:/[^\s]*)?$"
 
     return bool(re.match(pattern, url))
 
@@ -484,14 +506,17 @@ def validate_spatial_filter(filter_config: Any) -> bool:
     if filter_type == "bounds":
         return validate_spatial_bounds(parameters.get("bounds", {}))
     elif filter_type == "radius":
-        return ("center" in parameters and
-                isinstance(parameters.get("radius_meters"), (int, float)) and
-                parameters["radius_meters"] > 0)
+        return (
+            "center" in parameters
+            and isinstance(parameters.get("radius_meters"), (int, float))
+            and parameters["radius_meters"] > 0
+        )
     elif filter_type == "polygon":
         return "polygon" in parameters
     elif filter_type == "proximity":
-        return ("target_location" in parameters and
-                isinstance(parameters.get("max_distance_meters"), (int, float)))
+        return "target_location" in parameters and isinstance(
+            parameters.get("max_distance_meters"), (int, float)
+        )
 
     return True
 
@@ -603,16 +628,16 @@ def sanitize_message_content(content: Any) -> str:
     # Basic sanitization - remove potentially dangerous characters
     # In production, would use a proper HTML sanitization library
     dangerous_patterns = [
-        r'<script[^>]*>.*?</script>',
-        r'<iframe[^>]*>.*?</iframe>',
-        r'javascript:',
-        r'vbscript:',
-        r'on\w+\s*='
+        r"<script[^>]*>.*?</script>",
+        r"<iframe[^>]*>.*?</iframe>",
+        r"javascript:",
+        r"vbscript:",
+        r"on\w+\s*=",
     ]
 
     sanitized = content
     for pattern in dangerous_patterns:
-        sanitized = re.sub(pattern, '', sanitized, flags=re.IGNORECASE | re.DOTALL)
+        sanitized = re.sub(pattern, "", sanitized, flags=re.IGNORECASE | re.DOTALL)
 
     return sanitized.strip()
 
@@ -633,17 +658,17 @@ def validate_and_sanitize_inputs(**kwargs: Any) -> Dict[str, Any]:
     results = {}
 
     for key, value in kwargs.items():
-        if key.endswith('_content') or key in ['message', 'description', 'title']:
+        if key.endswith("_content") or key in ["message", "description", "title"]:
             results[key] = sanitize_message_content(value)
-        elif key.endswith('_email'):
+        elif key.endswith("_email"):
             if not validate_email(value):
                 raise ValueError(f"Invalid email format: {value}")
             results[key] = value.lower().strip()
-        elif key.endswith('_phone'):
+        elif key.endswith("_phone"):
             if not validate_phone(value):
                 raise ValueError(f"Invalid phone format: {value}")
             results[key] = value
-        elif key in ['user_id', 'channel_id', 'participant_id']:
+        elif key in ["user_id", "channel_id", "participant_id"]:
             if not validate_user_id(value):
                 raise ValueError(f"Invalid user/channel ID: {value}")
             results[key] = value

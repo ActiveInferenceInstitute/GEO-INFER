@@ -32,7 +32,9 @@ class TestDesignMpaNetwork:
         # Top row (highest biodiversity) must have the highest priority.
         assert priority[0].min() >= priority[3].max()
 
-    def test_all_zero_threat_data_yields_finite_priorities(self, planner, biodiversity_grid):
+    def test_all_zero_threat_data_yields_finite_priorities(
+        self, planner, biodiversity_grid
+    ):
         threat = xr.zeros_like(biodiversity_grid)
         result = planner.design_mpa_network(biodiversity_grid, threat_data=threat)
         assert np.isfinite(result["priority"].values).all()
@@ -66,10 +68,10 @@ class TestOptimizeOffshoreWindSiting:
     def test_exclusion_zones_zero_suitability(self, planner):
         wind = xr.DataArray(np.full((2, 2), 8.0), dims=("lat", "lon"))
         depth = xr.DataArray(np.full((2, 2), 10.0), dims=("lat", "lon"))
-        exclusions = xr.DataArray(
-            [[False, True], [False, False]], dims=("lat", "lon")
+        exclusions = xr.DataArray([[False, True], [False, False]], dims=("lat", "lon"))
+        result = planner.optimize_offshore_wind_siting(
+            wind, depth, exclusion_zones=exclusions
         )
-        result = planner.optimize_offshore_wind_siting(wind, depth, exclusion_zones=exclusions)
         assert float(result["suitability"].values[0, 1]) == pytest.approx(0.0)
 
     def test_flat_wind_resource_no_nan(self, planner):

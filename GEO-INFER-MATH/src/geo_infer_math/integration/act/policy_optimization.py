@@ -101,7 +101,10 @@ class PolicyOptimization:
 
         logger.debug(
             "Policy optimization: selected=%d (prob=%.4f, G=%.4f), n_policies=%d",
-            selected, policy_probs[selected], G_values[selected], n_policies,
+            selected,
+            policy_probs[selected],
+            G_values[selected],
+            n_policies,
         )
 
         return {
@@ -147,11 +150,14 @@ class PolicyOptimization:
 
             # Risk: D_KL[q(o) || softmax(C)]
             preferred = self._softmax(C)
-            risk = float(np.sum(
-                predicted_obs * np.log(
-                    (predicted_obs + self._epsilon) / (preferred + self._epsilon)
+            risk = float(
+                np.sum(
+                    predicted_obs
+                    * np.log(
+                        (predicted_obs + self._epsilon) / (preferred + self._epsilon)
+                    )
                 )
-            ))
+            )
             total_risk += risk
 
         G = total_ambiguity + total_risk

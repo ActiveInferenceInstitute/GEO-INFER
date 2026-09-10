@@ -62,6 +62,7 @@ except ImportError:  # pragma: no cover - sibling-absent degradation path
             " geo-infer-bayes"
         )
 
+
 SUPPORTED_SCHEMA = CRESCENT_CITY_INTEL_SCHEMA
 ENV_CONTRACT_PATH = "CRESCENT_CITY_INTEL_CONTRACT_PATH"
 
@@ -213,9 +214,13 @@ def _decode_contract_json(text: str, source_label: str) -> Dict[str, Any]:
     try:
         loaded = json.loads(text)
     except json.JSONDecodeError as exc:
-        raise ValueError(f"invalid Crescent City intel JSON from {source_label}: {exc}") from exc
+        raise ValueError(
+            f"invalid Crescent City intel JSON from {source_label}: {exc}"
+        ) from exc
     if not isinstance(loaded, dict):
-        raise ValueError(f"Crescent City intel JSON from {source_label} must be an object")
+        raise ValueError(
+            f"Crescent City intel JSON from {source_label} must be an object"
+        )
     return loaded
 
 
@@ -418,8 +423,10 @@ def parse_crescent_city_intel(
         returns a graceful empty record (empty city, empty hazard subset, empty
         bounds). Malformed JSON or v1 structures fail closed with ``ValueError``.
     """
-    contract = _coerce_contract(source) if source is not None else _coerce_contract(
-        default_contract_path()
+    contract = (
+        _coerce_contract(source)
+        if source is not None
+        else _coerce_contract(default_contract_path())
     )
 
     if not contract or contract.get("schema") != SUPPORTED_SCHEMA:
@@ -442,7 +449,9 @@ def parse_crescent_city_intel(
         schema=str(contract.get("schema")),
         anchor=dict(anchor),
         generatedAt=(
-            str(contract.get("generatedAt")) if contract.get("generatedAt") is not None else None
+            str(contract.get("generatedAt"))
+            if contract.get("generatedAt") is not None
+            else None
         ),
     )
     return record.as_dict()
@@ -551,7 +560,9 @@ def hazard_policy_prior(
 
     preference_vector = np.asarray(weights, dtype=float)
     total = float(np.sum(preference_vector))
-    normalized = preference_vector / total if total > 0 else np.ones_like(preference_vector)
+    normalized = (
+        preference_vector / total if total > 0 else np.ones_like(preference_vector)
+    )
 
     dominant = None
     if tags:

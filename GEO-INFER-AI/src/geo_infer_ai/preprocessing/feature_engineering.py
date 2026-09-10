@@ -24,7 +24,9 @@ class GeospatialFeatureEngineer:
     autocorrelation, and preparing geospatial data for ML models.
     """
 
-    def __init__(self, normalize: bool = True, handle_spatial_autocorr: bool = True) -> None:
+    def __init__(
+        self, normalize: bool = True, handle_spatial_autocorr: bool = True
+    ) -> None:
         """
         Initialize the feature engineer.
 
@@ -91,7 +93,9 @@ class GeospatialFeatureEngineer:
 
         if include_angles:
             # Angle from centroid
-            features["angle_from_centroid"] = np.arctan2(lat - centroid_lat, lon - centroid_lon)
+            features["angle_from_centroid"] = np.arctan2(
+                lat - centroid_lat, lon - centroid_lon
+            )
 
         df = pd.DataFrame(features)
         return df
@@ -339,7 +343,9 @@ class GeospatialFeatureEngineer:
 
                 neighbor_vals = values[neighbor_idx, v]
                 var_lags[i] = np.sum(weights * neighbor_vals)
-                var_lag_std[i] = np.sqrt(np.sum(weights * (neighbor_vals - var_lags[i]) ** 2))
+                var_lag_std[i] = np.sqrt(
+                    np.sum(weights * (neighbor_vals - var_lags[i]) ** 2)
+                )
 
             lag_features[f"spatial_lag_v{v}_mean"] = var_lags
             lag_features[f"spatial_lag_v{v}_std"] = var_lag_std
@@ -363,7 +369,9 @@ class GeospatialFeatureEngineer:
         Returns:
             DataFrame with distance features
         """
-        logger.info(f"Creating distance features to {len(reference_points)} reference points")
+        logger.info(
+            f"Creating distance features to {len(reference_points)} reference points"
+        )
 
         n_refs = reference_points.shape[0]
         if reference_names is None:
@@ -400,7 +408,9 @@ class GeospatialFeatureEngineer:
         if window_sizes is None:
             window_sizes = [3, 7, 14]
 
-        logger.info(f"Creating temporal aggregation features with windows {window_sizes}")
+        logger.info(
+            f"Creating temporal aggregation features with windows {window_sizes}"
+        )
 
         if not isinstance(timestamps, pd.Series):
             timestamps = pd.Series(timestamps)

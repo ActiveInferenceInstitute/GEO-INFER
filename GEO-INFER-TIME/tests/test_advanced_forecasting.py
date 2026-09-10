@@ -172,7 +172,10 @@ class TestForecastExponentialSmoothing:
     def test_exp_smoothing_additive_seasonal(self, engine, seasonal_series):
         """Exponential smoothing with additive seasonality and explicit period."""
         result = engine.forecast_exponential_smoothing(
-            seasonal_series, trend="add", seasonal="add", seasonal_periods=12,
+            seasonal_series,
+            trend="add",
+            seasonal="add",
+            seasonal_periods=12,
             forecast_steps=12,
         )
         assert len(result["forecast"]) == 12
@@ -199,10 +202,15 @@ class TestForecastExponentialSmoothing:
         )
         assert len(result["forecast"]) == 5
 
-    def test_exp_smoothing_additive_seasonal_honors_user_period(self, engine, seasonal_series):
+    def test_exp_smoothing_additive_seasonal_honors_user_period(
+        self, engine, seasonal_series
+    ):
         """A user-supplied seasonal_periods is honored (no hardcoded 12)."""
         result = engine.forecast_exponential_smoothing(
-            seasonal_series, trend="add", seasonal="add", seasonal_periods=6,
+            seasonal_series,
+            trend="add",
+            seasonal="add",
+            seasonal_periods=6,
             forecast_steps=12,
         )
         assert len(result["forecast"]) == 12
@@ -329,8 +337,11 @@ class TestForecastingIntegration:
         # Use detection results to decide forecast method
         if detection["has_seasonality"]:
             result = engine.forecast_exponential_smoothing(
-                seasonal_series, trend="add", seasonal="add",
-                seasonal_periods=12, forecast_steps=6
+                seasonal_series,
+                trend="add",
+                seasonal="add",
+                seasonal_periods=12,
+                forecast_steps=6,
             )
         else:
             result = engine.forecast_arima(

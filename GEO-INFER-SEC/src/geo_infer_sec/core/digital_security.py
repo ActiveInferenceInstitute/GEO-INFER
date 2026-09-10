@@ -29,7 +29,12 @@ import jwt
 import yaml
 
 from ..utils.security_utils import SecurityUtils
-from ..models.security_models import SecurityEvent, ThreatLevel, SecurityAlert, SecurityEventCategory
+from ..models.security_models import (
+    SecurityEvent,
+    ThreatLevel,
+    SecurityAlert,
+    SecurityEventCategory,
+)
 
 
 class ThreatType(Enum):
@@ -501,8 +506,11 @@ class DigitalSecurityManager:
         """Trigger security alerts for detected threats."""
         alert = SecurityAlert(
             alert_id=f"alert_{threat.threat_id}",
-            title=threat.threat_type.name if hasattr(threat.threat_type, 'name') else str(threat.threat_type),
-            description=threat.description or f"Digital threat detected: {threat.threat_type.value}",
+            title=threat.threat_type.name
+            if hasattr(threat.threat_type, "name")
+            else str(threat.threat_type),
+            description=threat.description
+            or f"Digital threat detected: {threat.threat_type.value}",
             severity=threat.severity,
             category=SecurityEventCategory.NETWORK_ACTIVITY,
         )
@@ -1179,11 +1187,11 @@ class DigitalSecurityManager:
         """Mark a threat as mitigated."""
         if threat_id in self.active_threats:
             self.active_threats[threat_id].mitigated = True
-            self.active_threats[threat_id].metadata[
-                "mitigation_notes"
-            ] = mitigation_notes
-            self.active_threats[threat_id].metadata[
-                "mitigated_at"
-            ] = datetime.now().isoformat()
+            self.active_threats[threat_id].metadata["mitigation_notes"] = (
+                mitigation_notes
+            )
+            self.active_threats[threat_id].metadata["mitigated_at"] = (
+                datetime.now().isoformat()
+            )
             return True
         return False

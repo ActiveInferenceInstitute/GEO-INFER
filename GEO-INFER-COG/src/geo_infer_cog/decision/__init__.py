@@ -22,12 +22,12 @@ from .support import (
     SpatialDecisionSupport,
     DecisionAlternative,
     DecisionRecommendation,
-    DecisionStrategy
+    DecisionStrategy,
 )
 
 __all__ = [
     "SpatialDecisionSupport",
     "DecisionAlternative",
     "DecisionRecommendation",
-    "DecisionStrategy"
+    "DecisionStrategy",
 ]

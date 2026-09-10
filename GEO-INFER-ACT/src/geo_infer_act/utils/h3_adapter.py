@@ -12,6 +12,7 @@ from pathlib import Path
 import sys
 from typing import Any, Dict, Iterable, List, Optional
 
+
 class H3Adapter:
     """Adapter over SPACE H3 indexing and direct H3 v4."""
 
@@ -105,7 +106,9 @@ class H3Adapter:
             for feature in geometry.get("features", []):
                 feature_geometry = feature.get("geometry")
                 if feature_geometry:
-                    feature_cells.update(self.h3.geo_to_cells(feature_geometry, resolution))
+                    feature_cells.update(
+                        self.h3.geo_to_cells(feature_geometry, resolution)
+                    )
             return sorted(feature_cells)
         if geometry.get("type") not in {"Polygon", "MultiPolygon"}:
             raise ValueError("polygon must contain a Polygon or MultiPolygon")
@@ -128,8 +131,7 @@ class H3Adapter:
             raise ValueError("k must be a positive integer")
         if self.h3 is not None:
             return sorted(
-                set(self.h3.grid_disk(cell, k))
-                - set(self.h3.grid_disk(cell, k - 1))
+                set(self.h3.grid_disk(cell, k)) - set(self.h3.grid_disk(cell, k - 1))
             )
         if self.space_indexer is not None:
             return list(self.space_indexer.get_cell_neighbors(cell, k))
@@ -154,7 +156,9 @@ class H3Adapter:
     def cell_to_children(self, cell: str, resolution: int) -> List[str]:
         """Return child cells at a finer resolution."""
         if self.space_indexer is not None:
-            return [str(c) for c in self.space_indexer.get_cell_children(cell, resolution)]
+            return [
+                str(c) for c in self.space_indexer.get_cell_children(cell, resolution)
+            ]
         if self.h3 is not None:
             return [str(c) for c in self.h3.cell_to_children(cell, resolution)]
         raise RuntimeError("H3 backend unavailable")

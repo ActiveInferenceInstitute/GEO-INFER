@@ -1,4 +1,4 @@
-# Core functionalities for GEO-INFER-HEALTH 
+# Core functionalities for GEO-INFER-HEALTH
 
 from .disease_surveillance import DiseaseHotspotAnalyzer
 from .enhanced_disease_surveillance import ActiveInferenceDiseaseAnalyzer
@@ -9,5 +9,5 @@ __all__ = [
     "DiseaseHotspotAnalyzer",
     "ActiveInferenceDiseaseAnalyzer",
     "HealthcareAccessibilityAnalyzer",
-    "EnvironmentalHealthAnalyzer"
+    "EnvironmentalHealthAnalyzer",
 ]

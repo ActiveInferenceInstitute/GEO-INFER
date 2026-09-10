@@ -115,7 +115,7 @@ async def run_bdi_agent_example():
 
     # Run agent cycle a few times
     for i in range(3):
-        print(f"\nAgent cycle {i+1}:")
+        print(f"\nAgent cycle {i + 1}:")
 
         # Perceive environment
         perceptions = await agent.perceive()
@@ -162,7 +162,7 @@ async def run_active_inference_agent_example():
 
     # Run agent cycle a few times to learn
     for i in range(3):
-        print(f"\nAgent cycle {i+1}:")
+        print(f"\nAgent cycle {i + 1}:")
 
         # Perceive environment
         perceptions = await agent.perceive()
@@ -231,7 +231,7 @@ async def run_rl_agent_example():
 
     # Run agent cycle a few times to learn
     for i in range(4):
-        print(f"\nAgent cycle {i+1}:")
+        print(f"\nAgent cycle {i + 1}:")
 
         # Perceive environment
         perceptions = await agent.perceive()
@@ -314,7 +314,7 @@ async def run_rule_based_agent_example():
 
     # Run agent cycle a few times
     for i in range(3):
-        print(f"\nAgent cycle {i+1}:")
+        print(f"\nAgent cycle {i + 1}:")
 
         # Perceive environment
         perceptions = await agent.perceive()
@@ -420,7 +420,7 @@ async def run_hybrid_agent_example():
 
     # Run agent cycle a few times
     for i in range(3):
-        print(f"\nAgent cycle {i+1}:")
+        print(f"\nAgent cycle {i + 1}:")
 
         # Perceive environment
         perceptions = await agent.perceive()

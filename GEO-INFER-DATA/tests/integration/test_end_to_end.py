@@ -61,7 +61,7 @@ class TestEndToEndWorkflows:
 
         # Create realistic environmental data
         data = {
-            "sensor_id": [f"sensor_{i%10}" for i in range(n_records)],
+            "sensor_id": [f"sensor_{i % 10}" for i in range(n_records)],
             "timestamp": pd.date_range("2023-01-01", periods=n_records, freq="h"),
             "temperature": np.random.normal(20, 5, n_records),
             "humidity": np.random.normal(60, 10, n_records),

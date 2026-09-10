@@ -12,6 +12,7 @@ from enum import Enum
 
 class ArtifactType(Enum):
     """Types of artifacts that requirements can trace to."""
+
     SOURCE_CODE = "source_code"
     TEST_CASE = "test_case"
     DESIGN_DOCUMENT = "design_document"
@@ -24,6 +25,7 @@ class ArtifactType(Enum):
 @dataclass
 class TraceLink:
     """A link between a requirement and an implementing artifact."""
+
     req_id: str
     artifact_id: str
     artifact_type: ArtifactType
@@ -35,6 +37,7 @@ class TraceLink:
 @dataclass
 class TraceMatrixEntry:
     """An entry in the traceability matrix."""
+
     req_id: str
     linked_artifacts: Dict[str, List[str]]  # artifact_type -> list of artifact_ids
     forward_coverage: float  # % of req traced to artifacts
@@ -45,6 +48,7 @@ class TraceMatrixEntry:
 @dataclass
 class CoverageReport:
     """Coverage analysis report."""
+
     total_requirements: int
     traced_requirements: int
     untraced_requirements: List[str]
@@ -58,6 +62,7 @@ class CoverageReport:
 @dataclass
 class ImpactReport:
     """Impact analysis report for requirement changes."""
+
     changed_requirement: str
     directly_affected_artifacts: List[str]
     indirectly_affected_requirements: List[str]
@@ -81,7 +86,9 @@ class TraceabilityManager:
         # Dependency map from RequirementsAnalyzer context
         self._req_dependencies: Dict[str, List[str]] = {}
 
-    def register_requirement(self, req_id: str, dependencies: Optional[List[str]] = None) -> None:
+    def register_requirement(
+        self, req_id: str, dependencies: Optional[List[str]] = None
+    ) -> None:
         """
         Register a requirement for traceability tracking.
 
@@ -151,7 +158,9 @@ class TraceabilityManager:
 
             # Backward: what fraction of linked artifacts trace back
             bidirectional_count = sum(1 for l in req_links if l.bidirectional)
-            backward_coverage = bidirectional_count / total_links if total_links > 0 else 0.0
+            backward_coverage = (
+                bidirectional_count / total_links if total_links > 0 else 0.0
+            )
 
             if total_links == 0:
                 status = "untraced"
@@ -208,7 +217,9 @@ class TraceabilityManager:
 
         coverage_by_type = {}
         for art_type, req_set in type_reqs.items():
-            coverage_by_type[art_type] = round(len(req_set) / total, 4) if total > 0 else 0.0
+            coverage_by_type[art_type] = (
+                round(len(req_set) / total, 4) if total > 0 else 0.0
+            )
 
         return CoverageReport(
             total_requirements=total,
@@ -273,7 +284,9 @@ class TraceabilityManager:
                 if link.req_id == rid and link.artifact_id not in direct_artifacts:
                     indirect_artifacts.append(link.artifact_id)
 
-        total_affected = len(direct_artifacts) + len(indirect_reqs) + len(indirect_artifacts)
+        total_affected = (
+            len(direct_artifacts) + len(indirect_reqs) + len(indirect_artifacts)
+        )
         total_trackable = len(self._artifact_ids) + len(self._req_ids)
         severity = total_affected / total_trackable if total_trackable > 0 else 0.0
 

@@ -124,9 +124,7 @@ class TimeSeriesReader:
         return pd.read_parquet(path, **kwargs)
 
     @staticmethod
-    def _set_time_index(
-        df: pd.DataFrame, time_column: Optional[str]
-    ) -> pd.DataFrame:
+    def _set_time_index(df: pd.DataFrame, time_column: Optional[str]) -> pd.DataFrame:
         """Ensure the DataFrame has a DatetimeIndex.
 
         If *time_column* is given, that column is converted to datetime and

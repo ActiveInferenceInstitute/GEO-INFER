@@ -174,7 +174,9 @@ class SymbolicMath:
         # Fallback descriptor
         return {"type": "derivative", "expression": expr, "variable": var, "order": 1}
 
-    def _numpy_lambdify(self, expr: Any, variable_names: List[str]) -> Callable[..., float]:
+    def _numpy_lambdify(
+        self, expr: Any, variable_names: List[str]
+    ) -> Callable[..., float]:
         """Convert an expression into a numeric function for the numpy backend.
 
         Strings and string-carrying descriptors are parsed with sympy (which
@@ -316,8 +318,7 @@ class SymbolicMath:
             ) from exc
 
         return {
-            name: float(value)
-            for name, value in zip(variable_names, solution_vector)
+            name: float(value) for name, value in zip(variable_names, solution_vector)
         }
 
     def _numpy_simplify(self, expr: Any) -> Any:

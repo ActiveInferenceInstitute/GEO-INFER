@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 class TrafficCondition(Enum):
     """Traffic condition levels."""
+
     FREE_FLOW = "free_flow"
     LIGHT = "light"
     MODERATE = "moderate"
@@ -28,6 +29,7 @@ class TrafficCondition(Enum):
 @dataclass
 class TrafficCount:
     """Traffic count observation."""
+
     location_id: str
     timestamp: datetime
     count: int
@@ -39,6 +41,7 @@ class TrafficCount:
 @dataclass
 class FlowResult:
     """Traffic flow analysis result."""
+
     segment_id: str
     volume: int  # vehicles per hour
     density: float  # vehicles per km
@@ -49,30 +52,23 @@ class FlowResult:
 class TrafficAnalyzer:
     """
     Analyze and model traffic flow patterns.
-    
+
     Supports flow modeling, congestion detection, and
     traffic simulation.
     """
-    
+
     # Level of Service thresholds (volume/capacity)
-    LOS_THRESHOLDS = {
-        "A": 0.35,
-        "B": 0.55,
-        "C": 0.75,
-        "D": 0.87,
-        "E": 0.95,
-        "F": 1.0
-    }
-    
+    LOS_THRESHOLDS = {"A": 0.35, "B": 0.55, "C": 0.75, "D": 0.87, "E": 0.95, "F": 1.0}
+
     def __init__(
         self,
         data_sources: Optional[List[str]] = None,
         model_type: str = "bpr",
-        time_resolution: str = "15min"
+        time_resolution: str = "15min",
     ):
         """
         Initialize traffic analyzer.
-        
+
         Args:
             data_sources: Traffic data sources
             model_type: Traffic model type ('bpr', 'akcelik', 'hcm')
@@ -83,12 +79,12 @@ class TrafficAnalyzer:
         self.time_resolution = time_resolution
         self._traffic_counts: List[TrafficCount] = []
         logger.info(f"Initialized TrafficAnalyzer with {model_type} model")
-    
+
     def analyze_flow(
         self,
         segment: Dict[str, Any],
         counts: List[Dict[str, Any]],
-        time_period: str = "peak"
+        time_period: str = "peak",
     ) -> FlowResult:
         """
         Analyze traffic flow on a road segment.
@@ -112,33 +108,39 @@ class TrafficAnalyzer:
 
         # Hourly volume: rescale per-interval counts to vehicles per hour
         hourly_volume = int(avg_volume * 3600 / self._seconds_per_interval())
-        speeds = [c.get("speed_kmh", segment.get("speed_limit", 50)) for c in counts if c.get("speed_kmh")]
-        avg_speed = sum(speeds) / len(speeds) if speeds else segment.get("speed_limit", 50)
-        
+        speeds = [
+            c.get("speed_kmh", segment.get("speed_limit", 50))
+            for c in counts
+            if c.get("speed_kmh")
+        ]
+        avg_speed = (
+            sum(speeds) / len(speeds) if speeds else segment.get("speed_limit", 50)
+        )
+
         # Calculate density (vehicles per km)
         density = hourly_volume / avg_speed if avg_speed > 0 else 0
-        
+
         # Determine Level of Service
         capacity = segment.get("capacity", 2000)  # Default capacity
         vc_ratio = hourly_volume / capacity if capacity > 0 else 0
-        
+
         los = "F"
         for level, threshold in self.LOS_THRESHOLDS.items():
             if vc_ratio <= threshold:
                 los = level
                 break
-        
+
         result = FlowResult(
             segment_id=segment.get("id", "unknown"),
             volume=hourly_volume,
             density=round(density, 2),
             speed=round(avg_speed, 1),
-            level_of_service=los
+            level_of_service=los,
         )
-        
+
         logger.info(f"Flow analysis for {segment.get('id')}: LOS {los}")
         return result
-    
+
     @staticmethod
     def _parse_duration_seconds(duration: str) -> float:
         """Parse a duration string to seconds.
@@ -183,7 +185,7 @@ class TrafficAnalyzer:
         self,
         network_flows: Dict[str, float],
         capacity_data: Dict[str, float],
-        algorithm: str = "bpr"
+        algorithm: str = "bpr",
     ) -> Dict[str, Any]:
         """
         Model congestion across the network.
@@ -201,28 +203,28 @@ class TrafficAnalyzer:
         summary_out: Dict[str, Any] = {
             "total_segments": total_segments,
             "congested_segments": 0,
-            "average_delay_factor": 0
+            "average_delay_factor": 0,
         }
         congestion_results: Dict[str, Any] = {
             "algorithm": algorithm,
             "timestamp": datetime.now().isoformat(),
             "segments": segments_out,
-            "summary": summary_out
+            "summary": summary_out,
         }
-        
+
         total_delay = 0.0
-        
+
         for segment_id, volume in network_flows.items():
             capacity = capacity_data.get(segment_id, 2000)
-            
+
             # Calculate delay using BPR function: t = t0 * (1 + α(v/c)^β)
             # α = 0.15, β = 4 are standard BPR parameters
             if algorithm == "bpr":
                 vc_ratio = volume / capacity if capacity > 0 else 0
-                delay_factor = 1 + 0.15 * (vc_ratio ** 4)
+                delay_factor = 1 + 0.15 * (vc_ratio**4)
             else:
                 delay_factor = 1 + (volume / capacity) if capacity > 0 else 1
-            
+
             # Determine condition
             if delay_factor < 1.05:
                 condition = TrafficCondition.FREE_FLOW
@@ -235,52 +237,54 @@ class TrafficAnalyzer:
             else:
                 condition = TrafficCondition.CONGESTED
                 summary_out["congested_segments"] += 1
-            
+
             total_delay += float(delay_factor)
-            
-            segments_out.append({
-                "segment_id": segment_id,
-                "volume": volume,
-                "capacity": capacity,
-                "vc_ratio": round(volume / capacity, 3) if capacity > 0 else 0,
-                "delay_factor": round(delay_factor, 3),
-                "condition": condition.value
-            })
-        
+
+            segments_out.append(
+                {
+                    "segment_id": segment_id,
+                    "volume": volume,
+                    "capacity": capacity,
+                    "vc_ratio": round(volume / capacity, 3) if capacity > 0 else 0,
+                    "delay_factor": round(delay_factor, 3),
+                    "condition": condition.value,
+                }
+            )
+
         if network_flows:
             summary_out["average_delay_factor"] = round(
                 total_delay / len(network_flows), 3
             )
-        
+
         logger.info(f"Congestion modeled for {len(network_flows)} segments")
         return congestion_results
-    
+
     def simulate_traffic(
         self,
         network: Any,
         demand_matrix: Dict[str, Any],
         simulation_hours: int = 1,
-        time_step_seconds: int = 60
+        time_step_seconds: int = 60,
     ) -> Dict[str, Any]:
         """
         Simulate traffic flow over time.
-        
+
         Args:
             network: Transport network
             demand_matrix: OD demand matrix
             simulation_hours: Hours to simulate
             time_step_seconds: Simulation time step
-            
+
         Returns:
             Simulation results
         """
         num_steps = (simulation_hours * 3600) // time_step_seconds
-        
+
         results_out: List[Dict[str, Any]] = []
         statistics_out: Dict[str, Any] = {
             "total_trips": 0,
             "completed_trips": 0,
-            "average_travel_time": 0
+            "average_travel_time": 0,
         }
         simulation: Dict[str, Any] = {
             "simulation_id": f"sim_{datetime.now().strftime('%Y%m%d%H%M%S')}",
@@ -288,47 +292,49 @@ class TrafficAnalyzer:
             "time_step_seconds": time_step_seconds,
             "total_steps": num_steps,
             "results": results_out,
-            "statistics": statistics_out
+            "statistics": statistics_out,
         }
-        
+
         # Extract demand from OD matrix
         matrix = demand_matrix.get("matrix", [[]])
         total_demand = sum(sum(row) for row in matrix)
         statistics_out["total_trips"] = int(total_demand)
-        
+
         # Trip release rate per step (uniform release across simulation)
         trips_per_step = total_demand / max(num_steps, 1)
-        
+
         # Network capacity: extract from network or use defaults
         default_capacity = 2000  # vehicles/hour per link
-        free_flow_speed = 60.0   # km/h
-        
+        free_flow_speed = 60.0  # km/h
+
         # Track vehicles in the network and cumulative travel time
         vehicles_in_network = 0.0
         total_travel_time = 0.0
         completed_trips = 0
-        
+
         # Average trip length estimate (steps to traverse a route)
         mean_trip_duration_steps = max(3, num_steps // 10)  # ~10% of sim duration
-        
+
         for step in range(min(num_steps, 60)):  # Cap output detail
             step_time = step * time_step_seconds
-            
+
             # Release new trips
             vehicles_in_network += trips_per_step
-            
+
             # BPR delay: effective speed = free_flow / (1 + 0.15*(V/C)^4)
             vc_ratio = vehicles_in_network / max(default_capacity, 1)
-            bpr_factor = 1 + 0.15 * (vc_ratio ** 4)
+            bpr_factor = 1 + 0.15 * (vc_ratio**4)
             effective_speed = free_flow_speed / bpr_factor
-            
+
             # Complete trips that have been in the network long enough
             if step >= mean_trip_duration_steps:
                 departing = trips_per_step  # Roughly FIFO
                 vehicles_in_network = max(0, vehicles_in_network - departing)
                 completed_trips += int(departing)
-                total_travel_time += departing * mean_trip_duration_steps * time_step_seconds
-            
+                total_travel_time += (
+                    departing * mean_trip_duration_steps * time_step_seconds
+                )
+
             # Classify congestion from V/C ratio
             if vc_ratio < 0.35:
                 congestion = "free_flow"
@@ -340,80 +346,84 @@ class TrafficAnalyzer:
                 congestion = "heavy"
             else:
                 congestion = "congested"
-            
-            results_out.append({
-                "step": step,
-                "time_seconds": step_time,
-                "vehicles_in_network": int(vehicles_in_network),
-                "average_speed_kmh": round(effective_speed, 1),
-                "congestion_level": congestion,
-                "vc_ratio": round(vc_ratio, 3),
-                "bpr_delay_factor": round(bpr_factor, 3),
-            })
-        
+
+            results_out.append(
+                {
+                    "step": step,
+                    "time_seconds": step_time,
+                    "vehicles_in_network": int(vehicles_in_network),
+                    "average_speed_kmh": round(effective_speed, 1),
+                    "congestion_level": congestion,
+                    "vc_ratio": round(vc_ratio, 3),
+                    "bpr_delay_factor": round(bpr_factor, 3),
+                }
+            )
+
         statistics_out["completed_trips"] = completed_trips
         statistics_out["average_travel_time"] = round(
             total_travel_time / max(completed_trips, 1), 1
         )
-        
+
         logger.info(f"Traffic simulation completed: {num_steps} steps")
         return simulation
-    
+
     def detect_incidents(
         self,
         current_data: Dict[str, Any],
         historical_baseline: Dict[str, Any],
-        threshold: float = 0.3
+        threshold: float = 0.3,
     ) -> List[Dict[str, Any]]:
         """
         Detect traffic incidents from anomalies.
-        
+
         Args:
             current_data: Current traffic conditions
             historical_baseline: Historical patterns
             threshold: Anomaly detection threshold
-            
+
         Returns:
             List of detected incidents
         """
         incidents: List[Dict[str, Any]] = []
-        
+
         for segment_id, current in current_data.items():
             baseline = historical_baseline.get(segment_id, {})
-            
+
             current_speed = current.get("speed", 50)
             baseline_speed = baseline.get("speed", 50)
-            
+
             # Detect significant speed drop
             if baseline_speed > 0:
                 speed_deviation = (baseline_speed - current_speed) / baseline_speed
-                
+
                 if speed_deviation > threshold:
                     severity = "high" if speed_deviation > 0.5 else "moderate"
-                    
-                    incidents.append({
-                        "incident_id": f"inc_{segment_id}_{datetime.now().strftime('%H%M%S')}",
-                        "segment_id": segment_id,
-                        "type": "congestion_anomaly",
-                        "severity": severity,
-                        "current_speed": current_speed,
-                        "expected_speed": baseline_speed,
-                        "deviation": round(speed_deviation, 3),
-                        "detected_at": datetime.now().isoformat()
-                    })
-        
+
+                    incidents.append(
+                        {
+                            "incident_id": f"inc_{segment_id}_{datetime.now().strftime('%H%M%S')}",
+                            "segment_id": segment_id,
+                            "type": "congestion_anomaly",
+                            "severity": severity,
+                            "current_speed": current_speed,
+                            "expected_speed": baseline_speed,
+                            "deviation": round(speed_deviation, 3),
+                            "detected_at": datetime.now().isoformat(),
+                        }
+                    )
+
         logger.info(f"Detected {len(incidents)} potential incidents")
         return incidents
-    
+
     def forecast_traffic(
         self,
         historical_data: List[Dict[str, Any]],
         forecast_horizon: str = "1h",
-        model: str = "arima"
+        model: str = "arima",
     ) -> Dict[str, Any]:
         """
         Forecast future traffic conditions.
-        
+
         Args:
             historical_data: Historical traffic data
             forecast_horizon: Forecast duration string (number + s/m/h/d unit,
@@ -421,7 +431,7 @@ class TrafficAnalyzer:
                 number of ``self.time_resolution``-sized forecast steps.
                 Must span at least one full interval.
             model: Forecasting model
-            
+
         Returns:
             Traffic forecast
         """
@@ -434,45 +444,49 @@ class TrafficAnalyzer:
                 f"forecast_horizon {forecast_horizon!r} is shorter than one "
                 f"interval ({self.time_resolution!r})"
             )
-        
+
         # Exponentially Weighted Moving Average (EWMA) forecast
         alpha = 0.3  # Smoothing factor
         window = min(12, len(historical_data)) if historical_data else 0
-        
+
         if historical_data and window > 0:
             values = [d.get("volume", 0) for d in historical_data[-window:]]
-            
+
             # Compute EWMA of historical values
             ewma = values[0]
             for v in values[1:]:
                 ewma = alpha * v + (1 - alpha) * ewma
-            
+
             # Estimate trend from linear regression on window
             if len(values) >= 3:
                 n = len(values)
                 x_mean = (n - 1) / 2.0
                 y_mean = sum(values) / n
-                numerator = sum((i - x_mean) * (v - y_mean) for i, v in enumerate(values))
+                numerator = sum(
+                    (i - x_mean) * (v - y_mean) for i, v in enumerate(values)
+                )
                 denominator = sum((i - x_mean) ** 2 for i in range(n))
                 trend = numerator / denominator if denominator > 0 else 0
             else:
                 trend = 0
-            
+
             # Residual std for prediction intervals
             residuals = [v - (ewma + trend * i) for i, v in enumerate(values)]
-            residual_std = (sum(r ** 2 for r in residuals) / max(len(residuals), 1)) ** 0.5
+            residual_std = (
+                sum(r**2 for r in residuals) / max(len(residuals), 1)
+            ) ** 0.5
         else:
             ewma = 1000
             trend = 0
             residual_std = 200  # default uncertainty
-        
+
         forecasts_out: List[Dict[str, Any]] = []
         forecast: Dict[str, Any] = {
             "model": model,
             "forecast_horizon": forecast_horizon,
             "generated_at": datetime.now().isoformat(),
             "parameters": {"alpha": alpha, "window": window, "trend": round(trend, 3)},
-            "forecasts": forecasts_out
+            "forecasts": forecasts_out,
         }
 
         # Generate forecast points with widening confidence intervals
@@ -481,12 +495,16 @@ class TrafficAnalyzer:
             # Prediction interval widens with horizon
             interval_width = residual_std * (1 + 0.1 * i)
 
-            forecasts_out.append({
-                "time_offset_minutes": (i + 1) * 15,
-                "predicted_volume": max(0, int(round(predicted))),
-                "confidence_lower": max(0, int(round(predicted - 1.96 * interval_width))),
-                "confidence_upper": int(round(predicted + 1.96 * interval_width))
-            })
+            forecasts_out.append(
+                {
+                    "time_offset_minutes": (i + 1) * 15,
+                    "predicted_volume": max(0, int(round(predicted))),
+                    "confidence_lower": max(
+                        0, int(round(predicted - 1.96 * interval_width))
+                    ),
+                    "confidence_upper": int(round(predicted + 1.96 * interval_width)),
+                }
+            )
 
         logger.info(f"Generated {steps}-step traffic forecast (EWMA α={alpha})")
         return forecast

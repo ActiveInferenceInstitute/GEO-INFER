@@ -106,7 +106,9 @@ class PricingEngine:
             config: Pricing engine configuration
         """
         self.config = config or {}
-        self.logger = logging.getLogger("geo_infer_insurance.underwriting.pricing_engine")
+        self.logger = logging.getLogger(
+            "geo_infer_insurance.underwriting.pricing_engine"
+        )
 
         # Pricing parameters
         self.expense_ratio = self.config.get("expense_ratio", 0.25)

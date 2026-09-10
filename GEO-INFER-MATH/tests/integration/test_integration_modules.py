@@ -10,11 +10,13 @@ import pytest
 
 # ─── ACT Integration ────────────────────────────────────────────────
 
+
 class TestFreeEnergyCalculator:
     """Tests for free energy calculations."""
 
     def test_variational_free_energy(self):
         from geo_infer_math.integration.act.free_energy import FreeEnergyCalculator
+
         calc = FreeEnergyCalculator()
         obs = np.array([0.8, 0.1, 0.1])
         beliefs = np.array([0.5, 0.3, 0.2])
@@ -28,6 +30,7 @@ class TestFreeEnergyCalculator:
 
     def test_expected_free_energy(self):
         from geo_infer_math.integration.act.free_energy import FreeEnergyCalculator
+
         calc = FreeEnergyCalculator()
         beliefs = np.array([0.7, 0.2, 0.1])
         likelihood = np.eye(3) * 0.8 + 0.2 / 3
@@ -37,6 +40,7 @@ class TestFreeEnergyCalculator:
 
     def test_uniform_beliefs_zero_complexity(self):
         from geo_infer_math.integration.act.free_energy import FreeEnergyCalculator
+
         calc = FreeEnergyCalculator()
         obs = np.ones(4) / 4
         beliefs = np.ones(4) / 4
@@ -51,6 +55,7 @@ class TestBeliefUpdating:
 
     def test_bayesian_update(self):
         from geo_infer_math.integration.act.belief_updating import BeliefUpdating
+
         updater = BeliefUpdating()
         prior = np.array([0.5, 0.3, 0.2])
         obs = np.array([0.9, 0.05, 0.05])
@@ -63,6 +68,7 @@ class TestBeliefUpdating:
 
     def test_precision_weighted_update(self):
         from geo_infer_math.integration.act.belief_updating import BeliefUpdating
+
         updater = BeliefUpdating()
         beliefs = np.array([1.0, 2.0, 3.0])
         errors = np.array([0.5, -0.5, 0.0])
@@ -81,7 +87,10 @@ class TestVariationalInference:
     """Tests for variational inference."""
 
     def test_vi_convergence(self):
-        from geo_infer_math.integration.act.variational_inference import VariationalInferenceHelpers
+        from geo_infer_math.integration.act.variational_inference import (
+            VariationalInferenceHelpers,
+        )
+
         vi = VariationalInferenceHelpers(max_iterations=50)
         obs = np.array([0.9, 0.05, 0.05])
         prior = np.ones(3) / 3
@@ -98,6 +107,7 @@ class TestGenerativeModels:
 
     def test_categorical_model(self):
         from geo_infer_math.integration.act.generative_models import GenerativeModels
+
         builder = GenerativeModels()
         model = builder.create_generative_model(
             "categorical", {"n_states": 4, "n_obs": 4, "n_actions": 2}
@@ -110,6 +120,7 @@ class TestGenerativeModels:
 
     def test_grid_world_model(self):
         from geo_infer_math.integration.act.generative_models import GenerativeModels
+
         builder = GenerativeModels()
         model = builder.create_generative_model("grid_world", {"grid_size": 3})
         assert model["A"].shape == (9, 9)  # 3×3 grid = 9 states
@@ -120,7 +131,10 @@ class TestPolicyOptimization:
     """Tests for policy optimization."""
 
     def test_policy_selection(self):
-        from geo_infer_math.integration.act.policy_optimization import PolicyOptimization
+        from geo_infer_math.integration.act.policy_optimization import (
+            PolicyOptimization,
+        )
+
         po = PolicyOptimization(gamma=2.0)
         A = np.eye(3) * 0.8 + 0.2 / 3
         B = np.zeros((3, 3, 2))
@@ -137,11 +151,13 @@ class TestPolicyOptimization:
 
 # ─── AI Integration ─────────────────────────────────────────────────
 
+
 class TestSpatialLossFunctions:
     """Tests for spatial loss functions."""
 
     def test_spatial_mse(self):
         from geo_infer_math.integration.ai.loss_functions import SpatialLossFunctions
+
         loss_fn = SpatialLossFunctions()
         pred = np.array([1.0, 2.0, 3.0])
         target = np.array([1.1, 2.1, 2.9])
@@ -152,12 +168,15 @@ class TestSpatialLossFunctions:
 
     def test_spatial_mse_with_coordinates(self):
         from geo_infer_math.integration.ai.loss_functions import SpatialLossFunctions
+
         loss_fn = SpatialLossFunctions()
         pred = np.array([1.0, 2.0, 3.0])
         target = np.array([1.1, 2.1, 2.9])
         coords = np.array([[0, 0], [1, 0], [0, 1]], dtype=float)
 
-        result = loss_fn.calculate_loss(pred, target, coordinates=coords, loss_type="spatial_mse")
+        result = loss_fn.calculate_loss(
+            pred, target, coordinates=coords, loss_type="spatial_mse"
+        )
         assert result["spatial_penalty"] >= 0
 
 
@@ -165,7 +184,10 @@ class TestOptimizationBridges:
     """Tests for optimization bridges."""
 
     def test_gradient_descent(self):
-        from geo_infer_math.integration.ai.optimization_bridges import OptimizationBridges
+        from geo_infer_math.integration.ai.optimization_bridges import (
+            OptimizationBridges,
+        )
+
         bridge = OptimizationBridges(learning_rate=0.1, max_iterations=200)
 
         def quadratic(x):
@@ -181,6 +203,7 @@ class TestSpatialAttention:
 
     def test_basic_attention(self):
         from geo_infer_math.integration.ai.spatial_attention import SpatialAttention
+
         sa = SpatialAttention()
         n, d = 5, 8
         Q = np.random.randn(n, d)
@@ -195,6 +218,7 @@ class TestSpatialAttention:
 
     def test_multi_head_attention(self):
         from geo_infer_math.integration.ai.spatial_attention import SpatialAttention
+
         sa = SpatialAttention()
         n, d = 6, 8
         Q = np.random.randn(n, d)
@@ -210,7 +234,10 @@ class TestSpatialTensorOperations:
     """Tests for spatial tensor operations."""
 
     def test_distance_tensor(self):
-        from geo_infer_math.integration.ai.tensor_operations import SpatialTensorOperations
+        from geo_infer_math.integration.ai.tensor_operations import (
+            SpatialTensorOperations,
+        )
+
         ops = SpatialTensorOperations()
         coords = np.array([[0, 0], [3, 4], [1, 1]], dtype=float)
 
@@ -220,7 +247,10 @@ class TestSpatialTensorOperations:
         np.testing.assert_allclose(np.diag(distances), 0.0)
 
     def test_adjacency_tensor_threshold(self):
-        from geo_infer_math.integration.ai.tensor_operations import SpatialTensorOperations
+        from geo_infer_math.integration.ai.tensor_operations import (
+            SpatialTensorOperations,
+        )
+
         ops = SpatialTensorOperations()
         coords = np.array([[0, 0], [1, 0], [10, 0]], dtype=float)
 
@@ -229,7 +259,10 @@ class TestSpatialTensorOperations:
         assert adj[0, 2] == 0.0  # Beyond threshold
 
     def test_convolution_kernel_gaussian(self):
-        from geo_infer_math.integration.ai.tensor_operations import SpatialTensorOperations
+        from geo_infer_math.integration.ai.tensor_operations import (
+            SpatialTensorOperations,
+        )
+
         ops = SpatialTensorOperations()
         kernel = ops.spatial_convolution_kernel(3, kernel_type="gaussian")
         assert kernel.shape == (3, 3)
@@ -238,11 +271,13 @@ class TestSpatialTensorOperations:
 
 # ─── BAYES Integration ──────────────────────────────────────────────
 
+
 class TestPosteriorHelpers:
     """Tests for conjugate posterior computations."""
 
     def test_normal_normal(self):
         from geo_infer_math.integration.bayes.posterior_helpers import PosteriorHelpers
+
         ph = PosteriorHelpers()
         data = np.random.randn(100) + 5.0  # Mean ≈ 5
         result = ph.calculate_posterior(
@@ -254,13 +289,14 @@ class TestPosteriorHelpers:
 
     def test_beta_binomial(self):
         from geo_infer_math.integration.bayes.posterior_helpers import PosteriorHelpers
+
         ph = PosteriorHelpers()
         data = np.array([1, 1, 1, 0, 1, 0, 1, 1, 0, 1])
         result = ph.calculate_posterior(
             data, {"alpha": 1.0, "beta": 1.0}, family="beta_binomial"
         )
         assert result["alpha_n"] == 8.0  # 1 + 7 successes
-        assert result["beta_n"] == 4.0   # 1 + 3 failures
+        assert result["beta_n"] == 4.0  # 1 + 3 failures
 
 
 class TestPriorBuilders:
@@ -268,6 +304,7 @@ class TestPriorBuilders:
 
     def test_uniform_prior(self):
         from geo_infer_math.integration.bayes.prior_builders import PriorBuilders
+
         pb = PriorBuilders()
         prior = pb.build_prior("uniform", size=10)
         assert len(prior) == 10
@@ -276,6 +313,7 @@ class TestPriorBuilders:
 
     def test_normal_prior(self):
         from geo_infer_math.integration.bayes.prior_builders import PriorBuilders
+
         pb = PriorBuilders()
         prior = pb.build_prior("normal", size=20, mean=10, std=2)
         assert len(prior) == 20
@@ -289,6 +327,7 @@ class TestMCMCHelpers:
 
     def test_metropolis_hastings(self):
         from geo_infer_math.integration.bayes.mcmc_helpers import MCMCHelpers
+
         mcmc = MCMCHelpers(n_samples=200, burn_in=50, proposal_std=0.5)
 
         # Sample from N(3, 1)
@@ -306,6 +345,7 @@ class TestModelSelection:
 
     def test_bic_aic_comparison(self):
         from geo_infer_math.integration.bayes.model_selection import ModelSelection
+
         ms = ModelSelection()
 
         models = [
@@ -321,6 +361,7 @@ class TestModelSelection:
 
     def test_bayes_factor(self):
         from geo_infer_math.integration.bayes.model_selection import ModelSelection
+
         ms = ModelSelection()
 
         result = ms.bayes_factor(log_evidence_1=-50.0, log_evidence_2=-55.0)
@@ -332,10 +373,11 @@ class TestBayesianOptimization:
     """Tests for Bayesian optimization."""
 
     def test_simple_optimization(self):
-        from geo_infer_math.integration.bayes.bayesian_optimization import BayesianOptimization
-        bo = BayesianOptimization(
-            n_initial=3, max_iterations=5, length_scale=0.5
+        from geo_infer_math.integration.bayes.bayesian_optimization import (
+            BayesianOptimization,
         )
+
+        bo = BayesianOptimization(n_initial=3, max_iterations=5, length_scale=0.5)
 
         def sphere(x):
             return float(np.sum((x - 0.5) ** 2))

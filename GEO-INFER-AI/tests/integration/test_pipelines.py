@@ -106,6 +106,3 @@ class TestEndToEndPipeline:
 
         assert len(predictions) == len(X_test)
         assert all(np.isfinite(pred) for pred in predictions)
-
-
-

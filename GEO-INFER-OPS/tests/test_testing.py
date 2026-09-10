@@ -77,7 +77,6 @@ def test_setup_testing_defaults(mock_config_dict):
         patch("geo_infer_ops.core.testing.get_config") as mock_get_config,
         patch("pytest.main", return_value=0) as mock_pytest,
     ):
-
         mock_get_config.return_value = Config(
             logging=LoggingConfig(level="INFO"),
             monitoring=MonitoringConfig(enabled=True),
@@ -99,7 +98,6 @@ def test_setup_testing_custom_config(mock_config_dict):
         patch("geo_infer_ops.core.testing.get_config") as mock_get_config,
         patch("pytest.main", return_value=0) as mock_pytest,
     ):
-
         mock_get_config.return_value = Config(
             logging=LoggingConfig(level="DEBUG"),
             monitoring=MonitoringConfig(enabled=True),
@@ -129,7 +127,6 @@ def test_setup_testing_failure():
         patch("geo_infer_ops.core.testing.get_config") as mock_get_config,
         patch("pytest.main", return_value=1),
     ):
-
         mock_get_config.return_value = Config(
             logging=LoggingConfig(level="INFO"),
             monitoring=MonitoringConfig(enabled=True),

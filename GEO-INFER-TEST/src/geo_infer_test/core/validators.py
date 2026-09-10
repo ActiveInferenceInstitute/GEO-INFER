@@ -25,7 +25,11 @@ except ImportError:
 class BaseValidator(ABC):
     """Base class for all validators."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None, logger: Optional[logging.Logger] = None) -> None:
+    def __init__(
+        self,
+        config: Optional[Dict[str, Any]] = None,
+        logger: Optional[logging.Logger] = None,
+    ) -> None:
         self.config = config or {}
         self.logger = logger or logging.getLogger(__name__)
         self.validation_rules: List[ValidationRule] = []
@@ -139,9 +143,7 @@ class DataQualityValidator(BaseValidator):
 
                 # Track field-level quality
                 if rule.field != "*":
-                    field_quality_out[rule.field] = result.get(
-                        "quality_score", 1.0
-                    )
+                    field_quality_out[rule.field] = result.get("quality_score", 1.0)
 
             except Exception as e:
                 self.logger.error(f"Error applying validation rule {rule.name}: {e}")
@@ -285,10 +287,10 @@ class SpatialValidator(BaseValidator):
         start_time = time.time()
 
         spatial_validation_out: Dict[str, Any] = {
-                "coordinate_validity": {},
-                "h3_validation": {},
-                "spatial_distribution": {},
-            }
+            "coordinate_validity": {},
+            "h3_validation": {},
+            "spatial_distribution": {},
+        }
         results: Dict[str, Any] = {
             "total_records": len(df),
             "spatial_validation": spatial_validation_out,
@@ -661,9 +663,7 @@ class BayesianValidator(BaseValidator):
         """Check if Bayesian inference converged."""
         return bool(results.get("converged", False))
 
-    def _validate_predictions(
-        self, predictions: Any
-    ) -> Dict[str, Any]:
+    def _validate_predictions(self, predictions: Any) -> Dict[str, Any]:
         """Validate prediction values."""
         # Handle non-sequence inputs
         if not isinstance(predictions, (list, tuple, np.ndarray)):
@@ -701,9 +701,7 @@ class BayesianValidator(BaseValidator):
             },
         }
 
-    def _analyze_uncertainty(
-        self, uncertainty: Any
-    ) -> Dict[str, Any]:
+    def _analyze_uncertainty(self, uncertainty: Any) -> Dict[str, Any]:
         """Analyze uncertainty estimates."""
         # Handle non-sequence inputs
         if not isinstance(uncertainty, (list, tuple, np.ndarray)):
@@ -841,15 +839,11 @@ class PerformanceValidator:
             }
 
         # Overall assessment
-        timing_ok = performance_out["timing_checks"].get(
-            "timing_acceptable", True
-        )
+        timing_ok = performance_out["timing_checks"].get("timing_acceptable", True)
         accuracy_ok = performance_out["throughput_checks"].get(
             "accuracy_acceptable", True
         )
-        memory_ok = performance_out["resource_checks"].get(
-            "memory_acceptable", True
-        )
+        memory_ok = performance_out["resource_checks"].get("memory_acceptable", True)
 
         if timing_ok and accuracy_ok and memory_ok:
             performance_out["overall_performance"] = "acceptable"
@@ -892,7 +886,11 @@ class PerformanceValidator:
 class QualityController:
     """Main quality control system that coordinates all validators."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None, logger: Optional[logging.Logger] = None) -> None:
+    def __init__(
+        self,
+        config: Optional[Dict[str, Any]] = None,
+        logger: Optional[logging.Logger] = None,
+    ) -> None:
         self.config = config or {}
         self.logger = logger or logging.getLogger(__name__)
 

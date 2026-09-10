@@ -106,7 +106,9 @@ class WatershedDelineator:
             for j in range(cols):
                 if flow_dir[i, j] == 0:
                     continue
-                idx = D8_CODES.index(flow_dir[i, j]) if flow_dir[i, j] in D8_CODES else -1
+                idx = (
+                    D8_CODES.index(flow_dir[i, j]) if flow_dir[i, j] in D8_CODES else -1
+                )
                 if idx < 0:
                     continue
                 di, dj = D8_OFFSETS[idx]
@@ -162,7 +164,9 @@ class WatershedDelineator:
             for j in range(cols):
                 if flow_dir[i, j] == 0:
                     continue
-                idx = D8_CODES.index(flow_dir[i, j]) if flow_dir[i, j] in D8_CODES else -1
+                idx = (
+                    D8_CODES.index(flow_dir[i, j]) if flow_dir[i, j] in D8_CODES else -1
+                )
                 if idx < 0:
                     continue
                 di, dj = D8_OFFSETS[idx]
@@ -216,7 +220,7 @@ class WatershedDelineator:
             Slope in degrees.
         """
         dy, dx = np.gradient(dem, cell_size)
-        slope_rad = np.arctan(np.sqrt(dx ** 2 + dy ** 2))
+        slope_rad = np.arctan(np.sqrt(dx**2 + dy**2))
         return cast("np.ndarray", np.degrees(slope_rad))
 
     def full_delineation(
@@ -254,15 +258,35 @@ class WatershedDelineator:
 
         return xr.Dataset(
             {
-                "flow_direction": xr.DataArray(flow_dir, dims=dims[-2:], coords={k: v for k, v in coords.items() if k in dims[-2:]}),
-                "flow_accumulation": xr.DataArray(flow_accum, dims=dims[-2:], coords={k: v for k, v in coords.items() if k in dims[-2:]}),
-                "basin_mask": xr.DataArray(basin, dims=dims[-2:], coords={k: v for k, v in coords.items() if k in dims[-2:]}),
-                "stream_network": xr.DataArray(streams, dims=dims[-2:], coords={k: v for k, v in coords.items() if k in dims[-2:]}),
-                "slope_degrees": xr.DataArray(slope, dims=dims[-2:], coords={k: v for k, v in coords.items() if k in dims[-2:]}),
+                "flow_direction": xr.DataArray(
+                    flow_dir,
+                    dims=dims[-2:],
+                    coords={k: v for k, v in coords.items() if k in dims[-2:]},
+                ),
+                "flow_accumulation": xr.DataArray(
+                    flow_accum,
+                    dims=dims[-2:],
+                    coords={k: v for k, v in coords.items() if k in dims[-2:]},
+                ),
+                "basin_mask": xr.DataArray(
+                    basin,
+                    dims=dims[-2:],
+                    coords={k: v for k, v in coords.items() if k in dims[-2:]},
+                ),
+                "stream_network": xr.DataArray(
+                    streams,
+                    dims=dims[-2:],
+                    coords={k: v for k, v in coords.items() if k in dims[-2:]},
+                ),
+                "slope_degrees": xr.DataArray(
+                    slope,
+                    dims=dims[-2:],
+                    coords={k: v for k, v in coords.items() if k in dims[-2:]},
+                ),
             },
             attrs={
                 "basin_area_cells": basin_area_cells,
-                "basin_area_km2": float(basin_area_cells * (cell_size ** 2) / 1e6),
+                "basin_area_km2": float(basin_area_cells * (cell_size**2) / 1e6),
                 "outlet": outlet,
                 "stream_threshold": stream_threshold,
             },

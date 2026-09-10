@@ -67,9 +67,7 @@ def _operation() -> Dict[str, Any]:
         coordinates[split:],
     )
 
-    predictor = SpatialPredictor(
-        model_type="ridge", include_spatial_features=True
-    )
+    predictor = SpatialPredictor(model_type="ridge", include_spatial_features=True)
     predictor.fit(X_train, y_train, coordinates=coords_train)
     predictions = predictor.predict(X_test, coordinates=coords_test)
 
@@ -82,9 +80,7 @@ def _operation() -> Dict[str, Any]:
         "n_test": int(n_samples - split),
         "feature_names": predictor.feature_names_,
         "metrics": metrics,
-        "sample_predictions": [
-            round(float(p), 4) for p in predictions[:5]
-        ],
+        "sample_predictions": [round(float(p), 4) for p in predictions[:5]],
         "sample_true_values": [round(float(v), 4) for v in y_test[:5]],
     }
 

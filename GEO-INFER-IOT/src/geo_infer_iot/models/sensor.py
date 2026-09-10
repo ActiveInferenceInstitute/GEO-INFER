@@ -396,13 +396,15 @@ class SensorNetwork(BaseModel):
         bounds = self.spatial_bounds
         polygon = {
             "type": "Polygon",
-            "coordinates": [[
-                [bounds["lon_min"], bounds["lat_min"]],
-                [bounds["lon_max"], bounds["lat_min"]],
-                [bounds["lon_max"], bounds["lat_max"]],
-                [bounds["lon_min"], bounds["lat_max"]],
-                [bounds["lon_min"], bounds["lat_min"]],
-            ]],
+            "coordinates": [
+                [
+                    [bounds["lon_min"], bounds["lat_min"]],
+                    [bounds["lon_max"], bounds["lat_min"]],
+                    [bounds["lon_max"], bounds["lat_max"]],
+                    [bounds["lon_min"], bounds["lat_max"]],
+                    [bounds["lon_min"], bounds["lat_min"]],
+                ]
+            ],
         }
         return list(h3.geo_to_cells(polygon, self.h3_resolution))
 

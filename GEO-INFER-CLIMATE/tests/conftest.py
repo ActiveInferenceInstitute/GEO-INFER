@@ -4,6 +4,7 @@ Pytest fixtures for GEO-INFER-CLIMATE tests.
 Provides temperature time series, climate grids on H3 cells,
 reference period data, and standard spatial fixtures.
 """
+
 import pytest
 import numpy as np
 import pandas as pd
@@ -100,16 +101,36 @@ def reference_period_data() -> Dict[str, Any]:
             "mean": 10.5,
             "std": 1.2,
             "monthly_means": [
-                2.1, 3.0, 5.8, 9.2, 13.1, 16.5,
-                18.9, 18.4, 15.0, 10.3, 5.7, 2.8,
+                2.1,
+                3.0,
+                5.8,
+                9.2,
+                13.1,
+                16.5,
+                18.9,
+                18.4,
+                15.0,
+                10.3,
+                5.7,
+                2.8,
             ],
         },
         "precipitation": {
             "mean": 950.0,
             "std": 120.0,
             "monthly_means": [
-                120, 100, 90, 70, 55, 40,
-                30, 35, 50, 80, 110, 130,
+                120,
+                100,
+                90,
+                70,
+                55,
+                40,
+                30,
+                35,
+                50,
+                80,
+                110,
+                130,
             ],
         },
     }

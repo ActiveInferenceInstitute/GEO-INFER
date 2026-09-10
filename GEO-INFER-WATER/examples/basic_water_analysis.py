@@ -30,7 +30,9 @@ def main():
     hydrology = HydrologicalModeler()
     precip = xr.DataArray(np.full((5, 5), 100.0), dims=("y", "x"))
     soil_wet = xr.DataArray(np.full((5, 5), 0.8), dims=("y", "x"))
-    rr = hydrology.rainfall_runoff_model(precip, soil_moisture=soil_wet, infiltration_rate=0.6)
+    rr = hydrology.rainfall_runoff_model(
+        precip, soil_moisture=soil_wet, infiltration_rate=0.6
+    )
     total = rr["runoff"] + rr["infiltration"]
     print(f"   Precipitation:    {float(precip.mean()):.1f} mm")
     print(f"   Runoff:            {float(rr['runoff'].mean()):.1f} mm")

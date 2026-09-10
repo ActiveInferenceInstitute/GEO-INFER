@@ -132,7 +132,6 @@ class MemoryConsolidation:
                 and time_in_memory >= self.consolidation_delay
                 and item.memory_type == "working"
             ):
-
                 # Convert to long-term memory
                 item.memory_type = "long_term"
                 item.decay_rate *= 0.5  # Slower decay for long-term memories
@@ -245,8 +244,12 @@ class SpatialMemoryModel:
 
         # Memory organization and indexing
         self.spatial_index: Dict[str, List[str]] = {}  # For spatial memory organization
-        self.temporal_index: Dict[str, List[str]] = {}  # For temporal memory organization
-        self.conceptual_index: Dict[str, List[str]] = {}  # For semantic memory organization
+        self.temporal_index: Dict[
+            str, List[str]
+        ] = {}  # For temporal memory organization
+        self.conceptual_index: Dict[
+            str, List[str]
+        ] = {}  # For semantic memory organization
 
         logger.info(f"Spatial Memory Model initialized with types: {self.memory_types}")
 

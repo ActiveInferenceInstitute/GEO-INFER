@@ -19,6 +19,7 @@ Examples:
     >>> service = DataService()
     >>> datasets = service.list_datasets()
 """
+
 from .rest_api import DataAPI
 from .service import DataService
 

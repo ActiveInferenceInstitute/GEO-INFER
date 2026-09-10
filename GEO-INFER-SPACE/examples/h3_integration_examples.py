@@ -315,7 +315,6 @@ def example_h3_temporal_analysis():
 
     for hour in range(24):
         for i, cell_index in enumerate(area_cells):
-
             # Create realistic temporal patterns
             if 7 <= hour <= 9:  # Morning rush
                 activity_level = 80 + (i * 5)
@@ -369,7 +368,7 @@ def example_h3_temporal_analysis():
             print("Top 3 peak activity periods:")
             for i, period in enumerate(temporal_patterns["peak_periods"][:3]):
                 print(
-                    f"  {i+1}. Hour {period['period']}: {period['mean_value']:.1f} avg activity"
+                    f"  {i + 1}. Hour {period['period']}: {period['mean_value']:.1f} avg activity"
                 )
 
     print("H3 temporal analysis completed successfully\n")

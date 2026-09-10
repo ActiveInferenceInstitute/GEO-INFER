@@ -199,9 +199,9 @@ def _assert_probability_vector(value: Any, label: str) -> None:
     assert array.size > 0, f"{label} is empty"
     assert np.all(np.isfinite(array)), f"{label} contains non-finite values"
     assert np.all(array >= -1e-12), f"{label} contains negative values"
-    assert np.isclose(
-        np.sum(array), 1.0, atol=1e-6
-    ), f"{label} is not normalized: sum={np.sum(array)}"
+    assert np.isclose(np.sum(array), 1.0, atol=1e-6), (
+        f"{label} is not normalized: sum={np.sum(array)}"
+    )
 
 
 def _assert_finite(value: Any, label: str) -> None:
@@ -210,28 +210,28 @@ def _assert_finite(value: Any, label: str) -> None:
 
 def _assert_pymdp_metadata(metadata: dict[str, Any] | None, label: str) -> None:
     assert metadata, f"{label} missing pymdp metadata"
-    assert (
-        metadata.get("backend") == "inferactively-pymdp"
-    ), f"{label} did not use inferactively-pymdp"
-    assert (
-        metadata.get("pymdp_version") == REQUIRED_PYMDP_VERSION
-    ), f"{label} wrong pymdp version: {metadata}"
-    assert (
-        metadata.get("h3_version") == REQUIRED_H3_VERSION
-    ), f"{label} wrong h3 version: {metadata}"
+    assert metadata.get("backend") == "inferactively-pymdp", (
+        f"{label} did not use inferactively-pymdp"
+    )
+    assert metadata.get("pymdp_version") == REQUIRED_PYMDP_VERSION, (
+        f"{label} wrong pymdp version: {metadata}"
+    )
+    assert metadata.get("h3_version") == REQUIRED_H3_VERSION, (
+        f"{label} wrong h3 version: {metadata}"
+    )
     assert "action_posterior" in metadata, f"{label} missing action posterior"
-    assert (
-        "negative_expected_free_energy" in metadata
-    ), f"{label} missing negative expected free energy"
+    assert "negative_expected_free_energy" in metadata, (
+        f"{label} missing negative expected free energy"
+    )
     posterior = np.asarray(metadata.get("action_posterior"), dtype=float)
     neg_efe = np.asarray(metadata.get("negative_expected_free_energy"), dtype=float)
     assert posterior.size > 0, f"{label} missing action posterior"
     assert neg_efe.size == posterior.size, f"{label} mismatched pymdp policy arrays"
     assert np.all(np.isfinite(posterior)), f"{label} posterior non-finite"
     assert np.all(np.isfinite(neg_efe)), f"{label} negative EFE non-finite"
-    assert np.isclose(
-        posterior.sum(), 1.0, atol=1e-6
-    ), f"{label} posterior not normalized"
+    assert np.isclose(posterior.sum(), 1.0, atol=1e-6), (
+        f"{label} posterior not normalized"
+    )
 
 
 def _assert_spatial_trace(

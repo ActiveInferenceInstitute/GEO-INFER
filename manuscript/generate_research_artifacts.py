@@ -288,9 +288,7 @@ class VerificationRecord:
         the results, so there is no argument by which a caller can pair them
         with a definition they were not measured against.
         """
-        return defined_command_groups(
-            full_validation=self.full_validation_requested
-        )
+        return defined_command_groups(full_validation=self.full_validation_requested)
 
     @classmethod
     def unmeasured(cls, *, full_validation: bool = False) -> "VerificationRecord":
@@ -654,7 +652,9 @@ def _module_table(inventory: RepositoryInventory) -> str:
     # longest value each column actually holds.
     rows = [
         "| Theme | Module | Package | Source files | Test files |",
-        "| " + " | ".join(("-" * 16, "-" * 21, "-" * 21, "-" * 7 + ":", "-" * 7 + ":")) + " |",
+        "| "
+        + " | ".join(("-" * 16, "-" * 21, "-" * 21, "-" * 7 + ":", "-" * 7 + ":"))
+        + " |",
     ]
     for theme, names in MODULE_THEMES:
         ordered = sorted(
@@ -880,9 +880,7 @@ def generate_figures(
             max(3.0, INVENTORY_FIGURE_CHROME_IN + split * INVENTORY_ROW_HEIGHT_IN),
         )
         _assert_leaves_room_for_text(inventory_height, "module_inventory.png")
-        fig, axes = plt.subplots(
-            1, 2, figsize=(TEXT_BLOCK_WIDTH_IN, inventory_height)
-        )
+        fig, axes = plt.subplots(1, 2, figsize=(TEXT_BLOCK_WIDTH_IN, inventory_height))
         # Both panels share one count axis, so a bar in the right panel is
         # directly comparable with a bar in the left one.
         count_limit = max((*source_counts, *test_counts, 1)) * 1.08
@@ -984,9 +982,7 @@ def generate_figures(
             fig, output_dir / specs[2].filename, specs[2].caption, inventory.source_hash
         )
         plt.close(fig)
-    return tuple(
-        replace(spec, sha256=digests[spec.filename]) for spec in specs
-    )
+    return tuple(replace(spec, sha256=digests[spec.filename]) for spec in specs)
 
 
 def _write_json(path: Path, payload: Mapping[str, Any]) -> None:
@@ -1237,10 +1233,14 @@ def resolve_verification(
     """
     stored = _prune_undefined_groups(_load_stored_verification(root))
     tier = _effective_tier(stored, full_validation=full_validation)
-    if reuse_verification and stored is not None and (
-        stored.source_hash == inventory.source_hash
-        and stored.source_commit == inventory.commit
-        and stored.full_validation_requested == tier
+    if (
+        reuse_verification
+        and stored is not None
+        and (
+            stored.source_hash == inventory.source_hash
+            and stored.source_commit == inventory.commit
+            and stored.full_validation_requested == tier
+        )
     ):
         print(
             "reusing the stored verification record for source hash "
@@ -1352,7 +1352,9 @@ def _verification_table(
     # wrapping and stealing rows from the body.
     rows = [
         "| Group | Command | Status | Exit | Seconds |",
-        "| " + " | ".join(("-" * 21, "-" * 33, "-" * 8, "-" * 4 + ":", "-" * 7 + ":")) + " |",
+        "| "
+        + " | ".join(("-" * 21, "-" * 33, "-" * 8, "-" * 4 + ":", "-" * 7 + ":"))
+        + " |",
     ]
     for name, command in commands:
         result = recorded.get(name)
@@ -1792,9 +1794,7 @@ def audit_bibliography(
     for path in manuscript_files:
         cited.update(CITATION_RE.findall(path.read_text(encoding="utf-8")))
     undefined = {
-        key
-        for key in cited - entries
-        if not key.startswith(CROSSREF_PREFIXES)
+        key for key in cited - entries if not key.startswith(CROSSREF_PREFIXES)
     }
     return tuple(sorted(entries - cited)), tuple(sorted(undefined))
 
@@ -1905,9 +1905,7 @@ def generate(
             "citations with no bibliography entry: " + ", ".join(undefined)
         )
     if uncited:
-        message = (
-            "bibliography entries are never cited: " + ", ".join(uncited)
-        )
+        message = "bibliography entries are never cited: " + ", ".join(uncited)
         if policy["fail_on_unused"]:
             raise ValueError(message)
         print(f"warning: {message}", file=sys.stderr)
@@ -2066,7 +2064,9 @@ def check_published_artifacts(root: Path) -> tuple[str, ...]:
             "RESEARCH_SOURCE_HASH is stale: published "
             f"{published.get('RESEARCH_SOURCE_HASH')!r}, measured {measured!r}"
         )
-    missing = [key for _prefix, key, _field in _CONFIG_OWNED_FIELDS if key not in published]
+    missing = [
+        key for _prefix, key, _field in _CONFIG_OWNED_FIELDS if key not in published
+    ]
     if missing:
         problems.append(
             "published variables omit config metadata: " + ", ".join(missing)

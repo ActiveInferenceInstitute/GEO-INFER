@@ -16,9 +16,13 @@ from dataclasses import dataclass, field
 import uuid
 
 from geo_infer_comms.models.message import (
-    CollaborationSessionRequest, CollaborationSessionResponse,
-    CollaborationType, Participant, ParticipantRole, ParticipantStatus,
-    JoinSessionResponse
+    CollaborationSessionRequest,
+    CollaborationSessionResponse,
+    CollaborationType,
+    Participant,
+    ParticipantRole,
+    ParticipantStatus,
+    JoinSessionResponse,
 )
 from geo_infer_comms.models.spatial import GeospatialMetadata, GeospatialPoint
 from geo_infer_comms.utils.validation import validate_collaboration_session
@@ -38,7 +42,7 @@ class CollaborationManager:
         max_sessions: int = 1000,
         max_participants_per_session: int = 100,
         enable_persistence: bool = True,
-        persistence_path: Optional[str] = None
+        persistence_path: Optional[str] = None,
     ):
         self.max_sessions = max_sessions
         self.max_participants_per_session = max_participants_per_session
@@ -65,7 +69,9 @@ class CollaborationManager:
         # Set up logging
         self.logger = logging.getLogger(__name__)
 
-    def create_session(self, request: CollaborationSessionRequest, creator_id: str) -> CollaborationSessionResponse:
+    def create_session(
+        self, request: CollaborationSessionRequest, creator_id: str
+    ) -> CollaborationSessionResponse:
         """
         Create a new collaboration session.
 
@@ -85,7 +91,9 @@ class CollaborationManager:
 
         # Check session limit
         if len(self.sessions) >= self.max_sessions:
-            raise ValueError(f"Maximum number of sessions ({self.max_sessions}) reached")
+            raise ValueError(
+                f"Maximum number of sessions ({self.max_sessions}) reached"
+            )
 
         # Create session response
         session = CollaborationSessionResponse(
@@ -98,10 +106,10 @@ class CollaborationManager:
                     name=f"User {creator_id}",
                     role=ParticipantRole.HOST,
                     status=ParticipantStatus.ONLINE,
-                    joined_at=datetime.now(timezone.utc)
+                    joined_at=datetime.now(timezone.utc),
                 )
             ],
-            geospatial_context=request.geospatial_context
+            geospatial_context=request.geospatial_context,
         )
 
         # Initialize session data structures
@@ -117,16 +125,23 @@ class CollaborationManager:
                 "documents": {},
                 "messages": [],
                 "whiteboard": {},
-                "shared_files": []
+                "shared_files": [],
             }
             self.session_messages[session.session_id] = []
             self.session_documents[session.session_id] = {}
 
         self.metrics.sessions_created += 1
-        self.logger.info(f"Collaboration session created: {session.session_id} by {creator_id}")
+        self.logger.info(
+            f"Collaboration session created: {session.session_id} by {creator_id}"
+        )
         return session
 
-    def join_session(self, session_id: str, user_id: str, participant_role: ParticipantRole = ParticipantRole.PARTICIPANT) -> JoinSessionResponse:
+    def join_session(
+        self,
+        session_id: str,
+        user_id: str,
+        participant_role: ParticipantRole = ParticipantRole.PARTICIPANT,
+    ) -> JoinSessionResponse:
         """
         Join an existing collaboration session.
 
@@ -150,15 +165,15 @@ class CollaborationManager:
 
         # Check participant limit
         if len(session.participants) >= self.max_participants_per_session:
-            raise ValueError(f"Session is full (max {self.max_participants_per_session} participants)")
+            raise ValueError(
+                f"Session is full (max {self.max_participants_per_session} participants)"
+            )
 
         with self._lock:
             # Check if user is already in session
             if user_id in self.session_participants.get(session_id, {}):
                 return JoinSessionResponse(
-                    session_id=session_id,
-                    participant_id=user_id,
-                    join_status="joined"
+                    session_id=session_id, participant_id=user_id, join_status="joined"
                 )
 
             # Create participant
@@ -167,7 +182,7 @@ class CollaborationManager:
                 name=f"User {user_id}",
                 role=participant_role,
                 status=ParticipantStatus.ONLINE,
-                joined_at=datetime.now(timezone.utc)
+                joined_at=datetime.now(timezone.utc),
             )
 
             # Add to session
@@ -186,7 +201,7 @@ class CollaborationManager:
             session_id=session_id,
             participant_id=user_id,
             join_status="joined",
-            session_info=self._get_session_info(session_id)
+            session_info=self._get_session_info(session_id),
         )
 
     def leave_session(self, session_id: str, user_id: str) -> bool:
@@ -243,7 +258,10 @@ class CollaborationManager:
 
         # Check permissions
         participant = self.session_participants.get(session_id, {}).get(ended_by)
-        if not participant or participant.role not in [ParticipantRole.HOST, ParticipantRole.MODERATOR]:
+        if not participant or participant.role not in [
+            ParticipantRole.HOST,
+            ParticipantRole.MODERATOR,
+        ]:
             return False
 
         with self._lock:
@@ -269,7 +287,7 @@ class CollaborationManager:
         session_type: Optional[CollaborationType] = None,
         status: Optional[str] = None,
         participant_id: Optional[str] = None,
-        limit: int = 100
+        limit: int = 100,
     ) -> List[CollaborationSessionResponse]:
         """Get sessions with filtering."""
         with self._lock:
@@ -279,14 +297,17 @@ class CollaborationManager:
         filtered_sessions = sessions
 
         if session_type:
-            filtered_sessions = [s for s in filtered_sessions if s.session_type == session_type]
+            filtered_sessions = [
+                s for s in filtered_sessions if s.session_type == session_type
+            ]
 
         if status:
             filtered_sessions = [s for s in filtered_sessions if s.status == status]
 
         if participant_id:
             filtered_sessions = [
-                s for s in filtered_sessions
+                s
+                for s in filtered_sessions
                 if participant_id in self.session_participants.get(s.session_id, {})
             ]
 
@@ -294,7 +315,9 @@ class CollaborationManager:
         filtered_sessions.sort(key=lambda s: s.created_at, reverse=True)
         return filtered_sessions[:limit]
 
-    def get_participant_sessions(self, user_id: str) -> List[CollaborationSessionResponse]:
+    def get_participant_sessions(
+        self, user_id: str
+    ) -> List[CollaborationSessionResponse]:
         """Get all sessions for a specific participant."""
         session_ids = self.participant_sessions.get(user_id, set())
 
@@ -306,7 +329,9 @@ class CollaborationManager:
 
         return sessions
 
-    def add_session_message(self, session_id: str, user_id: str, message: Dict[str, Any]) -> bool:
+    def add_session_message(
+        self, session_id: str, user_id: str, message: Dict[str, Any]
+    ) -> bool:
         """Add a message to a session's shared workspace."""
         session = self.sessions.get(session_id)
         if not session:
@@ -323,20 +348,24 @@ class CollaborationManager:
             session_message = {
                 **message,
                 "user_id": user_id,
-                "timestamp": datetime.now(timezone.utc).isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
             self.session_messages[session_id].append(session_message)
 
         return True
 
-    def get_session_messages(self, session_id: str, limit: int = 100) -> List[Dict[str, Any]]:
+    def get_session_messages(
+        self, session_id: str, limit: int = 100
+    ) -> List[Dict[str, Any]]:
         """Get messages from a session's shared workspace."""
         with self._lock:
             messages = self.session_messages.get(session_id, [])
             return messages[-limit:]  # Return most recent messages
 
-    def update_shared_document(self, session_id: str, document_id: str, user_id: str, updates: Dict[str, Any]) -> bool:
+    def update_shared_document(
+        self, session_id: str, document_id: str, user_id: str, updates: Dict[str, Any]
+    ) -> bool:
         """Update a shared document in the session workspace."""
         session = self.sessions.get(session_id)
         if not session:
@@ -357,7 +386,7 @@ class CollaborationManager:
                     "created_at": datetime.now(timezone.utc).isoformat(),
                     "content": {},
                     "version": 1,
-                    "last_modified": datetime.now(timezone.utc).isoformat()
+                    "last_modified": datetime.now(timezone.utc).isoformat(),
                 }
 
             document = self.session_documents[session_id][document_id]
@@ -368,7 +397,9 @@ class CollaborationManager:
 
         return True
 
-    def get_shared_document(self, session_id: str, document_id: str) -> Optional[Dict[str, Any]]:
+    def get_shared_document(
+        self, session_id: str, document_id: str
+    ) -> Optional[Dict[str, Any]]:
         """Get a shared document from the session workspace."""
         with self._lock:
             session_docs = self.session_documents.get(session_id, {})
@@ -377,7 +408,9 @@ class CollaborationManager:
     def get_session_statistics(self) -> Dict[str, Any]:
         """Get collaboration system statistics."""
         with self._lock:
-            active_sessions = len([s for s in self.sessions.values() if s.status == "active"])
+            active_sessions = len(
+                [s for s in self.sessions.values() if s.status == "active"]
+            )
             total_participants = sum(
                 len(participants) for participants in self.session_participants.values()
             )
@@ -389,7 +422,7 @@ class CollaborationManager:
                 "shared_documents": sum(
                     len(docs) for docs in self.session_documents.values()
                 ),
-                "metrics": self.metrics.to_dict()
+                "metrics": self.metrics.to_dict(),
             }
 
     def _get_session_info(self, session_id: str) -> Dict[str, Any]:
@@ -411,7 +444,7 @@ class CollaborationManager:
             "message_count": len(messages),
             "document_count": len(documents),
             "created_at": session.created_at.isoformat(),
-            "geospatial_context": session.geospatial_context
+            "geospatial_context": session.geospatial_context,
         }
 
 
@@ -439,7 +472,7 @@ class CollaborationMetrics:
             "documents_shared": self.documents_shared,
             "net_sessions": self.sessions_created - self.sessions_ended,
             "net_participants": self.participants_joined - self.participants_left,
-            "uptime_seconds": uptime.total_seconds()
+            "uptime_seconds": uptime.total_seconds(),
         }
 
     def reset(self) -> None:
@@ -463,17 +496,20 @@ class RealTimeCollaborationEngine:
 
     def __init__(self, collaboration_manager: CollaborationManager):
         self.collaboration_manager = collaboration_manager
-        self.live_cursors: Dict[str, Dict[str, Any]] = {}  # session_id -> user_id -> cursor_data
-        self.shared_editing: Dict[str, Dict[str, Any]] = {}  # session_id -> document_id -> edit_data
-        self.voice_channels: Dict[str, Dict[str, Any]] = {}  # session_id -> voice_channel_data
+        self.live_cursors: Dict[
+            str, Dict[str, Any]
+        ] = {}  # session_id -> user_id -> cursor_data
+        self.shared_editing: Dict[
+            str, Dict[str, Any]
+        ] = {}  # session_id -> document_id -> edit_data
+        self.voice_channels: Dict[
+            str, Dict[str, Any]
+        ] = {}  # session_id -> voice_channel_data
 
         self.logger = logging.getLogger(__name__)
 
     def update_live_cursor(
-        self,
-        session_id: str,
-        user_id: str,
-        cursor_data: Dict[str, Any]
+        self, session_id: str, user_id: str, cursor_data: Dict[str, Any]
     ) -> None:
         """Update a user's live cursor position in a session."""
         if session_id not in self.live_cursors:
@@ -482,20 +518,19 @@ class RealTimeCollaborationEngine:
         self.live_cursors[session_id][user_id] = {
             **cursor_data,
             "user_id": user_id,
-            "timestamp": datetime.now(timezone.utc).isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
-        self.logger.debug(f"Live cursor updated for user {user_id} in session {session_id}")
+        self.logger.debug(
+            f"Live cursor updated for user {user_id} in session {session_id}"
+        )
 
     def get_live_cursors(self, session_id: str) -> Dict[str, Any]:
         """Get all live cursors for a session."""
         return self.live_cursors.get(session_id, {})
 
     def start_shared_editing(
-        self,
-        session_id: str,
-        document_id: str,
-        user_id: str
+        self, session_id: str, document_id: str, user_id: str
     ) -> bool:
         """Start shared editing session for a document."""
         if session_id not in self.shared_editing:
@@ -506,7 +541,7 @@ class RealTimeCollaborationEngine:
                 "active_editors": set(),
                 "edit_history": [],
                 "lock_holder": None,
-                "version": 1
+                "version": 1,
             }
 
         session_data = self.shared_editing[session_id][document_id]
@@ -515,15 +550,13 @@ class RealTimeCollaborationEngine:
         return True
 
     def end_shared_editing(
-        self,
-        session_id: str,
-        document_id: str,
-        user_id: str
+        self, session_id: str, document_id: str, user_id: str
     ) -> bool:
         """End shared editing session for a document."""
-        if (session_id in self.shared_editing and
-            document_id in self.shared_editing[session_id]):
-
+        if (
+            session_id in self.shared_editing
+            and document_id in self.shared_editing[session_id]
+        ):
             session_data = self.shared_editing[session_id][document_id]
             session_data["active_editors"].discard(user_id)
 
@@ -537,14 +570,17 @@ class RealTimeCollaborationEngine:
 
     def get_active_editors(self, session_id: str, document_id: str) -> List[str]:
         """Get list of active editors for a document."""
-        if (session_id in self.shared_editing and
-            document_id in self.shared_editing[session_id]):
-
+        if (
+            session_id in self.shared_editing
+            and document_id in self.shared_editing[session_id]
+        ):
             return list(self.shared_editing[session_id][document_id]["active_editors"])
 
         return []
 
-    def create_voice_channel(self, session_id: str, channel_config: Dict[str, Any]) -> str:
+    def create_voice_channel(
+        self, session_id: str, channel_config: Dict[str, Any]
+    ) -> str:
         """Create a voice channel for a session."""
         channel_id = f"voice_{session_id}_{uuid.uuid4().hex[:8]}"
 
@@ -552,10 +588,12 @@ class RealTimeCollaborationEngine:
             "session_id": session_id,
             "config": channel_config,
             "participants": set(),
-            "created_at": datetime.now(timezone.utc).isoformat()
+            "created_at": datetime.now(timezone.utc).isoformat(),
         }
 
-        self.logger.info(f"Voice channel created: {channel_id} for session {session_id}")
+        self.logger.info(
+            f"Voice channel created: {channel_id} for session {session_id}"
+        )
         return channel_id
 
     def join_voice_channel(self, channel_id: str, user_id: str) -> bool:
@@ -585,8 +623,12 @@ class GeospatialCollaborationCoordinator:
 
     def __init__(self, collaboration_manager: CollaborationManager):
         self.collaboration_manager = collaboration_manager
-        self.session_locations: Dict[str, Dict[str, GeospatialMetadata]] = {}  # session_id -> user_id -> location
-        self.spatial_workspaces: Dict[str, Dict[str, Any]] = {}  # session_id -> spatial_data
+        self.session_locations: Dict[
+            str, Dict[str, GeospatialMetadata]
+        ] = {}  # session_id -> user_id -> location
+        self.spatial_workspaces: Dict[
+            str, Dict[str, Any]
+        ] = {}  # session_id -> spatial_data
 
         self.logger = logging.getLogger(__name__)
 
@@ -595,14 +637,14 @@ class GeospatialCollaborationCoordinator:
         session_id: str,
         user_id: str,
         location: GeospatialPoint,
-        accuracy: float = 10.0
+        accuracy: float = 10.0,
     ) -> None:
         """Update a participant's location in a collaboration session."""
         geospatial_data = GeospatialMetadata(
             location=location,
             accuracy=accuracy,
             source="collaboration",
-            timestamp=datetime.now(timezone.utc)
+            timestamp=datetime.now(timezone.utc),
         )
 
         if session_id not in self.session_locations:
@@ -610,16 +652,18 @@ class GeospatialCollaborationCoordinator:
 
         self.session_locations[session_id][user_id] = geospatial_data
 
-        self.logger.debug(f"Participant location updated: {user_id} in session {session_id}")
+        self.logger.debug(
+            f"Participant location updated: {user_id} in session {session_id}"
+        )
 
-    def get_session_participant_locations(self, session_id: str) -> Dict[str, GeospatialMetadata]:
+    def get_session_participant_locations(
+        self, session_id: str
+    ) -> Dict[str, GeospatialMetadata]:
         """Get all participant locations for a session."""
         return self.session_locations.get(session_id, {})
 
     def create_spatial_workspace(
-        self,
-        session_id: str,
-        workspace_config: Dict[str, Any]
+        self, session_id: str, workspace_config: Dict[str, Any]
     ) -> str:
         """Create a spatial workspace for collaborative geospatial work."""
         workspace_id = f"spatial_{session_id}_{uuid.uuid4().hex[:8]}"
@@ -629,17 +673,16 @@ class GeospatialCollaborationCoordinator:
             "config": workspace_config,
             "features": [],
             "annotations": {},
-            "created_at": datetime.now(timezone.utc).isoformat()
+            "created_at": datetime.now(timezone.utc).isoformat(),
         }
 
-        self.logger.info(f"Spatial workspace created: {workspace_id} for session {session_id}")
+        self.logger.info(
+            f"Spatial workspace created: {workspace_id} for session {session_id}"
+        )
         return workspace_id
 
     def add_spatial_feature(
-        self,
-        workspace_id: str,
-        user_id: str,
-        feature: Dict[str, Any]
+        self, workspace_id: str, user_id: str, feature: Dict[str, Any]
     ) -> bool:
         """Add a spatial feature to a workspace."""
         if workspace_id not in self.spatial_workspaces:
@@ -648,17 +691,14 @@ class GeospatialCollaborationCoordinator:
         feature_data = {
             **feature,
             "added_by": user_id,
-            "added_at": datetime.now(timezone.utc).isoformat()
+            "added_at": datetime.now(timezone.utc).isoformat(),
         }
 
         self.spatial_workspaces[workspace_id]["features"].append(feature_data)
         return True
 
     def add_workspace_annotation(
-        self,
-        workspace_id: str,
-        user_id: str,
-        annotation: Dict[str, Any]
+        self, workspace_id: str, user_id: str, annotation: Dict[str, Any]
     ) -> bool:
         """Add an annotation to a spatial workspace."""
         if workspace_id not in self.spatial_workspaces:
@@ -673,7 +713,7 @@ class GeospatialCollaborationCoordinator:
             **annotation,
             "annotation_id": annotation_id,
             "added_by": user_id,
-            "added_at": datetime.now(timezone.utc).isoformat()
+            "added_at": datetime.now(timezone.utc).isoformat(),
         }
 
         return True
@@ -712,10 +752,7 @@ class CollaborationNotificationManager:
         self.logger = logging.getLogger(__name__)
 
     def send_session_notification(
-        self,
-        session_id: str,
-        notification: Dict[str, Any],
-        sender_id: str
+        self, session_id: str, notification: Dict[str, Any], sender_id: str
     ) -> bool:
         """Send a notification to all participants in a session."""
         session = self.collaboration_manager.sessions.get(session_id)
@@ -723,14 +760,16 @@ class CollaborationNotificationManager:
             return False
 
         # Check if sender is participant
-        if sender_id not in self.collaboration_manager.session_participants.get(session_id, {}):
+        if sender_id not in self.collaboration_manager.session_participants.get(
+            session_id, {}
+        ):
             return False
 
         session_notification = {
             **notification,
             "session_id": session_id,
             "sender_id": sender_id,
-            "timestamp": datetime.now(timezone.utc).isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         if session_id not in self.session_notifications:
@@ -741,7 +780,9 @@ class CollaborationNotificationManager:
         self.logger.info(f"Session notification sent in {session_id} by {sender_id}")
         return True
 
-    def get_session_notifications(self, session_id: str, limit: int = 50) -> List[Dict[str, Any]]:
+    def get_session_notifications(
+        self, session_id: str, limit: int = 50
+    ) -> List[Dict[str, Any]]:
         """Get notifications for a session."""
         notifications = self.session_notifications.get(session_id, [])
         return notifications[-limit:]  # Return most recent
@@ -749,7 +790,9 @@ class CollaborationNotificationManager:
     def clear_session_notifications(self, session_id: str, user_id: str) -> bool:
         """Clear notifications for a user in a session."""
         # In a real implementation, would mark notifications as read for this user
-        self.logger.info(f"Notifications cleared for user {user_id} in session {session_id}")
+        self.logger.info(
+            f"Notifications cleared for user {user_id} in session {session_id}"
+        )
         return True
 
 
@@ -772,21 +815,21 @@ class CollaborationAnalytics:
         session_id: str,
         activity_type: str,
         user_id: str,
-        details: Optional[Dict[str, Any]] = None
+        details: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Record an activity in a collaboration session."""
         if session_id not in self.session_analytics:
             self.session_analytics[session_id] = {
                 "activities": [],
                 "start_time": datetime.now(timezone.utc).isoformat(),
-                "participants": set()
+                "participants": set(),
             }
 
         activity = {
             "activity_type": activity_type,
             "user_id": user_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "details": details or {}
+            "details": details or {},
         }
 
         self.session_analytics[session_id]["activities"].append(activity)
@@ -828,8 +871,8 @@ class CollaborationAnalytics:
             "activity_timeline": activity_timeline,
             "time_range": {
                 "start": session_data["start_time"],
-                "end": datetime.now(timezone.utc).isoformat()
-            }
+                "end": datetime.now(timezone.utc).isoformat(),
+            },
         }
 
     def get_system_analytics(self) -> Dict[str, Any]:
@@ -842,5 +885,5 @@ class CollaborationAnalytics:
         return {
             "total_sessions_tracked": total_sessions,
             "total_activities": total_activities,
-            "average_activities_per_session": total_activities / max(total_sessions, 1)
+            "average_activities_per_session": total_activities / max(total_sessions, 1),
         }

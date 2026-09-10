@@ -28,7 +28,10 @@ def sample_feature_collection() -> dict:
             {
                 "type": "Feature",
                 "properties": {"h3": "8928308280fffff"},
-                "geometry": {"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]},
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+                },
             }
         ],
     }
@@ -63,7 +66,9 @@ def test_geojson_layer_structure() -> None:
 
 
 def test_geojson_layer_explicit_id() -> None:
-    layer = geojson_layer("grid", sample_feature_collection(), layer_id="my-layer", index=7)
+    layer = geojson_layer(
+        "grid", sample_feature_collection(), layer_id="my-layer", index=7
+    )
     assert layer["id"] == "my-layer"
 
 
@@ -76,7 +81,9 @@ def test_geojson_layer_style_not_shared_between_layers() -> None:
 
 
 def test_tile_layer() -> None:
-    layer = tile_layer("tiles", "https://example.com/{z}/{x}/{y}.png", attribution="OSM")
+    layer = tile_layer(
+        "tiles", "https://example.com/{z}/{x}/{y}.png", attribution="OSM"
+    )
     assert layer["type"] == "xyz"
     assert layer["source"]["type"] == "raster"
     assert layer["source"]["tiles"] == ["https://example.com/{z}/{x}/{y}.png"]
@@ -114,7 +121,9 @@ def test_build_project_preferences_copied_per_call() -> None:
 def test_dumps_project_stable() -> None:
     project = build_project("Demo", [geojson_layer("g", sample_feature_collection())])
     s1 = dumps_project(project)
-    s2 = dumps_project(build_project("Demo", [geojson_layer("g", sample_feature_collection())]))
+    s2 = dumps_project(
+        build_project("Demo", [geojson_layer("g", sample_feature_collection())])
+    )
     assert s1 == s2
     # Round-trips to identical dict.
     assert json.loads(s1) == json.loads(s2)

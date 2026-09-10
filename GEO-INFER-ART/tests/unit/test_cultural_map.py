@@ -285,7 +285,9 @@ class TestCulturalMap(unittest.TestCase):
         # Test invalid radius
         with self.assertRaises(ValueError):
             CulturalMap.from_coordinates(
-                lat=self.test_lat, lon=self.test_lon, radius_km=-10.0  # Invalid radius
+                lat=self.test_lat,
+                lon=self.test_lon,
+                radius_km=-10.0,  # Invalid radius
             )
 
         # Test invalid region name using real from_region call

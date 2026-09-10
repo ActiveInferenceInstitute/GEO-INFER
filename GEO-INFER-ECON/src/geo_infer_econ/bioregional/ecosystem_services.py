@@ -74,7 +74,9 @@ class EcosystemServicesValuation:
         self.service_values = self.config.get("service_values", DEFAULT_SERVICE_VALUES)
         logger.info(
             "EcosystemServicesValuation initialized (ppp=%.2f, discount=%.3f, horizon=%d yr)",
-            self.ppp_factor, self.discount_rate, self.time_horizon,
+            self.ppp_factor,
+            self.discount_rate,
+            self.time_horizon,
         )
 
     def value_services(self, services: List[Dict[str, Any]]) -> Dict[str, float]:
@@ -108,14 +110,20 @@ class EcosystemServicesValuation:
             total_annual += annual_value
             logger.debug(
                 "  %s: %.2f USD/yr (%.1f ha × %.0f USD/ha × quality=%.2f × ppp=%.2f)",
-                key, annual_value, area_ha, base_value, quality, self.ppp_factor,
+                key,
+                annual_value,
+                area_ha,
+                base_value,
+                quality,
+                self.ppp_factor,
             )
 
         results["total_annual"] = round(total_annual, 2)
         results["total_npv"] = round(self._compute_npv(total_annual), 2)
         logger.info(
             "Total ecosystem value: %.2f USD/yr, NPV: %.2f USD",
-            results["total_annual"], results["total_npv"],
+            results["total_annual"],
+            results["total_npv"],
         )
         return results
 
@@ -140,7 +148,10 @@ class ProvisioningServices:
         self.unit_values = self.config.get(
             "unit_values", DEFAULT_SERVICE_VALUES["provisioning"]
         )
-        logger.info("ProvisioningServices initialized with %d service types", len(self.unit_values))
+        logger.info(
+            "ProvisioningServices initialized with %d service types",
+            len(self.unit_values),
+        )
 
     def value_provisioning(self, data: Dict[str, Any]) -> float:
         """Value provisioning services for a region.
@@ -178,7 +189,10 @@ class RegulatingServices:
         self.unit_values = self.config.get(
             "unit_values", DEFAULT_SERVICE_VALUES["regulating"]
         )
-        logger.info("RegulatingServices initialized with %d service types", len(self.unit_values))
+        logger.info(
+            "RegulatingServices initialized with %d service types",
+            len(self.unit_values),
+        )
 
     def value_regulating(self, data: Dict[str, Any]) -> float:
         """Value regulating services for a region.
@@ -212,7 +226,9 @@ class CulturalServices:
         self.unit_values = self.config.get(
             "unit_values", DEFAULT_SERVICE_VALUES["cultural"]
         )
-        logger.info("CulturalServices initialized with %d service types", len(self.unit_values))
+        logger.info(
+            "CulturalServices initialized with %d service types", len(self.unit_values)
+        )
 
     def value_cultural(self, data: Dict[str, Any]) -> float:
         """Value cultural services for a region.
@@ -249,7 +265,10 @@ class SupportingServices:
         self.unit_values = self.config.get(
             "unit_values", DEFAULT_SERVICE_VALUES["supporting"]
         )
-        logger.info("SupportingServices initialized with %d service types", len(self.unit_values))
+        logger.info(
+            "SupportingServices initialized with %d service types",
+            len(self.unit_values),
+        )
 
     def value_supporting(self, data: Dict[str, Any]) -> float:
         """Value supporting services for a region.
@@ -288,7 +307,8 @@ class ServiceFlowModeling:
         self.flow_threshold = self.config.get("flow_threshold", 0.01)
         logger.info(
             "ServiceFlowModeling initialized (decay=%.4f, threshold=%.3f)",
-            self.decay_rate, self.flow_threshold,
+            self.decay_rate,
+            self.flow_threshold,
         )
 
     def model_flows(self, flow_data: Dict[str, Any]) -> pd.DataFrame:
@@ -310,7 +330,9 @@ class ServiceFlowModeling:
 
         logger.info(
             "Modeling %s flows: %d supply → %d demand areas",
-            service_type, len(supply_areas), len(demand_areas),
+            service_type,
+            len(supply_areas),
+            len(demand_areas),
         )
 
         rows = []
@@ -327,23 +349,32 @@ class ServiceFlowModeling:
                 flow_value = capacity * demand_val * decay
 
                 if flow_value >= self.flow_threshold:
-                    rows.append({
-                        "source_id": supply["id"],
-                        "target_id": demand["id"],
-                        "flow_value": round(flow_value, 4),
-                        "distance_km": round(dist_km, 2),
-                        "flow_fraction": round(decay, 4),
-                    })
+                    rows.append(
+                        {
+                            "source_id": supply["id"],
+                            "target_id": demand["id"],
+                            "flow_value": round(flow_value, 4),
+                            "distance_km": round(dist_km, 2),
+                            "flow_fraction": round(decay, 4),
+                        }
+                    )
 
         df = pd.DataFrame(rows)
         if df.empty:
             df = pd.DataFrame(
-                columns=["source_id", "target_id", "flow_value", "distance_km", "flow_fraction"]
+                columns=[
+                    "source_id",
+                    "target_id",
+                    "flow_value",
+                    "distance_km",
+                    "flow_fraction",
+                ]
             )
 
         logger.info(
             "Generated %d service flows (total value: %.2f)",
-            len(df), df["flow_value"].sum() if not df.empty else 0.0,
+            len(df),
+            df["flow_value"].sum() if not df.empty else 0.0,
         )
         return df
 
@@ -353,5 +384,10 @@ class ServiceFlowModeling:
         R = 6371.0
         dlat = np.radians(lat2 - lat1)
         dlon = np.radians(lon2 - lon1)
-        a = np.sin(dlat / 2) ** 2 + np.cos(np.radians(lat1)) * np.cos(np.radians(lat2)) * np.sin(dlon / 2) ** 2
+        a = (
+            np.sin(dlat / 2) ** 2
+            + np.cos(np.radians(lat1))
+            * np.cos(np.radians(lat2))
+            * np.sin(dlon / 2) ** 2
+        )
         return float(R * 2 * np.arcsin(np.sqrt(a)))

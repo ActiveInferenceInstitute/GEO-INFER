@@ -468,7 +468,7 @@ def process_performance(args: argparse.Namespace) -> int:
         print(f"  Entries: {len(optimizer.cache)}")
         print(f"  Max entries: {optimizer.max_cache_size}")
         print(
-            f"  Total size: {sum(optimizer.cache_sizes.values()) / (1024*1024):.2f} MB"
+            f"  Total size: {sum(optimizer.cache_sizes.values()) / (1024 * 1024):.2f} MB"
         )
 
     if args.benchmark:

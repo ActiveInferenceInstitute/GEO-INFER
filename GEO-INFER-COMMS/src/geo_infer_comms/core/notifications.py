@@ -15,15 +15,24 @@ from dataclasses import dataclass, field
 import uuid
 
 from geo_infer_comms.models.message import (
-    NotificationRequest, NotificationResponse, NotificationStatus,
-    NotificationType, MessagePriority
+    NotificationRequest,
+    NotificationResponse,
+    NotificationStatus,
+    NotificationType,
+    MessagePriority,
 )
 from geo_infer_comms.models.spatial import (
-    GeospatialMetadata, SpatialFilter, GeospatialPoint, GeospatialBounds
+    GeospatialMetadata,
+    SpatialFilter,
+    GeospatialPoint,
+    GeospatialBounds,
 )
 from geo_infer_comms.utils.validation import (
-    validate_notification_type, validate_delivery_methods,
-    validate_email, validate_phone, validate_spatial_filter
+    validate_notification_type,
+    validate_delivery_methods,
+    validate_email,
+    validate_phone,
+    validate_spatial_filter,
 )
 
 
@@ -39,7 +48,7 @@ class NotificationManager:
         self,
         max_notifications: int = 10000,
         enable_persistence: bool = True,
-        persistence_path: Optional[str] = None
+        persistence_path: Optional[str] = None,
     ):
         self.max_notifications = max_notifications
         self.enable_persistence = enable_persistence
@@ -78,15 +87,13 @@ class NotificationManager:
 
             # Start scheduler thread
             self._scheduler_thread = threading.Thread(
-                target=self._process_scheduled_notifications,
-                daemon=True
+                target=self._process_scheduled_notifications, daemon=True
             )
             self._scheduler_thread.start()
 
             # Start delivery thread
             self._delivery_thread = threading.Thread(
-                target=self._process_notification_delivery,
-                daemon=True
+                target=self._process_notification_delivery, daemon=True
             )
             self._delivery_thread.start()
 
@@ -133,7 +140,7 @@ class NotificationManager:
             priority=request.priority,
             delivery_methods=cast(List[str], request.delivery_method),
             recipients=request.recipients,
-            geospatial_context=request.geospatial_context
+            geospatial_context=request.geospatial_context,
         )
 
         # Store notification
@@ -188,9 +195,7 @@ class NotificationManager:
             return False
 
     def schedule_notification(
-        self,
-        request: NotificationRequest,
-        schedule_time: datetime
+        self, request: NotificationRequest, schedule_time: datetime
     ) -> str:
         """
         Schedule a notification for future delivery.
@@ -211,7 +216,9 @@ class NotificationManager:
         notification.status = NotificationStatus.PENDING
         self.metrics.scheduled_notifications += 1
 
-        self.logger.info(f"Notification scheduled: {notification.notification_id} at {schedule_time}")
+        self.logger.info(
+            f"Notification scheduled: {notification.notification_id} at {schedule_time}"
+        )
         return notification.notification_id
 
     def mark_as_read(self, notification_id: str, user_id: str) -> bool:
@@ -245,7 +252,7 @@ class NotificationManager:
         status: Optional[NotificationStatus] = None,
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
-        limit: int = 100
+        limit: int = 100,
     ) -> List[NotificationResponse]:
         """
         Get notifications with filtering.
@@ -310,7 +317,7 @@ class NotificationManager:
             "queue_size": len(self.notification_queue),
             "spatial_filters": len(self.spatial_filters),
             "delivery_handlers": len(self.delivery_handlers),
-            "metrics": self.metrics.to_dict()
+            "metrics": self.metrics.to_dict(),
         }
 
     def _process_scheduled_notifications(self) -> None:
@@ -322,9 +329,11 @@ class NotificationManager:
                 with self._lock:
                     # Check for notifications ready to send
                     ready_ids = [
-                        n.notification_id for n in self.notification_queue
-                        if n.status == NotificationStatus.PENDING and
-                        n.schedule_time and n.schedule_time <= current_time
+                        n.notification_id
+                        for n in self.notification_queue
+                        if n.status == NotificationStatus.PENDING
+                        and n.schedule_time
+                        and n.schedule_time <= current_time
                     ]
 
                 for notification_id in ready_ids:
@@ -349,9 +358,10 @@ class NotificationManager:
                     # scheduled); future schedule_time values are withheld
                     # until the scheduler thread picks them up.
                     pending_ids = [
-                        n.notification_id for n in self.notification_queue
-                        if n.status == NotificationStatus.PENDING and
-                        (n.schedule_time is None or n.schedule_time <= current_time)
+                        n.notification_id
+                        for n in self.notification_queue
+                        if n.status == NotificationStatus.PENDING
+                        and (n.schedule_time is None or n.schedule_time <= current_time)
                     ]
 
                 for notification_id in pending_ids:
@@ -370,7 +380,8 @@ class NotificationManager:
         """Remove a notification from the processing queue under the lock."""
         with self._lock:
             self.notification_queue = [
-                n for n in self.notification_queue
+                n
+                for n in self.notification_queue
                 if n.notification_id != notification_id
             ]
 
@@ -471,12 +482,14 @@ class NotificationManager:
 
     def _register_default_handlers(self) -> None:
         """Register default delivery handlers."""
-        self.delivery_handlers.update({
-            "in_app": self._deliver_in_app,
-            "email": self._deliver_email,
-            "sms": self._deliver_sms,
-            "push": self._deliver_push
-        })
+        self.delivery_handlers.update(
+            {
+                "in_app": self._deliver_in_app,
+                "email": self._deliver_email,
+                "sms": self._deliver_sms,
+                "push": self._deliver_push,
+            }
+        )
 
 
 @dataclass
@@ -504,7 +517,7 @@ class NotificationMetrics:
             ),
             "scheduled_notifications": self.scheduled_notifications,
             "spatial_filters_used": self.spatial_filters_used,
-            "uptime_seconds": uptime.total_seconds()
+            "uptime_seconds": uptime.total_seconds(),
         }
 
     def reset(self) -> None:
@@ -547,7 +560,7 @@ class AlertSystem:
         self,
         rule_id: str,
         trigger_data: Dict[str, Any],
-        geospatial_context: Optional[GeospatialMetadata] = None
+        geospatial_context: Optional[GeospatialMetadata] = None,
     ) -> Optional[AlertResponse]:
         """Trigger an alert based on a rule."""
 
@@ -571,10 +584,14 @@ class AlertSystem:
                 "list[Literal['in_app', 'email', 'sms', 'push']]",
                 rule.delivery_methods,
             ),
-            geospatial_context=geospatial_context.to_dict() if geospatial_context else None
+            geospatial_context=geospatial_context.to_dict()
+            if geospatial_context
+            else None,
         )
 
-        notification = self.notification_manager.create_notification(notification_request)
+        notification = self.notification_manager.create_notification(
+            notification_request
+        )
 
         # Create alert response
         alert_response = AlertResponse(
@@ -583,13 +600,13 @@ class AlertSystem:
             notification_id=notification.notification_id,
             trigger_data=trigger_data,
             geospatial_context=geospatial_context,
-            created_at=datetime.now(timezone.utc)
+            created_at=datetime.now(timezone.utc),
         )
 
         # Store in history
         self.alert_history.append(alert_response)
         if len(self.alert_history) > self.max_history:
-            self.alert_history = self.alert_history[-self.max_history:]
+            self.alert_history = self.alert_history[-self.max_history :]
 
         self.logger.info(f"Alert triggered: {alert_response.alert_id}")
         rule.update_last_triggered()
@@ -600,7 +617,7 @@ class AlertSystem:
         rule_id: Optional[str] = None,
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
-        limit: int = 100
+        limit: int = 100,
     ) -> List[AlertResponse]:
         """Get alert history with filtering."""
         filtered = self.alert_history
@@ -623,7 +640,7 @@ class AlertSystem:
         return {
             "total_rules": len(self.alert_rules),
             "total_alerts": len(self.alert_history),
-            "rules": list(self.alert_rules.keys())
+            "rules": list(self.alert_rules.keys()),
         }
 
 
@@ -667,7 +684,10 @@ class AlertRule:
                     return False
                 if "max" in condition_value and trigger_value > condition_value["max"]:
                     return False
-                if "equals" in condition_value and trigger_value != condition_value["equals"]:
+                if (
+                    "equals" in condition_value
+                    and trigger_value != condition_value["equals"]
+                ):
                     return False
 
         # Check cooldown period
@@ -701,7 +721,7 @@ class AlertResponse:
             "rule_id": self.rule_id,
             "notification_id": self.notification_id,
             "trigger_data": self.trigger_data,
-            "created_at": self.created_at.isoformat()
+            "created_at": self.created_at.isoformat(),
         }
         if self.geospatial_context:
             data["geospatial_context"] = self.geospatial_context.to_dict()
@@ -712,11 +732,13 @@ class NotificationFormatter:
     """Format notifications for different delivery methods and contexts."""
 
     @staticmethod
-    def format_for_sms(notification: NotificationResponse, max_length: int = 160) -> str:
+    def format_for_sms(
+        notification: NotificationResponse, max_length: int = 160
+    ) -> str:
         """Format notification for SMS delivery."""
         content = f"{notification.title}: {notification.content}"
         if len(content) > max_length:
-            content = content[:max_length-3] + "..."
+            content = content[: max_length - 3] + "..."
         return content
 
     @staticmethod
@@ -734,14 +756,16 @@ class NotificationFormatter:
             Content:
             {notification.content}
 
-            {f'Geospatial Context: {notification.geospatial_context}' if notification.geospatial_context else ''}
+            {f"Geospatial Context: {notification.geospatial_context}" if notification.geospatial_context else ""}
 
             Sent at: {notification.created_at.isoformat()}
-            """
+            """,
         }
 
     @staticmethod
-    def format_for_push_notification(notification: NotificationResponse) -> Dict[str, str]:
+    def format_for_push_notification(
+        notification: NotificationResponse,
+    ) -> Dict[str, str]:
         """Format notification for push notification."""
         title = notification.title
         body = notification.content
@@ -752,11 +776,13 @@ class NotificationFormatter:
             "title": title,
             "body": body,
             "priority": notification.priority.value,
-            "type": notification.notification_type.value
+            "type": notification.notification_type.value,
         }
 
     @staticmethod
-    def format_for_geospatial_context(notification: NotificationResponse) -> Dict[str, Any]:
+    def format_for_geospatial_context(
+        notification: NotificationResponse,
+    ) -> Dict[str, Any]:
         """Format notification with geospatial context information."""
         formatted: Dict[str, Any] = {
             "notification_id": notification.notification_id,
@@ -764,7 +790,7 @@ class NotificationFormatter:
             "content": notification.content,
             "type": notification.notification_type.value,
             "priority": notification.priority.value,
-            "timestamp": notification.created_at.isoformat()
+            "timestamp": notification.created_at.isoformat(),
         }
 
         if notification.geospatial_context:
@@ -790,16 +816,13 @@ class EmergencyAlertSystem:
         self.logger = logging.getLogger(__name__)
 
     def register_emergency_contact(
-        self,
-        contact_id: str,
-        contact_info: Dict[str, Any],
-        priority: int = 1
+        self, contact_id: str, contact_info: Dict[str, Any], priority: int = 1
     ) -> None:
         """Register an emergency contact."""
         self.emergency_contacts[contact_id] = {
             **contact_info,
             "priority": priority,
-            "registered_at": datetime.now(timezone.utc)
+            "registered_at": datetime.now(timezone.utc),
         }
         self.logger.info(f"Registered emergency contact: {contact_id}")
 
@@ -813,7 +836,7 @@ class EmergencyAlertSystem:
         emergency_type: str,
         location: GeospatialPoint,
         severity: str = "high",
-        description: str = ""
+        description: str = "",
     ) -> str:
         """Declare a new emergency situation."""
         emergency_id = f"emergency_{uuid.uuid4().hex[:8]}"
@@ -824,7 +847,7 @@ class EmergencyAlertSystem:
             location=location,
             severity=severity,
             description=description,
-            declared_at=datetime.now(timezone.utc)
+            declared_at=datetime.now(timezone.utc),
         )
 
         self.active_emergencies[emergency_id] = emergency
@@ -853,7 +876,8 @@ class EmergencyAlertSystem:
     def get_active_emergencies(self) -> List[EmergencyAlert]:
         """Get list of currently active emergencies."""
         return [
-            emergency for emergency in self.active_emergencies.values()
+            emergency
+            for emergency in self.active_emergencies.values()
             if emergency.status == "active"
         ]
 
@@ -890,11 +914,11 @@ class EmergencyAlertSystem:
                 geospatial_context={
                     "location": {
                         "latitude": emergency.location.latitude,
-                        "longitude": emergency.location.longitude
+                        "longitude": emergency.location.longitude,
                     },
                     "emergency_type": emergency.emergency_type,
-                    "severity": emergency.severity
-                }
+                    "severity": emergency.severity,
+                },
             )
 
             try:
@@ -919,7 +943,7 @@ class EmergencyAlertSystem:
             recipients=["emergency_contacts"],  # Would be actual contact list
             notification_type=NotificationType.SUCCESS,
             priority=MessagePriority.NORMAL,
-            delivery_method=["email"]
+            delivery_method=["email"],
         )
 
         try:
@@ -950,7 +974,7 @@ class EmergencyAlert:
             "severity": self.severity,
             "description": self.description,
             "declared_at": self.declared_at.isoformat(),
-            "status": self.status
+            "status": self.status,
         }
         if self.resolved_at:
             data["resolved_at"] = self.resolved_at.isoformat()

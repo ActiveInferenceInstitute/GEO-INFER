@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 class IncidentType(Enum):
     """Types of emergency incidents."""
+
     WILDFIRE = "wildfire"
     FLOOD = "flood"
     EARTHQUAKE = "earthquake"
@@ -31,6 +32,7 @@ class IncidentType(Enum):
 
 class IncidentScale(Enum):
     """ICS incident scale classifications."""
+
     TYPE_5 = "type_5"  # Local, handled by initial response
     TYPE_4 = "type_4"  # Expanding incident
     TYPE_3 = "type_3"  # Extended attack, multi-discipline
@@ -41,6 +43,7 @@ class IncidentScale(Enum):
 @dataclass
 class Incident:
     """Represents an emergency incident."""
+
     incident_id: str
     incident_type: IncidentType
     name: str
@@ -56,6 +59,7 @@ class Incident:
 @dataclass
 class Agency:
     """Represents a responding agency."""
+
     agency_id: str
     name: str
     agency_type: str  # fire, police, medical, public_works, etc.
@@ -67,6 +71,7 @@ class Agency:
 @dataclass
 class IncidentCommand:
     """Incident Command System structure."""
+
     incident_commander: str
     command_location: Dict[str, Any]
     operations_chief: Optional[str] = None
@@ -81,21 +86,21 @@ class IncidentCommand:
 class EmergencyCoordinator:
     """
     Coordinate multi-agency emergency response following ICS principles.
-    
+
     Supports incident command structure, mutual aid coordination,
     and situation reporting.
     """
-    
+
     def __init__(
         self,
         command_structure: str = "ics",
         agencies: Optional[List[str]] = None,
         communication_protocol: str = "secure",
-        jurisdiction: Optional[Dict[str, Any]] = None
+        jurisdiction: Optional[Dict[str, Any]] = None,
     ):
         """
         Initialize emergency coordinator.
-        
+
         Args:
             command_structure: Command structure type ('ics', 'nims', 'custom')
             agencies: Initial list of agencies
@@ -109,44 +114,50 @@ class EmergencyCoordinator:
         self._active_incidents: Dict[str, Incident] = {}
         self._incident_commands: Dict[str, IncidentCommand] = {}
         self._mutual_aid_agreements: Dict[str, List[str]] = {}
-        
+
         # Register initial agencies
         if agencies:
             for agency_name in agencies:
-                self.register_agency(Agency(
-                    agency_id=f"agency_{agency_name}",
-                    name=agency_name,
-                    agency_type=agency_name
-                ))
-        
-        logger.info(f"Initialized EmergencyCoordinator with {command_structure} structure")
-    
+                self.register_agency(
+                    Agency(
+                        agency_id=f"agency_{agency_name}",
+                        name=agency_name,
+                        agency_type=agency_name,
+                    )
+                )
+
+        logger.info(
+            f"Initialized EmergencyCoordinator with {command_structure} structure"
+        )
+
     def register_agency(self, agency: Agency) -> None:
         """Register an agency in the coordination system."""
         self.agencies[agency.agency_id] = agency
         logger.info(f"Registered agency: {agency.name}")
-    
+
     def coordinate(
         self,
         incident: Dict[str, Any],
         agencies: List[str],
         resources: Dict[str, Any],
-        incident_action_plan: Optional[Dict[str, Any]] = None
+        incident_action_plan: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Coordinate response to an incident.
-        
+
         Args:
             incident: Incident information
             agencies: Responding agencies
             resources: Available resources
             incident_action_plan: Optional IAP
-            
+
         Returns:
             Coordination plan with assignments
         """
-        incident_id = incident.get("id", f"incident_{datetime.now().strftime('%Y%m%d%H%M%S')}")
-        
+        incident_id = incident.get(
+            "id", f"incident_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        )
+
         # Create incident record
         incident_obj = Incident(
             incident_id=incident_id,
@@ -154,10 +165,10 @@ class EmergencyCoordinator:
             name=incident.get("name", "Unnamed Incident"),
             location=incident.get("location", {}),
             scale=IncidentScale(incident.get("scale", "type_3")),
-            description=incident.get("description", "")
+            description=incident.get("description", ""),
         )
         self._active_incidents[incident_id] = incident_obj
-        
+
         # Create coordination plan
         coordination = {
             "incident_id": incident_id,
@@ -168,32 +179,38 @@ class EmergencyCoordinator:
             "resource_assignments": [],
             "communication_channels": self._assign_channels(incident_obj),
             "operational_period": "12_hours",
-            "status": "coordinating"
+            "status": "coordinating",
         }
-        
+
         # Assign resources to agencies
         for agency_id in agencies:
-            agency_resources = self._allocate_resources(agency_id, resources, incident_obj)
-            coordination["resource_assignments"].append({
-                "agency": agency_id,
-                "resources": agency_resources,
-                "sector": self._assign_sector(agency_id, incident_obj)
-            })
-        
+            agency_resources = self._allocate_resources(
+                agency_id, resources, incident_obj
+            )
+            coordination["resource_assignments"].append(
+                {
+                    "agency": agency_id,
+                    "resources": agency_resources,
+                    "sector": self._assign_sector(agency_id, incident_obj),
+                }
+            )
+
         # Include IAP if provided
         if incident_action_plan:
             coordination["incident_action_plan"] = incident_action_plan
-        
-        logger.info(f"Coordinated response for incident {incident_id} with {len(agencies)} agencies")
+
+        logger.info(
+            f"Coordinated response for incident {incident_id} with {len(agencies)} agencies"
+        )
         return coordination
-    
+
     def _assign_channels(self, incident: Incident) -> Dict[str, str]:
         """Assign communication channels for incident."""
         channels = {
             "command": f"CMD-{incident.incident_id[:8]}",
             "tactical": f"TAC-{incident.incident_id[:8]}",
             "medical": f"MED-{incident.incident_id[:8]}",
-            "logistics": f"LOG-{incident.incident_id[:8]}"
+            "logistics": f"LOG-{incident.incident_id[:8]}",
         }
         return channels
 
@@ -208,54 +225,53 @@ class EmergencyCoordinator:
         if isinstance(resource_list, (int, float)):
             return int(resource_list)
         return 1
-    
+
     def _allocate_resources(
-        self,
-        agency_id: str,
-        resources: Dict[str, Any],
-        incident: Incident
+        self, agency_id: str, resources: Dict[str, Any], incident: Incident
     ) -> List[Dict[str, Any]]:
         """Allocate resources to an agency based on capabilities."""
         allocated = []
         agency_type = agency_id.replace("agency_", "")
-        
+
         # Resource type mapping by agency
         resource_mapping = {
             "fire": ["engines", "trucks", "personnel"],
             "police": ["patrol_units", "personnel", "barriers"],
             "medical": ["ambulances", "personnel", "supplies"],
-            "public_works": ["heavy_equipment", "trucks", "personnel"]
+            "public_works": ["heavy_equipment", "trucks", "personnel"],
         }
-        
+
         appropriate_types = resource_mapping.get(agency_type, ["personnel"])
-        
+
         for resource_type, resource_list in resources.items():
             if resource_type in appropriate_types:
-                allocated.append({
-                    "type": resource_type,
-                    "quantity": self._resource_quantity(resource_list),
-                    "assigned_at": datetime.now().isoformat()
-                })
-        
+                allocated.append(
+                    {
+                        "type": resource_type,
+                        "quantity": self._resource_quantity(resource_list),
+                        "assigned_at": datetime.now().isoformat(),
+                    }
+                )
+
         return allocated
-    
+
     def _assign_sector(self, agency_id: str, incident: Incident) -> str:
         """Assign operational sector to agency."""
         # Deterministic sector assignment: zlib.crc32 is stable across
         # Python processes (unlike hash(), which is salt-randomized).
         sectors = ["Alpha", "Bravo", "Charlie", "Delta"]
         return sectors[zlib.crc32(agency_id.encode("utf-8")) % len(sectors)]
-    
+
     def establish_command(
         self,
         incident_type: str,
         location: Dict[str, Any],
         scale: str,
-        command_structure: Dict[str, str]
+        command_structure: Dict[str, str],
     ) -> Dict[str, Any]:
         """
         Establish incident command structure.
-        
+
         Args:
             incident_type: Type of incident
             location: Command post location
@@ -281,9 +297,11 @@ class EmergencyCoordinator:
         self._active_incidents[incident_id] = Incident(
             incident_id=incident_id,
             incident_type=incident_type_enum,
-            name=command_structure.get("name", f"{incident_type.replace('_', ' ').title()} Incident"),
+            name=command_structure.get(
+                "name", f"{incident_type.replace('_', ' ').title()} Incident"
+            ),
             location=location,
-            scale=scale_enum
+            scale=scale_enum,
         )
 
         # Create incident command
@@ -296,11 +314,11 @@ class EmergencyCoordinator:
             finance_chief=command_structure.get("finance"),
             safety_officer=command_structure.get("safety"),
             liaison_officer=command_structure.get("liaison"),
-            public_info_officer=command_structure.get("pio")
+            public_info_officer=command_structure.get("pio"),
         )
-        
+
         self._incident_commands[incident_id] = command
-        
+
         result = {
             "incident_id": incident_id,
             "incident_type": incident_type,
@@ -316,39 +334,43 @@ class EmergencyCoordinator:
                 "command_staff": {
                     "safety_officer": command.safety_officer,
                     "liaison_officer": command.liaison_officer,
-                    "public_info_officer": command.public_info_officer
-                }
+                    "public_info_officer": command.public_info_officer,
+                },
             },
-            "status": "established"
+            "status": "established",
         }
-        
-        logger.info(f"Established command for {incident_type} incident at scale {scale}")
+
+        logger.info(
+            f"Established command for {incident_type} incident at scale {scale}"
+        )
         return result
-    
+
     def request_mutual_aid(
         self,
         requesting_agency: str,
         resource_needs: List[str],
         duration_hours: int,
-        staging_areas: List[Dict[str, Any]]
+        staging_areas: List[Dict[str, Any]],
     ) -> Dict[str, Any]:
         """
         Request mutual aid from neighboring jurisdictions.
-        
+
         Args:
             requesting_agency: Agency requesting aid
             resource_needs: Types of resources needed
             duration_hours: Expected duration
             staging_areas: Staging area locations
-            
+
         Returns:
             Mutual aid request and assignments
         """
         request_id = f"mutualaid_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-        
+
         # Find available mutual aid partners
-        available_partners = self._find_mutual_aid_partners(requesting_agency, resource_needs)
-        
+        available_partners = self._find_mutual_aid_partners(
+            requesting_agency, resource_needs
+        )
+
         assignments_out: List[Dict[str, Any]] = []
         request: Dict[str, Any] = {
             "request_id": request_id,
@@ -359,73 +381,76 @@ class EmergencyCoordinator:
             "requested_at": datetime.now().isoformat(),
             "status": "pending",
             "potential_providers": available_partners,
-            "assignments": assignments_out
+            "assignments": assignments_out,
         }
-        
+
         # Auto-assign based on agreements
         for need in resource_needs:
             for partner in available_partners:
                 if need in partner.get("capabilities", []):
-                    assignments_out.append({
-                        "resource_type": need,
-                        "providing_agency": partner["agency_id"],
-                        "staging_area": staging_areas[0] if staging_areas else None,
-                        "eta_hours": self._estimate_eta(partner, staging_areas)
-                    })
+                    assignments_out.append(
+                        {
+                            "resource_type": need,
+                            "providing_agency": partner["agency_id"],
+                            "staging_area": staging_areas[0] if staging_areas else None,
+                            "eta_hours": self._estimate_eta(partner, staging_areas),
+                        }
+                    )
                     break
-        
+
         if assignments_out:
             request["status"] = "assigned"
-        
-        logger.info(f"Mutual aid request {request_id}: {len(assignments_out)} assignments")
+
+        logger.info(
+            f"Mutual aid request {request_id}: {len(assignments_out)} assignments"
+        )
         return request
-    
+
     def _find_mutual_aid_partners(
-        self,
-        requesting_agency: str,
-        resource_needs: List[str]
+        self, requesting_agency: str, resource_needs: List[str]
     ) -> List[Dict[str, Any]]:
         """Find available mutual aid partners."""
         partners = []
         for agency_id, agency in self.agencies.items():
             if agency_id != requesting_agency:
-                partners.append({
-                    "agency_id": agency_id,
-                    "name": agency.name,
-                    "capabilities": agency.capabilities or resource_needs  # Default to matching
-                })
+                partners.append(
+                    {
+                        "agency_id": agency_id,
+                        "name": agency.name,
+                        "capabilities": agency.capabilities
+                        or resource_needs,  # Default to matching
+                    }
+                )
         return partners
-    
+
     def _estimate_eta(
-        self,
-        partner: Dict[str, Any],
-        staging_areas: List[Dict[str, Any]]
+        self, partner: Dict[str, Any], staging_areas: List[Dict[str, Any]]
     ) -> float:
         """Estimate ETA for mutual aid resources."""
         # Simple estimate based on typical response times
         return 2.0  # hours
-    
+
     def generate_sitrep(
         self,
         incident: Dict[str, Any],
         update_frequency: str = "hourly",
         distribution: Optional[List[str]] = None,
-        report_format: str = "ics_209"
+        report_format: str = "ics_209",
     ) -> Dict[str, Any]:
         """
         Generate situation report.
-        
+
         Args:
             incident: Incident to report on
             update_frequency: How often to update
             distribution: Distribution list
             report_format: Report format
-            
+
         Returns:
             Situation report
         """
         incident_id = incident.get("id", "unknown")
-        
+
         sitrep = {
             "report_id": f"sitrep_{incident_id}_{datetime.now().strftime('%Y%m%d%H%M')}",
             "incident_id": incident_id,
@@ -438,47 +463,47 @@ class EmergencyCoordinator:
                 "incident_status": incident.get("status", "active"),
                 "percent_contained": incident.get("percent_contained", 0),
                 "current_threat": incident.get("threat_level", "moderate"),
-                "weather_conditions": incident.get("weather", "unknown")
+                "weather_conditions": incident.get("weather", "unknown"),
             },
             "resources_committed": {
                 "personnel": incident.get("personnel_count", 0),
                 "engines": incident.get("engines", 0),
                 "helicopters": incident.get("helicopters", 0),
-                "other": incident.get("other_resources", [])
+                "other": incident.get("other_resources", []),
             },
             "actions_taken": incident.get("actions", []),
             "planned_actions": incident.get("planned_actions", []),
             "casualties": {
                 "injuries": incident.get("injuries", 0),
                 "fatalities": incident.get("fatalities", 0),
-                "missing": incident.get("missing", 0)
+                "missing": incident.get("missing", 0),
             },
             "evacuations": {
                 "ordered": incident.get("evacuation_ordered", False),
-                "population_affected": incident.get("population_affected", 0)
+                "population_affected": incident.get("population_affected", 0),
             },
-            "next_update": self._calculate_next_update(update_frequency)
+            "next_update": self._calculate_next_update(update_frequency),
         }
-        
+
         logger.info(f"Generated sitrep for incident {incident_id}")
         return sitrep
-    
+
     def _calculate_next_update(self, frequency: str) -> str:
         """Calculate next update time based on frequency."""
         from datetime import timedelta
-        
+
         frequency_map = {
             "immediate": timedelta(minutes=15),
             "30min": timedelta(minutes=30),
             "hourly": timedelta(hours=1),
             "4hour": timedelta(hours=4),
             "12hour": timedelta(hours=12),
-            "daily": timedelta(days=1)
+            "daily": timedelta(days=1),
         }
-        
+
         delta = frequency_map.get(frequency, timedelta(hours=1))
         return (datetime.now() + delta).isoformat()
-    
+
     def get_active_incidents(self) -> List[Dict[str, Any]]:
         """Get list of active incidents."""
         return [
@@ -488,7 +513,7 @@ class EmergencyCoordinator:
                 "type": inc.incident_type.value,
                 "scale": inc.scale.value,
                 "status": inc.status,
-                "start_time": inc.start_time.isoformat()
+                "start_time": inc.start_time.isoformat(),
             }
             for inc in self._active_incidents.values()
         ]

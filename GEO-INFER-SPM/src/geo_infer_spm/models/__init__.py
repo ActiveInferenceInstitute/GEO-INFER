@@ -7,9 +7,4 @@ for representing geospatial data, statistical results, and analysis parameters.
 
 from .data_models import SPMData, SPMResult, ContrastResult, DesignMatrix
 
-__all__ = [
-    "SPMData",
-    "SPMResult",
-    "ContrastResult",
-    "DesignMatrix"
-]
+__all__ = ["SPMData", "SPMResult", "ContrastResult", "DesignMatrix"]

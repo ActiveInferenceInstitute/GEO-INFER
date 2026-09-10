@@ -9,25 +9,25 @@ logger = logging.getLogger(__name__)
 
 class WaterInfrastructurePlanner:
     """Plan water infrastructure."""
-    
+
     def __init__(self, config: Optional[Dict] = None):
         """Initialize infrastructure planner."""
         self.config = config or {}
-    
+
     def optimize_water_allocation(
         self,
         water_supply: xr.DataArray,
         water_demand: xr.DataArray,
-        priorities: Optional[xr.DataArray] = None
+        priorities: Optional[xr.DataArray] = None,
     ) -> xr.Dataset:
         """
         Optimize water allocation.
-        
+
         Args:
             water_supply: Available water supply
             water_demand: Water demand
             priorities: Optional priority weights
-            
+
         Returns:
             Allocation optimization results
         """
@@ -48,7 +48,9 @@ class WaterInfrastructurePlanner:
         # Allocate supply in proportion to weighted need.
         raw_allocation = water_supply * weighted_need / (total_weighted_need + 1e-10)
         # Cap at demand (no over-allocation); surplus is left unallocated.
-        allocation = xr.where(raw_allocation > water_demand, water_demand, raw_allocation)
+        allocation = xr.where(
+            raw_allocation > water_demand, water_demand, raw_allocation
+        )
         allocated_surplus = water_supply - allocation.sum()
         # Redistribute any surplus left after capping proportionally to the
         # unmet weighted need of demanders that still have a shortfall.
@@ -67,36 +69,37 @@ class WaterInfrastructurePlanner:
         # Shortage is the unmet demand after allocation.
         shortage = xr.where(water_demand > allocation, water_demand - allocation, 0)
 
-        return xr.Dataset({
-            'allocation': allocation,
-            'shortage': shortage,
-            'supply_demand_ratio': supply_demand_ratio,
-            'adequacy': xr.where(supply_demand_ratio >= 1, 1, supply_demand_ratio)
-        })
-    
+        return xr.Dataset(
+            {
+                "allocation": allocation,
+                "shortage": shortage,
+                "supply_demand_ratio": supply_demand_ratio,
+                "adequacy": xr.where(supply_demand_ratio >= 1, 1, supply_demand_ratio),
+            }
+        )
+
     def assess_infrastructure_needs(
-        self,
-        current_capacity: xr.DataArray,
-        projected_demand: xr.DataArray
+        self, current_capacity: xr.DataArray, projected_demand: xr.DataArray
     ) -> xr.Dataset:
         """
         Assess water infrastructure capacity needs.
-        
+
         Args:
             current_capacity: Current infrastructure capacity
             projected_demand: Projected future demand
-            
+
         Returns:
             Infrastructure needs assessment
         """
         capacity_gap = projected_demand - current_capacity
         capacity_gap = xr.where(capacity_gap < 0, 0, capacity_gap)
-        
-        adequacy = current_capacity / (projected_demand + 1e-10)
-        
-        return xr.Dataset({
-            'capacity_gap': capacity_gap,
-            'adequacy': adequacy,
-            'expansion_needed': capacity_gap > 0
-        })
 
+        adequacy = current_capacity / (projected_demand + 1e-10)
+
+        return xr.Dataset(
+            {
+                "capacity_gap": capacity_gap,
+                "adequacy": adequacy,
+                "expansion_needed": capacity_gap > 0,
+            }
+        )

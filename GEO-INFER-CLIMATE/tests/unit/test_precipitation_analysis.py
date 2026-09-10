@@ -55,7 +55,9 @@ class TestIDFCurve:
         assert len(result) == 0
 
     def test_idf_handles_nan_values(self, analyzer):
-        data = np.array([10.0, np.nan, 20.0, 15.0, np.nan, 25.0, 18.0, 22.0, 30.0, 12.0])
+        data = np.array(
+            [10.0, np.nan, 20.0, 15.0, np.nan, 25.0, 18.0, 22.0, 30.0, 12.0]
+        )
         result = analyzer.fit_idf_curve({1.0: data})
         assert 1.0 in result
         assert result[1.0]["n_years"] == 8
@@ -67,7 +69,9 @@ class TestGumbelReturnPeriod:
         data = np.random.gumbel(loc=50, scale=10, size=50)
         extreme = float(np.max(data)) + 30
         result = analyzer.gumbel_return_period(data, extreme)
-        assert result["return_period_years"] is None or result["return_period_years"] > 50
+        assert (
+            result["return_period_years"] is None or result["return_period_years"] > 50
+        )
         assert result["exceedance_probability"] < 0.05
 
     def test_median_value_short_return(self, analyzer):

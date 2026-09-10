@@ -551,7 +551,9 @@ class EconomicAnalysisAPI:
                 return APIResponse(success=False, error=str(e))
 
         @self.app.post("/api/data/validate")
-        async def validate_data(data: Dict[str, Any], source_name: str = "unknown") -> APIResponse:
+        async def validate_data(
+            data: Dict[str, Any], source_name: str = "unknown"
+        ) -> APIResponse:
             """Validate economic data quality."""
             try:
                 df = pd.DataFrame(data)
@@ -573,7 +575,9 @@ class EconomicAnalysisAPI:
                 return APIResponse(success=False, error=str(e))
 
         @self.app.get("/api/indicators/{indicator_type}")
-        async def calculate_indicators(indicator_type: str, data: Dict[str, Any]) -> APIResponse:
+        async def calculate_indicators(
+            indicator_type: str, data: Dict[str, Any]
+        ) -> APIResponse:
             """Calculate economic indicators."""
             try:
                 df = pd.DataFrame(data)

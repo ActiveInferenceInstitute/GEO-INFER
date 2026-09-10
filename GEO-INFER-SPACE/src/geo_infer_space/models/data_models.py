@@ -259,9 +259,7 @@ class AnalysisResult(BaseModel):
     error_message: Optional[str] = Field(None, description="Error message if failed")
 
     @field_validator("execution_time")
-    def validate_execution_time(
-        cls, v: Optional[float]
-    ) -> Optional[float]:
+    def validate_execution_time(cls, v: Optional[float]) -> Optional[float]:
         if v is not None and v < 0:
             raise ValueError("Execution time cannot be negative")
         return v

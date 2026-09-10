@@ -372,7 +372,6 @@ class LiabilityInsuranceModel(InsuranceModel):
         if total_claims == 0:
             return 0.9  # No claims discount
 
-
         # Experience modifier based on loss ratio
         expected_loss_ratio = 0.6
         actual_loss_ratio = total_losses / (1000000 * 0.01)  # Assume $1M premium

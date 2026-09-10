@@ -204,9 +204,7 @@ class StreamingAPI:
                 "data": measurement,
                 "timestamp": datetime.now().isoformat(),
             }
-            await self._send_to_all(
-                self.sensor_subscriptions[sensor_id], message
-            )
+            await self._send_to_all(self.sensor_subscriptions[sensor_id], message)
 
         if h3_index in self.spatial_subscriptions:
             message = {
@@ -215,9 +213,7 @@ class StreamingAPI:
                 "h3_index": h3_index,
                 "timestamp": datetime.now().isoformat(),
             }
-            await self._send_to_all(
-                self.spatial_subscriptions[h3_index], message
-            )
+            await self._send_to_all(self.spatial_subscriptions[h3_index], message)
 
     async def broadcast_spatial_inference(self, inference_result: Dict) -> None:
         """Broadcast spatial inference results to all connected clients."""

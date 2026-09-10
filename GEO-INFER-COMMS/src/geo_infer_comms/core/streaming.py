@@ -443,12 +443,12 @@ class GeospatialDataStream:
 
         # Spatial data structures
         self.spatial_data: Dict[str, Dict[str, Any]] = {}  # location_key -> data
-        self.temporal_data: Dict[str, List[Dict[str, Any]]] = (
-            {}
-        )  # location_key -> time_series
-        self.spatial_aggregations: Dict[str, Dict[str, Any]] = (
-            {}
-        )  # aggregation_type -> results
+        self.temporal_data: Dict[
+            str, List[Dict[str, Any]]
+        ] = {}  # location_key -> time_series
+        self.spatial_aggregations: Dict[
+            str, Dict[str, Any]
+        ] = {}  # aggregation_type -> results
 
         # Real-time analysis
         self.hotspots: List[Dict[str, Any]] = []

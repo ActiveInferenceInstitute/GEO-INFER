@@ -171,7 +171,8 @@ class TestGenerativeMap(unittest.TestCase):
         # Test invalid region type
         with self.assertRaises(ValueError):
             GenerativeMap.from_elevation(
-                region=123, resolution=128  # Not a valid region type
+                region=123,
+                resolution=128,  # Not a valid region type
             )
 
         # Test invalid style

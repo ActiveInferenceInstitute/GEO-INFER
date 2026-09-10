@@ -64,13 +64,19 @@ def main() -> None:
     )
     print("\n--- Incidents ---")
     for inc in incidents:
-        print(f"  {inc['segment_id']}: {inc['severity']} (deviation {inc['deviation']:.0%})")
+        print(
+            f"  {inc['segment_id']}: {inc['severity']} (deviation {inc['deviation']:.0%})"
+        )
 
     # 4. EWMA forecast with confidence intervals
     forecast = analyzer.forecast_traffic(
         historical_data=[
-            {"volume": 800}, {"volume": 850}, {"volume": 900},
-            {"volume": 950}, {"volume": 1000}, {"volume": 1080},
+            {"volume": 800},
+            {"volume": 850},
+            {"volume": 900},
+            {"volume": 950},
+            {"volume": 1000},
+            {"volume": 1080},
         ],
         forecast_horizon="1h",
     )
@@ -87,4 +93,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

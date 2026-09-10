@@ -24,42 +24,49 @@ try:
         find_root as find_root,
         minimize_scalar_function as minimize_scalar_function,
     )
+
     _numerical_methods_available = True
 except ImportError:
     _numerical_methods_available = False
 
 try:
     from geo_infer_math.core.linalg_tensor import *
+
     _linalg_tensor_available = True
 except ImportError:
     _linalg_tensor_available = False
 
 try:
     from geo_infer_math.core.transforms import *
+
     _transforms_available = True
 except ImportError:
     _transforms_available = False
 
 try:
     from geo_infer_math.core.graph_theory import *
+
     _graph_theory_available = True
 except ImportError:
     _graph_theory_available = False
 
 try:
     from geo_infer_math.core.integration import *
+
     _integration_available = True
 except ImportError:
     _integration_available = False
 
 try:
     from geo_infer_math.core.gpu_acceleration import *
+
     _gpu_acceleration_available = True
 except ImportError:
     _gpu_acceleration_available = False
 
 try:
     from geo_infer_math.core.symbolic_math import *
+
     _symbolic_math_available = True
 except ImportError:
     _symbolic_math_available = False
@@ -78,23 +85,20 @@ try:
         MutualInformationCalculator as MutualInformationCalculator,
         KLDivergenceCalculator as KLDivergenceCalculator,
     )
+
     _information_theory_available = True
 except ImportError:
     _information_theory_available = False
 
 try:
     from geo_infer_math.core.theorem_proving import *
+
     _theorem_proving_available = True
 except ImportError:
     _theorem_proving_available = False
 
 # Build __all__ list based on available modules
-__all__ = [
-    "spatial_statistics",
-    "interpolation",
-    "optimization",
-    "geometry"
-]
+__all__ = ["spatial_statistics", "interpolation", "optimization", "geometry"]
 
 if _numerical_methods_available:
     __all__.append("numerical_methods")

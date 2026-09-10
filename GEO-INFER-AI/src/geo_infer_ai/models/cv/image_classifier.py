@@ -124,7 +124,7 @@ class ImageClassifier(BaseEstimator, ClassifierMixin):
         Returns:
             Predicted class labels (n_samples,)
         """
-        if self.model is None or not hasattr(self.model, 'predict'):
+        if self.model is None or not hasattr(self.model, "predict"):
             raise ValueError("Model must be trained before prediction")
 
         X_flat = self._flatten_images(X)
@@ -176,8 +176,7 @@ class ImageClassifier(BaseEstimator, ClassifierMixin):
             return X.reshape(n_samples, -1)
         else:
             raise ValueError(
-                f"Unsupported image shape: {X.shape}. "
-                "Expected 2D, 3D, or 4D arrays"
+                f"Unsupported image shape: {X.shape}. Expected 2D, 3D, or 4D arrays"
             )
 
     def get_feature_importance(self) -> Optional[np.ndarray]:
@@ -194,4 +193,3 @@ class ImageClassifier(BaseEstimator, ClassifierMixin):
         ):
             return np.asarray(self.model.feature_importances_)
         return None
-

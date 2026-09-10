@@ -109,7 +109,6 @@ class GradientDescentOptimizer(Optimizer):
         else:
             obj_fn = objective_function
 
-
         if initial_guess is None:
             initial_guess = np.array([(b[0] + b[1]) / 2 for b in bounds])
 

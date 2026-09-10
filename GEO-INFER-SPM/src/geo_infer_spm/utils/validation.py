@@ -215,9 +215,7 @@ def _validate_factors(design_matrix: DesignMatrix) -> None:
 
         # Check if factor columns exist in design matrix
         factor_cols = [
-            i
-            for i, name in enumerate(names)
-            if name.startswith(f"{factor_name}_")
+            i for i, name in enumerate(names) if name.startswith(f"{factor_name}_")
         ]
 
         if len(factor_cols) == 0:

@@ -82,7 +82,9 @@ def simulate_measurements(
                 "sensor_id": sensor["sensor_id"],
                 "variable": sensor["sensor_type"],
                 "value": 18.0 + 0.5 * i,
-                "unit": "celsius" if sensor["sensor_type"] == "temperature" else "percent",
+                "unit": "celsius"
+                if sensor["sensor_type"] == "temperature"
+                else "percent",
                 "latitude": sensor["latitude"],
                 "longitude": sensor["longitude"],
                 "timestamp": (now - timedelta(minutes=5 * i)).isoformat(),
@@ -113,7 +115,9 @@ def main() -> None:
         if check.passed:
             accepted.append(reading)
         else:
-            logger.warning("Rejected reading %s: %s", reading["sensor_id"], check.issues)
+            logger.warning(
+                "Rejected reading %s: %s", reading["sensor_id"], check.issues
+            )
 
     # Ingest the accepted readings through the real ingestion engine
     async def ingest_all() -> int:
@@ -134,15 +138,19 @@ def main() -> None:
         print(f"  - {key}: {value}")
 
     status = system.get_system_status()
-    print(f"System status: {status['status']} ({status['sensors']} sensors, "
-          f"{status['networks']} networks)")
+    print(
+        f"System status: {status['status']} ({status['sensors']} sensors, "
+        f"{status['networks']} networks)"
+    )
 
     exported = system.export_system_state("smart_sensor_network_state.json")
     print(f"State export: success={exported['success']} path={exported['export_path']}")
 
     print("=" * 60)
-    print(f"Done. Registry holds {len(system.registry.sensors)} sensors in "
-          f"{len(system.registry.networks)} network(s).")
+    print(
+        f"Done. Registry holds {len(system.registry.sensors)} sensors in "
+        f"{len(system.registry.networks)} network(s)."
+    )
 
 
 if __name__ == "__main__":

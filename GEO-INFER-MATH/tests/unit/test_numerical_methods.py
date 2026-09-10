@@ -5,9 +5,15 @@ Tests for the numerical_methods module.
 import numpy as np
 import pytest
 from geo_infer_math.core.numerical_methods import (
-    SpatialInterpolator, SpatialOptimizer, ODESolver, PDEsolver,
-    numerical_integration, find_root, minimize_scalar_function
+    SpatialInterpolator,
+    SpatialOptimizer,
+    ODESolver,
+    PDEsolver,
+    numerical_integration,
+    find_root,
+    minimize_scalar_function,
 )
+
 
 class TestSpatialInterpolator:
     """Test spatial interpolation functionality."""
@@ -15,15 +21,13 @@ class TestSpatialInterpolator:
     def setup_method(self):
         """Set up test data."""
         # Create simple test data
-        self.coords = np.array([
-            [0, 0], [1, 0], [0, 1], [1, 1], [0.5, 0.5]
-        ])
+        self.coords = np.array([[0, 0], [1, 0], [0, 1], [1, 1], [0.5, 0.5]])
         self.values = np.array([10, 20, 30, 40, 100])
         self.query_coords = np.array([[0.25, 0.25], [0.75, 0.75]])
 
     def test_kriging_interpolation(self):
         """Test Kriging interpolation."""
-        interpolator = SpatialInterpolator(method='kriging')
+        interpolator = SpatialInterpolator(method="kriging")
         interpolator.fit(self.coords, self.values)
 
         predictions = interpolator.predict(self.query_coords)
@@ -33,7 +37,7 @@ class TestSpatialInterpolator:
 
     def test_rbf_interpolation(self):
         """Test RBF interpolation."""
-        interpolator = SpatialInterpolator(method='rbf')
+        interpolator = SpatialInterpolator(method="rbf")
         interpolator.fit(self.coords, self.values)
 
         predictions = interpolator.predict(self.query_coords)
@@ -43,7 +47,7 @@ class TestSpatialInterpolator:
 
     def test_spline_interpolation(self):
         """Test spline interpolation."""
-        interpolator = SpatialInterpolator(method='spline')
+        interpolator = SpatialInterpolator(method="spline")
         interpolator.fit(self.coords, self.values)
 
         predictions = interpolator.predict(self.query_coords)
@@ -54,7 +58,7 @@ class TestSpatialInterpolator:
     def test_invalid_method(self):
         """Test handling of invalid interpolation method."""
         with pytest.raises(ValueError):
-            SpatialInterpolator(method='invalid')
+            SpatialInterpolator(method="invalid")
 
     def test_unfitted_prediction(self):
         """Test prediction without fitting."""
@@ -62,22 +66,28 @@ class TestSpatialInterpolator:
         with pytest.raises(ValueError):
             interpolator.predict(self.query_coords)
 
+
 class TestSpatialOptimizer:
     """Test spatial optimization functionality."""
 
     def test_gradient_descent_optimization(self):
         """Test gradient descent optimization."""
+
         def objective(x):
-            return (x[0] - 2)**2 + (x[1] - 3)**2
+            return (x[0] - 2) ** 2 + (x[1] - 3) ** 2
 
         def gradient(x):
             return np.array([2 * (x[0] - 2), 2 * (x[1] - 3)])
 
-        optimizer = SpatialOptimizer(method='gradient_descent')
+        optimizer = SpatialOptimizer(method="gradient_descent")
         bounds = [(-10, 10), (-10, 10)]
 
-        result = optimizer.minimize(objective, bounds, initial_guess=np.array([0, 0]),
-                                  gradient_function=gradient)
+        result = optimizer.minimize(
+            objective,
+            bounds,
+            initial_guess=np.array([0, 0]),
+            gradient_function=gradient,
+        )
 
         assert result.success
         assert abs(result.x[0] - 2) < 0.1
@@ -85,10 +95,11 @@ class TestSpatialOptimizer:
 
     def test_newton_optimization(self):
         """Test Newton's method optimization."""
-        def objective(x):
-            return x[0]**2 + x[1]**2
 
-        optimizer = SpatialOptimizer(method='newton')
+        def objective(x):
+            return x[0] ** 2 + x[1] ** 2
+
+        optimizer = SpatialOptimizer(method="newton")
         bounds = [(-10, 10), (-10, 10)]
 
         result = optimizer.minimize(objective, bounds, initial_guess=np.array([5, 5]))
@@ -99,10 +110,11 @@ class TestSpatialOptimizer:
 
     def test_simulated_annealing(self):
         """Test simulated annealing optimization."""
-        def objective(x):
-            return (x[0] - 1)**2 + (x[1] - 1)**2
 
-        optimizer = SpatialOptimizer(method='simulated_annealing')
+        def objective(x):
+            return (x[0] - 1) ** 2 + (x[1] - 1) ** 2
+
+        optimizer = SpatialOptimizer(method="simulated_annealing")
         bounds = [(-10, 10), (-10, 10)]
 
         result = optimizer.minimize(objective, bounds, initial_guess=np.array([5, 5]))
@@ -113,24 +125,27 @@ class TestSpatialOptimizer:
 
     def test_invalid_method(self):
         """Test handling of invalid optimization method."""
-        def objective(x):
-            return x[0]**2
 
-        optimizer = SpatialOptimizer(method='invalid')
+        def objective(x):
+            return x[0] ** 2
+
+        optimizer = SpatialOptimizer(method="invalid")
         bounds = [(-10, 10)]
 
         with pytest.raises(ValueError):
             optimizer.minimize(objective, bounds)
+
 
 class TestODESolver:
     """Test ODE solving functionality."""
 
     def test_simple_ode(self):
         """Test solving a simple ODE."""
+
         def ode(t, y):
             return -2 * y  # dy/dt = -2y, solution: y = y0 * exp(-2t)
 
-        solver = ODESolver(method='RK45')
+        solver = ODESolver(method="RK45")
         t_span = (0, 2)
         y0 = [1]
 
@@ -146,10 +161,11 @@ class TestODESolver:
 
     def test_system_of_odes(self):
         """Test solving a system of ODEs."""
+
         def ode_system(t, y):
             return [-y[0], y[0] - y[1]]  # Predator-prey like system
 
-        solver = ODESolver(method='RK45')
+        solver = ODESolver(method="RK45")
         t_span = (0, 1)
         y0 = [1, 0.5]
 
@@ -161,12 +177,13 @@ class TestODESolver:
         assert len(result.y[0]) == len(result.t)
         assert len(result.y[1]) == len(result.t)
 
+
 class TestPDEsolver:
     """Test PDE solving functionality."""
 
     def test_diffusion_equation(self):
         """Test solving 1D diffusion equation."""
-        solver = PDEsolver(method='finite_difference')
+        solver = PDEsolver(method="finite_difference")
 
         # Initial condition: delta function at center
         n_points = 50
@@ -179,8 +196,7 @@ class TestPDEsolver:
         dx = 0.1
 
         solution = solver.solve_diffusion(
-            initial_condition, diffusion_coefficient,
-            time_steps, dt, dx
+            initial_condition, diffusion_coefficient, time_steps, dt, dx
         )
 
         assert solution.shape == (time_steps + 1, n_points)
@@ -195,7 +211,7 @@ class TestPDEsolver:
 
     def test_wave_equation(self):
         """Test solving 1D wave equation."""
-        solver = PDEsolver(method='finite_difference')
+        solver = PDEsolver(method="finite_difference")
 
         n_points = 50
         initial_displacement = np.zeros(n_points)
@@ -209,8 +225,7 @@ class TestPDEsolver:
         dx = 0.1
 
         displacement, velocity = solver.solve_wave_equation(
-            initial_displacement, initial_velocity,
-            wave_speed, time_steps, dt, dx
+            initial_displacement, initial_velocity, wave_speed, time_steps, dt, dx
         )
 
         assert displacement.shape == (time_steps + 1, n_points)
@@ -220,66 +235,75 @@ class TestPDEsolver:
         assert np.allclose(displacement[:, 0], 0)
         assert np.allclose(displacement[:, -1], 0)
 
+
 class TestNumericalIntegration:
     """Test numerical integration functionality."""
 
     def test_trapezoidal_integration(self):
         """Test trapezoidal rule integration."""
+
         def func(x):
             return x**2
 
-        result = numerical_integration(func, 0, 1, method='trapezoidal', n_points=1000)
-        expected = 1/3  # Analytical result
+        result = numerical_integration(func, 0, 1, method="trapezoidal", n_points=1000)
+        expected = 1 / 3  # Analytical result
 
         assert abs(result - expected) < 0.01
 
     def test_simpson_integration(self):
         """Test Simpson's rule integration."""
+
         def func(x):
             return np.sin(x)
 
-        result = numerical_integration(func, 0, np.pi, method='simpson', n_points=1000)
+        result = numerical_integration(func, 0, np.pi, method="simpson", n_points=1000)
         expected = 2  # Analytical result
 
         assert abs(result - expected) < 0.01
 
     def test_invalid_method(self):
         """Test handling of invalid integration method."""
+
         def func(x):
             return x
 
         with pytest.raises(ValueError):
-            numerical_integration(func, 0, 1, method='invalid')
+            numerical_integration(func, 0, 1, method="invalid")
+
 
 class TestRootFinding:
     """Test root finding functionality."""
 
     def test_find_root(self):
         """Test root finding."""
+
         def func(x):
             return x**2 - 4  # Roots at x = -2, 2
 
-        root = find_root(func, (-3, -1), method='brentq')
+        root = find_root(func, (-3, -1), method="brentq")
         assert abs(root + 2) < 0.01
 
-        root = find_root(func, (1, 3), method='brentq')
+        root = find_root(func, (1, 3), method="brentq")
         assert abs(root - 2) < 0.01
+
 
 class TestScalarMinimization:
     """Test scalar function minimization."""
 
     def test_minimize_scalar(self):
         """Test scalar minimization."""
-        def func(x):
-            return (x - 3)**2 + 1
 
-        result = minimize_scalar_function(func, (0, 5), method='bounded')
+        def func(x):
+            return (x - 3) ** 2 + 1
+
+        result = minimize_scalar_function(func, (0, 5), method="bounded")
         assert abs(result - 3) < 0.01
 
     def test_minimize_with_failure(self):
         """Test minimization with potential failure."""
+
         def func(x):
-            return float('inf')  # Always returns infinity
+            return float("inf")  # Always returns infinity
 
         result = minimize_scalar_function(func, (0, 1))
         assert np.isnan(result)

@@ -235,7 +235,6 @@ class AgriculturalAPI:
         )
         return analysis
 
-
     @staticmethod
     def _weather_totals(weather_data: List[Dict[str, Any]]) -> Tuple[float, float]:
         """Compute (mean daily high temperature, total precipitation).
@@ -266,6 +265,7 @@ class AgriculturalAPI:
         avg_temp = sum(d["temperature_high"] for d in weather_data) / len(weather_data)
         total_precip = sum(d["precipitation"] for d in weather_data)
         return avg_temp, total_precip
+
     def _generate_recommendations(
         self, soil_data: Dict[str, Any], weather_data: List[Dict[str, Any]]
     ) -> List[str]:
@@ -409,7 +409,7 @@ def get_crop_recommendations(
 
     weather_data = api.get_weather_forecast(location, days=7)
     recommendations = []
-    for crop in (api.config.crop_types or []):
+    for crop in api.config.crop_types or []:
         analysis = api.analyze_crop_yield(crop, location, soil_data, weather_data)
         if analysis["predicted_yield"] > 7.0:
             recommendations.append(crop)

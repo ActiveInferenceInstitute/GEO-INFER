@@ -39,7 +39,7 @@ class TestEnvironmentalHealthAnalyzer:
             value=15.5,
             unit="µg/m³",
             location=location,
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
         analyzer = EnvironmentalHealthAnalyzer(environmental_readings=[reading])
@@ -57,34 +57,37 @@ class TestEnvironmentalReadingsQuery:
         radius_km = 10.0
 
         readings = environmental_analyzer.get_environmental_readings_near_location(
-            center_loc=center,
-            radius_km=radius_km
+            center_loc=center, radius_km=radius_km
         )
 
         assert isinstance(readings, list)
 
         # All returned readings should be within radius
         for reading in readings:
-            distance = environmental_analyzer._calculate_distance(center, reading.location)
+            distance = environmental_analyzer._calculate_distance(
+                center, reading.location
+            )
             assert distance <= radius_km
 
-    def test_get_readings_with_parameter_filter(self, environmental_analyzer, sample_locations):
+    def test_get_readings_with_parameter_filter(
+        self, environmental_analyzer, sample_locations
+    ):
         """Test getting readings with parameter filter."""
         center = sample_locations[0]
         radius_km = 1000.0
         parameter_name = "PM2.5"
 
         readings = environmental_analyzer.get_environmental_readings_near_location(
-            center_loc=center,
-            radius_km=radius_km,
-            parameter_name=parameter_name
+            center_loc=center, radius_km=radius_km, parameter_name=parameter_name
         )
 
         # All returned readings should match the parameter
         for reading in readings:
             assert reading.parameter_name.lower() == parameter_name.lower()
 
-    def test_get_readings_with_time_filter(self, environmental_analyzer, sample_locations):
+    def test_get_readings_with_time_filter(
+        self, environmental_analyzer, sample_locations
+    ):
         """Test getting readings with time filter."""
         center = sample_locations[0]
         radius_km = 1000.0
@@ -97,7 +100,7 @@ class TestEnvironmentalReadingsQuery:
             center_loc=center,
             radius_km=radius_km,
             start_time=start_time,
-            end_time=end_time
+            end_time=end_time,
         )
 
         # All returned readings should be within time range
@@ -110,8 +113,7 @@ class TestEnvironmentalReadingsQuery:
         radius_km = 0.0
 
         readings = environmental_analyzer.get_environmental_readings_near_location(
-            center_loc=center,
-            radius_km=radius_km
+            center_loc=center, radius_km=radius_km
         )
 
         # Should find readings at exact location (within floating point precision)
@@ -123,8 +125,7 @@ class TestEnvironmentalReadingsQuery:
         radius_km = 10000.0
 
         readings = environmental_analyzer.get_environmental_readings_near_location(
-            center_loc=center,
-            radius_km=radius_km
+            center_loc=center, radius_km=radius_km
         )
 
         # Should find all readings
@@ -137,34 +138,35 @@ class TestEnvironmentalReadingsQuery:
         radius_km = 1.0
 
         readings = analyzer.get_environmental_readings_near_location(
-            center_loc=center,
-            radius_km=radius_km
+            center_loc=center, radius_km=radius_km
         )
 
         assert readings == []
 
-    def test_get_readings_case_insensitive_parameter(self, environmental_analyzer, sample_locations):
+    def test_get_readings_case_insensitive_parameter(
+        self, environmental_analyzer, sample_locations
+    ):
         """Test parameter filtering is case insensitive."""
         center = sample_locations[0]
         radius_km = 1000.0
 
         # Test with different cases
-        readings_lower = environmental_analyzer.get_environmental_readings_near_location(
-            center_loc=center,
-            radius_km=radius_km,
-            parameter_name="pm2.5"
+        readings_lower = (
+            environmental_analyzer.get_environmental_readings_near_location(
+                center_loc=center, radius_km=radius_km, parameter_name="pm2.5"
+            )
         )
 
-        readings_upper = environmental_analyzer.get_environmental_readings_near_location(
-            center_loc=center,
-            radius_km=radius_km,
-            parameter_name="PM2.5"
+        readings_upper = (
+            environmental_analyzer.get_environmental_readings_near_location(
+                center_loc=center, radius_km=radius_km, parameter_name="PM2.5"
+            )
         )
 
-        readings_mixed = environmental_analyzer.get_environmental_readings_near_location(
-            center_loc=center,
-            radius_km=radius_km,
-            parameter_name="Pm2.5"
+        readings_mixed = (
+            environmental_analyzer.get_environmental_readings_near_location(
+                center_loc=center, radius_km=radius_km, parameter_name="Pm2.5"
+            )
         )
 
         # Should return same results regardless of case
@@ -185,7 +187,7 @@ class TestAverageExposureCalculation:
             target_locations=target_locations,
             radius_km=radius_km,
             parameter_name=parameter_name,
-            time_window_days=time_window_days
+            time_window_days=time_window_days,
         )
 
         assert isinstance(exposure_results, dict)
@@ -208,7 +210,7 @@ class TestAverageExposureCalculation:
             target_locations=target_locations,
             radius_km=radius_km,
             parameter_name=parameter_name,
-            time_window_days=time_window_days
+            time_window_days=time_window_days,
         )
 
         # Should return None for all locations
@@ -216,7 +218,9 @@ class TestAverageExposureCalculation:
             key = f"{loc.latitude},{loc.longitude}"
             assert exposure_results[key] is None
 
-    def test_calculate_average_exposure_single_location(self, environmental_analyzer, sample_locations):
+    def test_calculate_average_exposure_single_location(
+        self, environmental_analyzer, sample_locations
+    ):
         """Test calculating average exposure for single location."""
         target_locations = [sample_locations[0]]
         radius_km = 10.0
@@ -227,7 +231,7 @@ class TestAverageExposureCalculation:
             target_locations=target_locations,
             radius_km=radius_km,
             parameter_name=parameter_name,
-            time_window_days=time_window_days
+            time_window_days=time_window_days,
         )
 
         assert len(exposure_results) == 1
@@ -238,7 +242,9 @@ class TestAverageExposureCalculation:
         result = exposure_results[key]
         assert result is None or isinstance(result, float)
 
-    def test_calculate_average_exposure_different_parameters(self, environmental_analyzer, sample_locations):
+    def test_calculate_average_exposure_different_parameters(
+        self, environmental_analyzer, sample_locations
+    ):
         """Test calculating average exposure for different parameters."""
         target_locations = [sample_locations[0]]
         radius_km = 1000.0
@@ -252,7 +258,7 @@ class TestAverageExposureCalculation:
                 target_locations=target_locations,
                 radius_km=radius_km,
                 parameter_name=param,
-                time_window_days=time_window_days
+                time_window_days=time_window_days,
             )
 
             key = f"{target_locations[0].latitude},{target_locations[0].longitude}"
@@ -263,7 +269,9 @@ class TestAverageExposureCalculation:
             if result is not None:
                 assert result >= 0
 
-    def test_calculate_average_exposure_time_window_filtering(self, environmental_analyzer, sample_locations):
+    def test_calculate_average_exposure_time_window_filtering(
+        self, environmental_analyzer, sample_locations
+    ):
         """Test that time window filtering works correctly."""
         target_locations = [sample_locations[0]]
         radius_km = 1000.0
@@ -274,7 +282,7 @@ class TestAverageExposureCalculation:
             target_locations=target_locations,
             radius_km=radius_km,
             parameter_name=parameter_name,
-            time_window_days=1
+            time_window_days=1,
         )
 
         # Long time window
@@ -282,7 +290,7 @@ class TestAverageExposureCalculation:
             target_locations=target_locations,
             radius_km=radius_km,
             parameter_name=parameter_name,
-            time_window_days=30
+            time_window_days=30,
         )
 
         key = f"{target_locations[0].latitude},{target_locations[0].longitude}"
@@ -296,7 +304,9 @@ class TestAverageExposureCalculation:
 class TestEnvironmentalHealthIntegration:
     """Test integration of environmental health components."""
 
-    def test_readings_query_and_exposure_consistency(self, environmental_analyzer, sample_locations):
+    def test_readings_query_and_exposure_consistency(
+        self, environmental_analyzer, sample_locations
+    ):
         """Test consistency between readings query and exposure calculation."""
         target_location = sample_locations[0]
         radius_km = 5.0
@@ -319,7 +329,7 @@ class TestEnvironmentalHealthIntegration:
             target_locations=[target_location],
             radius_km=radius_km,
             parameter_name=parameter_name,
-            time_window_days=time_window_days
+            time_window_days=time_window_days,
         )
 
         key = f"{target_location.latitude},{target_location.longitude}"
@@ -336,17 +346,19 @@ class TestEnvironmentalHealthIntegration:
             # If no readings, exposure should be None
             assert avg_exposure is None
 
-    def test_parameter_filtering_consistency(self, environmental_analyzer, sample_locations):
+    def test_parameter_filtering_consistency(
+        self, environmental_analyzer, sample_locations
+    ):
         """Test parameter filtering consistency across methods."""
         center = sample_locations[0]
         radius_km = 1000.0
         parameter_name = "PM2.5"
 
         # Get readings with parameter filter
-        filtered_readings = environmental_analyzer.get_environmental_readings_near_location(
-            center_loc=center,
-            radius_km=radius_km,
-            parameter_name=parameter_name
+        filtered_readings = (
+            environmental_analyzer.get_environmental_readings_near_location(
+                center_loc=center, radius_km=radius_km, parameter_name=parameter_name
+            )
         )
 
         # Calculate exposure for same parameter
@@ -354,7 +366,7 @@ class TestEnvironmentalHealthIntegration:
             target_locations=[center],
             radius_km=radius_km,
             parameter_name=parameter_name,
-            time_window_days=30
+            time_window_days=30,
         )
 
         # All readings used in exposure calculation should match parameter
@@ -391,7 +403,7 @@ class TestPerformance:
                 value=10 + i * 0.1,
                 unit="µg/m³" if i % 2 == 0 else "°C",
                 location=location,
-                timestamp=base_time - timedelta(hours=i)
+                timestamp=base_time - timedelta(hours=i),
             )
             readings.append(reading)
 
@@ -402,9 +414,7 @@ class TestPerformance:
 
         start_time = time.time()
         result_readings = analyzer.get_environmental_readings_near_location(
-            center_loc=test_location,
-            radius_km=10.0,
-            parameter_name="PM2.5"
+            center_loc=test_location, radius_km=10.0, parameter_name="PM2.5"
         )
         end_time = time.time()
 
@@ -430,7 +440,7 @@ class TestPerformance:
                 value=15 + i * 0.1,
                 unit="µg/m³",
                 location=Location(latitude=34.0 + i * 0.1, longitude=-118.0 + i * 0.1),
-                timestamp=base_time
+                timestamp=base_time,
             )
             readings.append(reading)
 
@@ -438,8 +448,7 @@ class TestPerformance:
 
         # Create multiple target locations
         target_locations = [
-            Location(latitude=34.0 + i, longitude=-118.0 + i)
-            for i in range(10)
+            Location(latitude=34.0 + i, longitude=-118.0 + i) for i in range(10)
         ]
 
         # Time exposure calculation
@@ -448,7 +457,7 @@ class TestPerformance:
             target_locations=target_locations,
             radius_km=5.0,
             parameter_name="PM2.5",
-            time_window_days=7
+            time_window_days=7,
         )
         end_time = time.time()
 
@@ -477,7 +486,7 @@ class TestEdgeCases:
             target_locations=[Location(latitude=0, longitude=0)],
             radius_km=1.0,
             parameter_name="PM2.5",
-            time_window_days=7
+            time_window_days=7,
         )
         key = "0.0,0.0"
         assert exposure[key] is None
@@ -493,15 +502,14 @@ class TestEdgeCases:
             value=25.0,
             unit="µg/m³",
             location=location,
-            timestamp=timestamp
+            timestamp=timestamp,
         )
 
         analyzer = EnvironmentalHealthAnalyzer(environmental_readings=[reading])
 
         # Test various operations
         readings = analyzer.get_environmental_readings_near_location(
-            center_loc=location,
-            radius_km=1.0
+            center_loc=location, radius_km=1.0
         )
         assert len(readings) == 1
 
@@ -509,7 +517,7 @@ class TestEdgeCases:
             target_locations=[location],
             radius_km=1.0,
             parameter_name="PM2.5",
-            time_window_days=1
+            time_window_days=1,
         )
         key = f"{location.latitude},{location.longitude}"
         assert exposure[key] == 25.0
@@ -527,7 +535,7 @@ class TestEdgeCases:
                 value=10 + i * 5,  # Different values
                 unit="µg/m³",
                 location=location,  # Same location
-                timestamp=timestamp + timedelta(minutes=i)
+                timestamp=timestamp + timedelta(minutes=i),
             )
             readings.append(reading)
 
@@ -535,8 +543,7 @@ class TestEdgeCases:
 
         # Should find all readings
         found_readings = analyzer.get_environmental_readings_near_location(
-            center_loc=location,
-            radius_km=0.1
+            center_loc=location, radius_km=0.1
         )
         assert len(found_readings) == 3
 
@@ -545,7 +552,7 @@ class TestEdgeCases:
             target_locations=[location],
             radius_km=0.1,
             parameter_name="PM2.5",
-            time_window_days=1
+            time_window_days=1,
         )
         key = f"{location.latitude},{location.longitude}"
 
@@ -554,11 +561,15 @@ class TestEdgeCases:
 
     def test_time_window_edge_cases(self, sample_environmental_data):
         """Test that the exposure window anchors to the latest reading."""
-        analyzer = EnvironmentalHealthAnalyzer(environmental_readings=sample_environmental_data)
+        analyzer = EnvironmentalHealthAnalyzer(
+            environmental_readings=sample_environmental_data
+        )
 
         # Age all readings to 10 years ago; exposure is anchored to the
         # latest reading, so a 1-day window still includes them.
-        past_time = datetime.now(timezone.utc) - timedelta(days=365*10)  # 10 years ago
+        past_time = datetime.now(timezone.utc) - timedelta(
+            days=365 * 10
+        )  # 10 years ago
         for reading in analyzer.readings:
             reading.timestamp = past_time
 
@@ -566,7 +577,7 @@ class TestEdgeCases:
             target_locations=[Location(latitude=34.0, longitude=-118.0)],
             radius_km=1000.0,
             parameter_name="PM2.5",
-            time_window_days=1
+            time_window_days=1,
         )
 
         key = "34.0,-118.0"

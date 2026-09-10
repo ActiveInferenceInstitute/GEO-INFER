@@ -56,7 +56,9 @@ class TestAepCurve:
             "exposure_years": 10.0,
             "random_seed": 11,
         }
-        assert calculate_aep_curve(ramp, **kwargs) == calculate_aep_curve(ramp, **kwargs)
+        assert calculate_aep_curve(ramp, **kwargs) == calculate_aep_curve(
+            ramp, **kwargs
+        )
 
     def test_low_threshold_is_almost_certain_for_a_dense_year(
         self, ramp: pd.DataFrame

@@ -19,6 +19,7 @@ import git
 
 logger = logging.getLogger(__name__)
 
+
 class ErrorSeverity(Enum):
     """Error severity levels."""
 
@@ -26,6 +27,7 @@ class ErrorSeverity(Enum):
     MEDIUM = "medium"
     HIGH = "high"
     CRITICAL = "critical"
+
 
 class ErrorCategory(Enum):
     """Error categories for classification."""
@@ -40,6 +42,7 @@ class ErrorCategory(Enum):
     VALIDATION = "validation"
     UNKNOWN = "unknown"
 
+
 class GeoInferGitError(Exception):
     """
     Base exception class for GEO-INFER-GIT errors.
@@ -48,10 +51,15 @@ class GeoInferGitError(Exception):
     and recovery suggestions.
     """
 
-    def __init__(self, message: str, category: ErrorCategory = ErrorCategory.UNKNOWN,
-                 severity: ErrorSeverity = ErrorSeverity.MEDIUM,
-                 recoverable: bool = False, suggestions: Optional[List[str]] = None,
-                 original_error: Optional[Exception] = None) -> None:
+    def __init__(
+        self,
+        message: str,
+        category: ErrorCategory = ErrorCategory.UNKNOWN,
+        severity: ErrorSeverity = ErrorSeverity.MEDIUM,
+        recoverable: bool = False,
+        suggestions: Optional[List[str]] = None,
+        original_error: Optional[Exception] = None,
+    ) -> None:
         """
         Initialize the error.
 
@@ -85,6 +93,7 @@ class GeoInferGitError(Exception):
 
         return " | ".join(parts)
 
+
 class NetworkError(GeoInferGitError):
     """Network-related errors.
 
@@ -93,24 +102,39 @@ class NetworkError(GeoInferGitError):
     """
 
     def __init__(self, message: str, **kwargs: Any) -> None:
-        kwargs.setdefault('recoverable', True)
-        super().__init__(message, category=ErrorCategory.NETWORK,
-                        severity=ErrorSeverity.HIGH, **kwargs)
+        kwargs.setdefault("recoverable", True)
+        super().__init__(
+            message,
+            category=ErrorCategory.NETWORK,
+            severity=ErrorSeverity.HIGH,
+            **kwargs,
+        )
+
 
 class AuthenticationError(GeoInferGitError):
     """Authentication-related errors."""
 
     def __init__(self, message: str, **kwargs: Any) -> None:
-        super().__init__(message, category=ErrorCategory.AUTHENTICATION,
-                        severity=ErrorSeverity.HIGH, **kwargs)
+        super().__init__(
+            message,
+            category=ErrorCategory.AUTHENTICATION,
+            severity=ErrorSeverity.HIGH,
+            **kwargs,
+        )
+
 
 class PermissionDeniedError(GeoInferGitError):
     """Permission-related errors (the custom analogue of the builtin
     :class:`PermissionError`, which is deliberately not shadowed)."""
 
     def __init__(self, message: str, **kwargs: Any) -> None:
-        super().__init__(message, category=ErrorCategory.PERMISSION,
-                        severity=ErrorSeverity.HIGH, **kwargs)
+        super().__init__(
+            message,
+            category=ErrorCategory.PERMISSION,
+            severity=ErrorSeverity.HIGH,
+            **kwargs,
+        )
+
 
 class GitOperationError(GeoInferGitError):
     """Git operation errors.
@@ -120,45 +144,78 @@ class GitOperationError(GeoInferGitError):
     """
 
     def __init__(self, message: str, **kwargs: Any) -> None:
-        kwargs.setdefault('recoverable', True)
-        super().__init__(message, category=ErrorCategory.GIT_OPERATION,
-                        severity=ErrorSeverity.MEDIUM, **kwargs)
+        kwargs.setdefault("recoverable", True)
+        super().__init__(
+            message,
+            category=ErrorCategory.GIT_OPERATION,
+            severity=ErrorSeverity.MEDIUM,
+            **kwargs,
+        )
+
 
 class FilesystemError(GeoInferGitError):
     """Filesystem-related errors."""
 
     def __init__(self, message: str, **kwargs: Any) -> None:
-        super().__init__(message, category=ErrorCategory.FILESYSTEM,
-                        severity=ErrorSeverity.HIGH, **kwargs)
+        super().__init__(
+            message,
+            category=ErrorCategory.FILESYSTEM,
+            severity=ErrorSeverity.HIGH,
+            **kwargs,
+        )
+
 
 class ConfigurationError(GeoInferGitError):
     """Configuration-related errors."""
 
     def __init__(self, message: str, **kwargs: Any) -> None:
-        super().__init__(message, category=ErrorCategory.CONFIGURATION,
-                        severity=ErrorSeverity.HIGH, **kwargs)
+        super().__init__(
+            message,
+            category=ErrorCategory.CONFIGURATION,
+            severity=ErrorSeverity.HIGH,
+            **kwargs,
+        )
+
 
 class APILimitError(GeoInferGitError):
     """API rate limit errors."""
 
-    def __init__(self, message: str, reset_time: Optional[int] = None, **kwargs: Any) -> None:
-        super().__init__(message, category=ErrorCategory.API_LIMIT,
-                        severity=ErrorSeverity.MEDIUM, recoverable=True, **kwargs)
+    def __init__(
+        self, message: str, reset_time: Optional[int] = None, **kwargs: Any
+    ) -> None:
+        super().__init__(
+            message,
+            category=ErrorCategory.API_LIMIT,
+            severity=ErrorSeverity.MEDIUM,
+            recoverable=True,
+            **kwargs,
+        )
         self.reset_time = reset_time
+
 
 class ValidationError(GeoInferGitError):
     """Validation-related errors."""
 
     def __init__(self, message: str, **kwargs: Any) -> None:
-        super().__init__(message, category=ErrorCategory.VALIDATION,
-                        severity=ErrorSeverity.MEDIUM, **kwargs)
+        super().__init__(
+            message,
+            category=ErrorCategory.VALIDATION,
+            severity=ErrorSeverity.MEDIUM,
+            **kwargs,
+        )
+
 
 class RetryConfig:
     """Configuration for retry behavior."""
 
-    def __init__(self, max_attempts: int = 3, base_delay: float = 1.0,
-                 max_delay: float = 60.0, exponential_base: float = 2.0,
-                 jitter: bool = True):
+    def __init__(
+        self,
+        max_attempts: int = 3,
+        base_delay: float = 1.0,
+        max_delay: float = 60.0,
+        exponential_base: float = 2.0,
+        jitter: bool = True,
+    ):
         """
         Initialize retry configuration.
 
@@ -174,6 +231,7 @@ class RetryConfig:
         self.max_delay = max_delay
         self.exponential_base = exponential_base
         self.jitter = jitter
+
 
 def classify_error(error: Exception) -> Tuple[ErrorCategory, ErrorSeverity, bool]:
     """
@@ -218,11 +276,16 @@ def classify_error(error: Exception) -> Tuple[ErrorCategory, ErrorSeverity, bool
     # Default classification
     return ErrorCategory.UNKNOWN, ErrorSeverity.MEDIUM, False
 
-def retry_on_error(max_attempts: int = 3, base_delay: float = 1.0,
-                  max_delay: float = 60.0, exponential_base: float = 2.0,
-                  jitter: bool = True,
-                  retryable_errors: Optional[Tuple[Type[Exception], ...]] = None,
-                  logger_instance: Optional[logging.Logger] = None) -> Callable:
+
+def retry_on_error(
+    max_attempts: int = 3,
+    base_delay: float = 1.0,
+    max_delay: float = 60.0,
+    exponential_base: float = 2.0,
+    jitter: bool = True,
+    retryable_errors: Optional[Tuple[Type[Exception], ...]] = None,
+    logger_instance: Optional[logging.Logger] = None,
+) -> Callable:
     """
     Decorator for retrying functions on errors.
 
@@ -238,7 +301,12 @@ def retry_on_error(max_attempts: int = 3, base_delay: float = 1.0,
     Returns:
         Decorated function
     """
-    default_retryable_errors = (requests.RequestException, git.GitCommandError, ConnectionError, TimeoutError)
+    default_retryable_errors = (
+        requests.RequestException,
+        git.GitCommandError,
+        ConnectionError,
+        TimeoutError,
+    )
 
     if retryable_errors is None:
         retryable_errors = default_retryable_errors
@@ -268,12 +336,13 @@ def retry_on_error(max_attempts: int = 3, base_delay: float = 1.0,
                         break
 
                     # Calculate delay with exponential backoff
-                    delay = min(base_delay * (exponential_base ** attempt), max_delay)
+                    delay = min(base_delay * (exponential_base**attempt), max_delay)
 
                     # Add jitter if enabled
                     if jitter:
                         import random
-                        delay *= (0.5 + random.random())
+
+                        delay *= 0.5 + random.random()
 
                     if logger_instance:
                         logger_instance.warning(
@@ -285,7 +354,9 @@ def retry_on_error(max_attempts: int = 3, base_delay: float = 1.0,
 
             # All retries failed
             if logger_instance:
-                logger_instance.error(f"All {max_attempts} attempts failed in {func.__name__}")
+                logger_instance.error(
+                    f"All {max_attempts} attempts failed in {func.__name__}"
+                )
 
             raise cast(BaseException, last_error)
 
@@ -293,9 +364,13 @@ def retry_on_error(max_attempts: int = 3, base_delay: float = 1.0,
 
     return decorator
 
-def handle_error(error: Exception, operation: Optional[str] = None,
-                logger_instance: Optional[logging.Logger] = None,
-                reraise: bool = True) -> Optional[GeoInferGitError]:
+
+def handle_error(
+    error: Exception,
+    operation: Optional[str] = None,
+    logger_instance: Optional[logging.Logger] = None,
+    reraise: bool = True,
+) -> Optional[GeoInferGitError]:
     """
     Handle and classify an error.
 
@@ -314,48 +389,62 @@ def handle_error(error: Exception, operation: Optional[str] = None,
     suggestions = []
 
     if category == ErrorCategory.NETWORK:
-        suggestions.extend([
-            "Check your internet connection",
-            "Verify the target repository URL is accessible",
-            "Check if firewalls or proxies are blocking the connection"
-        ])
+        suggestions.extend(
+            [
+                "Check your internet connection",
+                "Verify the target repository URL is accessible",
+                "Check if firewalls or proxies are blocking the connection",
+            ]
+        )
     elif category == ErrorCategory.AUTHENTICATION:
-        suggestions.extend([
-            "Verify your GitHub token is valid and has appropriate permissions",
-            "Check that the token hasn't expired",
-            "Ensure the token has 'repo' scope for private repositories"
-        ])
+        suggestions.extend(
+            [
+                "Verify your GitHub token is valid and has appropriate permissions",
+                "Check that the token hasn't expired",
+                "Ensure the token has 'repo' scope for private repositories",
+            ]
+        )
     elif category == ErrorCategory.PERMISSION:
-        suggestions.extend([
-            "Check if you have access to the repository",
-            "Verify the repository exists and is not private",
-            "Ensure your token has the necessary permissions"
-        ])
+        suggestions.extend(
+            [
+                "Check if you have access to the repository",
+                "Verify the repository exists and is not private",
+                "Ensure your token has the necessary permissions",
+            ]
+        )
     elif category == ErrorCategory.API_LIMIT:
-        suggestions.extend([
-            "Wait for rate limit reset",
-            "Use a GitHub token to increase rate limits",
-            "Reduce the frequency of API calls"
-        ])
+        suggestions.extend(
+            [
+                "Wait for rate limit reset",
+                "Use a GitHub token to increase rate limits",
+                "Reduce the frequency of API calls",
+            ]
+        )
     elif category == ErrorCategory.GIT_OPERATION:
-        suggestions.extend([
-            "Check if the repository exists",
-            "Verify Git is properly installed",
-            "Check disk space and permissions",
-            "Ensure the repository is not corrupted"
-        ])
+        suggestions.extend(
+            [
+                "Check if the repository exists",
+                "Verify Git is properly installed",
+                "Check disk space and permissions",
+                "Ensure the repository is not corrupted",
+            ]
+        )
     elif category == ErrorCategory.FILESYSTEM:
-        suggestions.extend([
-            "Check disk space availability",
-            "Verify file permissions",
-            "Ensure the directory path exists"
-        ])
+        suggestions.extend(
+            [
+                "Check disk space availability",
+                "Verify file permissions",
+                "Ensure the directory path exists",
+            ]
+        )
     elif category == ErrorCategory.VALIDATION:
-        suggestions.extend([
-            "Check configuration file format",
-            "Verify all required fields are present",
-            "Ensure data types are correct"
-        ])
+        suggestions.extend(
+            [
+                "Check configuration file format",
+                "Verify all required fields are present",
+                "Ensure data types are correct",
+            ]
+        )
 
     # Create structured error
     structured_error = GeoInferGitError(
@@ -364,7 +453,7 @@ def handle_error(error: Exception, operation: Optional[str] = None,
         severity=severity,
         recoverable=recoverable,
         suggestions=suggestions,
-        original_error=error
+        original_error=error,
     )
 
     # Log the error
@@ -375,6 +464,7 @@ def handle_error(error: Exception, operation: Optional[str] = None,
         raise structured_error from error
 
     return structured_error
+
 
 class ErrorRecoveryManager:
     """
@@ -408,32 +498,34 @@ class ErrorRecoveryManager:
 
         strategies[ErrorCategory.NETWORK] = [
             self._retry_with_backoff,
-            self._check_network_connectivity
+            self._check_network_connectivity,
         ]
 
         strategies[ErrorCategory.AUTHENTICATION] = [
             self._check_token_validity,
-            self._refresh_token
+            self._refresh_token,
         ]
 
         strategies[ErrorCategory.API_LIMIT] = [
             self._wait_for_rate_limit_reset,
-            self._use_alternate_api_endpoint
+            self._use_alternate_api_endpoint,
         ]
 
         strategies[ErrorCategory.GIT_OPERATION] = [
             self._retry_git_operation,
-            self._clean_git_cache
+            self._clean_git_cache,
         ]
 
         strategies[ErrorCategory.FILESYSTEM] = [
             self._check_disk_space,
-            self._verify_permissions
+            self._verify_permissions,
         ]
 
         return strategies
 
-    def attempt_recovery(self, error: GeoInferGitError, context: Optional[Dict[str, Any]] = None) -> bool:
+    def attempt_recovery(
+        self, error: GeoInferGitError, context: Optional[Dict[str, Any]] = None
+    ) -> bool:
         """
         Attempt to recover from an error.
 
@@ -457,15 +549,21 @@ class ErrorRecoveryManager:
             try:
                 if strategy(error, context):
                     if self.logger:
-                        self.logger.info(f"Successfully recovered using {strategy.__name__}")
+                        self.logger.info(
+                            f"Successfully recovered using {strategy.__name__}"
+                        )
                     return True
             except Exception as e:
                 if self.logger:
-                    self.logger.warning(f"Recovery strategy {strategy.__name__} failed: {e}")
+                    self.logger.warning(
+                        f"Recovery strategy {strategy.__name__} failed: {e}"
+                    )
 
         return False
 
-    def _retry_with_backoff(self, error: GeoInferGitError, context: Dict[str, Any]) -> bool:
+    def _retry_with_backoff(
+        self, error: GeoInferGitError, context: Dict[str, Any]
+    ) -> bool:
         """Wait out a transient failure so the caller can retry.
 
         Sleeps for an exponentially growing delay derived from the attempt
@@ -482,8 +580,8 @@ class ErrorRecoveryManager:
         Returns:
             True if a retry should follow, False if the budget is exhausted.
         """
-        attempt = int(context.get('attempt', 1))
-        max_attempts = int(context.get('max_retry_attempts', self.MAX_RETRY_ATTEMPTS))
+        attempt = int(context.get("attempt", 1))
+        max_attempts = int(context.get("max_retry_attempts", self.MAX_RETRY_ATTEMPTS))
         if attempt >= max_attempts:
             if self.logger:
                 self.logger.warning(
@@ -491,15 +589,17 @@ class ErrorRecoveryManager:
                 )
             return False
 
-        base_delay = float(context.get('base_delay', self.BASE_RETRY_DELAY_SECONDS))
-        max_delay = float(context.get('max_backoff_seconds', self.MAX_BACKOFF_SECONDS))
+        base_delay = float(context.get("base_delay", self.BASE_RETRY_DELAY_SECONDS))
+        max_delay = float(context.get("max_backoff_seconds", self.MAX_BACKOFF_SECONDS))
         delay = min(base_delay * (2 ** (attempt - 1)), max_delay)
         if self.logger:
             self.logger.info(f"Backing off {delay:.2f}s before retry {attempt + 1}")
         time.sleep(delay)
         return True
 
-    def _check_network_connectivity(self, error: GeoInferGitError, context: Dict[str, Any]) -> bool:
+    def _check_network_connectivity(
+        self, error: GeoInferGitError, context: Dict[str, Any]
+    ) -> bool:
         """Check if network connectivity is available."""
         try:
             requests.get("https://api.github.com", timeout=5)
@@ -507,17 +607,19 @@ class ErrorRecoveryManager:
         except requests.RequestException:
             return False
 
-    def _check_token_validity(self, error: GeoInferGitError, context: Dict[str, Any]) -> bool:
+    def _check_token_validity(
+        self, error: GeoInferGitError, context: Dict[str, Any]
+    ) -> bool:
         """Check if authentication token is valid."""
-        token = context.get('token')
+        token = context.get("token")
         if not token:
             return False
 
         try:
             response = requests.get(
                 "https://api.github.com/user",
-                headers={'Authorization': f'token {token}'},
-                timeout=5
+                headers={"Authorization": f"token {token}"},
+                timeout=5,
             )
             return bool(response.status_code == 200)
         except requests.RequestException:
@@ -541,7 +643,7 @@ class ErrorRecoveryManager:
         Returns:
             True if a validated replacement token was obtained.
         """
-        refresher = context.get('token_refresh')
+        refresher = context.get("token_refresh")
         if callable(refresher):
             try:
                 new_token = refresher()
@@ -551,25 +653,27 @@ class ErrorRecoveryManager:
                 return False
             if not new_token:
                 return False
-            context['token'] = new_token
+            context["token"] = new_token
             return self._check_token_validity(error, context)
 
-        refresh_token = context.get('refresh_token')
-        token_url = context.get('token_url')
+        refresh_token = context.get("refresh_token")
+        token_url = context.get("token_url")
         if not refresh_token or not token_url:
             if self.logger:
-                self.logger.info("No token refresh mechanism configured; cannot refresh")
+                self.logger.info(
+                    "No token refresh mechanism configured; cannot refresh"
+                )
             return False
 
-        payload = {'grant_type': 'refresh_token', 'refresh_token': refresh_token}
-        if context.get('client_id'):
-            payload['client_id'] = context['client_id']
+        payload = {"grant_type": "refresh_token", "refresh_token": refresh_token}
+        if context.get("client_id"):
+            payload["client_id"] = context["client_id"]
 
         try:
             response = requests.post(
                 token_url,
                 data=payload,
-                headers={'Accept': 'application/json'},
+                headers={"Accept": "application/json"},
                 timeout=self.REQUEST_TIMEOUT_SECONDS,
             )
         except requests.RequestException as exc:
@@ -580,18 +684,20 @@ class ErrorRecoveryManager:
         if response.status_code != 200:
             return False
         try:
-            new_token = response.json().get('access_token')
+            new_token = response.json().get("access_token")
         except ValueError:
             return False
         if not new_token:
             return False
 
-        context['token'] = new_token
+        context["token"] = new_token
         return self._check_token_validity(error, context)
 
-    def _wait_for_rate_limit_reset(self, error: GeoInferGitError, context: Dict[str, Any]) -> bool:
+    def _wait_for_rate_limit_reset(
+        self, error: GeoInferGitError, context: Dict[str, Any]
+    ) -> bool:
         """Wait for API rate limit reset."""
-        if hasattr(error, 'reset_time') and error.reset_time:
+        if hasattr(error, "reset_time") and error.reset_time:
             wait_time = max(0, error.reset_time - int(time.time()))
             if self.logger:
                 self.logger.info(f"Waiting {wait_time} seconds for rate limit reset")
@@ -599,7 +705,9 @@ class ErrorRecoveryManager:
             return True
         return False
 
-    def _use_alternate_api_endpoint(self, error: GeoInferGitError, context: Dict[str, Any]) -> bool:
+    def _use_alternate_api_endpoint(
+        self, error: GeoInferGitError, context: Dict[str, Any]
+    ) -> bool:
         """Switch to the first alternate API endpoint that answers healthily.
 
         Probes each candidate from ``alternate_api_endpoints`` and records
@@ -615,11 +723,11 @@ class ErrorRecoveryManager:
         Returns:
             True if a healthy alternate endpoint was selected.
         """
-        candidates = context.get('alternate_api_endpoints') or []
-        current = context.get('api_base_url')
-        headers = {'Accept': 'application/vnd.github+json'}
-        if context.get('token'):
-            headers['Authorization'] = f"token {context['token']}"
+        candidates = context.get("alternate_api_endpoints") or []
+        current = context.get("api_base_url")
+        headers = {"Accept": "application/vnd.github+json"}
+        if context.get("token"):
+            headers["Authorization"] = f"token {context['token']}"
 
         for endpoint in candidates:
             if not endpoint or endpoint == current:
@@ -632,14 +740,16 @@ class ErrorRecoveryManager:
                 )
             except requests.RequestException as exc:
                 if self.logger:
-                    self.logger.debug(f"Alternate endpoint {endpoint} unreachable: {exc}")
+                    self.logger.debug(
+                        f"Alternate endpoint {endpoint} unreachable: {exc}"
+                    )
                 continue
 
             # 403/429 mean the alternate is rate limited too; 5xx means unhealthy.
             if response.status_code in (403, 429) or response.status_code >= 500:
                 continue
 
-            context['api_base_url'] = endpoint
+            context["api_base_url"] = endpoint
             if self.logger:
                 self.logger.info(f"Switched to alternate API endpoint {endpoint}")
             return True
@@ -648,7 +758,9 @@ class ErrorRecoveryManager:
             self.logger.info("No healthy alternate API endpoint available")
         return False
 
-    def _retry_git_operation(self, error: GeoInferGitError, context: Dict[str, Any]) -> bool:
+    def _retry_git_operation(
+        self, error: GeoInferGitError, context: Dict[str, Any]
+    ) -> bool:
         """Confirm the working repository is usable, then allow a retry.
 
         A Git operation is only worth retrying if the repository is still a
@@ -665,7 +777,7 @@ class ErrorRecoveryManager:
         Returns:
             True if the repository is usable and a retry should follow.
         """
-        path = context.get('path')
+        path = context.get("path")
         if path:
             try:
                 git.Repo(path)
@@ -676,7 +788,9 @@ class ErrorRecoveryManager:
 
         return self._retry_with_backoff(error, context)
 
-    def _clean_git_cache(self, error: GeoInferGitError, context: Dict[str, Any]) -> bool:
+    def _clean_git_cache(
+        self, error: GeoInferGitError, context: Dict[str, Any]
+    ) -> bool:
         """Clear a stale index lock and repack loose objects.
 
         The two recoverable causes of a repeated Git failure this handles
@@ -693,7 +807,7 @@ class ErrorRecoveryManager:
         Returns:
             True if the repository was cleaned and a retry may succeed.
         """
-        path = context.get('path')
+        path = context.get("path")
         if not path:
             return False
 
@@ -701,12 +815,14 @@ class ErrorRecoveryManager:
             repo = git.Repo(path)
         except Exception as exc:
             if self.logger:
-                self.logger.warning(f"Cannot clean cache; {path} is not a repository: {exc}")
+                self.logger.warning(
+                    f"Cannot clean cache; {path} is not a repository: {exc}"
+                )
             return False
 
         cleaned = False
-        stale_after = float(context.get('stale_lock_seconds', self.STALE_LOCK_SECONDS))
-        lock_path = os.path.join(repo.git_dir, 'index.lock')
+        stale_after = float(context.get("stale_lock_seconds", self.STALE_LOCK_SECONDS))
+        lock_path = os.path.join(repo.git_dir, "index.lock")
         if os.path.exists(lock_path):
             age = time.time() - os.path.getmtime(lock_path)
             if age < stale_after:
@@ -726,7 +842,7 @@ class ErrorRecoveryManager:
                 return False
 
         try:
-            repo.git.gc('--prune=now', '--quiet')
+            repo.git.gc("--prune=now", "--quiet")
             cleaned = True
         except Exception as exc:
             if self.logger:
@@ -734,34 +850,42 @@ class ErrorRecoveryManager:
 
         return cleaned
 
-    def _check_disk_space(self, error: GeoInferGitError, context: Dict[str, Any]) -> bool:
+    def _check_disk_space(
+        self, error: GeoInferGitError, context: Dict[str, Any]
+    ) -> bool:
         """Check available disk space."""
         try:
             import shutil
-            total, used, free = shutil.disk_usage(context.get('path', '.'))
+
+            total, used, free = shutil.disk_usage(context.get("path", "."))
             return free > 1024 * 1024 * 100  # At least 100MB free
         except Exception:
             return False
 
-    def _verify_permissions(self, error: GeoInferGitError, context: Dict[str, Any]) -> bool:
+    def _verify_permissions(
+        self, error: GeoInferGitError, context: Dict[str, Any]
+    ) -> bool:
         """Verify file/directory permissions."""
-        path = context.get('path')
+        path = context.get("path")
         if not path:
             return False
 
         try:
             # Try to create a test file
-            test_file = os.path.join(path, '.test_permissions')
-            with open(test_file, 'w') as f:
-                f.write('test')
+            test_file = os.path.join(path, ".test_permissions")
+            with open(test_file, "w") as f:
+                f.write("test")
             os.remove(test_file)
             return True
         except Exception:
             return False
 
-def with_error_handling(operation: Optional[str] = None,
-                       logger_instance: Optional[logging.Logger] = None,
-                       max_retries: int = 3) -> Callable:
+
+def with_error_handling(
+    operation: Optional[str] = None,
+    logger_instance: Optional[logging.Logger] = None,
+    max_retries: int = 3,
+) -> Callable:
     """
     Decorator for comprehensive error handling.
 
@@ -773,6 +897,7 @@ def with_error_handling(operation: Optional[str] = None,
     Returns:
         Decorated function
     """
+
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
@@ -788,30 +913,32 @@ def with_error_handling(operation: Optional[str] = None,
                         error,
                         operation or func.__name__,
                         logger_instance,
-                        reraise=False
+                        reraise=False,
                     )
                     assert structured_error is not None
 
                     # Attempt recovery if possible
                     if structured_error.recoverable and attempt < max_retries - 1:
                         context = {
-                            'function': func.__name__,
-                            'operation': func,
-                            'attempt': attempt + 1,
-                            'max_retry_attempts': max_retries,
-                            'args': args,
-                            'kwargs': kwargs
+                            "function": func.__name__,
+                            "operation": func,
+                            "attempt": attempt + 1,
+                            "max_retry_attempts": max_retries,
+                            "args": args,
+                            "kwargs": kwargs,
                         }
                         # Surface a repository path so Git strategies can act on it.
-                        if 'path' in kwargs:
-                            context['path'] = kwargs['path']
+                        if "path" in kwargs:
+                            context["path"] = kwargs["path"]
 
                         if recovery_manager.attempt_recovery(structured_error, context):
                             continue
 
                     # No more retries or non-recoverable error
                     if logger_instance:
-                        logger_instance.error(f"Final failure in {func.__name__}: {structured_error}")
+                        logger_instance.error(
+                            f"Final failure in {func.__name__}: {structured_error}"
+                        )
 
                     raise structured_error
 

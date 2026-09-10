@@ -165,9 +165,7 @@ class MultilevelModel(BayesianModel):
 
             mean_pred = np.asarray(np.mean(predictions, axis=0), dtype=float)
             if return_std:
-                return mean_pred, np.asarray(
-                    np.std(predictions, axis=0), dtype=float
-                )
+                return mean_pred, np.asarray(np.std(predictions, axis=0), dtype=float)
             return mean_pred
         else:
             global_mean = getattr(self, "global_mean", 0.0)

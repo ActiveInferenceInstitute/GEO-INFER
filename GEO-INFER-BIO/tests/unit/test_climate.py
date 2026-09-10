@@ -88,7 +88,13 @@ class TestClimateDataset:
     def test_get_variable_data(self) -> None:
         dataset = _two_variable_dataset()
         df = dataset.get_variable_data("bio1")
-        assert list(df.columns) == ["latitude", "longitude", "value", "variable", "units"]
+        assert list(df.columns) == [
+            "latitude",
+            "longitude",
+            "value",
+            "variable",
+            "units",
+        ]
         assert len(df) == 2
         assert (df["variable"] == "bio1").all()
         assert (df["units"] == "°C * 10").all()
@@ -104,9 +110,7 @@ class TestClimateDataset:
         # One row per location, one column per variable
         assert list(merged.columns) == ["latitude", "longitude", "bio1", "bio12"]
         assert len(merged) == 2
-        row = merged[
-            (merged["latitude"] == 37.7) & (merged["longitude"] == -122.4)
-        ]
+        row = merged[(merged["latitude"] == 37.7) & (merged["longitude"] == -122.4)]
         assert row["bio1"].iloc[0] == 15.0
         assert row["bio12"].iloc[0] == 600.0
 

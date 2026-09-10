@@ -10,4 +10,4 @@ try:
 except ImportError:
     GeoInferImprovements = None
 
-__all__ = ['GeoInferImprovements'] 
+__all__ = ["GeoInferImprovements"]

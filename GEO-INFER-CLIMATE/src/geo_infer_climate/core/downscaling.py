@@ -37,7 +37,7 @@ class DownscalingMethods:
         self,
         model_data: xr.DataArray,
         observed_data: xr.DataArray,
-        method: str = 'linear'
+        method: str = "linear",
     ) -> xr.DataArray:
         """
         Apply bias correction to climate model data.
@@ -51,35 +51,33 @@ class DownscalingMethods:
         Returns:
             Bias-corrected data
         """
-        if method == 'linear':
+        if method == "linear":
             return self._linear_bias_correction(model_data, observed_data)
-        elif method == 'quantile':
+        elif method == "quantile":
             return self._quantile_mapping(model_data, observed_data)
         else:
             raise ValueError(f"Unknown method: {method}")
 
     def _linear_bias_correction(
-        self,
-        model: xr.DataArray,
-        observed: xr.DataArray
+        self, model: xr.DataArray, observed: xr.DataArray
     ) -> xr.DataArray:
         """Linear bias correction (mean and variance rescaling)."""
         # Calculate bias statistics
-        model_mean = model.mean(dim='time')
-        observed_mean = observed.mean(dim='time')
+        model_mean = model.mean(dim="time")
+        observed_mean = observed.mean(dim="time")
 
-        model_std = model.std(dim='time')
-        observed_std = observed.std(dim='time')
+        model_std = model.std(dim="time")
+        observed_std = observed.std(dim="time")
 
         # Apply correction
-        corrected = (model - model_mean) * (observed_std / (model_std + 1e-10)) + observed_mean
+        corrected = (model - model_mean) * (
+            observed_std / (model_std + 1e-10)
+        ) + observed_mean
 
         return corrected
 
     def _quantile_mapping(
-        self,
-        model: xr.DataArray,
-        observed: xr.DataArray
+        self, model: xr.DataArray, observed: xr.DataArray
     ) -> xr.DataArray:
         """Empirical quantile mapping bias correction.
 
@@ -116,9 +114,7 @@ class DownscalingMethods:
         return corrected
 
     def statistical_downscaling(
-        self,
-        coarse_data: xr.DataArray,
-        method: str = 'linear'
+        self, coarse_data: xr.DataArray, method: str = "linear"
     ) -> xr.DataArray:
         """
         Downscale coarse-resolution climate data onto a finer grid.
@@ -136,18 +132,20 @@ class DownscalingMethods:
         Returns:
             Downscaled fine-resolution data
         """
-        if method not in ('linear', 'nearest'):
+        if method not in ("linear", "nearest"):
             raise ValueError(f"Unsupported interpolation method: {method}")
 
         fine = coarse_data.interp(
             lat=np.linspace(
-                float(coarse_data.lat.min()), float(coarse_data.lat.max()),
-                len(coarse_data.lat) * 2
+                float(coarse_data.lat.min()),
+                float(coarse_data.lat.max()),
+                len(coarse_data.lat) * 2,
             ),
             lon=np.linspace(
-                float(coarse_data.lon.min()), float(coarse_data.lon.max()),
-                len(coarse_data.lon) * 2
+                float(coarse_data.lon.min()),
+                float(coarse_data.lon.max()),
+                len(coarse_data.lon) * 2,
             ),
-            method=method
+            method=method,
         )
         return fine

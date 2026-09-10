@@ -16,6 +16,7 @@ from geo_infer_art.core.generation import ProceduralArt
 
 logger = logging.getLogger(__name__)
 
+
 class PlaceArt:
     """
     A class for creating art based on the unique characteristics of geographic locations.
@@ -86,7 +87,9 @@ class PlaceArt:
 
             # Deterministic across processes: Python's hash() is randomized
             # per interpreter (PYTHONHASHSEED), so it must not seed RNGs.
-            seed = int(hashlib.md5(place_name.encode("utf-8")).hexdigest(), 16) % (2**32)
+            seed = int(hashlib.md5(place_name.encode("utf-8")).hexdigest(), 16) % (
+                2**32
+            )
             random.seed(seed)
             lat = random.uniform(-80, 80)
             lon = random.uniform(-179, 179)
@@ -238,7 +241,9 @@ class PlaceArt:
                 "color_palette": (
                     "sunset"
                     if abs(lat) < 30
-                    else "ocean" if abs(lat) >= 60 else "forest"
+                    else "ocean"
+                    if abs(lat) >= 60
+                    else "forest"
                 ),
             },
         )

@@ -23,6 +23,7 @@ from ..utils.logging_utils import get_logger
 
 logger = get_logger(__name__)
 
+
 @dataclass
 class SubmoduleInfo:
     """Information about a Git submodule."""
@@ -33,6 +34,7 @@ class SubmoduleInfo:
     commit: str = ""
     status: str = "unknown"  # initialized, updated, dirty, missing
     recursive: bool = False
+
 
 @dataclass
 class MergeConflict:
@@ -45,6 +47,7 @@ class MergeConflict:
     ancestor_content: str = ""
     resolution: str = ""  # "ours", "theirs", "manual", "resolved"
 
+
 @dataclass
 class CherryPickOperation:
     """Information about a cherry-pick operation."""
@@ -53,6 +56,7 @@ class CherryPickOperation:
     status: str = "pending"  # pending, applied, skipped, failed
     message: str = ""
     conflicts: List[MergeConflict] = field(default_factory=list)
+
 
 @dataclass
 class RebaseOperation:
@@ -65,6 +69,7 @@ class RebaseOperation:
     current_step: int = 0
     total_steps: int = 0
     conflicts: List[MergeConflict] = field(default_factory=list)
+
 
 class SubmoduleManager:
     """
@@ -93,25 +98,25 @@ class SubmoduleManager:
 
     def _load_submodules(self) -> None:
         """Load existing submodules from .gitmodules file."""
-        gitmodules_path = self.repo_path / '.gitmodules'
+        gitmodules_path = self.repo_path / ".gitmodules"
 
         if not gitmodules_path.exists():
             return
 
         try:
             import configparser
+
             config = configparser.ConfigParser()
             config.read(gitmodules_path)
 
             for section in config.sections():
-                if section.startswith('submodule '):
+                if section.startswith("submodule "):
                     submodule_name = section[10:].strip('"')
-                    submodule_path = config.get(section, 'path')
-                    submodule_url = config.get(section, 'url')
+                    submodule_path = config.get(section, "path")
+                    submodule_url = config.get(section, "url")
 
                     self.submodules[submodule_name] = SubmoduleInfo(
-                        path=submodule_path,
-                        url=submodule_url
+                        path=submodule_path, url=submodule_url
                     )
 
         except Exception as e:
@@ -131,7 +136,9 @@ class SubmoduleManager:
 
         try:
             # Initialize submodules
-            self.repo.git.submodule('update', '--init', '--recursive' if recursive else '--init')
+            self.repo.git.submodule(
+                "update", "--init", "--recursive" if recursive else "--init"
+            )
 
             # Update submodule information
             for name, submodule in self.submodules.items():
@@ -169,7 +176,9 @@ class SubmoduleManager:
 
         try:
             # Update submodules
-            self.repo.git.submodule('update', '--remote', '--recursive' if recursive else '--remote')
+            self.repo.git.submodule(
+                "update", "--remote", "--recursive" if recursive else "--remote"
+            )
 
             # Update submodule information
             for name, submodule in self.submodules.items():
@@ -227,7 +236,7 @@ class SubmoduleManager:
 
                 # Update to latest commit on tracked branch
                 if getattr(sub_repo.head, "is_tracking", False):
-                    sub_repo.git.pull('origin', sub_repo.active_branch.name)
+                    sub_repo.git.pull("origin", sub_repo.active_branch.name)
 
                 submodule.status = "synced"
                 results[name] = True
@@ -252,28 +261,32 @@ class SubmoduleManager:
             submodule_path = self.repo_path / submodule.path
 
             info = {
-                'path': submodule.path,
-                'url': submodule.url,
-                'branch': submodule.branch,
-                'commit': submodule.commit,
-                'status': submodule.status,
-                'exists': submodule_path.exists(),
-                'is_git_repo': (submodule_path / '.git').exists() if submodule_path.exists() else False
+                "path": submodule.path,
+                "url": submodule.url,
+                "branch": submodule.branch,
+                "commit": submodule.commit,
+                "status": submodule.status,
+                "exists": submodule_path.exists(),
+                "is_git_repo": (submodule_path / ".git").exists()
+                if submodule_path.exists()
+                else False,
             }
 
             if submodule_path.exists():
                 try:
                     sub_repo = git.Repo(submodule_path)
-                    info['is_dirty'] = sub_repo.is_dirty()
-                    info['ahead_behind'] = self._get_ahead_behind(sub_repo)
-                    info['remotes'] = [remote.name for remote in sub_repo.remotes]
+                    info["is_dirty"] = sub_repo.is_dirty()
+                    info["ahead_behind"] = self._get_ahead_behind(sub_repo)
+                    info["remotes"] = [remote.name for remote in sub_repo.remotes]
 
                     # Get submodule dependencies if recursive
                     if submodule.recursive:
-                        info['dependencies'] = self._get_submodule_dependencies(submodule_path)
+                        info["dependencies"] = self._get_submodule_dependencies(
+                            submodule_path
+                        )
 
                 except Exception as e:
-                    info['error'] = str(e)
+                    info["error"] = str(e)
 
             status_info[name] = info
 
@@ -291,11 +304,11 @@ class SubmoduleManager:
                     ahead = len(list(repo.iter_commits(f"{remote_ref}..HEAD")))
                     behind = len(list(repo.iter_commits(f"HEAD..{remote_ref}")))
 
-                    return {'ahead': ahead, 'behind': behind}
+                    return {"ahead": ahead, "behind": behind}
         except Exception as exc:
             logger.warning("Could not determine ahead/behind status: %s", exc)
 
-        return {'ahead': 0, 'behind': 0}
+        return {"ahead": 0, "behind": 0}
 
     def _get_submodule_dependencies(self, submodule_path: Path) -> List[str]:
         """Get dependencies of a submodule by scanning its .gitmodules file.
@@ -304,21 +317,25 @@ class SubmoduleManager:
         ``<submodule_path>/.gitmodules``.
         """
         dependencies: List[str] = []
-        gitmodules = submodule_path / '.gitmodules'
+        gitmodules = submodule_path / ".gitmodules"
         if not gitmodules.exists():
             return dependencies
         try:
             import configparser
+
             config = configparser.ConfigParser()
             config.read(gitmodules)
             for section in config.sections():
-                if section.startswith('submodule '):
-                    sub_path = config.get(section, 'path', fallback=None)
+                if section.startswith("submodule "):
+                    sub_path = config.get(section, "path", fallback=None)
                     if sub_path:
                         dependencies.append(sub_path)
         except Exception as e:
-            logger.warning(f"Could not parse submodule dependencies from {gitmodules}: {e}")
+            logger.warning(
+                f"Could not parse submodule dependencies from {gitmodules}: {e}"
+            )
         return dependencies
+
 
 class CherryPickManager:
     """
@@ -342,7 +359,9 @@ class CherryPickManager:
         self.repo = git.Repo(repo_path)
         self.operations: List[CherryPickOperation] = []
 
-    def cherry_pick_commit(self, commit_sha: str, strategy: str = "recursive") -> CherryPickOperation:
+    def cherry_pick_commit(
+        self, commit_sha: str, strategy: str = "recursive"
+    ) -> CherryPickOperation:
         """
         Cherry-pick a specific commit.
 
@@ -369,7 +388,9 @@ class CherryPickManager:
             if "conflict" in str(e).lower():
                 operation.status = "conflicts"
                 operation.conflicts = self._detect_conflicts()
-                operation.message = f"Conflicts detected during cherry-pick of {commit_sha}"
+                operation.message = (
+                    f"Conflicts detected during cherry-pick of {commit_sha}"
+                )
             else:
                 operation.status = "failed"
                 operation.message = f"Cherry-pick failed: {e}"
@@ -381,8 +402,9 @@ class CherryPickManager:
         self.operations.append(operation)
         return operation
 
-    def cherry_pick_range(self, start_sha: str, end_sha: str,
-                         stop_on_conflict: bool = True) -> List[CherryPickOperation]:
+    def cherry_pick_range(
+        self, start_sha: str, end_sha: str, stop_on_conflict: bool = True
+    ) -> List[CherryPickOperation]:
         """
         Cherry-pick a range of commits.
 
@@ -411,13 +433,18 @@ class CherryPickManager:
         except Exception as e:
             logger.error(f"Error in cherry-pick range: {e}")
             # Add failed operation
-            failed_op = CherryPickOperation(commit_sha=end_sha, status="failed",
-                                          message=f"Range cherry-pick failed: {e}")
+            failed_op = CherryPickOperation(
+                commit_sha=end_sha,
+                status="failed",
+                message=f"Range cherry-pick failed: {e}",
+            )
             operations.append(failed_op)
 
         return operations
 
-    def resolve_conflicts(self, operation_index: int, resolution_strategy: str = "ours") -> bool:
+    def resolve_conflicts(
+        self, operation_index: int, resolution_strategy: str = "ours"
+    ) -> bool:
         """
         Resolve conflicts in a cherry-pick operation.
 
@@ -457,17 +484,21 @@ class CherryPickManager:
 
             elif resolution_strategy == "manual":
                 # Mark as manually resolved
-                logger.info(f"Manual conflict resolution required for operation {operation_index}")
+                logger.info(
+                    f"Manual conflict resolution required for operation {operation_index}"
+                )
                 return False
 
             # Add resolved files
-            self.repo.git.add('.')
+            self.repo.git.add(".")
 
             # Continue cherry-pick
-            self.repo.git.cherry_pick('--continue')
+            self.repo.git.cherry_pick("--continue")
 
             operation.status = "applied"
-            operation.message = f"Conflicts resolved using {resolution_strategy} strategy"
+            operation.message = (
+                f"Conflicts resolved using {resolution_strategy} strategy"
+            )
 
             return True
 
@@ -482,14 +513,18 @@ class CherryPickManager:
 
         try:
             # Get git status to find conflicted files
-            status_output = self.repo.git.status('--porcelain')
+            status_output = self.repo.git.status("--porcelain")
 
-            for line in status_output.split('\n'):
+            for line in status_output.split("\n"):
                 if line.strip():
                     status_code = line[:2]
                     file_path = line[3:]
 
-                    if status_code.startswith('UU') or status_code.startswith('AA') or status_code.startswith('DD'):
+                    if (
+                        status_code.startswith("UU")
+                        or status_code.startswith("AA")
+                        or status_code.startswith("DD")
+                    ):
                         conflict = self._analyze_conflict(file_path, status_code)
                         if conflict:
                             conflicts.append(conflict)
@@ -499,18 +534,20 @@ class CherryPickManager:
 
         return conflicts
 
-    def _analyze_conflict(self, file_path: str, status_code: str) -> Optional[MergeConflict]:
+    def _analyze_conflict(
+        self, file_path: str, status_code: str
+    ) -> Optional[MergeConflict]:
         """Analyze a specific conflict in detail."""
         try:
             conflict_file = self.repo_path / file_path
 
             # Read conflict markers
-            with open(conflict_file, 'r') as f:
+            with open(conflict_file, "r") as f:
                 content = f.read()
 
             # Parse conflict markers
-            our_pattern = r'<<<<<<< HEAD\n(.*?)\n======='
-            their_pattern = r'=======\n(.*?)\n>>>>>>> '
+            our_pattern = r"<<<<<<< HEAD\n(.*?)\n======="
+            their_pattern = r"=======\n(.*?)\n>>>>>>> "
 
             our_match = re.search(our_pattern, content, re.DOTALL)
             their_match = re.search(their_pattern, content, re.DOTALL)
@@ -522,11 +559,12 @@ class CherryPickManager:
                 file_path=file_path,
                 conflict_type="both_modified",
                 our_content=our_content,
-                their_content=their_content
+                their_content=their_content,
             )
 
         except Exception:
             return None
+
 
 class RebaseManager:
     """
@@ -550,7 +588,9 @@ class RebaseManager:
         self.repo = git.Repo(repo_path)
         self.current_rebase: Optional[RebaseOperation] = None
 
-    def start_interactive_rebase(self, base_commit: str, target_branch: Optional[str] = None) -> RebaseOperation:
+    def start_interactive_rebase(
+        self, base_commit: str, target_branch: Optional[str] = None
+    ) -> RebaseOperation:
         """
         Start an interactive rebase operation.
 
@@ -563,7 +603,7 @@ class RebaseManager:
         """
         operation = RebaseOperation(
             base_commit=base_commit,
-            target_branch=target_branch or self.repo.active_branch.name
+            target_branch=target_branch or self.repo.active_branch.name,
         )
 
         try:
@@ -572,7 +612,7 @@ class RebaseManager:
             operation.total_steps = len(commits)
 
             # Start interactive rebase
-            self.repo.git.rebase('-i', base_commit)
+            self.repo.git.rebase("-i", base_commit)
 
             operation.status = "in_progress"
             operation.current_step = 0
@@ -600,7 +640,7 @@ class RebaseManager:
             return False
 
         try:
-            self.repo.git.rebase('--continue')
+            self.repo.git.rebase("--continue")
             self.current_rebase.current_step += 1
 
             # Check if rebase is complete
@@ -632,7 +672,7 @@ class RebaseManager:
             return False
 
         try:
-            self.repo.git.rebase('--abort')
+            self.repo.git.rebase("--abort")
             self.current_rebase.status = "aborted"
             self.current_rebase = None
             return True
@@ -645,33 +685,43 @@ class RebaseManager:
         """Detect conflicts during rebase by parsing git status --porcelain output."""
         conflicts = []
         try:
-            status_output = self.repo.git.status('--porcelain')
-            for line in status_output.split('\n'):
+            status_output = self.repo.git.status("--porcelain")
+            for line in status_output.split("\n"):
                 line = line.strip()
                 if not line:
                     continue
                 status_code = line[:2]
                 file_path = line[3:]
                 # UU, AA, DD markers all indicate conflict
-                if any(status_code.startswith(code) for code in ('UU', 'AA', 'DD', 'AU', 'UA')):
+                if any(
+                    status_code.startswith(code)
+                    for code in ("UU", "AA", "DD", "AU", "UA")
+                ):
                     conflict = MergeConflict(
                         file_path=file_path,
                         conflict_type={
-                            'UU': 'both_modified', 'AA': 'both_added',
-                            'DD': 'both_deleted', 'AU': 'added_by_us',
-                            'UA': 'added_by_them',
-                        }.get(status_code[:2], 'unknown')
+                            "UU": "both_modified",
+                            "AA": "both_added",
+                            "DD": "both_deleted",
+                            "AU": "added_by_us",
+                            "UA": "added_by_them",
+                        }.get(status_code[:2], "unknown"),
                     )
                     # Attempt to read conflict markers from the file
                     try:
                         conflict_file = self.repo_path / file_path
                         if conflict_file.exists():
-                            content = conflict_file.read_text(errors='replace')
+                            content = conflict_file.read_text(errors="replace")
                             import re as re_mod
-                            our_m = re_mod.search(r'<<<<<<< .+?\n(.*?)\n=======', content, re_mod.DOTALL)
-                            their_m = re_mod.search(r'=======\n(.*?)\n>>>>>>> ', content, re_mod.DOTALL)
-                            conflict.our_content = our_m.group(1) if our_m else ''
-                            conflict.their_content = their_m.group(1) if their_m else ''
+
+                            our_m = re_mod.search(
+                                r"<<<<<<< .+?\n(.*?)\n=======", content, re_mod.DOTALL
+                            )
+                            their_m = re_mod.search(
+                                r"=======\n(.*?)\n>>>>>>> ", content, re_mod.DOTALL
+                            )
+                            conflict.our_content = our_m.group(1) if our_m else ""
+                            conflict.their_content = their_m.group(1) if their_m else ""
                     except Exception as exc:
                         logger.warning(
                             "Could not read conflict markers from %s: %s",
@@ -682,6 +732,7 @@ class RebaseManager:
         except Exception as e:
             logger.error(f"Error detecting rebase conflicts: {e}")
         return conflicts
+
 
 class AdvancedGitOperations:
     """
@@ -720,90 +771,88 @@ class AdvancedGitOperations:
             Dictionary with workflow execution results
         """
         results = {
-            'workflow_id': workflow_config.get('id', 'unknown'),
-            'steps': [],
-            'overall_success': True,
-            'errors': []
+            "workflow_id": workflow_config.get("id", "unknown"),
+            "steps": [],
+            "overall_success": True,
+            "errors": [],
         }
 
         try:
             # Execute workflow steps
-            for step in workflow_config.get('steps', []):
+            for step in workflow_config.get("steps", []):
                 step_result = self._execute_workflow_step(step)
-                results['steps'].append(step_result)
+                results["steps"].append(step_result)
 
-                if not step_result.get('success', False):
-                    results['overall_success'] = False
-                    results['errors'].append(step_result.get('error', 'Unknown error'))
+                if not step_result.get("success", False):
+                    results["overall_success"] = False
+                    results["errors"].append(step_result.get("error", "Unknown error"))
 
                     # Check if workflow should stop on error
-                    if step.get('stop_on_error', False):
+                    if step.get("stop_on_error", False):
                         break
 
         except Exception as e:
-            results['overall_success'] = False
-            results['errors'].append(str(e))
+            results["overall_success"] = False
+            results["errors"].append(str(e))
 
         return results
 
     def _execute_workflow_step(self, step: Dict[str, Any]) -> Dict[str, Any]:
         """Execute a single workflow step."""
-        step_type = step.get('type')
+        step_type = step.get("type")
         step_result: Dict[str, Any] = {
-            'step_type': step_type,
-            'success': False,
-            'message': '',
-            'details': {}
+            "step_type": step_type,
+            "success": False,
+            "message": "",
+            "details": {},
         }
 
         try:
-            if step_type == 'submodule_init':
+            if step_type == "submodule_init":
                 results = self.submodules.initialize_submodules(
-                    recursive=step.get('recursive', False)
+                    recursive=step.get("recursive", False)
                 )
-                step_result['success'] = True
-                step_result['message'] = f"Initialized {len(results)} submodules"
-                step_result['details'] = results
+                step_result["success"] = True
+                step_result["message"] = f"Initialized {len(results)} submodules"
+                step_result["details"] = results
 
-            elif step_type == 'submodule_update':
+            elif step_type == "submodule_update":
                 results = self.submodules.update_submodules(
-                    recursive=step.get('recursive', False)
+                    recursive=step.get("recursive", False)
                 )
-                step_result['success'] = True
-                step_result['message'] = f"Updated {len(results)} submodules"
-                step_result['details'] = results
+                step_result["success"] = True
+                step_result["message"] = f"Updated {len(results)} submodules"
+                step_result["details"] = results
 
-            elif step_type == 'cherry_pick':
+            elif step_type == "cherry_pick":
                 operation = self.cherry_pick.cherry_pick_commit(
-                    step['commit_sha'],
-                    strategy=step.get('strategy', 'recursive')
+                    step["commit_sha"], strategy=step.get("strategy", "recursive")
                 )
-                step_result['success'] = operation.status in ['applied']
-                step_result['message'] = operation.message
-                step_result['details'] = {
-                    'commit_sha': operation.commit_sha,
-                    'status': operation.status,
-                    'conflicts': len(operation.conflicts)
+                step_result["success"] = operation.status in ["applied"]
+                step_result["message"] = operation.message
+                step_result["details"] = {
+                    "commit_sha": operation.commit_sha,
+                    "status": operation.status,
+                    "conflicts": len(operation.conflicts),
                 }
 
-            elif step_type == 'rebase':
+            elif step_type == "rebase":
                 rebase_op = self.rebase.start_interactive_rebase(
-                    step['base_commit'],
-                    target_branch=step.get('target_branch')
+                    step["base_commit"], target_branch=step.get("target_branch")
                 )
-                step_result['success'] = rebase_op.status == "in_progress"
-                step_result['message'] = rebase_op.message
-                step_result['details'] = {
-                    'base_commit': rebase_op.base_commit,
-                    'target_branch': rebase_op.target_branch,
-                    'status': rebase_op.status
+                step_result["success"] = rebase_op.status == "in_progress"
+                step_result["message"] = rebase_op.message
+                step_result["details"] = {
+                    "base_commit": rebase_op.base_commit,
+                    "target_branch": rebase_op.target_branch,
+                    "status": rebase_op.status,
                 }
 
             else:
-                step_result['message'] = f"Unknown step type: {step_type}"
+                step_result["message"] = f"Unknown step type: {step_type}"
 
         except Exception as e:
-            step_result['message'] = f"Step execution failed: {e}"
+            step_result["message"] = f"Step execution failed: {e}"
 
         return step_result
 
@@ -815,19 +864,19 @@ class AdvancedGitOperations:
             Dictionary with repository health metrics
         """
         health_info: Dict[str, Any] = {
-            'submodules': self.submodules.get_submodule_status(),
-            'recent_operations': self.operation_history[-10:],  # Last 10 operations
-            'repository_stats': {
-                'total_commits': len(list(self.repo.iter_commits())),
-                'branches': len(self.repo.heads),
-                'remotes': len(self.repo.remotes),
-                'stashes': len(list(self.repo.iter_commits('refs/stash')))
-            }
+            "submodules": self.submodules.get_submodule_status(),
+            "recent_operations": self.operation_history[-10:],  # Last 10 operations
+            "repository_stats": {
+                "total_commits": len(list(self.repo.iter_commits())),
+                "branches": len(self.repo.heads),
+                "remotes": len(self.repo.remotes),
+                "stashes": len(list(self.repo.iter_commits("refs/stash"))),
+            },
         }
 
         # Calculate health score
         health_score = self._calculate_health_score(health_info)
-        health_info['health_score'] = health_score
+        health_info["health_score"] = health_score
 
         return health_info
 
@@ -836,21 +885,24 @@ class AdvancedGitOperations:
         score = 100.0
 
         # Check submodule health
-        submodules = health_info.get('submodules', {})
+        submodules = health_info.get("submodules", {})
         for submodule_info in submodules.values():
-            if submodule_info.get('status') in ['error', 'missing']:
+            if submodule_info.get("status") in ["error", "missing"]:
                 score -= 10
-            elif submodule_info.get('status') == 'dirty':
+            elif submodule_info.get("status") == "dirty":
                 score -= 5
 
         # Check for recent failed operations
-        recent_ops = health_info.get('recent_operations', [])
-        failed_ops = sum(1 for op in recent_ops if not op.get('success', True))
+        recent_ops = health_info.get("recent_operations", [])
+        failed_ops = sum(1 for op in recent_ops if not op.get("success", True))
         score -= failed_ops * 5
 
         return max(0.0, min(100.0, score))
 
-def create_advanced_git_operations(repo_path: Union[str, Path]) -> AdvancedGitOperations:
+
+def create_advanced_git_operations(
+    repo_path: Union[str, Path],
+) -> AdvancedGitOperations:
     """
     Create an AdvancedGitOperations instance for a repository.
 
@@ -867,7 +919,7 @@ def create_advanced_git_operations(repo_path: Union[str, Path]) -> AdvancedGitOp
         git.Repo(repo_path)
 
         # Verify it's a valid Git repository
-        if not (Path(repo_path) / '.git').exists():
+        if not (Path(repo_path) / ".git").exists():
             raise GitOperationError(f"Path {repo_path} is not a Git repository")
 
         return AdvancedGitOperations(repo_path)

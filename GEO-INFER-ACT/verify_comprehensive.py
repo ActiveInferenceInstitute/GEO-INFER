@@ -153,14 +153,18 @@ def audit_active_inference_model(output_dir: Path) -> dict[str, Any]:
     )
     selected_policy = agent.select_policy(policies)
     expected_free_energy = agent.compute_expected_free_energy(policies[0])
-    _assert_finite(expected_free_energy, "ActiveInferenceModel.compute_expected_free_energy")
+    _assert_finite(
+        expected_free_energy, "ActiveInferenceModel.compute_expected_free_energy"
+    )
     step_result = agent.step(
         np.array([0.0, 0.0, 1.0]),
         available_actions=["survey", "wait", "sample"],
         return_result=True,
     )
     if not isinstance(step_result, ActiveInferenceStepResult):
-        raise AssertionError("step(return_result=True) did not return ActiveInferenceStepResult")
+        raise AssertionError(
+            "step(return_result=True) did not return ActiveInferenceStepResult"
+        )
     _assert_finite(step_result.free_energy, "ActiveInferenceModel.step.free_energy")
     current_free_energy = agent.compute_free_energy()
     _assert_finite(current_free_energy, "ActiveInferenceModel.compute_free_energy")
@@ -176,8 +180,7 @@ def audit_active_inference_model(output_dir: Path) -> dict[str, Any]:
     )
     h3_model.enable_h3_spatial(8, setup_san_francisco_boundary())
     h3_observations = {
-        cell: np.array([1.0, 0.0, 0.0, 0.0])
-        for cell in h3_model.h3_cells[:3]
+        cell: np.array([1.0, 0.0, 0.0, 0.0]) for cell in h3_model.h3_cells[:3]
     }
     h3_agent = ActiveInferenceModel(
         model_type="categorical",
@@ -187,12 +190,18 @@ def audit_active_inference_model(output_dir: Path) -> dict[str, Any]:
     h3_agent.set_generative_model(h3_model)
     h3_update = h3_agent.apply_to_h3(h3_observations, return_result=True)
     if not isinstance(h3_update, H3BeliefUpdateResult):
-        raise AssertionError("apply_to_h3(return_result=True) did not return H3BeliefUpdateResult")
+        raise AssertionError(
+            "apply_to_h3(return_result=True) did not return H3BeliefUpdateResult"
+        )
     h3_grid = h3_agent.infer_over_h3_grid(h3_observations, return_result=True)
     if not isinstance(h3_grid, H3GridInferenceResult):
-        raise AssertionError("infer_over_h3_grid(return_result=True) did not return H3GridInferenceResult")
+        raise AssertionError(
+            "infer_over_h3_grid(return_result=True) did not return H3GridInferenceResult"
+        )
     _assert_finite(h3_update.aggregate_free_energy, "apply_to_h3.aggregate_free_energy")
-    _assert_finite(h3_grid.aggregate_free_energy, "infer_over_h3_grid.aggregate_free_energy")
+    _assert_finite(
+        h3_grid.aggregate_free_energy, "infer_over_h3_grid.aggregate_free_energy"
+    )
 
     payload = {
         "beliefs": beliefs,
@@ -221,7 +230,9 @@ def audit_generative_model(output_dir: Path) -> dict[str, Any]:
         internal_states=[2],
         external_states=[3],
     )
-    blanket_ok = blanket.check_conditional_independence(2, np.array([0.2, 0.3, 0.25, 0.9]))
+    blanket_ok = blanket.check_conditional_independence(
+        2, np.array([0.2, 0.3, 0.25, 0.9])
+    )
 
     model = GenerativeModel("categorical", {"state_dim": 3, "obs_dim": 3})
     updated = model.update_beliefs({"observations": np.array([1.0, 0.0, 0.0])})
@@ -234,7 +245,9 @@ def audit_generative_model(output_dir: Path) -> dict[str, Any]:
     model.update_nested_beliefs({"observations": np.array([0.0, 1.0, 0.0])})
     model.set_preferences({"observations": np.array([0.5, 0.3, 0.2])})
     summary = model.get_model_summary()
-    _assert_finite(summary["free_energy"], "GenerativeModel.get_model_summary.free_energy")
+    _assert_finite(
+        summary["free_energy"], "GenerativeModel.get_model_summary.free_energy"
+    )
 
     nav_model = GenerativeModel("categorical", {"state_dim": 4, "obs_dim": 1})
     nav_model.enable_spatial_navigation(2)
@@ -242,8 +255,7 @@ def audit_generative_model(output_dir: Path) -> dict[str, Any]:
     h3_model = GenerativeModel("categorical", {"state_dim": 4, "obs_dim": 4})
     h3_model.enable_h3_spatial(8, setup_san_francisco_boundary())
     h3_observations = {
-        cell: np.array([1.0, 0.0, 0.0, 0.0])
-        for cell in h3_model.h3_cells[:4]
+        cell: np.array([1.0, 0.0, 0.0, 0.0]) for cell in h3_model.h3_cells[:4]
     }
     h3_update = h3_model.update_h3_beliefs(h3_observations, return_result=True)
     diffused = h3_model.diffuse_beliefs(h3_update.h3_beliefs, diffusion_rate=0.2)
@@ -267,7 +279,12 @@ def audit_generative_model(output_dir: Path) -> dict[str, Any]:
 
 
 def audit_free_energy_and_policy(output_dir: Path) -> dict[str, Any]:
-    from geo_infer_act import FreeEnergyBreakdown, FreeEnergyCalculator, PolicyEvaluation, PolicySelector
+    from geo_infer_act import (
+        FreeEnergyBreakdown,
+        FreeEnergyCalculator,
+        PolicyEvaluation,
+        PolicySelector,
+    )
 
     beliefs = np.array([0.6, 0.3, 0.1])
     observations = np.array([1.0, 0.0, 0.0])
@@ -362,7 +379,9 @@ def audit_inference_math(output_dir: Path) -> dict[str, Any]:
         np.eye(2),
         np.eye(2) * 4.0,
     )
-    prediction_error = updater.compute_prediction_error(np.array([0.1, 0.2]), np.array([0.2, 0.1]))
+    prediction_error = updater.compute_prediction_error(
+        np.array([0.1, 0.2]), np.array([0.2, 0.1])
+    )
     surprise = updater.compute_surprise(np.array([1.0, 0.0]), np.array([0.8, 0.2]))
     dispatched = updater.update_beliefs(
         np.array([0.3, 0.4, 0.3]),
@@ -376,8 +395,12 @@ def audit_inference_math(output_dir: Path) -> dict[str, Any]:
         {},
         np.array([1.0, 0.0, 0.0]),
     )
-    mf_cat = vi.mean_field_update_categorical(np.ones(3), np.eye(3), np.array([1.0, 0.0, 0.0]))
-    mf_gauss = vi.mean_field_update_gaussian(np.zeros(2), np.eye(2), np.array([0.1, -0.1]))
+    mf_cat = vi.mean_field_update_categorical(
+        np.ones(3), np.eye(3), np.array([1.0, 0.0, 0.0])
+    )
+    mf_gauss = vi.mean_field_update_gaussian(
+        np.zeros(2), np.eye(2), np.array([0.1, -0.1])
+    )
     structured = vi.structured_update(
         {"variables": {"x": {"dimension": 2}, "y": {"dimension": 3}}},
         {"x": np.array([1.0, 0.0])},
@@ -472,14 +495,8 @@ def audit_spatial_agent(output_dir: Path) -> dict[str, Any]:
         diffusion_rate=0.15,
         enable_logging=True,
     )
-    observations = {
-        cell: np.array([1.0, 0.0, 0.0, 0.0])
-        for cell in cells[:4]
-    }
-    preferences = {
-        cell: np.array([0.7, 0.2, 0.05, 0.05])
-        for cell in cells[:2]
-    }
+    observations = {cell: np.array([1.0, 0.0, 0.0, 0.0]) for cell in cells[:4]}
+    preferences = {cell: np.array([0.7, 0.2, 0.05, 0.05]) for cell in cells[:2]}
     agent.set_preferences(preferences)
     agent.set_observation_model(cells[0], np.eye(4))
     transition_model = np.repeat(np.eye(4)[:, :, np.newaxis], agent.n_actions, axis=2)
@@ -489,13 +506,18 @@ def audit_spatial_agent(output_dir: Path) -> dict[str, Any]:
     action = agent.spatial_action()
     result = agent.step(observations, return_result=True)
     if not isinstance(result, H3GridInferenceResult):
-        raise AssertionError("SpatialActiveInferenceAgent.step did not return H3GridInferenceResult")
+        raise AssertionError(
+            "SpatialActiveInferenceAgent.step did not return H3GridInferenceResult"
+        )
     diagnostics = agent.get_diagnostics()
     export_path = output_dir / "spatial_agent_export.json"
     agent.export_results(str(export_path))
     agent.reset()
 
-    _assert_finite(result.aggregate_free_energy, "SpatialActiveInferenceAgent.step.aggregate_free_energy")
+    _assert_finite(
+        result.aggregate_free_energy,
+        "SpatialActiveInferenceAgent.step.aggregate_free_energy",
+    )
     payload = {
         "cell_count": len(cells),
         "updated_belief_count": len(updated_beliefs),
@@ -603,7 +625,12 @@ def audit_api_interface(output_dir: Path) -> dict[str, Any]:
     interface.create_model(
         "audit_model",
         "categorical",
-        {"state_dim": 3, "obs_dim": 3, "policy_selection_mode": "deterministic", "random_seed": 17},
+        {
+            "state_dim": 3,
+            "obs_dim": 3,
+            "policy_selection_mode": "deterministic",
+            "random_seed": 17,
+        },
     )
     beliefs = interface.update_beliefs(
         "audit_model",
@@ -738,7 +765,9 @@ def audit_scenario_outputs(output_dir: Path) -> dict[str, Any]:
         manifest = scenario.manifest
         validation_status = manifest.get("validation", {}).get("status")
         if validation_status != "passed":
-            errors.append(f"{scenario.scenario}: manifest validation is {validation_status}")
+            errors.append(
+                f"{scenario.scenario}: manifest validation is {validation_status}"
+            )
         generated_file_count += len(manifest.get("generated_files", []))
         visualizations = [
             item
@@ -755,19 +784,29 @@ def audit_scenario_outputs(output_dir: Path) -> dict[str, Any]:
             if not figure.exists() or figure.stat().st_size <= 0:
                 errors.append(f"{scenario.scenario}: missing figure {figure}")
             if not metadata.exists() or metadata.stat().st_size <= 0:
-                errors.append(f"{scenario.scenario}: missing metadata sidecar for {figure.name}")
+                errors.append(
+                    f"{scenario.scenario}: missing metadata sidecar for {figure.name}"
+                )
             if not data.exists() or data.stat().st_size <= 0:
-                errors.append(f"{scenario.scenario}: missing data sidecar for {figure.name}")
+                errors.append(
+                    f"{scenario.scenario}: missing data sidecar for {figure.name}"
+                )
             if figure.suffix == ".png":
                 image = Image.open(figure)
                 if "geo_infer_act_metadata" not in image.info:
-                    errors.append(f"{scenario.scenario}: PNG lacks embedded ACT metadata: {figure.name}")
+                    errors.append(
+                        f"{scenario.scenario}: PNG lacks embedded ACT metadata: {figure.name}"
+                    )
                 if ImageStat.Stat(image.convert("L")).stddev[0] < 1.0:
-                    errors.append(f"{scenario.scenario}: PNG appears blank: {figure.name}")
+                    errors.append(
+                        f"{scenario.scenario}: PNG appears blank: {figure.name}"
+                    )
             if figure.suffix == ".html":
                 html = figure.read_text(errors="ignore")
                 if "geo-infer-act-figure-metadata" not in html:
-                    errors.append(f"{scenario.scenario}: HTML lacks embedded ACT metadata: {figure.name}")
+                    errors.append(
+                        f"{scenario.scenario}: HTML lacks embedded ACT metadata: {figure.name}"
+                    )
         scenario_summaries.append(
             {
                 "scenario": scenario.scenario,
@@ -795,9 +834,7 @@ def audit_scenario_outputs(output_dir: Path) -> dict[str, Any]:
 
 def audit_docs_and_mermaid(output_dir: Path) -> dict[str, Any]:
     markdown_files = sorted(
-        path
-        for path in ACT_ROOT.rglob("*.md")
-        if ".pytest_cache" not in path.parts
+        path for path in ACT_ROOT.rglob("*.md") if ".pytest_cache" not in path.parts
     )
     mermaid_dir = output_dir / "mermaid"
     mermaid_dir.mkdir(parents=True, exist_ok=True)

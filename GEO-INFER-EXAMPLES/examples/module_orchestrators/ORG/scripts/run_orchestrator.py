@@ -43,28 +43,102 @@ def _operation() -> Dict[str, Any]:
     org = OrganizationModel(structure_type=OrgStructureType.HIERARCHICAL)
     units = [
         OrgUnit(unit_id="root", name="Institute", member_count=48, budget=480_000.0),
-        OrgUnit(unit_id="research", name="Research Division", parent_id="root", member_count=22, budget=260_000.0),
-        OrgUnit(unit_id="outreach", name="Outreach Division", parent_id="root", member_count=14, budget=120_000.0),
-        OrgUnit(unit_id="ops", name="Operations Division", parent_id="root", member_count=12, budget=100_000.0),
-        OrgUnit(unit_id="lab_eco", name="Ecology Lab", parent_id="research", member_count=10, budget=90_000.0),
-        OrgUnit(unit_id="lab_geo", name="Geospatial Lab", parent_id="research", member_count=12, budget=170_000.0),
+        OrgUnit(
+            unit_id="research",
+            name="Research Division",
+            parent_id="root",
+            member_count=22,
+            budget=260_000.0,
+        ),
+        OrgUnit(
+            unit_id="outreach",
+            name="Outreach Division",
+            parent_id="root",
+            member_count=14,
+            budget=120_000.0,
+        ),
+        OrgUnit(
+            unit_id="ops",
+            name="Operations Division",
+            parent_id="root",
+            member_count=12,
+            budget=100_000.0,
+        ),
+        OrgUnit(
+            unit_id="lab_eco",
+            name="Ecology Lab",
+            parent_id="research",
+            member_count=10,
+            budget=90_000.0,
+        ),
+        OrgUnit(
+            unit_id="lab_geo",
+            name="Geospatial Lab",
+            parent_id="research",
+            member_count=12,
+            budget=170_000.0,
+        ),
     ]
     for unit in units:
         org.add_unit(unit)
     roles = [
         Role(role_id="r1", title="Director", level=RoleLevel.EXECUTIVE, unit_id="root"),
-        Role(role_id="r2", title="Division Lead", level=RoleLevel.DIRECTOR, unit_id="research", reports_to="r1"),
-        Role(role_id="r3", title="Division Lead", level=RoleLevel.DIRECTOR, unit_id="outreach", reports_to="r1"),
-        Role(role_id="r4", title="Lab Manager", level=RoleLevel.MANAGER, unit_id="lab_eco", reports_to="r2"),
-        Role(role_id="r5", title="Lab Manager", level=RoleLevel.MANAGER, unit_id="lab_geo", reports_to="r2"),
-        Role(role_id="r6", title="Research Scientist", level=RoleLevel.INDIVIDUAL, unit_id="lab_eco", reports_to="r4"),
-        Role(role_id="r7", title="GIS Analyst", level=RoleLevel.INDIVIDUAL, unit_id="lab_geo", reports_to="r5"),
-        Role(role_id="r8", title="Coordinator", level=RoleLevel.INDIVIDUAL, unit_id="outreach", reports_to="r3"),
+        Role(
+            role_id="r2",
+            title="Division Lead",
+            level=RoleLevel.DIRECTOR,
+            unit_id="research",
+            reports_to="r1",
+        ),
+        Role(
+            role_id="r3",
+            title="Division Lead",
+            level=RoleLevel.DIRECTOR,
+            unit_id="outreach",
+            reports_to="r1",
+        ),
+        Role(
+            role_id="r4",
+            title="Lab Manager",
+            level=RoleLevel.MANAGER,
+            unit_id="lab_eco",
+            reports_to="r2",
+        ),
+        Role(
+            role_id="r5",
+            title="Lab Manager",
+            level=RoleLevel.MANAGER,
+            unit_id="lab_geo",
+            reports_to="r2",
+        ),
+        Role(
+            role_id="r6",
+            title="Research Scientist",
+            level=RoleLevel.INDIVIDUAL,
+            unit_id="lab_eco",
+            reports_to="r4",
+        ),
+        Role(
+            role_id="r7",
+            title="GIS Analyst",
+            level=RoleLevel.INDIVIDUAL,
+            unit_id="lab_geo",
+            reports_to="r5",
+        ),
+        Role(
+            role_id="r8",
+            title="Coordinator",
+            level=RoleLevel.INDIVIDUAL,
+            unit_id="outreach",
+            reports_to="r3",
+        ),
     ]
     for role in roles:
         org.add_role(role)
     metrics = org.compute_metrics()
-    budget_allocation = org.allocate_budget(total_budget=1_500_000.0, strategy="proportional")
+    budget_allocation = org.allocate_budget(
+        total_budget=1_500_000.0, strategy="proportional"
+    )
     reporting_chain = [role.title for role in org.find_reporting_chain("r7")]
 
     # Governance: simple-majority vote on a synthetic field-station proposal.
@@ -82,7 +156,9 @@ def _operation() -> Dict[str, Any]:
     engine.create_proposal(proposal)
     choices = ["approve", "approve", "approve", "reject", "approve", "defer", "approve"]
     for i, choice in enumerate(choices):
-        engine.cast_vote("prop-2026-01", Vote(voter_id=f"member-{i:02d}", choice=choice))
+        engine.cast_vote(
+            "prop-2026-01", Vote(voter_id=f"member-{i:02d}", choice=choice)
+        )
     result = engine.tally("prop-2026-01")
 
     # Collaboration network: cross-lab project interactions.
@@ -98,7 +174,9 @@ def _operation() -> Dict[str, Any]:
                 CollaborationEdge(
                     source_id=source,
                     target_id=target,
-                    collaboration_type=CollaborationType.KNOWLEDGE_SHARE if i % 3 == 0 else CollaborationType.TASK_COORDINATION,
+                    collaboration_type=CollaborationType.KNOWLEDGE_SHARE
+                    if i % 3 == 0
+                    else CollaborationType.TASK_COORDINATION,
                     strength=0.4 + (i % 6) / 10.0,
                 )
             )
@@ -109,16 +187,52 @@ def _operation() -> Dict[str, Any]:
     formation = TeamFormation()
     formation.add_members(
         [
-            TeamMember(member_id="staff-00", name="Ada Nunez", skills=["field_survey", "gis"], unit_id="lab_geo"),
-            TeamMember(member_id="staff-01", name="Bo Chen", skills=["gis", "python"], unit_id="lab_geo"),
-            TeamMember(member_id="staff-02", name="Cy Okafor", skills=["hydrology", "field_survey"], unit_id="lab_eco"),
-            TeamMember(member_id="staff-03", name="Di Rao", skills=["statistics", "python"], unit_id="lab_eco"),
-            TeamMember(member_id="staff-04", name="Eli Marsh", skills=["community_engagement"], unit_id="outreach"),
-            TeamMember(member_id="staff-05", name="Fay Lund", skills=["statistics", "gis"], unit_id="lab_eco"),
+            TeamMember(
+                member_id="staff-00",
+                name="Ada Nunez",
+                skills=["field_survey", "gis"],
+                unit_id="lab_geo",
+            ),
+            TeamMember(
+                member_id="staff-01",
+                name="Bo Chen",
+                skills=["gis", "python"],
+                unit_id="lab_geo",
+            ),
+            TeamMember(
+                member_id="staff-02",
+                name="Cy Okafor",
+                skills=["hydrology", "field_survey"],
+                unit_id="lab_eco",
+            ),
+            TeamMember(
+                member_id="staff-03",
+                name="Di Rao",
+                skills=["statistics", "python"],
+                unit_id="lab_eco",
+            ),
+            TeamMember(
+                member_id="staff-04",
+                name="Eli Marsh",
+                skills=["community_engagement"],
+                unit_id="outreach",
+            ),
+            TeamMember(
+                member_id="staff-05",
+                name="Fay Lund",
+                skills=["statistics", "gis"],
+                unit_id="lab_eco",
+            ),
         ]
     )
     team = formation.form_team(
-        required_skills=["field_survey", "gis", "python", "statistics", "community_engagement"],
+        required_skills=[
+            "field_survey",
+            "gis",
+            "python",
+            "statistics",
+            "community_engagement",
+        ],
         max_size=5,
     )
 

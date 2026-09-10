@@ -6,7 +6,17 @@ import logging
 import os
 import threading
 import time
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Union, Callable, Any, Iterator
+from typing import (
+    TYPE_CHECKING,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+    Union,
+    Callable,
+    Any,
+    Iterator,
+)
 
 import geopandas as gpd
 import matplotlib.pyplot as plt
@@ -739,7 +749,9 @@ class GeoArt:
         web_map.save(output_file)
         return output_file
 
-    def create_plotly_visualization(self, plot_type: str = "scatter", **kwargs: Any) -> Any:
+    def create_plotly_visualization(
+        self, plot_type: str = "scatter", **kwargs: Any
+    ) -> Any:
         """
         Create an interactive Plotly visualization.
 
@@ -960,7 +972,10 @@ class GeoArt:
         return multi_scale_viz
 
     def apply_custom_algorithm(
-        self, algorithm_function: Callable, algorithm_name: str = "custom", **params: Any
+        self,
+        algorithm_function: Callable,
+        algorithm_name: str = "custom",
+        **params: Any,
     ) -> "GeoArt":
         """
         Apply a custom algorithm to the geospatial data.
@@ -1181,7 +1196,9 @@ class GeoArt3D:
 
         self.figure_3d = None
 
-    def create_3d_surface(self, output_file: Optional[str] = None, **kwargs: Any) -> Any:
+    def create_3d_surface(
+        self, output_file: Optional[str] = None, **kwargs: Any
+    ) -> Any:
         """
         Create a 3D surface visualization.
 
@@ -1206,7 +1223,9 @@ class GeoArt3D:
         elif MAYAVI_AVAILABLE:
             return self._create_mayavi_3d_surface(output_file, **kwargs)
 
-    def _create_plotly_3d_surface(self, output_file: Optional[str], **kwargs: Any) -> Any:
+    def _create_plotly_3d_surface(
+        self, output_file: Optional[str], **kwargs: Any
+    ) -> Any:
         """Create 3D surface using Plotly."""
         assert self.geo_art.data is not None
         if isinstance(self.geo_art.data, gpd.GeoDataFrame):
@@ -1259,7 +1278,9 @@ class GeoArt3D:
 
         return fig
 
-    def _create_mayavi_3d_surface(self, output_file: Optional[str], **kwargs: Any) -> Any:
+    def _create_mayavi_3d_surface(
+        self, output_file: Optional[str], **kwargs: Any
+    ) -> Any:
         """Create 3D surface using Mayavi."""
         # Implementation for Mayavi 3D visualization
         # This would create a 3D surface plot using mayavi.mlab
@@ -1351,7 +1372,10 @@ class GeoArt3D:
             ax.view_init(elev=elevation, azim=frame_idx * (360.0 / frames))
 
         anim = FuncAnimation(
-            fig, _update, frames=frames, interval=interval  # type: ignore[arg-type]
+            fig,
+            _update,
+            frames=frames,
+            interval=interval,  # type: ignore[arg-type]
         )
         if output_file:
             anim.save(output_file, writer="pillow")

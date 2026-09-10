@@ -92,7 +92,9 @@ class GenerativeModels:
 
         logger.debug(
             "Built categorical model: n_states=%d, n_obs=%d, n_actions=%d",
-            n_states, n_obs, n_actions,
+            n_states,
+            n_obs,
+            n_actions,
         )
         return {"A": A, "B": B, "C": C, "D": D}
 
@@ -126,7 +128,9 @@ class GenerativeModels:
         D = np.zeros(n_states)
         D[0] = 1.0
 
-        logger.debug("Built grid_world model: %dx%d (%d states)", grid_size, grid_size, n_states)
+        logger.debug(
+            "Built grid_world model: %dx%d (%d states)", grid_size, grid_size, n_states
+        )
         return {"A": A, "B": B, "C": C, "D": D}
 
     def _validate_custom(self, params: Dict[str, Any]) -> Dict[str, np.ndarray]:

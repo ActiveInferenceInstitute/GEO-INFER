@@ -133,7 +133,9 @@ class TestAdaptiveDataStorage:
         assert data_id == "test_id_456"
 
     @pytest.mark.asyncio
-    async def test_adaptive_query(self, storage_system, mock_metadata, mock_geodataframe):
+    async def test_adaptive_query(
+        self, storage_system, mock_metadata, mock_geodataframe
+    ):
         """Test adaptive querying over datasets stored in this process."""
         backend = storage_system.backend_manager.backends["postgresql"]
         backend.store = AsyncMock(return_value="test_id_123")

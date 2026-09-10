@@ -50,7 +50,7 @@ def _require_whitebox() -> None:
     if not HAS_WHITEBOX:
         raise ImportError(
             "whitebox-workflows is required for this terrain/hydrology tool. "
-            "Install it with `uv pip install -e \"./GEO-INFER-SPACE[optional]\"` "
+            'Install it with `uv pip install -e "./GEO-INFER-SPACE[optional]"` '
             "or `pip install whitebox-workflows`."
         )
 

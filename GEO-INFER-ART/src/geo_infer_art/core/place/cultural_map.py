@@ -15,6 +15,7 @@ from geo_infer_art.core.visualization import GeoArt
 
 logger = logging.getLogger(__name__)
 
+
 class _ComparableGeoDataFrame(gpd.GeoDataFrame):
     """GeoDataFrame subclass with scalar equality for unittest assertions."""
 
@@ -255,7 +256,11 @@ class CulturalMap:
 
         # Get cultural data for the selected theme
         raw_cultural_data = region_data.get("cultural_data", {})
-        cultural_data = raw_cultural_data.get(cultural_theme, []) if isinstance(raw_cultural_data, dict) else []
+        cultural_data = (
+            raw_cultural_data.get(cultural_theme, [])
+            if isinstance(raw_cultural_data, dict)
+            else []
+        )
         metadata["cultural_data"] = cultural_data
 
         # Create a simple GeoDataFrame for the region
@@ -373,7 +378,7 @@ class CulturalMap:
                 site_lon = lon + random.uniform(-lon_radius * 0.8, lon_radius * 0.8)
 
                 site_data = {
-                    "name": f"Historical Site {i+1}",
+                    "name": f"Historical Site {i + 1}",
                     "location": (site_lon, site_lat),
                     "period": random.choice(periods),
                     "significance": random.choice(significance),
@@ -392,7 +397,7 @@ class CulturalMap:
                 lang_lon = lon + random.uniform(-lon_radius * 0.8, lon_radius * 0.8)
 
                 lang_data = {
-                    "name": f"Language {i+1}",
+                    "name": f"Language {i + 1}",
                     "location": (lang_lon, lang_lat),
                     "family": random.choice(families),
                     "script": random.choice(scripts),

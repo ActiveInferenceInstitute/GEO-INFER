@@ -659,7 +659,6 @@ class PolicyAPI:
 
             policy = self._policies[assessment_request.policy_id]
 
-
             # This would be a real impact assessment in a production implementation
             # For now, generate a deterministic response
             assessment_id = f"impact-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"

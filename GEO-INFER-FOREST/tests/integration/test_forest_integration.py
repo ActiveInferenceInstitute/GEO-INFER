@@ -149,9 +149,9 @@ class TestForestHealthPipeline:
 
         # Should detect some deforestation given our declining cover data
         deforestation_count = int(result["deforestation"].sum())
-        assert (
-            deforestation_count > 0
-        ), "Should detect deforestation in declining cover data"
+        assert deforestation_count > 0, (
+            "Should detect deforestation in declining cover data"
+        )
 
 
 class TestCarbonSequestrationPipeline:
@@ -237,9 +237,9 @@ class TestForestCarbonIntegrationPipeline:
 
         # Carbon stock should be less than or equal to raw biomass * 0.5
         raw_carbon = biomass_data * 0.5
-        assert float(carbon_stock.mean()) <= float(
-            raw_carbon.mean()
-        ), "Health-adjusted carbon should not exceed raw carbon estimate"
+        assert float(carbon_stock.mean()) <= float(raw_carbon.mean()), (
+            "Health-adjusted carbon should not exceed raw carbon estimate"
+        )
         assert float(carbon_stock.min()) >= 0, "Carbon stock should be non-negative"
 
     def test_deforestation_impact_on_carbon(
@@ -266,6 +266,6 @@ class TestForestCarbonIntegrationPipeline:
         remaining_carbon = full_carbon * (1 - deforest_mask)
 
         # Remaining carbon should be less than full carbon
-        assert float(remaining_carbon.sum()) < float(
-            full_carbon.sum()
-        ), "Deforestation should reduce total carbon stock"
+        assert float(remaining_carbon.sum()) < float(full_carbon.sum()), (
+            "Deforestation should reduce total carbon stock"
+        )

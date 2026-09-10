@@ -756,9 +756,9 @@ class EnvironmentalActiveInferenceEngine:
                 n_clusters = len(set(clustering.labels_)) - (
                     1 if -1 in clustering.labels_ else 0
                 )
-                uncertainty_analysis["spatial_uncertainty_patterns"][
-                    "n_clusters"
-                ] = n_clusters
+                uncertainty_analysis["spatial_uncertainty_patterns"]["n_clusters"] = (
+                    n_clusters
+                )
                 uncertainty_analysis["spatial_uncertainty_patterns"][
                     "clustered_fraction"
                 ] = np.sum(clustering.labels_ != -1) / len(clustering.labels_)
@@ -1299,9 +1299,9 @@ class MultiScaleHierarchicalAnalyzer:
                     modulated_belief = modulated_belief / (
                         np.sum(modulated_belief) + 1e-8
                     )
-                    self.hierarchical_beliefs[lower_level][
-                        child_cell
-                    ] = modulated_belief
+                    self.hierarchical_beliefs[lower_level][child_cell] = (
+                        modulated_belief
+                    )
 
     def _find_child_cells(self, parent_cell: str, child_level: str) -> List[str]:
         """Find child cells that map to a parent cell."""
@@ -1366,9 +1366,9 @@ class MultiScaleHierarchicalAnalyzer:
             higher_level = level_names[i + 1]
 
             coherence = self._compute_scale_coherence(lower_level, higher_level)
-            interactions["scale_coherence"][
-                f"{lower_level}_to_{higher_level}"
-            ] = coherence
+            interactions["scale_coherence"][f"{lower_level}_to_{higher_level}"] = (
+                coherence
+            )
 
         # Analyze information flow efficiency
         for level_name in level_names:
@@ -1599,7 +1599,6 @@ def analyze_multi_scale_patterns(
         higher_level = level_names[i + 1]
 
         if lower_level in hierarchical_beliefs and higher_level in hierarchical_beliefs:
-
             # Information integration measure
             lower_entropies = []
             higher_entropies = []

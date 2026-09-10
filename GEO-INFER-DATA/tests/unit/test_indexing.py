@@ -17,6 +17,7 @@ from geo_infer_data.utils.indexing import SpatialIndexer, TemporalIndexer
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _make_gdf(n: int = 10) -> gpd.GeoDataFrame:
     """Create a test GeoDataFrame with valid Point geometries."""
     lats = np.random.uniform(37.0, 38.0, n)
@@ -41,6 +42,7 @@ def _make_temporal_df(n: int = 20) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 # SpatialIndexer
 # ---------------------------------------------------------------------------
+
 
 class TestSpatialIndexer:
     def test_init(self):
@@ -103,9 +105,10 @@ class TestSpatialIndexer:
         projected_id = indexer.create_spatial_index(projected, strategy="h3")
 
         assert indexer.indexes[projected_id]["crs"] == "EPSG:4326"
-        assert indexer.indexes[projected_id]["indexes"] == indexer.indexes[
-            geographic_id
-        ]["indexes"]
+        assert (
+            indexer.indexes[projected_id]["indexes"]
+            == indexer.indexes[geographic_id]["indexes"]
+        )
 
     def test_create_h3_index_requires_crs(self):
         indexer = SpatialIndexer()
@@ -152,6 +155,7 @@ class TestSpatialIndexer:
 # ---------------------------------------------------------------------------
 # TemporalIndexer
 # ---------------------------------------------------------------------------
+
 
 class TestTemporalIndexer:
     def test_init(self):

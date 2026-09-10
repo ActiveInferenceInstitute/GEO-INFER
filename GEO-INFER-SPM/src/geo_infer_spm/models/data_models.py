@@ -53,19 +53,25 @@ class SPMData:
             if len(self.data) == 0:
                 raise ValueError("Data cannot be empty")
         else:
-            raise TypeError("Data must be numpy array, pandas DataFrame, or GeoDataFrame")
+            raise TypeError(
+                "Data must be numpy array, pandas DataFrame, or GeoDataFrame"
+            )
 
     def _validate_coordinates(self) -> None:
         """Validate spatial coordinate consistency."""
         n_points = self._get_n_points()
         if self.coordinates.shape != (n_points, 2):
-            raise ValueError(f"Coordinates shape {self.coordinates.shape} does not match data size {n_points}")
+            raise ValueError(
+                f"Coordinates shape {self.coordinates.shape} does not match data size {n_points}"
+            )
 
         # Check coordinate bounds
         if self.crs.upper() == "EPSG:4326":
             lon, lat = self.coordinates[:, 0], self.coordinates[:, 1]
             if not (-180 <= lon.min() <= lon.max() <= 180):
-                raise ValueError("Longitude values must be between -180 and 180 degrees")
+                raise ValueError(
+                    "Longitude values must be between -180 and 180 degrees"
+                )
             if not (-90 <= lat.min() <= lat.max() <= 90):
                 raise ValueError("Latitude values must be between -90 and 90 degrees")
 
@@ -101,16 +107,22 @@ class SPMData:
         """Spatial dimensions of the data."""
         return cast(Tuple[int, int], self.coordinates.shape)
 
-    def copy(self) -> 'SPMData':
+    def copy(self) -> "SPMData":
         """Create a shallow copy of this SPMData instance."""
         return SPMData(
-            data=self.data.copy() if isinstance(self.data, np.ndarray) else self.data.copy(),
+            data=self.data.copy()
+            if isinstance(self.data, np.ndarray)
+            else self.data.copy(),
             coordinates=self.coordinates.copy(),
             time=self.time.copy() if self.time is not None else None,
-            covariates={k: v.copy() if isinstance(v, np.ndarray) else v
-                       for k, v in self.covariates.items()} if self.covariates else None,
+            covariates={
+                k: v.copy() if isinstance(v, np.ndarray) else v
+                for k, v in self.covariates.items()
+            }
+            if self.covariates
+            else None,
             metadata=self.metadata.copy(),
-            crs=self.crs
+            crs=self.crs,
         )
 
 
@@ -228,43 +240,49 @@ class SPMResult:
 
     def __post_init__(self) -> None:
         """Initialize processing metadata."""
-        self.processing_metadata['timestamp'] = datetime.now().isoformat()
-        self.processing_metadata['n_points'] = self.spm_data.n_points
-        self.processing_metadata['n_regressors'] = self.design_matrix.n_regressors
+        self.processing_metadata["timestamp"] = datetime.now().isoformat()
+        self.processing_metadata["n_points"] = self.spm_data.n_points
+        self.processing_metadata["n_regressors"] = self.design_matrix.n_regressors
 
     @property
     def r_squared(self) -> float:
         """Coefficient of determination for model fit."""
-        if 'r_squared' in self.model_diagnostics:
-            return float(self.model_diagnostics['r_squared'])
+        if "r_squared" in self.model_diagnostics:
+            return float(self.model_diagnostics["r_squared"])
 
         # Calculate R²
-        ss_res = np.sum(self.residuals ** 2)
+        ss_res = np.sum(self.residuals**2)
         ss_tot = np.sum((self.spm_data.data - np.mean(self.spm_data.data, axis=0)) ** 2)
         r2 = 1 - (ss_res / ss_tot)
-        self.model_diagnostics['r_squared'] = r2
+        self.model_diagnostics["r_squared"] = r2
         return float(r2)
 
     @property
     def log_likelihood(self) -> float:
         """Log-likelihood of the fitted model."""
-        if 'log_likelihood' in self.model_diagnostics:
-            return float(self.model_diagnostics['log_likelihood'])
+        if "log_likelihood" in self.model_diagnostics:
+            return float(self.model_diagnostics["log_likelihood"])
 
         # Calculate log-likelihood assuming Gaussian errors
         n = self.spm_data.n_points
         sigma2 = np.var(self.residuals, ddof=self.design_matrix.n_regressors)
-        ll = -0.5 * n * np.log(2 * np.pi * sigma2) - (1 / (2 * sigma2)) * np.sum(self.residuals ** 2)
-        self.model_diagnostics['log_likelihood'] = ll
+        ll = -0.5 * n * np.log(2 * np.pi * sigma2) - (1 / (2 * sigma2)) * np.sum(
+            self.residuals**2
+        )
+        self.model_diagnostics["log_likelihood"] = ll
         return float(ll)
 
     def add_contrast(self, contrast: ContrastResult) -> None:
         """Add a computed contrast to the results."""
         self.contrasts.append(contrast)
 
-    def get_significant_clusters(self, contrast_idx: int = 0) -> Optional[Dict[str, Any]]:
+    def get_significant_clusters(
+        self, contrast_idx: int = 0
+    ) -> Optional[Dict[str, Any]]:
         """Get cluster analysis for a specific contrast."""
         cluster_analysis = self.cluster_analysis
         if cluster_analysis is not None and contrast_idx < len(cluster_analysis):
-            return cast(Dict[str, Any], cast(Dict[Any, Any], cluster_analysis)[contrast_idx])
+            return cast(
+                Dict[str, Any], cast(Dict[Any, Any], cluster_analysis)[contrast_idx]
+            )
         return None

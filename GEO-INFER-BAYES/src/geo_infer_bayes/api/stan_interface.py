@@ -18,7 +18,9 @@ class StanInterface:
         self.model_config = model_config or {}
         self.stan_model = None
 
-    def create_spatial_gp_model(self, X: np.ndarray, y: np.ndarray, **kwargs: Any) -> str:
+    def create_spatial_gp_model(
+        self, X: np.ndarray, y: np.ndarray, **kwargs: Any
+    ) -> str:
         """
         Create a Stan model for spatial Gaussian Process.
 

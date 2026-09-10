@@ -336,7 +336,6 @@ class ModuleOrchestrator:
                 self.logger.warning(f"Failed to initialize module {module_name}: {e}")
                 self.module_health[module_name] = ModuleStatus.ERROR
 
-
     def _register_sample_workflows(self) -> None:
         """Register the bundled sample workflows so they are listable locally.
 
@@ -866,7 +865,9 @@ class ModuleOrchestrator:
         try:
             return _SafeConditionEvaluator(data).evaluate(condition)
         except (ValueError, SyntaxError) as exc:
-            self.logger.warning(f"Guard condition {condition!r} treated as False: {exc}")
+            self.logger.warning(
+                f"Guard condition {condition!r} treated as False: {exc}"
+            )
             return False
 
     async def _trigger_event(
@@ -1080,7 +1081,6 @@ SAMPLE_WORKFLOWS = {
                 "dependencies": ["spatial_analysis"],
                 "optional": False,
             },
-
         ],
     }
 }

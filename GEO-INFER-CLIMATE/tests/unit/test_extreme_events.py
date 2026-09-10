@@ -33,7 +33,11 @@ class TestHeatwaveDetection:
 
     def test_heatwave_result_fields(self, analyzer):
         np.random.seed(42)
-        values = 20 + 10 * np.sin(np.linspace(0, 4 * np.pi, 365)) + np.random.normal(0, 3, 365)
+        values = (
+            20
+            + 10 * np.sin(np.linspace(0, 4 * np.pi, 365))
+            + np.random.normal(0, 3, 365)
+        )
         temp = xr.DataArray(values, dims=["time"])
         result = analyzer.detect_heatwaves(temp)
         assert "events_detected" in result
@@ -42,8 +46,6 @@ class TestHeatwaveDetection:
 
 
 class TestColdSpellDetection:
-
-
     def test_detect_cold_spell(self, analyzer):
         # Use gradual data so -10 is well below the 10th percentile
         np.random.seed(42)
@@ -64,6 +66,7 @@ class TestColdSpellDetection:
         if result["events"]:
             for event in result["events"]:
                 assert event["duration_days"] >= 3
+
 
 class TestDroughtDetection:
     def test_detect_drought_in_dry_spell(self, analyzer):
@@ -159,8 +162,12 @@ class TestCompoundEvents:
     def test_compound_frequency(self, analyzer):
         # Need continuous variation so hot days are above 90th pctl
         np.random.seed(42)
-        temps = np.concatenate([np.random.normal(38, 1, 20), np.random.normal(15, 2, 80)])
-        precips = np.concatenate([np.random.uniform(0, 0.5, 20), np.random.uniform(5, 20, 80)])
+        temps = np.concatenate(
+            [np.random.normal(38, 1, 20), np.random.normal(15, 2, 80)]
+        )
+        precips = np.concatenate(
+            [np.random.uniform(0, 0.5, 20), np.random.uniform(5, 20, 80)]
+        )
         temp = xr.DataArray(temps, dims=["time"])
         precip = xr.DataArray(precips, dims=["time"])
         result = analyzer.detect_compound_events(temp, precip)
@@ -202,9 +209,33 @@ class TestEventRegistry:
 
     def test_event_statistics(self, analyzer):
         events = [
-            ExtremeEvent("HW1", ExtremeEventType.HEATWAVE, "2024-06", "2024-06", 5, 40, Severity.MODERATE),
-            ExtremeEvent("HW2", ExtremeEventType.HEATWAVE, "2024-07", "2024-07", 7, 42, Severity.SEVERE),
-            ExtremeEvent("DR1", ExtremeEventType.DROUGHT, "2024-08", "2024-09", 30, 0.5, Severity.SEVERE),
+            ExtremeEvent(
+                "HW1",
+                ExtremeEventType.HEATWAVE,
+                "2024-06",
+                "2024-06",
+                5,
+                40,
+                Severity.MODERATE,
+            ),
+            ExtremeEvent(
+                "HW2",
+                ExtremeEventType.HEATWAVE,
+                "2024-07",
+                "2024-07",
+                7,
+                42,
+                Severity.SEVERE,
+            ),
+            ExtremeEvent(
+                "DR1",
+                ExtremeEventType.DROUGHT,
+                "2024-08",
+                "2024-09",
+                30,
+                0.5,
+                Severity.SEVERE,
+            ),
         ]
         for event in events:
             analyzer.register_event(event)

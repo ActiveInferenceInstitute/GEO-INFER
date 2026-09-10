@@ -13,9 +13,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-
 class OrgStructureType(Enum):
     """Types of organizational structures."""
+
     HIERARCHICAL = "hierarchical"
     MATRIX = "matrix"
     FLAT = "flat"
@@ -25,6 +25,7 @@ class OrgStructureType(Enum):
 
 class RoleLevel(Enum):
     """Hierarchical role levels."""
+
     EXECUTIVE = 5
     DIRECTOR = 4
     MANAGER = 3
@@ -35,6 +36,7 @@ class RoleLevel(Enum):
 @dataclass
 class OrgUnit:
     """Represents an organizational unit (department, team, division)."""
+
     unit_id: str
     name: str
     parent_id: Optional[str] = None
@@ -48,6 +50,7 @@ class OrgUnit:
 @dataclass
 class Role:
     """Represents a role within the organization."""
+
     role_id: str
     title: str
     level: RoleLevel
@@ -60,6 +63,7 @@ class Role:
 @dataclass
 class Resource:
     """Represents an allocatable resource."""
+
     resource_id: str
     name: str
     capacity: float
@@ -71,6 +75,7 @@ class Resource:
 @dataclass
 class OrgMetrics:
     """Organizational structure metrics."""
+
     total_units: int
     total_roles: int
     max_depth: int
@@ -87,7 +92,9 @@ class OrganizationModel:
     computing structural metrics, and analyzing reporting relationships.
     """
 
-    def __init__(self, structure_type: OrgStructureType = OrgStructureType.HIERARCHICAL) -> None:
+    def __init__(
+        self, structure_type: OrgStructureType = OrgStructureType.HIERARCHICAL
+    ) -> None:
         """
         Initialize the organization model.
 
@@ -229,8 +236,11 @@ class OrganizationModel:
         """
         if not self._units:
             return OrgMetrics(
-                total_units=0, total_roles=0, max_depth=0,
-                avg_span_of_control=0.0, centralization_score=0.0,
+                total_units=0,
+                total_roles=0,
+                max_depth=0,
+                avg_span_of_control=0.0,
+                centralization_score=0.0,
                 hierarchy_ratio=0.0,
             )
 
@@ -254,8 +264,12 @@ class OrganizationModel:
         centralization = top_level_count / total if total > 0 else 0.0
 
         # Hierarchy ratio: managers / individual contributors
-        manager_count = sum(1 for r in self._roles.values() if r.level.value >= RoleLevel.MANAGER.value)
-        ic_count = sum(1 for r in self._roles.values() if r.level.value < RoleLevel.MANAGER.value)
+        manager_count = sum(
+            1 for r in self._roles.values() if r.level.value >= RoleLevel.MANAGER.value
+        )
+        ic_count = sum(
+            1 for r in self._roles.values() if r.level.value < RoleLevel.MANAGER.value
+        )
         hierarchy_ratio = manager_count / ic_count if ic_count > 0 else 0.0
 
         return OrgMetrics(
@@ -351,7 +365,9 @@ class OrganizationModel:
 
         logger.info(
             "Budget allocated: strategy=%s total=%.2f units=%d",
-            strategy, total_budget, len(result),
+            strategy,
+            total_budget,
+            len(result),
         )
         return result
 

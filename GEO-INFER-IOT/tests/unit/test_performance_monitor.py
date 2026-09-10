@@ -42,9 +42,7 @@ class TestPerformanceSummary:
     """Tests for get_performance_summary."""
 
     def test_summary_aggregates_metrics(self) -> None:
-        monitor = _monitor_with_history(
-            [_sample(cpu=20.0), _sample(cpu=40.0)]
-        )
+        monitor = _monitor_with_history([_sample(cpu=20.0), _sample(cpu=40.0)])
         summary = monitor.get_performance_summary(minutes=5)
         assert summary["total_samples"] == 2
         assert summary["cpu_usage"]["mean"] == 30.0

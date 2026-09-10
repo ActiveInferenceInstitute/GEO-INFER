@@ -225,7 +225,6 @@ class EventManager:
             if subscription_id not in self.subscriptions:
                 return False
 
-
             # Remove the callback registered for this exact subscription
             callback = self.subscription_callbacks.pop(subscription_id, None)
             if callback is not None and subscriber_id in self.subscriber_callbacks:
@@ -597,8 +596,9 @@ class EventFilter:
             return not filter_config.get("require_location", False)
 
         ctx = event.geospatial_context
-        lat, lon = _extract_geospatial_coord(ctx, "latitude"), _extract_geospatial_coord(
-            ctx, "longitude"
+        lat, lon = (
+            _extract_geospatial_coord(ctx, "latitude"),
+            _extract_geospatial_coord(ctx, "longitude"),
         )
 
         # Bounding-box check
@@ -768,7 +768,6 @@ class EventScheduler:
                         scheduled_event.status == "scheduled"
                         and scheduled_event.schedule_time <= current_time
                     ):
-
                         try:
                             self.event_manager.publish_event(
                                 scheduled_event.event_request

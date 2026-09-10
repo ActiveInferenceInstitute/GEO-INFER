@@ -85,7 +85,9 @@ class SpatialAttention:
 
         logger.debug(
             "Attention: seq_len=%d, d_k=%d, spatial_weight=%.2f",
-            queries.shape[-2] if queries.ndim > 1 else 1, d_k, distance_weight,
+            queries.shape[-2] if queries.ndim > 1 else 1,
+            d_k,
+            distance_weight,
         )
         return output, weights
 
@@ -120,7 +122,9 @@ class SpatialAttention:
         values = np.asarray(values, dtype=np.float64)
 
         seq_len, d_model = queries.shape
-        assert d_model % n_heads == 0, f"d_model ({d_model}) must be divisible by n_heads ({n_heads})"
+        assert d_model % n_heads == 0, (
+            f"d_model ({d_model}) must be divisible by n_heads ({n_heads})"
+        )
         d_head = d_model // n_heads
 
         # Split into heads
@@ -133,7 +137,9 @@ class SpatialAttention:
 
         for h in range(n_heads):
             out_h, w_h = self.compute_attention_weights(
-                Q_heads[h], K_heads[h], V_heads[h],
+                Q_heads[h],
+                K_heads[h],
+                V_heads[h],
                 coordinates=coordinates,
                 distance_weight=distance_weight,
             )
@@ -155,7 +161,7 @@ class SpatialAttention:
         """
         n = coordinates.shape[0]
         diff = coordinates[:, np.newaxis, :] - coordinates[np.newaxis, :, :]
-        distances = np.sqrt(np.sum(diff ** 2, axis=-1))
+        distances = np.sqrt(np.sum(diff**2, axis=-1))
 
         # Inverse distance (with self-loops set to 0)
         median_dist = np.median(distances[distances > 0]) if n > 1 else 1.0
@@ -168,4 +174,7 @@ class SpatialAttention:
         """Numerically stable softmax along given axis."""
         x_shifted = x - np.max(x, axis=axis, keepdims=True)
         exp_x = np.exp(x_shifted)
-        return cast(np.ndarray, exp_x / (np.sum(exp_x, axis=axis, keepdims=True) + self._epsilon))
+        return cast(
+            np.ndarray,
+            exp_x / (np.sum(exp_x, axis=axis, keepdims=True) + self._epsilon),
+        )

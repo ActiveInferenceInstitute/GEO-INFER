@@ -108,9 +108,7 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo[object]):
     report = outcome.get_result()
     if report.outcome == "skipped":
         report.outcome = "failed"
-        report.longrepr = (
-            f"Skipped tests are forbidden by the GEO-INFER test contract: {report.longrepr}"
-        )
+        report.longrepr = f"Skipped tests are forbidden by the GEO-INFER test contract: {report.longrepr}"
 
 
 def pytest_terminal_summary(terminalreporter: object) -> None:

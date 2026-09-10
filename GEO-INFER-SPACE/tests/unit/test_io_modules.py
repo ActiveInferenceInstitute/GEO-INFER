@@ -1320,13 +1320,13 @@ class TestListSupportedFormats:
     def test_values_are_extension_lists(self):
         result = self._list()
         for name, extensions in result.items():
-            assert isinstance(
-                extensions, list
-            ), f"Extensions for {name} should be a list"
+            assert isinstance(extensions, list), (
+                f"Extensions for {name} should be a list"
+            )
             for ext in extensions:
-                assert ext.startswith(
-                    "."
-                ), f"Extension {ext!r} for {name} should start with '.'"
+                assert ext.startswith("."), (
+                    f"Extension {ext!r} for {name} should start with '.'"
+                )
 
 
 # ---------------------------------------------------------------------------

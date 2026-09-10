@@ -11,4 +11,4 @@ except ImportError:
     GeoInferZoning = None
 from .data_sources import CascadianZoningDataSources
 
-__all__ = ['GeoInferZoning', 'CascadianZoningDataSources'] 
+__all__ = ["GeoInferZoning", "CascadianZoningDataSources"]

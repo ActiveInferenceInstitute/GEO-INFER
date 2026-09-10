@@ -45,6 +45,7 @@ from geo_infer_org.core.governance import (
 # OrganizationModel
 # ---------------------------------------------------------------------------
 
+
 class TestOrganizationModelAcceptance:
     """Acceptance: hierarchical structure and budget allocation."""
 
@@ -52,9 +53,17 @@ class TestOrganizationModelAcceptance:
     def model(self) -> OrganizationModel:
         m = OrganizationModel(OrgStructureType.HIERARCHICAL)
         m.add_unit(OrgUnit("root", "HQ", member_count=50, budget=100_000))
-        m.add_unit(OrgUnit("eng", "Engineering", parent_id="root", member_count=30, budget=60_000))
-        m.add_unit(OrgUnit("sales", "Sales", parent_id="root", member_count=20, budget=40_000))
-        m.add_unit(OrgUnit("be", "Backend", parent_id="eng", member_count=15, budget=30_000))
+        m.add_unit(
+            OrgUnit(
+                "eng", "Engineering", parent_id="root", member_count=30, budget=60_000
+            )
+        )
+        m.add_unit(
+            OrgUnit("sales", "Sales", parent_id="root", member_count=20, budget=40_000)
+        )
+        m.add_unit(
+            OrgUnit("be", "Backend", parent_id="eng", member_count=15, budget=30_000)
+        )
         m.add_role(Role("ceo", "CEO", RoleLevel.EXECUTIVE, "root"))
         m.add_role(Role("vp", "VP Eng", RoleLevel.DIRECTOR, "eng", reports_to="ceo"))
         m.add_role(Role("ic", "Engineer", RoleLevel.INDIVIDUAL, "be", reports_to="vp"))
@@ -117,6 +126,7 @@ class TestOrganizationModelAcceptance:
 # CollaborationNetwork
 # ---------------------------------------------------------------------------
 
+
 class TestCollaborationNetworkAcceptance:
     """Acceptance: collaboration graph metrics and knowledge flow."""
 
@@ -124,9 +134,14 @@ class TestCollaborationNetworkAcceptance:
         """A triangle plus an isolated node yields the expected component count."""
         net = CollaborationNetwork()
         for src, tgt in [("a", "b"), ("b", "c"), ("a", "c")]:
-            net.add_edge(CollaborationEdge(
-                src, tgt, CollaborationType.TASK_COORDINATION, strength=1.0,
-            ))
+            net.add_edge(
+                CollaborationEdge(
+                    src,
+                    tgt,
+                    CollaborationType.TASK_COORDINATION,
+                    strength=1.0,
+                )
+            )
         net.add_node("loner")
         metrics = net.compute_metrics()
         assert metrics.node_count == 4
@@ -138,9 +153,21 @@ class TestCollaborationNetworkAcceptance:
     def test_knowledge_flow_sources_and_sinks(self):
         """KNOWLEDGE_SHARE edges populate sources (outbound) and sinks (inbound)."""
         net = CollaborationNetwork()
-        net.add_edge(CollaborationEdge("mentor", "novice1", CollaborationType.KNOWLEDGE_SHARE, strength=0.8))
-        net.add_edge(CollaborationEdge("mentor", "novice2", CollaborationType.KNOWLEDGE_SHARE, strength=0.6))
-        net.add_edge(CollaborationEdge("novice1", "novice2", CollaborationType.TASK_COORDINATION, strength=0.4))
+        net.add_edge(
+            CollaborationEdge(
+                "mentor", "novice1", CollaborationType.KNOWLEDGE_SHARE, strength=0.8
+            )
+        )
+        net.add_edge(
+            CollaborationEdge(
+                "mentor", "novice2", CollaborationType.KNOWLEDGE_SHARE, strength=0.6
+            )
+        )
+        net.add_edge(
+            CollaborationEdge(
+                "novice1", "novice2", CollaborationType.TASK_COORDINATION, strength=0.4
+            )
+        )
         flow = net.get_knowledge_flow()
         assert "mentor" in flow["sources"]
         assert flow["sources"]["mentor"] == round(0.8 + 0.6, 4)
@@ -152,17 +179,20 @@ class TestCollaborationNetworkAcceptance:
 # TeamFormation
 # ---------------------------------------------------------------------------
 
+
 class TestTeamFormationAcceptance:
     """Acceptance: skill-coverage team formation and gap analysis."""
 
     def test_form_team_covers_required_skills(self):
         """The greedy algorithm selects members covering all required skills."""
         tf = TeamFormation()
-        tf.add_members([
-            TeamMember("m1", "Alice", ["python", "sql"], unit_id="eng"),
-            TeamMember("m2", "Bob", ["python", "docker"], unit_id="ops"),
-            TeamMember("m3", "Cara", ["frontend"], unit_id="design"),
-        ])
+        tf.add_members(
+            [
+                TeamMember("m1", "Alice", ["python", "sql"], unit_id="eng"),
+                TeamMember("m2", "Bob", ["python", "docker"], unit_id="ops"),
+                TeamMember("m3", "Cara", ["frontend"], unit_id="design"),
+            ]
+        )
         result = tf.form_team(required_skills=["python", "sql", "docker"], max_size=3)
         assert result.skill_coverage == 1.0
         assert "m1" in result.team_members  # covers python+sql
@@ -190,6 +220,7 @@ class TestTeamFormationAcceptance:
 # VotingEngine
 # ---------------------------------------------------------------------------
 
+
 class TestVotingEngineAcceptance:
     """Acceptance: governance voting semantics across methods."""
 
@@ -199,10 +230,16 @@ class TestVotingEngineAcceptance:
 
     def test_simple_majority_plurality_wins(self, engine):
         """The option with the most votes wins under simple majority."""
-        engine.create_proposal(Proposal(
-            "p1", "Budget", "Approve budget", "proposer", options=["yes", "no"],
-            voting_method=VotingMethod.SIMPLE_MAJORITY,
-        ))
+        engine.create_proposal(
+            Proposal(
+                "p1",
+                "Budget",
+                "Approve budget",
+                "proposer",
+                options=["yes", "no"],
+                voting_method=VotingMethod.SIMPLE_MAJORITY,
+            )
+        )
         for vid in ("v1", "v2", "v3"):
             engine.cast_vote("p1", Vote(vid, "yes"))
         engine.cast_vote("p1", Vote("v4", "no"))
@@ -213,10 +250,16 @@ class TestVotingEngineAcceptance:
 
     def test_supermajority_requires_two_thirds(self, engine):
         """A bare majority (2/4) is insufficient under supermajority."""
-        engine.create_proposal(Proposal(
-            "p2", "Amend", "Amend bylaws", "proposer", options=["pass", "fail"],
-            voting_method=VotingMethod.SUPERMAJORITY,
-        ))
+        engine.create_proposal(
+            Proposal(
+                "p2",
+                "Amend",
+                "Amend bylaws",
+                "proposer",
+                options=["pass", "fail"],
+                voting_method=VotingMethod.SUPERMAJORITY,
+            )
+        )
         engine.cast_vote("p2", Vote("a", "pass"))
         engine.cast_vote("p2", Vote("b", "pass"))
         engine.cast_vote("p2", Vote("c", "fail"))
@@ -227,10 +270,16 @@ class TestVotingEngineAcceptance:
 
     def test_unanimous_requires_consensus(self, engine):
         """Unanimous voting only passes when every vote agrees."""
-        engine.create_proposal(Proposal(
-            "p3", "Merger", "Unanimous merger", "proposer", options=["approve", "reject"],
-            voting_method=VotingMethod.UNANIMOUS,
-        ))
+        engine.create_proposal(
+            Proposal(
+                "p3",
+                "Merger",
+                "Unanimous merger",
+                "proposer",
+                options=["approve", "reject"],
+                voting_method=VotingMethod.UNANIMOUS,
+            )
+        )
         for vid in ("a", "b", "c"):
             engine.cast_vote("p3", Vote(vid, "approve"))
         result = engine.tally("p3")
@@ -239,10 +288,16 @@ class TestVotingEngineAcceptance:
 
     def test_weighted_tally_uses_weights(self, engine):
         """Weighted tally sums vote weights; a heavy minority can win."""
-        engine.create_proposal(Proposal(
-            "p4", "Weighted", "Weighted vote", "proposer", options=["x", "y"],
-            voting_method=VotingMethod.WEIGHTED,
-        ))
+        engine.create_proposal(
+            Proposal(
+                "p4",
+                "Weighted",
+                "Weighted vote",
+                "proposer",
+                options=["x", "y"],
+                voting_method=VotingMethod.WEIGHTED,
+            )
+        )
         engine.cast_vote("p4", Vote("a", "x", weight=1.0))
         engine.cast_vote("p4", Vote("b", "x", weight=1.0))
         engine.cast_vote("p4", Vote("c", "y", weight=5.0))
@@ -252,9 +307,15 @@ class TestVotingEngineAcceptance:
 
     def test_duplicate_voter_rejected(self, engine):
         """A voter casting twice on the same proposal raises."""
-        engine.create_proposal(Proposal(
-            "p5", "One", "Single vote", "proposer", options=["a", "b"],
-        ))
+        engine.create_proposal(
+            Proposal(
+                "p5",
+                "One",
+                "Single vote",
+                "proposer",
+                options=["a", "b"],
+            )
+        )
         engine.cast_vote("p5", Vote("v1", "a"))
         with pytest.raises(ValueError, match="already voted"):
             engine.cast_vote("p5", Vote("v1", "b"))
@@ -263,6 +324,7 @@ class TestVotingEngineAcceptance:
 # ---------------------------------------------------------------------------
 # ConsensusModel
 # ---------------------------------------------------------------------------
+
 
 class TestConsensusModelAcceptance:
     """Acceptance: rating-based consensus scoring."""

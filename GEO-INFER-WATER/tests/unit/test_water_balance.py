@@ -80,7 +80,9 @@ class TestSCSCurveNumber:
 
 class TestMonthlyWaterBalance:
     def test_balance_closure(self, modeler):
-        precip = np.array([80, 70, 90, 100, 120, 60, 30, 20, 40, 70, 90, 80], dtype=float)
+        precip = np.array(
+            [80, 70, 90, 100, 120, 60, 30, 20, 40, 70, 90, 80], dtype=float
+        )
         pet = np.array([10, 15, 30, 50, 80, 100, 120, 110, 70, 40, 20, 10], dtype=float)
         result = modeler.monthly_water_balance(precip, pet)
         assert len(result["aet_mm"]) == 12

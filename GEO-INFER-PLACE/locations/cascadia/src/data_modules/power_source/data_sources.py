@@ -40,9 +40,7 @@ class CascadianPowerSourceDataSources:
     """Handles fetching and loading of power infrastructure data."""
 
     def __init__(self):
-        config_path = os.path.join(
-            os.path.dirname(__file__), "..", "config", "data_urls.json"
-        )
+        config_path = os.path.join(os.path.dirname(__file__), "..", "config", "data_urls.json")
         try:
             with open(config_path) as f:
                 self.config = json.load(f).get("power_source", {})
@@ -58,8 +56,7 @@ class CascadianPowerSourceDataSources:
     ) -> Tuple[float, float, float, float]:
         """Calculates a bounding box from a list of H3 hexagons."""
         boundaries = [
-            Polygon([(lng, lat) for lat, lng in cell_to_latlng_boundary(h)])
-            for h in hexagons
+            Polygon([(lng, lat) for lat, lng in cell_to_latlng_boundary(h)]) for h in hexagons
         ]
         min_lon = min(b.bounds[0] for b in boundaries)
         min_lat = min(b.bounds[1] for b in boundaries)
@@ -110,14 +107,10 @@ class CascadianPowerSourceDataSources:
             logger.error(f"Failed to fetch {layer_name} data from HIFLD service: {e}")
             return gpd.GeoDataFrame([], geometry=[], crs="EPSG:4326")
         except Exception as e:
-            logger.error(
-                f"Failed to read GeoJSON response from HIFLD {layer_name} service: {e}"
-            )
+            logger.error(f"Failed to read GeoJSON response from HIFLD {layer_name} service: {e}")
             return gpd.GeoDataFrame([], geometry=[], crs="EPSG:4326")
 
-    def _query_osm_overpass_power(
-        self, bbox: Tuple[float, float, float, float]
-    ) -> dict:
+    def _query_osm_overpass_power(self, bbox: Tuple[float, float, float, float]) -> dict:
         """Query OSM Overpass for power infrastructure."""
         min_lon, min_lat, max_lon, max_lat = bbox
 
@@ -136,21 +129,15 @@ class CascadianPowerSourceDataSources:
         """
 
         overpass_url = "https://overpass-api.de/api/interpreter"
-        logger.info(
-            "PowerSource: Querying OSM for power lines/plants (fallback/augment)..."
-        )
+        logger.info("PowerSource: Querying OSM for power lines/plants (fallback/augment)...")
 
         try:
-            response = requests.post(
-                overpass_url, data={"data": overpass_query}, timeout=120
-            )
+            response = requests.post(overpass_url, data={"data": overpass_query}, timeout=120)
             response.raise_for_status()
             data = response.json()
 
             elements = data.get("elements", [])
-            nodes = {
-                e["id"]: (e["lon"], e["lat"]) for e in elements if e["type"] == "node"
-            }
+            nodes = {e["id"]: (e["lon"], e["lat"]) for e in elements if e["type"] == "node"}
 
             lines = []
             plants = []
@@ -160,10 +147,7 @@ class CascadianPowerSourceDataSources:
             for element in elements:
                 geom = None
 
-                if (
-                    element["type"] == "node"
-                    and element.get("tags", {}).get("power") == "plant"
-                ):
+                if element["type"] == "node" and element.get("tags", {}).get("power") == "plant":
                     geom = Point(element["lon"], element["lat"])
                     plants.append(
                         {
@@ -184,15 +168,10 @@ class CascadianPowerSourceDataSources:
                                 {
                                     "geometry": LineString(c_list),
                                     "source": "OSM",
-                                    "voltage": element["tags"].get(
-                                        "voltage", "Unknown"
-                                    ),
+                                    "voltage": element["tags"].get("voltage", "Unknown"),
                                 }
                             )
-                        elif (
-                            element.get("tags", {}).get("power") == "plant"
-                            and len(c_list) >= 4
-                        ):
+                        elif element.get("tags", {}).get("power") == "plant" and len(c_list) >= 4:
                             try:
                                 poly = Polygon(c_list)
                                 if poly.is_valid:
@@ -200,13 +179,14 @@ class CascadianPowerSourceDataSources:
                                         {
                                             "geometry": poly,
                                             "source": "OSM",
-                                            "name": element["tags"].get(
-                                                "name", "Unknown Plant"
-                                            ),
+                                            "name": element["tags"].get("name", "Unknown Plant"),
                                         }
                                     )
                             except Exception as exc:
-                                logger.warning('OSM plant feature construction failed; skipping feature: %s', exc)
+                                logger.warning(
+                                    "OSM plant feature construction failed; skipping feature: %s",
+                                    exc,
+                                )
 
             lines_gdf = (
                 gpd.GeoDataFrame(lines, crs="EPSG:4326")

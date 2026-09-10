@@ -35,7 +35,7 @@ def _make_repo(base: Path, modules: list[str], with_tests: bool = True):
                     """Tests for {mod}."""
                     import pytest
 
-                    class Test{mod.title().replace('-','')}Basic:
+                    class Test{mod.title().replace("-", "")}Basic:
                         def test_example(self):
                             assert True
                 '''

@@ -1,7 +1,7 @@
 """
 Utility modules for GEO-INFER-PLACE
 
-This package contains utility functions and classes for place-based 
+This package contains utility functions and classes for place-based
 geospatial analysis including H3 operations, configuration management,
 data source integration, and helper functions.
 """

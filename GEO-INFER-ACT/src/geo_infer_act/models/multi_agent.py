@@ -653,9 +653,8 @@ class MultiAgentModel(BaseActiveInferenceModel):
 
                     # Coordinate beliefs with neighbors
                     coordinated_beliefs = (
-                        (1 - coordination_strength) * current_beliefs
-                        + coordination_strength * avg_neighbor_belief
-                    )
+                        1 - coordination_strength
+                    ) * current_beliefs + coordination_strength * avg_neighbor_belief
                     coordinated_beliefs = coordinated_beliefs / (
                         np.sum(coordinated_beliefs) + 1e-8
                     )
@@ -710,9 +709,7 @@ class MultiAgentModel(BaseActiveInferenceModel):
 
         # Push all modifications back to the environmental engine as new observations
         if observations_to_push:
-            engine.observe_environment(
-                observations_to_push, timestamp=current_time
-            )
+            engine.observe_environment(observations_to_push, timestamp=current_time)
 
     def coordinate_agents(self) -> Dict[str, Any]:
         """
@@ -829,8 +826,7 @@ class MultiAgentModel(BaseActiveInferenceModel):
                     )
                     grouped.setdefault(parent, []).append(score)
                 scores = {
-                    parent: float(np.mean(values))
-                    for parent, values in grouped.items()
+                    parent: float(np.mean(values)) for parent, values in grouped.items()
                 }
                 resolution = int(target_resolution)
             except Exception as exc:

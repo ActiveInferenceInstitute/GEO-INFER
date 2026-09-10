@@ -199,7 +199,9 @@ def predictive_samples(
     return rng.normal(loc=mean, scale=scale, size=(samples, mean.size))
 
 
-def posterior_draw_indices(posterior: Any, samples: int, names: Sequence[str]) -> np.ndarray:
+def posterior_draw_indices(
+    posterior: Any, samples: int, names: Sequence[str]
+) -> np.ndarray:
     """Choose which posterior draws a prediction should average over.
 
     Two things this gets right that an ad-hoc ``range(min(samples, ...))``

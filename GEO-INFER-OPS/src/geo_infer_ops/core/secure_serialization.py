@@ -136,7 +136,9 @@ def _read_key_file(path: Path) -> bytes:
             f"at least {MIN_KEY_BYTES} are required"
         )
     if file_stat.st_mode & (stat.S_IRWXG | stat.S_IRWXO):
-        logger.warning("Signing key file %s is group/world accessible; tighten to 0600", path)
+        logger.warning(
+            "Signing key file %s is group/world accessible; tighten to 0600", path
+        )
     with _key_cache_lock:
         _key_file_cache[cache_key] = material
     return material
@@ -307,14 +309,18 @@ def verify_payload(
         SignatureMismatchError: The MAC does not match under the trusted key.
     """
     if not isinstance(envelope, (bytes, bytearray, memoryview)):
-        raise MalformedEnvelopeError(f"Envelope must be bytes-like, got {type(envelope).__name__}")
+        raise MalformedEnvelopeError(
+            f"Envelope must be bytes-like, got {type(envelope).__name__}"
+        )
     blob = bytes(envelope)
     if len(blob) < _HEADER_PREFIX_LEN:
         raise UnsignedPayloadError(
             f"Payload is {len(blob)} bytes, too short to carry a GISP1 envelope"
         )
     if blob[: len(MAGIC)] != MAGIC:
-        raise UnsignedPayloadError("Payload is not GISP1-signed; refusing to deserialize")
+        raise UnsignedPayloadError(
+            "Payload is not GISP1-signed; refusing to deserialize"
+        )
 
     version = blob[len(MAGIC)]
     algorithm = blob[len(MAGIC) + 1]
@@ -366,14 +372,20 @@ def verify_payload_text(
 ) -> bytes:
     """Verify a text-mode GISP1 envelope and return its payload bytes."""
     if not isinstance(envelope, str):
-        raise MalformedEnvelopeError(f"Text envelope must be str, got {type(envelope).__name__}")
+        raise MalformedEnvelopeError(
+            f"Text envelope must be str, got {type(envelope).__name__}"
+        )
     if not envelope.startswith(TEXT_PREFIX):
-        raise UnsignedPayloadError("Payload is not a GISP1 text envelope; refusing to deserialize")
+        raise UnsignedPayloadError(
+            "Payload is not a GISP1 text envelope; refusing to deserialize"
+        )
     encoded = envelope[len(TEXT_PREFIX) :]
     try:
         raw = base64.urlsafe_b64decode(encoded.encode("ascii"))
     except (ValueError, UnicodeEncodeError) as exc:
-        raise MalformedEnvelopeError(f"Text envelope is not valid base64: {exc}") from exc
+        raise MalformedEnvelopeError(
+            f"Text envelope is not valid base64: {exc}"
+        ) from exc
     return verify_payload(raw, context=context, key=key)
 
 
@@ -420,7 +432,9 @@ def loads_signed(
     serializer: str = "pickle",
 ) -> Any:
     """Verify an authenticated binary envelope, then deserialize its payload."""
-    return _deserialize_object(verify_payload(envelope, context=context, key=key), serializer)
+    return _deserialize_object(
+        verify_payload(envelope, context=context, key=key), serializer
+    )
 
 
 def dumps_signed_text(
@@ -448,4 +462,6 @@ def loads_signed_text(
     serializer: str = "json",
 ) -> Any:
     """Verify an authenticated text envelope, then deserialize its payload."""
-    return _deserialize_object(verify_payload_text(envelope, context=context, key=key), serializer)
+    return _deserialize_object(
+        verify_payload_text(envelope, context=context, key=key), serializer
+    )

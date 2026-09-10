@@ -337,9 +337,7 @@ class TestChainIdentity:
         chains = posterior.chain_samples()
         assert chains["lengthscale"].shape == (4, 10)
         np.testing.assert_array_equal(chains["lengthscale"][0], np.arange(10.0))
-        np.testing.assert_array_equal(
-            chains["lengthscale"][3], np.arange(30.0, 40.0)
-        )
+        np.testing.assert_array_equal(chains["lengthscale"][3], np.arange(30.0, 40.0))
 
     def test_r_hat_is_defined_once_chains_are_declared(self) -> None:
         """Pooling chains makes R-hat undefined; ArviZ then reports NaN."""

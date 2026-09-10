@@ -76,7 +76,9 @@ def main() -> None:
         print(f"Zone at {point}: {district.name} ({district.zoning_code})")
 
     boundaries = analyzer.analyze_zoning_boundaries()
-    print(f"Boundary analysis: {len(boundaries.get('adjacencies', boundaries))} entries")
+    print(
+        f"Boundary analysis: {len(boundaries.get('adjacencies', boundaries))} entries"
+    )
 
     change = analyzer.evaluate_zoning_change(
         district_id=analyzer.zoning_districts[0].id, new_code="C-2"

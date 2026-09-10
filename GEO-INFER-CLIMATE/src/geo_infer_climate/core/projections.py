@@ -16,22 +16,22 @@ class ClimateProjections:
     """
     Climate change projections and scenario analysis.
     """
-    
+
     def __init__(self, config: Optional[Dict] = None):
         """
         Initialize climate projections.
-        
+
         Args:
             config: Configuration dictionary
         """
         self.config = config or {}
-        self.scenarios = ['ssp126', 'ssp245', 'ssp370', 'ssp585']
-    
+        self.scenarios = ["ssp126", "ssp245", "ssp370", "ssp585"]
+
     def project_future_climate(
         self,
         historical_data: xr.DataArray,
-        scenario: str = 'ssp245',
-        years: Optional[List[int]] = None
+        scenario: str = "ssp245",
+        years: Optional[List[int]] = None,
     ) -> xr.DataArray:
         """
         Project future climate based on historical data and scenario.
@@ -74,28 +74,29 @@ class ClimateProjections:
         projections = []
         for year in years:
             years_ahead = year - last_year
-            projected = historical_data.mean(dim='time') + trend * years_ahead * scenario_factor
-            projected = projected.expand_dims('time').assign_coords(
-                time=[np.datetime64(f'{year}-01-01')]
+            projected = (
+                historical_data.mean(dim="time") + trend * years_ahead * scenario_factor
+            )
+            projected = projected.expand_dims("time").assign_coords(
+                time=[np.datetime64(f"{year}-01-01")]
             )
             projections.append(projected)
 
-        return cast(xr.DataArray, xr.concat(projections, dim='time'))
-    
+        return cast(xr.DataArray, xr.concat(projections, dim="time"))
+
     def _calculate_trend(self, data: xr.DataArray) -> xr.DataArray:
         """Calculate linear trend from time series."""
         # Simple linear trend
         time_numeric = np.arange(len(data.time))
         trend = np.polyfit(time_numeric, data.values, 1)[0]
         return xr.DataArray(trend, dims=data.dims[:-1])
-    
+
     def _get_scenario_factor(self, scenario: str) -> float:
         """Get scenario-specific scaling factor."""
         factors = {
-            'ssp126': 0.5,  # Low emissions
-            'ssp245': 1.0,  # Medium emissions
-            'ssp370': 1.5,  # High emissions
-            'ssp585': 2.0   # Very high emissions
+            "ssp126": 0.5,  # Low emissions
+            "ssp245": 1.0,  # Medium emissions
+            "ssp370": 1.5,  # High emissions
+            "ssp585": 2.0,  # Very high emissions
         }
         return factors.get(scenario, 1.0)
-

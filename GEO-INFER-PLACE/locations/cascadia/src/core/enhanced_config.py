@@ -366,11 +366,7 @@ class EnhancedConfigManager:
             for county in target_counties:
                 if ":" in county:
                     parts = county.split(":", 1)
-                    if (
-                        len(parts) == 2
-                        and len(parts[0]) == 2
-                        and len(parts[1].strip()) > 0
-                    ):
+                    if len(parts) == 2 and len(parts[0]) == 2 and len(parts[1].strip()) > 0:
                         valid_counties.append(county)
                     else:
                         invalid_counties.append(county)
@@ -450,17 +446,13 @@ class EnhancedConfigManager:
             "parent_exists": parent_exists,
             "can_create": can_create,
             "writable": (
-                can_create and output_dir.parent.is_dir()
-                if output_dir.parent.exists()
-                else False
+                can_create and output_dir.parent.is_dir() if output_dir.parent.exists() else False
             ),
         }
 
         # Validate data quality threshold
         quality_threshold = self.config.data.data_quality_threshold
-        if not isinstance(quality_threshold, (int, float)) or not (
-            0.0 <= quality_threshold <= 1.0
-        ):
+        if not isinstance(quality_threshold, (int, float)) or not (0.0 <= quality_threshold <= 1.0):
             validation_results["errors"].append(
                 f"Data quality threshold must be between 0.0 and 1.0, got {quality_threshold}"
             )
@@ -571,9 +563,7 @@ class EnhancedConfigManager:
 
             # Check if module is in active modules but not enabled
             if module_name in self.config.analysis.active_modules:
-                if isinstance(module_config, dict) and not module_config.get(
-                    "enabled", True
-                ):
+                if isinstance(module_config, dict) and not module_config.get("enabled", True):
                     module_warnings.append(
                         f"Module {module_name} is active but disabled in configuration"
                     )
@@ -583,9 +573,7 @@ class EnhancedConfigManager:
             if isinstance(module_config, dict) and "data_sources" in module_config:
                 data_sources = module_config["data_sources"]
                 if not isinstance(data_sources, list):
-                    module_warnings.append(
-                        f"Module {module_name} data_sources must be a list"
-                    )
+                    module_warnings.append(f"Module {module_name} data_sources must be a list")
                     module_valid = False
 
             validation["details"][module_name] = {
@@ -625,9 +613,7 @@ class EnhancedConfigManager:
             config_dict["analysis"] = AnalysisConfig(**config_dict["analysis"])
 
         if "visualization" in config_dict:
-            config_dict["visualization"] = VisualizationConfig(
-                **config_dict["visualization"]
-            )
+            config_dict["visualization"] = VisualizationConfig(**config_dict["visualization"])
 
         if "data" in config_dict:
             config_dict["data"] = DataConfig(**config_dict["data"])
@@ -640,11 +626,7 @@ class EnhancedConfigManager:
     def _deep_update(self, base_dict: Dict[str, Any], updates: Dict[str, Any]):
         """Recursively update dictionary with new values."""
         for key, value in updates.items():
-            if (
-                key in base_dict
-                and isinstance(base_dict[key], dict)
-                and isinstance(value, dict)
-            ):
+            if key in base_dict and isinstance(base_dict[key], dict) and isinstance(value, dict):
                 self._deep_update(base_dict[key], value)
             else:
                 base_dict[key] = value

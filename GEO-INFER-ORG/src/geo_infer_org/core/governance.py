@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 class VotingMethod(Enum):
     """Available voting methods."""
+
     SIMPLE_MAJORITY = "simple_majority"
     SUPERMAJORITY = "supermajority"
     UNANIMOUS = "unanimous"
@@ -26,6 +27,7 @@ class VotingMethod(Enum):
 
 class DecisionStatus(Enum):
     """Status of a governance decision."""
+
     PROPOSED = "proposed"
     UNDER_REVIEW = "under_review"
     VOTING = "voting"
@@ -37,6 +39,7 @@ class DecisionStatus(Enum):
 @dataclass
 class Vote:
     """A single vote cast by a participant."""
+
     voter_id: str
     choice: str
     weight: float = 1.0
@@ -48,6 +51,7 @@ class Vote:
 @dataclass
 class Proposal:
     """A governance proposal to be decided upon."""
+
     proposal_id: str
     title: str
     description: str
@@ -63,6 +67,7 @@ class Proposal:
 @dataclass
 class VotingResult:
     """Result of a voting process."""
+
     proposal_id: str
     winner: Optional[str]
     vote_counts: Dict[str, float]
@@ -98,7 +103,11 @@ class VotingEngine:
         if len(proposal.options) < 2:
             raise ValueError("Proposal must have at least 2 options")
         self._proposals[proposal.proposal_id] = proposal
-        logger.info("Proposal created: %s (method=%s)", proposal.proposal_id, proposal.voting_method.value)
+        logger.info(
+            "Proposal created: %s (method=%s)",
+            proposal.proposal_id,
+            proposal.voting_method.value,
+        )
 
     def cast_vote(self, proposal_id: str, vote: Vote) -> None:
         """
@@ -123,7 +132,10 @@ class VotingEngine:
             raise ValueError(f"Voter {vote.voter_id} has already voted")
 
         # Validate choice based on method
-        if proposal.voting_method not in (VotingMethod.RANKED_CHOICE, VotingMethod.APPROVAL):
+        if proposal.voting_method not in (
+            VotingMethod.RANKED_CHOICE,
+            VotingMethod.APPROVAL,
+        ):
             if vote.choice not in proposal.options:
                 raise ValueError(f"Invalid choice: {vote.choice}")
 
@@ -169,7 +181,9 @@ class VotingEngine:
         else:
             raise ValueError(f"Unknown voting method: {method}")
 
-    def _tally_simple_majority(self, proposal: Proposal, quorum_met: bool) -> VotingResult:
+    def _tally_simple_majority(
+        self, proposal: Proposal, quorum_met: bool
+    ) -> VotingResult:
         """Tally a simple-majority vote.
 
         Semantics: plurality wins. The option with the most votes is the
@@ -184,7 +198,9 @@ class VotingEngine:
                 counts[vote.choice] += 1
 
         total = len(proposal.votes)
-        winner = max(counts, key=lambda k: counts[k]) if total > 0 and quorum_met else None
+        winner = (
+            max(counts, key=lambda k: counts[k]) if total > 0 and quorum_met else None
+        )
         if winner and counts[winner] == 0:
             winner = None
 
@@ -197,7 +213,9 @@ class VotingEngine:
             method=VotingMethod.SIMPLE_MAJORITY,
         )
 
-    def _tally_supermajority(self, proposal: Proposal, quorum_met: bool, threshold: float = 2.0/3.0) -> VotingResult:
+    def _tally_supermajority(
+        self, proposal: Proposal, quorum_met: bool, threshold: float = 2.0 / 3.0
+    ) -> VotingResult:
         counts: Dict[str, float] = {opt: 0 for opt in proposal.options}
         for vote in proposal.votes:
             if vote.choice in counts:
@@ -242,7 +260,9 @@ class VotingEngine:
             method=VotingMethod.UNANIMOUS,
         )
 
-    def _tally_ranked_choice(self, proposal: Proposal, quorum_met: bool) -> VotingResult:
+    def _tally_ranked_choice(
+        self, proposal: Proposal, quorum_met: bool
+    ) -> VotingResult:
         """Instant-runoff ranked choice voting."""
         if not quorum_met or not proposal.votes:
             return VotingResult(
@@ -350,7 +370,9 @@ class VotingEngine:
                     counts[choice] += 1
 
         total = len(proposal.votes)
-        winner = max(counts, key=lambda k: counts[k]) if total > 0 and quorum_met else None
+        winner = (
+            max(counts, key=lambda k: counts[k]) if total > 0 and quorum_met else None
+        )
         if winner and counts[winner] == 0:
             winner = None
 
@@ -362,7 +384,6 @@ class VotingEngine:
             quorum_met=quorum_met,
             method=VotingMethod.APPROVAL,
         )
-
 
 
 class ConsensusModel:
@@ -385,7 +406,9 @@ class ConsensusModel:
         """
         self._convergence_threshold = convergence_threshold
         self._options: List[str] = []
-        self._ratings: Dict[str, Dict[str, float]] = {}  # participant -> option -> rating
+        self._ratings: Dict[
+            str, Dict[str, float]
+        ] = {}  # participant -> option -> rating
 
     def set_options(self, options: List[str]) -> None:
         """

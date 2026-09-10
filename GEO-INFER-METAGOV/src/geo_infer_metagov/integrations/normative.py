@@ -114,9 +114,9 @@ class NormativeGovernanceIntegration:
 
         # Calculate translation quality
         if governance_rules:
-            translation["translation_quality"] = len(
-                normative_rules_out
-            ) / len(governance_rules)
+            translation["translation_quality"] = len(normative_rules_out) / len(
+                governance_rules
+            )
 
         return translation
 

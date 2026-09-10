@@ -11,9 +11,7 @@ from geo_infer_act.runners import run_spatial_active_inference_gallery
 
 
 DEFAULT_OUTPUT_DIR = (
-    Path(__file__).resolve().parent
-    / "output"
-    / "spatial_active_inference_gallery"
+    Path(__file__).resolve().parent / "output" / "spatial_active_inference_gallery"
 )
 
 

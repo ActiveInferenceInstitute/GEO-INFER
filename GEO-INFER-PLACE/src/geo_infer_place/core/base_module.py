@@ -6,6 +6,7 @@ This module defines the abstract base class for all specialized analysis modules
 in the Cascadian framework. It enforces a standardized workflow for data
 acquisition, caching, H3 processing, and analysis.
 """
+
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path

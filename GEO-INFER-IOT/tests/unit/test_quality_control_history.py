@@ -48,7 +48,9 @@ class TestMeasurementRetention:
         """A long-lived controller keeps constant memory per sensor."""
         controller = QualityController({"history_size": 10})
         for offset in range(50):
-            controller.validate_measurement(_measurement("s1", float(offset), 100 - offset))
+            controller.validate_measurement(
+                _measurement("s1", float(offset), 100 - offset)
+            )
         assert len(controller.measurement_history["s1"]) == 10
 
     def test_window_excludes_older_measurements(self, controller):
@@ -60,17 +62,27 @@ class TestMeasurementRetention:
 
     def test_unusable_measurements_are_not_retained(self, controller):
         """Values or timestamps the checks cannot use are dropped."""
-        controller.validate_measurement({"sensor_id": "s1", "value": None, "timestamp": "x"})
+        controller.validate_measurement(
+            {"sensor_id": "s1", "value": None, "timestamp": "x"}
+        )
         controller.validate_measurement({"sensor_id": "s1", "value": 1.0})
         controller.validate_measurement(
-            {"sensor_id": "s1", "value": float("nan"), "timestamp": "2026-01-01T12:00:00"}
+            {
+                "sensor_id": "s1",
+                "value": float("nan"),
+                "timestamp": "2026-01-01T12:00:00",
+            }
         )
         assert controller._get_recent_measurements("s1", minutes=60) == []
 
     def test_datetime_timestamps_are_accepted(self, controller):
         """A datetime timestamp is retained the same as an ISO string."""
         controller.validate_measurement(
-            {"sensor_id": "s1", "value": 5.0, "timestamp": datetime(2026, 1, 1, 12, 0, 0)}
+            {
+                "sensor_id": "s1",
+                "value": 5.0,
+                "timestamp": datetime(2026, 1, 1, 12, 0, 0),
+            }
         )
         assert len(controller._get_recent_measurements("s1", minutes=60)) == 1
 

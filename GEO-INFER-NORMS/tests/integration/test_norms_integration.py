@@ -112,9 +112,9 @@ class TestNormativeCompliancePipeline:
         # compliance probabilities below the prior but not extremely low.
         # Use a threshold that matches the Bayesian update behavior.
         violations = engine.identify_norm_violations("building_B", threshold=0.95)
-        assert (
-            len(violations) > 0
-        ), "Should detect at least one violation at threshold=0.95"
+        assert len(violations) > 0, (
+            "Should detect at least one violation at threshold=0.95"
+        )
 
         # Violations should be sorted by severity
         if len(violations) > 1:
@@ -142,9 +142,9 @@ class TestNormativeCompliancePipeline:
 
         # Infer compliance
         compliance_prob = engine.infer_compliance("building_C", height_id)
-        assert (
-            compliance_prob > 0.5
-        ), "Compliance probability should increase with compliant observation"
+        assert compliance_prob > 0.5, (
+            "Compliance probability should increase with compliant observation"
+        )
 
     def test_network_compliance_uses_relationships(self, normative_engine):
         """Test that network compliance considers norm relationships."""
@@ -188,9 +188,9 @@ class TestNormativeCompliancePipeline:
         assert len(all_compliance) == 3, "Should have compliance for all 3 norms"
 
         for norm_id, prob in all_compliance.items():
-            assert (
-                0.0 <= prob <= 1.0
-            ), f"Compliance probability {prob} out of range for norm {norm_id}"
+            assert 0.0 <= prob <= 1.0, (
+                f"Compliance probability {prob} out of range for norm {norm_id}"
+            )
 
     def test_compliance_improvement_suggestions(self, normative_engine):
         """Test that improvement suggestions are generated for non-compliant entities."""
@@ -214,9 +214,9 @@ class TestNormativeCompliancePipeline:
             "building_F", improvement_threshold=0.95
         )
         assert isinstance(suggestions, list)
-        assert (
-            len(suggestions) > 0
-        ), "Should suggest improvements for non-compliant entity"
+        assert len(suggestions) > 0, (
+            "Should suggest improvements for non-compliant entity"
+        )
 
         for suggestion in suggestions:
             assert "norm_id" in suggestion
@@ -295,7 +295,7 @@ class TestSocialNormDiffusionPipeline:
             )
 
         for i in range(4):
-            model.add_social_connection(f"e_{i}", f"e_{i+1}", strength=0.9)
+            model.add_social_connection(f"e_{i}", f"e_{i + 1}", strength=0.9)
 
         model.add_norm(
             "norm_A",

@@ -13,9 +13,7 @@ from math import erfc, sqrt
 from geo_infer_math.utils.rng import resolve_rng
 
 
-def _generate_weights(
-    coords: np.ndarray, include_self: bool = False
-) -> np.ndarray:
+def _generate_weights(coords: np.ndarray, include_self: bool = False) -> np.ndarray:
     """
     Generate a spatial weights matrix from coordinates.
 
@@ -62,9 +60,7 @@ def _cliff_ord_terms(weights_matrix: np.ndarray) -> Tuple[float, float, float]:
     np.fill_diagonal(W_offdiag, 0.0)
     s0 = float(np.sum(W_offdiag))
     s1 = 0.5 * float(np.sum((W_offdiag + W_offdiag.T) ** 2))
-    s2 = float(
-        np.sum((np.sum(W_offdiag, axis=1) + np.sum(W_offdiag, axis=0)) ** 2)
-    )
+    s2 = float(np.sum((np.sum(W_offdiag, axis=1) + np.sum(W_offdiag, axis=0)) ** 2))
     return s0, s1, s2
 
 
@@ -96,9 +92,7 @@ def morans_i_variance(values: np.ndarray, weights_matrix: np.ndarray) -> float:
     W = np.asarray(weights_matrix, dtype=np.float64)
     n = len(values)
     if W.shape[0] != n or W.shape[1] != n:
-        raise ValueError(
-            f"Weights matrix shape {W.shape} does not match {n} values"
-        )
+        raise ValueError(f"Weights matrix shape {W.shape} does not match {n} values")
     if n < 4:
         raise ValueError(
             "Moran's I randomization variance requires at least 4 locations"
@@ -107,15 +101,14 @@ def morans_i_variance(values: np.ndarray, weights_matrix: np.ndarray) -> float:
     if s0 == 0.0:
         raise ValueError("Spatial weights matrix has zero total weight")
     z = values - np.mean(values)
-    sum_sq = float(np.sum(z ** 2))
+    sum_sq = float(np.sum(z**2))
     if sum_sq == 0.0:
         raise ValueError("Values are constant; variance of Moran's I is undefined")
-    b2 = n * float(np.sum(z ** 4)) / (sum_sq ** 2)
-    numerator = (
-        n * ((n ** 2 - 3 * n + 3) * s1 - n * s2 + 3 * s0 ** 2)
-        - b2 * ((n ** 2 - n) * s1 - 2 * n * s2 + 6 * s0 ** 2)
+    b2 = n * float(np.sum(z**4)) / (sum_sq**2)
+    numerator = n * ((n**2 - 3 * n + 3) * s1 - n * s2 + 3 * s0**2) - b2 * (
+        (n**2 - n) * s1 - 2 * n * s2 + 6 * s0**2
     )
-    denominator = (n - 1) * (n - 2) * (n - 3) * s0 ** 2
+    denominator = (n - 1) * (n - 2) * (n - 3) * s0**2
     variance = numerator / denominator - 1.0 / (n - 1) ** 2
     return float(variance)
 
@@ -123,6 +116,7 @@ def morans_i_variance(values: np.ndarray, weights_matrix: np.ndarray) -> float:
 @dataclass
 class SpatialDescriptiveStats:
     """Container for spatial descriptive statistics."""
+
     mean: float
     median: float
     stdev: float
@@ -200,16 +194,14 @@ class MoranI:
         w_sum = np.sum(self.weights_matrix)
         z_outer = np.outer(z, z)
         numerator = np.sum(z_outer * self.weights_matrix)
-        denominator = np.sum(z ** 2)
+        denominator = np.sum(z**2)
 
         I_val = (n / w_sum) * (numerator / denominator)
         expected_I = -1.0 / (n - 1)
 
         var_I = morans_i_variance(values, self.weights_matrix)
 
-        z_score_val = (
-            (I_val - expected_I) / np.sqrt(var_I) if var_I > 0 else 0.0
-        )
+        z_score_val = (I_val - expected_I) / np.sqrt(var_I) if var_I > 0 else 0.0
         p_value = erfc(abs(z_score_val) / sqrt(2))
 
         return {
@@ -266,7 +258,7 @@ class GearysC:
         values = np.asarray(values, dtype=np.float64)
         n = len(values)
         z_centered = values - np.mean(values)
-        var_z = np.sum(z_centered ** 2) / (n - 1)
+        var_z = np.sum(z_centered**2) / (n - 1)
         w_sum = np.sum(W)
 
         def _c(vals: np.ndarray) -> float:
@@ -295,9 +287,7 @@ class GearysC:
             if coords is not None:
                 self.weights_matrix = _generate_weights(coords)
             else:
-                raise ValueError(
-                    "weights_matrix must be set or coords provided"
-                )
+                raise ValueError("weights_matrix must be set or coords provided")
 
         n = len(values)
         if len(values) != self.weights_matrix.shape[0]:
@@ -309,8 +299,13 @@ class GearysC:
             raise ValueError("Geary's C requires at least 2 data points")
 
         if np.std(values) == 0:
-            return {"C": 1.0, "expected_C": 1.0, "var_C": 0.0,
-                    "z_score": 0.0, "p_value": 1.0}
+            return {
+                "C": 1.0,
+                "expected_C": 1.0,
+                "var_C": 0.0,
+                "z_score": 0.0,
+                "p_value": 1.0,
+            }
 
         z = values - np.mean(values)
         W = self.weights_matrix
@@ -321,7 +316,7 @@ class GearysC:
         numerator = np.sum(W * diff_sq)
 
         # Variance term
-        var_z = np.sum(z ** 2) / (n - 1)
+        var_z = np.sum(z**2) / (n - 1)
         C = (numerator / (2 * w_sum)) / var_z
 
         # Permutational variance of C under the randomization assumption
@@ -392,8 +387,8 @@ class GetisOrd:
         W = self.weights_matrix
         sum_x = np.sum(values)
         mean_x = np.mean(values)
-        sum_x_sq = np.sum(values ** 2)
-        s = np.sqrt((sum_x_sq / n) - mean_x ** 2)
+        sum_x_sq = np.sum(values**2)
+        s = np.sqrt((sum_x_sq / n) - mean_x**2)
 
         g_star = np.zeros(n)
         z_scores = np.zeros(n)
@@ -404,9 +399,9 @@ class GetisOrd:
             sum_wx = np.sum(w_i * values)
 
             numerator = sum_wx - mean_x * sum_w
-            denom = s * np.sqrt(
-                (n * np.sum(w_i ** 2) - sum_w ** 2) / (n - 1)
-            ) if n > 1 else 0.0
+            denom = (
+                s * np.sqrt((n * np.sum(w_i**2) - sum_w**2) / (n - 1)) if n > 1 else 0.0
+            )
 
             if sum_x > 0:
                 g_star[i] = sum_wx / sum_x
@@ -416,7 +411,9 @@ class GetisOrd:
         # Global Getis-Ord G
         total_weights = np.sum(W)
         if total_weights > 0 and sum_x > 0:
-            global_g_val = np.sum(W * np.outer(values, values)) / (total_weights * sum_x)
+            global_g_val = np.sum(W * np.outer(values, values)) / (
+                total_weights * sum_x
+            )
         else:
             global_g_val = 0.0
 
@@ -441,8 +438,8 @@ def getis_ord_g(values: np.ndarray, weights_matrix: np.ndarray) -> Dict[str, Any
     n = len(values)
     sum_x = np.sum(values)
     mean_x = np.mean(values)
-    sum_x_sq = np.sum(values ** 2)
-    s = np.sqrt((sum_x_sq / n) - (mean_x ** 2))
+    sum_x_sq = np.sum(values**2)
+    s = np.sqrt((sum_x_sq / n) - (mean_x**2))
 
     g_star = np.zeros(n)
     z_scores = np.zeros(n)
@@ -453,7 +450,7 @@ def getis_ord_g(values: np.ndarray, weights_matrix: np.ndarray) -> Dict[str, Any
         sum_wx = np.sum(w_i * values)
 
         numerator = sum_wx - mean_x * sum_w
-        ss = s * np.sqrt((n * sum_w ** 2 - sum_w ** 2) / (n - 1))
+        ss = s * np.sqrt((n * sum_w**2 - sum_w**2) / (n - 1))
 
         if ss > 0:
             g_star[i] = sum_wx / sum_x
@@ -601,8 +598,8 @@ def spatial_descriptive_statistics(
     dispersion = np.mean(distances)
 
     diff = values - mean_val
-    skewness = np.sum(diff ** 3) / (len(values) * std_val ** 3)
-    kurtosis = np.sum(diff ** 4) / (len(values) * std_val ** 4) - 3
+    skewness = np.sum(diff**3) / (len(values) * std_val**3)
+    kurtosis = np.sum(diff**4) / (len(values) * std_val**4) - 3
 
     return SpatialDescriptiveStats(
         mean=mean_val,
@@ -670,8 +667,8 @@ def local_indicators_spatial_association(
             w_std = w_i / sum_w
             lisa[i] = z[i] * np.sum(w_std * z)
 
-            b2 = np.sum(z ** 4) / n
-            s1 = np.sum(w_std ** 2)
+            b2 = np.sum(z**4) / n
+            s1 = np.sum(w_std**2)
             var_i[i] = s1 * (n - b2) / (n - 1)
 
             z_scores[i] = (lisa[i] - expected_i) / np.sqrt(var_i[i])

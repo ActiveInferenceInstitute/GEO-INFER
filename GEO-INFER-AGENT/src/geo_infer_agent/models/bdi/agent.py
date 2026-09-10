@@ -22,6 +22,7 @@ logger = logging.getLogger("geo_infer_agent.models.bdi")
 # BDIState
 # ---------------------------------------------------------------------------
 
+
 class BDIState(AgentState):
     """
     Extended agent state for BDI agents.
@@ -49,7 +50,11 @@ class BDIState(AgentState):
             old = self.beliefs_dict[belief.name]
             old_value = old.value
             old_confidence = old.confidence
-            old.update(value=belief.value, confidence=belief.confidence, metadata=belief.metadata)
+            old.update(
+                value=belief.value,
+                confidence=belief.confidence,
+                metadata=belief.metadata,
+            )
             self.add_to_memory(
                 {
                     "type": "belief_updated",
@@ -94,14 +99,18 @@ class BDIState(AgentState):
                     "old_value": old_value,
                     "new_value": value,
                     "old_confidence": old_confidence,
-                    "new_confidence": confidence if confidence is not None else old_confidence,
+                    "new_confidence": confidence
+                    if confidence is not None
+                    else old_confidence,
                     "timestamp": datetime.now().isoformat(),
                 }
             )
         else:
             self.beliefs_dict[name] = Belief(
-                name=name, value=value, confidence=confidence if confidence is not None else 1.0,
-                metadata=metadata or {}
+                name=name,
+                value=value,
+                confidence=confidence if confidence is not None else 1.0,
+                metadata=metadata or {},
             )
             self.add_to_memory(
                 {
@@ -141,7 +150,9 @@ class BDIState(AgentState):
 
     def get_desires_by_priority(self) -> List[Desire]:
         """Return all desires ordered by priority (highest first)."""
-        return sorted(self.desires_dict.values(), key=lambda d: d.priority, reverse=True)
+        return sorted(
+            self.desires_dict.values(), key=lambda d: d.priority, reverse=True
+        )
 
     # ------------------------------------------------------------------
     # Intention (plan) management
@@ -173,7 +184,9 @@ class BDIState(AgentState):
                 }
             )
         else:
-            self.add_to_memory({"type": "intention_cleared", "timestamp": datetime.now().isoformat()})
+            self.add_to_memory(
+                {"type": "intention_cleared", "timestamp": datetime.now().isoformat()}
+            )
 
     def get_current_intention(self) -> Optional[Plan]:
         """Return the currently active intention."""
@@ -181,7 +194,11 @@ class BDIState(AgentState):
 
     def get_intentions_for_desire(self, desire_name: str) -> List[Plan]:
         """Return all non-complete intentions targeting the given desire."""
-        return [p for p in self.intentions if p.desire_name == desire_name and not p.complete]
+        return [
+            p
+            for p in self.intentions
+            if p.desire_name == desire_name and not p.complete
+        ]
 
     def remove_completed_intentions(self) -> int:
         """Remove all completed intentions and return the count removed."""
@@ -231,6 +248,7 @@ class BDIState(AgentState):
 # BDIAgent
 # ---------------------------------------------------------------------------
 
+
 class BDIAgent(BaseAgent):
     """
     Belief-Desire-Intention (BDI) agent.
@@ -258,7 +276,9 @@ class BDIAgent(BaseAgent):
         self.perception_handler_list: List[Callable[..., Any]] = []
 
         self.deliberation_interval: float = self.config.get("deliberation_interval", 5)
-        self.commitment_strategy: str = self.config.get("commitment_strategy", "single_minded")
+        self.commitment_strategy: str = self.config.get(
+            "commitment_strategy", "single_minded"
+        )
 
         logger.info("BDI agent %s initialized", self.agent_id)
 
@@ -328,7 +348,9 @@ class BDIAgent(BaseAgent):
         if current and not current.complete and self._is_intention_valid(current):
             action = current.next_action()
             if action:
-                logger.debug("BDI agent %s continuing intention %s", self.agent_id, current.name)
+                logger.debug(
+                    "BDI agent %s continuing intention %s", self.agent_id, current.name
+                )
                 return action
 
         # Clear stale/invalid intention and deliberate.
@@ -341,7 +363,9 @@ class BDIAgent(BaseAgent):
                 self.state.set_current_intention(plan)
                 action = plan.next_action()
                 if action:
-                    logger.debug("BDI agent %s selected intention %s", self.agent_id, plan.name)
+                    logger.debug(
+                        "BDI agent %s selected intention %s", self.agent_id, plan.name
+                    )
                     return action
 
         logger.debug("BDI agent %s found no valid intentions", self.agent_id)
@@ -350,13 +374,20 @@ class BDIAgent(BaseAgent):
     async def act(self, action: Dict[str, Any]) -> Dict[str, Any]:
         """Execute the given action using registered handlers."""
         if not action or ("type" not in action and "action_type" not in action):
-            logger.warning("BDI agent %s received invalid action: %s", self.agent_id, action)
+            logger.warning(
+                "BDI agent %s received invalid action: %s", self.agent_id, action
+            )
             return {"success": False, "error": "Invalid action"}
 
         action_type = action.get("type") or action.get("action_type")
         if action_type not in self.action_handlers:
-            logger.warning("BDI agent %s has no handler for action %s", self.agent_id, action_type)
-            return {"success": False, "error": f"No handler for action type {action_type}"}
+            logger.warning(
+                "BDI agent %s has no handler for action %s", self.agent_id, action_type
+            )
+            return {
+                "success": False,
+                "error": f"No handler for action type {action_type}",
+            }
 
         try:
             result = await self.action_handlers[action_type](self, action)
@@ -367,17 +398,24 @@ class BDIAgent(BaseAgent):
                 )
                 if result.get("success", False):
                     current.advance()
-                    if current.complete and self._is_desire_satisfied(current.desire_name):
+                    if current.complete and self._is_desire_satisfied(
+                        current.desire_name
+                    ):
                         desire = self.state.get_desire(current.desire_name)
                         if desire:
                             desire.set_achieved(True)
                             logger.info(
-                                "BDI agent %s achieved desire %s", self.agent_id, desire.name
+                                "BDI agent %s achieved desire %s",
+                                self.agent_id,
+                                desire.name,
                             )
             return cast(Dict[str, Any], result)
         except Exception as exc:
             logger.error(
-                "BDI agent %s error executing action %s: %s", self.agent_id, action_type, exc
+                "BDI agent %s error executing action %s: %s",
+                self.agent_id,
+                action_type,
+                exc,
             )
             return {"success": False, "error": str(exc)}
 
@@ -424,7 +462,11 @@ class BDIAgent(BaseAgent):
             action.get("confidence"),
             action.get("metadata"),
         )
-        return {"success": True, "belief_name": belief_name, "belief_value": action.get("belief_value")}
+        return {
+            "success": True,
+            "belief_name": belief_name,
+            "belief_value": action.get("belief_value"),
+        }
 
     async def _handle_query_belief_action(
         self, agent: "BDIAgent", action: Dict[str, Any]
@@ -461,12 +503,16 @@ class BDIAgent(BaseAgent):
         for template in self.config.get("plans", []):
             if not all(k in template for k in ("name", "desire_name", "actions")):
                 logger.warning(
-                    "BDI agent %s skipping invalid plan template: %s", self.agent_id, template
+                    "BDI agent %s skipping invalid plan template: %s",
+                    self.agent_id,
+                    template,
                 )
                 continue
             self.plan_library[template["name"]] = template
         logger.debug(
-            "BDI agent %s loaded %d plan templates", self.agent_id, len(self.plan_library)
+            "BDI agent %s loaded %d plan templates",
+            self.agent_id,
+            len(self.plan_library),
         )
 
     def _initialize_beliefs(self) -> None:
@@ -481,15 +527,15 @@ class BDIAgent(BaseAgent):
                 self.state.add_belief(belief)
             else:
                 self.state.update_belief(belief_name, belief_data)
-        logger.debug(
-            "BDI agent %s initialized beliefs from config", self.agent_id
-        )
+        logger.debug("BDI agent %s initialized beliefs from config", self.agent_id)
 
     def _initialize_desires(self) -> None:
         for desire_data in self.config.get("initial_desires", []):
             if "name" not in desire_data or "description" not in desire_data:
                 logger.warning(
-                    "BDI agent %s skipping invalid desire: %s", self.agent_id, desire_data
+                    "BDI agent %s skipping invalid desire: %s",
+                    self.agent_id,
+                    desire_data,
                 )
                 continue
             deadline = None

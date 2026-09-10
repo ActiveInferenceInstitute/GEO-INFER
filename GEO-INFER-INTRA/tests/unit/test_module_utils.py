@@ -4,7 +4,10 @@ import pytest
 import tempfile
 from pathlib import Path
 
-from geo_infer_intra.utils.module_discovery import find_modules_by_name, collect_test_modules
+from geo_infer_intra.utils.module_discovery import (
+    find_modules_by_name,
+    collect_test_modules,
+)
 
 
 @pytest.mark.unit

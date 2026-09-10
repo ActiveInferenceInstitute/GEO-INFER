@@ -208,9 +208,9 @@ class IoTDataIngestion:
                 hasattr(self.registry, "sensors")
                 and measurement.sensor_id in self.registry.sensors
             ):
-                self.registry.sensors[measurement.sensor_id].last_seen = (
-                    measurement.timestamp
-                )
+                self.registry.sensors[
+                    measurement.sensor_id
+                ].last_seen = measurement.timestamp
 
             # Trigger spatial inference update if configured
             if measurement.variable in self.inference_configs:
@@ -295,7 +295,9 @@ class IoTDataIngestion:
             except Exception as e:
                 logger.warning(f"Error in enhanced spatial indexing: {e}")
 
-    def setup_spatial_inference(self, config: Union[Dict[str, Any], SpatialInferenceConfig, Any]) -> None:
+    def setup_spatial_inference(
+        self, config: Union[Dict[str, Any], SpatialInferenceConfig, Any]
+    ) -> None:
         """
         Setup Bayesian spatial inference for a specific variable.
 
@@ -412,9 +414,7 @@ class IoTDataIngestion:
             predictions = model.predict(prediction_grid, return_std=True)
 
             # Store results
-            self._store_spatial_predictions(
-                variable, predictions, prediction_grid, cfg
-            )
+            self._store_spatial_predictions(variable, predictions, prediction_grid, cfg)
 
             logger.info(
                 f"Updated spatial inference for {variable}: {len(recent_data)} measurements"
@@ -714,7 +714,11 @@ class IoTDataIngestion:
 
         # Format results for API consumption
         res_timestamp = prediction_data["timestamp"]
-        ts_str = res_timestamp.isoformat() if hasattr(res_timestamp, "isoformat") else str(res_timestamp)
+        ts_str = (
+            res_timestamp.isoformat()
+            if hasattr(res_timestamp, "isoformat")
+            else str(res_timestamp)
+        )
         cfg = prediction_data["config"]
         h3_res = getattr(cfg, "h3_resolution", 8)
         grid_coords_raw = prediction_data["grid_coords"]
@@ -1081,6 +1085,7 @@ class RadiationMonitoringSystem:
         )
 
         return health_result
+
 
 class GlobalRadiationMonitor:
     """Global-scale radiation monitoring orchestrator over RadiationMonitoringSystem."""

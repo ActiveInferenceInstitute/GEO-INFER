@@ -23,13 +23,10 @@ from .cognitive_models import (
     SpatialNode,
     SpatialEdge,
     CognitiveMap,
-    SpatialKnowledgeGraph
+    SpatialKnowledgeGraph,
 )
 
-from .user_profiles import (
-    UserCognitiveProfile,
-    ProfileManager
-)
+from .user_profiles import UserCognitiveProfile, ProfileManager
 
 __all__ = [
     # Cognitive Models
@@ -37,8 +34,7 @@ __all__ = [
     "SpatialEdge",
     "CognitiveMap",
     "SpatialKnowledgeGraph",
-
     # User Profiles
     "UserCognitiveProfile",
-    "ProfileManager"
+    "ProfileManager",
 ]

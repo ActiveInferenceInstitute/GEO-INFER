@@ -62,8 +62,18 @@ class TestFrequencyOptimization:
         optimizer = TransitOptimizer()
         result = optimizer.optimize_frequencies(
             routes=[
-                {"id": "r1", "headway_minutes": 30, "vehicle_capacity": 50, "cycle_time_hours": 1.5},
-                {"id": "r2", "headway_minutes": 60, "vehicle_capacity": 40, "cycle_time_hours": 2.0},
+                {
+                    "id": "r1",
+                    "headway_minutes": 30,
+                    "vehicle_capacity": 50,
+                    "cycle_time_hours": 1.5,
+                },
+                {
+                    "id": "r2",
+                    "headway_minutes": 60,
+                    "vehicle_capacity": 40,
+                    "cycle_time_hours": 2.0,
+                },
             ],
             demand_patterns={
                 "r1": {"peak_hourly": 200},
@@ -82,7 +92,12 @@ class TestFrequencyOptimization:
         optimizer = TransitOptimizer()
         result = optimizer.optimize_frequencies(
             routes=[
-                {"id": "r1", "headway_minutes": 5, "vehicle_capacity": 50, "cycle_time_hours": 3.0},
+                {
+                    "id": "r1",
+                    "headway_minutes": 5,
+                    "vehicle_capacity": 50,
+                    "cycle_time_hours": 3.0,
+                },
             ],
             demand_patterns={"r1": {"peak_hourly": 500}},
             fleet_constraints={"bus": 2},
@@ -102,8 +117,16 @@ class TestCoverageAnalysis:
                 {"id": "s2", "location": {"lat": 34.055, "lon": -118.245}},
             ],
             population_zones=[
-                {"id": "z1", "centroid": {"lat": 34.050, "lon": -118.250}, "population": 1000},
-                {"id": "z2", "centroid": {"lat": 34.100, "lon": -118.300}, "population": 2000},
+                {
+                    "id": "z1",
+                    "centroid": {"lat": 34.050, "lon": -118.250},
+                    "population": 1000,
+                },
+                {
+                    "id": "z2",
+                    "centroid": {"lat": 34.100, "lon": -118.300},
+                    "population": 2000,
+                },
             ],
             walk_radius_m=400,
         )
@@ -117,7 +140,11 @@ class TestCoverageAnalysis:
         result = optimizer.analyze_coverage(
             stops=[{"id": "s1", "location": {"lat": 34.0, "lon": -118.0}}],
             population_zones=[
-                {"id": "z1", "centroid": {"lat": 34.0, "lon": -118.0}, "population": 500},
+                {
+                    "id": "z1",
+                    "centroid": {"lat": 34.0, "lon": -118.0},
+                    "population": 500,
+                },
             ],
             equity_focus=True,
         )
@@ -145,7 +172,9 @@ class TestCoverageAnalysis:
         )
         equity = result["equity_analysis"]
         # low_income: 500 covered in z1 + 1000 uncovered in z2
-        assert equity["group_coverage"]["low_income"] == pytest.approx(500 / 1500, abs=1e-3)
+        assert equity["group_coverage"]["low_income"] == pytest.approx(
+            500 / 1500, abs=1e-3
+        )
         assert equity["group_coverage"]["other"] == 1.0
 
     def test_multi_change_scenario_accumulates_impacts(self) -> None:
@@ -187,7 +216,11 @@ class TestNetworkDesign:
         optimizer = TransitOptimizer()
         result = optimizer.design_network(
             demand_zones=[
-                {"id": f"z{i}", "demand": 100 * i, "centroid": {"lat": 34.0 + i*0.01, "lon": -118.0}}
+                {
+                    "id": f"z{i}",
+                    "demand": 100 * i,
+                    "centroid": {"lat": 34.0 + i * 0.01, "lon": -118.0},
+                }
                 for i in range(10)
             ],
             constraints={"max_routes": 2},

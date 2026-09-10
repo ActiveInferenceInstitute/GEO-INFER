@@ -37,9 +37,7 @@ class VectorReader:
     def __init__(self) -> None:
         self.supported_formats = SUPPORTED_VECTOR_FORMATS
 
-    def read(
-        self, file_path: Union[str, Path], **kwargs: Any
-    ) -> gpd.GeoDataFrame:
+    def read(self, file_path: Union[str, Path], **kwargs: Any) -> gpd.GeoDataFrame:
         """
         Read vector data from file.
 
@@ -83,9 +81,7 @@ class VectorReader:
             logger.error(f"Failed to read vector file {file_path}: {e}")
             raise
 
-    def _read_geojson(
-        self, file_path: Path, **kwargs: Any
-    ) -> gpd.GeoDataFrame:
+    def _read_geojson(self, file_path: Path, **kwargs: Any) -> gpd.GeoDataFrame:
         """Read GeoJSON file with enhanced error handling."""
         try:
             with open(file_path, "r", encoding="utf-8") as f:
@@ -126,9 +122,7 @@ class VectorReader:
         except json.JSONDecodeError as e:
             raise ValueError(f"Invalid JSON format: {e}")
 
-    def _read_csv(
-        self, file_path: Path, **kwargs: Any
-    ) -> gpd.GeoDataFrame:
+    def _read_csv(self, file_path: Path, **kwargs: Any) -> gpd.GeoDataFrame:
         """Read CSV file and convert to GeoDataFrame."""
         # Extract geometry-related parameters
         x_col = kwargs.pop("x_col", "longitude")
@@ -164,9 +158,7 @@ class VectorReader:
 
         return gpd.GeoDataFrame(df, geometry=geometries, crs=crs)
 
-    def _read_excel(
-        self, file_path: Path, **kwargs: Any
-    ) -> gpd.GeoDataFrame:
+    def _read_excel(self, file_path: Path, **kwargs: Any) -> gpd.GeoDataFrame:
         """Read Excel file and convert to GeoDataFrame."""
         # Similar to CSV but using pandas.read_excel
         x_col = kwargs.pop("x_col", "longitude")
@@ -197,9 +189,7 @@ class VectorReader:
 
         return gpd.GeoDataFrame(df, geometry=geometries, crs=crs)
 
-    def _read_parquet(
-        self, file_path: Path, **kwargs: Any
-    ) -> gpd.GeoDataFrame:
+    def _read_parquet(self, file_path: Path, **kwargs: Any) -> gpd.GeoDataFrame:
         """Read Parquet file with geospatial data."""
         try:
             # Try reading as GeoParquet first
@@ -236,9 +226,7 @@ class VectorReader:
             else:
                 raise ValueError("No geometry column found in Parquet file")
 
-    def _read_feather(
-        self, file_path: Path, **kwargs: Any
-    ) -> gpd.GeoDataFrame:
+    def _read_feather(self, file_path: Path, **kwargs: Any) -> gpd.GeoDataFrame:
         """Read Feather file with geospatial data."""
         df = pd.read_feather(file_path, **kwargs)
 
@@ -394,9 +382,7 @@ class VectorWriter:
 
 
 # Convenience functions
-def read_vector_file(
-    file_path: Union[str, Path], **kwargs: Any
-) -> gpd.GeoDataFrame:
+def read_vector_file(file_path: Union[str, Path], **kwargs: Any) -> gpd.GeoDataFrame:
     """
     Read vector data from file using appropriate reader.
 

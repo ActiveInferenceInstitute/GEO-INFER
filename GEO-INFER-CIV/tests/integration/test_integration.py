@@ -77,7 +77,8 @@ class TestParticipationAnalysis:
         assert index == pytest.approx(0.06 / 0.10)
         # Turnout above the baseline must score above 1.0.
         assert (
-            analyzer.compute_participation_index(TARGET_POPULATION, baseline_rate=0.05) > 1.0
+            analyzer.compute_participation_index(TARGET_POPULATION, baseline_rate=0.05)
+            > 1.0
         )
 
     def test_representation_covers_every_group(self, analyzer):
@@ -88,7 +89,9 @@ class TestParticipationAnalysis:
 
     def test_representation_identifies_a_skewed_group(self, analyzer):
         """A group that turns out far below its share is flagged."""
-        report = analyzer.analyze_representation({"north": 0.1, "south": 0.1, "east": 0.8})
+        report = analyzer.analyze_representation(
+            {"north": 0.1, "south": 0.1, "east": 0.8}
+        )
         assert "east" in report.underrepresented_groups
         assert "north" in report.overrepresented_groups
 
@@ -125,6 +128,7 @@ class TestCostBenefitAppraisal:
 
     def test_discounting_reduces_deferred_benefit_value(self):
         """A higher discount rate lowers a far-future benefit's present value."""
+
         def npv(rate):
             analyzer = CostBenefitAnalyzer(discount_rate=rate)
             analyzer.add_item(
@@ -142,10 +146,13 @@ class TestCostBenefitAppraisal:
         Raw NPV is deliberately unadjusted; the probability of occurrence
         belongs to the risk-adjusted figure.
         """
+
         def result(probability):
             analyzer = CostBenefitAnalyzer(discount_rate=0.05)
             analyzer.add_item(
-                CostBenefitItem("uncertain", 500_000.0, is_benefit=True, probability=probability)
+                CostBenefitItem(
+                    "uncertain", 500_000.0, is_benefit=True, probability=probability
+                )
             )
             return analyzer.analyze()
 

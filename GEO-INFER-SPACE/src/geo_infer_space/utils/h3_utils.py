@@ -21,10 +21,7 @@ def _version_tuple(version: str) -> Tuple[int, int, int] | None:
         parts = version.lstrip("v").split(".")
         return cast(
             Tuple[int, int, int],
-            tuple(
-                int(part.split("+")[0].split("-")[0])
-                for part in parts[:3]
-            )
+            tuple(int(part.split("+")[0].split("-")[0]) for part in parts[:3])
             + (0,) * max(0, 3 - len(parts)),
         )
     except (AttributeError, TypeError, ValueError):
@@ -36,9 +33,7 @@ try:
 except ImportError:
     _h3 = None
 else:
-    _h3_version = _version_tuple(
-        cast(str, getattr(_h3, "__version__", None))
-    )
+    _h3_version = _version_tuple(cast(str, getattr(_h3, "__version__", None)))
     if _h3_version is None or _h3_version < MIN_H3_VERSION or _h3_version[0] >= 5:
         raise RuntimeError(
             "GEO-INFER-SPACE requires h3-py >=4.5.0,<5; "
@@ -190,9 +185,7 @@ def cell_to_latlngjson(
 
     for h3_index in h3_indices:
         # H3 returns (lat, lng); GeoJSON requires [lng, lat].
-        boundary = [
-            [lng, lat] for lat, lng in h3.cell_to_boundary(h3_index)
-        ]
+        boundary = [[lng, lat] for lat, lng in h3.cell_to_boundary(h3_index)]
 
         # Add closing point to the polygon if needed
         if boundary[0] != boundary[-1]:
@@ -202,9 +195,7 @@ def cell_to_latlngjson(
         polygon_geometry = {"type": "Polygon", "coordinates": [boundary]}
 
         # Get properties for this H3 index
-        feature_properties = (
-            dict(properties.get(h3_index, {})) if properties else {}
-        )
+        feature_properties = dict(properties.get(h3_index, {})) if properties else {}
         feature_properties["h3_index"] = h3_index
 
         # Create the feature
@@ -256,9 +247,7 @@ def geojson_to_h3(
         features = [geojson_dict]
     else:
         # Assume it's a geometry object
-        features = [
-            {"type": "Feature", "geometry": geojson_dict, "properties": {}}
-        ]
+        features = [{"type": "Feature", "geometry": geojson_dict, "properties": {}}]
 
     h3_indices: List[str] = []
     properties_dict: Dict[str, Dict[str, Any]] = {}
@@ -283,9 +272,9 @@ def geojson_to_h3(
         except Exception as e:
             logger.error(f"Failed to convert geometry to H3: {e}")
 
-    result: Dict[
-        str, Union[List[str], Dict[str, Dict[str, Any]]]
-    ] = {"h3_indices": h3_indices}
+    result: Dict[str, Union[List[str], Dict[str, Dict[str, Any]]]] = {
+        "h3_indices": h3_indices
+    }
     if feature_properties:
         result["properties"] = properties_dict
 

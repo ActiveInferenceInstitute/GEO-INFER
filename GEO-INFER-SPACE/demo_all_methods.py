@@ -10,10 +10,19 @@ import numpy as np
 import sys
 from datetime import datetime
 
+
 # Colored output
-def success(msg): print(f"✅ {msg}")
-def info(msg): print(f"📊 {msg}")
-def section(msg): print(f"\n{'='*60}\n{msg}\n{'='*60}")
+def success(msg):
+    print(f"✅ {msg}")
+
+
+def info(msg):
+    print(f"📊 {msg}")
+
+
+def section(msg):
+    print(f"\n{'=' * 60}\n{msg}\n{'=' * 60}")
+
 
 section("GEO-INFER-SPACE COMPREHENSIVE DEMONSTRATION")
 print(f"Timestamp: {datetime.now().isoformat()}")
@@ -29,6 +38,7 @@ try:
         SpatialStatistics,
     )
     from geo_infer_space.backends.h3.h3_backend import H3Backend
+
     success("Core modules imported successfully")
 except ImportError as e:
     print(f"❌ Import error: {e}")
@@ -126,8 +136,8 @@ np.random.seed(42)
 test_values = list(np.random.uniform(10, 100, len(test_cells)))
 
 # 5.1 Moran's I
-result = stats.moran_i(test_cells, test_values, weight_type='queen')
-if 'error' not in result and result.get('moran_i') is not None:
+result = stats.moran_i(test_cells, test_values, weight_type="queen")
+if "error" not in result and result.get("moran_i") is not None:
     info(f"Moran's I: {result['moran_i']:.4f}")
     info(f"Interpretation: {result.get('interpretation', 'N/A')[:60]}...")
 success("moran_i")
@@ -140,7 +150,7 @@ success("getis_ord_g")
 
 # 5.3 Nearest Neighbor Index
 result = stats.nearest_neighbor_index(test_cells)
-if 'error' not in result:
+if "error" not in result:
     info(f"NNI: {result.get('nni', 'N/A')}")
     info(f"Pattern: {result.get('pattern', 'N/A')}")
 success("nearest_neighbor_index")
@@ -160,7 +170,7 @@ success("calculate_summary_statistics")
 
 # 5.6 Quadrat Count
 result = stats.quadrat_count(test_cells, quadrat_size=1)
-if 'error' not in result:
+if "error" not in result:
     info(f"Quadrats: {result.get('num_quadrats', 0)}")
     info(f"Mean count: {result.get('mean_count', 0):.2f}")
 success("quadrat_count")

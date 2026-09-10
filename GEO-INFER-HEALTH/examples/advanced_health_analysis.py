@@ -10,18 +10,26 @@ and integrated health analytics.
 from datetime import datetime, timezone, timedelta
 import numpy as np
 
-from geo_infer_health.core.enhanced_disease_surveillance import ActiveInferenceDiseaseAnalyzer
-from geo_infer_health.core.healthcare_accessibility import HealthcareAccessibilityAnalyzer
+from geo_infer_health.core.enhanced_disease_surveillance import (
+    ActiveInferenceDiseaseAnalyzer,
+)
+from geo_infer_health.core.healthcare_accessibility import (
+    HealthcareAccessibilityAnalyzer,
+)
 from geo_infer_health.core.environmental_health import EnvironmentalHealthAnalyzer
 from geo_infer_health.models import (
-    DiseaseReport, HealthFacility, PopulationData, EnvironmentalData, Location
+    DiseaseReport,
+    HealthFacility,
+    PopulationData,
+    EnvironmentalData,
+    Location,
 )
 from geo_infer_health.utils.advanced_geospatial import (
     spatial_clustering,
     calculate_spatial_statistics,
     calculate_spatial_autocorrelation,
     calculate_hotspot_statistics,
-    validate_geographic_bounds
+    validate_geographic_bounds,
 )
 from geo_infer_health.utils.logging import setup_logging, get_logger
 
@@ -74,7 +82,9 @@ def create_sample_disease_data():
                     base_cases *= wave_factor
 
                 # Add spatial clustering for some diseases
-                if disease == "COVID-19" and loc_idx < 2:  # Cluster in first two locations
+                if (
+                    disease == "COVID-19" and loc_idx < 2
+                ):  # Cluster in first two locations
                     base_cases *= 2
 
                 # Generate case count with noise
@@ -86,7 +96,7 @@ def create_sample_disease_data():
                     location=location,
                     report_date=current_date,
                     case_count=case_count,
-                    source="Sample Data Generator"
+                    source="Sample Data Generator",
                 )
                 reports.append(report)
 
@@ -103,23 +113,25 @@ def create_sample_healthcare_data():
         {
             "type": "Hospital",
             "capacity": 500,
-            "services": ["Emergency", "Surgery", "Cardiology", "Pediatrics", "Oncology"]
+            "services": [
+                "Emergency",
+                "Surgery",
+                "Cardiology",
+                "Pediatrics",
+                "Oncology",
+            ],
         },
         {
             "type": "Clinic",
             "capacity": 100,
-            "services": ["General Checkup", "Vaccinations", "Pediatrics"]
+            "services": ["General Checkup", "Vaccinations", "Pediatrics"],
         },
-        {
-            "type": "Emergency",
-            "capacity": 50,
-            "services": ["Emergency", "Trauma"]
-        },
+        {"type": "Emergency", "capacity": 50, "services": ["Emergency", "Trauma"]},
         {
             "type": "Specialist",
             "capacity": 75,
-            "services": ["Cardiology", "Neurology", "Orthopedics"]
-        }
+            "services": ["Cardiology", "Neurology", "Orthopedics"],
+        },
     ]
 
     facilities = []
@@ -133,7 +145,7 @@ def create_sample_healthcare_data():
 
         location = Location(
             latitude=base_location.latitude + lat_offset,
-            longitude=base_location.longitude + lon_offset
+            longitude=base_location.longitude + lon_offset,
         )
 
         template = facility_templates[i % len(facility_templates)]
@@ -144,7 +156,7 @@ def create_sample_healthcare_data():
             facility_type=template["type"],
             location=location,
             capacity=template["capacity"],
-            services_offered=template["services"]
+            services_offered=template["services"],
         )
         facilities.append(facility)
 
@@ -176,7 +188,7 @@ def create_sample_environmental_data():
 
                 location = Location(
                     latitude=base_location.latitude + lat_offset,
-                    longitude=base_location.longitude + lon_offset
+                    longitude=base_location.longitude + lon_offset,
                 )
 
                 for param in parameters:
@@ -187,7 +199,7 @@ def create_sample_environmental_data():
                         "NO2": 20,
                         "Temperature": 22,
                         "Humidity": 60,
-                        "O3": 30
+                        "O3": 30,
                     }[param]
 
                     # Add temporal patterns
@@ -220,10 +232,10 @@ def create_sample_environmental_data():
                             "NO2": "ppb",
                             "Temperature": "°C",
                             "Humidity": "%",
-                            "O3": "ppb"
+                            "O3": "ppb",
                         }[param],
                         location=location,
-                        timestamp=timestamp
+                        timestamp=timestamp,
                     )
                     readings.append(reading)
 
@@ -244,7 +256,7 @@ def create_sample_population_data():
 
         location = Location(
             latitude=base_location.latitude + lat_offset,
-            longitude=base_location.longitude + lon_offset
+            longitude=base_location.longitude + lon_offset,
         )
 
         population = PopulationData(
@@ -253,8 +265,8 @@ def create_sample_population_data():
             age_distribution={
                 "0-18": int((50000 + i * 20000) * (0.25 - i * 0.02)),
                 "19-65": int((50000 + i * 20000) * (0.60 - i * 0.01)),
-                "65+": int((50000 + i * 20000) * (0.15 + i * 0.03))
-            }
+                "65+": int((50000 + i * 20000) * (0.15 + i * 0.03)),
+            },
         )
         population_areas.append(population)
 
@@ -264,9 +276,9 @@ def create_sample_population_data():
 
 def demonstrate_active_inference_disease_analysis():
     """Demonstrate Active Inference-based disease surveillance."""
-    logger.info("\n" + "="*60)
+    logger.info("\n" + "=" * 60)
     logger.info("ACTIVE INFERENCE DISEASE SURVEILLANCE ANALYSIS")
-    logger.info("="*60)
+    logger.info("=" * 60)
 
     # Create data
     disease_reports = create_sample_disease_data()
@@ -274,8 +286,7 @@ def demonstrate_active_inference_disease_analysis():
 
     # Initialize Active Inference analyzer
     analyzer = ActiveInferenceDiseaseAnalyzer(
-        reports=disease_reports,
-        population_data=population_data
+        reports=disease_reports, population_data=population_data
     )
 
     # Perform comprehensive analysis
@@ -284,14 +295,16 @@ def demonstrate_active_inference_disease_analysis():
 
     # Display results
     logger.info("BELIEF STATES:")
-    for state, value in results['belief_states'].items():
-        precision = results['belief_precisions'][state]
+    for state, value in results["belief_states"].items():
+        precision = results["belief_precisions"][state]
         logger.info(f"  {state}: {value:.3f} (precision: {precision:.3f})")
     logger.info("\nOBSERVATIONS:")
-    for obs, value in results['observations'].items():
+    for obs, value in results["observations"].items():
         logger.info(f"  {obs}: {value:.3f}")
-    logger.info("\nTRADITIONAL HOTSPOTS FOUND: {}".format(len(results['traditional_hotspots'])))
-    for hotspot in results['traditional_hotspots'][:3]:  # Show first 3
+    logger.info(
+        "\nTRADITIONAL HOTSPOTS FOUND: {}".format(len(results["traditional_hotspots"]))
+    )
+    for hotspot in results["traditional_hotspots"][:3]:  # Show first 3
         location = hotspot.get("location", {})
         latitude = _coordinate_value(location, "latitude")
         longitude = _coordinate_value(location, "longitude")
@@ -299,8 +312,10 @@ def demonstrate_active_inference_disease_analysis():
             f"  {hotspot.get('comment', 'Hotspot')} @ ({latitude:.2f}, {longitude:.2f}) "
             f"- Cases: {hotspot.get('case_count', 0):.0f}"
         )
-    logger.info("\nENHANCED HOTSPOTS FOUND: {}".format(len(results['enhanced_hotspots'])))
-    for hotspot in results['enhanced_hotspots'][:3]:  # Show first 3
+    logger.info(
+        "\nENHANCED HOTSPOTS FOUND: {}".format(len(results["enhanced_hotspots"]))
+    )
+    for hotspot in results["enhanced_hotspots"][:3]:  # Show first 3
         location = hotspot.get("location", {})
         latitude = _coordinate_value(location, "latitude")
         longitude = _coordinate_value(location, "longitude")
@@ -311,21 +326,21 @@ def demonstrate_active_inference_disease_analysis():
             f"Confidence: {hotspot.get('confidence', 0.0):.2f}"
         )
     logger.info("\nPREDICTIONS:")
-    predictions = results['predictions']
+    predictions = results["predictions"]
     logger.info(f"  Short-term risk: {predictions['short_term_risk']:.3f}")
     logger.info(f"  Confidence: {predictions.get('confidence', 0):.3f}")
-    logger.info("Trend: {}".format(predictions['trend']))
+    logger.info("Trend: {}".format(predictions["trend"]))
 
     logger.info("\nRISK ASSESSMENT:")
-    risk = results['risk_assessment']
-    logger.info("Risk Level: {}".format(risk['risk_level']))
-    logger.info("Risk Score: {:.3f}".format(risk['score']))
+    risk = results["risk_assessment"]
+    logger.info("Risk Level: {}".format(risk["risk_level"]))
+    logger.info("Risk Score: {:.3f}".format(risk["score"]))
     logger.info("Risk Factors:")
-    for factor, value in risk['factors'].items():
+    for factor, value in risk["factors"].items():
         logger.info("  {}: {:.3f}".format(factor, value))
 
     logger.info("\nRECOMMENDATIONS:")
-    for rec in results['recommendations']:
+    for rec in results["recommendations"]:
         logger.info("  • {}".format(rec))
 
     return results
@@ -333,9 +348,9 @@ def demonstrate_active_inference_disease_analysis():
 
 def demonstrate_healthcare_accessibility_analysis():
     """Demonstrate healthcare accessibility analysis."""
-    logger.info("\n" + "="*60)
+    logger.info("\n" + "=" * 60)
     logger.info("HEALTHCARE ACCESSIBILITY ANALYSIS")
-    logger.info("="*60)
+    logger.info("=" * 60)
 
     # Create data
     facilities = create_sample_healthcare_data()
@@ -343,8 +358,7 @@ def demonstrate_healthcare_accessibility_analysis():
 
     # Initialize analyzer
     analyzer = HealthcareAccessibilityAnalyzer(
-        facilities=facilities,
-        population_data=population_data
+        facilities=facilities, population_data=population_data
     )
 
     # Test location for accessibility analysis
@@ -353,8 +367,7 @@ def demonstrate_healthcare_accessibility_analysis():
     # Find nearby facilities
     logger.info("Finding facilities within 5km...")
     nearby_facilities = analyzer.find_facilities_in_radius(
-        center_loc=test_location,
-        radius_km=5.0
+        center_loc=test_location, radius_km=5.0
     )
 
     logger.info("Found {} facilities within 5km:".format(len(nearby_facilities)))
@@ -387,30 +400,37 @@ def demonstrate_healthcare_accessibility_analysis():
         )
 
         if ratio_result:
-            logger.info("Area {}: {:.2f} facilities per 1000 people".format(
-                pop_area.area_id, ratio_result['ratio_per_1000_pop']
-            ))
+            logger.info(
+                "Area {}: {:.2f} facilities per 1000 people".format(
+                    pop_area.area_id, ratio_result["ratio_per_1000_pop"]
+                )
+            )
             logger.info("  Population: {}".format(pop_area.population_count))
-            logger.info("  Facilities: {}".format(ratio_result['facility_count']))
+            logger.info("  Facilities: {}".format(ratio_result["facility_count"]))
 
     return {
-        'nearby_facilities': nearby_facilities,
-        'nearest_facility': nearest_result,
-        'ratios': [analyzer.calculate_facility_to_population_ratio(p.area_id) for p in population_data]
+        "nearby_facilities": nearby_facilities,
+        "nearest_facility": nearest_result,
+        "ratios": [
+            analyzer.calculate_facility_to_population_ratio(p.area_id)
+            for p in population_data
+        ],
     }
 
 
 def demonstrate_environmental_health_analysis():
     """Demonstrate environmental health analysis."""
-    logger.info("\n" + "="*60)
+    logger.info("\n" + "=" * 60)
     logger.info("ENVIRONMENTAL HEALTH ANALYSIS")
-    logger.info("="*60)
+    logger.info("=" * 60)
 
     # Create data
     environmental_readings = create_sample_environmental_data()
 
     # Initialize analyzer
-    analyzer = EnvironmentalHealthAnalyzer(environmental_readings=environmental_readings)
+    analyzer = EnvironmentalHealthAnalyzer(
+        environmental_readings=environmental_readings
+    )
 
     # Test location for analysis
     test_location = Location(latitude=34.0522, longitude=-118.2437)
@@ -418,9 +438,7 @@ def demonstrate_environmental_health_analysis():
     # Get readings near location
     logger.info("Getting environmental readings within 2km...")
     nearby_readings = analyzer.get_environmental_readings_near_location(
-        center_loc=test_location,
-        radius_km=2.0,
-        parameter_name="PM2.5"
+        center_loc=test_location, radius_km=2.0, parameter_name="PM2.5"
     )
 
     logger.info("Found {} PM2.5 readings within 2km".format(len(nearby_readings)))
@@ -435,15 +453,21 @@ def demonstrate_environmental_health_analysis():
     logger.info("\nCalculating average exposure for multiple locations...")
     target_locations = [
         test_location,
-        Location(latitude=test_location.latitude + 0.01, longitude=test_location.longitude + 0.01),
-        Location(latitude=test_location.latitude - 0.01, longitude=test_location.longitude - 0.01)
+        Location(
+            latitude=test_location.latitude + 0.01,
+            longitude=test_location.longitude + 0.01,
+        ),
+        Location(
+            latitude=test_location.latitude - 0.01,
+            longitude=test_location.longitude - 0.01,
+        ),
     ]
 
     exposure_results = analyzer.calculate_average_exposure(
         target_locations=target_locations,
         radius_km=1.0,
         parameter_name="PM2.5",
-        time_window_days=1
+        time_window_days=1,
     )
 
     logger.info("Average PM2.5 exposure (last 24 hours):")
@@ -457,28 +481,34 @@ def demonstrate_environmental_health_analysis():
         radius_km=5.0,
         parameter_name="Temperature",
         start_time=datetime.now(timezone.utc) - timedelta(hours=12),
-        end_time=datetime.now(timezone.utc)
+        end_time=datetime.now(timezone.utc),
     )
 
-    logger.info("Found {} temperature readings in last 12 hours".format(len(recent_readings)))
+    logger.info(
+        "Found {} temperature readings in last 12 hours".format(len(recent_readings))
+    )
 
     if recent_readings:
         temps = [r.value for r in recent_readings]
         logger.info("  Average temperature: {:.1f}°C".format(np.mean(temps)))
-        logger.info("  Temperature range: {:.1f}°C - {:.1f}°C".format(np.min(temps), np.max(temps)))
+        logger.info(
+            "  Temperature range: {:.1f}°C - {:.1f}°C".format(
+                np.min(temps), np.max(temps)
+            )
+        )
 
     return {
-        'nearby_readings': nearby_readings,
-        'exposure_results': exposure_results,
-        'recent_readings': recent_readings
+        "nearby_readings": nearby_readings,
+        "exposure_results": exposure_results,
+        "recent_readings": recent_readings,
     }
 
 
 def demonstrate_advanced_geospatial_analysis():
     """Demonstrate advanced geospatial analysis capabilities."""
-    logger.info("\n" + "="*60)
+    logger.info("\n" + "=" * 60)
     logger.info("ADVANCED GEOSPATIAL ANALYSIS")
-    logger.info("="*60)
+    logger.info("=" * 60)
 
     # Create sample location data
     base_location = Location(latitude=34.0522, longitude=-118.2437)
@@ -488,36 +518,52 @@ def demonstrate_advanced_geospatial_analysis():
 
     # Cluster 1
     for _ in range(15):
-        locations.append(Location(
-            latitude=base_location.latitude + np.random.uniform(-0.005, 0.005),
-            longitude=base_location.longitude + np.random.uniform(-0.005, 0.005)
-        ))
+        locations.append(
+            Location(
+                latitude=base_location.latitude + np.random.uniform(-0.005, 0.005),
+                longitude=base_location.longitude + np.random.uniform(-0.005, 0.005),
+            )
+        )
 
     # Cluster 2
     for _ in range(10):
-        locations.append(Location(
-            latitude=base_location.latitude + 0.02 + np.random.uniform(-0.003, 0.003),
-            longitude=base_location.longitude + 0.02 + np.random.uniform(-0.003, 0.003)
-        ))
+        locations.append(
+            Location(
+                latitude=base_location.latitude
+                + 0.02
+                + np.random.uniform(-0.003, 0.003),
+                longitude=base_location.longitude
+                + 0.02
+                + np.random.uniform(-0.003, 0.003),
+            )
+        )
 
     # Isolated points
     for _ in range(5):
-        locations.append(Location(
-            latitude=base_location.latitude + np.random.uniform(-0.05, 0.05),
-            longitude=base_location.longitude + np.random.uniform(-0.05, 0.05)
-        ))
+        locations.append(
+            Location(
+                latitude=base_location.latitude + np.random.uniform(-0.05, 0.05),
+                longitude=base_location.longitude + np.random.uniform(-0.05, 0.05),
+            )
+        )
 
     # Validate geographic bounds
     logger.info("Validating geographic bounds...")
     validation_result = validate_geographic_bounds(locations)
 
-    logger.info("Validation result: {}".format("Valid" if validation_result['valid'] else "Invalid"))
-    logger.info("Total locations: {}".format(validation_result['total_locations']))
-    logger.info("Invalid locations: {}".format(len(validation_result['invalid_locations'])))
+    logger.info(
+        "Validation result: {}".format(
+            "Valid" if validation_result["valid"] else "Invalid"
+        )
+    )
+    logger.info("Total locations: {}".format(validation_result["total_locations"]))
+    logger.info(
+        "Invalid locations: {}".format(len(validation_result["invalid_locations"]))
+    )
 
-    if validation_result['warnings']:
+    if validation_result["warnings"]:
         logger.info("Warnings:")
-        for warning in validation_result['warnings']:
+        for warning in validation_result["warnings"]:
             logger.info("  • {}".format(warning))
 
     # Perform spatial clustering
@@ -533,16 +579,22 @@ def demonstrate_advanced_geospatial_analysis():
     stats = calculate_spatial_statistics(locations)
 
     logger.info("Spatial statistics:")
-    logger.info("  Total points: {}".format(stats['count']))
-    logger.info("  Centroid: {:.4f}, {:.4f}".format(
-        stats['centroid_lat'], stats['centroid_lon']
-    ))
-    logger.info("  Mean distance from centroid: {:.3f} km".format(
-        stats['mean_distance_from_centroid']
-    ))
-    logger.info("  Bounding box: {:.3f} x {:.3f} km".format(
-        stats['bbox_width_km'], stats['bbox_height_km']
-    ))
+    logger.info("  Total points: {}".format(stats["count"]))
+    logger.info(
+        "  Centroid: {:.4f}, {:.4f}".format(
+            stats["centroid_lat"], stats["centroid_lon"]
+        )
+    )
+    logger.info(
+        "  Mean distance from centroid: {:.3f} km".format(
+            stats["mean_distance_from_centroid"]
+        )
+    )
+    logger.info(
+        "  Bounding box: {:.3f} x {:.3f} km".format(
+            stats["bbox_width_km"], stats["bbox_height_km"]
+        )
+    )
 
     # Calculate spatial autocorrelation
     logger.info("\nCalculating spatial autocorrelation...")
@@ -554,12 +606,12 @@ def demonstrate_advanced_geospatial_analysis():
     )
 
     logger.info("Spatial autocorrelation (Moran's I):")
-    logger.info("  Moran's I: {:.3f}".format(autocorr_result['morans_i']))
-    logger.info("  Expected I: {:.3f}".format(autocorr_result['expected_i']))
-    logger.info("  Z-score: {:.3f}".format(autocorr_result['z_score']))
-    logger.info("  P-value: {:.3f}".format(autocorr_result['p_value']))
+    logger.info("  Moran's I: {:.3f}".format(autocorr_result["morans_i"]))
+    logger.info("  Expected I: {:.3f}".format(autocorr_result["expected_i"]))
+    logger.info("  Z-score: {:.3f}".format(autocorr_result["z_score"]))
+    logger.info("  P-value: {:.3f}".format(autocorr_result["p_value"]))
 
-    if autocorr_result['p_value'] < 0.05:
+    if autocorr_result["p_value"] < 0.05:
         logger.info("  → Significant spatial autocorrelation detected!")
     else:
         logger.info("  → No significant spatial autocorrelation")
@@ -571,33 +623,35 @@ def demonstrate_advanced_geospatial_analysis():
     hotspot_stats = calculate_hotspot_statistics(locations, case_counts)
 
     logger.info("Hotspot analysis:")
-    logger.info("  Total cases: {}".format(hotspot_stats['total_cases']))
-    logger.info("  Total locations: {}".format(hotspot_stats['total_locations']))
-    logger.info("  Hotspots identified: {}".format(hotspot_stats['hotspots_count']))
-    logger.info("  Risk zones identified: {}".format(hotspot_stats['risk_zones_count']))
+    logger.info("  Total cases: {}".format(hotspot_stats["total_cases"]))
+    logger.info("  Total locations: {}".format(hotspot_stats["total_locations"]))
+    logger.info("  Hotspots identified: {}".format(hotspot_stats["hotspots_count"]))
+    logger.info("  Risk zones identified: {}".format(hotspot_stats["risk_zones_count"]))
 
-    if hotspot_stats['hotspots']:
+    if hotspot_stats["hotspots"]:
         logger.info("  Top hotspot:")
-        top_hotspot = hotspot_stats['hotspots'][0]
-        logger.info("    Location: {:.4f}, {:.4f}".format(
-            top_hotspot['location'].latitude, top_hotspot['location'].longitude
-        ))
-        logger.info("    Cases: {}".format(top_hotspot['case_count']))
-        logger.info("    Relative risk: {:.2f}".format(top_hotspot['relative_risk']))
+        top_hotspot = hotspot_stats["hotspots"][0]
+        logger.info(
+            "    Location: {:.4f}, {:.4f}".format(
+                top_hotspot["location"].latitude, top_hotspot["location"].longitude
+            )
+        )
+        logger.info("    Cases: {}".format(top_hotspot["case_count"]))
+        logger.info("    Relative risk: {:.2f}".format(top_hotspot["relative_risk"]))
 
     return {
-        'validation': validation_result,
-        'clusters': clusters,
-        'statistics': stats,
-        'autocorrelation': autocorr_result,
-        'hotspots': hotspot_stats
+        "validation": validation_result,
+        "clusters": clusters,
+        "statistics": stats,
+        "autocorrelation": autocorr_result,
+        "hotspots": hotspot_stats,
     }
 
 
 def main():
     """Main function demonstrating all HEALTH module capabilities."""
     logger.info("GEO-INFER-HEALTH Advanced Analysis Demonstration")
-    logger.info("="*60)
+    logger.info("=" * 60)
 
     try:
         # Run all analyses
@@ -607,81 +661,106 @@ def main():
         geospatial_results = demonstrate_advanced_geospatial_analysis()
 
         # Summary
-        logger.info("\n" + "="*60)
+        logger.info("\n" + "=" * 60)
         logger.info("ANALYSIS SUMMARY")
-        logger.info("="*60)
+        logger.info("=" * 60)
 
         logger.info("Disease Surveillance:")
-        logger.info("  • Analyzed {} disease reports".format(
-            len(disease_results.get('traditional_hotspots', [])) * 10  # Estimate
-        ))
-        logger.info("  • Identified {} hotspots using Active Inference".format(
-            len(disease_results.get('enhanced_hotspots', []))
-        ))
-        logger.info("  • Risk level: {}".format(
-            disease_results.get('risk_assessment', {}).get('risk_level', 'Unknown')
-        ))
+        logger.info(
+            "  • Analyzed {} disease reports".format(
+                len(disease_results.get("traditional_hotspots", [])) * 10  # Estimate
+            )
+        )
+        logger.info(
+            "  • Identified {} hotspots using Active Inference".format(
+                len(disease_results.get("enhanced_hotspots", []))
+            )
+        )
+        logger.info(
+            "  • Risk level: {}".format(
+                disease_results.get("risk_assessment", {}).get("risk_level", "Unknown")
+            )
+        )
 
         logger.info("\nHealthcare Accessibility:")
-        logger.info("  • Analyzed {} healthcare facilities".format(
-            len(healthcare_results.get('nearby_facilities', []))
-        ))
-        if healthcare_results.get('nearest_facility'):
-            facility, distance = healthcare_results['nearest_facility']
-            logger.info("  • Nearest facility: {} ({:.1f} km)".format(
-                facility.name, distance
-            ))
+        logger.info(
+            "  • Analyzed {} healthcare facilities".format(
+                len(healthcare_results.get("nearby_facilities", []))
+            )
+        )
+        if healthcare_results.get("nearest_facility"):
+            facility, distance = healthcare_results["nearest_facility"]
+            logger.info(
+                "  • Nearest facility: {} ({:.1f} km)".format(facility.name, distance)
+            )
 
         logger.info("\nEnvironmental Health:")
-        logger.info("  • Analyzed {} environmental readings".format(
-            len(environmental_results.get('nearby_readings', []))
-        ))
-        exposure = environmental_results.get('exposure_results', {})
+        logger.info(
+            "  • Analyzed {} environmental readings".format(
+                len(environmental_results.get("nearby_readings", []))
+            )
+        )
+        exposure = environmental_results.get("exposure_results", {})
         if exposure:
             avg_exposure = [v for v in exposure.values() if v]
             if avg_exposure:
-                logger.info("  • Average PM2.5 exposure: {:.1f} µg/m³".format(
-                    sum(avg_exposure) / len(avg_exposure)
-                ))
+                logger.info(
+                    "  • Average PM2.5 exposure: {:.1f} µg/m³".format(
+                        sum(avg_exposure) / len(avg_exposure)
+                    )
+                )
 
         logger.info("\nAdvanced Geospatial:")
-        logger.info("  • Validated {} geographic locations".format(
-            geospatial_results.get('validation', {}).get('total_locations', 0)
-        ))
-        logger.info("  • Identified {} spatial clusters".format(
-            len(geospatial_results.get('clusters', []))
-        ))
-        logger.info("  • Found {} disease hotspots".format(
-            geospatial_results.get('hotspots', {}).get('hotspots_count', 0)
-        ))
+        logger.info(
+            "  • Validated {} geographic locations".format(
+                geospatial_results.get("validation", {}).get("total_locations", 0)
+            )
+        )
+        logger.info(
+            "  • Identified {} spatial clusters".format(
+                len(geospatial_results.get("clusters", []))
+            )
+        )
+        logger.info(
+            "  • Found {} disease hotspots".format(
+                geospatial_results.get("hotspots", {}).get("hotspots_count", 0)
+            )
+        )
 
-        logger.info("\n" + "="*60)
+        logger.info("\n" + "=" * 60)
         logger.info("DEMONSTRATION COMPLETED SUCCESSFULLY!")
-        logger.info("="*60)
+        logger.info("=" * 60)
 
         # Save results summary
         summary = {
-            'timestamp': datetime.now(timezone.utc).isoformat(),
-            'disease_analysis': {
-                'hotspots': len(disease_results.get('enhanced_hotspots', [])),
-                'risk_level': disease_results.get('risk_assessment', {}).get('risk_level')
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "disease_analysis": {
+                "hotspots": len(disease_results.get("enhanced_hotspots", [])),
+                "risk_level": disease_results.get("risk_assessment", {}).get(
+                    "risk_level"
+                ),
             },
-            'healthcare_analysis': {
-                'facilities': len(healthcare_results.get('nearby_facilities', [])),
-                'nearest_distance': healthcare_results.get('nearest_facility', [None, None])[1]
+            "healthcare_analysis": {
+                "facilities": len(healthcare_results.get("nearby_facilities", [])),
+                "nearest_distance": healthcare_results.get(
+                    "nearest_facility", [None, None]
+                )[1],
             },
-            'environmental_analysis': {
-                'readings': len(environmental_results.get('nearby_readings', []))
+            "environmental_analysis": {
+                "readings": len(environmental_results.get("nearby_readings", []))
             },
-            'geospatial_analysis': {
-                'clusters': len(geospatial_results.get('clusters', [])),
-                'hotspots': geospatial_results.get('hotspots', {}).get('hotspots_count', 0)
-            }
+            "geospatial_analysis": {
+                "clusters": len(geospatial_results.get("clusters", [])),
+                "hotspots": geospatial_results.get("hotspots", {}).get(
+                    "hotspots_count", 0
+                ),
+            },
         }
 
         # Save to file
         import json
-        with open('health_analysis_summary.json', 'w') as f:
+
+        with open("health_analysis_summary.json", "w") as f:
             json.dump(summary, f, indent=2, default=str)
 
         logger.info("Results summary saved to health_analysis_summary.json")
@@ -689,6 +768,7 @@ def main():
     except Exception as e:
         logger.error("Error during analysis: {}".format(e))
         import traceback
+
         traceback.print_exc()
         return 1
 

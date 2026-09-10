@@ -20,7 +20,9 @@ def historical_sea_level():
     return xr.DataArray(
         values,
         dims="time",
-        coords={"time": np.array([f"{y}-01-01" for y in years], dtype="datetime64[ns]")},
+        coords={
+            "time": np.array([f"{y}-01-01" for y in years], dtype="datetime64[ns]")
+        },
     )
 
 
@@ -43,8 +45,12 @@ class TestProjectSeaLevelRise:
         assert float(result.max()) > mean_historical
 
     def test_unknown_scenario_falls_back_to_rcp45(self, analyzer, historical_sea_level):
-        default = analyzer.project_sea_level_rise(historical_sea_level, scenario="rcp45")
-        unknown = analyzer.project_sea_level_rise(historical_sea_level, scenario="bogus")
+        default = analyzer.project_sea_level_rise(
+            historical_sea_level, scenario="rcp45"
+        )
+        unknown = analyzer.project_sea_level_rise(
+            historical_sea_level, scenario="bogus"
+        )
         assert float(unknown.max()) == float(default.max())
 
 

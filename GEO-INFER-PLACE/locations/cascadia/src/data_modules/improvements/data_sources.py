@@ -86,9 +86,7 @@ class CascadianImprovementsDataSources:
 
         # To make this spatial, we need zip code boundaries.
         zip_boundaries_dir = os.path.join(self.data_dir, "tl_2023_us_zcta520")
-        zip_boundaries_shapefile = os.path.join(
-            zip_boundaries_dir, "tl_2023_us_zcta520.shp"
-        )
+        zip_boundaries_shapefile = os.path.join(zip_boundaries_dir, "tl_2023_us_zcta520.shp")
 
         if not os.path.exists(zip_boundaries_shapefile):
             logger.info("Downloading and unzipping US Zip Code boundaries...")
@@ -114,9 +112,7 @@ class CascadianImprovementsDataSources:
 
         logger.info(f"Reading zip code boundaries from {zip_boundaries_shapefile}")
         gdf_zips = gpd.read_file(zip_boundaries_shapefile)
-        gdf_zips = gdf_zips[["ZCTA5CE20", "geometry"]].rename(
-            columns={"ZCTA5CE20": "zip_code"}
-        )
+        gdf_zips = gdf_zips[["ZCTA5CE20", "geometry"]].rename(columns={"ZCTA5CE20": "zip_code"})
         gdf_zips["zip_code"] = gdf_zips["zip_code"].astype(str)
 
         # Merge Zillow data with zip boundaries
@@ -149,9 +145,7 @@ class CascadianImprovementsDataSources:
         logger.info(f"Unzipping {zip_path}...")
         try:
             with zipfile.ZipFile(zip_path, "r") as zip_ref:
-                geojson_files = [
-                    name for name in zip_ref.namelist() if name.endswith(".geojson")
-                ]
+                geojson_files = [name for name in zip_ref.namelist() if name.endswith(".geojson")]
                 if not geojson_files:
                     logger.error(f"No GeoJSON found in {zip_path}")
                     os.remove(zip_path)
@@ -226,9 +220,7 @@ class CascadianImprovementsDataSources:
         logger.info("Improvements: Querying OSM for building footprints (fallback)...")
 
         try:
-            response = requests.post(
-                overpass_url, data={"data": overpass_query}, timeout=120
-            )
+            response = requests.post(overpass_url, data={"data": overpass_query}, timeout=120)
             response.raise_for_status()
             data = response.json()
 
@@ -252,15 +244,15 @@ class CascadianImprovementsDataSources:
                             if poly.is_valid:
                                 features.append({"geometry": poly, "source": "OSM"})
                         except Exception as exc:
-                            logger.warning('OSM feature construction failed; skipping feature: %s', exc)
+                            logger.warning(
+                                "OSM feature construction failed; skipping feature: %s", exc
+                            )
 
             if not features:
                 return gpd.GeoDataFrame()
 
             gdf = gpd.GeoDataFrame(features, crs="EPSG:4326")
-            logger.info(
-                f"Improvements: Fetched {len(gdf)} building footprints from OSM."
-            )
+            logger.info(f"Improvements: Fetched {len(gdf)} building footprints from OSM.")
             return gdf
 
         except Exception as e:
@@ -332,7 +324,5 @@ class CascadianImprovementsDataSources:
         logger.info("Estimating improvement and land values...")
         gdf_valued = self._estimate_improvement_values(gdf_merged)
 
-        logger.info(
-            f"Successfully loaded and processed {len(gdf_valued)} improvement records."
-        )
+        logger.info(f"Successfully loaded and processed {len(gdf_valued)} improvement records.")
         return gdf_valued

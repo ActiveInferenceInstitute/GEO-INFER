@@ -440,6 +440,7 @@ class TestAPI(unittest.TestCase):
         self.assertIn("success", body)
         self.assertIsInstance(body["success"], bool)
 
+
 class TestMicroeconomicsModule(unittest.TestCase):
     """Test cases for microeconomics functionality"""
 

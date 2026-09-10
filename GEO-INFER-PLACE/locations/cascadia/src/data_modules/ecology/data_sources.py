@@ -1,4 +1,5 @@
 """Data acquisition for Cascadia ecological analysis."""
+
 from __future__ import annotations
 
 import logging
@@ -55,8 +56,14 @@ def load_climate_zones() -> dict[str, Any]:
 def get_esa_listed_salmon_esu_names(data: dict[str, Any]) -> list[str]:
     """Return names of all ESA-listed salmon ESUs/DPS."""
     listed: list[str] = []
-    for species_group in ["chinook_salmon", "coho_salmon", "steelhead",
-                          "sockeye_salmon", "chum_salmon", "other_species"]:
+    for species_group in [
+        "chinook_salmon",
+        "coho_salmon",
+        "steelhead",
+        "sockeye_salmon",
+        "chum_salmon",
+        "other_species",
+    ]:
         for entry in data.get(species_group, []):
             status = entry.get("esa_status", "")
             if status not in ("Not Listed", "Not Listed (Species of Concern)"):

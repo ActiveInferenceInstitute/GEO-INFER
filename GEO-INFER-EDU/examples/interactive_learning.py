@@ -70,15 +70,20 @@ def main() -> None:
         }
     )
     pathway = personalizer.create_pathway(
-        learner_profile={"id": profile.learner_id, "prior_knowledge": ["spatial_analysis"]},
+        learner_profile={
+            "id": profile.learner_id,
+            "prior_knowledge": ["spatial_analysis"],
+        },
         learning_goals=["geovisualization", "geospatial_programming"],
         constraints={"time": "20_hours"},
     )
     print(f"Pathway {pathway.pathway_id} ({pathway.optimization_strategy}):")
     for step in pathway.sequence:
-        print(f"  {step['order']}. {step['skill']} "
-              f"(~{step['estimated_hours']:.1f} hours, "
-              f"{len(step['resources'])} matching resources)")
+        print(
+            f"  {step['order']}. {step['skill']} "
+            f"(~{step['estimated_hours']:.1f} hours, "
+            f"{len(step['resources'])} matching resources)"
+        )
     print(f"Estimated duration: {pathway.estimated_duration_weeks} weeks")
 
     print()
@@ -90,9 +95,11 @@ def main() -> None:
         current_topic="geovisualization",
     )
     for rec in recommendations:
-        print(f"- {rec['title']} [{rec['type']}] "
-              f"relevance={rec['relevance_score']:.2f} "
-              f"matches_style={rec['matches_style']}")
+        print(
+            f"- {rec['title']} [{rec['type']}] "
+            f"relevance={rec['relevance_score']:.2f} "
+            f"matches_style={rec['matches_style']}"
+        )
 
     print()
     print("=" * 60)

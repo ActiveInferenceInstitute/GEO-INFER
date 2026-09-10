@@ -59,6 +59,7 @@ class WindAnalyzer:
         k = max(1.0, min(10.0, k))
 
         from math import gamma as gamma_fn
+
         c = mean_v / gamma_fn(1.0 + 1.0 / k)
 
         return {
@@ -173,9 +174,10 @@ class WindAnalyzer:
         ramp = (v >= cut_in_speed) & (v < rated_speed)
         full = (v >= rated_speed) & (v <= cut_out_speed)
 
-        power[ramp] = rated_power_kw * (
-            (v[ramp] - cut_in_speed) / (rated_speed - cut_in_speed)
-        ) ** 3
+        power[ramp] = (
+            rated_power_kw
+            * ((v[ramp] - cut_in_speed) / (rated_speed - cut_in_speed)) ** 3
+        )
         power[full] = rated_power_kw
 
         return power
@@ -213,7 +215,9 @@ class WindAnalyzer:
         )
 
         aep_kwh = float(np.trapz(power * pdf, speeds) * 8760.0 * availability)
-        capacity_factor = aep_kwh / (rated_power_kw * 8760.0) if rated_power_kw > 0 else 0.0
+        capacity_factor = (
+            aep_kwh / (rated_power_kw * 8760.0) if rated_power_kw > 0 else 0.0
+        )
 
         return {
             "aep_kwh": aep_kwh,

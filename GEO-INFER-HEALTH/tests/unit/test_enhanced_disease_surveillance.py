@@ -8,7 +8,9 @@ from geo_infer_health.core import ActiveInferenceDiseaseAnalyzer
 from geo_infer_health.models import DiseaseReport, Location, PopulationData
 
 
-def _report(report_id: str, lat: float, lon: float, case_count: int, date: datetime) -> DiseaseReport:
+def _report(
+    report_id: str, lat: float, lon: float, case_count: int, date: datetime
+) -> DiseaseReport:
     return DiseaseReport(
         report_id=report_id,
         disease_code="FLU",
@@ -26,15 +28,21 @@ def clustered_reports():
     reports = []
     for day in range(10):
         reports.append(
-            _report(f"c{day}-a", 34.05 + day * 1e-4, -118.24, 8 + day, base + timedelta(days=day))
+            _report(
+                f"c{day}-a",
+                34.05 + day * 1e-4,
+                -118.24,
+                8 + day,
+                base + timedelta(days=day),
+            )
         )
         reports.append(
-            _report(f"c{day}-b", 34.06 + day * 1e-4, -118.25, 6, base + timedelta(days=day))
+            _report(
+                f"c{day}-b", 34.06 + day * 1e-4, -118.25, 6, base + timedelta(days=day)
+            )
         )
         # A far-away lone case
-        reports.append(
-            _report(f"c{day}-c", 40.7, -74.0, 1, base + timedelta(days=day))
-        )
+        reports.append(_report(f"c{day}-c", 40.7, -74.0, 1, base + timedelta(days=day)))
     return reports
 
 

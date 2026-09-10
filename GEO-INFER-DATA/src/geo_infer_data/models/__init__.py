@@ -52,7 +52,7 @@ from .schemas import (
     DataDestination,
     Transformation,
     ETLPipeline,
-    ExecutionStatus
+    ExecutionStatus,
 )
 
 __all__ = [

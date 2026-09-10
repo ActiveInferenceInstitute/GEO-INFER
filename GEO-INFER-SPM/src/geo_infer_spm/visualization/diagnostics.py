@@ -225,7 +225,7 @@ def _plot_cooks_distance(spm_result: SPMResult, ax: Any) -> None:
 
     ax.scatter(range(len(cooks_d)), cooks_d, alpha=0.6, s=20)
     ax.axhline(
-        y=4 / n, color="red", linestyle="--", alpha=0.7, label=f"4/n = {4/n:.3f}"
+        y=4 / n, color="red", linestyle="--", alpha=0.7, label=f"4/n = {4 / n:.3f}"
     )
     ax.set_xlabel("Observation Index")
     ax.set_ylabel("Cook's Distance")

@@ -8,4 +8,4 @@ __version__ = "1.0.0"
 
 from .srai_backend import SraiBackend
 
-__all__ = ['SraiBackend']
+__all__ = ["SraiBackend"]

@@ -17,14 +17,6 @@ Integration Points:
 - GEO-INFER-APP: Natural language interfaces for geospatial tools
 """
 
-from .processor import (
-    SpatialLanguageProcessor,
-    SpatialEntity,
-    SpatialRelation
-)
+from .processor import SpatialLanguageProcessor, SpatialEntity, SpatialRelation
 
-__all__ = [
-    "SpatialLanguageProcessor",
-    "SpatialEntity",
-    "SpatialRelation"
-]
+__all__ = ["SpatialLanguageProcessor", "SpatialEntity", "SpatialRelation"]

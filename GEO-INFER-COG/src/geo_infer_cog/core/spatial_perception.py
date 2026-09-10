@@ -57,10 +57,10 @@ class SpatialPercept:
 
         # Adjust based on task context
         context_multipliers = {
-            'navigation': 1.2 if self.scale_level in ['large', 'medium'] else 0.8,
-            'search': 1.3 if self.visual_saliency > 0.7 else 0.9,
-            'analysis': 1.1 if self.uncertainty < 0.3 else 0.7,
-            'planning': 1.0  # Neutral for planning tasks
+            "navigation": 1.2 if self.scale_level in ["large", "medium"] else 0.8,
+            "search": 1.3 if self.visual_saliency > 0.7 else 0.9,
+            "analysis": 1.1 if self.uncertainty < 0.3 else 0.7,
+            "planning": 1.0,  # Neutral for planning tasks
         }
 
         multiplier = context_multipliers.get(task_context, 1.0)
@@ -82,9 +82,9 @@ class AttentionModel:
         self.focus_radius = focus_radius
         self.current_focus = None
 
-    def allocate_attention(self,
-                          spatial_elements: List[SpatialPercept],
-                          task_priority: str = "balanced") -> Dict[str, float]:
+    def allocate_attention(
+        self, spatial_elements: List[SpatialPercept], task_priority: str = "balanced"
+    ) -> Dict[str, float]:
         """
         Allocate attention across spatial elements.
 
@@ -107,10 +107,13 @@ class AttentionModel:
         # Normalize attention weights
         total_priority = sum(priorities.values())
         if total_priority == 0:
-            return {elem.element_id: 1.0/len(spatial_elements) for elem in spatial_elements}
+            return {
+                elem.element_id: 1.0 / len(spatial_elements)
+                for elem in spatial_elements
+            }
 
         attention_weights = {
-            elem_id: priority/total_priority * self.attention_capacity
+            elem_id: priority / total_priority * self.attention_capacity
             for elem_id, priority in priorities.items()
         }
 
@@ -133,11 +136,13 @@ class SpatialPerceptionModel:
     - Gestalt principles for perceptual grouping
     """
 
-    def __init__(self,
-                 framework: str = 'bayesian_attention',
-                 resolution: str = 'adaptive',
-                 config: Optional[Dict[str, Any]] = None,
-                 rng: Optional[np.random.Generator] = None):
+    def __init__(
+        self,
+        framework: str = "bayesian_attention",
+        resolution: str = "adaptive",
+        config: Optional[Dict[str, Any]] = None,
+        rng: Optional[np.random.Generator] = None,
+    ):
         """
         Initialize spatial perception model.
 
@@ -158,31 +163,33 @@ class SpatialPerceptionModel:
         self._rng = resolve_rng(rng)
 
         self.attention_model = AttentionModel(
-            attention_capacity=self.config.get('attention_capacity', 1.0),
-            focus_radius=self.config.get('focus_radius', 0.5)
+            attention_capacity=self.config.get("attention_capacity", 1.0),
+            focus_radius=self.config.get("focus_radius", 0.5),
         )
 
         # Perceptual parameters
         self.perceptual_parameters = {
-            'saliency_threshold': self.config.get('saliency_threshold', 0.3),
-            'grouping_strength': self.config.get('grouping_strength', 0.7),
-            'scale_sensitivity': self.config.get('scale_sensitivity', 0.8),
-            'uncertainty_tolerance': self.config.get('uncertainty_tolerance', 0.4)
+            "saliency_threshold": self.config.get("saliency_threshold", 0.3),
+            "grouping_strength": self.config.get("grouping_strength", 0.7),
+            "scale_sensitivity": self.config.get("scale_sensitivity", 0.8),
+            "uncertainty_tolerance": self.config.get("uncertainty_tolerance", 0.4),
         }
 
         # Performance tracking
         self.perception_metrics = {
-            'elements_processed': 0,
-            'attention_allocations': 0,
-            'grouping_operations': 0
+            "elements_processed": 0,
+            "attention_allocations": 0,
+            "grouping_operations": 0,
         }
 
         logger.info(f"Spatial Perception Model initialized with framework: {framework}")
 
-    def process_spatial_input(self,
-                            spatial_data: Dict[str, Any],
-                            context: Optional[Dict[str, Any]] = None,
-                            user_profile: Optional[UserCognitiveProfile] = None) -> Dict[str, Any]:
+    def process_spatial_input(
+        self,
+        spatial_data: Dict[str, Any],
+        context: Optional[Dict[str, Any]] = None,
+        user_profile: Optional[UserCognitiveProfile] = None,
+    ) -> Dict[str, Any]:
         """
         Process spatial input through perceptual modeling pipeline.
 
@@ -199,7 +206,7 @@ class SpatialPerceptionModel:
         try:
             # Step 1: Extract and analyze spatial elements
             spatial_elements = self._extract_spatial_elements(spatial_data)
-            self.perception_metrics['elements_processed'] += len(spatial_elements)
+            self.perception_metrics["elements_processed"] += len(spatial_elements)
 
             # Step 2: Calculate visual saliency for each element
             for element in spatial_elements:
@@ -209,14 +216,14 @@ class SpatialPerceptionModel:
 
             # Step 3: Apply perceptual grouping (Gestalt principles)
             grouped_elements = self._apply_perceptual_grouping(spatial_elements)
-            self.perception_metrics['grouping_operations'] += 1
+            self.perception_metrics["grouping_operations"] += 1
 
             # Step 4: Allocate attention based on task and user profile
-            task_context = context.get('task_type', 'general') if context else 'general'
+            task_context = context.get("task_type", "general") if context else "general"
             attention_weights = self.attention_model.allocate_attention(
                 grouped_elements, task_context
             )
-            self.perception_metrics['attention_allocations'] += 1
+            self.perception_metrics["attention_allocations"] += 1
 
             # Step 5: Generate perceptual insights
             perceptual_insights = self._generate_perceptual_insights(
@@ -227,47 +234,53 @@ class SpatialPerceptionModel:
             processing_time = (datetime.now() - start_time).total_seconds()
 
             result = {
-                'processing_id': f"percept_{next(_PERCEPTION_ID_SEQUENCE)}_{int(self._rng.integers(0, 1000))}",
-                'timestamp': start_time.isoformat(),
-                'processing_time': processing_time,
-                'spatial_elements': [elem.__dict__ for elem in spatial_elements],
-                'grouped_elements': [elem.__dict__ for elem in grouped_elements],
-                'attention_weights': attention_weights,
-                'perceptual_insights': perceptual_insights,
-                'perception_metrics': self.perception_metrics.copy()
+                "processing_id": f"percept_{next(_PERCEPTION_ID_SEQUENCE)}_{int(self._rng.integers(0, 1000))}",
+                "timestamp": start_time.isoformat(),
+                "processing_time": processing_time,
+                "spatial_elements": [elem.__dict__ for elem in spatial_elements],
+                "grouped_elements": [elem.__dict__ for elem in grouped_elements],
+                "attention_weights": attention_weights,
+                "perceptual_insights": perceptual_insights,
+                "perception_metrics": self.perception_metrics.copy(),
             }
 
-            logger.info(f"Spatial perception processed successfully in {processing_time:.3f}s")
+            logger.info(
+                f"Spatial perception processed successfully in {processing_time:.3f}s"
+            )
             return result
 
         except Exception as e:
             logger.error(f"Error in spatial perception processing: {str(e)}")
             raise
 
-    def _extract_spatial_elements(self, spatial_data: Dict[str, Any]) -> List[SpatialPercept]:
+    def _extract_spatial_elements(
+        self, spatial_data: Dict[str, Any]
+    ) -> List[SpatialPercept]:
         """Extract spatial elements from input data."""
         elements = []
 
         # Handle different spatial data formats
-        geometries = spatial_data.get('geometries', [])
-        if not geometries and 'geometry' in spatial_data:
-            geometries = [spatial_data['geometry']]
+        geometries = spatial_data.get("geometries", [])
+        if not geometries and "geometry" in spatial_data:
+            geometries = [spatial_data["geometry"]]
 
         for i, geom in enumerate(geometries):
             element = SpatialPercept(
                 element_id=f"spatial_elem_{i}",
                 geometry=geom,
                 scale_level=self._determine_scale_level(geom),
-                uncertainty=self._calculate_element_uncertainty(geom)
+                uncertainty=self._calculate_element_uncertainty(geom),
             )
             elements.append(element)
 
         return elements
 
-    def _calculate_visual_saliency(self,
-                                 element: SpatialPercept,
-                                 spatial_data: Dict[str, Any],
-                                 context: Optional[Dict[str, Any]] = None) -> float:
+    def _calculate_visual_saliency(
+        self,
+        element: SpatialPercept,
+        spatial_data: Dict[str, Any],
+        context: Optional[Dict[str, Any]] = None,
+    ) -> float:
         """Calculate visual saliency of a spatial element."""
         saliency_factors = []
 
@@ -277,8 +290,10 @@ class SpatialPerceptionModel:
         saliency_factors.append(size_saliency)
 
         # Color/contrast-based saliency (if available)
-        if 'visual_properties' in element.geometry:
-            color_saliency = self._calculate_color_saliency(element.geometry['visual_properties'])
+        if "visual_properties" in element.geometry:
+            color_saliency = self._calculate_color_saliency(
+                element.geometry["visual_properties"]
+            )
             saliency_factors.append(color_saliency)
 
         # Context-based saliency (relevance to current task)
@@ -297,22 +312,22 @@ class SpatialPerceptionModel:
 
     def _calculate_element_area(self, geometry: Dict[str, Any]) -> float:
         """Calculate approximate area of a spatial element."""
-        geom_type = geometry.get('type', '')
+        geom_type = geometry.get("type", "")
 
-        if geom_type == 'Point':
+        if geom_type == "Point":
             return 1.0  # Points have minimal area
-        elif geom_type == 'LineString':
+        elif geom_type == "LineString":
             # Approximate area based on line length
-            coords = geometry.get('coordinates', [])
+            coords = geometry.get("coordinates", [])
             if isinstance(coords[0], list):
                 # Multi-line string
                 total_length = sum(self._calculate_line_length(line) for line in coords)
             else:
                 total_length = self._calculate_line_length(coords)
             return total_length / 10.0  # Normalize line length to area-like measure
-        elif geom_type == 'Polygon':
+        elif geom_type == "Polygon":
             # Simple polygon area calculation
-            coords = geometry.get('coordinates', [[]])[0]
+            coords = geometry.get("coordinates", [[]])[0]
             return self._calculate_polygon_area(coords)
         else:
             return 10.0  # Default moderate area
@@ -327,7 +342,7 @@ class SpatialPerceptionModel:
             x1, y1 = coordinates[i]
             x2, y2 = coordinates[i + 1]
             # Euclidean distance (assuming projected coordinates)
-            distance = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+            distance = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
             total_length += distance
 
         return total_length
@@ -351,29 +366,29 @@ class SpatialPerceptionModel:
     def _calculate_color_saliency(self, visual_props: Dict[str, Any]) -> float:
         """Calculate saliency based on visual properties."""
         # Simple color-based saliency (red/orange colors tend to be more salient)
-        salient_colors = ['red', 'orange', 'yellow', 'magenta']
-        color = visual_props.get('color', '').lower()
+        salient_colors = ["red", "orange", "yellow", "magenta"]
+        color = visual_props.get("color", "").lower()
 
         if color in salient_colors:
             return 0.8
         else:
             return 0.4
 
-    def _calculate_context_saliency(self,
-                                  element: SpatialPercept,
-                                  context: Optional[Dict[str, Any]] = None) -> float:
+    def _calculate_context_saliency(
+        self, element: SpatialPercept, context: Optional[Dict[str, Any]] = None
+    ) -> float:
         """Calculate saliency based on task context."""
         if not context:
             return 0.5
 
-        task_type = context.get('task_type', 'general')
+        task_type = context.get("task_type", "general")
 
         # Adjust saliency based on task relevance
-        if task_type == 'navigation' and element.scale_level in ['large', 'medium']:
+        if task_type == "navigation" and element.scale_level in ["large", "medium"]:
             return 0.9
-        elif task_type == 'search' and element.visual_saliency > 0.6:
+        elif task_type == "search" and element.visual_saliency > 0.6:
             return 0.8
-        elif task_type == 'analysis' and element.uncertainty < 0.3:
+        elif task_type == "analysis" and element.uncertainty < 0.3:
             return 0.7
         else:
             return 0.5
@@ -392,16 +407,18 @@ class SpatialPerceptionModel:
     def _calculate_element_uncertainty(self, geometry: Dict[str, Any]) -> float:
         """Calculate uncertainty associated with a spatial element."""
         # Base uncertainty from geometry complexity
-        base_uncertainty = min(0.5, len(geometry.get('coordinates', [])) / 100.0)
+        base_uncertainty = min(0.5, len(geometry.get("coordinates", [])) / 100.0)
 
         # Add uncertainty from coordinate precision (if available)
-        if 'precision' in geometry:
-            precision_uncertainty = 1.0 - (geometry['precision'] / 10.0)
+        if "precision" in geometry:
+            precision_uncertainty = 1.0 - (geometry["precision"] / 10.0)
             base_uncertainty = max(base_uncertainty, precision_uncertainty)
 
         return min(1.0, base_uncertainty)
 
-    def _apply_perceptual_grouping(self, elements: List[SpatialPercept]) -> List[SpatialPercept]:
+    def _apply_perceptual_grouping(
+        self, elements: List[SpatialPercept]
+    ) -> List[SpatialPercept]:
         """Apply Gestalt principles for perceptual grouping."""
         if len(elements) < 2:
             return elements
@@ -423,7 +440,9 @@ class SpatialPerceptionModel:
                     continue
 
                 # Check proximity (simple distance-based)
-                distance = self._calculate_spatial_distance(element.geometry, other_element.geometry)
+                distance = self._calculate_spatial_distance(
+                    element.geometry, other_element.geometry
+                )
                 if distance < 50.0:  # Threshold for grouping
                     nearby_elements.append(other_element)
                     used_indices.add(j)
@@ -433,13 +452,17 @@ class SpatialPerceptionModel:
                 group_id = f"group_{len(grouped_elements)}"
                 for elem in nearby_elements:
                     elem.perceptual_group = group_id
-                    elem.attention_weight = elem.attention_weight * 1.2  # Boost grouped elements
+                    elem.attention_weight = (
+                        elem.attention_weight * 1.2
+                    )  # Boost grouped elements
 
             grouped_elements.extend(nearby_elements)
 
         return grouped_elements
 
-    def _calculate_spatial_distance(self, geom1: Dict[str, Any], geom2: Dict[str, Any]) -> float:
+    def _calculate_spatial_distance(
+        self, geom1: Dict[str, Any], geom2: Dict[str, Any]
+    ) -> float:
         """Calculate spatial distance between two geometries."""
         # Simple centroid-based distance calculation
         centroid1 = self._calculate_centroid(geom1)
@@ -448,20 +471,22 @@ class SpatialPerceptionModel:
         if centroid1 and centroid2:
             x1, y1 = centroid1
             x2, y2 = centroid2
-            return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+            return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
-        return float('inf')
+        return float("inf")
 
-    def _calculate_centroid(self, geometry: Dict[str, Any]) -> Optional[Tuple[float, float]]:
+    def _calculate_centroid(
+        self, geometry: Dict[str, Any]
+    ) -> Optional[Tuple[float, float]]:
         """Calculate centroid of a geometry."""
-        geom_type = geometry.get('type', '')
+        geom_type = geometry.get("type", "")
 
-        if geom_type == 'Point':
-            coords = geometry.get('coordinates', [])
+        if geom_type == "Point":
+            coords = geometry.get("coordinates", [])
             return (coords[0], coords[1]) if coords else None
 
-        elif geom_type in ['LineString', 'Polygon']:
-            coords = geometry.get('coordinates', [])
+        elif geom_type in ["LineString", "Polygon"]:
+            coords = geometry.get("coordinates", [])
             if not coords:
                 return None
 
@@ -477,31 +502,37 @@ class SpatialPerceptionModel:
                     all_y.append(coord[1])
 
             if all_x and all_y:
-                return (sum(all_x)/len(all_x), sum(all_y)/len(all_y))
+                return (sum(all_x) / len(all_x), sum(all_y) / len(all_y))
 
         return None
 
-    def _generate_perceptual_insights(self,
-                                   elements: List[SpatialPercept],
-                                   attention_weights: Dict[str, float],
-                                   context: Optional[Dict[str, Any]] = None,
-                                   user_profile: Optional[UserCognitiveProfile] = None) -> Dict[str, Any]:
+    def _generate_perceptual_insights(
+        self,
+        elements: List[SpatialPercept],
+        attention_weights: Dict[str, float],
+        context: Optional[Dict[str, Any]] = None,
+        user_profile: Optional[UserCognitiveProfile] = None,
+    ) -> Dict[str, Any]:
         """Generate perceptual insights and recommendations."""
         insights: Dict[str, Any] = {
-            'attention_patterns': {},
-            'perceptual_groups': {},
-            'scale_distribution': {},
-            'uncertainty_assessment': {},
-            'user_specific_insights': {}
+            "attention_patterns": {},
+            "perceptual_groups": {},
+            "scale_distribution": {},
+            "uncertainty_assessment": {},
+            "user_specific_insights": {},
         }
 
         # Analyze attention patterns
         if attention_weights:
             max_attention = max(attention_weights.values())
-            insights['attention_patterns'] = {
-                'most_attended': max(attention_weights, key=lambda k: attention_weights[k]),
-                'attention_concentration': max_attention,
-                'attention_dispersion': len([w for w in attention_weights.values() if w > 0.1])
+            insights["attention_patterns"] = {
+                "most_attended": max(
+                    attention_weights, key=lambda k: attention_weights[k]
+                ),
+                "attention_concentration": max_attention,
+                "attention_dispersion": len(
+                    [w for w in attention_weights.values() if w > 0.1]
+                ),
             }
 
         # Analyze perceptual groups
@@ -512,8 +543,8 @@ class SpatialPerceptionModel:
                 groups[group_id] = []
             groups[group_id].append(element.element_id)
 
-        insights['perceptual_groups'] = {
-            group_id: {'elements': elements, 'size': len(elements)}
+        insights["perceptual_groups"] = {
+            group_id: {"elements": elements, "size": len(elements)}
             for group_id, elements in groups.items()
         }
 
@@ -523,57 +554,66 @@ class SpatialPerceptionModel:
             scale = element.scale_level
             scale_counts[scale] = scale_counts.get(scale, 0) + 1
 
-        insights['scale_distribution'] = scale_counts
+        insights["scale_distribution"] = scale_counts
 
         # Assess uncertainty
         uncertainties = [elem.uncertainty for elem in elements]
         if uncertainties:
-            insights['uncertainty_assessment'] = {
-                'mean_uncertainty': float(np.mean(uncertainties)),
-                'max_uncertainty': float(np.max(uncertainties)),
-                'uncertainty_range': float(np.max(uncertainties) - np.min(uncertainties))
+            insights["uncertainty_assessment"] = {
+                "mean_uncertainty": float(np.mean(uncertainties)),
+                "max_uncertainty": float(np.max(uncertainties)),
+                "uncertainty_range": float(
+                    np.max(uncertainties) - np.min(uncertainties)
+                ),
             }
 
         # Generate user-specific insights
         if user_profile:
-            insights['user_specific_insights'] = self._generate_user_insights(
+            insights["user_specific_insights"] = self._generate_user_insights(
                 elements, attention_weights, user_profile
             )
 
         return insights
 
-    def _generate_user_insights(self,
-                              elements: List[SpatialPercept],
-                              attention_weights: Dict[str, float],
-                              user_profile: UserCognitiveProfile) -> Dict[str, Any]:
+    def _generate_user_insights(
+        self,
+        elements: List[SpatialPercept],
+        attention_weights: Dict[str, float],
+        user_profile: UserCognitiveProfile,
+    ) -> Dict[str, Any]:
         """Generate insights tailored to user cognitive profile."""
         user_insights: Dict[str, Any] = {}
 
         # Adjust recommendations based on user expertise
         if user_profile.spatial_expertise > 0.7:  # Expert user
-            user_insights['expert_recommendations'] = [
+            user_insights["expert_recommendations"] = [
                 "Consider detailed spatial relationships",
                 "Focus on subtle pattern variations",
-                "Evaluate uncertainty sources systematically"
+                "Evaluate uncertainty sources systematically",
             ]
         else:  # Novice user
-            user_insights['novice_guidance'] = [
+            user_insights["novice_guidance"] = [
                 "Focus on prominent visual elements",
                 "Use simplified spatial representations",
-                "Seek clarification for uncertain areas"
+                "Seek clarification for uncertain areas",
             ]
 
         # Adjust based on user cognitive load preferences
-        if user_profile.cognitive_load_preference == 'low':
+        if user_profile.cognitive_load_preference == "low":
             high_load_elements = [
-                elem.element_id for elem in elements
+                elem.element_id
+                for elem in elements
                 if elem.calculate_attention_priority() > 0.8
             ]
-            user_insights['load_management'] = f"Consider {len(high_load_elements)} high-complexity elements"
+            user_insights["load_management"] = (
+                f"Consider {len(high_load_elements)} high-complexity elements"
+            )
 
         return user_insights
 
-    def update_model(self, training_data: Dict[str, Any], learning_rate: float = 0.01) -> Dict[str, Any]:
+    def update_model(
+        self, training_data: Dict[str, Any], learning_rate: float = 0.01
+    ) -> Dict[str, Any]:
         """Update perception model based on training data.
 
         Currently applies only ``perception_feedback.saliency_accuracy``
@@ -583,31 +623,33 @@ class SpatialPerceptionModel:
         parameters changed.
         """
         update_results: Dict[str, Any] = {
-            'parameters_updated': [],
-            'performance_improvement': 0.0,
-            'training_examples': len(training_data.get('examples', []))
+            "parameters_updated": [],
+            "performance_improvement": 0.0,
+            "training_examples": len(training_data.get("examples", [])),
         }
 
         # Update perceptual parameters based on feedback
-        if 'perception_feedback' in training_data:
-            feedback = training_data['perception_feedback']
+        if "perception_feedback" in training_data:
+            feedback = training_data["perception_feedback"]
 
             # Update saliency threshold
-            if 'saliency_accuracy' in feedback:
-                current_threshold = self.perceptual_parameters['saliency_threshold']
-                target_threshold = 0.3 if feedback['saliency_accuracy'] > 0.8 else 0.5
-                new_threshold = current_threshold + learning_rate * (target_threshold - current_threshold)
-                self.perceptual_parameters['saliency_threshold'] = new_threshold
-                update_results['parameters_updated'].append('saliency_threshold')
+            if "saliency_accuracy" in feedback:
+                current_threshold = self.perceptual_parameters["saliency_threshold"]
+                target_threshold = 0.3 if feedback["saliency_accuracy"] > 0.8 else 0.5
+                new_threshold = current_threshold + learning_rate * (
+                    target_threshold - current_threshold
+                )
+                self.perceptual_parameters["saliency_threshold"] = new_threshold
+                update_results["parameters_updated"].append("saliency_threshold")
 
         return update_results
 
     def get_status(self) -> Dict[str, Any]:
         """Get current status of the perception model."""
         return {
-            'model_type': 'spatial_perception',
-            'framework': self.framework,
-            'status': 'active',
-            'perception_metrics': self.perception_metrics,
-            'perceptual_parameters': self.perceptual_parameters
+            "model_type": "spatial_perception",
+            "framework": self.framework,
+            "status": "active",
+            "perception_metrics": self.perception_metrics,
+            "perceptual_parameters": self.perceptual_parameters,
         }

@@ -58,7 +58,10 @@ class TestRetryWithBackoff:
     def test_declines_once_budget_is_spent(self, manager, fast_backoff):
         """The strategy stops granting retries at the attempt limit."""
         error = NetworkError("connection reset")
-        assert manager._retry_with_backoff(error, {"attempt": 3, "max_retry_attempts": 3}) is False
+        assert (
+            manager._retry_with_backoff(error, {"attempt": 3, "max_retry_attempts": 3})
+            is False
+        )
         assert fast_backoff == []
 
 
@@ -86,7 +89,10 @@ class TestRefreshToken:
         def boom():
             raise RuntimeError("refresh endpoint down")
 
-        assert manager._refresh_token(AuthenticationError("401"), {"token_refresh": boom}) is False
+        assert (
+            manager._refresh_token(AuthenticationError("401"), {"token_refresh": boom})
+            is False
+        )
 
     def test_oauth_exchange_stores_the_new_access_token(self, manager, monkeypatch):
         """A 200 from token_url yields the access_token and validates it."""
@@ -99,7 +105,8 @@ class TestRefreshToken:
                 return {"access_token": "oauth-token"}
 
         monkeypatch.setattr(
-            "geo_infer_git.utils.error_handler.requests.post", lambda *a, **k: Response()
+            "geo_infer_git.utils.error_handler.requests.post",
+            lambda *a, **k: Response(),
         )
         monkeypatch.setattr(manager, "_check_token_validity", lambda e, c: True)
         context = {"refresh_token": "r", "token_url": "https://example.invalid/token"}
@@ -130,7 +137,10 @@ class TestAlternateApiEndpoint:
                 "https://api.example.invalid/b",
             ],
         }
-        assert manager._use_alternate_api_endpoint(APILimitError("rate limited"), context) is True
+        assert (
+            manager._use_alternate_api_endpoint(APILimitError("rate limited"), context)
+            is True
+        )
         assert context["api_base_url"] == "https://api.example.invalid/b"
         assert seen == [
             "https://api.example.invalid/a",
@@ -145,7 +155,10 @@ class TestAlternateApiEndpoint:
         )
         current = "https://api.example.invalid/current"
         context = {"api_base_url": current, "alternate_api_endpoints": [current]}
-        assert manager._use_alternate_api_endpoint(APILimitError("rate limited"), context) is False
+        assert (
+            manager._use_alternate_api_endpoint(APILimitError("rate limited"), context)
+            is False
+        )
         assert context["api_base_url"] == current
 
     def test_declines_when_every_alternate_is_unhealthy(self, manager, monkeypatch):
@@ -155,26 +168,41 @@ class TestAlternateApiEndpoint:
             lambda url, **k: self._response(503),
         )
         context = {"alternate_api_endpoints": ["https://api.example.invalid/a"]}
-        assert manager._use_alternate_api_endpoint(APILimitError("rate limited"), context) is False
+        assert (
+            manager._use_alternate_api_endpoint(APILimitError("rate limited"), context)
+            is False
+        )
 
     def test_declines_when_no_alternates_are_configured(self, manager):
         """Nothing to switch to is not a recovery."""
-        assert manager._use_alternate_api_endpoint(APILimitError("rate limited"), {}) is False
+        assert (
+            manager._use_alternate_api_endpoint(APILimitError("rate limited"), {})
+            is False
+        )
 
 
 class TestRetryGitOperation:
     def test_grants_retry_for_a_valid_repository(self, manager, fast_backoff, tmp_path):
         """A usable repository earns a backed-off retry."""
         import git
+
         git.Repo.init(tmp_path)
         context = {"path": str(tmp_path), "attempt": 1}
-        assert manager._retry_git_operation(GitOperationError("fetch failed"), context) is True
+        assert (
+            manager._retry_git_operation(GitOperationError("fetch failed"), context)
+            is True
+        )
         assert fast_backoff  # a delay was taken
 
-    def test_declines_for_a_path_that_is_not_a_repository(self, manager, fast_backoff, tmp_path):
+    def test_declines_for_a_path_that_is_not_a_repository(
+        self, manager, fast_backoff, tmp_path
+    ):
         """Retrying against a non-repository would just repeat the failure."""
         context = {"path": str(tmp_path), "attempt": 1}
-        assert manager._retry_git_operation(GitOperationError("fetch failed"), context) is False
+        assert (
+            manager._retry_git_operation(GitOperationError("fetch failed"), context)
+            is False
+        )
         assert fast_backoff == []
 
 
@@ -182,6 +210,7 @@ class TestCleanGitCache:
     def test_removes_a_stale_index_lock(self, manager, tmp_path):
         """An abandoned lock file is cleared so the retry can proceed."""
         import git
+
         repo = git.Repo.init(tmp_path)
         lock = os.path.join(repo.git_dir, "index.lock")
         with open(lock, "w", encoding="utf-8") as handle:
@@ -189,18 +218,29 @@ class TestCleanGitCache:
         stale = time.time() - 10_000
         os.utime(lock, (stale, stale))
 
-        assert manager._clean_git_cache(GitOperationError("locked"), {"path": str(tmp_path)}) is True
+        assert (
+            manager._clean_git_cache(
+                GitOperationError("locked"), {"path": str(tmp_path)}
+            )
+            is True
+        )
         assert not os.path.exists(lock)
 
     def test_leaves_a_fresh_lock_alone(self, manager, tmp_path):
         """A lock a live process may hold is never taken away from it."""
         import git
+
         repo = git.Repo.init(tmp_path)
         lock = os.path.join(repo.git_dir, "index.lock")
         with open(lock, "w", encoding="utf-8") as handle:
             handle.write("")
 
-        assert manager._clean_git_cache(GitOperationError("locked"), {"path": str(tmp_path)}) is False
+        assert (
+            manager._clean_git_cache(
+                GitOperationError("locked"), {"path": str(tmp_path)}
+            )
+            is False
+        )
         assert os.path.exists(lock)
 
     def test_declines_without_a_path(self, manager):
@@ -223,7 +263,9 @@ class TestStrategyRegistry:
             for strategy in strategies:
                 assert callable(strategy)
 
-    def test_attempt_recovery_reports_success_from_a_strategy(self, manager, fast_backoff):
+    def test_attempt_recovery_reports_success_from_a_strategy(
+        self, manager, fast_backoff
+    ):
         """A recoverable network error is recovered by the backoff strategy."""
         error = NetworkError("connection reset")
         assert error.recoverable is True

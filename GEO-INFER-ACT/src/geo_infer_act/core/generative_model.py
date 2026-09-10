@@ -985,7 +985,9 @@ class GenerativeModel:
         }
         if return_breakdowns:
             return result
-        return float(efe_array[np.argmin(efe_array)]) if efe_array.size else float("inf")
+        return (
+            float(efe_array[np.argmin(efe_array)]) if efe_array.size else float("inf")
+        )
 
     def _categorical_belief_vector(self) -> np.ndarray:
         """Return a flat categorical belief vector for the current model."""
@@ -1606,9 +1608,7 @@ class GenerativeModel:
             return float(
                 0.5
                 * np.log(
-                    np.linalg.det(
-                        2 * np.pi * np.exp(1.0) * np.linalg.inv(precision)
-                    )
+                    np.linalg.det(2 * np.pi * np.exp(1.0) * np.linalg.inv(precision))
                 )
             )
         raise ValueError(

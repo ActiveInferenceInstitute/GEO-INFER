@@ -98,6 +98,8 @@ def test_bayes_canonical_loader_reads_the_same_bundled_copy() -> None:
     assert contract is not None
     assert contract["schema"] == _EXPECTED_SCHEMA
 
-    packaged = REPO_ROOT / "GEO-INFER-BAYES/src/geo_infer_bayes/crescent-city-geo-intel.json"
+    packaged = (
+        REPO_ROOT / "GEO-INFER-BAYES/src/geo_infer_bayes/crescent-city-geo-intel.json"
+    )
     assert packaged.is_file()
     assert _digest(packaged) == _digest(resolved)

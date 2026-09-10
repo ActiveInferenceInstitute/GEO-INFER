@@ -40,7 +40,9 @@ def _synthetic_spatial_data() -> Dict[str, Any]:
             {"type": "Point", "coordinates": [1.5, 2.0]},
             {
                 "type": "Polygon",
-                "coordinates": [[[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.0], [0.0, 0.0]]],
+                "coordinates": [
+                    [[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.0], [0.0, 0.0]]
+                ],
             },
         ],
         "attributes": {"region": "integration_test", "scale": "local"},

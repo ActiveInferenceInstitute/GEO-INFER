@@ -260,9 +260,7 @@ class TestOccurrenceExceedanceProbability:
         )
         assert long < short
 
-    def test_threshold_above_every_loss_is_zero(
-        self, ramp_table: pd.DataFrame
-    ) -> None:
+    def test_threshold_above_every_loss_is_zero(self, ramp_table: pd.DataFrame) -> None:
         assert (
             calculate_annual_occurrence_exceedance_probability(
                 ramp_table, 10_000.0, exposure_years=1.0
@@ -279,9 +277,7 @@ class TestOccurrenceExceedanceProbability:
 
     def test_rejects_a_non_finite_threshold(self, ramp_table: pd.DataFrame) -> None:
         with pytest.raises(ValueError, match="threshold"):
-            calculate_annual_occurrence_exceedance_probability(
-                ramp_table, float("nan")
-            )
+            calculate_annual_occurrence_exceedance_probability(ramp_table, float("nan"))
 
     @pytest.mark.parametrize("years", [0.0, -1.0, float("inf")])
     def test_rejects_non_positive_exposure_years(
@@ -353,7 +349,9 @@ class TestAggregateExceedanceProbability:
     ) -> None:
         with pytest.raises(ValueError, match="num_years"):
             calculate_annual_aggregate_exceedance_probability(
-                ramp_table, threshold=1.0, num_years=num_years  # type: ignore[arg-type]
+                ramp_table,
+                threshold=1.0,
+                num_years=num_years,  # type: ignore[arg-type]
             )
 
 

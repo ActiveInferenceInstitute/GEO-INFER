@@ -22,5 +22,5 @@ __all__ = [
     "contrast",
     "SpatialAnalyzer",
     "TemporalAnalyzer",
-    "BayesianSPM"
+    "BayesianSPM",
 ]

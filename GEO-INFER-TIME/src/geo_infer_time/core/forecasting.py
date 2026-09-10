@@ -121,7 +121,6 @@ class ForecastingEngine:
             logger.error(f"ARIMA forecasting failed: {e}")
             raise
 
-
     def forecast_moving_average(
         self, timeseries: TimeSeries, horizon: int = 10, window: int = 5
     ) -> Dict[str, Any]:

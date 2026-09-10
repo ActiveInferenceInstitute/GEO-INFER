@@ -97,11 +97,7 @@ def _operation() -> Dict[str, Any]:
     controller = QualityController()
     quality = controller.validate_batch(measurements)
     failed_sensors = sorted(
-        {
-            entry["sensor_id"]
-            for entry in quality["results"]
-            if not entry["passed"]
-        }
+        {entry["sensor_id"] for entry in quality["results"] if not entry["passed"]}
     )
 
     # ``validate_batch`` verdicts are index-aligned with the input list, so

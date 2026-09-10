@@ -20,9 +20,7 @@ def fresh_event_loop() -> Iterator[asyncio.AbstractEventLoop]:
         for task in pending:
             task.cancel()
         if pending:
-            loop.run_until_complete(
-                asyncio.gather(*pending, return_exceptions=True)
-            )
+            loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
         loop.run_until_complete(loop.shutdown_asyncgens())
         loop.close()
         asyncio.set_event_loop(None)

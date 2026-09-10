@@ -93,7 +93,9 @@ def _check_level(level: float, name: str = "level") -> float:
     return level
 
 
-def _gaussian_parameters(observations: np.ndarray, mean: Any, std: Any) -> Tuple[np.ndarray, np.ndarray]:
+def _gaussian_parameters(
+    observations: np.ndarray, mean: Any, std: Any
+) -> Tuple[np.ndarray, np.ndarray]:
     mu = np.broadcast_to(np.asarray(mean, dtype=float).reshape(-1), observations.shape)
     sg = np.broadcast_to(np.asarray(std, dtype=float).reshape(-1), observations.shape)
     if np.any(sg <= 0) or not np.all(np.isfinite(sg)) or not np.all(np.isfinite(mu)):
@@ -179,7 +181,9 @@ def crps_gaussian(observations: Any, mean: Any, std: Any) -> float:
     return float(np.mean(per_point))
 
 
-def pinball_loss(observations: Any, predicted_quantile: Any, quantile_level: float = 0.5) -> float:
+def pinball_loss(
+    observations: Any, predicted_quantile: Any, quantile_level: float = 0.5
+) -> float:
     """Quantile (pinball) loss for a predicted conditional quantile.
 
     Lower values are better; the optimal value of ``quantile_level`` for a
@@ -203,7 +207,9 @@ def pinball_loss(observations: Any, predicted_quantile: Any, quantile_level: flo
     if not 0.0 < q < 1.0:
         raise ValueError("quantile_level must be strictly between zero and one")
     obs = _as_observations(observations)
-    pred = np.broadcast_to(np.asarray(predicted_quantile, dtype=float).reshape(-1), obs.shape)
+    pred = np.broadcast_to(
+        np.asarray(predicted_quantile, dtype=float).reshape(-1), obs.shape
+    )
     if not np.all(np.isfinite(pred)):
         raise ValueError("predicted_quantile must be finite")
     residual = obs - pred
@@ -327,7 +333,9 @@ def pit_values(observations: Any, predictive_samples: Any) -> np.ndarray:
     """
     obs = _as_observations(observations)
     draws = _as_samples(predictive_samples, obs.size)
-    return np.asarray(np.sum(draws < obs[None, :], axis=0) / draws.shape[0], dtype=float)
+    return np.asarray(
+        np.sum(draws < obs[None, :], axis=0) / draws.shape[0], dtype=float
+    )
 
 
 def pit_gaussian(observations: Any, mean: Any, std: Any) -> np.ndarray:
@@ -337,7 +345,9 @@ def pit_gaussian(observations: Any, mean: Any, std: Any) -> np.ndarray:
     return np.asarray(stats.norm.cdf((obs - mu) / sg), dtype=float)
 
 
-def pit_uniformity_statistic(observations: Any, predictive_samples: Any, n_bins: int = 10) -> float:
+def pit_uniformity_statistic(
+    observations: Any, predictive_samples: Any, n_bins: int = 10
+) -> float:
     """Max absolute deviation of the PIT histogram from a uniform expectation.
 
     Parameters
@@ -393,7 +403,9 @@ def log_predictive_density(observations: Any, predictive_samples: Any) -> float:
     return float(np.mean(log_predictive_density_pointwise(obs, draws)))
 
 
-def log_predictive_density_pointwise(observations: Any, predictive_samples: Any) -> np.ndarray:
+def log_predictive_density_pointwise(
+    observations: Any, predictive_samples: Any
+) -> np.ndarray:
     """Per-point log predictive density, one value per observation."""
     obs = _as_observations(observations)
     draws = _as_samples(predictive_samples, obs.size)
@@ -455,13 +467,17 @@ def evaluate_predictive(
         "mean_absolute_error": float(np.mean(np.abs(obs - mean))),
         "log_predictive_density": log_predictive_density(obs, draws),
         "coverage": empirical_coverage(obs, lower, upper),
-        "coverage_deviation": coverage_calibration_error(obs, lower, upper, interval_level),
+        "coverage_deviation": coverage_calibration_error(
+            obs, lower, upper, interval_level
+        ),
         "interval_score": interval_score(obs, lower, upper, interval_level),
         "pit_uniformity": pit_uniformity_statistic(obs, draws),
     }
 
 
-def evaluate_gaussian(observations: Any, mean: Any, std: Any, level: float = 0.95) -> Dict[str, float]:
+def evaluate_gaussian(
+    observations: Any, mean: Any, std: Any, level: float = 0.95
+) -> Dict[str, float]:
     """Evaluate a Gaussian predictive ``(mean, std)`` against observations."""
     interval_level = _check_level(level, "level")
     if not 0.0 < interval_level < 1.0:
@@ -476,7 +492,9 @@ def evaluate_gaussian(observations: Any, mean: Any, std: Any, level: float = 0.9
         "mean_absolute_error": float(np.mean(np.abs(obs - mu))),
         "log_predictive_density": log_predictive_density_gaussian(obs, mu, sg),
         "coverage": empirical_coverage(obs, lower, upper),
-        "coverage_deviation": coverage_calibration_error(obs, lower, upper, interval_level),
+        "coverage_deviation": coverage_calibration_error(
+            obs, lower, upper, interval_level
+        ),
         "interval_score": interval_score(obs, lower, upper, interval_level),
         "pit_uniformity": float(np.max(np.abs(pit_gaussian(obs, mu, sg) - 0.5))),
     }

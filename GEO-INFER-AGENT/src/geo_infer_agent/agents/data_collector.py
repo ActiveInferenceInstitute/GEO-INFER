@@ -804,5 +804,3 @@ class DataCollectorAgent(BDIAgent):
             "count": len(filtered_datasets),
             "datasets": filtered_datasets,
         }
-
-

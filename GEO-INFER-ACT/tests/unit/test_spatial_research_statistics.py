@@ -60,9 +60,7 @@ def _trace_rows() -> tuple[list[dict[str, object]], list[dict[str, object]]]:
             previous_beliefs=previous_beliefs,
             grid_result=grid_result,
         )
-        previous_beliefs = {
-            item.cell: item.belief for item in trace.cell_diagnostics
-        }
+        previous_beliefs = {item.cell: item.belief for item in trace.cell_diagnostics}
         cell_rows.extend(item.to_dict() for item in trace.cell_diagnostics)
         edge_rows.extend(item.to_dict() for item in trace.edge_diagnostics)
     return cell_rows, edge_rows

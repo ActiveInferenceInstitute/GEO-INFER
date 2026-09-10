@@ -473,7 +473,7 @@ class AgentPopulation:
 
         for agent_type, count in agent_counts.items():
             for i in range(count):
-                agent_id = f"{agent_type}_{i+1:03d}"
+                agent_id = f"{agent_type}_{i + 1:03d}"
 
                 # Generate initial position based on distribution strategy
                 position = self._generate_initial_position(agent_type, i)

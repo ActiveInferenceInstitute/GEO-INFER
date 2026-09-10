@@ -6,6 +6,7 @@ data sources: MQTT (via ``aiomqtt``), WebSocket (via ``aiohttp``), and an
 explicit Kafka connector whose client library is not a declared
 dependency of this package.
 """
+
 import json
 import logging
 from typing import Any, AsyncIterator, Dict, Optional
@@ -96,9 +97,7 @@ class MQTTConnector(StreamConnector):
     def _require_client(self) -> Any:
         """Return the connected aiomqtt client or raise."""
         if self._client is None:
-            raise RuntimeError(
-                "MQTTConnector is not connected; call connect() first"
-            )
+            raise RuntimeError("MQTTConnector is not connected; call connect() first")
         return self._client
 
     async def connect(self) -> bool:

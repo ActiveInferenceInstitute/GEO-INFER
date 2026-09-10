@@ -4,6 +4,7 @@ Exercise the full system surface (GeospatialCommunicationSystem) the way a
 consumer would: start the system, subscribe, send messages, create
 notifications, and drive an alert through its rule — then stop cleanly.
 """
+
 import time
 
 from geo_infer_comms import GeospatialCommunicationSystem
@@ -69,17 +70,16 @@ class TestCommsEndToEnd:
                 cooldown_period=3600,
             )
             rule_id = system.alert_system.create_alert_rule(rule)
-            alert = system.alert_system.trigger_alert(
-                rule_id, {"temperature": 38.5}
-            )
+            alert = system.alert_system.trigger_alert(rule_id, {"temperature": 38.5})
 
             assert alert is not None
             assert alert.rule_id == rule_id
             assert rule.last_triggered is not None
             # Second trigger inside the cooldown window must be suppressed
-            assert system.alert_system.trigger_alert(
-                rule_id, {"temperature": 40.0}
-            ) is None
+            assert (
+                system.alert_system.trigger_alert(rule_id, {"temperature": 40.0})
+                is None
+            )
             assert system.alert_system.get_alert_history(rule_id=rule_id)
         finally:
             system.stop()

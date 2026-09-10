@@ -1,10 +1,12 @@
 """HR Reporting functions."""
+
 import logging
 from typing import List, Dict, Any, Optional
 from ..models.hr_models import Employee, EmploymentStatus
 from ..hr.transformer import convert_employees_to_dataframe
 
 logger = logging.getLogger(__name__)
+
 
 def generate_headcount_report(
     employees: List[Employee], group_by: Optional[List[str]] = None
@@ -20,19 +22,24 @@ def generate_headcount_report(
         return {"message": "Employee data is empty after conversion to DataFrame."}
 
     report: Dict[str, Any] = {
-    "total_headcount": len(df[df["employment_status"] == EmploymentStatus.ACTIVE])
-}
+        "total_headcount": len(df[df["employment_status"] == EmploymentStatus.ACTIVE])
+    }
 
     if group_by:
-        active_employees_df = df[df['employment_status'] == EmploymentStatus.ACTIVE]
+        active_employees_df = df[df["employment_status"] == EmploymentStatus.ACTIVE]
         for field in group_by:
             if field in active_employees_df.columns:
-                report[f'headcount_by_{field}'] = active_employees_df.groupby(field).size().to_dict()
+                report[f"headcount_by_{field}"] = (
+                    active_employees_df.groupby(field).size().to_dict()
+                )
             else:
-                report[f'headcount_by_{field}'] = f"Field '{field}' not found for grouping."
-    
+                report[f"headcount_by_{field}"] = (
+                    f"Field '{field}' not found for grouping."
+                )
+
     logger.info("Generated headcount report.")
     return report
+
 
 def generate_diversity_report(
     employees: List[Employee], diversity_fields: Optional[List[str]] = None
@@ -43,32 +50,35 @@ def generate_diversity_report(
     """
     if not employees:
         return {"message": "No employee data for diversity report."}
-    
+
     df = convert_employees_to_dataframe(employees)
     if df.empty:
         return {"message": "Employee data is empty after conversion to DataFrame."}
 
-    active_employees_df = df[df['employment_status'] == EmploymentStatus.ACTIVE]
+    active_employees_df = df[df["employment_status"] == EmploymentStatus.ACTIVE]
     report: Dict[str, Any] = {
-    "total_active_employees_for_diversity_metrics": len(active_employees_df)
-}
+        "total_active_employees_for_diversity_metrics": len(active_employees_df)
+    }
 
     if not diversity_fields:
-        diversity_fields = ['gender'] # Default to gender if no fields specified
+        diversity_fields = ["gender"]  # Default to gender if no fields specified
 
     for field in diversity_fields:
         if field in active_employees_df.columns:
             counts = active_employees_df[field].value_counts()
             percentages = active_employees_df[field].value_counts(normalize=True) * 100
-            report[f'diversity_by_{field}'] = {
+            report[f"diversity_by_{field}"] = {
                 "counts": counts.to_dict(),
-                "percentages": percentages.round(2).to_dict()
+                "percentages": percentages.round(2).to_dict(),
             }
         else:
-            report[f'diversity_by_{field}'] = f"Field '{field}' not found for diversity metrics."
-            
+            report[f"diversity_by_{field}"] = (
+                f"Field '{field}' not found for diversity metrics."
+            )
+
     logger.info("Generated diversity report.")
     return report
+
 
 def get_quarterly_metrics(
     quarter: str, year: int, employees: Optional[List[Employee]] = None
@@ -94,12 +104,14 @@ def get_quarterly_metrics(
             "headcount_end_of_quarter": 0,
             "attrition_rate_percent": 0.0,
             "new_hires": 0,
-            "diversity_snapshot": {}
+            "diversity_snapshot": {},
         }
 
     # Calculate headcount metrics
     total_employees = len(employees)
-    active_employees = len([e for e in employees if e.employment_status.value == "ACTIVE"])
+    active_employees = len(
+        [e for e in employees if e.employment_status.value == "ACTIVE"]
+    )
 
     # Calculate basic diversity metrics
     gender_counts: Dict[str, int] = {}
@@ -112,7 +124,9 @@ def get_quarterly_metrics(
             gender_counts[gender] = gender_counts.get(gender, 0) + 1
 
             # Department breakdown
-            department_counts[emp.department] = department_counts.get(emp.department, 0) + 1
+            department_counts[emp.department] = (
+                department_counts.get(emp.department, 0) + 1
+            )
 
     # Calculate gender percentages
     total_active = sum(gender_counts.values())
@@ -128,21 +142,33 @@ def get_quarterly_metrics(
     tenure_values = []
 
     for emp in employees:
-        if emp.employment_status.value == "ACTIVE" and emp.hire_date and "tenure_years" in emp.custom_fields:
+        if (
+            emp.employment_status.value == "ACTIVE"
+            and emp.hire_date
+            and "tenure_years" in emp.custom_fields
+        ):
             tenure_years = emp.custom_fields["tenure_years"]
             tenure_values.append(tenure_years)
 
     if tenure_values:
         tenure_stats["average_tenure_years"] = sum(tenure_values) / len(tenure_values)
-        tenure_stats["median_tenure_years"] = sorted(tenure_values)[len(tenure_values) // 2]
+        tenure_stats["median_tenure_years"] = sorted(tenure_values)[
+            len(tenure_values) // 2
+        ]
 
     # Estimate attrition and new hires (simplified calculation)
     # In a real system, this would compare with previous quarter data
-    terminated_employees = len([e for e in employees if e.employment_status.value == "TERMINATED"])
-    pending_hires = len([e for e in employees if e.employment_status.value == "PENDING_HIRE"])
+    terminated_employees = len(
+        [e for e in employees if e.employment_status.value == "TERMINATED"]
+    )
+    pending_hires = len(
+        [e for e in employees if e.employment_status.value == "PENDING_HIRE"]
+    )
 
     # Simplified attrition rate calculation
-    attrition_rate = (terminated_employees / total_employees * 100) if total_employees > 0 else 0
+    attrition_rate = (
+        (terminated_employees / total_employees * 100) if total_employees > 0 else 0
+    )
 
     metrics = {
         "quarter": quarter,
@@ -155,14 +181,15 @@ def get_quarterly_metrics(
         "diversity_snapshot": {
             "gender_counts": gender_counts,
             "gender_percentages": gender_percentages,
-            "department_breakdown": department_counts
+            "department_breakdown": department_counts,
         },
         "tenure_statistics": tenure_stats,
-        "data_source": f"Calculated from {len(employees)} employee records"
+        "data_source": f"Calculated from {len(employees)} employee records",
     }
 
     logger.info(f"Successfully calculated HR metrics for {quarter} {year}")
     return metrics
+
 
 # Add more HR-specific reporting functions here, e.g.:
 # - Attrition rate report

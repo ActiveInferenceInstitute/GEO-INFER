@@ -39,12 +39,16 @@ class TestRainfallRunoff:
         precip = xr.DataArray(np.full((5, 5), 100.0), dims=("y", "x"))
         for saturation in (0.0, 0.25, 0.5, 0.75, 1.0):
             soil = xr.DataArray(np.full((5, 5), saturation), dims=("y", "x"))
-            result = modeler.rainfall_runoff_model(precip, soil_moisture=soil, infiltration_rate=0.6)
+            result = modeler.rainfall_runoff_model(
+                precip, soil_moisture=soil, infiltration_rate=0.6
+            )
             total = result["runoff"] + result["infiltration"]
             np.testing.assert_allclose(total.values, 100.0, atol=1e-10)
         # Saturated soil must not let runoff exceed precipitation.
         soil_wet = xr.DataArray(np.full((5, 5), 1.0), dims=("y", "x"))
-        result_wet = modeler.rainfall_runoff_model(precip, soil_moisture=soil_wet, infiltration_rate=0.6)
+        result_wet = modeler.rainfall_runoff_model(
+            precip, soil_moisture=soil_wet, infiltration_rate=0.6
+        )
         assert float(result_wet["runoff"].max()) <= 100.0 + 1e-10
 
 

@@ -174,8 +174,7 @@ class MultiHazardInteractionMatrix:
         values = np.asarray(matrix, dtype=float)
         if values.shape != (hazard_count, hazard_count):
             raise ValueError(
-                "interaction matrix must have shape "
-                f"({hazard_count}, {hazard_count})"
+                f"interaction matrix must have shape ({hazard_count}, {hazard_count})"
             )
         if not np.all(np.isfinite(values)):
             raise ValueError("interaction matrix must contain only finite values")
@@ -200,9 +199,7 @@ class MultiHazardInteractionMatrix:
             raise ValueError("hazard must be a non-empty name")
         if name in self.hazards:
             return
-        expanded = np.zeros(
-            (len(self.hazards) + 1, len(self.hazards) + 1), dtype=float
-        )
+        expanded = np.zeros((len(self.hazards) + 1, len(self.hazards) + 1), dtype=float)
         expanded[:-1, :-1] = self.matrix
         expanded[-1, -1] = 1.0
         self.hazards.append(name)
@@ -476,9 +473,7 @@ class MultiHazardInteractionMatrix:
         lead = max(marginals.items(), key=lambda item: item[1])
         return (lead[0], lead[1])
 
-    def set_interactions(
-        self, interactions: Mapping[Tuple[str, str], float]
-    ) -> None:
+    def set_interactions(self, interactions: Mapping[Tuple[str, str], float]) -> None:
         """Set several directed interactions at once from a mapping."""
         for (source, target), strength in interactions.items():
             self.set_interaction(source, target, strength)
@@ -1876,9 +1871,7 @@ class CatastropheModelManager:
     def __init__(self, config: Optional[CatastropheConfig] = None) -> None:
         self.config = config or CatastropheConfig()
         self._models: Dict[str, EnhancedCatastropheModel] = {}
-        self.hazard_interactions = MultiHazardInteractionMatrix(
-            self.config.event_types
-        )
+        self.hazard_interactions = MultiHazardInteractionMatrix(self.config.event_types)
 
     @property
     def models(self) -> Dict[str, EnhancedCatastropheModel]:
@@ -1909,9 +1902,7 @@ class CatastropheModelManager:
         )
         return self.hazard_interactions
 
-    def set_hazard_interaction(
-        self, source: str, target: str, strength: float
-    ) -> None:
+    def set_hazard_interaction(self, source: str, target: str, strength: float) -> None:
         """Set one directed cross-hazard interaction."""
         self.hazard_interactions.set_interaction(source, target, strength)
 

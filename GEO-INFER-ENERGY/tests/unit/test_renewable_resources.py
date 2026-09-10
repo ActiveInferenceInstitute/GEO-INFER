@@ -4,7 +4,12 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from geo_infer_energy import RenewableResourceAssessor, RenewableType, SuitabilityClass, RenewableSite
+from geo_infer_energy import (
+    RenewableResourceAssessor,
+    RenewableType,
+    SuitabilityClass,
+    RenewableSite,
+)
 
 
 @pytest.fixture
@@ -29,16 +34,20 @@ class TestRenewableResourceAssessor:
 
     def test_assess_solar_with_terrain(self, assessor):
         slope = xr.DataArray(np.array([[30.0, 10.0]]), dims=("y", "x"))
-        result = assessor.assess_solar_potential(xr.DataArray(np.full((1, 2), 5.0), dims=("y", "x")), slope=slope)
+        result = assessor.assess_solar_potential(
+            xr.DataArray(np.full((1, 2), 5.0), dims=("y", "x")), slope=slope
+        )
         # Optimal 30-degree slope scores higher than 10 degrees
-        assert float(result["solar_potential"].values[0, 0]) > float(result["solar_potential"].values[0, 1])
+        assert float(result["solar_potential"].values[0, 0]) > float(
+            result["solar_potential"].values[0, 1]
+        )
 
     def test_assess_wind_potential(self, assessor):
         wind = xr.DataArray(np.full((3, 3), 8.0), dims=("y", "x"))
         result = assessor.assess_wind_potential(wind)
         assert "wind_power" in result
         assert "energy_potential" in result
-        assert float(result["wind_power"].mean()) == pytest.approx(8.0 ** 3)
+        assert float(result["wind_power"].mean()) == pytest.approx(8.0**3)
 
     def test_assess_hydro_potential(self, assessor):
         flow = xr.DataArray(np.array([[1.0, 3.0]]), dims=("y", "x"))
@@ -47,7 +56,9 @@ class TestRenewableResourceAssessor:
         # P = rho * g * Q * h * eta / 1e6 MW
         expected = 1000 * 9.81 * 1.0 * 100.0 * 0.85 / 1e6
         assert float(result["hydro_power"].values[0, 0]) == pytest.approx(expected)
-        assert float(result["hydro_power"].values[0, 1]) > float(result["hydro_power"].values[0, 0])
+        assert float(result["hydro_power"].values[0, 1]) > float(
+            result["hydro_power"].values[0, 0]
+        )
 
 
 class TestSiteSuitability:
@@ -55,7 +66,9 @@ class TestSiteSuitability:
 
     def test_assess_excellent_site(self, assessor):
         result = assessor.assess_site_suitability(
-            location=(-118.25, 34.05), resource_type=RenewableType.SOLAR_PV, resource_value=7.0
+            location=(-118.25, 34.05),
+            resource_type=RenewableType.SOLAR_PV,
+            resource_value=7.0,
         )
         assert result["suitability_class"] == "excellent"
         assert result["development_recommended"] is True
@@ -63,13 +76,17 @@ class TestSiteSuitability:
 
     def test_assess_poor_site(self, assessor):
         result = assessor.assess_site_suitability(
-            location=(-118.25, 34.05), resource_type=RenewableType.SOLAR_PV, resource_value=2.0
+            location=(-118.25, 34.05),
+            resource_type=RenewableType.SOLAR_PV,
+            resource_value=2.0,
         )
         assert result["suitability_class"] in ("marginal", "unsuitable")
 
     def test_constraints_affect_suitability(self, assessor):
         without_constraints = assessor.assess_site_suitability(
-            location=(-118.0, 34.0), resource_type=RenewableType.ONSHORE_WIND, resource_value=8.0
+            location=(-118.0, 34.0),
+            resource_type=RenewableType.ONSHORE_WIND,
+            resource_value=8.0,
         )
         with_constraints = assessor.assess_site_suitability(
             location=(-118.0, 34.0),
@@ -97,18 +114,26 @@ class TestCapacityFactor:
 
     def test_solar_capacity_factor(self, assessor):
         hours = np.arange(8760)
-        irradiance = np.maximum(0, 500 * np.sin(2 * np.pi * (hours % 24) / 24 - np.pi / 4))
+        irradiance = np.maximum(
+            0, 500 * np.sin(2 * np.pi * (hours % 24) / 24 - np.pi / 4)
+        )
         result = assessor.calculate_capacity_factor(
-            RenewableType.SOLAR_PV, xr.DataArray(irradiance, dims=["time"]), rated_capacity_mw=100
+            RenewableType.SOLAR_PV,
+            xr.DataArray(irradiance, dims=["time"]),
+            rated_capacity_mw=100,
         )
         assert 0 < result["capacity_factor"] < 0.5
-        assert result["annual_generation_mwh"] == pytest.approx(result["capacity_factor"] * 100 * 8760)
+        assert result["annual_generation_mwh"] == pytest.approx(
+            result["capacity_factor"] * 100 * 8760
+        )
 
     def test_wind_capacity_factor(self, assessor):
         rng = np.random.default_rng(42)
         wind_speeds = rng.weibull(2, 8760) * 8
         result = assessor.calculate_capacity_factor(
-            RenewableType.ONSHORE_WIND, xr.DataArray(wind_speeds, dims=["time"]), rated_capacity_mw=50
+            RenewableType.ONSHORE_WIND,
+            xr.DataArray(wind_speeds, dims=["time"]),
+            rated_capacity_mw=50,
         )
         assert 0 < result["capacity_factor"] < 1.0
         assert result["hours_zero_output"] > 0  # speeds below cut-in (3 m/s)
@@ -133,14 +158,21 @@ class TestLCOE:
         assert 20 < result["lcoe_usd_mwh"] < 80
 
     def test_lcoe_varies_with_capacity_factor(self, assessor):
-        low_cf = assessor.calculate_lcoe(RenewableType.ONSHORE_WIND, capacity_mw=50, capacity_factor=0.25)
-        high_cf = assessor.calculate_lcoe(RenewableType.ONSHORE_WIND, capacity_mw=50, capacity_factor=0.40)
+        low_cf = assessor.calculate_lcoe(
+            RenewableType.ONSHORE_WIND, capacity_mw=50, capacity_factor=0.25
+        )
+        high_cf = assessor.calculate_lcoe(
+            RenewableType.ONSHORE_WIND, capacity_mw=50, capacity_factor=0.40
+        )
         assert high_cf["lcoe_usd_mwh"] < low_cf["lcoe_usd_mwh"]
 
     def test_lcoe_factors(self, assessor):
         result = assessor.calculate_lcoe(
-            RenewableType.SOLAR_PV, capacity_mw=100, capacity_factor=0.25,
-            discount_rate=0.08, lifetime_years=30,
+            RenewableType.SOLAR_PV,
+            capacity_mw=100,
+            capacity_factor=0.25,
+            discount_rate=0.08,
+            lifetime_years=30,
         )
         assert result["lifetime_years"] == 30
         assert result["discount_rate"] == 0.08
@@ -151,10 +183,13 @@ class TestStorageAnalysis:
 
     def test_analyze_storage_requirements(self, assessor):
         hours = np.arange(168)
-        generation = np.maximum(0, 500 * np.sin(2 * np.pi * (hours % 24) / 24 - np.pi / 4))
+        generation = np.maximum(
+            0, 500 * np.sin(2 * np.pi * (hours % 24) / 24 - np.pi / 4)
+        )
         demand = 400 + 200 * np.sin(2 * np.pi * (hours % 24) / 24)
         result = assessor.analyze_storage_requirements(
-            xr.DataArray(generation, dims=["time"]), xr.DataArray(demand, dims=["time"]),
+            xr.DataArray(generation, dims=["time"]),
+            xr.DataArray(demand, dims=["time"]),
             renewable_penetration=0.5,
         )
         assert result["recommended_storage"]["duration_hours"] == 4.0
@@ -164,7 +199,9 @@ class TestStorageAnalysis:
 
     def test_storage_duration_is_configurable(self, assessor):
         hours = np.arange(168)
-        generation = np.maximum(0, 500 * np.sin(2 * np.pi * (hours % 24) / 24 - np.pi / 4))
+        generation = np.maximum(
+            0, 500 * np.sin(2 * np.pi * (hours % 24) / 24 - np.pi / 4)
+        )
         demand = 400 + 200 * np.sin(2 * np.pi * (hours % 24) / 24)
         gen = xr.DataArray(generation, dims=["time"])
         dem = xr.DataArray(demand, dims=["time"])
@@ -178,7 +215,9 @@ class TestStorageAnalysis:
         """Regression: deficit must be vs full demand, not penetration-scaled demand."""
         gen = xr.DataArray(np.full(24, 50.0), dims=["time"])
         dem = xr.DataArray(np.full(24, 100.0), dims=["time"])
-        result = assessor.analyze_storage_requirements(gen, dem, renewable_penetration=0.5)
+        result = assessor.analyze_storage_requirements(
+            gen, dem, renewable_penetration=0.5
+        )
         # scaled generation == 50 MW/h exactly; deficit per hour = 100 - 50 = 50
         assert result["max_hourly_deficit_mw"] == pytest.approx(50.0)
         assert result["recommended_storage"]["power_capacity_mw"] == pytest.approx(50.0)
@@ -189,8 +228,12 @@ class TestSiteRegistry:
 
     def test_register_site(self, assessor):
         site = RenewableSite(
-            site_id="SOLAR_001", name="Desert Solar Farm", location=(-115.5, 33.0),
-            resource_type=RenewableType.SOLAR_PV, capacity_mw=100, capacity_factor=0.28,
+            site_id="SOLAR_001",
+            name="Desert Solar Farm",
+            location=(-115.5, 33.0),
+            resource_type=RenewableType.SOLAR_PV,
+            capacity_mw=100,
+            capacity_factor=0.28,
             annual_generation_gwh=245.3,
         )
         assert assessor.register_site(site) == "SOLAR_001"
@@ -198,9 +241,15 @@ class TestSiteRegistry:
 
     def test_portfolio_summary(self, assessor):
         sites = [
-            RenewableSite("S1", "Solar 1", (-115, 33), RenewableType.SOLAR_PV, 100, 0.25, 219),
-            RenewableSite("S2", "Solar 2", (-116, 34), RenewableType.SOLAR_PV, 150, 0.27, 355),
-            RenewableSite("W1", "Wind 1", (-117, 35), RenewableType.ONSHORE_WIND, 200, 0.35, 613),
+            RenewableSite(
+                "S1", "Solar 1", (-115, 33), RenewableType.SOLAR_PV, 100, 0.25, 219
+            ),
+            RenewableSite(
+                "S2", "Solar 2", (-116, 34), RenewableType.SOLAR_PV, 150, 0.27, 355
+            ),
+            RenewableSite(
+                "W1", "Wind 1", (-117, 35), RenewableType.ONSHORE_WIND, 200, 0.35, 613
+            ),
         ]
         for site in sites:
             assessor.register_site(site)
@@ -223,5 +272,9 @@ class TestEnums:
 
     def test_suitability_classes(self):
         assert [c.value for c in SuitabilityClass] == [
-            "excellent", "good", "moderate", "marginal", "unsuitable"
+            "excellent",
+            "good",
+            "moderate",
+            "marginal",
+            "unsuitable",
         ]

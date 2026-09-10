@@ -16,6 +16,7 @@ from datetime import datetime
 # Import the necessary components
 try:
     from geo_infer_place.core.unified_backend import CascadianAgriculturalH3Backend
+
     PLACE_BACKEND_AVAILABLE = True
 except ImportError as e:
     print(f"ERROR: PLACE backend not available: {e}")
@@ -24,11 +25,13 @@ except ImportError as e:
 
 try:
     from geo_infer_space.core.unified_backend import NumpyEncoder
+
     SPACE_BACKEND_AVAILABLE = True
 except ImportError as e:
     print(f"WARNING: SPACE backend not available: {e}")
     SPACE_BACKEND_AVAILABLE = False
     import numpy as np
+
     class NumpyEncoder(json.JSONEncoder):
         def default(self, obj):
             if isinstance(obj, np.integer):
@@ -39,7 +42,10 @@ except ImportError as e:
                 return obj.tolist()
             return super(NumpyEncoder, self).default(obj)
 
-def initialize_modules(active_modules: List[str], shared_backend, osc_repo_path: str) -> Dict[str, Any]:
+
+def initialize_modules(
+    active_modules: List[str], shared_backend, osc_repo_path: str
+) -> Dict[str, Any]:
     """Initialize all available modules using the shared backend"""
     logger = logging.getLogger(__name__)
     modules = {}
@@ -47,6 +53,7 @@ def initialize_modules(active_modules: List[str], shared_backend, osc_repo_path:
     # Import all the specialized modules from the 'cascadia' location
     try:
         from src.data_modules.zoning.geo_infer_zoning import GeoInferZoning
+
         ZONING_AVAILABLE = True
     except ImportError as e:
         logger.warning(f"Zoning module not available: {e}")
@@ -55,6 +62,7 @@ def initialize_modules(active_modules: List[str], shared_backend, osc_repo_path:
 
     try:
         from src.data_modules.ecology.geo_infer_ecology import GeoInferEcology
+
         ECOLOGY_AVAILABLE = True
     except ImportError as e:
         logger.warning(f"Ecology module not available: {e}")
@@ -63,6 +71,7 @@ def initialize_modules(active_modules: List[str], shared_backend, osc_repo_path:
 
     try:
         from src.data_modules.current_use.geo_infer_current_use import GeoInferCurrentUse
+
         CURRENT_USE_AVAILABLE = True
     except ImportError as e:
         logger.warning(f"Current use module not available: {e}")
@@ -71,6 +80,7 @@ def initialize_modules(active_modules: List[str], shared_backend, osc_repo_path:
 
     try:
         from src.data_modules.ownership.geo_infer_ownership import GeoInferOwnership
+
         OWNERSHIP_AVAILABLE = True
     except ImportError as e:
         logger.warning(f"Ownership module not available: {e}")
@@ -79,45 +89,46 @@ def initialize_modules(active_modules: List[str], shared_backend, osc_repo_path:
 
     try:
         from src.data_modules.improvements.geo_infer_improvements import GeoInferImprovements
+
         IMPROVEMENTS_AVAILABLE = True
     except ImportError as e:
         logger.warning(f"Improvements module not available: {e}")
         IMPROVEMENTS_AVAILABLE = False
         GeoInferImprovements = None
-    
+
     # Initialize available modules using the shared backend
-    if 'zoning' in active_modules and ZONING_AVAILABLE:
+    if "zoning" in active_modules and ZONING_AVAILABLE:
         try:
-            modules['zoning'] = GeoInferZoning(shared_backend)
+            modules["zoning"] = GeoInferZoning(shared_backend)
             logger.info("✅ Zoning module initialized")
         except Exception as e:
             logger.error(f"❌ Failed to initialize zoning module: {e}")
-    
-    if 'current_use' in active_modules and CURRENT_USE_AVAILABLE:
+
+    if "current_use" in active_modules and CURRENT_USE_AVAILABLE:
         try:
-            modules['current_use'] = GeoInferCurrentUse(shared_backend)
+            modules["current_use"] = GeoInferCurrentUse(shared_backend)
             logger.info("✅ Current use module initialized")
         except Exception as e:
             logger.error(f"❌ Failed to initialize current use module: {e}")
-    
+
     # Add other modules as they become available
-    if 'ownership' in active_modules and OWNERSHIP_AVAILABLE:
+    if "ownership" in active_modules and OWNERSHIP_AVAILABLE:
         try:
-            modules['ownership'] = GeoInferOwnership(shared_backend)
+            modules["ownership"] = GeoInferOwnership(shared_backend)
             logger.info("✅ Ownership module initialized")
         except Exception as e:
             logger.error(f"❌ Failed to initialize ownership module: {e}")
-    
-    if 'improvements' in active_modules and IMPROVEMENTS_AVAILABLE:
+
+    if "improvements" in active_modules and IMPROVEMENTS_AVAILABLE:
         try:
-            modules['improvements'] = GeoInferImprovements(shared_backend)
+            modules["improvements"] = GeoInferImprovements(shared_backend)
             logger.info("✅ Improvements module initialized")
         except Exception as e:
             logger.error(f"❌ Failed to initialize improvements module: {e}")
-    
-    if 'ecology' in active_modules and ECOLOGY_AVAILABLE and GeoInferEcology:
+
+    if "ecology" in active_modules and ECOLOGY_AVAILABLE and GeoInferEcology:
         try:
-            modules['ecology'] = GeoInferEcology()
+            modules["ecology"] = GeoInferEcology()
             logger.info("✅ Ecology module initialized")
         except Exception as e:
             logger.error(f"❌ Failed to initialize ecology module: {e}")
@@ -132,32 +143,44 @@ def initialize_modules(active_modules: List[str], shared_backend, osc_repo_path:
 
     return modules
 
-def create_shared_backend(resolution: int, target_counties: Dict, output_dir: Path, osc_repo_path: str) -> CascadianAgriculturalH3Backend:
+
+def create_shared_backend(
+    resolution: int, target_counties: Dict, output_dir: Path, osc_repo_path: str
+) -> CascadianAgriculturalH3Backend:
     """Create a single shared backend for all modules"""
     logger = logging.getLogger(__name__)
     logger.info("🔧 Creating shared backend for all modules...")
-    
+
     try:
         shared_backend = CascadianAgriculturalH3Backend(
             modules={},  # Start with empty modules, will be populated
             resolution=resolution,
-            bioregion='Cascadia',
+            bioregion="Cascadia",
             target_counties=target_counties,
-            base_data_dir=output_dir / 'data',
-            osc_repo_dir=osc_repo_path
+            base_data_dir=output_dir / "data",
+            osc_repo_dir=osc_repo_path,
         )
-        logger.info(f"✅ Shared backend created with {len(shared_backend.target_hexagons)} target hexagons")
+        logger.info(
+            f"✅ Shared backend created with {len(shared_backend.target_hexagons)} target hexagons"
+        )
         return shared_backend
     except Exception as e:
         logger.error(f"❌ Failed to create shared backend: {e}")
         raise
 
-def export_results(backend, redevelopment_scores: Dict, summary: Dict,
-                  output_dir: Path, timestamp: str, bioregion_lower: str, 
-                  export_format: str = 'geojson') -> Dict[str, str]:
+
+def export_results(
+    backend,
+    redevelopment_scores: Dict,
+    summary: Dict,
+    output_dir: Path,
+    timestamp: str,
+    bioregion_lower: str,
+    export_format: str = "geojson",
+) -> Dict[str, str]:
     """
     Export analysis results with enhanced visualization options.
-    
+
     Args:
         backend: Unified backend with processed data
         redevelopment_scores: Redevelopment potential scores
@@ -166,43 +189,46 @@ def export_results(backend, redevelopment_scores: Dict, summary: Dict,
         timestamp: Timestamp for file naming
         bioregion_lower: Lowercase bioregion name
         export_format: Export format (geojson, csv, json)
-        
+
     Returns:
         Dictionary with paths to exported files
     """
     logger = logging.getLogger(__name__)
     logger.info("Step 4: Exporting analysis results...")
-    
+
     export_start = time.time()
     export_paths = {}
-    
+
     try:
         # Export unified data
         unified_path = output_dir / f"{bioregion_lower}_unified_data_{timestamp}.{export_format}"
         backend.export_unified_data(str(unified_path), export_format)
-        export_paths['unified_data'] = str(unified_path)
+        export_paths["unified_data"] = str(unified_path)
         logger.info(f"✅ Successfully exported enhanced unified data to {unified_path}")
-        
+
         # Export redevelopment scores
         redevelopment_path = output_dir / f"{bioregion_lower}_redevelopment_scores_{timestamp}.json"
-        with open(redevelopment_path, 'w') as f:
+        with open(redevelopment_path, "w") as f:
             json.dump(redevelopment_scores, f, indent=2, cls=NumpyEncoder)
-        export_paths['redevelopment_scores'] = str(redevelopment_path)
+        export_paths["redevelopment_scores"] = str(redevelopment_path)
         logger.info(f"Exported redevelopment scores to {redevelopment_path}")
-        
+
         # Export summary
         summary_path = output_dir / f"{bioregion_lower}_summary_{timestamp}.json"
-        with open(summary_path, 'w') as f:
+        with open(summary_path, "w") as f:
             json.dump(summary, f, indent=2, cls=NumpyEncoder)
-        export_paths['summary'] = str(summary_path)
+        export_paths["summary"] = str(summary_path)
         logger.info(f"Exported summary to {summary_path}")
-        
+
         # Create efficient visualizations
         logger.info("Creating efficient visualization alternatives...")
-        
+
         # Option 1: Datashader visualization (recommended for large datasets)
         try:
-            from src.core.visualization.datashader_visualization import create_datashader_visualization
+            from src.core.visualization.datashader_visualization import (
+                create_datashader_visualization,
+            )
+
             datashader_results = create_datashader_visualization(backend, output_dir)
             export_paths.update(datashader_results)
             logger.info("✅ Datashader visualizations created successfully")
@@ -210,10 +236,13 @@ def export_results(backend, redevelopment_scores: Dict, summary: Dict,
             logger.warning(f"Datashader not available: {e}")
         except Exception as e:
             logger.error(f"Failed to create Datashader visualizations: {e}")
-        
+
         # Option 2: Deepscatter visualization (lightweight web-based)
         try:
-            from src.core.visualization.deepscatter_visualization import create_deepscatter_visualization
+            from src.core.visualization.deepscatter_visualization import (
+                create_deepscatter_visualization,
+            )
+
             deepscatter_results = create_deepscatter_visualization(backend, output_dir)
             export_paths.update(deepscatter_results)
             logger.info("✅ Deepscatter visualizations created successfully")
@@ -221,32 +250,34 @@ def export_results(backend, redevelopment_scores: Dict, summary: Dict,
             logger.warning(f"Deepscatter dependencies not available: {e}")
         except Exception as e:
             logger.error(f"Failed to create Deepscatter visualizations: {e}")
-        
+
         # Option 3: Lightweight static plots (fallback)
         try:
             from src.core.visualization.static_visualization import create_static_plots
+
             static_results = create_static_plots(backend, output_dir)
             export_paths.update(static_results)
             logger.info("✅ Static plots created successfully")
         except Exception as e:
             logger.error(f"Failed to create static plots: {e}")
-        
+
         export_time = time.time() - export_start
         logger.info(f"📊 Data export completed in {export_time:.1f} seconds")
-        
+
     except Exception as e:
         logger.error(f"❌ Export failed: {e}")
-        export_paths['error'] = str(e)
-    
+        export_paths["error"] = str(e)
+
     return export_paths
+
 
 def validate_data_acquisition(modules: Dict) -> Dict[str, int]:
     """Validate data acquisition for each module"""
     logger = logging.getLogger(__name__)
     data_acquisition_summary = {}
-    
+
     logger.info("🔍 Starting comprehensive data acquisition and processing tracking...")
-    
+
     # Track data acquisition for each module
     for module_name, module in modules.items():
         logger.info(f"🔍 Pre-analysis data check for {module_name} module...")
@@ -262,13 +293,15 @@ def validate_data_acquisition(modules: Dict) -> Dict[str, int]:
                 logger.warning(f"  ⚠️ {module_name}: No data directory found")
         except Exception as e:
             logger.error(f"  ❌ {module_name}: Error checking data: {e}")
-            
+
         logger.info(f"🔍 Post-analysis data check for {module_name} module...")
         try:
             data_path = module.data_dir
             if data_path.exists():
                 data_files = list(data_path.glob("*.geojson"))
-                processed_count = len([f for f in data_files if f.stat().st_size > 100])  # Files with real content
+                processed_count = len(
+                    [f for f in data_files if f.stat().st_size > 100]
+                )  # Files with real content
                 logger.info(f"  ✅ {module_name}: {processed_count} processed data files")
                 data_acquisition_summary[module_name] = processed_count
             else:
@@ -277,6 +310,6 @@ def validate_data_acquisition(modules: Dict) -> Dict[str, int]:
         except Exception as e:
             logger.error(f"  ❌ {module_name}: Error in post-analysis check: {e}")
             data_acquisition_summary[module_name] = 0
-    
+
     logger.info("✅ Data acquisition validation complete")
-    return data_acquisition_summary 
+    return data_acquisition_summary

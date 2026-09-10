@@ -40,7 +40,9 @@ def generate_totp(secret: str, at_time: Optional[float] = None) -> str:
         The zero-padded 6-digit TOTP code.
     """
     key = base64.b32decode(secret, casefold=True)
-    counter = int(at_time if at_time is not None else datetime.now(timezone.utc).timestamp())
+    counter = int(
+        at_time if at_time is not None else datetime.now(timezone.utc).timestamp()
+    )
     counter //= _TOTP_STEP_SECONDS
     msg = struct.pack(">Q", counter)
     digest = hmac.new(key, msg, hashlib.sha1).digest()
@@ -62,9 +64,7 @@ def verify_totp(secret: str, code: str, at_time: Optional[float] = None) -> bool
     """
     try:
         reference = (
-            at_time
-            if at_time is not None
-            else datetime.now(timezone.utc).timestamp()
+            at_time if at_time is not None else datetime.now(timezone.utc).timestamp()
         )
         for skew in range(-_TOTP_ALLOWED_SKEW, _TOTP_ALLOWED_SKEW + 1):
             expected = generate_totp(secret, reference + skew * _TOTP_STEP_SECONDS)
@@ -74,6 +74,7 @@ def verify_totp(secret: str, code: str, at_time: Optional[float] = None) -> bool
     except Exception as e:
         logger.error(f"TOTP verification error: {e}")
         return False
+
 
 logger = logging.getLogger(__name__)
 

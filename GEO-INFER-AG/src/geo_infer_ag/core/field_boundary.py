@@ -15,6 +15,7 @@ from pyproj import CRS
 # field areas in hectares without the scale distortion of Web Mercator.
 EQUAL_AREA_CRS = CRS.from_epsg(6933)
 
+
 class FieldBoundaryManager:
     """
     Manages agricultural field boundaries and their properties.
@@ -248,9 +249,9 @@ class FieldBoundaryManager:
             metric_fields = self.fields.to_crs(metric_crs)
             metric_field = metric_fields[metric_fields["field_id"] == field_id]
             buffer_geom = metric_field.geometry.iloc[0].buffer(buffer_distance)
-            mask = (metric_fields["field_id"] != field_id) & metric_fields.geometry.intersects(
-                buffer_geom
-            )
+            mask = (
+                metric_fields["field_id"] != field_id
+            ) & metric_fields.geometry.intersects(buffer_geom)
             # Return neighbors in the manager's original CRS
             return self.fields.loc[metric_fields.index[mask]].copy()
 
@@ -312,9 +313,7 @@ class FieldBoundaryManager:
                 # distorted by Web Mercator scale error.
                 area_factor = 0.0001  # Convert m² to hectares
                 equal_area_gdf = (
-                    gdf.to_crs(EQUAL_AREA_CRS)
-                    if gdf.crs is not None
-                    else gdf
+                    gdf.to_crs(EQUAL_AREA_CRS) if gdf.crs is not None else gdf
                 )
                 gdf["area_ha"] = equal_area_gdf.geometry.area * area_factor
                 gdf = gdf[gdf["area_ha"] >= min_area]
@@ -328,8 +327,8 @@ class FieldBoundaryManager:
                 for idx, row in gdf.iterrows():
                     self.add_field(
                         geometry=row.geometry,
-                        field_id=f"field_r_{idx+1}",
-                        name=f"Field R{idx+1}",
+                        field_id=f"field_r_{idx + 1}",
+                        name=f"Field R{idx + 1}",
                         attributes={"source": "raster_extraction"},
                     )
 

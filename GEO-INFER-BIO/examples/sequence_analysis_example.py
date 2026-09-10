@@ -1,6 +1,7 @@
 """
 Example script demonstrating the usage of GEO-INFER-BIO sequence analysis.
 """
+
 import pandas as pd
 from pathlib import Path
 from geo_infer_bio.core.sequence_analysis import SequenceAnalyzer
@@ -29,10 +30,12 @@ def main():
     fasta_file.write_text("\n".join(sequences))
 
     # Create sample spatial data
-    spatial_data = pd.DataFrame({
-        "latitude": [40.7128, 34.0522, 51.5074],
-        "longitude": [-74.0060, -118.2437, -0.1278],
-    })
+    spatial_data = pd.DataFrame(
+        {
+            "latitude": [40.7128, 34.0522, 51.5074],
+            "longitude": [-74.0060, -118.2437, -0.1278],
+        }
+    )
 
     # Load sequences
     print("Loading sequences...")
@@ -63,9 +66,7 @@ def main():
 
     # Analyze spatial distribution
     print("\nAnalyzing spatial distribution...")
-    spatial_analysis = analyzer.analyze_spatial_distribution(
-        seq_records, spatial_data
-    )
+    spatial_analysis = analyzer.analyze_spatial_distribution(seq_records, spatial_data)
 
     # Visualize results
     print("\nGenerating visualizations...")
@@ -100,4 +101,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

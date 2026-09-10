@@ -18,8 +18,10 @@ import requests
 try:
     from geo_infer_space.core.api_clients import BaseAPIManager
 except ImportError:
+
     class _BaseAPIManagerFallback:
         """Fallback base for API clients when geo_infer_space is unavailable."""
+
         def __init__(self, base_url: str) -> None:
             self.base_url = base_url
             self.session = requests.Session()
@@ -64,32 +66,58 @@ def _fetch_with_retry(
             # 4xx: don't retry
             if 400 <= response.status_code < 500:
                 logger.warning("Client error %d from %s", response.status_code, url)
-                return {"error": {"type": "client_error", "status": response.status_code, "detail": response.text[:200]}}
+                return {
+                    "error": {
+                        "type": "client_error",
+                        "status": response.status_code,
+                        "detail": response.text[:200],
+                    }
+                }
 
             response.raise_for_status()
             return cast(Dict[str, Any], response.json())
 
         except requests.exceptions.Timeout as exc:
             last_exc = exc
-            logger.warning("Timeout on attempt %d/%d for %s", attempt + 1, max_retries + 1, url)
+            logger.warning(
+                "Timeout on attempt %d/%d for %s", attempt + 1, max_retries + 1, url
+            )
         except requests.exceptions.ConnectionError as exc:
             last_exc = exc
-            logger.warning("Connection error on attempt %d/%d for %s", attempt + 1, max_retries + 1, url)
+            logger.warning(
+                "Connection error on attempt %d/%d for %s",
+                attempt + 1,
+                max_retries + 1,
+                url,
+            )
         except requests.exceptions.HTTPError as exc:
             last_exc = exc
             status = getattr(exc.response, "status_code", 0)
             if status < 500:
                 # Non-retryable HTTP error
-                return {"error": {"type": "http_error", "status": status, "detail": str(exc)}}
-            logger.warning("Server error %d on attempt %d/%d", status, attempt + 1, max_retries + 1)
+                return {
+                    "error": {
+                        "type": "http_error",
+                        "status": status,
+                        "detail": str(exc),
+                    }
+                }
+            logger.warning(
+                "Server error %d on attempt %d/%d", status, attempt + 1, max_retries + 1
+            )
         except (ValueError, requests.exceptions.JSONDecodeError) as exc:
             # Response wasn't JSON
             last_exc = exc
-            logger.warning("JSON decode error on attempt %d/%d for %s", attempt + 1, max_retries + 1, url)
+            logger.warning(
+                "JSON decode error on attempt %d/%d for %s",
+                attempt + 1,
+                max_retries + 1,
+                url,
+            )
 
         # Exponential backoff (skip sleep on last attempt)
         if attempt < max_retries:
-            delay = min(BACKOFF_BASE * (2 ** attempt), BACKOFF_MAX)
+            delay = min(BACKOFF_BASE * (2**attempt), BACKOFF_MAX)
             time.sleep(delay)
 
     logger.error("All %d retries exhausted for %s: %s", max_retries + 1, url, last_exc)
@@ -103,7 +131,9 @@ class CALFIREClient(BaseAPIManager):
         super().__init__(
             "https://services1.arcgis.com/jUJYIo9tSA7EHvfZ/ArcGIS/rest/services/California_Fire_Perimeters/FeatureServer"
         )
-        self.incident_url = "https://www.fire.ca.gov/umbraco/api/IncidentApi/GetIncidents"
+        self.incident_url = (
+            "https://www.fire.ca.gov/umbraco/api/IncidentApi/GetIncidents"
+        )
 
     def fetch_incidents(self) -> Any:
         """Fetch active fire incidents from CAL FIRE with retry."""
@@ -143,7 +173,9 @@ class CALFIREClient(BaseAPIManager):
         # Validate response structure
         if isinstance(data, dict) and data.get("type") == "FeatureCollection":
             n = len(data.get("features", []))
-            logger.info("Fetched %d fire perimeters (year=%s, county=%s)", n, year, county)
+            logger.info(
+                "Fetched %d fire perimeters (year=%s, county=%s)", n, year, county
+            )
             return data
 
         return data  # May contain error key

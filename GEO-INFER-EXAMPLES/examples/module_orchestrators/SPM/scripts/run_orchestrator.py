@@ -47,9 +47,7 @@ def _operation() -> Dict[str, Any]:
         random_seed=11,
     )
 
-    design = create_design_matrix(
-        spm_data, covariates=["elevation", "temperature"]
-    )
+    design = create_design_matrix(spm_data, covariates=["elevation", "temperature"])
     model_result = fit_glm(spm_data, design, method="OLS")
     contrast_result = contrast(model_result, np.array([0.0, 1.0, 0.0]))
     spm_map = compute_spm(model_result, contrast_result, correction="RFT")
@@ -80,9 +78,7 @@ def _operation() -> Dict[str, Any]:
         "spm_map": {
             "correction": str(spm_map.correction_method),
             "threshold": (
-                float(spm_map.threshold)
-                if spm_map.threshold is not None
-                else None
+                float(spm_map.threshold) if spm_map.threshold is not None else None
             ),
             "n_significant_points": (
                 int(np.sum(sig_mask)) if sig_mask is not None else None

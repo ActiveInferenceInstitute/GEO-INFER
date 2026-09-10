@@ -95,9 +95,9 @@ class BayesianTimeSeriesModel(BayesianModel):
         mean_prediction: np.ndarray = np.asarray(predictions.mean(axis=0))
         if return_std:
             scale = np.sqrt(np.maximum(noise_samples, np.finfo(float).eps))
-            std_prediction: np.ndarray = np.asarray(np.sqrt(
-                np.var(predictions, axis=0) + np.mean(scale**2)
-            ))
+            std_prediction: np.ndarray = np.asarray(
+                np.sqrt(np.var(predictions, axis=0) + np.mean(scale**2))
+            )
             return mean_prediction, std_prediction
         return mean_prediction
 

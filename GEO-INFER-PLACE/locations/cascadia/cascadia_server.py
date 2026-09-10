@@ -8,6 +8,7 @@ Usage:
     uv run python cascadia_server.py --port 8765 --output-dir output/
     uv run python cascadia_server.py --port 8765 --open-browser
 """
+
 from __future__ import annotations
 
 import argparse
@@ -31,6 +32,7 @@ try:
     from fastapi import FastAPI, HTTPException
     from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
     from fastapi.staticfiles import StaticFiles
+
     _FASTAPI_AVAILABLE = True
 except ImportError:
     _FASTAPI_AVAILABLE = False
@@ -39,6 +41,7 @@ except ImportError:
 # ---------------------------------------------------------------------------
 # FastAPI application
 # ---------------------------------------------------------------------------
+
 
 def create_app(output_dir: Path) -> "fastapi.FastAPI":
     """Build the FastAPI application."""
@@ -167,8 +170,13 @@ def create_app(output_dir: Path) -> "fastapi.FastAPI":
             if matches:
                 with open(matches[0], encoding="utf-8") as f:
                     return JSONResponse(json.load(f))
-        return JSONResponse({"type": "FeatureCollection", "features": [],
-                             "note": f"No H3 data found for resolution {resolution}. Run the pipeline first."})
+        return JSONResponse(
+            {
+                "type": "FeatureCollection",
+                "features": [],
+                "note": f"No H3 data found for resolution {resolution}. Run the pipeline first.",
+            }
+        )
 
     return app
 
@@ -176,6 +184,7 @@ def create_app(output_dir: Path) -> "fastapi.FastAPI":
 # ---------------------------------------------------------------------------
 # Stdlib fallback server
 # ---------------------------------------------------------------------------
+
 
 def run_stdlib_server(output_dir: Path, port: int) -> None:
     """Minimal stdlib HTTP server when FastAPI is not available."""
@@ -197,6 +206,7 @@ def run_stdlib_server(output_dir: Path, port: int) -> None:
 # CLI entry point
 # ---------------------------------------------------------------------------
 
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Cascadia analysis HTTP server",
@@ -208,10 +218,16 @@ Examples:
         """,
     )
     parser.add_argument("--port", type=int, default=8765, help="Port to listen on (default: 8765)")
-    parser.add_argument("--host", type=str, default="127.0.0.1", help="Host to bind (default: 127.0.0.1)")
-    parser.add_argument("--output-dir", type=str, default="output", help="Pipeline output directory")
+    parser.add_argument(
+        "--host", type=str, default="127.0.0.1", help="Host to bind (default: 127.0.0.1)"
+    )
+    parser.add_argument(
+        "--output-dir", type=str, default="output", help="Pipeline output directory"
+    )
     parser.add_argument("--open-browser", action="store_true", help="Open browser after starting")
-    parser.add_argument("--reload", action="store_true", help="Enable uvicorn auto-reload (dev only)")
+    parser.add_argument(
+        "--reload", action="store_true", help="Enable uvicorn auto-reload (dev only)"
+    )
     return parser.parse_args()
 
 
@@ -234,6 +250,7 @@ def main() -> None:
         def _open():
             time.sleep(1.5)
             webbrowser.open(url)
+
         threading.Thread(target=_open, daemon=True).start()
 
     if _FASTAPI_AVAILABLE:

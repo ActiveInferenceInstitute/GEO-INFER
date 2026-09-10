@@ -70,7 +70,9 @@ class TemporalVisualization:
         return array
 
     @staticmethod
-    def _x_values(timestamps: Optional[List], length: int, name: str = "timestamps") -> Any:
+    def _x_values(
+        timestamps: Optional[List], length: int, name: str = "timestamps"
+    ) -> Any:
         """Validate optional timestamps and return a plotting x-axis."""
         if timestamps is None:
             return np.arange(length)

@@ -25,8 +25,10 @@ from pathlib import Path
 
 # Import GEO-INFER-MATH modules
 from geo_infer_math.core.spatial_statistics import (
-    MoranI, getis_ord_g, spatial_descriptive_statistics,
-    local_indicators_spatial_association
+    MoranI,
+    getis_ord_g,
+    spatial_descriptive_statistics,
+    local_indicators_spatial_association,
 )
 from geo_infer_math.core.geometry import haversine_distance, Point
 from geo_infer_math.core.interpolation import SpatialInterpolator
@@ -35,8 +37,11 @@ from geo_infer_math.models.clustering import spatial_clustering_analysis
 from geo_infer_math.api.spatial_analysis import SpatialAnalysisAPI
 
 # Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 class RealisticGeospatialAnalyzer:
     """Comprehensive geospatial analysis using realistic datasets."""
@@ -62,7 +67,9 @@ class RealisticGeospatialAnalyzer:
         Returns:
             Tuple of (coordinates, air_quality_data, temperature_data, humidity_data)
         """
-        logger.info(f"Generating environmental monitoring data for {n_stations} stations...")
+        logger.info(
+            f"Generating environmental monitoring data for {n_stations} stations..."
+        )
 
         # Create realistic station locations (urban area)
         np.random.seed(42)
@@ -87,8 +94,14 @@ class RealisticGeospatialAnalyzer:
 
         # Generate realistic environmental data
         # Air quality (PM2.5) - higher in urban core due to traffic
-        urban_effect = np.exp(-0.5 * ((coordinates[:, 0] - center_lat)**2 +
-                                     (coordinates[:, 1] - center_lon)**2) / 0.01)
+        urban_effect = np.exp(
+            -0.5
+            * (
+                (coordinates[:, 0] - center_lat) ** 2
+                + (coordinates[:, 1] - center_lon) ** 2
+            )
+            / 0.01
+        )
         air_quality = 25 + 15 * urban_effect + np.random.normal(0, 3, n_stations)
 
         # Temperature - slight urban heat island effect
@@ -99,7 +112,9 @@ class RealisticGeospatialAnalyzer:
 
         return coordinates, air_quality, temperature, humidity
 
-    def analyze_air_quality_patterns(self, coordinates: np.ndarray, air_quality: np.ndarray) -> dict:
+    def analyze_air_quality_patterns(
+        self, coordinates: np.ndarray, air_quality: np.ndarray
+    ) -> dict:
         """
         Analyze spatial patterns in air quality data.
 
@@ -114,7 +129,10 @@ class RealisticGeospatialAnalyzer:
 
         # Spatial autocorrelation analysis
         from geo_infer_math.core.linalg_tensor import MatrixOperations
-        weights_matrix = MatrixOperations.spatial_weights_matrix(coordinates, method='inverse_distance', k=8)
+
+        weights_matrix = MatrixOperations.spatial_weights_matrix(
+            coordinates, method="inverse_distance", k=8
+        )
 
         moran = MoranI(weights_matrix)
         moran_result = moran.compute(air_quality, coordinates)
@@ -126,13 +144,17 @@ class RealisticGeospatialAnalyzer:
         lisa_result = local_indicators_spatial_association(air_quality, weights_matrix)
 
         return {
-            'moran_i': moran_result,
-            'hotspots': g_result,
-            'lisa': lisa_result,
-            'descriptive_stats': spatial_descriptive_statistics(coordinates, air_quality)
+            "moran_i": moran_result,
+            "hotspots": g_result,
+            "lisa": lisa_result,
+            "descriptive_stats": spatial_descriptive_statistics(
+                coordinates, air_quality
+            ),
         }
 
-    def analyze_urban_heat_patterns(self, coordinates: np.ndarray, temperature: np.ndarray) -> dict:
+    def analyze_urban_heat_patterns(
+        self, coordinates: np.ndarray, temperature: np.ndarray
+    ) -> dict:
         """
         Analyze urban heat island patterns.
 
@@ -147,7 +169,10 @@ class RealisticGeospatialAnalyzer:
 
         # Create spatial weights for temperature analysis
         from geo_infer_math.core.linalg_tensor import MatrixOperations
-        weights_matrix = MatrixOperations.spatial_weights_matrix(coordinates, method='gaussian')
+
+        weights_matrix = MatrixOperations.spatial_weights_matrix(
+            coordinates, method="gaussian"
+        )
 
         # Temperature autocorrelation
         moran = MoranI(weights_matrix)
@@ -156,12 +181,11 @@ class RealisticGeospatialAnalyzer:
         # Identify heat islands using clustering
         # Combine coordinates with temperature for clustering
         features = np.column_stack([coordinates, temperature.reshape(-1, 1)])
-        clustering_result = spatial_clustering_analysis(features, coordinates, method='kmeans', n_clusters=3)
+        clustering_result = spatial_clustering_analysis(
+            features, coordinates, method="kmeans", n_clusters=3
+        )
 
-        return {
-            'moran_i': moran_result,
-            'clustering': clustering_result
-        }
+        return {"moran_i": moran_result, "clustering": clustering_result}
 
     def public_health_spatial_analysis(self) -> dict:
         """
@@ -177,16 +201,27 @@ class RealisticGeospatialAnalyzer:
 
         # Neighborhood centroids
         np.random.seed(123)
-        neighborhood_coords = np.random.rand(n_neighborhoods, 2) * 10 + np.array([47.5, -122.4])
+        neighborhood_coords = np.random.rand(n_neighborhoods, 2) * 10 + np.array(
+            [47.5, -122.4]
+        )
 
         # Asthma prevalence (higher in urban areas with poor air quality)
-        urban_distance = np.sqrt(np.sum((neighborhood_coords - np.array([47.6062, -122.3321]))**2, axis=1))
-        asthma_rates = 0.08 + 0.02 * np.exp(-urban_distance / 2) + np.random.normal(0, 0.005, n_neighborhoods)
+        urban_distance = np.sqrt(
+            np.sum((neighborhood_coords - np.array([47.6062, -122.3321])) ** 2, axis=1)
+        )
+        asthma_rates = (
+            0.08
+            + 0.02 * np.exp(-urban_distance / 2)
+            + np.random.normal(0, 0.005, n_neighborhoods)
+        )
         asthma_rates = np.clip(asthma_rates, 0.02, 0.20)  # Realistic range
 
         # Analyze spatial patterns
         from geo_infer_math.core.linalg_tensor import MatrixOperations
-        weights_matrix = MatrixOperations.spatial_weights_matrix(neighborhood_coords, method='knn', k=5)
+
+        weights_matrix = MatrixOperations.spatial_weights_matrix(
+            neighborhood_coords, method="knn", k=5
+        )
 
         moran = MoranI(weights_matrix)
         moran_result = moran.compute(asthma_rates, neighborhood_coords)
@@ -195,10 +230,10 @@ class RealisticGeospatialAnalyzer:
         g_result = getis_ord_g(asthma_rates, weights_matrix)
 
         return {
-            'coordinates': neighborhood_coords,
-            'asthma_rates': asthma_rates,
-            'moran_i': moran_result,
-            'hotspots': g_result
+            "coordinates": neighborhood_coords,
+            "asthma_rates": asthma_rates,
+            "moran_i": moran_result,
+            "hotspots": g_result,
         }
 
     def disaster_risk_assessment(self) -> dict:
@@ -218,12 +253,21 @@ class RealisticGeospatialAnalyzer:
         station_coords = np.random.rand(n_stations, 2) * 5 + np.array([45.0, -123.0])
 
         # Seismic activity (simulated readings)
-        distance_from_fault = np.sqrt(np.sum((station_coords - np.array([46.0, -122.0]))**2, axis=1))
-        seismic_activity = 2.0 + 1.5 * np.exp(-distance_from_fault / 1.5) + np.random.normal(0, 0.3, n_stations)
+        distance_from_fault = np.sqrt(
+            np.sum((station_coords - np.array([46.0, -122.0])) ** 2, axis=1)
+        )
+        seismic_activity = (
+            2.0
+            + 1.5 * np.exp(-distance_from_fault / 1.5)
+            + np.random.normal(0, 0.3, n_stations)
+        )
 
         # Risk assessment using spatial statistics
         from geo_infer_math.core.linalg_tensor import MatrixOperations
-        weights_matrix = MatrixOperations.spatial_weights_matrix(station_coords, method='inverse_distance')
+
+        weights_matrix = MatrixOperations.spatial_weights_matrix(
+            station_coords, method="inverse_distance"
+        )
 
         # High-risk areas identification
         risk_threshold = np.percentile(seismic_activity, 75)
@@ -232,17 +276,21 @@ class RealisticGeospatialAnalyzer:
         # Spatial clustering of high-risk areas
         risk_coords = station_coords[high_risk_mask]
         if len(risk_coords) > 3:  # Need minimum points for clustering
-            risk_features = np.column_stack([risk_coords, seismic_activity[high_risk_mask]])
-            clustering_result = spatial_clustering_analysis(risk_features, risk_coords, method='dbscan')
+            risk_features = np.column_stack(
+                [risk_coords, seismic_activity[high_risk_mask]]
+            )
+            clustering_result = spatial_clustering_analysis(
+                risk_features, risk_coords, method="dbscan"
+            )
         else:
             clustering_result = None
 
         return {
-            'station_coordinates': station_coords,
-            'seismic_activity': seismic_activity,
-            'risk_threshold': risk_threshold,
-            'high_risk_coordinates': risk_coords,
-            'clustering': clustering_result
+            "station_coordinates": station_coords,
+            "seismic_activity": seismic_activity,
+            "risk_threshold": risk_threshold,
+            "high_risk_coordinates": risk_coords,
+            "clustering": clustering_result,
         }
 
     def transportation_network_analysis(self) -> dict:
@@ -278,14 +326,14 @@ class RealisticGeospatialAnalyzer:
 
         # Add intersections as nodes
         for i, coord in enumerate(intersections):
-            graph.add_node(f'intersection_{i}', coord, intersection_id=i)
+            graph.add_node(f"intersection_{i}", coord, intersection_id=i)
 
         # Add edges between nearby intersections
         for i in range(len(intersections)):
             for j in range(i + 1, len(intersections)):
-                distance = np.sqrt(np.sum((intersections[i] - intersections[j])**2))
+                distance = np.sqrt(np.sum((intersections[i] - intersections[j]) ** 2))
                 if distance < 0.5:  # Connect nearby intersections
-                    graph.add_edge(f'intersection_{i}', f'intersection_{j}', distance)
+                    graph.add_edge(f"intersection_{i}", f"intersection_{j}", distance)
 
         # Analyze network properties
         network_analysis = graph.spatial_network_analysis()
@@ -294,16 +342,18 @@ class RealisticGeospatialAnalyzer:
         if len(intersections) > 3:
             start_idx = 0
             end_idx = len(intersections) - 1
-            path, distance = graph.shortest_path(f'intersection_{start_idx}', f'intersection_{end_idx}')
+            path, distance = graph.shortest_path(
+                f"intersection_{start_idx}", f"intersection_{end_idx}"
+            )
         else:
             path, distance = [], 0
 
         return {
-            'intersections': intersections,
-            'graph': graph,
-            'network_analysis': network_analysis,
-            'sample_path': path,
-            'sample_distance': distance
+            "intersections": intersections,
+            "graph": graph,
+            "network_analysis": network_analysis,
+            "sample_path": path,
+            "sample_distance": distance,
         }
 
     def climate_data_interpolation(self) -> dict:
@@ -329,11 +379,22 @@ class RealisticGeospatialAnalyzer:
 
         # Temperature influenced by latitude and elevation
         lat_effect = (station_coords[:, 0] - 45.0) * -2  # Cooler at higher latitudes
-        temperature = base_temp + lat_effect + elevation_effect + np.random.normal(0, 1, n_stations)
+        temperature = (
+            base_temp
+            + lat_effect
+            + elevation_effect
+            + np.random.normal(0, 1, n_stations)
+        )
 
         # Create interpolation grid
-        lat_min, lat_max = station_coords[:, 0].min() - 0.5, station_coords[:, 0].max() + 0.5
-        lon_min, lon_max = station_coords[:, 1].min() - 0.5, station_coords[:, 1].max() + 0.5
+        lat_min, lat_max = (
+            station_coords[:, 0].min() - 0.5,
+            station_coords[:, 0].max() + 0.5,
+        )
+        lon_min, lon_max = (
+            station_coords[:, 1].min() - 0.5,
+            station_coords[:, 1].max() + 0.5,
+        )
 
         grid_resolution = 0.1
         lat_grid = np.arange(lat_min, lat_max, grid_resolution)
@@ -344,22 +405,22 @@ class RealisticGeospatialAnalyzer:
         grid_points = np.column_stack([lat_mesh.flatten(), lon_mesh.flatten()])
 
         # Perform interpolation using different methods
-        methods = ['idw', 'kriging']
+        methods = ["idw", "kriging"]
         interpolation_results = {}
 
         for method in methods:
             try:
                 interpolator = SpatialInterpolator(method=method)
-                if method == 'idw':
+                if method == "idw":
                     interpolator.fit(station_coords, temperature)
                 else:  # kriging
                     interpolator.fit(station_coords, temperature)
 
                 interpolated_temps = interpolator.predict(grid_points)
                 interpolation_results[method] = {
-                    'grid_points': grid_points,
-                    'temperatures': interpolated_temps,
-                    'grid_shape': (len(lat_grid), len(lon_grid))
+                    "grid_points": grid_points,
+                    "temperatures": interpolated_temps,
+                    "grid_shape": (len(lat_grid), len(lon_grid)),
                 }
 
             except Exception as e:
@@ -367,13 +428,15 @@ class RealisticGeospatialAnalyzer:
                 interpolation_results[method] = None
 
         return {
-            'station_coordinates': station_coords,
-            'station_temperatures': temperature,
-            'interpolation_results': interpolation_results,
-            'grid_bounds': {
-                'lat_min': lat_min, 'lat_max': lat_max,
-                'lon_min': lon_min, 'lon_max': lon_max
-            }
+            "station_coordinates": station_coords,
+            "station_temperatures": temperature,
+            "interpolation_results": interpolation_results,
+            "grid_bounds": {
+                "lat_min": lat_min,
+                "lat_max": lat_max,
+                "lon_min": lon_min,
+                "lon_max": lon_max,
+            },
         }
 
     def run_comprehensive_analysis(self) -> dict:
@@ -389,33 +452,35 @@ class RealisticGeospatialAnalyzer:
 
         # 1. Environmental Monitoring Analysis
         logger.info("=== Environmental Monitoring Analysis ===")
-        env_coords, air_quality, temperature, humidity = self.generate_environmental_monitoring_data()
+        env_coords, air_quality, temperature, humidity = (
+            self.generate_environmental_monitoring_data()
+        )
 
-        results['environmental'] = {
-            'air_quality': self.analyze_air_quality_patterns(env_coords, air_quality),
-            'urban_heat': self.analyze_urban_heat_patterns(env_coords, temperature),
-            'humidity_patterns': spatial_descriptive_statistics(env_coords, humidity)
+        results["environmental"] = {
+            "air_quality": self.analyze_air_quality_patterns(env_coords, air_quality),
+            "urban_heat": self.analyze_urban_heat_patterns(env_coords, temperature),
+            "humidity_patterns": spatial_descriptive_statistics(env_coords, humidity),
         }
 
         # 2. Public Health Analysis
         logger.info("=== Public Health Analysis ===")
         health_results = self.public_health_spatial_analysis()
-        results['public_health'] = health_results
+        results["public_health"] = health_results
 
         # 3. Disaster Risk Assessment
         logger.info("=== Disaster Risk Assessment ===")
         disaster_results = self.disaster_risk_assessment()
-        results['disaster_risk'] = disaster_results
+        results["disaster_risk"] = disaster_results
 
         # 4. Transportation Network Analysis
         logger.info("=== Transportation Network Analysis ===")
         transport_results = self.transportation_network_analysis()
-        results['transportation'] = transport_results
+        results["transportation"] = transport_results
 
         # 5. Climate Data Interpolation
         logger.info("=== Climate Data Interpolation ===")
         climate_results = self.climate_data_interpolation()
-        results['climate'] = climate_results
+        results["climate"] = climate_results
 
         return results
 
@@ -429,99 +494,131 @@ class RealisticGeospatialAnalyzer:
         logger.info("Creating comprehensive visualization...")
 
         fig, axes = plt.subplots(3, 2, figsize=(20, 24))
-        fig.suptitle('Comprehensive Geospatial Analysis - GEO-INFER-MATH', fontsize=20)
+        fig.suptitle("Comprehensive Geospatial Analysis - GEO-INFER-MATH", fontsize=20)
 
         # 1. Air Quality Hot Spots
         ax1 = axes[0, 0]
-        env_data = results['environmental']
-        air_quality_data = env_data['air_quality']
-        coords = air_quality_data['descriptive_stats'].centroid  # Use centroid as reference
+        env_data = results["environmental"]
+        air_quality_data = env_data["air_quality"]
+        coords = air_quality_data[
+            "descriptive_stats"
+        ].centroid  # Use centroid as reference
 
         # Plot air quality hot spots
-        z_scores = air_quality_data['hotspots']['z_scores']
-        scatter = ax1.scatter(coords[0], coords[1], c=z_scores, cmap='RdYlBu_r', s=100, alpha=0.7)
-        ax1.set_title('Air Quality Hot Spots\n(Getis-Ord G* Z-Scores)')
-        ax1.set_xlabel('Longitude')
-        ax1.set_ylabel('Latitude')
-        plt.colorbar(scatter, ax=ax1, label='Z-Score')
+        z_scores = air_quality_data["hotspots"]["z_scores"]
+        scatter = ax1.scatter(
+            coords[0], coords[1], c=z_scores, cmap="RdYlBu_r", s=100, alpha=0.7
+        )
+        ax1.set_title("Air Quality Hot Spots\n(Getis-Ord G* Z-Scores)")
+        ax1.set_xlabel("Longitude")
+        ax1.set_ylabel("Latitude")
+        plt.colorbar(scatter, ax=ax1, label="Z-Score")
 
         # 2. Urban Heat Island Clustering
         ax2 = axes[0, 1]
-        heat_data = env_data['urban_heat']
+        heat_data = env_data["urban_heat"]
         # Simplified visualization - in practice would use actual coordinates
-        ax2.text(0.5, 0.5, 'Urban Heat Island\nClustering Results\n(Moran I: {:.3f})'.format(
-            heat_data['moran_i']['I']),
-                ha='center', va='center', transform=ax2.transAxes, fontsize=12)
-        ax2.set_title('Urban Heat Island Analysis')
+        ax2.text(
+            0.5,
+            0.5,
+            "Urban Heat Island\nClustering Results\n(Moran I: {:.3f})".format(
+                heat_data["moran_i"]["I"]
+            ),
+            ha="center",
+            va="center",
+            transform=ax2.transAxes,
+            fontsize=12,
+        )
+        ax2.set_title("Urban Heat Island Analysis")
         ax2.set_xticks([])
         ax2.set_yticks([])
 
         # 3. Public Health Spatial Patterns
         ax3 = axes[1, 0]
-        health_data = results['public_health']
-        coords = health_data['coordinates']
-        asthma_rates = health_data['asthma_rates']
+        health_data = results["public_health"]
+        coords = health_data["coordinates"]
+        asthma_rates = health_data["asthma_rates"]
 
-        scatter = ax3.scatter(coords[:, 1], coords[:, 0], c=asthma_rates,
-                            cmap='Reds', s=80, alpha=0.8)
-        ax3.set_title('Asthma Prevalence by Neighborhood\n(Moran I: {:.3f})'.format(
-            health_data['moran_i']['I']))
-        ax3.set_xlabel('Longitude')
-        ax3.set_ylabel('Latitude')
-        plt.colorbar(scatter, ax=ax3, label='Asthma Rate')
+        scatter = ax3.scatter(
+            coords[:, 1], coords[:, 0], c=asthma_rates, cmap="Reds", s=80, alpha=0.8
+        )
+        ax3.set_title(
+            "Asthma Prevalence by Neighborhood\n(Moran I: {:.3f})".format(
+                health_data["moran_i"]["I"]
+            )
+        )
+        ax3.set_xlabel("Longitude")
+        ax3.set_ylabel("Latitude")
+        plt.colorbar(scatter, ax=ax3, label="Asthma Rate")
 
         # 4. Disaster Risk Assessment
         ax4 = axes[1, 1]
-        disaster_data = results['disaster_risk']
-        coords = disaster_data['station_coordinates']
-        activity = disaster_data['seismic_activity']
+        disaster_data = results["disaster_risk"]
+        coords = disaster_data["station_coordinates"]
+        activity = disaster_data["seismic_activity"]
 
-        scatter = ax4.scatter(coords[:, 1], coords[:, 0], c=activity,
-                            cmap='YlOrRd', s=60, alpha=0.8)
-        ax4.set_title('Seismic Activity Risk Assessment')
-        ax4.set_xlabel('Longitude')
-        ax4.set_ylabel('Latitude')
-        plt.colorbar(scatter, ax=ax4, label='Seismic Activity')
+        scatter = ax4.scatter(
+            coords[:, 1], coords[:, 0], c=activity, cmap="YlOrRd", s=60, alpha=0.8
+        )
+        ax4.set_title("Seismic Activity Risk Assessment")
+        ax4.set_xlabel("Longitude")
+        ax4.set_ylabel("Latitude")
+        plt.colorbar(scatter, ax=ax4, label="Seismic Activity")
 
         # 5. Transportation Network
         ax5 = axes[2, 0]
-        transport_data = results['transportation']
-        coords = transport_data['intersections']
+        transport_data = results["transportation"]
+        coords = transport_data["intersections"]
 
-        scatter = ax5.scatter(coords[:, 1], coords[:, 0], c='blue', s=50, alpha=0.7)
-        ax5.set_title('Transportation Network\n({} intersections, {} connections)'.format(
-            len(coords), transport_data['network_analysis']['n_edges']))
-        ax5.set_xlabel('Longitude')
-        ax5.set_ylabel('Latitude')
+        scatter = ax5.scatter(coords[:, 1], coords[:, 0], c="blue", s=50, alpha=0.7)
+        ax5.set_title(
+            "Transportation Network\n({} intersections, {} connections)".format(
+                len(coords), transport_data["network_analysis"]["n_edges"]
+            )
+        )
+        ax5.set_xlabel("Longitude")
+        ax5.set_ylabel("Latitude")
 
         # 6. Climate Data Interpolation
         ax6 = axes[2, 1]
-        climate_data = results['climate']
-        interp_results = climate_data['interpolation_results']
+        climate_data = results["climate"]
+        interp_results = climate_data["interpolation_results"]
 
-        if 'idw' in interp_results and interp_results['idw'] is not None:
-            idw_result = interp_results['idw']
-            grid_shape = idw_result['grid_shape']
-            temps = idw_result['temperatures'].reshape(grid_shape)
+        if "idw" in interp_results and interp_results["idw"] is not None:
+            idw_result = interp_results["idw"]
+            grid_shape = idw_result["grid_shape"]
+            temps = idw_result["temperatures"].reshape(grid_shape)
 
-            im = ax6.imshow(temps, cmap='coolwarm', origin='lower',
-                          extent=[climate_data['grid_bounds']['lon_min'],
-                                 climate_data['grid_bounds']['lon_max'],
-                                 climate_data['grid_bounds']['lat_min'],
-                                 climate_data['grid_bounds']['lat_max']])
-            ax6.scatter(climate_data['station_coordinates'][:, 1],
-                       climate_data['station_coordinates'][:, 0],
-                       c='red', s=30, marker='^', edgecolors='white', linewidth=0.5)
-            ax6.set_title('Temperature Interpolation (IDW)')
-            ax6.set_xlabel('Longitude')
-            ax6.set_ylabel('Latitude')
-            plt.colorbar(im, ax=ax6, label='Temperature (°C)')
+            im = ax6.imshow(
+                temps,
+                cmap="coolwarm",
+                origin="lower",
+                extent=[
+                    climate_data["grid_bounds"]["lon_min"],
+                    climate_data["grid_bounds"]["lon_max"],
+                    climate_data["grid_bounds"]["lat_min"],
+                    climate_data["grid_bounds"]["lat_max"],
+                ],
+            )
+            ax6.scatter(
+                climate_data["station_coordinates"][:, 1],
+                climate_data["station_coordinates"][:, 0],
+                c="red",
+                s=30,
+                marker="^",
+                edgecolors="white",
+                linewidth=0.5,
+            )
+            ax6.set_title("Temperature Interpolation (IDW)")
+            ax6.set_xlabel("Longitude")
+            ax6.set_ylabel("Latitude")
+            plt.colorbar(im, ax=ax6, label="Temperature (°C)")
 
         plt.tight_layout()
 
         # Save comprehensive visualization
-        output_path = self.output_dir / 'comprehensive_geospatial_analysis.png'
-        plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        output_path = self.output_dir / "comprehensive_geospatial_analysis.png"
+        plt.savefig(output_path, dpi=300, bbox_inches="tight")
         logger.info(f"Comprehensive visualization saved to {output_path}")
 
         # Create summary report
@@ -534,55 +631,45 @@ class RealisticGeospatialAnalyzer:
         Args:
             results: Analysis results
         """
-        summary_path = self.output_dir / 'geospatial_analysis_summary.txt'
+        summary_path = self.output_dir / "geospatial_analysis_summary.txt"
 
-        with open(summary_path, 'w') as f:
+        with open(summary_path, "w") as f:
             f.write("GEO-INFER-MATH: Comprehensive Geospatial Analysis Summary\n")
             f.write("=" * 60 + "\n\n")
 
             # Environmental Analysis Summary
             f.write("1. ENVIRONMENTAL MONITORING ANALYSIS\n")
             f.write("-" * 40 + "\n")
-            env_data = results['environmental']
-            air_quality = env_data['air_quality']
+            env_data = results["environmental"]
+            air_quality = env_data["air_quality"]
 
-            f.write(".3f"
-                  ".3f"
-                  ".3f")
+            f.write(".3f.3f.3f")
 
             # Public Health Summary
             f.write("\n\n2. PUBLIC HEALTH ANALYSIS\n")
             f.write("-" * 40 + "\n")
-            health_data = results['public_health']
-            f.write(".3f"
-                  ".3f")
+            health_data = results["public_health"]
+            f.write(".3f.3f")
 
             # Disaster Risk Summary
             f.write("\n\n3. DISASTER RISK ASSESSMENT\n")
             f.write("-" * 40 + "\n")
-            disaster_data = results['disaster_risk']
-            f.write(".2f"
-                  ".0f")
+            disaster_data = results["disaster_risk"]
+            f.write(".2f.0f")
 
             # Transportation Summary
             f.write("\n\n4. TRANSPORTATION NETWORK ANALYSIS\n")
             f.write("-" * 40 + "\n")
-            transport_data = results['transportation']
-            network_analysis = transport_data['network_analysis']
-            f.write(".0f"
-                  ".0f"
-                  ".3f"
-                  ".1f")
+            transport_data = results["transportation"]
+            network_analysis = transport_data["network_analysis"]
+            f.write(".0f.0f.3f.1f")
 
             # Climate Summary
             f.write("\n\n5. CLIMATE DATA INTERPOLATION\n")
             f.write("-" * 40 + "\n")
-            climate_data = results['climate']
-            station_temps = climate_data['station_temperatures']
-            f.write(".1f"
-                  ".1f"
-                  ".1f"
-                  ".1f")
+            climate_data = results["climate"]
+            station_temps = climate_data["station_temperatures"]
+            f.write(".1f.1f.1f.1f")
 
             f.write("\n\nANALYSIS COMPLETED SUCCESSFULLY\n")
             f.write("=" * 60 + "\n")
@@ -590,6 +677,7 @@ class RealisticGeospatialAnalyzer:
             f.write(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
         logger.info(f"Analysis summary saved to {summary_path}")
+
 
 def main():
     """Run the comprehensive geospatial analysis example."""
@@ -608,6 +696,7 @@ def main():
     logger.info(f"Check output directory: {analyzer.output_dir}")
 
     return results
+
 
 if __name__ == "__main__":
     main()

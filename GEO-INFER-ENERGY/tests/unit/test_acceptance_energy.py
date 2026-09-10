@@ -23,6 +23,7 @@ from geo_infer_energy.core.energy_infrastructure import EnergyInfrastructurePlan
 # Test fixtures
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture
 def planner() -> EnergyInfrastructurePlanner:
     return EnergyInfrastructurePlanner()
@@ -33,13 +34,16 @@ def resource_potential() -> xr.DataArray:
     """A 5×5 grid of resource potential values (0–100)."""
     lat = np.linspace(40, 41, 5)
     lon = np.linspace(-74, -73, 5)
-    data = np.array([
-        [10, 20, 30, 40, 50],
-        [20, 40, 60, 80, 90],
-        [30, 60, 90, 80, 70],
-        [20, 40, 60, 50, 40],
-        [10, 20, 30, 20, 10],
-    ], dtype=float)
+    data = np.array(
+        [
+            [10, 20, 30, 40, 50],
+            [20, 40, 60, 80, 90],
+            [30, 60, 90, 80, 70],
+            [20, 40, 60, 50, 40],
+            [10, 20, 30, 20, 10],
+        ],
+        dtype=float,
+    )
     return xr.DataArray(data, dims=["lat", "lon"], coords={"lat": lat, "lon": lon})
 
 
@@ -48,13 +52,16 @@ def demand_centers() -> xr.DataArray:
     """A 5×5 grid of demand center density values."""
     lat = np.linspace(40, 41, 5)
     lon = np.linspace(-74, -73, 5)
-    data = np.array([
-        [5, 10, 15, 10, 5],
-        [10, 20, 30, 20, 10],
-        [15, 30, 50, 30, 15],
-        [10, 20, 30, 20, 10],
-        [5, 10, 15, 10, 5],
-    ], dtype=float)
+    data = np.array(
+        [
+            [5, 10, 15, 10, 5],
+            [10, 20, 30, 20, 10],
+            [15, 30, 50, 30, 15],
+            [10, 20, 30, 20, 10],
+            [5, 10, 15, 10, 5],
+        ],
+        dtype=float,
+    )
     return xr.DataArray(data, dims=["lat", "lon"], coords={"lat": lat, "lon": lon})
 
 
@@ -73,10 +80,13 @@ def constraints() -> xr.DataArray:
 # optimize_facility_siting
 # ---------------------------------------------------------------------------
 
+
 class TestOptimizeFacilitySiting:
     """Acceptance: facility siting optimization produces valid results."""
 
-    def test_returns_dataset_with_required_vars(self, planner, resource_potential, demand_centers):
+    def test_returns_dataset_with_required_vars(
+        self, planner, resource_potential, demand_centers
+    ):
         """The result Dataset contains all documented output variables."""
         result = planner.optimize_facility_siting(resource_potential, demand_centers)
         assert "suitability" in result.data_vars
@@ -84,25 +94,33 @@ class TestOptimizeFacilitySiting:
         assert "resource_suitability" in result.data_vars
         assert "demand_density" in result.data_vars
 
-    def test_suitability_is_normalized(self, planner, resource_potential, demand_centers):
+    def test_suitability_is_normalized(
+        self, planner, resource_potential, demand_centers
+    ):
         """Suitability values are in [0, 1] after normalization."""
         result = planner.optimize_facility_siting(resource_potential, demand_centers)
         suit = result.suitability.values
         assert suit.min() >= 0.0
         assert suit.max() <= 1.0 + 1e-9
 
-    def test_resource_suitability_normalized(self, planner, resource_potential, demand_centers):
+    def test_resource_suitability_normalized(
+        self, planner, resource_potential, demand_centers
+    ):
         """Resource suitability is normalized by max."""
         result = planner.optimize_facility_siting(resource_potential, demand_centers)
         rs = result.resource_suitability.values
         assert abs(rs.max() - 1.0) < 1e-9  # Max becomes 1.0
 
-    def test_optimal_sites_are_boolean(self, planner, resource_potential, demand_centers):
+    def test_optimal_sites_are_boolean(
+        self, planner, resource_potential, demand_centers
+    ):
         """Optimal sites mask is boolean."""
         result = planner.optimize_facility_siting(resource_potential, demand_centers)
         assert result.optimal_sites.dtype == bool
 
-    def test_optimal_sites_are_top_10_percent(self, planner, resource_potential, demand_centers):
+    def test_optimal_sites_are_top_10_percent(
+        self, planner, resource_potential, demand_centers
+    ):
         """Optimal sites are the top 10th percentile of suitability."""
         result = planner.optimize_facility_siting(resource_potential, demand_centers)
         suit = result.suitability.values
@@ -111,9 +129,13 @@ class TestOptimizeFacilitySiting:
         # All optimal sites should have suitability >= threshold
         assert np.all(suit[optimal] >= threshold - 1e-9)
 
-    def test_constraints_exclude_areas(self, planner, resource_potential, demand_centers, constraints):
+    def test_constraints_exclude_areas(
+        self, planner, resource_potential, demand_centers, constraints
+    ):
         """Constraints mask zeroes out excluded areas in suitability."""
-        result = planner.optimize_facility_siting(resource_potential, demand_centers, constraints=constraints)
+        result = planner.optimize_facility_siting(
+            resource_potential, demand_centers, constraints=constraints
+        )
         suit = result.suitability.values
         # Excluded cells should have zero suitability
         assert suit[0, 0] == 0.0
@@ -131,6 +153,7 @@ class TestOptimizeFacilitySiting:
 # assess_infrastructure_capacity
 # ---------------------------------------------------------------------------
 
+
 class TestAssessInfrastructureCapacity:
     """Acceptance: capacity assessment computes gaps and growth needs."""
 
@@ -139,8 +162,7 @@ class TestAssessInfrastructureCapacity:
         lat = np.linspace(40, 41, 3)
         lon = np.linspace(-74, -73, 3)
         return xr.DataArray(
-            np.full((3, 3), 100.0), dims=["lat", "lon"],
-            coords={"lat": lat, "lon": lon}
+            np.full((3, 3), 100.0), dims=["lat", "lon"], coords={"lat": lat, "lon": lon}
         )
 
     @pytest.fixture
@@ -148,15 +170,16 @@ class TestAssessInfrastructureCapacity:
         lat = np.linspace(40, 41, 3)
         lon = np.linspace(-74, -73, 3)
         return xr.DataArray(
-            np.full((3, 3), 150.0), dims=["lat", "lon"],
-            coords={"lat": lat, "lon": lon}
+            np.full((3, 3), 150.0), dims=["lat", "lon"], coords={"lat": lat, "lon": lon}
         )
 
     def test_returns_dataset_with_required_vars(
         self, planner, current_capacity, projected_demand
     ):
         """Result contains all documented output variables."""
-        result = planner.assess_infrastructure_capacity(current_capacity, projected_demand)
+        result = planner.assess_infrastructure_capacity(
+            current_capacity, projected_demand
+        )
         assert "current_capacity" in result.data_vars
         assert "required_capacity" in result.data_vars
         assert "capacity_gap" in result.data_vars
@@ -166,13 +189,13 @@ class TestAssessInfrastructureCapacity:
         self, planner, current_capacity, projected_demand
     ):
         """Gap is positive when projected demand > current capacity."""
-        result = planner.assess_infrastructure_capacity(current_capacity, projected_demand)
+        result = planner.assess_infrastructure_capacity(
+            current_capacity, projected_demand
+        )
         gap = result.capacity_gap.values
         assert np.all(gap == 50.0)
 
-    def test_annual_growth_computed(
-        self, planner, current_capacity, projected_demand
-    ):
+    def test_annual_growth_computed(self, planner, current_capacity, projected_demand):
         """Annual growth = (demand - capacity) / years."""
         result = planner.assess_infrastructure_capacity(
             current_capacity, projected_demand, years=10
@@ -184,17 +207,21 @@ class TestAssessInfrastructureCapacity:
         self, planner, current_capacity, projected_demand
     ):
         """Required capacity equals projected demand."""
-        result = planner.assess_infrastructure_capacity(current_capacity, projected_demand)
+        result = planner.assess_infrastructure_capacity(
+            current_capacity, projected_demand
+        )
         assert np.allclose(result.required_capacity.values, projected_demand.values)
 
     def test_zero_gap_when_balanced(self, planner):
         """Gap is zero when capacity equals demand."""
         lat = np.linspace(40, 41, 2)
         lon = np.linspace(-74, -73, 2)
-        cap = xr.DataArray(np.full((2, 2), 100.0), dims=["lat", "lon"],
-                           coords={"lat": lat, "lon": lon})
-        dem = xr.DataArray(np.full((2, 2), 100.0), dims=["lat", "lon"],
-                           coords={"lat": lat, "lon": lon})
+        cap = xr.DataArray(
+            np.full((2, 2), 100.0), dims=["lat", "lon"], coords={"lat": lat, "lon": lon}
+        )
+        dem = xr.DataArray(
+            np.full((2, 2), 100.0), dims=["lat", "lon"], coords={"lat": lat, "lon": lon}
+        )
         result = planner.assess_infrastructure_capacity(cap, dem)
         assert np.allclose(result.capacity_gap.values, 0.0)
 
@@ -202,9 +229,11 @@ class TestAssessInfrastructureCapacity:
         """Gap is negative when capacity exceeds demand (surplus)."""
         lat = np.linspace(40, 41, 2)
         lon = np.linspace(-74, -73, 2)
-        cap = xr.DataArray(np.full((2, 2), 200.0), dims=["lat", "lon"],
-                           coords={"lat": lat, "lon": lon})
-        dem = xr.DataArray(np.full((2, 2), 100.0), dims=["lat", "lon"],
-                           coords={"lat": lat, "lon": lon})
+        cap = xr.DataArray(
+            np.full((2, 2), 200.0), dims=["lat", "lon"], coords={"lat": lat, "lon": lon}
+        )
+        dem = xr.DataArray(
+            np.full((2, 2), 100.0), dims=["lat", "lon"], coords={"lat": lat, "lon": lon}
+        )
         result = planner.assess_infrastructure_capacity(cap, dem)
         assert np.all(result.capacity_gap.values < 0)

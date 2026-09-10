@@ -21,6 +21,7 @@ Example:
         assert len(sample_geodataframe) == 10
         assert len(sample_h3_cells) == 3
 """
+
 import json
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
@@ -50,16 +51,16 @@ def sample_coordinates() -> List[Tuple[float, float]]:
         List of 10 (latitude, longitude) tuples in WGS84 decimal degrees.
     """
     return [
-        (47.6062, -122.3321),   # Seattle, WA
-        (29.7604, -95.3698),    # Houston, TX
-        (39.7392, -104.9903),   # Denver, CO
-        (40.7128, -74.0060),    # New York, NY
-        (21.3069, -157.8583),   # Honolulu, HI
-        (61.2181, -149.9003),   # Anchorage, AK
-        (37.7749, -122.4194),   # San Francisco, CA
-        (33.4484, -112.0740),   # Phoenix, AZ
-        (25.7617, -80.1918),    # Miami, FL
-        (44.9778, -93.2650),    # Minneapolis, MN
+        (47.6062, -122.3321),  # Seattle, WA
+        (29.7604, -95.3698),  # Houston, TX
+        (39.7392, -104.9903),  # Denver, CO
+        (40.7128, -74.0060),  # New York, NY
+        (21.3069, -157.8583),  # Honolulu, HI
+        (61.2181, -149.9003),  # Anchorage, AK
+        (37.7749, -122.4194),  # San Francisco, CA
+        (33.4484, -112.0740),  # Phoenix, AZ
+        (25.7617, -80.1918),  # Miami, FL
+        (44.9778, -93.2650),  # Minneapolis, MN
     ]
 
 
@@ -88,9 +89,9 @@ def sample_h3_cells() -> List[str]:
         pytest.skip("h3 not installed")
 
     coords = [
-        (47.6062, -122.3321),   # Seattle
-        (37.7749, -122.4194),   # San Francisco
-        (40.7128, -74.0060),    # New York
+        (47.6062, -122.3321),  # Seattle
+        (37.7749, -122.4194),  # San Francisco
+        (40.7128, -74.0060),  # New York
     ]
     return [h3.latlng_to_cell(lat, lng, resolution=8) for lat, lng in coords]
 
@@ -145,9 +146,9 @@ def sample_time_series() -> pd.Series:
     rng = np.random.default_rng(42)
     dates = pd.date_range("2020-01-01", periods=365, freq="D", tz="UTC")
     values = (
-        np.sin(np.linspace(0, 4 * np.pi, 365)) * 10   # seasonal signal
-        + rng.normal(0, 1, 365)                          # noise
-        + 20                                              # baseline
+        np.sin(np.linspace(0, 4 * np.pi, 365)) * 10  # seasonal signal
+        + rng.normal(0, 1, 365)  # noise
+        + 20  # baseline
     )
     return pd.Series(values, index=dates, name="temperature_celsius")
 
@@ -223,10 +224,9 @@ def active_inference_state() -> Dict[str, Any]:
         "beliefs": np.ones(n_states) / n_states,
         "observations": np.zeros(n_obs),
         "A": rng.dirichlet(np.ones(n_states), n_obs),
-        "B": np.stack([
-            rng.dirichlet(np.ones(n_states), n_states)
-            for _ in range(n_actions)
-        ]),
+        "B": np.stack(
+            [rng.dirichlet(np.ones(n_states), n_states) for _ in range(n_actions)]
+        ),
         "C": np.zeros(n_obs),
         "D": np.ones(n_states) / n_states,
         "n_states": n_states,

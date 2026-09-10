@@ -54,18 +54,19 @@ class TestSPI:
         valid = spi.values[~np.isnan(spi.values)]
         assert float(np.std(valid)) > 0
 
-
     def test_spi_gamma_time_axis_in_any_position(self, calculator):
         # (lat, lon, time) input: gamma must be fit per grid cell, not once
         # across all cells, and the time axis may be last.
         np.random.seed(42)
         n = 200
-        cell_a = np.random.exponential(5, n)    # dry cell
-        cell_b = np.random.exponential(80, n)   # wet cell
-        data = np.array([
-            [cell_a, cell_b],
-            [cell_b, cell_a],
-        ])  # (lat, lon, time)
+        cell_a = np.random.exponential(5, n)  # dry cell
+        cell_b = np.random.exponential(80, n)  # wet cell
+        data = np.array(
+            [
+                [cell_a, cell_b],
+                [cell_b, cell_a],
+            ]
+        )  # (lat, lon, time)
         precip = xr.DataArray(data, dims=["lat", "lon", "time"])
         spi = calculator.calculate_spi(precip, timescale=1, distribution="gamma")
         assert spi.shape == (2, 2, n)
@@ -81,6 +82,7 @@ class TestSPI:
         spi = calculator.calculate_spi(precip, timescale=1, distribution="gamma")
         assert np.isfinite(spi.values).all()
         assert abs(float(spi.mean())) < 1.0
+
 
 class TestHeatIndex:
     def test_heat_index_temp_only(self, calculator):

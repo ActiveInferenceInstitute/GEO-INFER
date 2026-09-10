@@ -192,9 +192,7 @@ class DataCompressor:
                 "GISP1-signed envelope or verified=True for bytes already "
                 "verified by the caller"
             )
-        return pickle.loads(
-            verify_payload(data, context=CONTEXT_COMPRESSION, key=None)
-        )
+        return pickle.loads(verify_payload(data, context=CONTEXT_COMPRESSION, key=None))
 
     def get_compression_stats(self) -> Dict[str, Any]:
         """Get compression statistics."""

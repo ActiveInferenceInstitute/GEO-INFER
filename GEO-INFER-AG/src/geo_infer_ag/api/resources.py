@@ -121,7 +121,9 @@ class FieldsResource:
             filters_applied=filters,
         )
 
-    def update(self, field_id: str, updates: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    def update(
+        self, field_id: str, updates: Dict[str, Any]
+    ) -> Optional[Dict[str, Any]]:
         """
         Update a field record in place.
 
@@ -278,7 +280,9 @@ class CropsResource:
             return None
         return record.get("water_requirement_mm")
 
-    def get_optimal_temperature_range(self, crop_name: str) -> Optional[Dict[str, float]]:
+    def get_optimal_temperature_range(
+        self, crop_name: str
+    ) -> Optional[Dict[str, float]]:
         """Return optimal temperature range dict or None if unknown."""
         record = self.get(crop_name)
         if record is None:

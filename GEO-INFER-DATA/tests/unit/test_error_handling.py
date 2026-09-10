@@ -116,7 +116,9 @@ class TestIngestionErrorHandling:
         # Mock connector whose fetch raises for genuinely malformed data
         connector = ingestion.connectors["sensors"]
         connector.connect = AsyncMock(return_value=True)
-        connector.fetch_data = AsyncMock(side_effect=ValueError("Malformed data payload"))
+        connector.fetch_data = AsyncMock(
+            side_effect=ValueError("Malformed data payload")
+        )
 
         result = await ingestion.ingest_multi_source(sensors={"test": True})
 

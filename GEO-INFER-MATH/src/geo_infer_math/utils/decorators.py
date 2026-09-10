@@ -39,7 +39,11 @@ def memoize(func: Callable) -> Callable:
 
     # Add cache clearing method
     setattr(memoized_func, "clear_cache", lambda: cache.clear())
-    setattr(memoized_func, "cache_info", lambda: {"size": len(cache), "keys": list(cache.keys())})
+    setattr(
+        memoized_func,
+        "cache_info",
+        lambda: {"size": len(cache), "keys": list(cache.keys())},
+    )
 
     return memoized_func
 
@@ -419,7 +423,9 @@ def validate_output(output_validator: Callable) -> Callable:
 
 
 def retry_on_failure(
-    max_retries: int = 3, exceptions: Tuple[Type[BaseException], ...] = (Exception,), delay: float = 0.1
+    max_retries: int = 3,
+    exceptions: Tuple[Type[BaseException], ...] = (Exception,),
+    delay: float = 0.1,
 ) -> Callable:
     """
     Retry decorator for handling transient failures.

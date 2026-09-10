@@ -401,7 +401,10 @@ def normalize_array(
             return np.full_like(array, feature_range[0])
 
         normalized = (array - min_val) / (max_val - min_val)
-        return cast(np.ndarray, normalized * (feature_range[1] - feature_range[0]) + feature_range[0])
+        return cast(
+            np.ndarray,
+            normalized * (feature_range[1] - feature_range[0]) + feature_range[0],
+        )
 
     elif method == "zscore":
         mean_val = np.mean(array)
@@ -524,7 +527,11 @@ def format_coordinate_string(
             direction = (
                 "N"
                 if decimal >= 0 and is_latitude
-                else "S" if is_latitude else "E" if decimal >= 0 else "W"
+                else "S"
+                if is_latitude
+                else "E"
+                if decimal >= 0
+                else "W"
             )
 
             return f"{degrees}°{minutes:02d}'{seconds:04.1f}\"{direction}"
@@ -544,7 +551,11 @@ def format_coordinate_string(
             direction = (
                 "N"
                 if decimal >= 0 and is_latitude
-                else "S" if is_latitude else "E" if decimal >= 0 else "W"
+                else "S"
+                if is_latitude
+                else "E"
+                if decimal >= 0
+                else "W"
             )
 
             return f"{degrees}°{minutes:05.2f}'{direction}"

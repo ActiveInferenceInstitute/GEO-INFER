@@ -156,9 +156,7 @@ def test_bundled_contract_loads_full_civic_and_hazard_surface() -> None:
         "tourism-recreation",
     }
     all_hazard_tags = [
-        tag
-        for domain in intel["hazardDomains"]
-        for tag in domain.get("hazardTags", [])
+        tag for domain in intel["hazardDomains"] for tag in domain.get("hazardTags", [])
     ]
     assert any("flood" in tag for tag in all_hazard_tags)
     assert any("sea level" in tag for tag in all_hazard_tags)
@@ -170,7 +168,9 @@ def test_bundled_contract_loads_full_civic_and_hazard_surface() -> None:
     }
 
 
-def test_injected_mapping_and_real_json_path_use_the_same_parser(tmp_path: Path) -> None:
+def test_injected_mapping_and_real_json_path_use_the_same_parser(
+    tmp_path: Path,
+) -> None:
     contract = _injected_contract()
     from_mapping = load_crescent_city_intel(source=contract)
 
@@ -277,7 +277,9 @@ def test_bundled_hazard_prior_table_counts_only_hazard_topic_sections() -> None:
 
 
 def test_default_prior_is_neutral_across_tags_and_section_weighted() -> None:
-    table = build_hazard_prior_table(load_crescent_city_intel(source=_injected_contract()))
+    table = build_hazard_prior_table(
+        load_crescent_city_intel(source=_injected_contract())
+    )
     prior = build_hazard_categorical_prior(table)
 
     assert DEFAULT_HAZARD_TAG_WEIGHTS["tsunami"] == 1.0
@@ -291,7 +293,9 @@ def test_default_prior_is_neutral_across_tags_and_section_weighted() -> None:
 
 
 def test_custom_hazard_weights_change_categorical_prior_concentration() -> None:
-    table = build_hazard_prior_table(load_crescent_city_intel(source=_injected_contract()))
+    table = build_hazard_prior_table(
+        load_crescent_city_intel(source=_injected_contract())
+    )
     prior = build_hazard_categorical_prior(
         table,
         hazard_weights={"tsunami": 3.0, "seismic": 1.0, "flood": 2.0},
@@ -302,7 +306,9 @@ def test_custom_hazard_weights_change_categorical_prior_concentration() -> None:
 
 
 def test_categorical_prior_sampling_replays_without_global_rng_state() -> None:
-    table = build_hazard_prior_table(load_crescent_city_intel(source=_injected_contract()))
+    table = build_hazard_prior_table(
+        load_crescent_city_intel(source=_injected_contract())
+    )
     prior = build_hazard_categorical_prior(table)
 
     assert prior.sample(64, seed=29) == prior.sample(64, seed=29)
@@ -322,7 +328,9 @@ def test_empty_and_invalid_prior_tables_are_explicit() -> None:
     with pytest.raises(ValueError, match="empty hazard categorical prior"):
         empty.sample(seed=1)
 
-    no_tags: HazardPriorTable = {"emergency-management": {"hazardTags": [], "sectionCount": 3}}
+    no_tags: HazardPriorTable = {
+        "emergency-management": {"hazardTags": [], "sectionCount": 3}
+    }
     with pytest.raises(ValueError, match="hazardTags must not be empty"):
         build_hazard_categorical_prior(no_tags)
 

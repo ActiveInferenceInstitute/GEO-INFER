@@ -101,9 +101,9 @@ class SpatialClusteringModel(BayesianModel):
         nearest = np.argmin(np.abs(signal[:, None] - means[None, :]), axis=1)
         prediction = np.asarray(means[nearest])
         if return_std:
-            std_prediction: np.ndarray = np.asarray(np.sqrt(
-                np.maximum(variances[nearest], np.finfo(float).eps)
-            ))
+            std_prediction: np.ndarray = np.asarray(
+                np.sqrt(np.maximum(variances[nearest], np.finfo(float).eps))
+            )
             return prediction, std_prediction
         return prediction
 

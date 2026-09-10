@@ -21,7 +21,12 @@ def _soil_dataset() -> SoilDataset:
             "depth": "0-5cm",
             "units": "SoilGrids mapped units",
             "coordinates": [
-                {"latitude": 37.7, "longitude": -122.4, "value": 15.0, "depth": "0-5cm"},
+                {
+                    "latitude": 37.7,
+                    "longitude": -122.4,
+                    "value": 15.0,
+                    "depth": "0-5cm",
+                },
                 {"latitude": 38.0, "longitude": -122.0, "value": 3.0, "depth": "0-5cm"},
             ],
         },

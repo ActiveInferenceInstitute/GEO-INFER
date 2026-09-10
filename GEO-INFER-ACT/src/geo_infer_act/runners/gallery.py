@@ -136,9 +136,7 @@ def _run_card(run: Dict[str, Any]) -> str:
     """Build one gallery card."""
     metrics = run.get("metrics", {})
     metric_rows = "\n".join(
-        "<tr>"
-        f"<td>{label}</td><td>{value}</td>"
-        "</tr>"
+        f"<tr><td>{label}</td><td>{value}</td></tr>"
         for label, value in [
             ("status", run.get("status", "")),
             ("pymdp", metrics.get("pymdp_version", "")),
@@ -157,12 +155,12 @@ def _run_card(run: Dict[str, Any]) -> str:
         ]
     )
     links = "\n".join(
-        f"<li><a href=\"{item['href']}\">{Path(item['path']).name}</a></li>"
+        f'<li><a href="{item["href"]}">{Path(item["path"]).name}</a></li>'
         for item in run.get("visualizations", [])
     )
     return f"""<section>
-  <h2>{run['name']}</h2>
-  <p><a href="{run['manifest']}">manifest.json</a></p>
+  <h2>{run["name"]}</h2>
+  <p><a href="{run["manifest"]}">manifest.json</a></p>
   <table><tbody>{metric_rows}</tbody></table>
   <ul>{links}</ul>
 </section>"""

@@ -15,9 +15,11 @@ from geo_infer_math.utils.rng import resolve_rng
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class TensorData:
     """Container for multi-dimensional geospatial data."""
+
     data: np.ndarray
     coordinates: Optional[np.ndarray] = None
     dimensions: List[str] = field(default_factory=list)
@@ -26,6 +28,7 @@ class TensorData:
     def __post_init__(self) -> None:
         if not self.dimensions:
             self.dimensions = [f"dim_{i}" for i in range(self.data.ndim)]
+
 
 class MatrixOperations:
     """Linear algebra operations for geospatial matrices."""
@@ -46,7 +49,7 @@ class MatrixOperations:
             return float(singular_values[0] / singular_values[-1])
         except np.linalg.LinAlgError:
             logger.warning("Matrix is singular or nearly singular")
-            return float('inf')
+            return float("inf")
 
     @staticmethod
     def is_positive_definite(matrix: np.ndarray, tolerance: float = 1e-8) -> bool:
@@ -67,7 +70,9 @@ class MatrixOperations:
             return False
 
     @staticmethod
-    def nearest_positive_definite(matrix: np.ndarray, epsilon: float = 1e-8) -> np.ndarray:
+    def nearest_positive_definite(
+        matrix: np.ndarray, epsilon: float = 1e-8
+    ) -> np.ndarray:
         """
         Find the nearest positive definite matrix.
 
@@ -91,10 +96,12 @@ class MatrixOperations:
         return cast(np.ndarray, eigenvectors @ np.diag(eigenvalues) @ eigenvectors.T)
 
     @staticmethod
-    def spatial_weights_matrix(points: np.ndarray,
-                              method: str = 'inverse_distance',
-                              k: int = 5,
-                              threshold: Optional[float] = None) -> np.ndarray:
+    def spatial_weights_matrix(
+        points: np.ndarray,
+        method: str = "inverse_distance",
+        k: int = 5,
+        threshold: Optional[float] = None,
+    ) -> np.ndarray:
         """
         Create spatial weights matrix from point coordinates.
 
@@ -114,31 +121,33 @@ class MatrixOperations:
         distances = np.zeros((n_points, n_points))
         for i in range(n_points):
             for j in range(n_points):
-                distances[i, j] = np.sqrt(np.sum((points[i] - points[j])**2))
+                distances[i, j] = np.sqrt(np.sum((points[i] - points[j]) ** 2))
 
-        if method == 'inverse_distance':
+        if method == "inverse_distance":
             # Inverse distance weighting
             for i in range(n_points):
                 for j in range(n_points):
                     if i != j:
                         weights[i, j] = 1.0 / (distances[i, j] + 1e-10)
 
-        elif method == 'knn':
+        elif method == "knn":
             # K-nearest neighbors
             for i in range(n_points):
                 # Find k nearest neighbors
-                neighbor_indices = np.argsort(distances[i])[1:k+1]  # Exclude self
+                neighbor_indices = np.argsort(distances[i])[1 : k + 1]  # Exclude self
                 weights[i, neighbor_indices] = 1.0
 
-        elif method == 'gaussian':
+        elif method == "gaussian":
             # Gaussian kernel weights
-            sigma = np.std(distances[distances > 0])  # Use distance standard deviation as sigma
+            sigma = np.std(
+                distances[distances > 0]
+            )  # Use distance standard deviation as sigma
             for i in range(n_points):
                 for j in range(n_points):
                     if i != j:
-                        weights[i, j] = np.exp(-distances[i, j]**2 / (2 * sigma**2))
+                        weights[i, j] = np.exp(-(distances[i, j] ** 2) / (2 * sigma**2))
 
-        elif method == 'binary':
+        elif method == "binary":
             # Binary weights based on threshold (NOT row-standardized)
             if threshold is None:
                 threshold = np.mean(distances[distances > 0])
@@ -155,8 +164,9 @@ class MatrixOperations:
         return cast(np.ndarray, weights)
 
     @staticmethod
-    def moran_i_matrix(values: np.ndarray,
-                      weights_matrix: np.ndarray) -> Dict[str, float]:
+    def moran_i_matrix(
+        values: np.ndarray, weights_matrix: np.ndarray
+    ) -> Dict[str, float]:
         """
         Calculate Moran's I statistic using matrix operations.
 
@@ -186,23 +196,27 @@ class MatrixOperations:
         # Z-score and p-value (two-tailed using erfc)
         z_score = (I - expected_I) / np.sqrt(var_I) if var_I > 0 else 0.0
         from math import erfc, sqrt
+
         p_value = erfc(abs(z_score) / sqrt(2))
 
         return {
-            'I': I,
-            'expected_I': expected_I,
-            'variance': var_I,
-            'z_score': z_score,
-            'p_value': p_value
+            "I": I,
+            "expected_I": expected_I,
+            "variance": var_I,
+            "z_score": z_score,
+            "p_value": p_value,
         }
+
 
 class TensorOperations:
     """Operations for multi-dimensional geospatial data."""
 
     @staticmethod
-    def create_spatiotemporal_tensor(spatial_data: List[np.ndarray],
-                                   temporal_indices: List[float],
-                                   spatial_coords: Optional[np.ndarray] = None) -> TensorData:
+    def create_spatiotemporal_tensor(
+        spatial_data: List[np.ndarray],
+        temporal_indices: List[float],
+        spatial_coords: Optional[np.ndarray] = None,
+    ) -> TensorData:
         """
         Create a spatiotemporal tensor from spatial data over time.
 
@@ -217,23 +231,24 @@ class TensorOperations:
         # Stack spatial data into 3D tensor (time, height, width)
         tensor_data = np.stack(spatial_data, axis=0)
 
-        dimensions = ['time', 'latitude', 'longitude']
+        dimensions = ["time", "latitude", "longitude"]
         metadata = {
-            'temporal_indices': temporal_indices,
-            'n_time_steps': len(temporal_indices),
-            'spatial_shape': spatial_data[0].shape
+            "temporal_indices": temporal_indices,
+            "n_time_steps": len(temporal_indices),
+            "spatial_shape": spatial_data[0].shape,
         }
 
         return TensorData(
             data=tensor_data,
             coordinates=spatial_coords,
             dimensions=dimensions,
-            metadata=metadata
+            metadata=metadata,
         )
 
     @staticmethod
-    def tensor_unfold(tensor: TensorData,
-                     mode: int) -> Tuple[np.ndarray, Dict[str, Any]]:
+    def tensor_unfold(
+        tensor: TensorData, mode: int
+    ) -> Tuple[np.ndarray, Dict[str, Any]]:
         """
         Unfold tensor along a specific mode (MATRICIZATION).
 
@@ -254,23 +269,24 @@ class TensorOperations:
         if mode == 0:
             # Unfold along mode 0 (time)
             unfolded = data.reshape(n0, n1 * n2).T
-            shape_info = {'original_shape': (n0, n1, n2), 'mode': 0}
+            shape_info = {"original_shape": (n0, n1, n2), "mode": 0}
         elif mode == 1:
             # Unfold along mode 1 (latitude)
             unfolded = data.transpose(1, 0, 2).reshape(n1, n0 * n2)
-            shape_info = {'original_shape': (n0, n1, n2), 'mode': 1}
+            shape_info = {"original_shape": (n0, n1, n2), "mode": 1}
         elif mode == 2:
             # Unfold along mode 2 (longitude)
             unfolded = data.transpose(2, 0, 1).reshape(n2, n0 * n1).T
-            shape_info = {'original_shape': (n0, n1, n2), 'mode': 2}
+            shape_info = {"original_shape": (n0, n1, n2), "mode": 2}
         else:
             raise ValueError("Mode must be 0, 1, or 2 for 3D tensor")
 
         return unfolded, shape_info
 
     @staticmethod
-    def tensor_fold(unfolded_matrix: np.ndarray,
-                   shape_info: Dict[str, Any]) -> np.ndarray:
+    def tensor_fold(
+        unfolded_matrix: np.ndarray, shape_info: Dict[str, Any]
+    ) -> np.ndarray:
         """
         Fold unfolded matrix back into tensor.
 
@@ -281,8 +297,8 @@ class TensorOperations:
         Returns:
             Reconstructed tensor
         """
-        original_shape = shape_info['original_shape']
-        mode = shape_info['mode']
+        original_shape = shape_info["original_shape"]
+        mode = shape_info["mode"]
 
         n0, n1, n2 = original_shape
 
@@ -298,8 +314,9 @@ class TensorOperations:
         return folded
 
     @staticmethod
-    def principal_component_analysis(tensor: TensorData,
-                                   n_components: Optional[int] = None) -> Dict[str, Any]:
+    def principal_component_analysis(
+        tensor: TensorData, n_components: Optional[int] = None
+    ) -> Dict[str, Any]:
         """
         Perform PCA on tensor data.
 
@@ -336,20 +353,19 @@ class TensorOperations:
         cumulative_variance = np.cumsum(explained_variance)
 
         return {
-            'principal_components': principal_components,
-            'explained_variance': explained_variance,
-            'cumulative_variance': cumulative_variance,
-            'eigenvalues': s_reduced**2,
-            'eigenvectors': Vt_reduced.T,
-            'projection_matrix': U_reduced,
-            'singular_values': s_reduced
+            "principal_components": principal_components,
+            "explained_variance": explained_variance,
+            "cumulative_variance": cumulative_variance,
+            "eigenvalues": s_reduced**2,
+            "eigenvectors": Vt_reduced.T,
+            "projection_matrix": U_reduced,
+            "singular_values": s_reduced,
         }
 
     @staticmethod
-    def tensor_decomposition(tensor: TensorData,
-                           rank: int,
-                           method: str = 'cp',
-                           rng: Optional[Any] = None) -> Dict[str, Any]:
+    def tensor_decomposition(
+        tensor: TensorData, rank: int, method: str = "cp", rng: Optional[Any] = None
+    ) -> Dict[str, Any]:
         """
         Perform tensor decomposition (CP or Tucker).
 
@@ -364,9 +380,9 @@ class TensorOperations:
         Returns:
             Decomposition results
         """
-        if method == 'cp':
+        if method == "cp":
             return TensorOperations._cp_decomposition(tensor, rank, rng=rng)
-        elif method == 'tucker':
+        elif method == "tucker":
             return TensorOperations._tucker_decomposition(tensor, rank)
         else:
             raise ValueError("Method must be 'cp' or 'tucker'")
@@ -381,10 +397,13 @@ class TensorOperations:
         return product
 
     @staticmethod
-    def _cp_decomposition(tensor: TensorData, rank: int,
-                          rng: Optional[Any] = None,
-                          tol: float = 1e-8,
-                          max_iter: int = 100) -> Dict[str, Any]:
+    def _cp_decomposition(
+        tensor: TensorData,
+        rank: int,
+        rng: Optional[Any] = None,
+        tol: float = 1e-8,
+        max_iter: int = 100,
+    ) -> Dict[str, Any]:
         """CP (CANDECOMP/PARAFAC) decomposition via alternating least squares.
 
         Factor matrices are initialized deterministically from uniform draws
@@ -423,7 +442,7 @@ class TensorOperations:
             kr_AB = TensorOperations._khatri_rao(A, B)  # rows (i0, i1)
             C = np.linalg.lstsq(kr_AB, unfolded_2.T, rcond=None)[0].T
 
-            reconstruction = np.einsum('ir,jr,kr->ijk', A, B, C)
+            reconstruction = np.einsum("ir,jr,kr->ijk", A, B, C)
             rel_error = float(np.linalg.norm(data - reconstruction) / norm_data)
             errors.append(rel_error)
             if rel_error < tol:
@@ -435,13 +454,13 @@ class TensorOperations:
         A = A / weights
 
         return {
-            'factor_matrices': [A, B, C],
-            'weights': weights,
-            'rank': rank,
-            'method': 'cp',
-            'errors': errors,
-            'n_iter': n_iter,
-            'converged': bool(errors[-1] < tol),
+            "factor_matrices": [A, B, C],
+            "weights": weights,
+            "rank": rank,
+            "method": "cp",
+            "errors": errors,
+            "n_iter": n_iter,
+            "converged": bool(errors[-1] < tol),
         }
 
     @staticmethod
@@ -469,15 +488,18 @@ class TensorOperations:
             factor_matrices.append(u[:, : min(dim, rank)])
 
         core = np.einsum(
-            'ia,jb,kc,ijk->abc', factor_matrices[0], factor_matrices[1],
-            factor_matrices[2], data,
+            "ia,jb,kc,ijk->abc",
+            factor_matrices[0],
+            factor_matrices[1],
+            factor_matrices[2],
+            data,
         )
 
         return {
-            'core_tensor': core,
-            'factor_matrices': factor_matrices,
-            'rank': rank,
-            'method': 'tucker',
+            "core_tensor": core,
+            "factor_matrices": factor_matrices,
+            "rank": rank,
+            "method": "tucker",
         }
 
 
@@ -485,9 +507,9 @@ class SpatialLinearAlgebra:
     """Specialized linear algebra for spatial problems."""
 
     @staticmethod
-    def solve_spatial_regression(X: np.ndarray,
-                               y: np.ndarray,
-                               weights_matrix: Optional[np.ndarray] = None) -> Dict[str, Any]:
+    def solve_spatial_regression(
+        X: np.ndarray, y: np.ndarray, weights_matrix: Optional[np.ndarray] = None
+    ) -> Dict[str, Any]:
         """
         Solve spatial regression with optional spatial weights.
 
@@ -523,7 +545,7 @@ class SpatialLinearAlgebra:
             mse = np.sum(residuals**2) / (n - p)
             se = np.sqrt(np.diag(mse * np.linalg.inv(X.T @ X)))
             t_stats = coefficients / se
-            r_squared = 1 - np.sum(residuals**2) / np.sum((y - np.mean(y))**2)
+            r_squared = 1 - np.sum(residuals**2) / np.sum((y - np.mean(y)) ** 2)
             rho_hat = 0.0
 
         else:
@@ -544,8 +566,7 @@ class SpatialLinearAlgebra:
                 if sigma2 <= 0.0:
                     return -np.inf
                 return float(
-                    -0.5 * n * (np.log(2.0 * np.pi) + 1.0 + np.log(sigma2))
-                    + log_det
+                    -0.5 * n * (np.log(2.0 * np.pi) + 1.0 + np.log(sigma2)) + log_det
                 )
 
             # Profile-likelihood grid search over rho
@@ -565,7 +586,7 @@ class SpatialLinearAlgebra:
             coefficients = np.linalg.lstsq(X, e_transformed, rcond=None)[0]
             residuals = e_transformed - X @ coefficients
             r_squared = 1 - np.sum(residuals**2) / np.sum(
-                (e_transformed - np.mean(e_transformed))**2
+                (e_transformed - np.mean(e_transformed)) ** 2
             )
 
             # Asymptotic information matrix of the concentrated SAR
@@ -575,7 +596,7 @@ class SpatialLinearAlgebra:
             #   I_b,r  = X^T W y / sigma^2
             #   I_rr   = ||W y||^2 / sigma^2 - 2 (u^T W y)^2 / (n sigma^4)
             #            - tr((A^{-1} W)^2),  A = I - rho W
-            sigma2 = float(np.sum(residuals ** 2)) / n
+            sigma2 = float(np.sum(residuals**2)) / n
             if sigma2 <= 0.0 or not np.isfinite(sigma2):
                 raise ValueError(
                     "SAR residual variance is degenerate; standard errors "
@@ -591,7 +612,7 @@ class SpatialLinearAlgebra:
             info_b_rho = (X.T @ wy) / sigma2
             info_rr = (
                 float(wy @ wy) / sigma2
-                - 2.0 * u_wy ** 2 / (n * sigma2 ** 2)
+                - 2.0 * u_wy**2 / (n * sigma2**2)
                 - trace_inv_w_sq
             )
             info_matrix = np.zeros((p + 1, p + 1))
@@ -617,17 +638,18 @@ class SpatialLinearAlgebra:
             rho_hat = rho
 
         return {
-            'coefficients': coefficients,
-            'standard_errors': se,
-            't_statistics': t_stats,
-            'r_squared': r_squared,
-            'residuals': residuals,
-            'rho': rho_hat,
+            "coefficients": coefficients,
+            "standard_errors": se,
+            "t_statistics": t_stats,
+            "r_squared": r_squared,
+            "residuals": residuals,
+            "rho": rho_hat,
         }
 
     @staticmethod
-    def spatial_eigen_analysis(weights_matrix: np.ndarray,
-                             n_eigenvectors: int = 10) -> Dict[str, Any]:
+    def spatial_eigen_analysis(
+        weights_matrix: np.ndarray, n_eigenvectors: int = 10
+    ) -> Dict[str, Any]:
         """
         Perform eigen analysis of spatial weights matrix.
 
@@ -654,9 +676,9 @@ class SpatialLinearAlgebra:
         eigenvectors = eigenvectors[:, :n_eigenvectors]
 
         return {
-            'eigenvalues': eigenvalues,
-            'eigenvectors': eigenvectors,
-            'n_eigenvectors': n_eigenvectors
+            "eigenvalues": eigenvalues,
+            "eigenvectors": eigenvectors,
+            "n_eigenvectors": n_eigenvectors,
         }
 
     @staticmethod
@@ -678,8 +700,7 @@ class SpatialLinearAlgebra:
             return np.linalg.cholesky(pd_matrix)
 
     @staticmethod
-    def matrix_inverse(matrix: np.ndarray,
-                      method: str = 'standard') -> np.ndarray:
+    def matrix_inverse(matrix: np.ndarray, method: str = "standard") -> np.ndarray:
         """
         Compute matrix inverse using various methods.
 
@@ -690,20 +711,20 @@ class SpatialLinearAlgebra:
         Returns:
             Matrix inverse
         """
-        if method == 'standard':
+        if method == "standard":
             try:
                 return np.linalg.inv(matrix)
             except np.linalg.LinAlgError:
                 logger.warning("Matrix is singular, using pseudo-inverse")
                 return np.linalg.pinv(matrix)
 
-        elif method == 'svd':
+        elif method == "svd":
             U, s, Vt = np.linalg.svd(matrix)
             # Filter small singular values
             s_inv = np.where(s > 1e-10, 1.0 / s, 0.0)
             return cast(np.ndarray, Vt.T @ np.diag(s_inv) @ U.T)
 
-        elif method == 'iterative':
+        elif method == "iterative":
             # Richardson iteration for matrices close to the identity
             n = matrix.shape[0]
             X = np.eye(n)  # Initial guess
@@ -720,9 +741,5 @@ class SpatialLinearAlgebra:
         else:
             raise ValueError(f"Unknown inversion method: {method}")
 
-__all__ = [
-    "TensorData",
-    "MatrixOperations",
-    "TensorOperations",
-    "SpatialLinearAlgebra"
-]
+
+__all__ = ["TensorData", "MatrixOperations", "TensorOperations", "SpatialLinearAlgebra"]

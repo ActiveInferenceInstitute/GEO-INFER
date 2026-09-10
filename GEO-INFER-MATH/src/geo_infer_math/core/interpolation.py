@@ -235,8 +235,11 @@ class KrigingInterpolator(SpatialInterpolator):
 
         pair_distances = np.sqrt(
             np.sum(
-                (self.training_coords[:, np.newaxis, :]
-                 - self.training_coords[np.newaxis, :, :]) ** 2,
+                (
+                    self.training_coords[:, np.newaxis, :]
+                    - self.training_coords[np.newaxis, :, :]
+                )
+                ** 2,
                 axis=2,
             )
         )
@@ -313,8 +316,12 @@ class KrigingInterpolator(SpatialInterpolator):
         self.kriging_variance = kriging_variances[-1]
         return np.array(predictions)
 
-    def _kriging_variance_at(self, weights: np.ndarray, variogram_values: np.ndarray,
-                             lagrange_multiplier: float) -> float:
+    def _kriging_variance_at(
+        self,
+        weights: np.ndarray,
+        variogram_values: np.ndarray,
+        lagrange_multiplier: float,
+    ) -> float:
         """OK prediction variance: w^T gamma(h0) + mu."""
         return float(np.dot(weights, variogram_values) + lagrange_multiplier)
 
@@ -344,9 +351,7 @@ class KrigingInterpolator(SpatialInterpolator):
             # Linear variogram model
             variogram[nonzero] = (
                 self.config.nugget
-                + (self.config.sill - self.config.nugget)
-                * h
-                / self.config.range_param
+                + (self.config.sill - self.config.nugget) * h / self.config.range_param
             )
 
         return variogram
@@ -467,22 +472,26 @@ class LinearInterpolator(SpatialInterpolator):
         assert self.training_values is not None
 
         try:
-            return np.asarray(griddata(
-                self.training_coords,
-                self.training_values,
-                coordinates,
-                method="linear",
-                fill_value=np.nan,
-            ))
+            return np.asarray(
+                griddata(
+                    self.training_coords,
+                    self.training_values,
+                    coordinates,
+                    method="linear",
+                    fill_value=np.nan,
+                )
+            )
         except Exception as e:
             logger.error(f"Linear interpolation failed: {e}")
             # Fallback to nearest neighbor
-            return np.asarray(griddata(
-                self.training_coords,
-                self.training_values,
-                coordinates,
-                method="nearest",
-            ))
+            return np.asarray(
+                griddata(
+                    self.training_coords,
+                    self.training_values,
+                    coordinates,
+                    method="nearest",
+                )
+            )
 
 
 class CubicInterpolator(SpatialInterpolator):
@@ -532,23 +541,27 @@ class CubicInterpolator(SpatialInterpolator):
         assert self.training_values is not None
 
         try:
-            return np.asarray(griddata(
-                self.training_coords,
-                self.training_values,
-                coordinates,
-                method="cubic",
-                fill_value=np.nan,
-            ))
+            return np.asarray(
+                griddata(
+                    self.training_coords,
+                    self.training_values,
+                    coordinates,
+                    method="cubic",
+                    fill_value=np.nan,
+                )
+            )
         except Exception as e:
             logger.error(f"Cubic interpolation failed: {e}")
             # Fallback to linear interpolation
-            return np.asarray(griddata(
-                self.training_coords,
-                self.training_values,
-                coordinates,
-                method="linear",
-                fill_value=np.nan,
-            ))
+            return np.asarray(
+                griddata(
+                    self.training_coords,
+                    self.training_values,
+                    coordinates,
+                    method="linear",
+                    fill_value=np.nan,
+                )
+            )
 
 
 class InterpolationManager:

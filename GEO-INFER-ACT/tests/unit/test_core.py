@@ -581,8 +581,9 @@ class TestGenerativeModel(unittest.TestCase):
     def test_integrate_bayeux(self):
         """Test Bayeux-compatible inference with deterministic NumPy sampling."""
         result = self.model.integrate_bayeux(
-            lambda location, scale_log: -float(np.sum(location**2))
-            - float(scale_log**2),
+            lambda location, scale_log: (
+                -float(np.sum(location**2)) - float(scale_log**2)
+            ),
             {"location": np.zeros(2), "scale_log": np.array(0.0)},
         )
         self.assertEqual(result["status"], "success")

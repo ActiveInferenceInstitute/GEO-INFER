@@ -51,7 +51,9 @@ class SpatialTensorOperations:
                 f"Core TensorOperations has no method '{operation}'. "
                 f"Available: {[m for m in dir(self._core_ops) if not m.startswith('_')]}"
             )
-        logger.debug("Dispatching tensor operation '%s' shape=%s", operation, tensor.shape)
+        logger.debug(
+            "Dispatching tensor operation '%s' shape=%s", operation, tensor.shape
+        )
         return cast(np.ndarray, getattr(self._core_ops, operation)(tensor, **kwargs))
 
     def compute_distance_tensor(
@@ -74,12 +76,14 @@ class SpatialTensorOperations:
 
         if metric == "euclidean":
             diff = coordinates[:, np.newaxis, :] - coordinates[np.newaxis, :, :]
-            distances = np.sqrt(np.sum(diff ** 2, axis=-1))
+            distances = np.sqrt(np.sum(diff**2, axis=-1))
         elif metric == "manhattan":
             diff = coordinates[:, np.newaxis, :] - coordinates[np.newaxis, :, :]
             distances = np.sum(np.abs(diff), axis=-1)
         else:
-            raise ValueError(f"Unsupported metric: {metric}. Use 'euclidean' or 'manhattan'.")
+            raise ValueError(
+                f"Unsupported metric: {metric}. Use 'euclidean' or 'manhattan'."
+            )
 
         return cast(np.ndarray, distances)
 
@@ -110,7 +114,11 @@ class SpatialTensorOperations:
         if threshold is not None:
             adjacency = (distances <= threshold).astype(np.float64)
             np.fill_diagonal(adjacency, 0.0)
-            logger.debug("Adjacency tensor (threshold=%.4f): %d edges", threshold, int(adjacency.sum()))
+            logger.debug(
+                "Adjacency tensor (threshold=%.4f): %d edges",
+                threshold,
+                int(adjacency.sum()),
+            )
         else:
             assert k_nearest is not None
             adjacency = np.zeros((n, n), dtype=np.float64)
@@ -119,7 +127,9 @@ class SpatialTensorOperations:
                 # Skip self (index 0 after sort)
                 neighbours = indices[1 : k_nearest + 1]
                 adjacency[i, neighbours] = 1.0
-            logger.debug("Adjacency tensor (k=%d): %d edges", k_nearest, int(adjacency.sum()))
+            logger.debug(
+                "Adjacency tensor (k=%d): %d edges", k_nearest, int(adjacency.sum())
+            )
 
         return adjacency
 
@@ -147,7 +157,7 @@ class SpatialTensorOperations:
         y, x = np.ogrid[-center : center + 1, -center : center + 1]
 
         if kernel_type == "gaussian":
-            kernel = np.exp(-(x ** 2 + y ** 2) / (2 * sigma ** 2))
+            kernel = np.exp(-(x**2 + y**2) / (2 * sigma**2))
             kernel /= kernel.sum()
         elif kernel_type == "laplacian":
             kernel = np.zeros((size, size), dtype=np.float64)

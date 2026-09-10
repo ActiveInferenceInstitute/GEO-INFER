@@ -6,6 +6,7 @@ across the GEO-INFER-OPS module for common tasks.
 """
 
 from .logger import get_logger, LoggingContext
+
 # Single documented app-level logging entry: shared_logging.configure_logging
 # (for CLI entrypoints). Library modules use get_logger only.
 from .shared_logging import (
@@ -42,8 +43,8 @@ from .error_handling import (
 
 __all__ = [
     # Logging (module-specific)
-    "configure_logging", 
-    "get_logger", 
+    "configure_logging",
+    "get_logger",
     "LoggingContext",
     # Shared logging (for cross-module use)
     "configure_shared_logging",
@@ -71,4 +72,4 @@ __all__ = [
     "handle_error",
     "retry_on_error",
     "with_error_handling",
-] 
+]

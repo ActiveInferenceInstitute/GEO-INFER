@@ -253,8 +253,12 @@ def test_csv_talent_importer(dummy_talent_csv_files, caplog):
         candidates = importer.import_candidates()
         requisitions = importer.import_requisitions()
 
-    assert any("Bad applied_at for cand cand_csv_3" in r.getMessage() for r in caplog.records)
-    assert any("Bad opened_at for req req_csv_3" in r.getMessage() for r in caplog.records)
+    assert any(
+        "Bad applied_at for cand cand_csv_3" in r.getMessage() for r in caplog.records
+    )
+    assert any(
+        "Bad opened_at for req req_csv_3" in r.getMessage() for r in caplog.records
+    )
 
     # Expect 2 valid candidates, 1 with default applied_at due to bad date format
     assert len(candidates) == 3

@@ -686,7 +686,9 @@ class GenerativeMap:
 
         return save_animation_with_fallback(anim, output_path, fps)
 
-    def apply_texture(self, texture_type: str = "noise", **kwargs: Any) -> "GenerativeMap":
+    def apply_texture(
+        self, texture_type: str = "noise", **kwargs: Any
+    ) -> "GenerativeMap":
         """
         Apply a texture overlay to the generated map.
 
@@ -732,9 +734,7 @@ class GenerativeMap:
                         pattern[
                             i * pattern_size : (i + 1) * pattern_size,
                             j * pattern_size : (j + 1) * pattern_size,
-                        ] = (
-                            255 * (i + j) % 2
-                        )
+                        ] = 255 * (i + j) % 2
 
                 # Apply pattern
                 textured = img_array.copy()

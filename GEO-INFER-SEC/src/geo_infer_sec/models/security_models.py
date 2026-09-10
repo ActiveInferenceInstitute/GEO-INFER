@@ -14,6 +14,7 @@ import json
 
 class ThreatLevel(Enum):
     """Standardized threat severity levels."""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -22,6 +23,7 @@ class ThreatLevel(Enum):
 
 class SecurityEventCategory(Enum):
     """Categories of security events."""
+
     AUTHENTICATION = "authentication"
     AUTHORIZATION = "authorization"
     DATA_ACCESS = "data_access"
@@ -35,6 +37,7 @@ class SecurityEventCategory(Enum):
 @dataclass
 class SecurityEvent:
     """Base security event model."""
+
     event_id: str
     event_type: str
     category: SecurityEventCategory = SecurityEventCategory.SYSTEM_ACTIVITY
@@ -44,7 +47,7 @@ class SecurityEvent:
     severity: ThreatLevel = ThreatLevel.MEDIUM
     description: str = ""
     metadata: Dict[str, Any] = field(default_factory=dict)
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert event to dictionary."""
         return {
@@ -56,11 +59,11 @@ class SecurityEvent:
             "target": self.target,
             "severity": self.severity.value,
             "description": self.description,
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'SecurityEvent':
+    def from_dict(cls, data: Dict[str, Any]) -> "SecurityEvent":
         """Create event from dictionary."""
         return cls(
             event_id=data["event_id"],
@@ -71,13 +74,14 @@ class SecurityEvent:
             target=data.get("target"),
             severity=ThreatLevel(data.get("severity", "medium")),
             description=data.get("description", ""),
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
 
 
 @dataclass
 class SecurityAlert:
     """Security alert model."""
+
     alert_id: str
     title: str
     description: str
@@ -95,7 +99,7 @@ class SecurityAlert:
     resolution_notes: str = ""
     confidence_score: float = 1.0
     metadata: Dict[str, Any] = field(default_factory=dict)
-    
+
     def update_status(self, new_status: str, notes: str = "") -> None:
         """Update alert status."""
         self.status = new_status
@@ -105,9 +109,10 @@ class SecurityAlert:
             self.resolution_notes = notes
 
 
-@dataclass  
+@dataclass
 class ThreatIntelligence:
     """Threat intelligence indicator model."""
+
     indicator_id: str
     indicator_type: str  # ip, domain, hash, url, email, etc.
     indicator_value: str
@@ -126,6 +131,7 @@ class ThreatIntelligence:
 @dataclass
 class SecurityAsset:
     """Security asset model."""
+
     asset_id: str
     asset_type: str  # server, workstation, device, application, etc.
     name: str
@@ -147,6 +153,7 @@ class SecurityAsset:
 @dataclass
 class SecurityPolicy:
     """Security policy model."""
+
     policy_id: str
     name: str
     description: str
@@ -168,6 +175,7 @@ class SecurityPolicy:
 @dataclass
 class SecurityCompliance:
     """Security compliance model."""
+
     compliance_id: str
     framework: str  # NIST, ISO27001, PCI-DSS, HIPAA, etc.
     version: str
@@ -186,6 +194,7 @@ class SecurityCompliance:
 @dataclass
 class SecurityMetrics:
     """Security metrics model."""
+
     metric_id: str
     metric_name: str
     metric_type: str  # count, percentage, score, duration
@@ -210,6 +219,7 @@ class RiskAssessmentRecord:
     :class:`geo_infer_sec.models.risk_assessment.RiskAssessment` used by the
     CLI and acceptance tests; this dataclass is a serialized record shape.
     """
+
     assessment_id: str
     asset_id: str
     threat_id: str
@@ -232,6 +242,7 @@ class RiskAssessmentRecord:
 @dataclass
 class SecurityIncidentWorkflow:
     """Security incident workflow model."""
+
     workflow_id: str
     incident_id: str
     workflow_name: str
@@ -253,6 +264,7 @@ class SecurityIncidentWorkflow:
 @dataclass
 class SecurityConfiguration:
     """Security configuration model."""
+
     config_id: str
     config_name: str
     config_type: str  # system, application, network, security_tool
@@ -272,26 +284,27 @@ class SecurityConfiguration:
 # Utility functions for model operations
 class SecurityModelUtils:
     """Utility functions for security models."""
-    
+
     @staticmethod
     def serialize_event(event: SecurityEvent) -> str:
         """Serialize security event to JSON string."""
         return json.dumps(event.to_dict(), default=str)
-    
+
     @staticmethod
     def deserialize_event(json_str: str) -> SecurityEvent:
         """Deserialize security event from JSON string."""
         data = json.loads(json_str)
         return SecurityEvent.from_dict(data)
-    
+
     @staticmethod
-    def calculate_risk_score(impact: float, likelihood: float, 
-                           control_effectiveness: float = 0.0) -> float:
+    def calculate_risk_score(
+        impact: float, likelihood: float, control_effectiveness: float = 0.0
+    ) -> float:
         """Calculate risk score with controls."""
         base_risk = impact * likelihood
         residual_risk = base_risk * (1 - control_effectiveness)
         return round(residual_risk, 2)
-    
+
     @staticmethod
     def get_risk_level(risk_score: float) -> ThreatLevel:
         """Convert risk score to threat level."""
@@ -303,27 +316,27 @@ class SecurityModelUtils:
             return ThreatLevel.HIGH
         else:
             return ThreatLevel.CRITICAL
-    
+
     @staticmethod
-    def merge_metadata(base_metadata: Dict[str, Any], 
-                      additional_metadata: Dict[str, Any]) -> Dict[str, Any]:
+    def merge_metadata(
+        base_metadata: Dict[str, Any], additional_metadata: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Safely merge metadata dictionaries."""
         merged = base_metadata.copy()
         merged.update(additional_metadata)
         return merged
-    
+
     @staticmethod
-    def filter_events_by_timeframe(events: List[SecurityEvent], 
-                                  start_time: datetime, 
-                                  end_time: datetime) -> List[SecurityEvent]:
+    def filter_events_by_timeframe(
+        events: List[SecurityEvent], start_time: datetime, end_time: datetime
+    ) -> List[SecurityEvent]:
         """Filter events by time frame."""
-        return [
-            event for event in events 
-            if start_time <= event.timestamp <= end_time
-        ]
-    
+        return [event for event in events if start_time <= event.timestamp <= end_time]
+
     @staticmethod
-    def group_events_by_category(events: List[SecurityEvent]) -> Dict[str, List[SecurityEvent]]:
+    def group_events_by_category(
+        events: List[SecurityEvent],
+    ) -> Dict[str, List[SecurityEvent]]:
         """Group events by category."""
         grouped: Dict[str, List[SecurityEvent]] = {}
         for event in events:
@@ -332,23 +345,26 @@ class SecurityModelUtils:
                 grouped[category] = []
             grouped[category].append(event)
         return grouped
-    
+
     @staticmethod
-    def calculate_confidence_score(indicators: List[str], 
-                                 evidence_strength: Dict[str, float]) -> float:
+    def calculate_confidence_score(
+        indicators: List[str], evidence_strength: Dict[str, float]
+    ) -> float:
         """Calculate confidence score based on indicators and evidence."""
         if not indicators:
             return 0.0
-        
-        total_strength = sum(evidence_strength.get(indicator, 0.5) for indicator in indicators)
+
+        total_strength = sum(
+            evidence_strength.get(indicator, 0.5) for indicator in indicators
+        )
         max_possible = len(indicators) * 1.0
-        
+
         return min(1.0, total_strength / max_possible)
-    
+
     @staticmethod
     def generate_event_signature(event: SecurityEvent) -> str:
         """Generate a unique signature for an event."""
         import hashlib
-        
+
         signature_data = f"{event.event_type}:{event.source}:{event.target}"
-        return hashlib.md5(signature_data.encode()).hexdigest()[:16] 
+        return hashlib.md5(signature_data.encode()).hexdigest()[:16]

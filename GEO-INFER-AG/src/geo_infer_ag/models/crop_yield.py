@@ -13,25 +13,25 @@ from geo_infer_ag.models.base import AgricultureModel
 class CropYieldModel(AgricultureModel):
     """
     Model for predicting crop yields based on environmental and management factors.
-    
+
     This model predicts crop yields using a combination of remote sensing data,
     weather data, soil properties, and management practices.
-    
+
     Attributes:
         crop_type: Type of crop for which yield is predicted
         model_type: Type of underlying model ('statistical', 'machine_learning', 'process_based')
         predictor: The underlying prediction model
     """
-    
+
     def __init__(
         self,
         crop_type: str,
         model_type: str = "machine_learning",
-        config: Optional[Dict[str, Any]] = None
+        config: Optional[Dict[str, Any]] = None,
     ):
         """
         Initialize the crop yield model.
-        
+
         Args:
             crop_type: Type of crop (e.g., 'corn', 'wheat', 'soybean')
             model_type: Type of model to use for prediction
@@ -39,7 +39,7 @@ class CropYieldModel(AgricultureModel):
         """
         name = f"{crop_type}_yield_model"
         super().__init__(name=name, config=config)
-        
+
         self.crop_type = crop_type.lower()
         self.model_type = model_type
         self.predictor: Optional[RandomForestRegressor] = None
@@ -47,76 +47,83 @@ class CropYieldModel(AgricultureModel):
         self.feature_columns: Optional[List[str]] = None
         self._statistical_params: Optional[Dict[str, Any]] = None
         self._process_params: Optional[Dict[str, Any]] = None
-        
+
         # Define required inputs based on model type
         if model_type == "machine_learning":
             self.required_inputs = ["field_data"]
         elif model_type == "process_based":
-            self.required_inputs = ["field_data", "weather_data", "soil_data", "management_data"]
+            self.required_inputs = [
+                "field_data",
+                "weather_data",
+                "soil_data",
+                "management_data",
+            ]
         elif model_type == "statistical":
             self.required_inputs = ["field_data", "historical_yield_data"]
         else:
             raise ValueError(f"Unsupported model type: {model_type}")
-            
+
         # Update metadata
-        self.metadata.update({
-            "crop_type": crop_type,
-            "model_type": model_type
-        })
-    
+        self.metadata.update({"crop_type": crop_type, "model_type": model_type})
+
     def fit(
         self,
         training_data: Dict[str, Any],
         target_column: str = "yield",
-        feature_columns: Optional[List[str]] = None
+        feature_columns: Optional[List[str]] = None,
     ) -> None:
         """
         Train the yield prediction model using historical data.
-        
+
         Args:
             training_data: Dictionary of training data sources
             target_column: Column name containing yield values
             feature_columns: Optional list of feature columns to use
-            
+
         Raises:
             ValueError: If required training data is missing
         """
         # Validate required training data
         if "field_data" not in training_data:
             raise ValueError("Field data required for training")
-            
-        if "historical_yield_data" not in training_data and self.model_type != "machine_learning":
-            raise ValueError("Historical yield data required for statistical and process-based models")
-        
+
+        if (
+            "historical_yield_data" not in training_data
+            and self.model_type != "machine_learning"
+        ):
+            raise ValueError(
+                "Historical yield data required for statistical and process-based models"
+            )
+
         # Use field data as base training dataset
         train_df = training_data["field_data"]
-        
+
         # Ensure target column exists
         if target_column not in train_df.columns:
-            raise ValueError(f"Target column '{target_column}' not found in training data")
-        
+            raise ValueError(
+                f"Target column '{target_column}' not found in training data"
+            )
+
         # Default feature columns if not provided
         if feature_columns is None:
             # Use all numeric columns except yield and geometry
-            numeric_cols = train_df.select_dtypes(include=['number']).columns.tolist()
+            numeric_cols = train_df.select_dtypes(include=["number"]).columns.tolist()
             feature_columns = [col for col in numeric_cols if col != target_column]
-        
+
         # Handle different model types
         if self.model_type == "machine_learning":
             # Initialize and train a RandomForest model
             self.predictor = RandomForestRegressor(
-                n_estimators=100,
-                random_state=42,
-                n_jobs=-1
+                n_estimators=100, random_state=42, n_jobs=-1
             )
-            
+
             # Train the model
             X = train_df[feature_columns]
             y = train_df[target_column]
-            
+
             self.predictor.fit(X, y)
             self.feature_columns = feature_columns
-            
+
         elif self.model_type == "statistical":
             # Statistical model: compute historical averages and trend regression
             if target_column in train_df.columns:
@@ -127,7 +134,10 @@ class CropYieldModel(AgricultureModel):
                 }
                 if "year" in train_df.columns and len(train_df) > 1:
                     from numpy.polynomial.polynomial import polyfit
-                    coeffs = polyfit(train_df["year"].values, train_df[target_column].values, 1)
+
+                    coeffs = polyfit(
+                        train_df["year"].values, train_df[target_column].values, 1
+                    )
                     self._statistical_params["trend"] = float(coeffs[1])
 
         elif self.model_type == "process_based":
@@ -135,74 +145,78 @@ class CropYieldModel(AgricultureModel):
             self._process_params = {
                 "base_temperature": 10.0,
                 "optimal_temperature": 25.0,
-                "max_yield_potential": float(train_df[target_column].max()) if target_column in train_df.columns else 10.0,
+                "max_yield_potential": float(train_df[target_column].max())
+                if target_column in train_df.columns
+                else 10.0,
                 "water_stress_coeff": 0.8,
             }
-        
+
         self.fitted = True
-        
+
     def predict(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Predict crop yields using the model.
-        
+
         Args:
             data: Dictionary of input data sources
-            
+
         Returns:
             Dictionary containing yield predictions and metadata
-            
+
         Raises:
             ValueError: If model is not fitted or required inputs are missing
         """
         # Check if model is fitted
         if not self.fitted and self.model_type == "machine_learning":
             raise ValueError("Model must be fitted before prediction")
-        
+
         # Validate required inputs
         self.validate_inputs(data)
-        
+
         # Get field data as the base for predictions
         field_data = data["field_data"]
-        
+
         # Generate predictions based on model type
         if self.model_type == "machine_learning":
             if self.predictor is None:
                 raise ValueError("Model must be fitted before prediction")
             feature_cols = self.feature_columns or []
             # Check if all feature columns are available
-            missing_features = [col for col in feature_cols if col not in field_data.columns]
+            missing_features = [
+                col for col in feature_cols if col not in field_data.columns
+            ]
             if missing_features:
                 raise ValueError(f"Missing feature columns: {missing_features}")
-                
+
             # Generate predictions
             X = field_data[feature_cols]
             predictions = self.predictor.predict(X)
-            
+
             # Add predictions to results
             result = {
                 "predictions": predictions,
-                "spatial_results": {
-                    "predicted_yield": predictions
-                },
+                "spatial_results": {"predicted_yield": predictions},
                 "metadata": {
                     "prediction_time": datetime.now().isoformat(),
                     "crop_type": self.crop_type,
-                    "model_type": self.model_type
-                }
+                    "model_type": self.model_type,
+                },
             }
-            
+
             # Calculate summary statistics
             result["summary"] = {
                 "mean_yield": float(np.mean(predictions)),
                 "min_yield": float(np.min(predictions)),
                 "max_yield": float(np.max(predictions)),
-                "std_yield": float(np.std(predictions))
+                "std_yield": float(np.std(predictions)),
             }
-        
+
         elif self.model_type == "statistical":
             # Statistical prediction from historical data and fitted parameters
             if "historical_yield_data" not in data:
-                raise ValueError("Historical yield data required for statistical prediction")
+                raise ValueError(
+                    "Historical yield data required for statistical prediction"
+                )
 
             historical_data = data["historical_yield_data"]
 
@@ -213,16 +227,26 @@ class CropYieldModel(AgricultureModel):
                 trend = statistical_params.get("trend")
             else:
                 # Derive baseline from any numeric column in historical data, excluding 'year'
-                numeric_cols = historical_data.select_dtypes(include="number").columns.tolist()
+                numeric_cols = historical_data.select_dtypes(
+                    include="number"
+                ).columns.tolist()
                 yield_cols = [c for c in numeric_cols if c != "year"]
-                baseline = float(historical_data[yield_cols].values.mean()) if yield_cols else 5.0
+                baseline = (
+                    float(historical_data[yield_cols].values.mean())
+                    if yield_cols
+                    else 5.0
+                )
                 trend = None
 
             predictions = np.full(len(field_data), baseline)
 
             # Apply linear trend if year column available in field data
             if trend is not None and "year" in field_data.columns:
-                ref_year = float(historical_data["year"].min()) if "year" in historical_data.columns else 2000.0
+                ref_year = (
+                    float(historical_data["year"].min())
+                    if "year" in historical_data.columns
+                    else 2000.0
+                )
                 year_delta = field_data["year"].values.astype(float) - ref_year
                 predictions = predictions + trend * year_delta
 
@@ -230,14 +254,12 @@ class CropYieldModel(AgricultureModel):
 
             result = {
                 "predictions": predictions,
-                "spatial_results": {
-                    "predicted_yield": predictions
-                },
+                "spatial_results": {"predicted_yield": predictions},
                 "metadata": {
                     "prediction_time": datetime.now().isoformat(),
                     "crop_type": self.crop_type,
-                    "model_type": self.model_type
-                }
+                    "model_type": self.model_type,
+                },
             }
 
             # Calculate summary statistics
@@ -245,24 +267,30 @@ class CropYieldModel(AgricultureModel):
                 "mean_yield": float(np.mean(predictions)),
                 "min_yield": float(np.min(predictions)),
                 "max_yield": float(np.max(predictions)),
-                "std_yield": float(np.std(predictions))
+                "std_yield": float(np.std(predictions)),
             }
-        
+
         elif self.model_type == "process_based":
             # Process-based prediction using Growing Degree Day accumulation and stress factors
             required_process_data = ["weather_data", "soil_data", "management_data"]
             missing_data = [d for d in required_process_data if d not in data]
 
             if missing_data:
-                raise ValueError(f"Missing data for process-based model: {missing_data}")
+                raise ValueError(
+                    f"Missing data for process-based model: {missing_data}"
+                )
 
             process_params = self._process_params
-            params = process_params if process_params is not None else {
-                "base_temperature": 10.0,
-                "optimal_temperature": 25.0,
-                "max_yield_potential": 10.0,
-                "water_stress_coeff": 0.8,
-            }
+            params = (
+                process_params
+                if process_params is not None
+                else {
+                    "base_temperature": 10.0,
+                    "optimal_temperature": 25.0,
+                    "max_yield_potential": 10.0,
+                    "water_stress_coeff": 0.8,
+                }
+            )
 
             weather_data = data["weather_data"]
             soil_data = data["soil_data"]
@@ -274,7 +302,9 @@ class CropYieldModel(AgricultureModel):
 
             # Growing Degree Days accumulation
             if "temperature" in weather_data.columns:
-                gdd = float(np.maximum(weather_data["temperature"].values - base_temp, 0).sum())
+                gdd = float(
+                    np.maximum(weather_data["temperature"].values - base_temp, 0).sum()
+                )
             else:
                 gdd = 1500.0  # Seasonal default
 
@@ -290,8 +320,12 @@ class CropYieldModel(AgricultureModel):
 
             # Temperature stress: penalty for deviation from optimal
             if "temperature" in weather_data.columns:
-                mean_temp_dev = float(np.abs(weather_data["temperature"].values - optimal_temp).mean())
-                temp_stress = float(np.clip(1.0 - mean_temp_dev / optimal_temp, 0.6, 1.0))
+                mean_temp_dev = float(
+                    np.abs(weather_data["temperature"].values - optimal_temp).mean()
+                )
+                temp_stress = float(
+                    np.clip(1.0 - mean_temp_dev / optimal_temp, 0.6, 1.0)
+                )
             else:
                 temp_stress = 1.0
 
@@ -304,21 +338,29 @@ class CropYieldModel(AgricultureModel):
             # Management modifier from practice column if present
             management_modifier = 1.0
             if "practice" in management_data.columns:
-                practice_boosts = {"no_till": 1.05, "cover_crops": 1.07, "precision": 1.1}
+                practice_boosts = {
+                    "no_till": 1.05,
+                    "cover_crops": 1.07,
+                    "precision": 1.1,
+                }
                 for practice in management_data["practice"].values:
                     management_modifier *= practice_boosts.get(str(practice), 1.0)
 
             base_prediction = (
-                max_yield * harvest_index * water_satisfaction * soil_modifier * temp_stress
+                max_yield
+                * harvest_index
+                * water_satisfaction
+                * soil_modifier
+                * temp_stress
                 * management_modifier
             )
-            predictions = np.maximum(np.full(len(field_data), float(base_prediction)), 0.0)
+            predictions = np.maximum(
+                np.full(len(field_data), float(base_prediction)), 0.0
+            )
 
             result = {
                 "predictions": predictions,
-                "spatial_results": {
-                    "predicted_yield": predictions
-                },
+                "spatial_results": {"predicted_yield": predictions},
                 "metadata": {
                     "prediction_time": datetime.now().isoformat(),
                     "crop_type": self.crop_type,
@@ -326,7 +368,7 @@ class CropYieldModel(AgricultureModel):
                     "gdd": gdd,
                     "harvest_index": float(harvest_index),
                     "water_satisfaction": float(water_satisfaction),
-                }
+                },
             }
 
             # Calculate summary statistics
@@ -334,54 +376,57 @@ class CropYieldModel(AgricultureModel):
                 "mean_yield": float(np.mean(predictions)),
                 "min_yield": float(np.min(predictions)),
                 "max_yield": float(np.max(predictions)),
-                "std_yield": float(np.std(predictions))
+                "std_yield": float(np.std(predictions)),
             }
-        
+
         return result
-    
+
     def get_feature_importance(self) -> Dict[str, float]:
         """
         Get feature importance for machine learning models.
-        
+
         Returns:
             Dictionary of feature importances
-            
+
         Raises:
             ValueError: If model type doesn't support feature importance
         """
         if self.model_type != "machine_learning" or not self.fitted:
-            raise ValueError("Feature importance only available for fitted machine learning models")
-            
-        if self.predictor is None or not hasattr(self.predictor, "feature_importances_"):
+            raise ValueError(
+                "Feature importance only available for fitted machine learning models"
+            )
+
+        if self.predictor is None or not hasattr(
+            self.predictor, "feature_importances_"
+        ):
             raise ValueError("Current model doesn't provide feature importances")
-        
+
         # Get feature importances from the model
         importances = self.predictor.feature_importances_
-        
+
         # Create dictionary mapping features to importance values
         feats = self.feature_columns or []
         importance_dict = dict(zip(feats, importances))
-        
+
         # Sort by importance (descending)
         sorted_importances = {
-            k: v for k, v in sorted(
-                importance_dict.items(), 
-                key=lambda item: item[1], 
-                reverse=True
+            k: v
+            for k, v in sorted(
+                importance_dict.items(), key=lambda item: item[1], reverse=True
             )
         }
-        
+
         return sorted_importances
-    
+
     def save(self, path: str) -> None:
         """
         Save the model to disk.
-        
+
         Args:
             path: Path to save the model
         """
         import joblib
-        
+
         # Create a dictionary with all model components
         model_data = {
             "metadata": self.metadata,
@@ -389,45 +434,45 @@ class CropYieldModel(AgricultureModel):
             "model_type": self.model_type,
             "required_inputs": self.required_inputs,
             "fitted": self.fitted,
-            "config": self.config
+            "config": self.config,
         }
-        
+
         # Add model-type specific components
         if self.model_type == "machine_learning" and self.fitted:
             model_data["predictor"] = self.predictor
             model_data["feature_columns"] = self.feature_columns
-        
+
         # Save to disk
         joblib.dump(model_data, path)
-    
+
     @classmethod
     def load(cls, path: str) -> "CropYieldModel":
         """
         Load a model from disk.
-        
+
         Args:
             path: Path to load the model from
-            
+
         Returns:
             Loaded model instance
         """
         import joblib
-        
+
         # Load saved model data
         model_data = joblib.load(path)
-        
+
         # Create a new instance
         model = cls(
             crop_type=model_data["crop_type"],
             model_type=model_data["model_type"],
-            config=model_data["config"]
+            config=model_data["config"],
         )
-        
+
         # Restore model-type specific components
         model.fitted = model_data["fitted"]
-        
+
         if model.model_type == "machine_learning" and model.fitted:
-            model.predictor = model_data["predictor"] 
+            model.predictor = model_data["predictor"]
             model.feature_columns = model_data["feature_columns"]
-        
-        return model 
+
+        return model

@@ -362,7 +362,9 @@ class MemoryCache:
 
             # Set expiration
             if ttl_seconds:
-                entry.expires_at = datetime.now(timezone.utc) + timedelta(seconds=ttl_seconds)
+                entry.expires_at = datetime.now(timezone.utc) + timedelta(
+                    seconds=ttl_seconds
+                )
 
             # Check if we need to evict entries
             if len(self.entries) >= self.max_size:
@@ -881,8 +883,7 @@ class RedisCache:
 
             if not isinstance(cache_data, dict):
                 logger.error(
-                    f"Redis cache entry {key!r} is not a cache document; "
-                    "discarding"
+                    f"Redis cache entry {key!r} is not a cache document; discarding"
                 )
                 self.redis_client.delete(key)
                 self.stats.misses += 1
@@ -1008,7 +1009,9 @@ class RedisCache:
             self.stats.entry_count = self.redis_client.dbsize()
 
         except Exception as exc:
-            logger.warning("Redis memory info unavailable; returning stale stats: %s", exc)
+            logger.warning(
+                "Redis memory info unavailable; returning stale stats: %s", exc
+            )
 
         return self.stats
 
@@ -1280,8 +1283,8 @@ class IntelligentCache:
         Returns:
             The namespace, or an empty string when the key has none.
         """
-        cut = max(key.rfind(':'), key.rfind('/'))
-        return key[:cut] if cut > 0 else ''
+        cut = max(key.rfind(":"), key.rfind("/"))
+        return key[:cut] if cut > 0 else ""
 
     def _find_related_keys(self, key: str) -> List[str]:
         """Find keys likely to be needed alongside *key*.

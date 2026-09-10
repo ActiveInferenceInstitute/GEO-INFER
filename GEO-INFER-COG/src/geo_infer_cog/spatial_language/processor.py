@@ -45,35 +45,40 @@ class SpatialEntity:
     def to_geojson(self) -> Dict[str, Any]:
         """Convert to GeoJSON format."""
         feature = {
-            'type': 'Feature',
-            'geometry': None,
-            'properties': {
-                'name': self.text,
-                'entity_type': self.entity_type,
-                'confidence': self.confidence,
-                'extracted_from_text': True
-            }
+            "type": "Feature",
+            "geometry": None,
+            "properties": {
+                "name": self.text,
+                "entity_type": self.entity_type,
+                "confidence": self.confidence,
+                "extracted_from_text": True,
+            },
         }
 
         # Add geometry if coordinates available
         if self.coordinates:
-            feature['geometry'] = {
-                'type': 'Point',
-                'coordinates': [self.coordinates[1], self.coordinates[0]]  # GeoJSON is [lon, lat]
+            feature["geometry"] = {
+                "type": "Point",
+                "coordinates": [
+                    self.coordinates[1],
+                    self.coordinates[0],
+                ],  # GeoJSON is [lon, lat]
             }
 
         elif self.bounding_box:
             # Create polygon from bounding box
             min_lon, min_lat, max_lon, max_lat = self.bounding_box.values()
-            feature['geometry'] = {
-                'type': 'Polygon',
-                'coordinates': [[
-                    [min_lon, min_lat],
-                    [max_lon, min_lat],
-                    [max_lon, max_lat],
-                    [min_lon, max_lat],
-                    [min_lon, min_lat]
-                ]]
+            feature["geometry"] = {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [min_lon, min_lat],
+                        [max_lon, min_lat],
+                        [max_lon, max_lat],
+                        [min_lon, max_lat],
+                        [min_lon, min_lat],
+                    ]
+                ],
             }
 
         return feature
@@ -88,7 +93,7 @@ class SpatialRelation:
     target_entity: str
     confidence: float = 1.0
     direction: Optional[str] = None  # 'north', 'south', 'east', 'west', etc.
-    distance: Optional[str] = None   # 'near', 'far', 'adjacent', etc.
+    distance: Optional[str] = None  # 'near', 'far', 'adjacent', etc.
     context: str = ""  # Text context where relation was found
 
 
@@ -108,10 +113,12 @@ class SpatialLanguageProcessor:
     like geocoding informal descriptions and spatial search.
     """
 
-    def __init__(self,
-                 language: str = 'en',
-                 domain: str = 'general',
-                 config: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self,
+        language: str = "en",
+        domain: str = "general",
+        config: Optional[Dict[str, Any]] = None,
+    ):
         """
         Initialize spatial language processor.
 
@@ -135,11 +142,11 @@ class SpatialLanguageProcessor:
 
         # Performance tracking
         self.processing_metrics = {
-            'entities_extracted': 0,
-            'relations_found': 0,
-            'descriptions_processed': 0,
-            'geocoding_attempts': 0,
-            'successful_geocoding': 0
+            "entities_extracted": 0,
+            "relations_found": 0,
+            "descriptions_processed": 0,
+            "geocoding_attempts": 0,
+            "successful_geocoding": 0,
         }
 
         logger.info(f"Spatial Language Processor initialized for language: {language}")
@@ -147,95 +154,115 @@ class SpatialLanguageProcessor:
     def _initialize_location_patterns(self) -> Dict[str, List[str]]:
         """Initialize patterns for location entity recognition."""
         return {
-            'city': [
-                r'\b([A-Z][a-z]+,\s*[A-Z]{2})\b',  # City, State
-                r'\b([A-Z][a-z]+\s+City)\b',       # City
-                r'\b([A-Z][a-z]+\s+Town)\b',       # Town
+            "city": [
+                r"\b([A-Z][a-z]+,\s*[A-Z]{2})\b",  # City, State
+                r"\b([A-Z][a-z]+\s+City)\b",  # City
+                r"\b([A-Z][a-z]+\s+Town)\b",  # Town
             ],
-            'street': [
-                r'\b(\d+\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(Street|Avenue|Road|Drive|Lane|Way|Place|Boulevard))\b',
-                r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(Street|Avenue|Road|Drive|Lane|Way|Place|Boulevard))\b',
+            "street": [
+                r"\b(\d+\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(Street|Avenue|Road|Drive|Lane|Way|Place|Boulevard))\b",
+                r"\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(Street|Avenue|Road|Drive|Lane|Way|Place|Boulevard))\b",
             ],
-            'landmark': [
-                r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(Park|Lake|River|Mountain|Building|Center|Station|Airport|Hospital|School|University))\b',
-                r'\b(the\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*))\b',  # "the [landmark]"
+            "landmark": [
+                r"\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(Park|Lake|River|Mountain|Building|Center|Station|Airport|Hospital|School|University))\b",
+                r"\b(the\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*))\b",  # "the [landmark]"
             ],
-            'region': [
-                r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(County|Region|District|Area|Zone))\b',
-                r'\b([A-Z][a-z]+\s+(Valley|Basin|Plateau|Desert|Forest|Mountains))\b',
+            "region": [
+                r"\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(County|Region|District|Area|Zone))\b",
+                r"\b([A-Z][a-z]+\s+(Valley|Basin|Plateau|Desert|Forest|Mountains))\b",
             ],
-            'coordinate': [
-                r'\b(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)\b',  # lat, lon
-                r'\b(-?\d+\.?\d*)\s+(degrees?\s+)?([NS])\s*,?\s*(-?\d+\.?\d*)\s+(degrees?\s+)?([EW])\b',  # DD N, DD W format
-            ]
+            "coordinate": [
+                r"\b(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)\b",  # lat, lon
+                r"\b(-?\d+\.?\d*)\s+(degrees?\s+)?([NS])\s*,?\s*(-?\d+\.?\d*)\s+(degrees?\s+)?([EW])\b",  # DD N, DD W format
+            ],
         }
 
     def _initialize_relation_patterns(self) -> Dict[str, List[str]]:
         """Initialize patterns for spatial relation extraction."""
         return {
-            'contains': [
-                r'\b(in|inside|within|contained\s+in)\s+([A-Z][a-z\s]+)\b',
-                r'\b([A-Z][a-z\s]+)\s+(contains|includes|has)\s+([A-Z][a-z\s]+)\b',
+            "contains": [
+                r"\b(in|inside|within|contained\s+in)\s+([A-Z][a-z\s]+)\b",
+                r"\b([A-Z][a-z\s]+)\s+(contains|includes|has)\s+([A-Z][a-z\s]+)\b",
             ],
-            'adjacent': [
-                r'\b(next\s+to|beside|adjacent\s+to|bordering)\s+([A-Z][a-z\s]+)\b',
-                r'\b([A-Z][a-z\s]+)\s+(borders|adjoins|abuts)\s+([A-Z][a-z\s]+)\b',
+            "adjacent": [
+                r"\b(next\s+to|beside|adjacent\s+to|bordering)\s+([A-Z][a-z\s]+)\b",
+                r"\b([A-Z][a-z\s]+)\s+(borders|adjoins|abuts)\s+([A-Z][a-z\s]+)\b",
             ],
-            'near': [
-                r'\b(near|close\s+to|proximate\s+to)\s+([A-Z][a-z\s]+)\b',
-                r'\b([A-Z][a-z\s]+)\s+(near|close\s+to|proximate\s+to)\s+([A-Z][a-z\s]+)\b',
+            "near": [
+                r"\b(near|close\s+to|proximate\s+to)\s+([A-Z][a-z\s]+)\b",
+                r"\b([A-Z][a-z\s]+)\s+(near|close\s+to|proximate\s+to)\s+([A-Z][a-z\s]+)\b",
             ],
-            'north_of': [
-                r'\b(north\s+of|to\s+the\s+north\s+of)\s+([A-Z][a-z\s]+)\b',
-                r'\b([A-Z][a-z\s]+)\s+(north\s+of|to\s+the\s+north\s+of)\s+([A-Z][a-z\s]+)\b',
+            "north_of": [
+                r"\b(north\s+of|to\s+the\s+north\s+of)\s+([A-Z][a-z\s]+)\b",
+                r"\b([A-Z][a-z\s]+)\s+(north\s+of|to\s+the\s+north\s+of)\s+([A-Z][a-z\s]+)\b",
             ],
-            'south_of': [
-                r'\b(south\s+of|to\s+the\s+south\s+of)\s+([A-Z][a-z\s]+)\b',
-                r'\b([A-Z][a-z\s]+)\s+(south\s+of|to\s+the\s+south\s+of)\s+([A-Z][a-z\s]+)\b',
+            "south_of": [
+                r"\b(south\s+of|to\s+the\s+south\s+of)\s+([A-Z][a-z\s]+)\b",
+                r"\b([A-Z][a-z\s]+)\s+(south\s+of|to\s+the\s+south\s+of)\s+([A-Z][a-z\s]+)\b",
             ],
-            'east_of': [
-                r'\b(east\s+of|to\s+the\s+east\s+of)\s+([A-Z][a-z\s]+)\b',
-                r'\b([A-Z][a-z\s]+)\s+(east\s+of|to\s+the\s+east\s+of)\s+([A-Z][a-z\s]+)\b',
+            "east_of": [
+                r"\b(east\s+of|to\s+the\s+east\s+of)\s+([A-Z][a-z\s]+)\b",
+                r"\b([A-Z][a-z\s]+)\s+(east\s+of|to\s+the\s+east\s+of)\s+([A-Z][a-z\s]+)\b",
             ],
-            'west_of': [
-                r'\b(west\s+of|to\s+the\s+west\s+of)\s+([A-Z][a-z\s]+)\b',
-                r'\b([A-Z][a-z\s]+)\s+(west\s+of|to\s+the\s+west\s+of)\s+([A-Z][a-z\s]+)\b',
-            ]
+            "west_of": [
+                r"\b(west\s+of|to\s+the\s+west\s+of)\s+([A-Z][a-z\s]+)\b",
+                r"\b([A-Z][a-z\s]+)\s+(west\s+of|to\s+the\s+west\s+of)\s+([A-Z][a-z\s]+)\b",
+            ],
         }
 
     def _initialize_direction_patterns(self) -> Dict[str, List[str]]:
         """Initialize patterns for direction expressions."""
         return {
-            'north': [r'\b(north|northeast|northwest|northern|northwards)\b'],
-            'south': [r'\b(south|southeast|southwest|southern|southwards)\b'],
-            'east': [r'\b(east|northeast|southeast|eastern|eastwards)\b'],
-            'west': [r'\b(west|northwest|southwest|western|westwards)\b'],
-            'center': [r'\b(center|central|middle|downtown)\b'],
-            'peripheral': [r'\b(outskirts|peripheral|edge|boundary)\b']
+            "north": [r"\b(north|northeast|northwest|northern|northwards)\b"],
+            "south": [r"\b(south|southeast|southwest|southern|southwards)\b"],
+            "east": [r"\b(east|northeast|southeast|eastern|eastwards)\b"],
+            "west": [r"\b(west|northwest|southwest|western|westwards)\b"],
+            "center": [r"\b(center|central|middle|downtown)\b"],
+            "peripheral": [r"\b(outskirts|peripheral|edge|boundary)\b"],
         }
 
     def _initialize_distance_patterns(self) -> Dict[str, List[str]]:
         """Initialize patterns for distance expressions."""
         return {
-            'adjacent': [r'\b(adjacent|next\s+to|beside|touching)\b'],
-            'near': [r'\b(near|close\s+to|nearby|proximate)\b'],
-            'moderate': [r'\b(a\s+few\s+miles|several\s+blocks|moderate\s+distance)\b'],
-            'far': [r'\b(far\s+from|distant|remote|far\s+away)\b'],
-            'walking_distance': [r'\b(walking\s+distance|short\s+walk|few\s+minutes?\s+walk)\b'],
-            'driving_distance': [r'\b(driving\s+distance|short\s+drive|few\s+minutes?\s+drive)\b']
+            "adjacent": [r"\b(adjacent|next\s+to|beside|touching)\b"],
+            "near": [r"\b(near|close\s+to|nearby|proximate)\b"],
+            "moderate": [r"\b(a\s+few\s+miles|several\s+blocks|moderate\s+distance)\b"],
+            "far": [r"\b(far\s+from|distant|remote|far\s+away)\b"],
+            "walking_distance": [
+                r"\b(walking\s+distance|short\s+walk|few\s+minutes?\s+walk)\b"
+            ],
+            "driving_distance": [
+                r"\b(driving\s+distance|short\s+drive|few\s+minutes?\s+drive)\b"
+            ],
         }
 
     def _initialize_place_variants(self) -> Dict[str, List[str]]:
         """Initialize common place name variants for fuzzy matching."""
         return {
-            'new_york': ['new york', 'nyc', 'new york city', 'manhattan', 'brooklyn', 'queens', 'bronx', 'staten island'],
-            'los_angeles': ['los angeles', 'la', 'l.a.', 'los angeles county', 'hollywood', 'beverly hills'],
-            'chicago': ['chicago', 'windy city', 'chi-town'],
-            'san_francisco': ['san francisco', 'sf', 's.f.', 'san fran', 'bay area'],
-            'london': ['london', 'londinium', 'the city'],
-            'paris': ['paris', 'city of light', 'paname'],
-            'tokyo': ['tokyo', 'edo', 'tokio'],
-            'sydney': ['sydney', 'harbour city']
+            "new_york": [
+                "new york",
+                "nyc",
+                "new york city",
+                "manhattan",
+                "brooklyn",
+                "queens",
+                "bronx",
+                "staten island",
+            ],
+            "los_angeles": [
+                "los angeles",
+                "la",
+                "l.a.",
+                "los angeles county",
+                "hollywood",
+                "beverly hills",
+            ],
+            "chicago": ["chicago", "windy city", "chi-town"],
+            "san_francisco": ["san francisco", "sf", "s.f.", "san fran", "bay area"],
+            "london": ["london", "londinium", "the city"],
+            "paris": ["paris", "city of light", "paname"],
+            "tokyo": ["tokyo", "edo", "tokio"],
+            "sydney": ["sydney", "harbour city"],
         }
 
     def extract_spatial_entities(self, text: str) -> List[SpatialEntity]:
@@ -258,23 +285,25 @@ class SpatialLanguageProcessor:
                     entity_text = match.group(0)
 
                     # Determine confidence based on pattern specificity
-                    confidence = self._calculate_entity_confidence(entity_text, entity_type, pattern)
+                    confidence = self._calculate_entity_confidence(
+                        entity_text, entity_type, pattern
+                    )
 
                     entity = SpatialEntity(
                         text=entity_text,
                         entity_type=entity_type,
                         confidence=confidence,
-                        context=self._extract_context(text, match.start(), match.end())
+                        context=self._extract_context(text, match.start(), match.end()),
                     )
 
                     # Try to geocode if possible
                     coordinates = self._attempt_geocoding(entity_text, entity_type)
                     if coordinates:
                         entity.coordinates = coordinates
-                        self.processing_metrics['successful_geocoding'] += 1
+                        self.processing_metrics["successful_geocoding"] += 1
 
                     entities.append(entity)
-                    self.processing_metrics['entities_extracted'] += 1
+                    self.processing_metrics["entities_extracted"] += 1
 
         # Remove duplicates while preserving highest confidence
         unique_entities = self._deduplicate_entities(entities)
@@ -282,7 +311,9 @@ class SpatialLanguageProcessor:
         logger.info(f"Extracted {len(unique_entities)} spatial entities from text")
         return unique_entities
 
-    def extract_spatial_relations(self, text: str, entities: List[SpatialEntity]) -> List[SpatialRelation]:
+    def extract_spatial_relations(
+        self, text: str, entities: List[SpatialEntity]
+    ) -> List[SpatialRelation]:
         """
         Extract spatial relationships from text.
 
@@ -322,12 +353,18 @@ class SpatialLanguageProcessor:
                                 relation_type=relation_type,
                                 source_entity=source_entity,
                                 target_entity=target_entity,
-                                confidence=self._calculate_relation_confidence(match.group(0), relation_type),
-                                context=self._extract_context(text, match.start(), match.end())
+                                confidence=self._calculate_relation_confidence(
+                                    match.group(0), relation_type
+                                ),
+                                context=self._extract_context(
+                                    text, match.start(), match.end()
+                                ),
                             )
 
                             # Extract additional details (direction, distance)
-                            direction = self._extract_direction_from_text(match.group(0))
+                            direction = self._extract_direction_from_text(
+                                match.group(0)
+                            )
                             if direction:
                                 relation.direction = direction
 
@@ -336,7 +373,7 @@ class SpatialLanguageProcessor:
                                 relation.distance = distance
 
                             relations.append(relation)
-                            self.processing_metrics['relations_found'] += 1
+                            self.processing_metrics["relations_found"] += 1
 
         logger.info(f"Extracted {len(relations)} spatial relations from text")
         return relations
@@ -351,63 +388,69 @@ class SpatialLanguageProcessor:
         Returns:
             Structured interpretation of the description
         """
-        self.processing_metrics['descriptions_processed'] += 1
+        self.processing_metrics["descriptions_processed"] += 1
 
         interpretation = {
-            'original_description': description,
-            'entities': [],
-            'relations': [],
-            'spatial_concepts': [],
-            'uncertainty_indicators': [],
-            'geocoding_candidates': [],
-            'interpretation_confidence': 0.0
+            "original_description": description,
+            "entities": [],
+            "relations": [],
+            "spatial_concepts": [],
+            "uncertainty_indicators": [],
+            "geocoding_candidates": [],
+            "interpretation_confidence": 0.0,
         }
 
         # Extract entities
         entities = self.extract_spatial_entities(description)
-        interpretation['entities'] = [entity.__dict__ for entity in entities]
+        interpretation["entities"] = [entity.__dict__ for entity in entities]
 
         # Extract relations
         relations = self.extract_spatial_relations(description, entities)
-        interpretation['relations'] = [relation.__dict__ for relation in relations]
+        interpretation["relations"] = [relation.__dict__ for relation in relations]
 
         # Extract spatial concepts
         concepts = self._extract_spatial_concepts(description)
-        interpretation['spatial_concepts'] = concepts
+        interpretation["spatial_concepts"] = concepts
 
         # Identify uncertainty indicators
         uncertainty_indicators = self._identify_uncertainty_indicators(description)
-        interpretation['uncertainty_indicators'] = uncertainty_indicators
+        interpretation["uncertainty_indicators"] = uncertainty_indicators
 
         # Generate geocoding candidates
         candidates = self._generate_geocoding_candidates(entities, relations, concepts)
-        interpretation['geocoding_candidates'] = candidates
+        interpretation["geocoding_candidates"] = candidates
 
         # Calculate overall interpretation confidence
-        interpretation['interpretation_confidence'] = self._calculate_interpretation_confidence(
-            entities, relations, concepts, uncertainty_indicators
+        interpretation["interpretation_confidence"] = (
+            self._calculate_interpretation_confidence(
+                entities, relations, concepts, uncertainty_indicators
+            )
         )
 
-        logger.info(f"Processed place description with confidence {interpretation['interpretation_confidence']:.3f}")
+        logger.info(
+            f"Processed place description with confidence {interpretation['interpretation_confidence']:.3f}"
+        )
         return interpretation
 
-    def _calculate_entity_confidence(self, entity_text: str, entity_type: str, pattern: str) -> float:
+    def _calculate_entity_confidence(
+        self, entity_text: str, entity_type: str, pattern: str
+    ) -> float:
         """Calculate confidence score for extracted entity."""
         base_confidence = 0.5
 
         # Adjust based on entity type
         type_confidence = {
-            'city': 0.8,
-            'street': 0.9,
-            'landmark': 0.7,
-            'region': 0.6,
-            'coordinate': 0.95
+            "city": 0.8,
+            "street": 0.9,
+            "landmark": 0.7,
+            "region": 0.6,
+            "coordinate": 0.95,
         }
 
         base_confidence = type_confidence.get(entity_type, 0.5)
 
         # Adjust based on pattern specificity
-        if pattern.count(r'\b') > 2:  # More word boundaries = more specific
+        if pattern.count(r"\b") > 2:  # More word boundaries = more specific
             base_confidence += 0.1
 
         # Adjust based on text length (longer = more specific)
@@ -416,12 +459,14 @@ class SpatialLanguageProcessor:
 
         return min(1.0, base_confidence)
 
-    def _calculate_relation_confidence(self, relation_text: str, relation_type: str) -> float:
+    def _calculate_relation_confidence(
+        self, relation_text: str, relation_type: str
+    ) -> float:
         """Calculate confidence score for extracted relation."""
         base_confidence = 0.6
 
         # Adjust based on relation type specificity
-        specific_relations = ['north_of', 'south_of', 'east_of', 'west_of', 'contains']
+        specific_relations = ["north_of", "south_of", "east_of", "west_of", "contains"]
         if relation_type in specific_relations:
             base_confidence = 0.8
 
@@ -431,7 +476,9 @@ class SpatialLanguageProcessor:
 
         return min(1.0, base_confidence)
 
-    def _extract_context(self, text: str, start_pos: int, end_pos: int, context_length: int = 50) -> str:
+    def _extract_context(
+        self, text: str, start_pos: int, end_pos: int, context_length: int = 50
+    ) -> str:
         """Extract surrounding context for an entity or relation."""
         text_length = len(text)
 
@@ -449,21 +496,28 @@ class SpatialLanguageProcessor:
 
         return context.strip()
 
-    def _deduplicate_entities(self, entities: List[SpatialEntity]) -> List[SpatialEntity]:
+    def _deduplicate_entities(
+        self, entities: List[SpatialEntity]
+    ) -> List[SpatialEntity]:
         """Remove duplicate entities while preserving highest confidence."""
         unique_entities: Dict[Tuple[str, str], SpatialEntity] = {}
 
         for entity in entities:
             key = (entity.text.lower(), entity.entity_type)
 
-            if key not in unique_entities or entity.confidence > unique_entities[key].confidence:
+            if (
+                key not in unique_entities
+                or entity.confidence > unique_entities[key].confidence
+            ):
                 unique_entities[key] = entity
 
         return list(unique_entities.values())
 
-    def _attempt_geocoding(self, entity_text: str, entity_type: str) -> Optional[Tuple[float, float]]:
+    def _attempt_geocoding(
+        self, entity_text: str, entity_type: str
+    ) -> Optional[Tuple[float, float]]:
         """Attempt to geocode an entity text to coordinates."""
-        self.processing_metrics['geocoding_attempts'] += 1
+        self.processing_metrics["geocoding_attempts"] += 1
 
         # Simple geocoding based on known place variants
         entity_lower = entity_text.lower()
@@ -472,22 +526,22 @@ class SpatialLanguageProcessor:
             if entity_lower in [v.lower() for v in variants]:
                 # Return coordinates for known places (simplified)
                 coordinates_map = {
-                    'new_york': (40.7128, -74.0060),
-                    'los_angeles': (34.0522, -118.2437),
-                    'chicago': (41.8781, -87.6298),
-                    'san_francisco': (37.7749, -122.4194),
-                    'london': (51.5074, -0.1278),
-                    'paris': (48.8566, 2.3522),
-                    'tokyo': (35.6762, 139.6503),
-                    'sydney': (-33.8688, 151.2093)
+                    "new_york": (40.7128, -74.0060),
+                    "los_angeles": (34.0522, -118.2437),
+                    "chicago": (41.8781, -87.6298),
+                    "san_francisco": (37.7749, -122.4194),
+                    "london": (51.5074, -0.1278),
+                    "paris": (48.8566, 2.3522),
+                    "tokyo": (35.6762, 139.6503),
+                    "sydney": (-33.8688, 151.2093),
                 }
 
                 if canonical_name in coordinates_map:
                     return coordinates_map[canonical_name]
 
         # For coordinates, try to parse directly
-        if entity_type == 'coordinate':
-            coord_match = re.search(r'(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)', entity_text)
+        if entity_type == "coordinate":
+            coord_match = re.search(r"(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)", entity_text)
             if coord_match:
                 lat, lon = float(coord_match.group(1)), float(coord_match.group(2))
                 if -90 <= lat <= 90 and -180 <= lon <= 180:
@@ -523,12 +577,12 @@ class SpatialLanguageProcessor:
 
         # Simple concept extraction based on keywords
         concept_keywords = {
-            'urban': ['city', 'urban', 'metropolitan', 'downtown', 'suburb'],
-            'rural': ['rural', 'countryside', 'village', 'farmland', 'agricultural'],
-            'natural': ['forest', 'mountain', 'river', 'lake', 'park', 'wilderness'],
-            'commercial': ['shopping', 'business', 'commercial', 'retail', 'office'],
-            'residential': ['residential', 'housing', 'neighborhood', 'community'],
-            'transportation': ['highway', 'road', 'street', 'transport', 'transit']
+            "urban": ["city", "urban", "metropolitan", "downtown", "suburb"],
+            "rural": ["rural", "countryside", "village", "farmland", "agricultural"],
+            "natural": ["forest", "mountain", "river", "lake", "park", "wilderness"],
+            "commercial": ["shopping", "business", "commercial", "retail", "office"],
+            "residential": ["residential", "housing", "neighborhood", "community"],
+            "transportation": ["highway", "road", "street", "transport", "transit"],
         }
 
         description_lower = description.lower()
@@ -536,11 +590,13 @@ class SpatialLanguageProcessor:
         for concept_type, keywords in concept_keywords.items():
             for keyword in keywords:
                 if keyword in description_lower:
-                    concepts.append({
-                        'concept_type': concept_type,
-                        'keyword': keyword,
-                        'confidence': 0.7  # Moderate confidence for keyword-based extraction
-                    })
+                    concepts.append(
+                        {
+                            "concept_type": concept_type,
+                            "keyword": keyword,
+                            "confidence": 0.7,  # Moderate confidence for keyword-based extraction
+                        }
+                    )
                     break  # Only add concept type once
 
         return concepts
@@ -548,9 +604,21 @@ class SpatialLanguageProcessor:
     def _identify_uncertainty_indicators(self, description: str) -> List[str]:
         """Identify words/phrases indicating uncertainty in description."""
         uncertainty_words = [
-            'approximately', 'about', 'around', 'roughly', 'somewhere',
-            'maybe', 'perhaps', 'possibly', 'could be', 'might be',
-            'near', 'close to', 'in the vicinity of', 'sort of', 'kind of'
+            "approximately",
+            "about",
+            "around",
+            "roughly",
+            "somewhere",
+            "maybe",
+            "perhaps",
+            "possibly",
+            "could be",
+            "might be",
+            "near",
+            "close to",
+            "in the vicinity of",
+            "sort of",
+            "kind of",
         ]
 
         indicators = []
@@ -562,39 +630,45 @@ class SpatialLanguageProcessor:
 
         return indicators
 
-    def _generate_geocoding_candidates(self,
-                                     entities: List[SpatialEntity],
-                                     relations: List[SpatialRelation],
-                                     concepts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _generate_geocoding_candidates(
+        self,
+        entities: List[SpatialEntity],
+        relations: List[SpatialRelation],
+        concepts: List[Dict[str, Any]],
+    ) -> List[Dict[str, Any]]:
         """Generate geocoding candidates based on extracted information."""
         candidates = []
 
         for entity in entities:
             candidate = {
-                'entity_text': entity.text,
-                'entity_type': entity.entity_type,
-                'confidence': entity.confidence,
-                'candidate_coordinates': entity.coordinates,
-                'candidate_bbox': entity.bounding_box,
-                'geocoding_method': 'pattern_matching' if entity.coordinates else 'none'
+                "entity_text": entity.text,
+                "entity_type": entity.entity_type,
+                "confidence": entity.confidence,
+                "candidate_coordinates": entity.coordinates,
+                "candidate_bbox": entity.bounding_box,
+                "geocoding_method": "pattern_matching"
+                if entity.coordinates
+                else "none",
             }
 
             # Add contextual information
             if entity.coordinates:
-                candidate['geocoding_success'] = True
+                candidate["geocoding_success"] = True
             else:
-                candidate['geocoding_success'] = False
-                candidate['failure_reason'] = 'No matching pattern found'
+                candidate["geocoding_success"] = False
+                candidate["failure_reason"] = "No matching pattern found"
 
             candidates.append(candidate)
 
         return candidates
 
-    def _calculate_interpretation_confidence(self,
-                                          entities: List[SpatialEntity],
-                                          relations: List[SpatialRelation],
-                                          concepts: List[Dict[str, Any]],
-                                          uncertainty_indicators: List[str]) -> float:
+    def _calculate_interpretation_confidence(
+        self,
+        entities: List[SpatialEntity],
+        relations: List[SpatialRelation],
+        concepts: List[Dict[str, Any]],
+        uncertainty_indicators: List[str],
+    ) -> float:
         """Calculate overall confidence in description interpretation."""
         factors = []
 
@@ -605,12 +679,16 @@ class SpatialLanguageProcessor:
 
         # Relation confidence
         if relations:
-            avg_relation_confidence = sum(r.confidence for r in relations) / len(relations)
+            avg_relation_confidence = sum(r.confidence for r in relations) / len(
+                relations
+            )
             factors.append(avg_relation_confidence * 0.3)
 
         # Concept confidence
         if concepts:
-            avg_concept_confidence = sum(c['confidence'] for c in concepts) / len(concepts)
+            avg_concept_confidence = sum(c["confidence"] for c in concepts) / len(
+                concepts
+            )
             factors.append(avg_concept_confidence * 0.2)
 
         # Uncertainty penalty

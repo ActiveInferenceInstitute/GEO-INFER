@@ -61,7 +61,9 @@ class RandomFieldTheory:
     ):
         self.field_shape = tuple(field_shape)
         self.ndim = len(self.field_shape)
-        self.smoothness = None if smoothness is None else np.asarray(smoothness, dtype=float)
+        self.smoothness = (
+            None if smoothness is None else np.asarray(smoothness, dtype=float)
+        )
         self.search_volume = None if search_volume is None else float(search_volume)
         self.df = df
         self.resel_counts: Optional[np.ndarray] = None
@@ -82,7 +84,8 @@ class RandomFieldTheory:
         if self.ndim not in (1, 2, 3):
             raise ValueError(f"RFT supports 1D, 2D, and 3D fields, got {self.ndim}D")
         if any(
-            not isinstance(size, (int, np.integer)) or int(size) <= 0 for size in self.field_shape
+            not isinstance(size, (int, np.integer)) or int(size) <= 0
+            for size in self.field_shape
         ):
             raise ValueError("Field dimensions must be positive integers")
         if self.smoothness is not None:
@@ -154,7 +157,9 @@ class RandomFieldTheory:
             if differences.size:
                 derivative_variance = float(np.var(differences))
                 if derivative_variance > 0:
-                    fwhm[axis] = np.sqrt(4 * np.log(2) * residual_variance / derivative_variance)
+                    fwhm[axis] = np.sqrt(
+                        4 * np.log(2) * residual_variance / derivative_variance
+                    )
 
         self.smoothness = fwhm
         self.resel_counts = None
@@ -173,7 +178,9 @@ class RandomFieldTheory:
             )
         return counts
 
-    def compute_resel_counts(self, voxel_sizes: Optional[np.ndarray] = None) -> np.ndarray:
+    def compute_resel_counts(
+        self, voxel_sizes: Optional[np.ndarray] = None
+    ) -> np.ndarray:
         """Compute all zero- through D-dimensional resel counts.
 
         A rectangular field with FWHM-normalised side lengths ``q_i`` has resel
@@ -182,7 +189,9 @@ class RandomFieldTheory:
         the top-dimensional search volume ``R_D``.
         """
         if self.smoothness is None:
-            raise ValueError("Smoothness must be estimated before computing resel counts")
+            raise ValueError(
+                "Smoothness must be estimated before computing resel counts"
+            )
         sizes = (
             np.ones(self.ndim, dtype=float)
             if voxel_sizes is None
@@ -213,7 +222,11 @@ class RandomFieldTheory:
         if self.smoothness is None:
             edges = np.asarray(self.field_shape, dtype=float)
         else:
-            edges = np.asarray(self.field_shape, dtype=float) * self._voxel_sizes / self.smoothness
+            edges = (
+                np.asarray(self.field_shape, dtype=float)
+                * self._voxel_sizes
+                / self.smoothness
+            )
 
         raw_volume = float(np.prod(edges))
         scale = (self.search_volume / raw_volume) ** (1 / self.ndim)
@@ -237,7 +250,9 @@ class RandomFieldTheory:
             if value < 0:
                 raise ValueError("F-statistic thresholds must be non-negative")
             probability = float(f.sf(value, 1, self.df or 100))
-        probability = float(np.clip(probability, np.nextafter(0.0, 1.0), np.nextafter(1.0, 0.0)))
+        probability = float(
+            np.clip(probability, np.nextafter(0.0, 1.0), np.nextafter(1.0, 0.0))
+        )
         return float(norm.isf(probability))
 
     def _z_to_stat(self, z_value: float, stat_type: str) -> float:
@@ -269,7 +284,9 @@ class RandomFieldTheory:
             )
         return densities
 
-    def expected_euler_characteristic(self, threshold: float, stat_type: str = "Z") -> float:
+    def expected_euler_characteristic(
+        self, threshold: float, stat_type: str = "Z"
+    ) -> float:
         """Return the full expected EC of the one-sided excursion set."""
         counts = self._resolved_resel_counts()
         return float(np.dot(counts, self.ec_densities(threshold, stat_type)))
@@ -384,7 +401,9 @@ class RandomFieldTheory:
             0.0,
             self.expected_euler_characteristic(cluster_forming_threshold, stat_type),
         )
-        expected_volume = self.expected_excursion_volume(cluster_forming_threshold, stat_type)
+        expected_volume = self.expected_excursion_volume(
+            cluster_forming_threshold, stat_type
+        )
         if expected_clusters <= 0 or expected_volume <= 0:
             raise ValueError(
                 "Cluster-extent inference requires positive expected clusters and excursion volume"
@@ -393,7 +412,9 @@ class RandomFieldTheory:
         beta = (gamma(self.ndim / 2 + 1) / mean_extent) ** (2 / self.ndim)
         return expected_clusters, expected_volume, float(beta)
 
-    def _extent_in_resels(self, extent: ScalarOrArray, *, extent_in_resels: bool) -> np.ndarray:
+    def _extent_in_resels(
+        self, extent: ScalarOrArray, *, extent_in_resels: bool
+    ) -> np.ndarray:
         values = np.asarray(extent, dtype=float)
         if not np.all(np.isfinite(values)) or np.any(values < 0):
             raise ValueError("Cluster extents must be finite and non-negative")
@@ -405,7 +426,9 @@ class RandomFieldTheory:
         return values * resels_per_voxel
 
     @staticmethod
-    def _return_scalar_if_scalar(original: ScalarOrArray, values: np.ndarray) -> ScalarOrArray:
+    def _return_scalar_if_scalar(
+        original: ScalarOrArray, values: np.ndarray
+    ) -> ScalarOrArray:
         if np.ndim(original) == 0:
             return float(values)
         return values
@@ -424,7 +447,9 @@ class RandomFieldTheory:
         ``extent_in_resels=False`` to supply a count of field voxels.
         """
         resel_extent = self._extent_in_resels(extent, extent_in_resels=extent_in_resels)
-        _, _, beta = self._cluster_extent_parameters(cluster_forming_threshold, stat_type)
+        _, _, beta = self._cluster_extent_parameters(
+            cluster_forming_threshold, stat_type
+        )
         survival = np.exp(-beta * resel_extent ** (2 / self.ndim))
         return self._return_scalar_if_scalar(extent, survival)
 
@@ -537,7 +562,9 @@ class RandomFieldTheory:
 
         original = np.asarray(statistical_map, dtype=float)
         if original.size != int(np.prod(self.field_shape)):
-            raise ValueError("Statistical map must contain one value per field location")
+            raise ValueError(
+                "Statistical map must contain one value per field location"
+            )
         if not np.all(np.isfinite(original)):
             raise ValueError("Statistical map must contain only finite values")
         field = original.reshape(self.field_shape)
@@ -564,7 +591,9 @@ class RandomFieldTheory:
 
         if cluster_forming_threshold is None:
             cluster_forming_alpha = self._validate_alpha(cluster_forming_alpha)
-            cluster_forming_threshold = self._z_to_stat(norm.isf(cluster_forming_alpha), kind)
+            cluster_forming_threshold = self._z_to_stat(
+                norm.isf(cluster_forming_alpha), kind
+            )
         threshold = float(cluster_forming_threshold)
         # Validate the forming threshold and the cluster distribution before
         # labeling so an invalid inference configuration fails closed.

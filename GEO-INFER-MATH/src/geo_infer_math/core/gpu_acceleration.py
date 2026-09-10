@@ -36,6 +36,7 @@ class GPUAccelerator:
             # Check for CuPy (NVIDIA GPU support)
             try:
                 import importlib
+
                 importlib.import_module("cupy")  # import for availability probe
 
                 self.cupy_available = True
@@ -506,7 +507,10 @@ class GPUAccelerator:
         """CPU-based clustering (fallback)."""
         from geo_infer_math.models.clustering import spatial_clustering_analysis
 
-        return cast(Dict[str, Any], spatial_clustering_analysis(data, coordinates, method=method, **kwargs))
+        return cast(
+            Dict[str, Any],
+            spatial_clustering_analysis(data, coordinates, method=method, **kwargs),
+        )
 
     def get_performance_info(self) -> Dict[str, Any]:
         """
@@ -537,12 +541,8 @@ class GPUAccelerator:
 
                 if torch.cuda.is_available():
                     device = torch.cuda.current_device()
-                    mem_dict["torch_allocated"] = (
-                        torch.cuda.memory_allocated(device)
-                    )
-                    mem_dict["torch_reserved"] = torch.cuda.memory_reserved(
-                        device
-                    )
+                    mem_dict["torch_allocated"] = torch.cuda.memory_allocated(device)
+                    mem_dict["torch_reserved"] = torch.cuda.memory_reserved(device)
             except Exception:
                 pass
 
@@ -640,11 +640,15 @@ def gpu_matrix_multiply(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     return gpu_accelerator.accelerate_matrix_operations(matrices, "multiply")[0]
 
 
-def gpu_distance_matrix(points1: np.ndarray, points2: Optional[np.ndarray] = None) -> np.ndarray:
+def gpu_distance_matrix(
+    points1: np.ndarray, points2: Optional[np.ndarray] = None
+) -> np.ndarray:
     """GPU-accelerated distance matrix calculation."""
     if points2 is not None:
         points_list: List[np.ndarray] = [points1, points2]
-        return gpu_accelerator.accelerate_distance_calculations(points_list[0], points_list[1])
+        return gpu_accelerator.accelerate_distance_calculations(
+            points_list[0], points_list[1]
+        )
     return gpu_accelerator.accelerate_distance_calculations(points1)
 
 

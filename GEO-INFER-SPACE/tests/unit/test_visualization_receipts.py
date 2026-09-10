@@ -61,9 +61,7 @@ def test_receipt_accessibility_html() -> None:
     """HTML artifacts get nonempty_html and has_title checks."""
     with tempfile.TemporaryDirectory() as tmp:
         artifact = Path(tmp) / "dashboard.html"
-        artifact.write_text(
-            "<h1>GEO-INFER Place-Based Analysis</h1>", encoding="utf-8"
-        )
+        artifact.write_text("<h1>GEO-INFER Place-Based Analysis</h1>", encoding="utf-8")
 
         manifest_path = write_visualization_receipt(
             artifact_path=artifact,

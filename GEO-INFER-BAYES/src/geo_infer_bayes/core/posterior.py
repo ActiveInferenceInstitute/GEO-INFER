@@ -243,9 +243,11 @@ class PosteriorAnalysis:
         if not np.isfinite(level) or not 0.0 < level < 1.0:
             raise ValueError("alpha must be finite and strictly between zero and one")
         try:
-            param_samples = np.asarray(
-                self.arviz_data.posterior[parameter].values
-            ).astype(float).reshape(-1)
+            param_samples = (
+                np.asarray(self.arviz_data.posterior[parameter].values)
+                .astype(float)
+                .reshape(-1)
+            )
         except (AttributeError, KeyError) as exc:
             raise KeyError(
                 f"posterior does not contain parameter {parameter!r}"
@@ -353,7 +355,9 @@ class PosteriorAnalysis:
         """
         interval_level = float(level)
         if not np.isfinite(interval_level) or not 0.0 < interval_level < 1.0:
-            raise ValueError("level must be a finite probability strictly between zero and one")
+            raise ValueError(
+                "level must be a finite probability strictly between zero and one"
+            )
         # ``self.model`` is declared as the abstract base, whose posterior
         # predictive signature has no ``random_seed``; concrete models extend
         # it, so it is routed through an ``Any`` handle.
@@ -370,7 +374,9 @@ class PosteriorAnalysis:
         tail = (1.0 - interval_level) / 2.0
         mean = np.asarray(np.mean(draws, axis=0), dtype=float)
         lower = np.asarray(np.percentile(draws, 100.0 * tail, axis=0), dtype=float)
-        upper = np.asarray(np.percentile(draws, 100.0 * (1.0 - tail), axis=0), dtype=float)
+        upper = np.asarray(
+            np.percentile(draws, 100.0 * (1.0 - tail), axis=0), dtype=float
+        )
         return mean, lower, upper
 
     def coverage(

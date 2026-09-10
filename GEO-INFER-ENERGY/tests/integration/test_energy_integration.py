@@ -90,9 +90,9 @@ class TestSolarAssessmentPipeline:
 
         assert "solar_potential" in result
         assert "annual_energy" in result
-        assert (
-            float(result["solar_potential"].min()) > 0
-        ), "Solar potential should be positive"
+        assert float(result["solar_potential"].min()) > 0, (
+            "Solar potential should be positive"
+        )
         assert result["annual_energy"].shape == solar_irradiance.shape
 
     def test_solar_with_terrain(self, solar_irradiance):

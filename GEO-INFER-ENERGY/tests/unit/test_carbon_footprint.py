@@ -5,6 +5,7 @@ import pytest
 import xarray as xr
 
 import sys
+
 sys.path.insert(0, "GEO-INFER-ENERGY/src")
 
 from geo_infer_energy.core.carbon_footprint import CarbonFootprintAnalyzer
@@ -51,4 +52,6 @@ class TestRenewableImpact:
         baseline = xr.DataArray(np.full((3, 3), 500000.0), dims=("y", "x"))
         result = analyzer.assess_renewable_impact(renewable, total, baseline)
         assert float(result["emissions_avoided"].mean()) > 0
-        assert float(result["renewable_fraction"].mean()) == pytest.approx(0.5, abs=0.01)
+        assert float(result["renewable_fraction"].mean()) == pytest.approx(
+            0.5, abs=0.01
+        )

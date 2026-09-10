@@ -13,8 +13,10 @@ from datetime import datetime
 from dataclasses import dataclass, field
 from enum import Enum
 
+
 class DecisionStatus(Enum):
     """Underwriting decision status enumeration."""
+
     PENDING = "pending"
     APPROVED = "approved"
     DECLINED = "declined"
@@ -22,8 +24,10 @@ class DecisionStatus(Enum):
     CONDITIONAL = "conditional"
     EXPIRED = "expired"
 
+
 class GuidelineType(Enum):
     """Underwriting guideline type enumeration."""
+
     MANDATORY = "mandatory"
     ELIGIBILITY = "eligibility"
     PRICING = "pricing"
@@ -31,6 +35,7 @@ class GuidelineType(Enum):
     EXCLUSION = "exclusion"
     COMPLIANCE = "compliance"
     RISK_MANAGEMENT = "risk_management"
+
 
 @dataclass
 class Decision:
@@ -58,19 +63,20 @@ class Decision:
     def to_dict(self) -> Dict[str, Any]:
         """Convert decision to dictionary."""
         return {
-            'approved': self.approved,
-            'reason': self.reason,
-            'confidence': self.confidence,
-            'risk_score': self.risk_score,
-            'rule_score': self.rule_score,
-            'conditions': self.conditions,
-            'requirements': self.requirements,
-            'recommendations': self.recommendations,
-            'decision_date': self.decision_date.isoformat(),
-            'decision_maker': self.decision_maker,
-            'is_final': self.is_final(),
-            'requires_review': self.requires_review()
+            "approved": self.approved,
+            "reason": self.reason,
+            "confidence": self.confidence,
+            "risk_score": self.risk_score,
+            "rule_score": self.rule_score,
+            "conditions": self.conditions,
+            "requirements": self.requirements,
+            "recommendations": self.recommendations,
+            "decision_date": self.decision_date.isoformat(),
+            "decision_maker": self.decision_maker,
+            "is_final": self.is_final(),
+            "requires_review": self.requires_review(),
         }
+
 
 @dataclass
 class Guideline:
@@ -104,43 +110,49 @@ class Guideline:
     def is_applicable(self, product: str, region: str, risk_tier: str) -> bool:
         """Check if guideline is applicable."""
         return (
-            self.is_active and
-            (not self.applicable_products or product in self.applicable_products) and
-            (not self.applicable_regions or region in self.applicable_regions) and
-            (not self.applicable_risk_tiers or risk_tier in self.applicable_risk_tiers)
+            self.is_active
+            and (not self.applicable_products or product in self.applicable_products)
+            and (not self.applicable_regions or region in self.applicable_regions)
+            and (
+                not self.applicable_risk_tiers
+                or risk_tier in self.applicable_risk_tiers
+            )
         )
 
     def is_effective(self) -> bool:
         """Check if guideline is currently effective."""
         now = datetime.now()
         return (
-            self.is_active and
-            self.effective_date <= now and
-            (self.expiration_date is None or self.expiration_date >= now)
+            self.is_active
+            and self.effective_date <= now
+            and (self.expiration_date is None or self.expiration_date >= now)
         )
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert guideline to dictionary."""
         return {
-            'guideline_id': self.guideline_id,
-            'guideline_type': self.guideline_type.value,
-            'name': self.name,
-            'description': self.description,
-            'rule_expression': self.rule_expression,
-            'rule_parameters': self.rule_parameters,
-            'applicable_products': self.applicable_products,
-            'applicable_regions': self.applicable_regions,
-            'applicable_risk_tiers': self.applicable_risk_tiers,
-            'effective_date': self.effective_date.isoformat(),
-            'expiration_date': self.expiration_date.isoformat() if self.expiration_date else None,
-            'version': self.version,
-            'created_by': self.created_by,
-            'approved_by': self.approved_by,
-            'is_active': self.is_active,
-            'priority': self.priority,
-            'is_applicable': self.is_applicable("default", "default", "standard"),
-            'is_effective': self.is_effective()
+            "guideline_id": self.guideline_id,
+            "guideline_type": self.guideline_type.value,
+            "name": self.name,
+            "description": self.description,
+            "rule_expression": self.rule_expression,
+            "rule_parameters": self.rule_parameters,
+            "applicable_products": self.applicable_products,
+            "applicable_regions": self.applicable_regions,
+            "applicable_risk_tiers": self.applicable_risk_tiers,
+            "effective_date": self.effective_date.isoformat(),
+            "expiration_date": self.expiration_date.isoformat()
+            if self.expiration_date
+            else None,
+            "version": self.version,
+            "created_by": self.created_by,
+            "approved_by": self.approved_by,
+            "is_active": self.is_active,
+            "priority": self.priority,
+            "is_applicable": self.is_applicable("default", "default", "standard"),
+            "is_effective": self.is_effective(),
         }
+
 
 @dataclass
 class UnderwritingCase:
@@ -187,31 +199,34 @@ class UnderwritingCase:
     def requires_attention(self) -> bool:
         """Check if case requires attention."""
         return (
-            self.status in ["pending", "in_review"] and
-            self.days_open() > 2  # Cases open > 2 days need attention
+            self.status in ["pending", "in_review"]
+            and self.days_open() > 2  # Cases open > 2 days need attention
         )
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert underwriting case to dictionary."""
         return {
-            'case_id': self.case_id,
-            'application_data': self.application_data,
-            'status': self.status,
-            'risk_assessment': self.risk_assessment,
-            'rule_evaluation': self.rule_evaluation,
-            'premium': self.premium,
-            'decision': self.decision.to_dict() if self.decision else None,
-            'policy': self.policy,
-            'created_at': self.created_at.isoformat(),
-            'updated_at': self.updated_at.isoformat(),
-            'assigned_to': self.assigned_to,
-            'priority': self.priority,
-            'error_message': self.error_message,
-            'completed_at': self.completed_at.isoformat() if self.completed_at else None,
-            'is_completed': self.is_completed(),
-            'days_open': self.days_open(),
-            'requires_attention': self.requires_attention()
+            "case_id": self.case_id,
+            "application_data": self.application_data,
+            "status": self.status,
+            "risk_assessment": self.risk_assessment,
+            "rule_evaluation": self.rule_evaluation,
+            "premium": self.premium,
+            "decision": self.decision.to_dict() if self.decision else None,
+            "policy": self.policy,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+            "assigned_to": self.assigned_to,
+            "priority": self.priority,
+            "error_message": self.error_message,
+            "completed_at": self.completed_at.isoformat()
+            if self.completed_at
+            else None,
+            "is_completed": self.is_completed(),
+            "days_open": self.days_open(),
+            "requires_attention": self.requires_attention(),
         }
+
 
 @dataclass
 class AuditTrail:
@@ -234,16 +249,17 @@ class AuditTrail:
     def to_dict(self) -> Dict[str, Any]:
         """Convert audit trail to dictionary."""
         return {
-            'audit_id': self.audit_id,
-            'case_id': self.case_id,
-            'action': self.action,
-            'performed_by': self.performed_by,
-            'timestamp': self.timestamp.isoformat(),
-            'old_values': self.old_values,
-            'new_values': self.new_values,
-            'reason': self.reason,
-            'system_context': self.system_context
+            "audit_id": self.audit_id,
+            "case_id": self.case_id,
+            "action": self.action,
+            "performed_by": self.performed_by,
+            "timestamp": self.timestamp.isoformat(),
+            "old_values": self.old_values,
+            "new_values": self.new_values,
+            "reason": self.reason,
+            "system_context": self.system_context,
         }
+
 
 @dataclass
 class ComplianceCheck:
@@ -265,16 +281,17 @@ class ComplianceCheck:
     def to_dict(self) -> Dict[str, Any]:
         """Convert compliance check to dictionary."""
         return {
-            'check_id': self.check_id,
-            'check_type': self.check_type,
-            'regulation': self.regulation,
-            'requirement': self.requirement,
-            'status': self.status,
-            'details': self.details,
-            'evidence': self.evidence,
-            'checked_at': self.checked_at.isoformat(),
-            'is_compliant': self.is_compliant()
+            "check_id": self.check_id,
+            "check_type": self.check_type,
+            "regulation": self.regulation,
+            "requirement": self.requirement,
+            "status": self.status,
+            "details": self.details,
+            "evidence": self.evidence,
+            "checked_at": self.checked_at.isoformat(),
+            "is_compliant": self.is_compliant(),
         }
+
 
 @dataclass
 class UnderwritingQueue:
@@ -283,7 +300,9 @@ class UnderwritingQueue:
     queue_id: str
     queue_type: str  # standard, priority, specialist, manual_review
     max_concurrent: int = 10
-    priority_levels: List[str] = field(default_factory=lambda: ["low", "normal", "high", "urgent"])
+    priority_levels: List[str] = field(
+        default_factory=lambda: ["low", "normal", "high", "urgent"]
+    )
 
     # Queue statistics
     total_pending: int = 0
@@ -297,7 +316,9 @@ class UnderwritingQueue:
 
         self.total_pending += 1
         # Update wait time statistics (simplified)
-        self.average_wait_time = (self.average_wait_time * (self.total_pending - 1) + 0.0) / self.total_pending
+        self.average_wait_time = (
+            self.average_wait_time * (self.total_pending - 1) + 0.0
+        ) / self.total_pending
 
         return True
 
@@ -311,11 +332,11 @@ class UnderwritingQueue:
     def to_dict(self) -> Dict[str, Any]:
         """Convert queue to dictionary."""
         return {
-            'queue_id': self.queue_id,
-            'queue_type': self.queue_type,
-            'max_concurrent': self.max_concurrent,
-            'priority_levels': self.priority_levels,
-            'total_pending': self.total_pending,
-            'average_wait_time': self.average_wait_time,
-            'longest_wait_time': self.longest_wait_time
+            "queue_id": self.queue_id,
+            "queue_type": self.queue_type,
+            "max_concurrent": self.max_concurrent,
+            "priority_levels": self.priority_levels,
+            "total_pending": self.total_pending,
+            "average_wait_time": self.average_wait_time,
+            "longest_wait_time": self.longest_wait_time,
         }

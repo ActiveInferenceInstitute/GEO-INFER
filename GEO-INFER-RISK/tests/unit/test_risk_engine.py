@@ -62,8 +62,12 @@ def test_engine_rejects_underspecified_calibration(tmp_path: Path) -> None:
     with EnhancedRiskEngine(engine_config(tmp_path)) as engine:
         with pytest.raises(ValueError, match="at least two"):
             engine.calibrate_models({"samples": []})
-        with pytest.raises(ValueError, match="'bayesian' calibration is not implemented"):
-            engine.calibrate_models({"samples": [{"loss": 1.0}, {"loss": 2.0}]}, "bayesian")
+        with pytest.raises(
+            ValueError, match="'bayesian' calibration is not implemented"
+        ):
+            engine.calibrate_models(
+                {"samples": [{"loss": 1.0}, {"loss": 2.0}]}, "bayesian"
+            )
 
 
 def test_cross_validation_fits_loss_baseline_parameters(tmp_path: Path) -> None:
@@ -80,5 +84,6 @@ def test_cross_validation_fits_loss_baseline_parameters(tmp_path: Path) -> None:
     }
     assert len(result["cross_validation_results"]["folds"]) == 4
     assert all(
-        fold["training_sample_count"] == 3 for fold in result["cross_validation_results"]["folds"]
+        fold["training_sample_count"] == 3
+        for fold in result["cross_validation_results"]["folds"]
     )

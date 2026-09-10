@@ -643,6 +643,7 @@ def atanh(x: float) -> float:
 def exp(x: float) -> float:
     """Exponential function."""
     import math
+
     return float(math.exp(x))
 
 
@@ -651,6 +652,7 @@ def log(x: float) -> float:
     if x <= 0:
         raise ValueError("Logarithm undefined for non-positive values")
     import math
+
     return float(math.log(x))
 
 

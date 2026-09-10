@@ -19,7 +19,6 @@ from geo_infer_bayes.utils.diagnostics import (
 
 
 class TestMCMCDiagnostics:
-
     def test_basic_diagnostics(self) -> None:
         rng = np.random.default_rng(0)
         samples = {"mu": rng.normal(3.0, 0.5, size=1000)}
@@ -65,7 +64,6 @@ class TestMCMCDiagnostics:
 
 
 class TestConvergenceMetrics:
-
     def test_geweke_z_near_zero_for_stationary_chain(self) -> None:
         """A stationary chain should have Geweke Z near zero."""
         rng = np.random.default_rng(0)

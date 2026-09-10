@@ -6,7 +6,7 @@ import os
 import numpy as np
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
 from geo_infer_math.integration.act.free_energy import FreeEnergyCalculator
 

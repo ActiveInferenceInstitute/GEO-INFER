@@ -439,7 +439,7 @@ def create_interactive_map(
                 color=color,
                 weight=3,
                 opacity=0.7,
-                tooltip=f"Route {i+1}",
+                tooltip=f"Route {i + 1}",
             )
             route_line.add_to(m)
 
@@ -448,13 +448,13 @@ def create_interactive_map(
                 folium.Marker(
                     location=(route[0][1], route[0][0]),
                     icon=folium.Icon(color="green", icon="play", prefix="fa"),
-                    tooltip=f"Start of Route {i+1}",
+                    tooltip=f"Start of Route {i + 1}",
                 ).add_to(m)
 
                 folium.Marker(
                     location=(route[-1][1], route[-1][0]),
                     icon=folium.Icon(color="red", icon="stop", prefix="fa"),
-                    tooltip=f"End of Route {i+1}",
+                    tooltip=f"End of Route {i + 1}",
                 ).add_to(m)
 
     # Add service areas if provided

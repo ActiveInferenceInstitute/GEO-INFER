@@ -18,10 +18,17 @@ from matplotlib.colors import ListedColormap
 import logging
 
 # Import GEO-INFER-MATH modules
-from geo_infer_math.core.spatial_statistics import MoranI, getis_ord_g, local_indicators_spatial_association
+from geo_infer_math.core.spatial_statistics import (
+    MoranI,
+    getis_ord_g,
+    local_indicators_spatial_association,
+)
 from geo_infer_math.core.interpolation import SpatialInterpolator
 from geo_infer_math.core.geometry import haversine_distance, Point
-from geo_infer_math.core.transforms import geographic_to_projected, CoordinateTransformer
+from geo_infer_math.core.transforms import (
+    geographic_to_projected,
+    CoordinateTransformer,
+)
 from geo_infer_math.models.regression import GeographicallyWeightedRegression
 from geo_infer_math.models.clustering import SpatialKMeans
 from geo_infer_math.utils.validation import validate_coordinates, validate_values_array
@@ -31,6 +38,7 @@ from geo_infer_math.utils.constants import EARTH_RADIUS_MEAN
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 def generate_synthetic_data(n_points=200, seed=42):
     """Generate synthetic geospatial data with spatial patterns."""
@@ -44,15 +52,21 @@ def generate_synthetic_data(n_points=200, seed=42):
     coordinates = []
 
     # Urban core cluster
-    urban_core = np.random.normal([center_lon, center_lat], [0.02, 0.02], (n_points//3, 2))
+    urban_core = np.random.normal(
+        [center_lon, center_lat], [0.02, 0.02], (n_points // 3, 2)
+    )
     coordinates.extend(urban_core)
 
     # Suburban cluster
-    suburban = np.random.normal([center_lon + 0.1, center_lat + 0.05], [0.03, 0.03], (n_points//3, 2))
+    suburban = np.random.normal(
+        [center_lon + 0.1, center_lat + 0.05], [0.03, 0.03], (n_points // 3, 2)
+    )
     coordinates.extend(suburban)
 
     # Rural/outlier cluster
-    rural = np.random.normal([center_lon - 0.15, center_lat - 0.1], [0.04, 0.04], (n_points//3, 2))
+    rural = np.random.normal(
+        [center_lon - 0.15, center_lat - 0.1], [0.04, 0.04], (n_points // 3, 2)
+    )
     coordinates.extend(rural)
 
     coordinates = np.array(coordinates)
@@ -72,12 +86,13 @@ def generate_synthetic_data(n_points=200, seed=42):
         values[i] = base_value + np.random.normal(0, 5)
 
         # Add spatial trend
-        if i < n_points//3:  # Urban core
+        if i < n_points // 3:  # Urban core
             values[i] += 20
-        elif i < 2*n_points//3:  # Suburban
+        elif i < 2 * n_points // 3:  # Suburban
             values[i] += 10
 
     return coordinates, values
+
 
 def coordinate_transformation_analysis(coordinates):
     """Demonstrate coordinate transformations."""
@@ -86,16 +101,17 @@ def coordinate_transformation_analysis(coordinates):
     # Transform to UTM
     utm_coords = []
     for lon, lat in coordinates:
-        utm_x, utm_y = geographic_to_projected(lon, lat, 'utm')
+        utm_x, utm_y = geographic_to_projected(lon, lat, "utm")
         utm_coords.append([utm_x, utm_y])
 
     utm_coords = np.array(utm_coords)
 
     # Transform to Web Mercator
-    transformer = CoordinateTransformer('EPSG:4326', 'EPSG:3857')
+    transformer = CoordinateTransformer("EPSG:4326", "EPSG:3857")
     mercator_coords = transformer.transform_points(coordinates)
 
     return utm_coords, mercator_coords
+
 
 def spatial_statistics_analysis(coordinates, values):
     """Perform comprehensive spatial statistics analysis."""
@@ -107,6 +123,7 @@ def spatial_statistics_analysis(coordinates, values):
 
     # Create spatial weights matrix
     from geo_infer_math.core.linalg_tensor import MatrixOperations
+
     weights_matrix = MatrixOperations.spatial_weights_matrix(coordinates, k=8)
 
     # Global Moran's I
@@ -122,6 +139,7 @@ def spatial_statistics_analysis(coordinates, values):
     g_result = getis_ord_g(values, weights_matrix)
 
     return moran_result, lisa_result, g_result
+
 
 def interpolation_analysis(coordinates, values, utm_coords):
     """Perform spatial interpolation analysis."""
@@ -140,14 +158,14 @@ def interpolation_analysis(coordinates, values, utm_coords):
 
     # Convert back to geographic for interpolation
     grid_geo = []
-    transformer = CoordinateTransformer('UTM', 'EPSG:4326')
+    transformer = CoordinateTransformer("UTM", "EPSG:4326")
     for point in grid_points:
         geo_point = transformer.transform_point(point)
         grid_geo.append(geo_point[:2])
     grid_geo = np.array(grid_geo)
 
     # Perform interpolation
-    interpolator = SpatialInterpolator(method='idw', power=2)
+    interpolator = SpatialInterpolator(method="idw", power=2)
     interpolator.fit(coordinates, values)
     interpolated_values = interpolator.predict(grid_geo)
 
@@ -155,6 +173,7 @@ def interpolation_analysis(coordinates, values, utm_coords):
     interpolated_grid = interpolated_values.reshape(xx.shape)
 
     return xx, yy, interpolated_grid
+
 
 def regression_analysis(coordinates, values):
     """Perform geographically weighted regression."""
@@ -171,6 +190,7 @@ def regression_analysis(coordinates, values):
 
     return gwr
 
+
 def clustering_analysis(coordinates, values):
     """Perform spatial clustering analysis."""
     logger.info("Performing spatial clustering analysis...")
@@ -186,6 +206,7 @@ def clustering_analysis(coordinates, values):
 
     return labels, kmeans.cluster_centers_
 
+
 def parallel_processing_example(coordinates, values):
     """Demonstrate parallel processing capabilities."""
     logger.info("Demonstrating parallel processing...")
@@ -194,8 +215,9 @@ def parallel_processing_example(coordinates, values):
     def compute_distances(query_point, all_points=coordinates):
         distances = []
         for point in all_points:
-            dist = haversine_distance(query_point[1], query_point[0],
-                                    point[1], point[0])
+            dist = haversine_distance(
+                query_point[1], query_point[0], point[1], point[0]
+            )
             distances.append(dist)
         return distances
 
@@ -206,70 +228,89 @@ def parallel_processing_example(coordinates, values):
     query_points = coordinates[:10]
 
     # Parallel computation
-    results = parallel_compute(compute_distances, query_points,
-                             num_workers=4, use_processes=True)
+    results = parallel_compute(
+        compute_distances, query_points, num_workers=4, use_processes=True
+    )
 
     logger.info(f"Parallel processing completed for {len(results)} queries")
 
     return results
 
-def create_comprehensive_visualization(coordinates, values, utm_coords,
-                                     interpolated_grid, xx, yy, labels):
+
+def create_comprehensive_visualization(
+    coordinates, values, utm_coords, interpolated_grid, xx, yy, labels
+):
     """Create comprehensive visualization of all analyses."""
     logger.info("Creating comprehensive visualization...")
 
     fig, axes = plt.subplots(2, 3, figsize=(18, 12))
-    fig.suptitle('Advanced Geospatial Analysis - GEO-INFER-MATH', fontsize=16)
+    fig.suptitle("Advanced Geospatial Analysis - GEO-INFER-MATH", fontsize=16)
 
     # Plot 1: Original data
-    scatter = axes[0, 0].scatter(coordinates[:, 0], coordinates[:, 1],
-                                c=values, cmap='viridis', s=50, alpha=0.7)
-    axes[0, 0].set_title('Original Data\n(Latitude vs Longitude)')
-    axes[0, 0].set_xlabel('Longitude')
-    axes[0, 0].set_ylabel('Latitude')
-    plt.colorbar(scatter, ax=axes[0, 0], label='Value')
+    scatter = axes[0, 0].scatter(
+        coordinates[:, 0], coordinates[:, 1], c=values, cmap="viridis", s=50, alpha=0.7
+    )
+    axes[0, 0].set_title("Original Data\n(Latitude vs Longitude)")
+    axes[0, 0].set_xlabel("Longitude")
+    axes[0, 0].set_ylabel("Latitude")
+    plt.colorbar(scatter, ax=axes[0, 0], label="Value")
 
     # Plot 2: UTM coordinates
-    scatter_utm = axes[0, 1].scatter(utm_coords[:, 0], utm_coords[:, 1],
-                                   c=values, cmap='viridis', s=50, alpha=0.7)
-    axes[0, 1].set_title('UTM Projection')
-    axes[0, 1].set_xlabel('UTM Easting (m)')
-    axes[0, 1].set_ylabel('UTM Northing (m)')
-    plt.colorbar(scatter_utm, ax=axes[0, 1], label='Value')
+    scatter_utm = axes[0, 1].scatter(
+        utm_coords[:, 0], utm_coords[:, 1], c=values, cmap="viridis", s=50, alpha=0.7
+    )
+    axes[0, 1].set_title("UTM Projection")
+    axes[0, 1].set_xlabel("UTM Easting (m)")
+    axes[0, 1].set_ylabel("UTM Northing (m)")
+    plt.colorbar(scatter_utm, ax=axes[0, 1], label="Value")
 
     # Plot 3: Interpolation surface
-    im = axes[0, 2].contourf(xx, yy, interpolated_grid, levels=20, cmap='viridis')
-    scatter_interp = axes[0, 2].scatter(utm_coords[:, 0], utm_coords[:, 1],
-                                       c=values, edgecolors='white', s=30, alpha=0.8)
-    axes[0, 2].set_title('Spatial Interpolation\n(IDW Surface)')
-    axes[0, 2].set_xlabel('UTM Easting (m)')
-    axes[0, 2].set_ylabel('UTM Northing (m)')
-    plt.colorbar(im, ax=axes[0, 2], label='Interpolated Value')
+    im = axes[0, 2].contourf(xx, yy, interpolated_grid, levels=20, cmap="viridis")
+    scatter_interp = axes[0, 2].scatter(
+        utm_coords[:, 0],
+        utm_coords[:, 1],
+        c=values,
+        edgecolors="white",
+        s=30,
+        alpha=0.8,
+    )
+    axes[0, 2].set_title("Spatial Interpolation\n(IDW Surface)")
+    axes[0, 2].set_xlabel("UTM Easting (m)")
+    axes[0, 2].set_ylabel("UTM Northing (m)")
+    plt.colorbar(im, ax=axes[0, 2], label="Interpolated Value")
 
     # Plot 4: Clustering results
-    colors = ['red', 'blue', 'green']
+    colors = ["red", "blue", "green"]
     for i in range(3):
         mask = labels == i
-        axes[1, 0].scatter(coordinates[mask, 0], coordinates[mask, 1],
-                          c=colors[i], label=f'Cluster {i+1}', s=50, alpha=0.7)
-    axes[1, 0].set_title('Spatial Clustering\n(K-means)')
-    axes[1, 0].set_xlabel('Longitude')
-    axes[1, 0].set_ylabel('Latitude')
+        axes[1, 0].scatter(
+            coordinates[mask, 0],
+            coordinates[mask, 1],
+            c=colors[i],
+            label=f"Cluster {i + 1}",
+            s=50,
+            alpha=0.7,
+        )
+    axes[1, 0].set_title("Spatial Clustering\n(K-means)")
+    axes[1, 0].set_xlabel("Longitude")
+    axes[1, 0].set_ylabel("Latitude")
     axes[1, 0].legend()
 
     # Plot 5: Statistical summary
-    axes[1, 1].hist(values, bins=20, alpha=0.7, color='skyblue', edgecolor='black')
-    axes[1, 1].axvline(np.mean(values), color='red', linestyle='--', linewidth=2,
-                      label='Mean')
-    axes[1, 1].axvline(np.median(values), color='green', linestyle='--', linewidth=2,
-                      label='Median')
-    axes[1, 1].set_title('Value Distribution')
-    axes[1, 1].set_xlabel('Value')
-    axes[1, 1].set_ylabel('Frequency')
+    axes[1, 1].hist(values, bins=20, alpha=0.7, color="skyblue", edgecolor="black")
+    axes[1, 1].axvline(
+        np.mean(values), color="red", linestyle="--", linewidth=2, label="Mean"
+    )
+    axes[1, 1].axvline(
+        np.median(values), color="green", linestyle="--", linewidth=2, label="Median"
+    )
+    axes[1, 1].set_title("Value Distribution")
+    axes[1, 1].set_xlabel("Value")
+    axes[1, 1].set_ylabel("Frequency")
     axes[1, 1].legend()
 
     # Plot 6: Analysis summary
-    axes[1, 2].axis('off')
+    axes[1, 2].axis("off")
     summary_text = f"""
     Analysis Summary:
 
@@ -286,14 +327,22 @@ def create_comprehensive_visualization(coordinates, values, utm_coords,
     spatial statistics, interpolation, clustering,
     and coordinate transformations.
     """
-    axes[1, 2].text(0.05, 0.95, summary_text, transform=axes[1, 2].transAxes,
-                    fontsize=10, verticalalignment='top', fontfamily='monospace',
-                    bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
+    axes[1, 2].text(
+        0.05,
+        0.95,
+        summary_text,
+        transform=axes[1, 2].transAxes,
+        fontsize=10,
+        verticalalignment="top",
+        fontfamily="monospace",
+        bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.8),
+    )
 
     plt.tight_layout()
-    plt.savefig('advanced_geospatial_analysis.png', dpi=300, bbox_inches='tight')
+    plt.savefig("advanced_geospatial_analysis.png", dpi=300, bbox_inches="tight")
     logger.info("Visualization saved as 'advanced_geospatial_analysis.png'")
     plt.close()
+
 
 def main():
     """Main analysis workflow."""
@@ -308,7 +357,9 @@ def main():
     utm_coords, mercator_coords = coordinate_transformation_analysis(coordinates)
 
     # Spatial statistics analysis
-    moran_result, lisa_result, g_result = spatial_statistics_analysis(coordinates, values)
+    moran_result, lisa_result, g_result = spatial_statistics_analysis(
+        coordinates, values
+    )
 
     # Interpolation analysis
     xx, yy, interpolated_grid = interpolation_analysis(coordinates, values, utm_coords)
@@ -323,13 +374,14 @@ def main():
     parallel_results = parallel_processing_example(coordinates, values)
 
     # Create comprehensive visualization
-    create_comprehensive_visualization(coordinates, values, utm_coords,
-                                     interpolated_grid, xx, yy, labels)
+    create_comprehensive_visualization(
+        coordinates, values, utm_coords, interpolated_grid, xx, yy, labels
+    )
 
     # Print comprehensive results
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("ADVANCED GEOSPATIAL ANALYSIS RESULTS")
-    print("="*60)
+    print("=" * 60)
 
     if isinstance(moran_result, dict) and "moran_i" in moran_result:
         print(f"Global Moran's I: {moran_result['moran_i']:.4f}")
@@ -351,7 +403,7 @@ def main():
     print("Clustering Results:")
     for i in range(3):
         count = np.sum(labels == i)
-        print(f"  Cluster {i+1}: {count} points")
+        print(f"  Cluster {i + 1}: {count} points")
 
     print("GWR Results:")
     print("  Completed model: GeographicallyWeightedRegression")
@@ -365,10 +417,13 @@ def main():
 
     print("Interpolation:")
     print(f"  IDW interpolation on {xx.shape[0]}x{xx.shape[1]} grid")
-    print(f"  Interpolated range: {interpolated_grid.min():.1f} to {interpolated_grid.max():.1f}")
+    print(
+        f"  Interpolated range: {interpolated_grid.min():.1f} to {interpolated_grid.max():.1f}"
+    )
 
     print("\nAnalysis completed successfully!")
     print("Visualization saved as 'advanced_geospatial_analysis.png'")
+
 
 if __name__ == "__main__":
     main()

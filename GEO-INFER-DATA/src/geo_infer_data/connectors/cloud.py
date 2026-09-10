@@ -118,7 +118,9 @@ class CloudConnector:
             with path.open("rb") as f:
                 f.seek(start_byte)
                 return f.read(end_byte - start_byte + 1)
-        raise FileNotFoundError(f"Remote resource not available for range reading: {remote_path}")
+        raise FileNotFoundError(
+            f"Remote resource not available for range reading: {remote_path}"
+        )
 
     async def disconnect(self) -> None:
         """Close cloud storage connection."""

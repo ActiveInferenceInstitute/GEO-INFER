@@ -80,15 +80,25 @@ class BioregionalGovernanceModels:
         # Generate recommendations
         recommendations = []
         if "participation" in weak_dims:
-            recommendations.append("Establish community assemblies and participatory budgeting")
+            recommendations.append(
+                "Establish community assemblies and participatory budgeting"
+            )
         if "transparency" in weak_dims:
-            recommendations.append("Implement open-data portals and public meeting records")
+            recommendations.append(
+                "Implement open-data portals and public meeting records"
+            )
         if "ecological_alignment" in weak_dims:
-            recommendations.append("Integrate bioregional boundaries into governance structures")
+            recommendations.append(
+                "Integrate bioregional boundaries into governance structures"
+            )
         if "accountability" in weak_dims:
-            recommendations.append("Create independent oversight bodies with enforcement powers")
+            recommendations.append(
+                "Create independent oversight bodies with enforcement powers"
+            )
         if "equity" in weak_dims:
-            recommendations.append("Deploy equity impact assessments for all major decisions")
+            recommendations.append(
+                "Deploy equity impact assessments for all major decisions"
+            )
 
         result = {
             "region_id": region_id,
@@ -103,7 +113,9 @@ class BioregionalGovernanceModels:
 
         logger.info(
             "Region %s governance index: %.2f (%s)",
-            region_id, total_index, result["governance_grade"],
+            region_id,
+            total_index,
+            result["governance_grade"],
         )
         return result
 
@@ -144,7 +156,9 @@ class CommunityResourceManagement:
         community_size = resource_data.get("community_size", 100)
         rules = resource_data.get("governance_rules", [])
 
-        logger.info("Analyzing %d resources for community of %d", len(resources), community_size)
+        logger.info(
+            "Analyzing %d resources for community of %d", len(resources), community_size
+        )
 
         assessments = []
         at_risk = []
@@ -158,7 +172,8 @@ class CommunityResourceManagement:
             sustainability = regen / max(extract, 1e-6)
             years_to_depletion = (
                 stock / max(extract * stock - regen * stock, 1e-6)
-                if extract > regen else float("inf")
+                if extract > regen
+                else float("inf")
             )
 
             assessment = {
@@ -168,7 +183,9 @@ class CommunityResourceManagement:
                 "extraction_rate": extract,
                 "sustainability_ratio": round(sustainability, 3),
                 "sustainable": sustainability >= self.sustainability_threshold,
-                "years_to_depletion": round(years_to_depletion, 1) if years_to_depletion != float("inf") else None,
+                "years_to_depletion": round(years_to_depletion, 1)
+                if years_to_depletion != float("inf")
+                else None,
             }
             assessments.append(assessment)
             if not assessment["sustainable"]:
@@ -182,26 +199,58 @@ class CommunityResourceManagement:
             "at_risk_resources": at_risk,
             "overall_sustainability": len(at_risk) == 0,
             "ostrom_principles_score": ostrom_score,
-            "per_household_allocation": round(sum(r.get("stock", 0) for r in resources) / max(community_size, 1), 2),
-            "recommendations": self._generate_crm_recommendations(at_risk, ostrom_score),
+            "per_household_allocation": round(
+                sum(r.get("stock", 0) for r in resources) / max(community_size, 1), 2
+            ),
+            "recommendations": self._generate_crm_recommendations(
+                at_risk, ostrom_score
+            ),
         }
 
     def _evaluate_ostrom_principles(self, rules: List[str]) -> Dict[str, bool]:
         """Evaluate against Ostrom's 8 design principles for commons governance."""
         principles = {
-            "clearly_defined_boundaries": any("boundary" in r.lower() or "membership" in r.lower() for r in rules),
-            "proportional_equivalence": any("proportional" in r.lower() or "fair share" in r.lower() for r in rules),
-            "collective_choice": any("voting" in r.lower() or "assembly" in r.lower() or "consensus" in r.lower() for r in rules),
-            "monitoring": any("monitor" in r.lower() or "patrol" in r.lower() for r in rules),
-            "graduated_sanctions": any("sanction" in r.lower() or "penalty" in r.lower() or "fine" in r.lower() for r in rules),
-            "conflict_resolution": any("conflict" in r.lower() or "mediat" in r.lower() or "dispute" in r.lower() for r in rules),
-            "minimal_rights_recognition": any("right" in r.lower() or "autonomy" in r.lower() for r in rules),
-            "nested_enterprises": any("federat" in r.lower() or "nested" in r.lower() or "multi-level" in r.lower() for r in rules),
+            "clearly_defined_boundaries": any(
+                "boundary" in r.lower() or "membership" in r.lower() for r in rules
+            ),
+            "proportional_equivalence": any(
+                "proportional" in r.lower() or "fair share" in r.lower() for r in rules
+            ),
+            "collective_choice": any(
+                "voting" in r.lower()
+                or "assembly" in r.lower()
+                or "consensus" in r.lower()
+                for r in rules
+            ),
+            "monitoring": any(
+                "monitor" in r.lower() or "patrol" in r.lower() for r in rules
+            ),
+            "graduated_sanctions": any(
+                "sanction" in r.lower() or "penalty" in r.lower() or "fine" in r.lower()
+                for r in rules
+            ),
+            "conflict_resolution": any(
+                "conflict" in r.lower()
+                or "mediat" in r.lower()
+                or "dispute" in r.lower()
+                for r in rules
+            ),
+            "minimal_rights_recognition": any(
+                "right" in r.lower() or "autonomy" in r.lower() for r in rules
+            ),
+            "nested_enterprises": any(
+                "federat" in r.lower()
+                or "nested" in r.lower()
+                or "multi-level" in r.lower()
+                for r in rules
+            ),
         }
         return principles
 
     @staticmethod
-    def _generate_crm_recommendations(at_risk: List[str], ostrom: Dict[str, bool]) -> List[str]:
+    def _generate_crm_recommendations(
+        at_risk: List[str], ostrom: Dict[str, bool]
+    ) -> List[str]:
         recs = []
         if at_risk:
             recs.append(f"Reduce extraction rates for: {', '.join(at_risk)}")
@@ -217,7 +266,10 @@ class AdaptiveManagementSystems:
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         self.config = config or {}
         self.cycle_length_months = self.config.get("cycle_length_months", 6)
-        logger.info("AdaptiveManagementSystems initialized (cycle=%d months)", self.cycle_length_months)
+        logger.info(
+            "AdaptiveManagementSystems initialized (cycle=%d months)",
+            self.cycle_length_months,
+        )
 
     def design_adaptive_system(self, system_params: Dict[str, Any]) -> Dict[str, Any]:
         """Design an adaptive management system.
@@ -239,7 +291,9 @@ class AdaptiveManagementSystems:
 
         logger.info(
             "Designing adaptive system: %d objectives, %d indicators, uncertainty=%s",
-            len(objectives), len(indicators), uncertainty,
+            len(objectives),
+            len(indicators),
+            uncertainty,
         )
 
         # Calculate gap analysis for each indicator
@@ -249,15 +303,17 @@ class AdaptiveManagementSystems:
             current = float(ind.get("current", 0))
             gap = target - current
             gap_pct = (gap / max(abs(target), 1e-6)) * 100
-            indicator_gaps.append({
-                "name": ind.get("name", "unnamed"),
-                "target": target,
-                "current": current,
-                "gap": round(gap, 3),
-                "gap_percent": round(gap_pct, 1),
-                "unit": ind.get("unit", ""),
-                "on_track": gap_pct <= 10,
-            })
+            indicator_gaps.append(
+                {
+                    "name": ind.get("name", "unnamed"),
+                    "target": target,
+                    "current": current,
+                    "gap": round(gap, 3),
+                    "gap_percent": round(gap_pct, 1),
+                    "unit": ind.get("unit", ""),
+                    "on_track": gap_pct <= 10,
+                }
+            )
 
         # Determine monitoring frequency based on uncertainty
         freq_map = {"low": 12, "medium": 6, "high": 3}
@@ -274,12 +330,14 @@ class AdaptiveManagementSystems:
         triggers = []
         for ig in indicator_gaps:
             if not ig["on_track"]:
-                triggers.append({
-                    "indicator": ig["name"],
-                    "trigger_condition": f"{ig['name']} gap exceeds {abs(ig['gap_percent']):.0f}%",
-                    "action": "Review and adjust management strategy",
-                    "priority": "high" if abs(ig["gap_percent"]) > 25 else "medium",
-                })
+                triggers.append(
+                    {
+                        "indicator": ig["name"],
+                        "trigger_condition": f"{ig['name']} gap exceeds {abs(ig['gap_percent']):.0f}%",
+                        "action": "Review and adjust management strategy",
+                        "priority": "high" if abs(ig["gap_percent"]) > 25 else "medium",
+                    }
+                )
 
         return {
             "management_cycle_months": self.cycle_length_months,
@@ -297,11 +355,15 @@ class AdaptiveManagementSystems:
         }
 
     @staticmethod
-    def _compute_adaptive_capacity(total: int, on_track: int, uncertainty: str) -> float:
+    def _compute_adaptive_capacity(
+        total: int, on_track: int, uncertainty: str
+    ) -> float:
         if total == 0:
             return 0.0
         track_ratio = on_track / total
-        uncertainty_penalty = {"low": 0, "medium": 0.1, "high": 0.25}.get(uncertainty, 0.1)
+        uncertainty_penalty = {"low": 0, "medium": 0.1, "high": 0.25}.get(
+            uncertainty, 0.1
+        )
         return round(max(0, min(1, track_ratio - uncertainty_penalty)), 3)
 
 
@@ -328,10 +390,17 @@ class StakeholderEngagement:
         context = stakeholder_data.get("decision_context", "")
         timeline = stakeholder_data.get("timeline_months", 6)
 
-        logger.info("Analyzing %d stakeholders for: %s", len(stakeholders), context[:50])
+        logger.info(
+            "Analyzing %d stakeholders for: %s", len(stakeholders), context[:50]
+        )
 
         classified = []
-        quadrant_counts = {"manage_closely": 0, "keep_satisfied": 0, "keep_informed": 0, "monitor": 0}
+        quadrant_counts = {
+            "manage_closely": 0,
+            "keep_satisfied": 0,
+            "keep_informed": 0,
+            "monitor": 0,
+        }
 
         for sh in stakeholders:
             power = float(sh.get("power", 50))
@@ -351,14 +420,16 @@ class StakeholderEngagement:
                 strategy = "Periodic communication, public information"
 
             quadrant_counts[quadrant] += 1
-            classified.append({
-                "name": sh.get("name", "unnamed"),
-                "power": power,
-                "interest": interest,
-                "sector": sh.get("sector", "general"),
-                "quadrant": quadrant,
-                "engagement_strategy": strategy,
-            })
+            classified.append(
+                {
+                    "name": sh.get("name", "unnamed"),
+                    "power": power,
+                    "interest": interest,
+                    "sector": sh.get("sector", "general"),
+                    "quadrant": quadrant,
+                    "engagement_strategy": strategy,
+                }
+            )
 
         # Calculate engagement intensity score
         engagement_intensity = (
@@ -382,9 +453,21 @@ class StakeholderEngagement:
     def _design_phases(timeline: int, counts: Dict[str, int]) -> List[Dict[str, Any]]:
         phase_len = max(1, timeline // 3)
         return [
-            {"phase": "Scoping", "duration_months": phase_len, "focus": "Identify needs, build relationships with key stakeholders"},
-            {"phase": "Co-design", "duration_months": phase_len, "focus": f"Active engagement with {counts['manage_closely']} key stakeholders"},
-            {"phase": "Implementation", "duration_months": phase_len, "focus": "Execute plan, maintain communication channels"},
+            {
+                "phase": "Scoping",
+                "duration_months": phase_len,
+                "focus": "Identify needs, build relationships with key stakeholders",
+            },
+            {
+                "phase": "Co-design",
+                "duration_months": phase_len,
+                "focus": f"Active engagement with {counts['manage_closely']} key stakeholders",
+            },
+            {
+                "phase": "Implementation",
+                "duration_months": phase_len,
+                "focus": "Execute plan, maintain communication channels",
+            },
         ]
 
 
@@ -417,7 +500,10 @@ class CooperativeEconomics:
 
         logger.info(
             "Modeling %s cooperative: %d members, revenue=%.2f, costs=%.2f",
-            coop_type, len(members), revenue, costs,
+            coop_type,
+            len(members),
+            revenue,
+            costs,
         )
 
         surplus = revenue - costs
@@ -428,13 +514,17 @@ class CooperativeEconomics:
         if dist_method == "equal":
             share = surplus / n_members
             for m in members:
-                distributions.append({"member_id": m.get("id"), "share": round(share, 2)})
+                distributions.append(
+                    {"member_id": m.get("id"), "share": round(share, 2)}
+                )
         elif dist_method == "proportional":
             total_contrib = sum(float(m.get("contribution", 1)) for m in members)
             for m in members:
                 contrib = float(m.get("contribution", 1))
                 share = surplus * (contrib / max(total_contrib, 1))
-                distributions.append({"member_id": m.get("id"), "share": round(share, 2)})
+                distributions.append(
+                    {"member_id": m.get("id"), "share": round(share, 2)}
+                )
         elif dist_method == "need_based":
             # Simple need-based: inverse of contribution (those contributing less get more)
             contribs = [float(m.get("contribution", 1)) for m in members]
@@ -442,12 +532,18 @@ class CooperativeEconomics:
             total_inv = sum(inv_contribs)
             for m, inv_c in zip(members, inv_contribs):
                 share = surplus * (inv_c / max(total_inv, 1))
-                distributions.append({"member_id": m.get("id"), "share": round(share, 2)})
+                distributions.append(
+                    {"member_id": m.get("id"), "share": round(share, 2)}
+                )
 
         # Viability metrics
         per_member_revenue = revenue / n_members
         cost_ratio = costs / max(revenue, 1)
-        gini = self._gini_coefficient([d["share"] for d in distributions]) if distributions else 0
+        gini = (
+            self._gini_coefficient([d["share"] for d in distributions])
+            if distributions
+            else 0
+        )
 
         return {
             "cooperative_type": coop_type,
@@ -476,4 +572,7 @@ class CooperativeEconomics:
         arr = np.array(sorted(values), dtype=float)
         n = len(arr)
         index = np.arange(1, n + 1)
-        return float((2 * np.sum(index * arr) - (n + 1) * np.sum(arr)) / (n * np.sum(arr) + 1e-10))
+        return float(
+            (2 * np.sum(index * arr) - (n + 1) * np.sum(arr))
+            / (n * np.sum(arr) + 1e-10)
+        )

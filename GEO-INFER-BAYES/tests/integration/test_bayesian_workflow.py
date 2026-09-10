@@ -50,7 +50,9 @@ class TestGaussianProcessEndToEnd:
         rng = np.random.default_rng(7)
         n = 40
         X_train = rng.random((n, 2)) * 5.0
-        y_train = np.sin(X_train[:, 0]) + np.cos(X_train[:, 1]) + 0.1 * rng.standard_normal(n)
+        y_train = (
+            np.sin(X_train[:, 0]) + np.cos(X_train[:, 1]) + 0.1 * rng.standard_normal(n)
+        )
 
         gp = GaussianProcess(
             kernel_type="rbf",

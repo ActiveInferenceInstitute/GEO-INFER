@@ -157,13 +157,9 @@ class TestGreenAmptValidation:
 
     def test_rejects_saturated_content_outside_unit_interval(self, modeler):
         with pytest.raises(ValueError, match="saturated_water_content"):
-            modeler.green_ampt_infiltration(
-                np.ones(3), saturated_water_content=0.0
-            )
+            modeler.green_ampt_infiltration(np.ones(3), saturated_water_content=0.0)
         with pytest.raises(ValueError, match="saturated_water_content"):
-            modeler.green_ampt_infiltration(
-                np.ones(3), saturated_water_content=1.2
-            )
+            modeler.green_ampt_infiltration(np.ones(3), saturated_water_content=1.2)
 
     def test_rejects_initial_content_at_or_above_saturation(self, modeler):
         with pytest.raises(ValueError, match="initial_water_content"):

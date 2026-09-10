@@ -336,9 +336,7 @@ class NestedSystem:
         """Get all boundary cells in the system."""
         return {idx: cell for idx, cell in self.cells.items() if cell.is_boundary}
 
-    def detect_boundaries(
-        self, external_cells: Optional[Set[str]] = None
-    ) -> None:
+    def detect_boundaries(self, external_cells: Optional[Set[str]] = None) -> None:
         """Detect and mark boundary cells."""
         if not self.cells:
             return

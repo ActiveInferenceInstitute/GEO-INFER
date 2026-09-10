@@ -29,9 +29,12 @@ try:
         DataQualityReport as DataQualityReport,
         MultiSourceDataIngestion,
     )
+
     _HAS_DATA = True
 except ImportError:
-    logger.info("geo_infer_data not available; PlaceDataManager will use built-in methods")
+    logger.info(
+        "geo_infer_data not available; PlaceDataManager will use built-in methods"
+    )
 
 try:
     from geo_infer_time import (
@@ -40,14 +43,18 @@ try:
         TemporalAnalyzer,
         TimeSeries,
     )
+
     _HAS_TIME = True
 except ImportError:
-    logger.info("geo_infer_time not available; PlaceTemporalAnalyzer will use built-in methods")
+    logger.info(
+        "geo_infer_time not available; PlaceTemporalAnalyzer will use built-in methods"
+    )
 
 
 # ---------------------------------------------------------------------------
 # PlaceDataManager - wraps GEO-INFER-DATA for PLACE workflows
 # ---------------------------------------------------------------------------
+
 
 class PlaceDataManager:
     """Unified data acquisition and quality management for PLACE analyses.
@@ -120,10 +127,14 @@ class PlaceDataManager:
                     # Check for missing geometries
                     missing_geom = sum(1 for f in features if not f.get("geometry"))
                     if missing_geom:
-                        issues.append(f"{missing_geom}/{len(features)} features lack geometry")
+                        issues.append(
+                            f"{missing_geom}/{len(features)} features lack geometry"
+                        )
                         completeness = 1.0 - missing_geom / len(features)
             elif "success" in data and not data["success"]:
-                issues.append(f"Data source returned error: {data.get('error', 'unknown')}")
+                issues.append(
+                    f"Data source returned error: {data.get('error', 'unknown')}"
+                )
                 completeness = 0.0
 
         return {
@@ -163,6 +174,7 @@ class PlaceDataManager:
 # PlaceTemporalAnalyzer - wraps GEO-INFER-TIME for PLACE workflows
 # ---------------------------------------------------------------------------
 
+
 class PlaceTemporalAnalyzer:
     """Time-series analysis for PLACE environmental data.
 
@@ -188,7 +200,9 @@ class PlaceTemporalAnalyzer:
                 self._analyzer = TemporalAnalyzer()
                 self._detector = EventDetector()
                 self._forecaster = ForecastingEngine()
-                logger.info("PlaceTemporalAnalyzer initialised with GEO-INFER-TIME backend")
+                logger.info(
+                    "PlaceTemporalAnalyzer initialised with GEO-INFER-TIME backend"
+                )
             except Exception as exc:
                 logger.warning("GEO-INFER-TIME init failed, using built-in: %s", exc)
 
@@ -219,6 +233,7 @@ class PlaceTemporalAnalyzer:
         if self._analyzer is not None:
             try:
                 import pandas as pd
+
                 ts = TimeSeries(data=pd.Series(values)) if _HAS_TIME else None
                 if ts is not None:
                     res = self._analyzer.detect_trend(ts)
@@ -241,7 +256,12 @@ class PlaceTemporalAnalyzer:
         arr = np.array(values, dtype=float)
         n = len(arr)
         if n < 3:
-            return {"slope": 0.0, "direction": "insufficient_data", "r_squared": 0.0, "significant": False}
+            return {
+                "slope": 0.0,
+                "direction": "insufficient_data",
+                "r_squared": 0.0,
+                "significant": False,
+            }
 
         x = np.arange(n, dtype=float)
         slope, intercept = np.polyfit(x, arr, 1)
@@ -250,7 +270,9 @@ class PlaceTemporalAnalyzer:
         ss_tot = np.sum((arr - np.mean(arr)) ** 2)
         r_sq = 1 - ss_res / ss_tot if ss_tot > 0 else 0.0
 
-        direction = "increasing" if slope > 0 else "decreasing" if slope < 0 else "stable"
+        direction = (
+            "increasing" if slope > 0 else "decreasing" if slope < 0 else "stable"
+        )
         significant = abs(r_sq) > 0.5 and n >= 5
 
         return {
@@ -285,6 +307,7 @@ class PlaceTemporalAnalyzer:
         if self._detector is not None:
             try:
                 import pandas as pd
+
                 ts = TimeSeries(data=pd.Series(values)) if _HAS_TIME else None
                 if ts is not None and hasattr(self._detector, "detect_anomalies"):
                     result = self._detector.detect_anomalies(ts)
@@ -303,11 +326,13 @@ class PlaceTemporalAnalyzer:
         anomalies = []
         for i, v in enumerate(arr):
             if std > 0 and abs(v - mean) > sigma_threshold * std:
-                anomalies.append({
-                    "index": i,
-                    "value": float(v),
-                    "z_score": round(float((v - mean) / std), 3),
-                })
+                anomalies.append(
+                    {
+                        "index": i,
+                        "value": float(v),
+                        "z_score": round(float((v - mean) / std), 3),
+                    }
+                )
 
         return {
             "anomalies": anomalies,
@@ -341,6 +366,7 @@ class PlaceTemporalAnalyzer:
         if self._forecaster is not None:
             try:
                 import pandas as pd
+
                 ts = TimeSeries(data=pd.Series(values)) if _HAS_TIME else None
                 if ts is not None and hasattr(self._forecaster, "forecast_linear"):
                     result = self._forecaster.forecast_linear(ts, horizon=horizon)
@@ -353,7 +379,10 @@ class PlaceTemporalAnalyzer:
         arr = np.array(values, dtype=float)
         n = len(arr)
         if n < 2:
-            return {"forecast": [float(arr[-1])] * horizon if n else [0.0] * horizon, "backend": "built_in"}
+            return {
+                "forecast": [float(arr[-1])] * horizon if n else [0.0] * horizon,
+                "backend": "built_in",
+            }
 
         x = np.arange(n, dtype=float)
         slope, intercept = np.polyfit(x, arr, 1)
@@ -401,9 +430,13 @@ class PlaceTemporalAnalyzer:
                 continue
 
             results[station_id] = {
-                "trend": self.detect_trend(values, timestamps, label=f"tide_{station_id}"),
+                "trend": self.detect_trend(
+                    values, timestamps, label=f"tide_{station_id}"
+                ),
                 "anomalies": self.detect_anomalies(values, label=f"tide_{station_id}"),
-                "forecast": self.forecast(values, horizon=24, label=f"tide_{station_id}"),
+                "forecast": self.forecast(
+                    values, horizon=24, label=f"tide_{station_id}"
+                ),
                 "n_measurements": len(values),
             }
 
@@ -450,8 +483,12 @@ class PlaceTemporalAnalyzer:
             if 0 <= idx < len(daily_counts):
                 daily_counts[idx] += 1
 
-        trend = self.detect_trend([float(x) for x in daily_counts], label="csz_daily_rate")
-        anomalies = self.detect_anomalies([float(x) for x in daily_counts], label="csz_daily_rate")
+        trend = self.detect_trend(
+            [float(x) for x in daily_counts], label="csz_daily_rate"
+        )
+        anomalies = self.detect_anomalies(
+            [float(x) for x in daily_counts], label="csz_daily_rate"
+        )
 
         return {
             "daily_counts": daily_counts,

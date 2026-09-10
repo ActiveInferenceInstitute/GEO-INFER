@@ -30,16 +30,22 @@ def turnout_model():
 @pytest.fixture
 def sample_meetings():
     meetings = []
-    types = [MeetingType.CITY_COUNCIL, MeetingType.TOWN_HALL, MeetingType.PUBLIC_HEARING]
+    types = [
+        MeetingType.CITY_COUNCIL,
+        MeetingType.TOWN_HALL,
+        MeetingType.PUBLIC_HEARING,
+    ]
     for i in range(12):
-        meetings.append(MeetingRecord(
-            meeting_id=f"m_{i}",
-            meeting_type=types[i % 3],
-            date=1000.0 + i * 30,
-            registered_attendees=100 + i * 5,
-            actual_attendees=50 + i * 3,
-            public_comments_count=5 + i,
-        ))
+        meetings.append(
+            MeetingRecord(
+                meeting_id=f"m_{i}",
+                meeting_type=types[i % 3],
+                date=1000.0 + i * 30,
+                registered_attendees=100 + i * 5,
+                actual_attendees=50 + i * 3,
+                public_comments_count=5 + i,
+            )
+        )
     return meetings
 
 
@@ -48,16 +54,18 @@ def sample_comments():
     comments = []
     categories = list(CommentCategory)
     for i in range(30):
-        comments.append(PublicComment(
-            comment_id=f"c_{i}",
-            meeting_id=f"m_{i % 12}",
-            category=categories[i % len(categories)],
-            word_count=50 + i * 10,
-            timestamp=1000.0 + i * 10,
-            submitter_id=f"s_{i % 15}",
-            topic="zoning" if i % 3 == 0 else "budget",
-            sentiment_score=-0.5 + (i % 10) * 0.15,
-        ))
+        comments.append(
+            PublicComment(
+                comment_id=f"c_{i}",
+                meeting_id=f"m_{i % 12}",
+                category=categories[i % len(categories)],
+                word_count=50 + i * 10,
+                timestamp=1000.0 + i * 10,
+                submitter_id=f"s_{i % 15}",
+                topic="zoning" if i % 3 == 0 else "budget",
+                sentiment_score=-0.5 + (i % 10) * 0.15,
+            )
+        )
     return comments
 
 
@@ -92,13 +100,15 @@ class TestAttendanceTracker:
             tracker.get_meeting_effectiveness("nonexistent")
 
     def test_add_single_meeting(self, tracker):
-        tracker.add_meeting(MeetingRecord(
-            meeting_id="solo",
-            meeting_type=MeetingType.WORKSHOP,
-            date=1000.0,
-            registered_attendees=50,
-            actual_attendees=30,
-        ))
+        tracker.add_meeting(
+            MeetingRecord(
+                meeting_id="solo",
+                meeting_type=MeetingType.WORKSHOP,
+                date=1000.0,
+                registered_attendees=50,
+                actual_attendees=30,
+            )
+        )
         trend = tracker.compute_attendance_trend()
         assert trend.meeting_count == 1
         assert trend.average_attendance == 30.0
@@ -158,8 +168,13 @@ class TestVoterTurnoutModel:
     def test_predict_turnout(self, turnout_model):
         for i in range(10):
             turnout_model.add_election(
-                f"e_{i}", 1000, 400 + i * 20, "general", 1000.0 + i * 365,
-                is_contested=True, media_coverage_score=0.5,
+                f"e_{i}",
+                1000,
+                400 + i * 20,
+                "general",
+                1000.0 + i * 365,
+                is_contested=True,
+                media_coverage_score=0.5,
             )
         prediction = turnout_model.predict_turnout(
             eligible_voters=2000,
@@ -173,13 +188,19 @@ class TestVoterTurnoutModel:
 
     def test_predict_uncontested_lower(self, turnout_model):
         for i in range(5):
-            turnout_model.add_election(f"c_{i}", 1000, 600, "general", 1000.0 + i, is_contested=True)
+            turnout_model.add_election(
+                f"c_{i}", 1000, 600, "general", 1000.0 + i, is_contested=True
+            )
         for i in range(5):
-            turnout_model.add_election(f"u_{i}", 1000, 300, "general", 2000.0 + i, is_contested=False)
+            turnout_model.add_election(
+                f"u_{i}", 1000, 300, "general", 2000.0 + i, is_contested=False
+            )
 
         contested = turnout_model.predict_turnout(1000, "general", is_contested=True)
         uncontested = turnout_model.predict_turnout(1000, "general", is_contested=False)
-        assert uncontested["predicted_turnout_rate"] < contested["predicted_turnout_rate"]
+        assert (
+            uncontested["predicted_turnout_rate"] < contested["predicted_turnout_rate"]
+        )
 
     def test_turnout_summary(self, turnout_model):
         turnout_model.add_election("e1", 1000, 600, "general", 1000.0)

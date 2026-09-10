@@ -426,6 +426,6 @@ class TestHypothesisLogIntegration:
             # stats["module_reliability"][m] is a dict, not a float
             rel_data = stats["module_reliability"].get(m, {})
             success_rate = rel_data.get("success_rate", 100.0)
-            assert (
-                success_rate < 100.0
-            ), f"Module {m} had failures (rate: {success_rate})"
+            assert success_rate < 100.0, (
+                f"Module {m} had failures (rate: {success_rate})"
+            )

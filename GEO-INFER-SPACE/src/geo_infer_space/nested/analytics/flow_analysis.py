@@ -290,9 +290,7 @@ class H3FlowAnalyzer:
 
         return vector
 
-    def analyze_flow_patterns(
-        self, field_id: str, **kwargs: Any
-    ) -> FlowAnalysisResult:
+    def analyze_flow_patterns(self, field_id: str, **kwargs: Any) -> FlowAnalysisResult:
         """
         Analyze flow patterns in a field.
 
@@ -522,8 +520,7 @@ class H3FlowAnalyzer:
         magnitude_turbulence = min(1.0, magnitude_var / np.var(magnitudes))
 
         return (
-            cast(float, direction_turbulence)
-            + cast(float, magnitude_turbulence)
+            cast(float, direction_turbulence) + cast(float, magnitude_turbulence)
         ) / 2.0
 
     def _calculate_flow_connectivity(self, flow_field: FlowField) -> float:
@@ -591,9 +588,7 @@ class H3FlowAnalyzer:
         magnitude_stability = 1.0 / (1.0 + np.var(magnitudes))
         direction_stability = 1.0 / (1.0 + np.var(directions))
 
-        return cast(
-            float, (magnitude_stability + direction_stability) / 2.0
-        )
+        return cast(float, (magnitude_stability + direction_stability) / 2.0)
 
     def get_flow_statistics(self) -> Dict[str, Any]:
         """Get flow analyzer statistics."""

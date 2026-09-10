@@ -275,9 +275,11 @@ class AntColonyOptimization:
         for name in ("max_path_length",):
             if name in self.constraints:
                 value = self.constraints[name]
-                if not isinstance(value, Real) or not np.isfinite(
-                    cast(float, value)
-                ) or value < 0:
+                if (
+                    not isinstance(value, Real)
+                    or not np.isfinite(cast(float, value))
+                    or value < 0
+                ):
                     raise ValueError(f"{name} must be a finite non-negative number")
         if "required_nodes" in self.constraints:
             required_nodes = set(self.constraints["required_nodes"])
@@ -985,9 +987,9 @@ class AntColonyOptimization:
             new_rate = min(0.5, old_rate * (1 + volatility))
 
             self.parameters.pheromone_evaporation_rate = new_rate
-            adaptation_results["parameters_updated"][
-                "pheromone_evaporation_rate"
-            ] = new_rate
+            adaptation_results["parameters_updated"]["pheromone_evaporation_rate"] = (
+                new_rate
+            )
             adaptation_results["changes_applied"].append(
                 "pheromone_evaporation_adjusted"
             )
@@ -1000,9 +1002,9 @@ class AntColonyOptimization:
             new_exploration = min(0.3, old_exploration * (1 + complexity * 0.5))
 
             self.parameters.exploration_rate = new_exploration
-            adaptation_results["parameters_updated"][
-                "exploration_rate"
-            ] = new_exploration
+            adaptation_results["parameters_updated"]["exploration_rate"] = (
+                new_exploration
+            )
             adaptation_results["changes_applied"].append("exploration_rate_adjusted")
 
         # Reset convergence tracking if major changes

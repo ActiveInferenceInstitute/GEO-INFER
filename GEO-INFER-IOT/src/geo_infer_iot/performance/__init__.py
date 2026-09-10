@@ -71,7 +71,9 @@ class PerformanceMonitor:
         self.config = config or {}
         self.is_monitoring: bool = False
         self.monitoring_thread: Optional[threading.Thread] = None
-        self.metrics_history: Deque[PerformanceMetrics] = deque(maxlen=1000)  # Keep last 1000 metrics
+        self.metrics_history: Deque[PerformanceMetrics] = deque(
+            maxlen=1000
+        )  # Keep last 1000 metrics
         self.benchmark_history: List[BenchmarkResult] = []
 
         # Monitoring intervals
@@ -670,7 +672,9 @@ class PerformanceMonitor:
             "health_status": (
                 "healthy"
                 if health_score >= 0.8
-                else "degraded" if health_score >= 0.5 else "critical"
+                else "degraded"
+                if health_score >= 0.5
+                else "critical"
             ),
             "benchmark_summary": benchmark_summary,
             "thresholds": self.thresholds,

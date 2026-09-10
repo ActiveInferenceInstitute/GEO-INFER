@@ -49,6 +49,7 @@ except ImportError:  # pragma: no cover - sibling-absent degradation path
             " geo-infer-bayes"
         )
 
+
 CRESCENT_CITY_GEO_INTEL_SCHEMA = CRESCENT_CITY_INTEL_SCHEMA
 
 
@@ -315,8 +316,7 @@ def parse_crescent_city_hazard(
     schema = contract.get("schema")
     if schema != CRESCENT_CITY_GEO_INTEL_SCHEMA:
         raise ValueError(
-            f"schema must be {CRESCENT_CITY_GEO_INTEL_SCHEMA!r}; "
-            f"received {schema!r}"
+            f"schema must be {CRESCENT_CITY_GEO_INTEL_SCHEMA!r}; received {schema!r}"
         )
     city, bounds = _parse_anchor(contract)
     return {

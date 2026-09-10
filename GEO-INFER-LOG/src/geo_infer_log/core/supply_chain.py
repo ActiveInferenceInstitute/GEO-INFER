@@ -21,9 +21,6 @@ from geo_infer_log.utils.geo import haversine_distance
 logger = logging.getLogger(__name__)
 
 
-
-
-
 class SupplyChainModel:
     """Base class for supply chain network modeling."""
 

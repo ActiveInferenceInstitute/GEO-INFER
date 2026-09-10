@@ -37,7 +37,9 @@ class TestOrdinaryKriging:
         assert ok.range_param > 0
         assert ok.nugget >= 0
 
-    def test_predict_returns_predictions_and_variances(self, spatial_data: tuple) -> None:
+    def test_predict_returns_predictions_and_variances(
+        self, spatial_data: tuple
+    ) -> None:
         coords, values = spatial_data
         ok = OrdinaryKriging(variogram_model="spherical")
         ok.fit(coords, values)

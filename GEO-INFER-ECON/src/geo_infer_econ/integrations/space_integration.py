@@ -97,9 +97,7 @@ class SpaceIntegration:
             logger.error(f"Failed to convert lat/lng to cell: {e}")
             return None
 
-    def cell_to_latlng(
-        self, cell: Union[str, int]
-    ) -> Optional[Tuple[float, float]]:
+    def cell_to_latlng(self, cell: Union[str, int]) -> Optional[Tuple[float, float]]:
         """
         Convert spatial cell index to lat/lng.
 
@@ -118,9 +116,7 @@ class SpaceIntegration:
                 import h3
 
                 cell = h3.int_to_str(cell)
-            return cast(
-                Tuple[float, float], self.indexer.cell_to_latlng(cell)
-            )
+            return cast(Tuple[float, float], self.indexer.cell_to_latlng(cell))
         except Exception as e:
             logger.error(f"Failed to convert cell to lat/lng: {e}")
             return None

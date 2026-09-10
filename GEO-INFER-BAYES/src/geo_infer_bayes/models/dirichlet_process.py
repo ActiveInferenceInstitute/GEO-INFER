@@ -25,7 +25,9 @@ class DirichletProcessMixture(BayesianModel):
     determine the number of clusters in spatial data.
     """
 
-    def __init__(self, alpha: float = 1.0, max_clusters: int = 10, **kwargs: Any) -> None:
+    def __init__(
+        self, alpha: float = 1.0, max_clusters: int = 10, **kwargs: Any
+    ) -> None:
         """
         Initialize the Dirichlet Process mixture model.
 
@@ -126,9 +128,9 @@ class DirichletProcessMixture(BayesianModel):
         nearest = np.argmin(np.abs(signal[:, None] - means[None, :]), axis=1)
         prediction = np.asarray(means[nearest])
         if return_std:
-            std_prediction: np.ndarray = np.asarray(np.sqrt(
-                np.maximum(variances[nearest], np.finfo(float).eps)
-            ))
+            std_prediction: np.ndarray = np.asarray(
+                np.sqrt(np.maximum(variances[nearest], np.finfo(float).eps))
+            )
             return prediction, std_prediction
         return prediction
 

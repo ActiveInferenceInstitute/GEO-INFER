@@ -35,10 +35,10 @@ def make_farm_data():
     soil_data = pd.DataFrame(
         {
             "field_id": ["F1", "F2"],
-            "organic_matter": [3.2, 2.1],      # %
+            "organic_matter": [3.2, 2.1],  # %
             "ph": [6.5, 5.9],
-            "bulk_density": [1.2, 1.5],        # g/cm3
-            "clay": [28.0, 18.0],              # %
+            "bulk_density": [1.2, 1.5],  # g/cm3
+            "clay": [28.0, 18.0],  # %
         }
     )
 
@@ -46,11 +46,13 @@ def make_farm_data():
     rng = np.random.default_rng(7)
     weather_data = pd.DataFrame(
         {
-            "temperature": 22 + 4 * np.sin(2 * np.pi * np.arange(30) / 30) + rng.normal(0, 1, 30),
+            "temperature": 22
+            + 4 * np.sin(2 * np.pi * np.arange(30) / 30)
+            + rng.normal(0, 1, 30),
             "solar_radiation": np.clip(22 + rng.normal(0, 3, 30), 5, 35),  # MJ/m2/day
-            "humidity": np.clip(65 + rng.normal(0, 8, 30), 20, 100),       # %
-            "wind_speed": np.clip(2.0 + rng.normal(0, 0.6, 30), 0.2, 8),   # m/s
-            "precipitation": np.clip(rng.exponential(1.5, 30), 0, 20),     # mm/day
+            "humidity": np.clip(65 + rng.normal(0, 8, 30), 20, 100),  # %
+            "wind_speed": np.clip(2.0 + rng.normal(0, 0.6, 30), 0.2, 8),  # m/s
+            "precipitation": np.clip(rng.exponential(1.5, 30), 0, 20),  # mm/day
         },
         index=dates,
     )
@@ -78,20 +80,32 @@ def main() -> None:
     # Water usage: FAO-56 style reference-ET approach
     print("\n[2] Crop water requirement (reference-ET model)")
     water_model = WaterUsageModel(crop_type="corn", model_type="reference_et")
-    water_result = water_model.predict({"field_data": fields, "weather_data": weather_data})
-    print(f"  Seasonal water requirement:      "
-          f"{water_result['summary']['mean_water_requirement_mm']:.0f} mm/ha")
-    print(f"  Seasonal irrigation requirement: "
-          f"{water_result['summary']['mean_irrigation_requirement_mm']:.0f} mm/ha")
-    print(f"  Total irrigation volume:         "
-          f"{water_result['summary']['total_irrigation_requirement_m3']:.0f} m3")
+    water_result = water_model.predict(
+        {"field_data": fields, "weather_data": weather_data}
+    )
+    print(
+        f"  Seasonal water requirement:      "
+        f"{water_result['summary']['mean_water_requirement_mm']:.0f} mm/ha"
+    )
+    print(
+        f"  Seasonal irrigation requirement: "
+        f"{water_result['summary']['mean_irrigation_requirement_mm']:.0f} mm/ha"
+    )
+    print(
+        f"  Total irrigation volume:         "
+        f"{water_result['summary']['total_irrigation_requirement_m3']:.0f} m3"
+    )
 
     # Carbon sequestration: IPCC Tier 1 defaults
     print("\n[3] Carbon sequestration (Tier 1 model)")
     carbon_model = CarbonSequestrationModel(model_type="tier1", time_horizon=20)
     carbon_result = carbon_model.predict({"field_data": fields})
-    for key in ("total_soil_carbon_annual", "total_biomass_carbon_annual",
-                "total_annual_sequestration", "total_co2e_sequestration"):
+    for key in (
+        "total_soil_carbon_annual",
+        "total_biomass_carbon_annual",
+        "total_annual_sequestration",
+        "total_co2e_sequestration",
+    ):
         print(f"  {key}: {carbon_result['summary'][key]:.2f} t/yr")
 
     print("\nExample complete.")

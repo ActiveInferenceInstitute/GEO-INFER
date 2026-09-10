@@ -195,10 +195,8 @@ class TerrainAnalysisRequest(BaseModel):
 class H3AnalysisRequest(BaseModel):
     """Request model for H3 hexagonal grid operations."""
 
-    geometry: Optional[
-        Union[Feature, FeatureCollection, Polygon, MultiPolygon]
-    ] = Field(
-        None, description="Polygon geometry for polygon_to_cells"
+    geometry: Optional[Union[Feature, FeatureCollection, Polygon, MultiPolygon]] = (
+        Field(None, description="Polygon geometry for polygon_to_cells")
     )
     resolution: int = Field(9, ge=0, le=15, description="H3 resolution (0-15)")
     operation: str = Field("polygon_to_cells", description="H3 operation to perform")

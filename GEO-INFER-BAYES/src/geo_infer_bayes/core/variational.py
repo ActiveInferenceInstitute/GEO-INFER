@@ -12,6 +12,7 @@ from ..utils.rng import SeedLike, resolve_rng
 
 logger = logging.getLogger(__name__)
 
+
 class VariationalInference:
     """
     Variational Inference (VI) for scalable Bayesian approximation.

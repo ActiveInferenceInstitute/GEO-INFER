@@ -119,9 +119,7 @@ class TestDataCompressor:
         )
         compressor = DataCompressor(algorithm="gzip")
         data = {"payload": [1, 2, 3]}
-        envelope = sign_payload(
-            pickle.dumps(data), context=CONTEXT_COMPRESSION
-        )
+        envelope = sign_payload(pickle.dumps(data), context=CONTEXT_COMPRESSION)
         compressed = gzip.compress(envelope)
         assert compressor.decompress_data(compressed) == data
 
@@ -130,9 +128,7 @@ class TestDataCompressor:
             "GEO_INFER_SERIALIZATION_KEY", "0123456789abcdef0123456789abcdef"
         )
         compressor = DataCompressor(algorithm="none")
-        envelope = sign_payload(
-            pickle.dumps({"x": 1}), context=CONTEXT_COMPRESSION
-        )
+        envelope = sign_payload(pickle.dumps({"x": 1}), context=CONTEXT_COMPRESSION)
         tampered = envelope[:-1] + bytes([envelope[-1] ^ 0xFF])
         with pytest.raises(SignatureMismatchError):
             compressor.decompress_data(tampered)

@@ -12,6 +12,7 @@ from ..utils.rng import SeedLike, resolve_rng
 
 logger = logging.getLogger(__name__)
 
+
 class HMC:
     """
     Hamiltonian Monte Carlo (HMC) for Bayesian inference.
@@ -73,7 +74,9 @@ class HMC:
         self.target_accept = float(target_accept)
         self.random_seed = random_seed
         self.rng: np.random.Generator = resolve_rng(random_seed)
-        self._parameter_layout: Optional[List[Tuple[str, int, int, Tuple[int, ...]]]] = None
+        self._parameter_layout: Optional[
+            List[Tuple[str, int, int, Tuple[int, ...]]]
+        ] = None
         self._parameter_dimension: int = 0
 
         # Acceptance and dual-averaging telemetry, populated by :meth:`run`.
@@ -143,7 +146,9 @@ class HMC:
         # Current log probabilities and parameters for each chain
         current_params = chains
         current_log_prob = np.zeros(self.n_chains)
-        current_grad: List[np.ndarray] = [np.zeros(n_params) for _ in range(self.n_chains)]
+        current_grad: List[np.ndarray] = [
+            np.zeros(n_params) for _ in range(self.n_chains)
+        ]
 
         for c in range(self.n_chains):
             theta = current_params[c]

@@ -32,7 +32,13 @@ _SUPPORTED_COMMANDS = {
 
 # Canonical agent-type vocabulary mirrors AgentType values in
 # geo_infer_app.models.agent_interface; "rl" is accepted as an alias.
-_AGENT_TYPE_VALUES = {"bdi", "active_inference", "reinforcement_learning", "rule_based", "hybrid"}
+_AGENT_TYPE_VALUES = {
+    "bdi",
+    "active_inference",
+    "reinforcement_learning",
+    "rule_based",
+    "hybrid",
+}
 _AGENT_TYPE_ALIASES = {"rl": "reinforcement_learning"}
 
 
@@ -65,9 +71,7 @@ class AgentAPIClient:
         logger.info("Initializing Agent API client")
 
         # Start status monitoring task
-        self._status_monitoring_task = asyncio.create_task(
-            self._monitor_agent_status()
-        )
+        self._status_monitoring_task = asyncio.create_task(self._monitor_agent_status())
 
         # Load any persisted agent configurations
         await self._load_saved_agents()
@@ -250,9 +254,7 @@ class AgentAPIClient:
             return None
 
         command_type = command.get("command_type", "unknown")
-        command_id = command.get(
-            "command_id", f"cmd_{uuid.uuid4().hex[:8]}"
-        )
+        command_id = command.get("command_id", f"cmd_{uuid.uuid4().hex[:8]}")
         parameters = command.get("parameters", {})
 
         logger.info(f"Sending command '{command_type}' to agent {agent_id}")
@@ -308,10 +310,16 @@ class AgentAPIClient:
         if command_type == "update":
             updates = parameters.get("config", {})
             if not isinstance(updates, dict):
-                return {"status": "error", "message": "parameters.config must be a dict"}
+                return {
+                    "status": "error",
+                    "message": "parameters.config must be a dict",
+                }
             agent["config"].update(updates)
             agent["last_update"] = datetime.now(timezone.utc).isoformat()
-            return {"status": "success", "result": {"updated_keys": list(updates.keys())}}
+            return {
+                "status": "success",
+                "result": {"updated_keys": list(updates.keys())},
+            }
 
         if command_type == "execute":
             action = parameters.get("action")
@@ -372,9 +380,7 @@ class AgentAPIClient:
 
         decision_count = counters["decision_count"]
         success_count = counters["success_count"]
-        success_rate = (
-            success_count / decision_count if decision_count > 0 else 0.0
-        )
+        success_rate = success_count / decision_count if decision_count > 0 else 0.0
 
         # Calculate uptime in seconds from started_at timestamp
         uptime_seconds = 0
@@ -452,9 +458,7 @@ class AgentAPIClient:
                 await asyncio.sleep(5)
 
                 running = sum(
-                    1
-                    for a in self.agents.values()
-                    if a.get("status") == "running"
+                    1 for a in self.agents.values() if a.get("status") == "running"
                 )
                 if self.agents:
                     logger.debug(
@@ -468,7 +472,9 @@ class AgentAPIClient:
         """Load saved agent configurations from disk."""
         config_path = self.config.get(
             "agents_config_path",
-            os.path.join(os.path.expanduser("~"), ".geo_infer_app", "agent_configs.json"),
+            os.path.join(
+                os.path.expanduser("~"), ".geo_infer_app", "agent_configs.json"
+            ),
         )
 
         if not os.path.exists(config_path):
@@ -503,7 +509,9 @@ class AgentAPIClient:
         """Save agent configurations to disk."""
         config_path = self.config.get(
             "agents_config_path",
-            os.path.join(os.path.expanduser("~"), ".geo_infer_app", "agent_configs.json"),
+            os.path.join(
+                os.path.expanduser("~"), ".geo_infer_app", "agent_configs.json"
+            ),
         )
 
         try:

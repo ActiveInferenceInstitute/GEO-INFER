@@ -3,6 +3,7 @@
 Tests config file loading, ecology module, visualization generation,
 and server endpoints.
 """
+
 from __future__ import annotations
 
 import json
@@ -86,8 +87,14 @@ class TestBioregionConfig:
         with open(path) as f:
             data = yaml.safe_load(f)
         listed = []
-        for group in ["chinook_salmon", "coho_salmon", "steelhead",
-                      "sockeye_salmon", "chum_salmon", "other_species"]:
+        for group in [
+            "chinook_salmon",
+            "coho_salmon",
+            "steelhead",
+            "sockeye_salmon",
+            "chum_salmon",
+            "other_species",
+        ]:
             for entry in data.get(group, []):
                 status = entry.get("esa_status", "")
                 if status not in ("Not Listed", "Not Listed (Species of Concern)", ""):
@@ -134,6 +141,7 @@ class TestGeoInferIntegrations:
 
     def test_spatial_stats_import_graceful(self):
         from src.core.geo_infer_integrations import CascadiaSpatialStats
+
         stats = CascadiaSpatialStats()
         result = stats.compute_spatial_autocorrelation({})
         # Should return a dict (either with data or graceful unavailable message)
@@ -141,12 +149,14 @@ class TestGeoInferIntegrations:
 
     def test_bayesian_import_graceful(self):
         from src.core.geo_infer_integrations import CascadiaBayesianAnalysis
+
         bayes = CascadiaBayesianAnalysis()
         result = bayes.estimate_ecological_uncertainty({})
         assert isinstance(result, dict)
 
     def test_all_wrappers_return_dicts(self):
         from src.core.geo_infer_integrations import build_integration_suite
+
         suite = build_integration_suite()
         assert len(suite) == 8
         for name, wrapper in suite.items():
@@ -154,6 +164,7 @@ class TestGeoInferIntegrations:
 
     def test_availability_report_returns_bool_map(self):
         from src.core.geo_infer_integrations import get_availability_report
+
         report = get_availability_report()
         assert isinstance(report, dict)
         assert len(report) == 8
@@ -162,6 +173,7 @@ class TestGeoInferIntegrations:
 
     def test_ecology_module_acquire_data(self):
         from src.data_modules.ecology.geo_infer_ecology import GeoInferEcology
+
         eco = GeoInferEcology()
         result = eco.acquire_raw_data()
         assert isinstance(result, dict)
@@ -170,6 +182,7 @@ class TestGeoInferIntegrations:
 
     def test_ecology_module_run_analysis(self):
         from src.data_modules.ecology.geo_infer_ecology import GeoInferEcology
+
         eco = GeoInferEcology()
         eco.acquire_raw_data()
         # Minimal h3_data with lat/lon
@@ -194,6 +207,7 @@ class TestBioregionVisualization:
         except ImportError:
             pytest.skip("folium not installed")
         from src.core.visualization.bioregion_visualization import create_bioregion_map
+
         output = tmp_path / "test_bioregion.html"
         result = create_bioregion_map(CONFIG_DIR, {}, output)
         assert Path(result).exists(), f"Map file not created: {result}"
@@ -205,12 +219,12 @@ class TestBioregionVisualization:
         except ImportError:
             pytest.skip("folium not installed")
         from src.core.visualization.bioregion_visualization import create_bioregion_map
+
         output = tmp_path / "test_bioregion_volcano.html"
         create_bioregion_map(CONFIG_DIR, {}, output)
         content = output.read_text(encoding="utf-8")
         # Mt. Rainier should appear in the generated HTML
-        assert "Rainier" in content or "Baker" in content, \
-            "No volcano names found in HTML output"
+        assert "Rainier" in content or "Baker" in content, "No volcano names found in HTML output"
 
     def test_html_file_size_under_5mb(self, tmp_path):
         try:
@@ -218,6 +232,7 @@ class TestBioregionVisualization:
         except ImportError:
             pytest.skip("folium not installed")
         from src.core.visualization.bioregion_visualization import create_bioregion_map
+
         output = tmp_path / "test_bioregion_size.html"
         create_bioregion_map(CONFIG_DIR, {}, output)
         size_mb = output.stat().st_size / (1024 * 1024)
@@ -229,6 +244,7 @@ class TestServer:
 
     def test_server_module_imports(self):
         import importlib.util
+
         server_path = CASCADIA_DIR / "cascadia_server.py"
         assert server_path.exists(), "cascadia_server.py not found"
         spec = importlib.util.spec_from_file_location("cascadia_server", server_path)
@@ -243,6 +259,7 @@ class TestServer:
         except ImportError:
             pytest.skip("fastapi not installed")
         import importlib.util
+
         server_path = CASCADIA_DIR / "cascadia_server.py"
         spec = importlib.util.spec_from_file_location("cascadia_server", server_path)
         mod = importlib.util.module_from_spec(spec)
@@ -256,6 +273,7 @@ class TestServer:
         except ImportError:
             pytest.skip("fastapi not installed")
         import importlib.util
+
         server_path = CASCADIA_DIR / "cascadia_server.py"
         spec = importlib.util.spec_from_file_location("cascadia_server", server_path)
         mod = importlib.util.module_from_spec(spec)
@@ -274,6 +292,7 @@ class TestServer:
         except ImportError:
             pytest.skip("fastapi not installed")
         import importlib.util
+
         server_path = CASCADIA_DIR / "cascadia_server.py"
         spec = importlib.util.spec_from_file_location("cascadia_server", server_path)
         mod = importlib.util.module_from_spec(spec)

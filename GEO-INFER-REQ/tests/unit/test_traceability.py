@@ -16,13 +16,15 @@ def manager():
     m.register_requirement("R003", dependencies=["R001", "R002"])
     m.register_requirement("R004")  # No deps, no links
 
-    m.add_trace_links([
-        TraceLink("R001", "auth.py", ArtifactType.SOURCE_CODE, verified=True),
-        TraceLink("R001", "test_auth.py", ArtifactType.TEST_CASE, verified=True),
-        TraceLink("R002", "api.py", ArtifactType.SOURCE_CODE),
-        TraceLink("R002", "test_api.py", ArtifactType.TEST_CASE, verified=True),
-        TraceLink("R003", "perf_test.py", ArtifactType.TEST_CASE),
-    ])
+    m.add_trace_links(
+        [
+            TraceLink("R001", "auth.py", ArtifactType.SOURCE_CODE, verified=True),
+            TraceLink("R001", "test_auth.py", ArtifactType.TEST_CASE, verified=True),
+            TraceLink("R002", "api.py", ArtifactType.SOURCE_CODE),
+            TraceLink("R002", "test_api.py", ArtifactType.TEST_CASE, verified=True),
+            TraceLink("R003", "perf_test.py", ArtifactType.TEST_CASE),
+        ]
+    )
     return m
 
 

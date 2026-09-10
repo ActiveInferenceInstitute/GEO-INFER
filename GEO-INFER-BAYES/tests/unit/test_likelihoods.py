@@ -21,7 +21,6 @@ from geo_infer_bayes.utils.likelihoods import (
 
 
 class TestSpatialLikelihoodGaussian:
-
     def test_gaussian_perfect_prediction(self) -> None:
         ll = SpatialLikelihood(likelihood_type="gaussian", sigma=1.0)
         obs = np.array([1.0, 2.0, 3.0])
@@ -55,7 +54,6 @@ class TestSpatialLikelihoodGaussian:
 
 
 class TestSpatialLikelihoodPoisson:
-
     def test_poisson_returns_finite(self) -> None:
         ll = SpatialLikelihood(likelihood_type="poisson")
         obs = np.array([2, 3, 5], dtype=float)
@@ -81,7 +79,6 @@ class TestSpatialLikelihoodPoisson:
 
 
 class TestSpatialLikelihoodBinomial:
-
     def test_binomial_returns_finite(self) -> None:
         ll = SpatialLikelihood(likelihood_type="binomial", n=1)
         obs = np.array([1, 0, 1], dtype=float)
@@ -96,7 +93,6 @@ class TestSpatialLikelihoodBinomial:
 
 
 class TestPoissonProcess:
-
     def test_log_likelihood_finite(self) -> None:
         pp = PoissonProcess()
         intensity = np.array([2.0, 3.0, 4.0])
@@ -115,7 +111,6 @@ class TestPoissonProcess:
 
 
 class TestGaussianLikelihood:
-
     def test_gaussian_likelihood_finite(self) -> None:
         gl = GaussianLikelihood(sigma=1.0)
         pred = np.array([0.0, 1.0])

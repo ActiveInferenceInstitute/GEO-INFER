@@ -11,9 +11,4 @@ from .nonparametric import NonparametricSPM
 from .model_validation import ModelValidator
 from .spatial_regression import SpatialRegression
 
-__all__ = [
-    "MixedEffectsSPM",
-    "NonparametricSPM",
-    "ModelValidator",
-    "SpatialRegression"
-]
+__all__ = ["MixedEffectsSPM", "NonparametricSPM", "ModelValidator", "SpatialRegression"]

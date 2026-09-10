@@ -12,9 +12,7 @@ PKG_ROOT = Path(__file__).resolve().parents[2] / "src" / "geo_infer_risk"
 
 
 def _python_dirs(root: Path) -> list[str]:
-    return sorted(
-        str(p.relative_to(root)) for p in root.rglob("*") if p.is_dir()
-    )
+    return sorted(str(p.relative_to(root)) for p in root.rglob("*") if p.is_dir())
 
 
 def test_every_directory_with_modules_is_a_package() -> None:
@@ -33,4 +31,3 @@ def test_utils_package_imports() -> None:
 
     for name in ("resolve_rng", "spawn_rng", "derive_int_seed", "SeedLike"):
         assert hasattr(utils_pkg, name), f"geo_infer_risk.utils missing {name}"
-

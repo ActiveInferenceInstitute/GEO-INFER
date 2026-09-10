@@ -215,9 +215,7 @@ def plot_spm_results(
         raise ValueError(f"Unknown plot type: {plot_type}")
 
 
-def _plot_beta_coefficients(
-    spm_result: SPMResult, **kwargs: Any
-) -> Dict[str, Any]:
+def _plot_beta_coefficients(spm_result: SPMResult, **kwargs: Any) -> Dict[str, Any]:
     """Plot regression coefficient maps."""
     beta = spm_result.beta_coefficients
     coordinates = spm_result.spm_data.coordinates
@@ -275,9 +273,7 @@ def _plot_beta_coefficients(
     return {"plot_type": "beta_coefficients", "matplotlib_figure": fig}
 
 
-def _plot_residuals(
-    spm_result: SPMResult, **kwargs: Any
-) -> Dict[str, Any]:
+def _plot_residuals(spm_result: SPMResult, **kwargs: Any) -> Dict[str, Any]:
     """Plot model residuals."""
     residuals = spm_result.residuals
     coordinates = spm_result.spm_data.coordinates
@@ -327,9 +323,7 @@ def _plot_residuals(
     }
 
 
-def _plot_model_diagnostics(
-    spm_result: SPMResult, **kwargs: Any
-) -> Dict[str, Any]:
+def _plot_model_diagnostics(spm_result: SPMResult, **kwargs: Any) -> Dict[str, Any]:
     """Create model diagnostic plots."""
     diagnostics = spm_result.model_diagnostics
 
@@ -390,5 +384,3 @@ def _plot_model_diagnostics(
             "max_cooks_d": np.max(cooks_d),
         },
     }
-
-

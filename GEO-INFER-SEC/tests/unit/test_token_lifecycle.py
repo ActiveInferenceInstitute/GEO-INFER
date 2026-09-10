@@ -29,9 +29,8 @@ class TestTokenLifecycle:
 
     def test_tokens_are_unique(self):
         utils = make_utils(SECRET_A)
-        assert (
-            utils.generate_secure_token("user-42")
-            != utils.generate_secure_token("user-42")
+        assert utils.generate_secure_token("user-42") != utils.generate_secure_token(
+            "user-42"
         )
 
     def test_expiry_rejected(self):
@@ -72,9 +71,7 @@ class TestTokenLifecycle:
         tampered_payload = payload.replace(b"user-42", b"user-99")
         assert tampered_payload != payload
         tampered = (
-            base64.urlsafe_b64encode(tampered_payload).decode("utf-8")
-            + "."
-            + sig_b64
+            base64.urlsafe_b64encode(tampered_payload).decode("utf-8") + "." + sig_b64
         )
         assert utils.validate_token(tampered) is None
 

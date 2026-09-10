@@ -44,9 +44,7 @@ class ContractReport:
         self.diagnostics.append(message)
 
 
-def discover_module_dirs(
-    repo_root: Path, prefix: str = MODULE_PREFIX
-) -> list[Path]:
+def discover_module_dirs(repo_root: Path, prefix: str = MODULE_PREFIX) -> list[Path]:
     """Return tracked module directories (``GEO-INFER-*``) in stable order."""
     return sorted(
         path
@@ -132,11 +130,7 @@ def parse_requirements_names(path: Path) -> list[str]:
 def pyproject_dependency_names(pyproject: dict) -> set:
     """Return normalized runtime dependency names from [project.dependencies]."""
     deps = pyproject.get("project", {}).get("dependencies") or []
-    return {
-        name
-        for name in (normalize_dependency_name(str(d)) for d in deps)
-        if name
-    }
+    return {name for name in (normalize_dependency_name(str(d)) for d in deps) if name}
 
 
 def pyproject_optional_names(pyproject: dict) -> set:

@@ -71,7 +71,9 @@ def _operation() -> Dict[str, Any]:
     meetings = [
         MeetingRecord(
             meeting_id=f"council-{i:02d}",
-            meeting_type=MeetingType.CITY_COUNCIL if i % 2 == 0 else MeetingType.PLANNING_COMMISSION,
+            meeting_type=MeetingType.CITY_COUNCIL
+            if i % 2 == 0
+            else MeetingType.PLANNING_COMMISSION,
             date=1_700_000_000.0 + i * 1_209_600.0,
             registered_attendees=40 + 3 * i,
             actual_attendees=30 + 4 * i,

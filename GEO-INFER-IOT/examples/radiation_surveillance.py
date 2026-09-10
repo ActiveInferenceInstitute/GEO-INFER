@@ -83,7 +83,9 @@ def simulate_measurements(num_sensors: int = 12) -> List[Dict[str, Any]]:
         lat = CENTER_LAT + 0.02 * math.cos(i)
         lon = CENTER_LON + 0.02 * math.sin(i)
         # Every fourth sensor reads 5 sigma above background
-        value = BACKGROUND_RADIATION + (5.0 * NOISE_LEVEL if i % 4 == 0 else 0.5 * NOISE_LEVEL)
+        value = BACKGROUND_RADIATION + (
+            5.0 * NOISE_LEVEL if i % 4 == 0 else 0.5 * NOISE_LEVEL
+        )
         measurements.append(
             {
                 "sensor_id": f"RAD_{i:03d}",

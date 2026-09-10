@@ -8,9 +8,7 @@ from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence
 import numpy as np
 
 
-RESEARCH_STATISTICS_SCHEMA_VERSION = (
-    "geo-infer-act-spatial-research-statistics/v1"
-)
+RESEARCH_STATISTICS_SCHEMA_VERSION = "geo-infer-act-spatial-research-statistics/v1"
 
 
 def apply_h3_research_profile(
@@ -95,9 +93,7 @@ def apply_spatial_agent_research_profile(
             )
             matrix[target_state, source_state] += 0.34
             matrix[:, source_state] += 0.08 / state_dim
-        transition[:, :, action_index] = matrix / np.sum(
-            matrix, axis=0, keepdims=True
-        )
+        transition[:, :, action_index] = matrix / np.sum(matrix, axis=0, keepdims=True)
 
     preference_template = np.array([-0.45, -0.15, 0.65, 0.35], dtype=float)
     prior_template = np.array([0.20, 0.25, 0.30, 0.25], dtype=float)
@@ -145,12 +141,10 @@ def build_spatial_research_statistics(
         "posterior_delta",
     ]
     metric_summaries = {
-        metric: _summary(_numeric_values(leaf_rows, metric))
-        for metric in metric_names
+        metric: _summary(_numeric_values(leaf_rows, metric)) for metric in metric_names
     }
     temporal_slopes = {
-        f"mean_{metric}": _temporal_slope(leaf_rows, metric)
-        for metric in metric_names
+        f"mean_{metric}": _temporal_slope(leaf_rows, metric) for metric in metric_names
     }
 
     selected_actions = [
@@ -194,9 +188,9 @@ def build_spatial_research_statistics(
                 "selected_action_probability"
             ]["std"],
             "local_coherence_std": metric_summaries["local_coherence"]["std"],
-            "belief_flux_divergence_std": metric_summaries[
-                "belief_flux_divergence"
-            ]["std"],
+            "belief_flux_divergence_std": metric_summaries["belief_flux_divergence"][
+                "std"
+            ],
             "unique_selected_action_count": len(action_counts),
         },
     }
@@ -300,7 +294,9 @@ def _graph_statistics(
 
     return {
         "mean_neighbor_entropy_contrast": _mean(neighbor_contrasts),
-        "mean_edge_belief_distance": _mean(_numeric_values(edge_rows, "belief_distance")),
+        "mean_edge_belief_distance": _mean(
+            _numeric_values(edge_rows, "belief_distance")
+        ),
         "mean_edge_coherence": _mean(_numeric_values(edge_rows, "coherence")),
         "moran_entropy_proxy": _moran_proxy(leaf_rows, edge_rows, "entropy"),
         "mean_abs_flux_balance": _mean(flux_balance),
@@ -344,7 +340,9 @@ def _nested_statistics(
         "cross_level_consistency_slope": _temporal_slope(
             parent_child_rows, "cross_level_consistency"
         ),
-        "parent_aggregate_drift": _mean(_numeric_values(parent_rows, "posterior_delta")),
+        "parent_aggregate_drift": _mean(
+            _numeric_values(parent_rows, "posterior_delta")
+        ),
         "level_summaries": level_summary,
     }
 
@@ -364,7 +362,9 @@ def _moran_proxy(
         if len(cell_values) < 2:
             continue
         mean = float(np.mean(list(cell_values.values())))
-        variance = float(np.mean([(value - mean) ** 2 for value in cell_values.values()]))
+        variance = float(
+            np.mean([(value - mean) ** 2 for value in cell_values.values()])
+        )
         if variance <= 1e-12:
             continue
         products = []

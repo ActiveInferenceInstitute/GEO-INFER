@@ -13,27 +13,50 @@ as a foundation for specialized geospatial agents.
 """
 
 from geo_infer_agent.models.bdi import BDIAgent, BDIState, Belief, Desire, Plan
-from geo_infer_agent.models.active_inference import ActiveInferenceAgent, ActiveInferenceState, GenerativeModel
+from geo_infer_agent.models.active_inference import (
+    ActiveInferenceAgent,
+    ActiveInferenceState,
+    GenerativeModel,
+)
 from geo_infer_agent.models.rl import RLAgent, RLState, QTable, ReplayBuffer, Experience
-from geo_infer_agent.models.rule_based import RuleBasedAgent, RuleBasedState, Rule, RuleSet
+from geo_infer_agent.models.rule_based import (
+    RuleBasedAgent,
+    RuleBasedState,
+    Rule,
+    RuleSet,
+)
 from geo_infer_agent.models.hybrid import HybridAgent, HybridState, SubAgentWrapper
 
 __all__ = [
     # Module names
-    "bdi", "active_inference", "rl", "rule_based", "hybrid",
-    
+    "bdi",
+    "active_inference",
+    "rl",
+    "rule_based",
+    "hybrid",
     # BDI agent classes
-    "BDIAgent", "BDIState", "Belief", "Desire", "Plan",
-    
+    "BDIAgent",
+    "BDIState",
+    "Belief",
+    "Desire",
+    "Plan",
     # Active inference agent classes
-    "ActiveInferenceAgent", "ActiveInferenceState", "GenerativeModel",
-    
+    "ActiveInferenceAgent",
+    "ActiveInferenceState",
+    "GenerativeModel",
     # RL agent classes
-    "RLAgent", "RLState", "QTable", "ReplayBuffer", "Experience",
-    
+    "RLAgent",
+    "RLState",
+    "QTable",
+    "ReplayBuffer",
+    "Experience",
     # Rule-based agent classes
-    "RuleBasedAgent", "RuleBasedState", "Rule", "RuleSet",
-    
+    "RuleBasedAgent",
+    "RuleBasedState",
+    "Rule",
+    "RuleSet",
     # Hybrid agent classes
-    "HybridAgent", "HybridState", "SubAgentWrapper"
-] 
+    "HybridAgent",
+    "HybridState",
+    "SubAgentWrapper",
+]

@@ -496,9 +496,7 @@ class TestRealWorldScenarios:
                 np.random.uniform(-179, 179, n_stations),
                 np.random.uniform(-89, 89, n_stations),
             ]
-        ) + np.array(
-            [-100, 30]
-        )  # Western US
+        ) + np.array([-100, 30])  # Western US
 
         # Environmental variables
         urban_proximity = np.random.exponential(

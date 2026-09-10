@@ -1,17 +1,21 @@
 """
 Configuration settings for the GEO-INFER-API.
 """
+
 import os
 import json
 from functools import lru_cache
 from typing import List, Optional, Union
 
 from pydantic import field_validator
+
 try:
     from pydantic_settings import BaseSettings, SettingsConfigDict
+
     _SETTINGS_CONFIG = SettingsConfigDict(env_file=".env", case_sensitive=True)
 except ImportError:
     from pydantic import BaseSettings  # type: ignore[no-redef]
+
     _SETTINGS_CONFIG = None  # type: ignore[assignment]
 
 

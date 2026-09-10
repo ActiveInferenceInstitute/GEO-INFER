@@ -1,6 +1,7 @@
 """
 Health check endpoints for the GEO-INFER-API.
 """
+
 import logging
 import os
 import time
@@ -30,9 +31,11 @@ def _get_memory_mb() -> float:
     """Return current RSS memory usage in megabytes."""
     try:
         import resource
+
         # resource.getrusage returns bytes on Linux, kilobytes on macOS
         usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
         import sys
+
         if sys.platform == "darwin":
             return usage / (1024 * 1024)
         return usage / 1024
@@ -56,7 +59,9 @@ async def health_check(settings: Settings = Depends(get_settings)) -> Dict[str, 
 
 
 @router.get("/health/detailed", summary="Detailed health check")
-async def detailed_health_check(settings: Settings = Depends(get_settings)) -> Dict[str, Any]:
+async def detailed_health_check(
+    settings: Settings = Depends(get_settings),
+) -> Dict[str, Any]:
     """
     Detailed health check with real component status information.
 

@@ -7,8 +7,7 @@ from .splitting import H3SplittingEngine
 from .aggregation import H3AggregationEngine
 
 __all__ = [
-    'H3LumpingEngine',
-    'H3SplittingEngine', 
-    'H3AggregationEngine',
+    "H3LumpingEngine",
+    "H3SplittingEngine",
+    "H3AggregationEngine",
 ]
-

@@ -739,7 +739,9 @@ class RuleEvaluator:
     """Advanced rule evaluation with complex logic support."""
 
     def __init__(self) -> None:
-        self.logger = logging.getLogger("geo_infer_insurance.underwriting.rule_evaluator")
+        self.logger = logging.getLogger(
+            "geo_infer_insurance.underwriting.rule_evaluator"
+        )
 
     def evaluate_complex_rule(self, rule_expression: str, data: Dict[str, Any]) -> bool:
         """

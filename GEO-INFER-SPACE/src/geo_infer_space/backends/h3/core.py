@@ -792,8 +792,7 @@ class H3Analytics:
         for cell in self.grid.cells:
             # Simple Euclidean distance (not geodesic)
             dist = np.sqrt(
-                (cell.latitude - center_lat) ** 2
-                + (cell.longitude - center_lng) ** 2
+                (cell.latitude - center_lat) ** 2 + (cell.longitude - center_lng) ** 2
             )
             distances.append(dist)
 

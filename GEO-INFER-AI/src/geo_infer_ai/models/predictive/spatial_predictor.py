@@ -143,7 +143,11 @@ class SpatialPredictor(BaseEstimator, RegressorMixin):
         logger.info("Training completed")
         return self
 
-    def predict(self, X: Union[np.ndarray, pd.DataFrame], coordinates: Optional[np.ndarray] = None) -> np.ndarray:
+    def predict(
+        self,
+        X: Union[np.ndarray, pd.DataFrame],
+        coordinates: Optional[np.ndarray] = None,
+    ) -> np.ndarray:
         """
         Make predictions.
 
@@ -154,7 +158,7 @@ class SpatialPredictor(BaseEstimator, RegressorMixin):
         Returns:
             Predicted values (n_samples,)
         """
-        if self.model is None or not hasattr(self.model, 'predict'):
+        if self.model is None or not hasattr(self.model, "predict"):
             raise ValueError("Model must be trained before prediction")
 
         # Convert to numpy if pandas DataFrame
@@ -191,9 +195,7 @@ class SpatialPredictor(BaseEstimator, RegressorMixin):
         # Add distance from origin (centroid)
         centroid_lon = np.mean(lon)
         centroid_lat = np.mean(lat)
-        distances = np.sqrt(
-            (lon - centroid_lon) ** 2 + (lat - centroid_lat) ** 2
-        )
+        distances = np.sqrt((lon - centroid_lon) ** 2 + (lat - centroid_lat) ** 2)
         spatial_features = np.column_stack([spatial_features, distances])
 
         # Combine with original features
@@ -235,8 +237,12 @@ class IDWInterpolator:
     a power parameter.
     """
 
-    def __init__(self, power: float = 2.0, min_points: int = 3,
-                 max_distance: Optional[float] = None) -> None:
+    def __init__(
+        self,
+        power: float = 2.0,
+        min_points: int = 3,
+        max_distance: Optional[float] = None,
+    ) -> None:
         """
         Initialize IDW interpolator.
 
@@ -294,7 +300,7 @@ class IDWInterpolator:
 
             # Compute distances from target to all known points
             diffs = self.coordinates_ - target
-            distances = np.sqrt(np.sum(diffs ** 2, axis=1))
+            distances = np.sqrt(np.sum(diffs**2, axis=1))
 
             # Check for exact match (distance ~ 0)
             exact_match = distances < 1e-12
@@ -307,7 +313,7 @@ class IDWInterpolator:
                 mask = distances <= self.max_distance
                 if np.sum(mask) < self.min_points:
                     # Fall back to nearest min_points
-                    nearest_idx = np.argsort(distances)[:self.min_points]
+                    nearest_idx = np.argsort(distances)[: self.min_points]
                     mask = np.zeros(len(distances), dtype=bool)
                     mask[nearest_idx] = True
             else:
@@ -316,7 +322,7 @@ class IDWInterpolator:
             d = distances[mask]
             v = self.values_[mask]
 
-            weights = 1.0 / (d ** self.power)
+            weights = 1.0 / (d**self.power)
             predictions[i] = np.sum(weights * v) / np.sum(weights)
 
         return predictions
@@ -440,7 +446,9 @@ class OrdinaryKriging:
         # Estimate range where semivariance reaches ~95% of sill
         threshold = self.nugget + 0.95 * (self.sill - self.nugget)
         above_threshold = valid_centers[valid_sv >= threshold]
-        self.range_param = float(above_threshold[0]) if len(above_threshold) > 0 else self.max_range
+        self.range_param = (
+            float(above_threshold[0]) if len(above_threshold) > 0 else self.max_range
+        )
 
     def _variogram_value(self, h: float) -> float:
         """Evaluate the variogram model at distance h."""
@@ -455,7 +463,7 @@ class OrdinaryKriging:
             if h >= a:
                 return float(c0 + c)
             ratio = h / a
-            return float(c0 + c * (1.5 * ratio - 0.5 * ratio ** 3))
+            return float(c0 + c * (1.5 * ratio - 0.5 * ratio**3))
         elif self.variogram_model == "exponential":
             return float(c0 + c * (1.0 - np.exp(-3.0 * h / a)))
         elif self.variogram_model == "gaussian":
@@ -522,10 +530,11 @@ class OrdinaryKriging:
             predictions[t] = np.sum(weights[:n_known] * self.values_)
 
             # Estimation variance
-            variances[t] = np.sum(weights[:n_known] * k_vec[:n_known]) + weights[n_known]
+            variances[t] = (
+                np.sum(weights[:n_known] * k_vec[:n_known]) + weights[n_known]
+            )
 
         # Clamp negative variances to zero
         variances = np.maximum(variances, 0.0)
 
         return predictions, variances
-

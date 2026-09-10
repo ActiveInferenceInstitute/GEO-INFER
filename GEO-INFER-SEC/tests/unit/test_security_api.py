@@ -11,7 +11,9 @@ def client():
 
     app = Flask(__name__)
     init_security_api(
-        app, secret_key="test-secret", enable_anonymization=False,
+        app,
+        secret_key="test-secret",
+        enable_anonymization=False,
         enable_compliance=False,
     )
     app.config["TESTING"] = True

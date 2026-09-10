@@ -541,7 +541,9 @@ class SpatioTemporalGP(BayesianModel):
             mean: np.ndarray = np.asarray(
                 spatial_mean + self._predict_temporal(temporal_coords)
             )
-            std: np.ndarray = np.asarray(np.sqrt(np.maximum(np.square(spatial_std) + temporal_variance, 1e-12)))
+            std: np.ndarray = np.asarray(
+                np.sqrt(np.maximum(np.square(spatial_std) + temporal_variance, 1e-12))
+            )
             return mean, std
         spatial_mean_arr = np.asarray(
             spatial_model.predict(spatial_coords, return_std=False)

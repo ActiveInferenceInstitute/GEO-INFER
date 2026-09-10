@@ -13,6 +13,7 @@ from fastapi.testclient import TestClient
 
 from geo_infer_agent.api.agent_endpoints import agent_registry, app
 
+
 @pytest.fixture()
 def client():
     """TestClient with a cleaned app registry so tests stay isolated."""

@@ -55,7 +55,9 @@ class TestRestApi:
         assert body["gc_content"] == pytest.approx(10 / 17 * 100)
         assert body["spatial_data"]["latitude"] == 37.7
 
-    def test_analyze_sequence_rejects_invalid_sequence(self, client: TestClient) -> None:
+    def test_analyze_sequence_rejects_invalid_sequence(
+        self, client: TestClient
+    ) -> None:
         response = client.post("/analyze/sequence", json=_sequence_payload("XYZ123"))
         assert response.status_code == 400
         assert "Invalid sequence" in response.json()["detail"]

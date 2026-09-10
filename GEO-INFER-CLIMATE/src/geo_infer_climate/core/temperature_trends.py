@@ -53,7 +53,11 @@ class TemperatureTrendAnalyzer:
                 "n_observations": n,
             }
 
-        x = np.asarray(years, dtype=float) if years is not None else np.arange(n, dtype=float)
+        x = (
+            np.asarray(years, dtype=float)
+            if years is not None
+            else np.arange(n, dtype=float)
+        )
         y = np.asarray(time_series, dtype=float)
 
         valid = ~(np.isnan(x) | np.isnan(y))
@@ -75,7 +79,7 @@ class TemperatureTrendAnalyzer:
         return {
             "slope": float(result.slope),
             "intercept": float(result.intercept),
-            "r_squared": float(result.rvalue ** 2),
+            "r_squared": float(result.rvalue**2),
             "p_value": float(result.pvalue),
             "std_error": float(result.stderr),
             "slope_per_decade": float(result.slope * 10),

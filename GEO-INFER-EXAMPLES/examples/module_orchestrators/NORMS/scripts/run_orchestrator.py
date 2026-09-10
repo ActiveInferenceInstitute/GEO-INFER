@@ -23,7 +23,10 @@ from _lib import run_module_orchestrator  # noqa: E402
 
 
 def _operation() -> Dict[str, Any]:
-    from geo_infer_norms.core.compliance_tracking import ComplianceReport, ComplianceTracker
+    from geo_infer_norms.core.compliance_tracking import (
+        ComplianceReport,
+        ComplianceTracker,
+    )
     from geo_infer_norms.models.compliance_status import ComplianceStatus
 
     # Synthetic compliance history: 5 land parcels against 3 regulations,
@@ -103,7 +106,9 @@ def _operation() -> Dict[str, Any]:
             "entity_count": regulation_report["entity_count"],
             "compliant_count": regulation_report["compliant_count"],
             "non_compliant_count": regulation_report["non_compliant_count"],
-            "compliance_percentage": round(regulation_report["compliance_percentage"], 2),
+            "compliance_percentage": round(
+                regulation_report["compliance_percentage"], 2
+            ),
         },
         "summary_report": {
             "entity_count": summary["entity_count"],

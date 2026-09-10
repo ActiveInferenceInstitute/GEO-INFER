@@ -945,9 +945,11 @@ class SpatialActiveInferenceAgent:
             ``resolution``, ``mean_score`` and ``uncertain_cell_fraction``.
         """
         n_cells = len(self.cells)
-        working = beliefs if beliefs is not None else {
-            self.cells[i]: self.beliefs[i] for i in range(n_cells)
-        }
+        working = (
+            beliefs
+            if beliefs is not None
+            else {self.cells[i]: self.beliefs[i] for i in range(n_cells)}
+        )
         scores: Dict[str, float] = {}
         max_entropy = float(np.log(self.state_dim)) if self.state_dim > 1 else 1.0
         for cell in self.cells:

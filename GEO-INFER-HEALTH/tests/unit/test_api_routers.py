@@ -43,7 +43,9 @@ def _report(report_id: str, lat: float, lon: float, case_count: int) -> dict:
 
 
 def test_submit_and_list_reports(client):
-    response = client.post("/api/v1/surveillance/reports/", json=_report("r1", 34.05, -118.24, 5))
+    response = client.post(
+        "/api/v1/surveillance/reports/", json=_report("r1", 34.05, -118.24, 5)
+    )
     assert response.status_code == 201
     assert response.json()["report_id"] == "r1"
 
@@ -67,7 +69,9 @@ def test_identify_hotspots(client):
         "/api/v1/surveillance/population_data/",
         json={"area_id": "la", "population_count": 10000},
     )
-    response = client.post("/api/v1/surveillance/hotspots/identify?threshold_case_count=5")
+    response = client.post(
+        "/api/v1/surveillance/hotspots/identify?threshold_case_count=5"
+    )
     assert response.status_code == 200
     assert isinstance(response.json(), list)
 
@@ -86,7 +90,6 @@ def test_local_incidence_rate(client):
     body = response.json()
     assert body["total_cases_in_area"] == 10
     assert body["population_estimated"] is True
-
 
     assert body["incidence_rate_per_100k"] == pytest.approx(100.0)
 

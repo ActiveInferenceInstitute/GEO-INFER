@@ -6,7 +6,12 @@ import numpy as np
 import pytest
 
 from geo_infer_spm.core.rft import RandomFieldTheory, compute_spm
-from geo_infer_spm.models.data_models import SPMData, SPMResult, ContrastResult, DesignMatrix
+from geo_infer_spm.models.data_models import (
+    SPMData,
+    SPMResult,
+    ContrastResult,
+    DesignMatrix,
+)
 
 
 class TestRandomFieldTheory:
@@ -61,13 +66,13 @@ class TestRandomFieldTheory:
         self.rft.search_volume = 100.0
 
         threshold = 2.0
-        expected_k = self.rft.expected_clusters(threshold, stat_type='Z')
+        expected_k = self.rft.expected_clusters(threshold, stat_type="Z")
 
         assert isinstance(expected_k, float)
         assert expected_k >= 0
 
         # Higher threshold should give fewer expected clusters
-        expected_k_higher = self.rft.expected_clusters(3.0, stat_type='Z')
+        expected_k_higher = self.rft.expected_clusters(3.0, stat_type="Z")
         assert expected_k_higher < expected_k
 
     def test_cluster_threshold_computation(self):
@@ -76,13 +81,13 @@ class TestRandomFieldTheory:
         self.rft.search_volume = 50.0
 
         alpha = 0.05
-        threshold = self.rft.cluster_threshold(alpha, stat_type='Z')
+        threshold = self.rft.cluster_threshold(alpha, stat_type="Z")
 
         assert isinstance(threshold, float)
         assert threshold > 0
 
         # Lower alpha should give higher threshold
-        threshold_strict = self.rft.cluster_threshold(0.01, stat_type='Z')
+        threshold_strict = self.rft.cluster_threshold(0.01, stat_type="Z")
         assert threshold_strict > threshold
 
     def test_peak_threshold_computation(self):
@@ -90,7 +95,7 @@ class TestRandomFieldTheory:
         self.rft.search_volume = 100.0
 
         alpha = 0.05
-        threshold = self.rft.peak_threshold(alpha, stat_type='Z')
+        threshold = self.rft.peak_threshold(alpha, stat_type="Z")
 
         assert isinstance(threshold, float)
         assert threshold > 0
@@ -105,7 +110,7 @@ class TestRandomFieldTheory:
         rft.smoothness = np.array([1.5, 1.5])
         rft.search_volume = 25.0
 
-        corrected_p = rft.correct_p_values(stat_map, stat_type='Z', method='cluster')
+        corrected_p = rft.correct_p_values(stat_map, stat_type="Z", method="cluster")
 
         assert corrected_p.shape == stat_map.shape
         assert np.all((corrected_p >= 0) & (corrected_p <= 1))
@@ -122,7 +127,7 @@ class TestRFTDifferentDimensions:
         assert rft_1d.field_shape == (50,)
 
         # Test smoothness estimation
-        data_1d = np.sin(np.linspace(0, 4*np.pi, 50)) + 0.1 * np.random.randn(50)
+        data_1d = np.sin(np.linspace(0, 4 * np.pi, 50)) + 0.1 * np.random.randn(50)
         smoothness = rft_1d.estimate_smoothness(data_1d)
 
         assert len(smoothness) == 1
@@ -148,20 +153,25 @@ class TestComputeSPM:
         n_points = 50
 
         # Create mock SPM result
-        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
+        coordinates = np.column_stack(
+            [
+                np.random.uniform(-179, 179, n_points),
+                np.random.uniform(-89, 89, n_points),
+            ]
+        )
         X = np.random.randn(n_points, 3)
         beta = np.array([1.0, 2.0, -1.0])
         y = X @ beta + 0.1 * np.random.randn(n_points)
 
-        spm_data = SPMData(data=y, coordinates=coordinates, crs='EPSG:4326')
-        design_matrix = DesignMatrix(matrix=X, names=['int', 'x1', 'x2'])
+        spm_data = SPMData(data=y, coordinates=coordinates, crs="EPSG:4326")
+        design_matrix = DesignMatrix(matrix=X, names=["int", "x1", "x2"])
 
         self.spm_result = SPMResult(
             spm_data=spm_data,
             design_matrix=design_matrix,
             beta_coefficients=beta,
             residuals=y - X @ beta,
-            model_diagnostics={'r_squared': 0.95}
+            model_diagnostics={"r_squared": 0.95},
         )
 
     def test_compute_spm_rft(self):
@@ -173,15 +183,19 @@ class TestComputeSPM:
             t_statistic=np.random.randn(50),  # Mock t-statistics
             effect_size=np.random.randn(50),
             standard_error=np.ones(50),
-            p_values=np.random.rand(50)
+            p_values=np.random.rand(50),
         )
 
         # Compute SPM with RFT
-        corrected_result = compute_spm(self.spm_result, contrast_result, correction='RFT')
+        corrected_result = compute_spm(
+            self.spm_result, contrast_result, correction="RFT"
+        )
 
-        assert hasattr(corrected_result, 'corrected_p_values')
-        assert corrected_result.correction_method == 'RFT'
-        assert corrected_result.corrected_p_values.shape == contrast_result.p_values.shape
+        assert hasattr(corrected_result, "corrected_p_values")
+        assert corrected_result.correction_method == "RFT"
+        assert (
+            corrected_result.corrected_p_values.shape == contrast_result.p_values.shape
+        )
 
     def test_compute_spm_fdr(self):
         """Test SPM computation with FDR correction."""
@@ -190,13 +204,17 @@ class TestComputeSPM:
             t_statistic=np.random.randn(50),
             effect_size=np.random.randn(50),
             standard_error=np.ones(50),
-            p_values=np.random.rand(50) * 0.1  # Some significant p-values
+            p_values=np.random.rand(50) * 0.1,  # Some significant p-values
         )
 
-        corrected_result = compute_spm(self.spm_result, contrast_result, correction='FDR')
+        corrected_result = compute_spm(
+            self.spm_result, contrast_result, correction="FDR"
+        )
 
-        assert corrected_result.correction_method == 'FDR'
-        assert corrected_result.corrected_p_values.shape == contrast_result.p_values.shape
+        assert corrected_result.correction_method == "FDR"
+        assert (
+            corrected_result.corrected_p_values.shape == contrast_result.p_values.shape
+        )
 
     def test_compute_spm_bonferroni(self):
         """Test SPM computation with Bonferroni correction."""
@@ -205,12 +223,14 @@ class TestComputeSPM:
             t_statistic=np.random.randn(50),
             effect_size=np.random.randn(50),
             standard_error=np.ones(50),
-            p_values=np.random.rand(50)
+            p_values=np.random.rand(50),
         )
 
-        corrected_result = compute_spm(self.spm_result, contrast_result, correction='Bonferroni')
+        corrected_result = compute_spm(
+            self.spm_result, contrast_result, correction="Bonferroni"
+        )
 
-        assert corrected_result.correction_method == 'Bonferroni'
+        assert corrected_result.correction_method == "Bonferroni"
         # Bonferroni correction should be more conservative
         assert np.all(corrected_result.corrected_p_values >= contrast_result.p_values)
 
@@ -221,13 +241,17 @@ class TestComputeSPM:
             t_statistic=np.random.randn(50),
             effect_size=np.random.randn(50),
             standard_error=np.ones(50),
-            p_values=np.random.rand(50)
+            p_values=np.random.rand(50),
         )
 
-        corrected_result = compute_spm(self.spm_result, contrast_result, correction='uncorrected')
+        corrected_result = compute_spm(
+            self.spm_result, contrast_result, correction="uncorrected"
+        )
 
-        assert corrected_result.correction_method == 'uncorrected'
-        np.testing.assert_array_equal(corrected_result.corrected_p_values, contrast_result.p_values)
+        assert corrected_result.correction_method == "uncorrected"
+        np.testing.assert_array_equal(
+            corrected_result.corrected_p_values, contrast_result.p_values
+        )
 
 
 class TestRFTStatisticalTests:
@@ -244,8 +268,8 @@ class TestRFTStatisticalTests:
 
         # Same threshold should give different results for Z vs t
         threshold = 2.0
-        expected_z = rft.expected_clusters(threshold, stat_type='Z')
-        expected_t = rft.expected_clusters(threshold, stat_type='t')
+        expected_z = rft.expected_clusters(threshold, stat_type="Z")
+        expected_t = rft.expected_clusters(threshold, stat_type="t")
 
         # For same numerical threshold, Z and t should give different results
         # (since t is less extreme than Z for same value)
@@ -258,10 +282,17 @@ class TestRFTStatisticalTests:
         rft.search_volume = 40.0
 
         thresholds = [1.5, 2.0, 2.5, 3.0]
-        expected_clusters = [rft.expected_clusters(t, stat_type='Z') for t in thresholds]
+        expected_clusters = [
+            rft.expected_clusters(t, stat_type="Z") for t in thresholds
+        ]
 
         # Higher thresholds should give fewer expected clusters
-        assert expected_clusters[0] > expected_clusters[1] > expected_clusters[2] > expected_clusters[3]
+        assert (
+            expected_clusters[0]
+            > expected_clusters[1]
+            > expected_clusters[2]
+            > expected_clusters[3]
+        )
 
     def test_field_size_effect(self):
         """Test effect of field size on RFT results."""
@@ -276,8 +307,8 @@ class TestRFTStatisticalTests:
         rft_large.search_volume = 90.0
 
         threshold = 2.0
-        expected_small = rft_small.expected_clusters(threshold, stat_type='Z')
-        expected_large = rft_large.expected_clusters(threshold, stat_type='Z')
+        expected_small = rft_small.expected_clusters(threshold, stat_type="Z")
+        expected_large = rft_large.expected_clusters(threshold, stat_type="Z")
 
         # Larger field should have more expected clusters
         assert expected_large > expected_small
@@ -325,10 +356,10 @@ class TestRFTEdgeCases:
         rft.search_volume = 20.0
 
         # Very liberal threshold
-        expected_liberal = rft.expected_clusters(0.5, stat_type='Z')
+        expected_liberal = rft.expected_clusters(0.5, stat_type="Z")
 
         # Very conservative threshold
-        expected_conservative = rft.expected_clusters(4.0, stat_type='Z')
+        expected_conservative = rft.expected_clusters(4.0, stat_type="Z")
 
         assert expected_liberal > expected_conservative
 
@@ -339,7 +370,9 @@ class TestRFTEdgeCases:
         """Test cluster detection on uniform field."""
         from geo_infer_spm.core.spatial_analysis import SpatialAnalyzer
 
-        coordinates = np.column_stack([np.random.uniform(-179, 179, 25), np.random.uniform(-89, 89, 25)])
+        coordinates = np.column_stack(
+            [np.random.uniform(-179, 179, 25), np.random.uniform(-89, 89, 25)]
+        )
         analyzer = SpatialAnalyzer(coordinates)
 
         # Uniform statistical field (no clusters)
@@ -347,5 +380,5 @@ class TestRFTEdgeCases:
 
         clusters = analyzer.detect_clusters(stat_map, threshold=2.0)
 
-        assert clusters['n_clusters'] == 0
-        assert len(clusters['clusters']) == 0
+        assert clusters["n_clusters"] == 0
+        assert len(clusters["clusters"]) == 0

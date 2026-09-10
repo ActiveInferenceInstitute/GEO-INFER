@@ -352,8 +352,9 @@ class ClimateDataset:
             DataFrame with all variables and coordinates
         """
         dfs: List[pd.DataFrame] = [
-            self.get_variable_data(variable)
-            .rename(columns={"value": variable})[["latitude", "longitude", variable]]
+            self.get_variable_data(variable).rename(columns={"value": variable})[
+                ["latitude", "longitude", variable]
+            ]
             for variable in self.get_variables()
         ]
 

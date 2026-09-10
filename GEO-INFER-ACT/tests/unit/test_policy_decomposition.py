@@ -44,9 +44,7 @@ def test_policy_posterior_respects_habit_prior() -> None:
     selector = PolicySelector()
     flat = selector.compose_policy_posterior(np.array([0.0, 0.0, 0.0]))
     prior = np.array([0.01, 0.98, 0.01])
-    biased = selector.compose_policy_posterior(
-        np.array([0.0, 0.0, 0.0]), prior=prior
-    )
+    biased = selector.compose_policy_posterior(np.array([0.0, 0.0, 0.0]), prior=prior)
     flat_post = np.asarray(flat["posterior"], dtype=float)
     biased_post = np.asarray(biased["posterior"], dtype=float)
     # With uniform scores the prior dominates; the middle policy dominates.

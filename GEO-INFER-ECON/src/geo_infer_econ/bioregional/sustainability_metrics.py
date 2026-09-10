@@ -303,7 +303,9 @@ class RegenerativeMetrics:
         components["trajectory"] = (
             "regenerating"
             if composite > 0.6
-            else "degrading" if composite < 0.3 else "stable"
+            else "degrading"
+            if composite < 0.3
+            else "stable"
         )
 
         logger.info(

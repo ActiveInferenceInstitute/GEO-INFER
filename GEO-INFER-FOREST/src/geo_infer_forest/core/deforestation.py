@@ -63,7 +63,9 @@ class DeforestationDetector:
 
         total_pixels = float(before.size)
         deforested_pixels = float(deforested.sum())
-        deforestation_rate = deforested_pixels / total_pixels if total_pixels > 0 else 0.0
+        deforestation_rate = (
+            deforested_pixels / total_pixels if total_pixels > 0 else 0.0
+        )
 
         return xr.Dataset(
             {
@@ -104,6 +106,7 @@ class DeforestationDetector:
         z_score = (ndvi_series - baseline_mean) / baseline_std
 
         from scipy.stats import norm
+
         critical_z = norm.ppf(1 - (1 - self.confidence_level) / 2)
         significant_decrease = z_score < -critical_z
 
@@ -203,15 +206,19 @@ class DeforestationDetector:
         # neighbors. Vectorized via shifted-array comparisons.
         forest = data > 0
         rows, cols = forest.shape[-2], forest.shape[-1]
-        layers = forest.reshape(-1, rows, cols) if forest.ndim > 2 else forest[np.newaxis, :, :]
+        layers = (
+            forest.reshape(-1, rows, cols)
+            if forest.ndim > 2
+            else forest[np.newaxis, :, :]
+        )
 
         edge_count = 0
         for layer in layers:
             core = layer.copy()
-            core[1:, :] &= layer[:-1, :]   # up neighbor must be forest
-            core[:-1, :] &= layer[1:, :]   # down neighbor must be forest
-            core[:, 1:] &= layer[:, :-1]   # left neighbor must be forest
-            core[:, :-1] &= layer[:, 1:]   # right neighbor must be forest
+            core[1:, :] &= layer[:-1, :]  # up neighbor must be forest
+            core[:-1, :] &= layer[1:, :]  # down neighbor must be forest
+            core[:, 1:] &= layer[:, :-1]  # left neighbor must be forest
+            core[:, :-1] &= layer[:, 1:]  # right neighbor must be forest
             edge_count += int(np.sum(layer & ~core))
 
         forest_fraction = forest_pixels / total_pixels

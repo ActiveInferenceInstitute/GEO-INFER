@@ -300,17 +300,13 @@ class ModelComparison:
                 hp = pinfo.get("hyperparams", {})
                 prior = pinfo.get("prior", "normal")
                 if prior == "normal":
-                    theta[pname] = rng.normal(
-                        hp.get("mu", 0.0), hp.get("sigma", 1.0)
-                    )
+                    theta[pname] = rng.normal(hp.get("mu", 0.0), hp.get("sigma", 1.0))
                 elif prior == "log_normal":
                     theta[pname] = np.exp(
                         rng.normal(hp.get("mu", 0.0), hp.get("sigma", 1.0))
                     )
                 elif prior == "uniform":
-                    theta[pname] = rng.uniform(
-                        hp.get("low", 0.0), hp.get("high", 1.0)
-                    )
+                    theta[pname] = rng.uniform(hp.get("low", 0.0), hp.get("high", 1.0))
                 elif prior == "half_normal":
                     theta[pname] = abs(rng.normal(0.0, hp.get("sigma", 1.0)))
                 else:

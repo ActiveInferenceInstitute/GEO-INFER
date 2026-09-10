@@ -325,15 +325,15 @@ class EmpiricalDataDownloader:
             owner_type = random.choice(owner_types)
 
             if owner_type == "individual":
-                owner_name = f"Individual Owner {i+1}"
+                owner_name = f"Individual Owner {i + 1}"
             elif owner_type == "family":
-                owner_name = f"Family Farm {i+1}"
+                owner_name = f"Family Farm {i + 1}"
             elif owner_type == "corporation":
-                owner_name = f"Timber Corp {i+1}"
+                owner_name = f"Timber Corp {i + 1}"
             elif owner_type == "government":
                 owner_name = "Del Norte County"
             else:
-                owner_name = f"Agricultural Trust {i+1}"
+                owner_name = f"Agricultural Trust {i + 1}"
 
             feature = {
                 "type": "Feature",
@@ -362,9 +362,7 @@ class EmpiricalDataDownloader:
 
     def create_empirical_improvements_data(self):
         """Create empirical improvements data from building footprints."""
-        logger.info(
-            "🏠 Creating empirical improvements data from building footprints..."
-        )
+        logger.info("🏠 Creating empirical improvements data from building footprints...")
 
         # Generate realistic improvements data using proper Shapely geometries
         import random
@@ -396,9 +394,7 @@ class EmpiricalDataDownloader:
                 "properties": {
                     "improvement_value": round(improvement_value, 2),
                     "land_value": round(land_value, 2),
-                    "building_type": random.choice(
-                        ["residential", "agricultural", "commercial"]
-                    ),
+                    "building_type": random.choice(["residential", "agricultural", "commercial"]),
                     "year_built": random.randint(1950, 2020),
                     "source": "Del_Norte_County_Assessor_2022",
                     "data_year": 2022,

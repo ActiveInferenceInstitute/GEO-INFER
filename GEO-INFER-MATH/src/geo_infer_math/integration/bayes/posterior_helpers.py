@@ -59,9 +59,7 @@ class PosteriorHelpers:
         else:
             raise ValueError(f"Unknown conjugate family: {family}")
 
-    def _normal_normal(
-        self, data: np.ndarray, prior: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _normal_normal(self, data: np.ndarray, prior: Dict[str, Any]) -> Dict[str, Any]:
         """Normal-Normal conjugate update.
 
         Prior: μ ~ N(μ₀, σ₀²)
@@ -77,15 +75,17 @@ class PosteriorHelpers:
         n = len(data)
         x_bar = float(np.mean(data)) if n > 0 else 0.0
 
-        precision_prior = 1.0 / (sigma_0 ** 2 + self._epsilon)
-        precision_lik = n / (sigma ** 2 + self._epsilon)
+        precision_prior = 1.0 / (sigma_0**2 + self._epsilon)
+        precision_lik = n / (sigma**2 + self._epsilon)
 
         sigma_n_sq = 1.0 / (precision_prior + precision_lik)
         mu_n = sigma_n_sq * (mu_0 * precision_prior + x_bar * precision_lik)
 
         logger.debug(
             "Normal-Normal posterior: mu_n=%.4f, sigma_n=%.4f (n=%d)",
-            mu_n, np.sqrt(sigma_n_sq), n,
+            mu_n,
+            np.sqrt(sigma_n_sq),
+            n,
         )
         return {
             "family": "normal_normal",
@@ -94,9 +94,7 @@ class PosteriorHelpers:
             "n_obs": n,
         }
 
-    def _beta_binomial(
-        self, data: np.ndarray, prior: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _beta_binomial(self, data: np.ndarray, prior: Dict[str, Any]) -> Dict[str, Any]:
         """Beta-Binomial conjugate update.
 
         Prior: θ ~ Beta(α, β)
@@ -116,7 +114,10 @@ class PosteriorHelpers:
 
         logger.debug(
             "Beta-Binomial posterior: alpha_n=%.2f, beta_n=%.2f, mean=%.4f (n=%d)",
-            alpha_n, beta_n, posterior_mean, n,
+            alpha_n,
+            beta_n,
+            posterior_mean,
+            n,
         )
         return {
             "family": "beta_binomial",
@@ -126,9 +127,7 @@ class PosteriorHelpers:
             "n_obs": n,
         }
 
-    def _gamma_poisson(
-        self, data: np.ndarray, prior: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _gamma_poisson(self, data: np.ndarray, prior: Dict[str, Any]) -> Dict[str, Any]:
         """Gamma-Poisson conjugate update.
 
         Prior: λ ~ Gamma(α, β)
@@ -148,7 +147,10 @@ class PosteriorHelpers:
 
         logger.debug(
             "Gamma-Poisson posterior: alpha_n=%.2f, beta_n=%.2f, mean=%.4f (n=%d)",
-            alpha_n, beta_n, posterior_mean, n,
+            alpha_n,
+            beta_n,
+            posterior_mean,
+            n,
         )
         return {
             "family": "gamma_poisson",

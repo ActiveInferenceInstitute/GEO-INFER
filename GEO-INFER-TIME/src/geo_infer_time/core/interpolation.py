@@ -56,9 +56,7 @@ class TemporalInterpolator:
             "polynomial": lambda df: df.interpolate(
                 method="polynomial", order=2, limit=limit
             ),
-            "spline": lambda df: df.interpolate(
-                method="spline", order=2, limit=limit
-            ),
+            "spline": lambda df: df.interpolate(method="spline", order=2, limit=limit),
             "nearest": lambda df: df.interpolate(method="nearest", limit=limit),
             "zero": lambda df: df.interpolate(method="zero", limit=limit),
             "cubic": lambda df: df.interpolate(method="cubic", limit=limit),
@@ -81,12 +79,14 @@ class TemporalInterpolator:
             method,
         )
 
-        self._interpolation_log.append({
-            "method": method,
-            "missing_before": missing_before,
-            "missing_after": missing_after,
-            "filled": filled_count,
-        })
+        self._interpolation_log.append(
+            {
+                "method": method,
+                "missing_before": missing_before,
+                "missing_after": missing_after,
+                "filled": filled_count,
+            }
+        )
 
         return TimeSeries(
             data=interpolated,
@@ -423,8 +423,8 @@ class TemporalInterpolator:
             std_similarity = max(0.0, 1.0 - std_diff / std_scale)
 
             # Correlation on overlapping non-NaN values
-            common_idx = orig_df[col].dropna().index.intersection(
-                interp_df[col].dropna().index
+            common_idx = (
+                orig_df[col].dropna().index.intersection(interp_df[col].dropna().index)
             )
             if len(common_idx) > 2:
                 correlation = float(
@@ -439,9 +439,7 @@ class TemporalInterpolator:
             # Missing value reduction
             orig_missing = int(orig_df[col].isna().sum())
             interp_missing = int(interp_df[col].isna().sum())
-            gap_fill_rate = (
-                (orig_missing - interp_missing) / max(orig_missing, 1)
-            )
+            gap_fill_rate = (orig_missing - interp_missing) / max(orig_missing, 1)
 
             col_quality = (mean_similarity + std_similarity) / 2.0
             quality_scores.append(col_quality)
@@ -453,7 +451,9 @@ class TemporalInterpolator:
                 "std_original": orig_std,
                 "std_interpolated": interp_std,
                 "std_similarity": round(std_similarity, 4),
-                "correlation": round(correlation, 4) if not np.isnan(correlation) else None,
+                "correlation": round(correlation, 4)
+                if not np.isnan(correlation)
+                else None,
                 "missing_original": orig_missing,
                 "missing_interpolated": interp_missing,
                 "gap_fill_rate": round(gap_fill_rate, 4),
@@ -461,9 +461,7 @@ class TemporalInterpolator:
             }
 
         if quality_scores:
-            metrics["overall_quality"] = round(
-                float(np.mean(quality_scores)), 4
-            )
+            metrics["overall_quality"] = round(float(np.mean(quality_scores)), 4)
 
         return metrics
 

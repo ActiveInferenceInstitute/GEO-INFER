@@ -1,1 +1,1 @@
-"""Core functionality for security and privacy in geospatial data.""" 
+"""Core functionality for security and privacy in geospatial data."""
