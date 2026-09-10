@@ -5,6 +5,7 @@ from .water_quality import WaterQualityAssessor
 from .water_infrastructure import WaterInfrastructurePlanner
 from .flood_drought import FloodDroughtAnalyzer
 from .watershed_delineation import WatershedDelineator
+from .infiltration import InfiltrationModeler
 from .water_balance import WaterBalanceModeler
 
 __all__ = [
@@ -14,4 +15,5 @@ __all__ = [
     "FloodDroughtAnalyzer",
     "WatershedDelineator",
     "WaterBalanceModeler",
+    "InfiltrationModeler",
 ]

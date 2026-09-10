@@ -18,7 +18,7 @@ estimated_time: 45min
 - **Flood & drought**: Equal-weight composite flood-risk screening (extreme precipitation + low elevation + optional soil saturation); drought risk from precipitation deficit
 - **Infrastructure**: Priority-weighted water allocation (supply split by demand × priority, capped at demand, surplus redistributed) and capacity-gap assessment
 
-Not implemented: Green-Ampt infiltration, aquifer/well-drawdown modeling, flood-frequency (return-period) analysis, inundation mapping. Groundwater is limited to a trivial recharge estimate.
+Not implemented: aquifer/well-drawdown modeling, flood-frequency (return-period) analysis, inundation mapping. Groundwater is limited to a trivial recharge estimate.
 
 ### Key Imports
 
