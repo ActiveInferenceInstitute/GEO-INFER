@@ -561,7 +561,7 @@ async def main():
         # Cleanup
         try:
             demo.integrated_manager.stop_integrated_monitoring()
-        except:
+        except Exception:
             pass
 
 

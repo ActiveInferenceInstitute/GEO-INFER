@@ -13,6 +13,7 @@ import sys
 import asyncio
 import logging
 import argparse
+from datetime import datetime
 
 from geo_infer_agent.agents.data_collector import DataCollectorAgent
 from geo_infer_agent.api.interface import agent_interface

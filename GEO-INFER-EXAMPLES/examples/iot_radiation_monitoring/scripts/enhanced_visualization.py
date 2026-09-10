@@ -460,7 +460,7 @@ def main():
             try:
                 h3_cell = h3.latlng_to_cell(lat, lon, 5)
                 prediction_cells.append(h3_cell)
-            except:
+            except Exception:
                 continue
 
     # Remove duplicates

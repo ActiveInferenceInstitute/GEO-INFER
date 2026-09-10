@@ -10,9 +10,14 @@ optional geo dependencies.
 """
 
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Tuple
 
 import pytest
+
+if TYPE_CHECKING:
+    # Annotation-only: the real import happens lazily inside fixtures so
+    # pure-logic tests run without the heavy geo dependencies.
+    import geopandas as gpd
 
 
 @pytest.fixture(scope="session")

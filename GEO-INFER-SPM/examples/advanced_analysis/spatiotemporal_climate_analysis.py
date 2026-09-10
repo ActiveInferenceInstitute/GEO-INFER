@@ -330,7 +330,7 @@ def main():
                 period=3,  # Simplified for annual data
             )
             print("   ✓ Seasonal decomposition completed")
-        except:
+        except Exception:
             print("   Note: Seasonal decomposition skipped (insufficient data)")
 
     print()
