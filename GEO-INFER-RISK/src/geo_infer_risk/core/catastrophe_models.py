@@ -1373,10 +1373,12 @@ class EnhancedEarthquakeModel(EnhancedCatastropheModel):
         distance = self._calculate_distance(event, exposure)
         depth = event.get("depth", 15.0)
 
-        # Convert magnitude to PGA using simplified GMPE
+        # Simplified GMPE stand-in via _magnitude_to_pga — see SKILL.md
+        # "Honest Capability Register".
         pga = self._magnitude_to_pga(magnitude, distance, depth)
 
-        # Apply site effects (simplified)
+        # Fixed soil multipliers (part of the GMPE stand-in entry in the
+        # SKILL.md "Honest Capability Register").
         site_factor = 1.0
         if "soil_type" in exposure:
             soil_type = exposure["soil_type"]
@@ -1399,7 +1401,8 @@ class EnhancedEarthquakeModel(EnhancedCatastropheModel):
         self, magnitude: float, distance: float, depth: float
     ) -> float:
         """Convert magnitude to PGA using simplified GMPE."""
-        # Simplified ground motion prediction equation
+        # Simplified log-distance attenuation, not a calibrated GMPE — see
+        # SKILL.md "Honest Capability Register".
         if distance < 1:
             return 0.5 * 10 ** (0.3 * magnitude - 2.0)  # Near-field
 

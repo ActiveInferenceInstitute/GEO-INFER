@@ -62,11 +62,13 @@ def test_engine_rejects_underspecified_calibration(tmp_path: Path) -> None:
     with EnhancedRiskEngine(engine_config(tmp_path)) as engine:
         with pytest.raises(ValueError, match="at least two"):
             engine.calibrate_models({"samples": []})
-        with pytest.raises(
-            ValueError, match="'bayesian' calibration is not implemented"
-        ):
+        with pytest.raises(ValueError, match="only implemented calibration method"):
             engine.calibrate_models(
                 {"samples": [{"loss": 1.0}, {"loss": 2.0}]}, "bayesian"
+            )
+        with pytest.raises(ValueError, match="only implemented calibration method"):
+            engine.calibrate_models(
+                {"samples": [{"loss": 1.0}, {"loss": 2.0}]}, "maximum_likelihood"
             )
 
 

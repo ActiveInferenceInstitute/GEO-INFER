@@ -819,31 +819,31 @@ class EnhancedRiskEngine:
 
         Args:
             calibration_data: Historical data for calibration
-            method: Calibration method ('maximum_likelihood' or
-                'cross_validation'). 'bayesian' is intentionally not accepted:
-                it was a dead option behind a validation error because a
-                generic Bayesian calibration needs a model-specific adapter
-                with explicit likelihood and prior per configured risk
-                component; no such adapter exists yet.
+            method: Only 'cross_validation' is implemented and accepted.
+                'bayesian' and 'maximum_likelihood' are deliberately rejected:
+                a generic Bayesian calibration needs a model-specific
+                BayesianModel adapter with explicit likelihood and prior per
+                configured risk component, and a maximum-likelihood fit needs
+                a model-specific likelihood adapter; no such adapters exist,
+                so options that would hard-fail are not advertised.
 
         Returns:
             Calibration results and updated parameters
         """
         self._ensure_open()
         method = method.lower()
-        if method not in {"cross_validation", "maximum_likelihood"}:
+        if method != "cross_validation":
             raise ValueError(
-                "method must be 'cross_validation' or 'maximum_likelihood'; "
-                "'bayesian' calibration is not implemented because it requires "
-                "a model-specific BayesianModel adapter"
+                "method must be 'cross_validation' — the only implemented "
+                "calibration method. 'bayesian' is not accepted because a "
+                "generic Bayesian calibration requires a model-specific "
+                "BayesianModel adapter (explicit likelihood and prior per "
+                "configured risk component), and 'maximum_likelihood' "
+                "requires a model-specific likelihood adapter; no such "
+                "adapters exist yet"
             )
-        self.logger.info(f"Starting model calibration using {method} method")
-
-        if method == "cross_validation":
-            return self._calibrate_with_cross_validation(calibration_data)
-        raise ValueError(
-            "maximum_likelihood calibration requires a model-specific likelihood adapter"
-        )
+        self.logger.info("Starting model calibration using cross_validation method")
+        return self._calibrate_with_cross_validation(calibration_data)
 
     def _calibrate_with_cross_validation(
         self, calibration_data: Dict[str, Any]
