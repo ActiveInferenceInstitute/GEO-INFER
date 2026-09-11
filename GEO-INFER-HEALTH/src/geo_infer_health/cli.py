@@ -156,12 +156,6 @@ Examples:
     validate_parser.add_argument(
         "--input", required=True, help="Input file to validate"
     )
-    validate_parser.add_argument("--schema", help="Schema file for validation")
-    validate_parser.add_argument(
-        "--type",
-        choices=["disease", "facility", "population", "environment"],
-        help="Data type",
-    )
 
     return parser
 
@@ -562,26 +556,36 @@ def run_batch_processing(args: argparse.Namespace, config: Any) -> List[Dict[str
 
 
 def run_validation(args: argparse.Namespace, config: Any) -> None:
-    """Validate data files."""
-    logger.info(f"Validating file: {args.input}")
+    """Validate data files.
+
+    Raises:
+        FileNotFoundError: If the input file does not exist.
+        ValueError: If the file contains no features.
+        Exception: If the file cannot be read as geospatial data.
+    """
+    input_path = Path(args.input)
+    logger.info(f"Validating file: {input_path}")
+
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
     try:
         import geopandas as gpd
 
-        gdf = gpd.read_file(args.input)
-
-        # Basic validation
-        if gdf.empty:
-            logger.error("File contains no data")
-            return
-
-        if gdf.crs is None:
-            logger.warning("File has no coordinate reference system")
-
-        logger.info(f"Validation passed for {args.input}")
-        logger.info(f"Features: {len(gdf)}, Columns: {list(gdf.columns)}")
-
+        gdf = gpd.read_file(input_path)
     except Exception as e:
         logger.error(f"Validation failed: {e}")
+        raise
+
+    # Basic validation
+    if gdf.empty:
+        raise ValueError(f"File contains no data: {input_path}")
+
+    if gdf.crs is None:
+        logger.warning("File has no coordinate reference system")
+
+    logger.info(f"Validation passed for {input_path}")
+    logger.info(f"Features: {len(gdf)}, Columns: {list(gdf.columns)}")
 
 
 if __name__ == "__main__":

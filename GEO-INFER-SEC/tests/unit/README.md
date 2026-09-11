@@ -11,10 +11,13 @@ Unit workspace within `GEO-INFER-SEC`.
 - `test_authentication.py`
 - `test_authorization.py`
 - `test_cli_exit_codes.py`
+- `test_cli_handlers.py`
 - `test_digital_indicators.py`
 - `test_encryption.py`
 - `test_geospatial_utils.py`
 - `test_input_validation.py`
+- `test_integrated_security.py`
+- `test_physical_security.py`
 - `test_security_api.py`
 - `test_token_lifecycle.py`
 

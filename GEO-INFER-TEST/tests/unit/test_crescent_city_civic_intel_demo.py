@@ -25,7 +25,9 @@ _HAZARD_DOMAIN_IDS = {
     "emergency-management",
     "environmental-protection",
     "event-planning",
+    "tourism-recreation",
     "climate-environment",
+    "public-health-safety",
 }
 
 _EXPECTED_SCHEMA = "crescent-city-geo-intel/v1"
@@ -111,7 +113,7 @@ def test_geo_parity_anchor_agrees_with_the_contract_anchor() -> None:
 
 
 def test_geo_parity_nominal_domain_points_agree() -> None:
-    """The four hazard-domain points surface across module views."""
+    """The hazard-domain points surface across module views."""
     parity = _seed_parity()
     domain_ids = {domain["id"] for domain in parity["domains"]}
     assert domain_ids == _HAZARD_DOMAIN_IDS
@@ -148,8 +150,8 @@ def test_summary_surfaces_crescent_city_anchor() -> None:
     assert anchor["longitude"] == pytest.approx(-124.2)
 
 
-def test_summary_lists_the_four_hazard_domains() -> None:
-    """The contract hazard subset surfaces exactly the four expected domains."""
+def test_summary_lists_the_hazard_domains() -> None:
+    """The contract hazard subset surfaces exactly the expected domains."""
     summary = _seed_summary()
     domains = summary["hazard_domains"]
     assert isinstance(domains, list)
@@ -164,7 +166,7 @@ def test_risk_weights_follow_municipal_code_evidence() -> None:
     weights = risk["weights"]
     assert isinstance(weights, dict)
     assert weights["flood zone"] == pytest.approx(1.0, abs=1e-3)
-    assert weights["tsunami"] == pytest.approx(0.5, abs=1e-3)
+    assert weights["tsunami"] == pytest.approx(0.667, abs=1e-3)
     assert weights["tsunami drill"] == pytest.approx(0.333, abs=1e-3)
     # The most-evidenced tag is the normalisation anchor.
     assert risk["top"] == ("flood zone", pytest.approx(1.0, abs=1e-3))
@@ -179,8 +181,8 @@ def test_bayes_prior_is_a_normalized_categorical_table() -> None:
     assert isinstance(probabilities, dict)
     assert set(probabilities) == _HAZARD_DOMAIN_IDS
     assert sum(probabilities.values()) == pytest.approx(1.0, abs=1e-3)
-    assert probabilities["environmental-protection"] == pytest.approx(0.35, abs=1e-3)
-    assert probabilities["event-planning"] == pytest.approx(0.15, abs=1e-3)
+    assert probabilities["environmental-protection"] == pytest.approx(0.233, abs=1e-3)
+    assert probabilities["event-planning"] == pytest.approx(0.1, abs=1e-3)
 
 
 def test_act_decision_avoids_the_dominant_hazard() -> None:
@@ -206,7 +208,7 @@ def test_render_summary_mentions_every_module() -> None:
 
     rendered = render_summary(_seed_summary())
     assert "Crescent City" in rendered
-    assert "hazard domains (4)" in rendered
+    assert "hazard domains (6)" in rendered
     assert "RISK" in rendered
     assert "BAYES" in rendered
     assert "ACT" in rendered

@@ -61,6 +61,10 @@ def create_interactive_map(
         stat_values = np.asarray(stat_values, dtype=float).reshape(-1)
         if len(stat_values) != len(coordinates):
             raise ValueError("contrast statistics must align with coordinates")
+        if contrast.significance_mask is not None and len(
+            np.asarray(contrast.significance_mask).reshape(-1)
+        ) != len(coordinates):
+            raise ValueError("contrast significance_mask must align with coordinates")
     else:
         # Fallback to beta coefficients when no contrasts available
         contrast = None

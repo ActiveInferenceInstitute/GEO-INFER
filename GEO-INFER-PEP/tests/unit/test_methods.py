@@ -54,6 +54,77 @@ def test_process_employee_onboarding_workflow_success(caplog):
     )
 
 
+def test_onboarding_invokes_benefits_client_with_created_employee():
+    """GS-251: a callable benefits_client must be invoked exactly once with
+    the created employee record, and onboarding must still succeed."""
+    from geo_infer_pep.core.data_store import pep_data_manager
+
+    clear_all_data()
+    candidate = _make_candidate("cand251_benefits")
+    methods_module._candidates_db.append(candidate)
+
+    received = []
+    employee_data = {
+        "candidate_id": "cand251_benefits",
+        "benefits_client": received.append,
+    }
+
+    result = process_employee_onboarding_workflow(employee_data)
+
+    assert result is True
+    assert len(received) == 1
+    employee = received[0]
+    assert employee.employee_id == "emp_cand251_benefits_new_hire"
+    assert employee.first_name == candidate.first_name
+    assert employee.last_name == candidate.last_name
+    assert len(pep_data_manager.employees) == 1
+
+
+def test_onboarding_invokes_learning_client_with_created_employee():
+    """GS-251: a callable learning_client must be invoked exactly once with
+    the created employee record, and onboarding must still succeed."""
+    from geo_infer_pep.core.data_store import pep_data_manager
+
+    clear_all_data()
+    candidate = _make_candidate("cand251_learning")
+    methods_module._candidates_db.append(candidate)
+
+    received = []
+    employee_data = {
+        "candidate_id": "cand251_learning",
+        "learning_client": received.append,
+    }
+
+    result = process_employee_onboarding_workflow(employee_data)
+
+    assert result is True
+    assert len(received) == 1
+    employee = received[0]
+    assert employee.employee_id == "emp_cand251_learning_new_hire"
+    assert employee.first_name == candidate.first_name
+    assert employee.last_name == candidate.last_name
+    assert len(pep_data_manager.employees) == 1
+
+
+def test_onboarding_invokes_both_clients_in_order():
+    """GS-251: both clients configured together run benefits then learning,
+    each with the same created employee record."""
+    candidate = _make_candidate("cand251_both")
+    methods_module._candidates_db.append(candidate)
+
+    calls = []
+    employee_data = {
+        "candidate_id": "cand251_both",
+        "benefits_client": lambda e: calls.append(("benefits", e)),
+        "learning_client": lambda e: calls.append(("learning", e)),
+    }
+
+    assert process_employee_onboarding_workflow(employee_data) is True
+    assert [name for name, _ in calls] == ["benefits", "learning"]
+    assert calls[0][1] is calls[1][1]
+    assert calls[0][1].employee_id == "emp_cand251_both_new_hire"
+
+
 def test_process_employee_onboarding_workflow_candidate_not_found(caplog):
     """Test failure when candidate is not in the DB."""
     clear_all_data()  # Ensure DB is empty

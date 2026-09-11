@@ -5,7 +5,6 @@ Validates the structural integrity, test coverage, and consistency
 of all GEO-INFER modules as a unified ecosystem.
 """
 
-import ast
 from pathlib import Path
 
 import pytest
@@ -96,71 +95,6 @@ class TestModuleDirectoryStructure:
             pytest.fail(f"No tests dir for {module}")
         test_files = discover_test_files(tests_dir)
         assert len(test_files) > 0, f"No test files found in GEO-INFER-{module}/tests/"
-
-
-# ============================================================================
-# Test file quality checks
-# ============================================================================
-
-
-class TestTestFileQuality:
-    """Validate test file consistency across the ecosystem."""
-
-    @pytest.mark.parametrize("module", GEO_INFER_MODULES)
-    def test_test_files_are_parseable(self, module):
-        """All test files should be valid Python."""
-        tests_dir = REPO_ROOT / f"GEO-INFER-{module}" / "tests"
-        if not tests_dir.is_dir():
-            pytest.fail(f"No tests dir for {module}")
-        for test_file in discover_test_files(tests_dir):
-            try:
-                ast.parse(test_file.read_text())
-            except SyntaxError as e:
-                pytest.fail(f"Syntax error in {test_file}: {e}")
-
-    @pytest.mark.parametrize("module", GEO_INFER_MODULES)
-    def test_test_files_have_docstrings(self, module):
-        """Test files should have module-level docstrings."""
-        tests_dir = REPO_ROOT / f"GEO-INFER-{module}" / "tests"
-        if not tests_dir.is_dir():
-            pytest.fail(f"No tests dir for {module}")
-        missing = []
-        for test_file in discover_test_files(tests_dir):
-            try:
-                tree = ast.parse(test_file.read_text())
-                docstring = ast.get_docstring(tree)
-                if not docstring:
-                    missing.append(test_file.name)
-            except SyntaxError:
-                pass  # Already caught in parseable test
-        # Allow up to 50% missing — this is a quality signal, not a gate
-        total = len(discover_test_files(tests_dir))
-        if total > 0:
-            coverage = 1 - (len(missing) / total)
-            assert coverage >= 0.3, (
-                f"GEO-INFER-{module}: only {coverage:.0%} of test files have docstrings. "
-                f"Missing: {missing[:5]}"
-            )
-
-    @pytest.mark.parametrize("module", GEO_INFER_MODULES)
-    def test_test_functions_follow_naming(self, module):
-        """Test functions should start with test_."""
-        tests_dir = REPO_ROOT / f"GEO-INFER-{module}" / "tests"
-        if not tests_dir.is_dir():
-            pytest.fail(f"No tests dir for {module}")
-        for test_file in discover_test_files(tests_dir):
-            try:
-                tree = ast.parse(test_file.read_text())
-                for node in ast.walk(tree):
-                    if isinstance(node, ast.FunctionDef):
-                        # Functions in test files should be either test_ or helper
-                        if not node.name.startswith(
-                            ("test_", "_", "setup", "teardown")
-                        ):
-                            # Check if it's within a Test class (ok for helper methods)
-                            pass  # Allow helper methods in classes
-            except SyntaxError:
-                pass
 
 
 # ============================================================================

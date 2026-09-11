@@ -1,7 +1,6 @@
 """Top-level test fixtures and configuration for the entire GEO-INFER framework."""
 
 import os
-import sys
 import yaml
 import pytest
 import tempfile
@@ -10,10 +9,6 @@ from pathlib import Path
 from dataclasses import dataclass
 from typing import Dict, Optional, Any, Generator
 from geo_infer_intra.utils.config import load_default_config
-
-# Add each module to the Python path
-parent_dir = str(Path(__file__).parent.parent)
-sys.path.insert(0, parent_dir)
 
 # List of all GEO-INFER modules
 GEO_INFER_MODULES = [

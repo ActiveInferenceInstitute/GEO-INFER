@@ -618,8 +618,13 @@ class RebaseManager:
             operation.current_step = 0
 
         except git.GitCommandError as e:
-            operation.status = "failed"
-            operation.message = f"Failed to start rebase: {e}"
+            if "conflict" in str(e).lower():
+                operation.status = "conflicts"
+                operation.conflicts = self._detect_rebase_conflicts()
+                operation.message = f"Conflicts detected during rebase of {base_commit}"
+            else:
+                operation.status = "failed"
+                operation.message = f"Failed to start rebase: {e}"
 
         except Exception as e:
             operation.status = "failed"
@@ -635,7 +640,10 @@ class RebaseManager:
         Returns:
             True if rebase continued successfully
         """
-        if not self.current_rebase or self.current_rebase.status != "in_progress":
+        if not self.current_rebase or self.current_rebase.status not in (
+            "in_progress",
+            "conflicts",
+        ):
             logger.error("No active rebase to continue")
             return False
 
@@ -870,7 +878,7 @@ class AdvancedGitOperations:
                 "total_commits": len(list(self.repo.iter_commits())),
                 "branches": len(self.repo.heads),
                 "remotes": len(self.repo.remotes),
-                "stashes": len(list(self.repo.iter_commits("refs/stash"))),
+                "stashes": self._count_stashes(),
             },
         }
 
@@ -879,6 +887,13 @@ class AdvancedGitOperations:
         health_info["health_score"] = health_score
 
         return health_info
+
+    def _count_stashes(self) -> int:
+        """Count stashes, returning 0 when the repository has no stash ref."""
+        try:
+            return len(list(self.repo.iter_commits("refs/stash")))
+        except git.GitCommandError:
+            return 0
 
     def _calculate_health_score(self, health_info: Dict[str, Any]) -> float:
         """Calculate overall repository health score (0-100)."""

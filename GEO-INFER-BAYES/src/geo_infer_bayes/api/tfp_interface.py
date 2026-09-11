@@ -8,7 +8,7 @@ installed, so the module always provides usable posterior sampling.
 import logging
 import numpy as np
 from scipy import linalg
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple, Union
 from ..utils.rng import resolve_rng
 
 logger = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ class TFPInterface:
         self._lengthscale: float = 1.0
         self._variance: float = 1.0
         self._noise: float = 1e-2
-        self._L_inv: Optional[np.ndarray] = None  # cholesky factor cache
+        self._L: Optional[np.ndarray] = None  # cholesky factor cache
         self._alpha: Optional[np.ndarray] = None
 
     # ------------------------------------------------------------------
@@ -176,6 +176,55 @@ class TFPInterface:
                 traces["noise"].append(float(params[2]))
 
         return {k: np.array(v) for k, v in traces.items()}
+
+    # ------------------------------------------------------------------
+    # Prediction
+    # ------------------------------------------------------------------
+    def predict(
+        self, X_new: np.ndarray, return_std: bool = True
+    ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
+        """Make predictions with the fitted NumPy/SciPy GP.
+
+        Computes the GP posterior predictive mean and, optionally, the
+        standard deviation of noisy observations at new input locations.
+
+        Parameters
+        ----------
+        X_new : ndarray of shape (n_new, n_features)
+            New input locations.
+        return_std : bool
+            If True, also return the predictive standard deviation.
+
+        Returns
+        -------
+        mean : ndarray of shape (n_new,)
+            Predictive mean.
+        std : ndarray of shape (n_new,), optional
+            Predictive standard deviation (only when ``return_std=True``).
+        """
+        if self._X is None or self._y is None:
+            raise RuntimeError(
+                "Model has not been fitted. Call create_spatial_gp_model() first."
+            )
+        assert self._alpha is not None and self._L is not None
+
+        X_new = np.asarray(X_new, dtype=np.float64)
+        if X_new.ndim == 1:
+            X_new = X_new.reshape(-1, 1)
+
+        # Cross-covariance between training and new locations
+        K_star = _squared_exponential_kernel(
+            self._X, X_new, self._lengthscale, self._variance
+        )
+        mean: np.ndarray = np.asarray(K_star.T @ self._alpha)
+
+        if return_std:
+            v = linalg.solve_triangular(self._L, K_star, lower=True)
+            var = self._variance - np.sum(v**2, axis=0) + self._noise
+            std: np.ndarray = np.asarray(np.sqrt(np.maximum(var, 1e-12)))
+            return mean, std
+
+        return mean
 
     # ------------------------------------------------------------------
     # Internals

@@ -20,19 +20,12 @@ import shapely.geometry as sgeom
 from datetime import datetime, timedelta
 import time
 import psutil
-import logging
 
 pytest_plugins = ["geo_infer_test.testing"]
 
 # Add project root to Python path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
-
-# Configure logging for tests
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)",
-)
 
 # Test configuration
 TEST_CONFIG = {

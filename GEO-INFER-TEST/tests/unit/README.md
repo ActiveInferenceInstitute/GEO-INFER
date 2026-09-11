@@ -7,6 +7,7 @@ Unit workspace within `GEO-INFER-TEST`.
 - `test_build_package_wheels.py`
 - `test_check_coverage_floor_gate.py`
 - `test_crescent_city_bundled_seed_uniqueness.py`
+- `test_crescent_city_civic_intel_demo.py`
 - `test_crescent_city_geo_intel_contract_sync.py`
 - `test_data_domains.py`
 - `test_log_integration.py`
@@ -17,11 +18,13 @@ Unit workspace within `GEO-INFER-TEST`.
 - `test_root_pytest_policy.py`
 - `test_run_unified_tests.py`
 - `test_runtime_metadata.py`
+- `test_script_validators.py`
 - `test_spatial_functions.py`
 - `test_test_discoverer.py`
 - `test_test_orchestrator.py`
 - `test_test_runner.py`
 - `test_testing_helpers.py`
+- `test_unified_runner_extra_test_paths.py`
 - `test_validate_h3_active_inference_contract.py`
 - `test_validate_packaging.py`
 - `test_validate_repo_contracts.py`

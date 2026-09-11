@@ -34,6 +34,23 @@ RESULTS_DIR = PROJECT_ROOT / ".geo-infer-test-results"
 PYTEST_NO_TESTS_EXIT_CODE = 5
 TEST_FILE_PATTERNS = ("test_*.py", "*_test.py")
 
+# Nested test trees that top-level module discovery cannot reach. The
+# cascadia unit tree lives under GEO-INFER-PLACE/locations/cascadia and joins
+# the PLACE lanes explicitly; its integration tree stays deferred per the
+# PLACE-V14 licensed-data deferral rather than being wired red.
+EXTRA_TEST_PATHS: dict[str, dict[str, tuple[Path, ...]]] = {
+    "PLACE": {
+        "unit": (
+            PROJECT_ROOT
+            / "GEO-INFER-PLACE"
+            / "locations"
+            / "cascadia"
+            / "tests"
+            / "unit",
+        ),
+    },
+}
+
 
 @dataclass
 class CommandResult:
@@ -264,8 +281,9 @@ def category_test_paths(module: Module, category: str) -> list[Path]:
     Unit tests in older modules may live directly under ``tests/`` or under
     the legacy ``tests/tools/`` directory. Include those files alongside the
     canonical unit directory so the category cannot silently omit behavior
-    tests. Integration, system, and performance remain bounded by their named
-    directories.
+    tests, together with any nested test trees registered in
+    ``EXTRA_TEST_PATHS``. Integration, system, and performance remain bounded
+    by their named directories.
     """
     category_path = module.test_path / category
     paths = test_file_paths(category_path)
@@ -273,11 +291,22 @@ def category_test_paths(module: Module, category: str) -> list[Path]:
         return paths
     paths.extend(test_file_paths(module.test_path, recursive=False))
     paths.extend(test_file_paths(module.test_path / "tools"))
+    for extra_path in EXTRA_TEST_PATHS.get(module.name, {}).get(category, ()):
+        paths.extend(test_file_paths(extra_path))
     return sorted(set(paths))
 
 
+def module_test_files(module: Module) -> list[Path]:
+    """Return all pytest files for a module, including explicit extras."""
+    test_files = list(test_file_paths(module.test_path))
+    for extra_paths in EXTRA_TEST_PATHS.get(module.name, {}).values():
+        for extra_path in extra_paths:
+            test_files.extend(test_file_paths(extra_path))
+    return sorted(set(test_files))
+
+
 def run_module_tests(module: Module, timeout: int) -> CommandResult:
-    test_files = test_file_paths(module.test_path)
+    test_files = module_test_files(module)
     if not test_files:
         return CommandResult(
             name=f"{module.name} tests",

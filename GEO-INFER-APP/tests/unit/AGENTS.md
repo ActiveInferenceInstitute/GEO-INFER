@@ -23,10 +23,12 @@
 
 - `models/`
 - `test_agent_api.py`
+- `test_agent_config_form.py`
 - `test_agent_configuration.py`
 - `test_agent_factory.py`
 - `test_agent_interface.py`
 - `test_agent_visualization.py`
+- `test_agent_widget.py`
 
 ## Validation
 

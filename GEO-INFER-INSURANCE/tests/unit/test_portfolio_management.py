@@ -42,4 +42,21 @@ def test_portfolio_optimizer_flags_capacity_breach() -> None:
 
     assert result["capacity_exceeded"] is True
     assert result["recommended_order"][0]["policy_id"] == "policy-1"
-    assert create_pricing_engine() is not None
+    # The convenience factory must return a working pricing engine, not just
+    # any object: a minimal application must price with a positive premium.
+    from geo_infer_insurance.underwriting.core.pricing_engine import PricingEngine
+
+    engine = create_pricing_engine()
+    assert isinstance(engine, PricingEngine)
+    application = {
+        "property": {"type": "residential", "value": 200000, "year_built": 2010},
+        "coverage_requests": [{"coverage_type": "dwelling", "limit": 200000}],
+    }
+    risk_assessment = {"risk_score": 0.3, "risk_level": "moderate", "factors": {}}
+    rule_evaluation = {"passed": True, "violations": [], "adjustments": []}
+    assert (
+        engine.calculate_premium(
+            application, risk_assessment, rule_evaluation
+        ).total_premium
+        > 0
+    )

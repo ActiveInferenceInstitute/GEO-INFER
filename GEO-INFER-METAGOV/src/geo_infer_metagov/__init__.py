@@ -7,7 +7,7 @@ and multi-level governance coordination frameworks for autonomous geospatial sys
 
 __version__ = "0.2.0"
 __author__ = "GEO-INFER Development Team"
-__license__ = "CC BY-NC-SA 4.0"
+__license__ = "CC-BY-NC-SA-4.0"
 
 from geo_infer_metagov.core.multi_level import MultiLevelGovernanceFramework
 from geo_infer_metagov.core.institutional import InstitutionalDesigner

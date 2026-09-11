@@ -278,9 +278,12 @@ class IntegratedSecurityManager:
         if domain == SecurityDomain.PHYSICAL:
             return getattr(threat_data, "threat_type", "unknown")
         elif domain == SecurityDomain.DIGITAL:
-            return getattr(threat_data, "threat_type", "unknown")
+            threat_type = getattr(threat_data, "threat_type", "unknown")
+            return cast(str, getattr(threat_type, "value", threat_type))
         elif domain == SecurityDomain.COGNITIVE:
-            return cast(str, threat_data.get("type", "unknown"))
+            if isinstance(threat_data, dict):
+                return cast(str, threat_data.get("type", "unknown"))
+            return cast(str, getattr(threat_data, "threat_type", "unknown"))
 
         return "unknown"
 

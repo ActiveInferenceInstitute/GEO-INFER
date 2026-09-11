@@ -21,6 +21,8 @@
 
 ## Local Contents
 
+- `test_advanced_git.py`
+- `test_cli.py`
 - `test_config_loader.py`
 - `test_distributed_coordinator.py`
 - `test_error_handler.py`
@@ -28,6 +30,7 @@
 - `test_github_api.py`
 - `test_intelligent_cache_prefetch.py`
 - `test_main.py`
+- `test_multi_platform_api.py`
 - `test_repo_analyzer.py`
 - `test_repo_cloner.py`
 - `test_repo_manager.py`

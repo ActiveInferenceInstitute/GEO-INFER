@@ -5,6 +5,7 @@ Unit workspace within `GEO-INFER-BAYES`.
 ## Contents
 
 - `test_abc_smc.py`
+- `test_api_interfaces.py`
 - `test_base_model.py`
 - `test_civic_intel.py`
 - `test_data_processing.py`

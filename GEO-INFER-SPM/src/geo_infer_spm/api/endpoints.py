@@ -48,6 +48,8 @@ class SPMAPI:
                 spm_data = self._json_to_spmdata(data)
             elif format == "csv":
                 spm_data = self._csv_to_spmdata(data)
+            elif format == "geojson":
+                spm_data = self._geojson_to_spmdata(data)
             else:
                 raise ValueError(f"Unsupported format: {format}")
 
@@ -139,7 +141,9 @@ class SPMAPI:
             # Apply correction
             spm_result = compute_spm(model_result, contrast_obj, correction=correction)
 
-            # Store updated result
+            # Record the contrast on the stored model result so that
+            # get_results(summary|full) report it.
+            model_result.contrasts.append(spm_result)
             self.results[result_id] = model_result
 
             return {
@@ -162,7 +166,10 @@ class SPMAPI:
 
         Args:
             result_id: ID of analysis results
-            format: Result format ('summary', 'full', 'visualization')
+            format: Result format ('summary', 'full', 'visualization'). Note
+                that 'visualization' returns a raw JSON-ready payload
+                (coordinates, beta map, residuals) for client-side plotting,
+                not a rendered figure object.
 
         Returns:
             Response with results
@@ -205,7 +212,12 @@ class SPMAPI:
         """Convert JSON data to SPMData object."""
         from ..models.data_models import SPMData
 
-        coordinates = np.array(data["coordinates"])
+        coordinates = np.array(data["coordinates"], dtype=float)
+        if coordinates.ndim != 2 or coordinates.shape[1] < 2:
+            raise ValueError(
+                "json payload 'coordinates' must be a (n_points, >=2) array of "
+                "[lon, lat] pairs"
+            )
         data_values = np.array(data.get("data", []))
 
         return SPMData(
@@ -272,7 +284,9 @@ class SPMAPI:
             except (ValueError, TypeError):
                 continue  # Skip non-numeric columns
 
-        coordinates = np.array([[float(r[lat_col]), float(r[lon_col])] for r in rows])
+        # Coordinates follow the SPMData (lon, lat) convention, matching the
+        # geojson helper and interactive-map rendering.
+        coordinates = np.array([[float(r[lon_col]), float(r[lat_col])] for r in rows])
         data_values = np.array(
             [[float(r.get(c, 0)) for c in numeric_cols] for r in rows]
         )
@@ -284,10 +298,64 @@ class SPMAPI:
             covariates=data.get("covariates", {}),
             metadata={
                 "source_format": "csv",
-                "coordinate_columns": [lat_col, lon_col],
+                "coordinate_columns": [lon_col, lat_col],
                 "value_columns": numeric_cols,
                 **(data.get("metadata", {})),
             },
+            crs=data.get("crs", "EPSG:4326"),
+        )
+
+    def _geojson_to_spmdata(self, data: Dict[str, Any]) -> SPMData:
+        """Convert GeoJSON FeatureCollection data to SPMData object.
+
+        Expects a GeoJSON ``FeatureCollection`` whose features carry Point
+        geometries. Coordinates are read as [lon, lat] per the GeoJSON spec.
+        Per-feature numeric values are taken from the ``value`` property when
+        present, otherwise from the first numeric property encountered.
+        """
+        if data.get("type") != "FeatureCollection" or not data.get("features"):
+            raise ValueError(
+                "GeoJSON data must be a FeatureCollection with a non-empty "
+                "'features' list"
+            )
+
+        coordinates = []
+        data_values = []
+        for feature in data["features"]:
+            geometry = feature.get("geometry") or {}
+            if geometry.get("type") != "Point":
+                raise ValueError(
+                    f"Unsupported GeoJSON geometry type: {geometry.get('type')!r}; "
+                    "only 'Point' features are supported"
+                )
+            lonlat = geometry.get("coordinates")
+            if not isinstance(lonlat, (list, tuple)) or len(lonlat) < 2:
+                raise ValueError(
+                    "GeoJSON Point coordinates must contain at least [lon, lat]"
+                )
+            coordinates.append([float(lonlat[0]), float(lonlat[1])])
+
+            properties = feature.get("properties") or {}
+            if "value" in properties:
+                data_values.append(float(properties["value"]))
+            else:
+                for prop in properties.values():
+                    try:
+                        data_values.append(float(prop))
+                        break
+                    except (ValueError, TypeError):
+                        continue
+                else:
+                    raise ValueError(
+                        "GeoJSON feature has no 'value' property and no numeric "
+                        "property to use as data value"
+                    )
+
+        return SPMData(
+            data=np.array(data_values),
+            coordinates=np.array(coordinates),
+            covariates=data.get("covariates", {}),
+            metadata={"source_format": "geojson", **(data.get("metadata", {}))},
             crs=data.get("crs", "EPSG:4326"),
         )
 

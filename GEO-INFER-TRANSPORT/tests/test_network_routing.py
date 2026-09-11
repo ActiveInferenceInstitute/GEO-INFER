@@ -314,6 +314,99 @@ class TestRoutingEngine:
         assert adjusted_route.path == ["n1", "n3"]
         assert adjusted_route.route_source == "network"
 
+    def test_reverse_edge_travel_time_matches_forward(self):
+        """The auto-created reverse edge carries the forward edge's travel_time."""
+        network = TransportNetwork()
+        network.build_from_edges(
+            [
+                {
+                    "id": "e1",
+                    "from": "a",
+                    "to": "b",
+                    "length_m": 1000,
+                    "speed_limit": 50,
+                }
+            ]
+        )
+        expected_seconds = (1000 / 1000) / 50 * 3600  # 72.0 s
+
+        # The graph edge itself is costed correctly in both directions.
+        assert network.graph["a"]["b"]["travel_time"] == pytest.approx(expected_seconds)
+        assert network.graph["b"]["a"]["travel_time"] == pytest.approx(expected_seconds)
+
+        engine = RoutingEngine(algorithm="dijkstra", modes=["car"])
+        engine.set_network(network)
+        reverse_route = engine.route(
+            origin={"node_id": "b"}, destination={"node_id": "a"}
+        )
+
+        assert reverse_route.path == ["b", "a"]
+        assert reverse_route.route_source == "network"
+        assert reverse_route.total_time_s == pytest.approx(expected_seconds)
+        assert reverse_route.total_distance_m == pytest.approx(1000.0)
+
+    def test_reverse_edge_traffic_adjusted_weight(self):
+        """Traffic adjustments apply to the reverse edge instead of zeroing it."""
+        network = TransportNetwork()
+        network.build_from_edges(
+            [
+                {
+                    "id": "e1",
+                    "from": "a",
+                    "to": "b",
+                    "length_m": 1000,
+                    "speed_limit": 50,
+                }
+            ]
+        )
+        engine = RoutingEngine(real_time_traffic=True)
+        engine.set_network(network)
+        engine.update_traffic({"e1_rev": 2.0})
+
+        route = engine.route(
+            origin={"node_id": "b"}, destination={"node_id": "a"}, optimization="time"
+        )
+
+        assert route.path == ["b", "a"]
+        assert route.route_source == "network"
+        assert route.total_time_s == pytest.approx(72.0 * 2.0)
+
+    def test_route_with_unknown_node_degrades_to_empty_route(self):
+        """An unknown origin/destination yields an empty network route, not an exception."""
+        network = TransportNetwork()
+        network.build_from_edges(
+            [
+                {
+                    "id": "e1",
+                    "from": "a",
+                    "to": "b",
+                    "length_m": 1000,
+                    "speed_limit": 50,
+                }
+            ]
+        )
+        engine = RoutingEngine(algorithm="dijkstra", modes=["car"])
+        engine.set_network(network)
+
+        unknown_origin = engine.route(
+            origin={"node_id": "zz"}, destination={"node_id": "b"}
+        )
+        assert unknown_origin.path == []
+        assert unknown_origin.route_source == "network"
+        assert unknown_origin.total_distance_m == 0.0
+        assert unknown_origin.total_time_s == 0.0
+
+        unknown_destination = engine.route(
+            origin={"node_id": "a"}, destination={"node_id": "zz"}
+        )
+        assert unknown_destination.path == []
+        assert unknown_destination.route_source == "network"
+
+        alternatives = engine.find_alternatives(
+            origin={"node_id": "zz"}, destination={"node_id": "b"}, count=2
+        )
+        assert [r.path for r in alternatives] == [[]]
+
 
 class TestNetworkNode:
     """Test suite for NetworkNode dataclass."""

@@ -6,7 +6,6 @@ Demo workspace within `GEO-INFER-TEST`.
 
 - `__init__.py`
 - `crescent_city_civic_intel_demo.py`
-- `test_crescent_city_civic_intel_demo.py`
 
 ## Public Interface
 

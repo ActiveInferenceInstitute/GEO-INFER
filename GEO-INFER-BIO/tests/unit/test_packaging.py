@@ -5,7 +5,6 @@ from __future__ import annotations
 import importlib
 from pathlib import Path
 
-import pytest
 
 import geo_infer_bio
 
@@ -17,17 +16,7 @@ def src_root() -> Path:
 
 SUBPACKAGES = ("api", "core", "utils")
 
-# The file-existence and find_packages checks walk the source tree under
-# src/geo_infer_bio; against a wheel-installed copy there is no such tree,
-# so skip rather than fail confusingly.
-_SOURCE_LAYOUT = (src_root().parent / "geo_infer_bio").is_dir()
-_needs_source_layout = pytest.mark.skipif(
-    not _SOURCE_LAYOUT,
-    reason="packaging checks walk the source tree; run from a source checkout",
-)
 
-
-@_needs_source_layout
 def test_subpackage_dirs_declare_regular_packages() -> None:
     """Every subpackage directory with modules must ship an __init__.py.
 
@@ -56,7 +45,6 @@ def test_subpackages_importable_and_expose_public_api() -> None:
         assert set(getattr(module, "__all__", [])) == expected
 
 
-@_needs_source_layout
 def test_find_packages_selects_all_subpackages() -> None:
     """setuptools.find_packages (the wheel's package selection) must pick up
     every subpackage; this also catches pyproject regressions such as an

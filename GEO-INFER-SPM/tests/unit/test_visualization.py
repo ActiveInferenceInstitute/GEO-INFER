@@ -276,20 +276,92 @@ class TestInteractiveVisualization:
         )
 
     def test_create_interactive_map(self):
-        """Test interactive map creation."""
-        try:
-            from geo_infer_spm.visualization.interactive import create_interactive_map
+        """Test interactive map creation returns a plotly figure."""
+        import plotly.graph_objects as go
+        from geo_infer_spm.visualization.interactive import create_interactive_map
 
-            # Test scattergeo map type
-            interactive_map = create_interactive_map(
-                self.spm_result, contrast_idx=0, map_type="scattergeo"
+        interactive_map = create_interactive_map(
+            self.spm_result, contrast_idx=0, map_type="scattergeo"
+        )
+
+        assert isinstance(interactive_map, go.Figure)
+        assert hasattr(interactive_map, "show")
+        scatter_traces = [t for t in interactive_map.data if t.type == "scattergeo"]
+        assert len(scatter_traces) == 1
+        assert len(scatter_traces[0].lon) == self.spm_result.spm_data.n_points
+
+    def test_create_interactive_map_rejections(self):
+        """Invalid inputs must raise ValueError, not return a figure."""
+        import pytest
+        from geo_infer_spm.models.data_models import ContrastResult
+        from geo_infer_spm.visualization.interactive import create_interactive_map
+
+        n_points = self.spm_result.spm_data.n_points
+        aligned = ContrastResult(
+            contrast_vector=np.array([0.0, 1.0]),
+            t_statistic=np.linspace(-3.0, 3.0, n_points),
+            effect_size=np.zeros(n_points),
+            standard_error=np.ones(n_points),
+            p_values=np.full(n_points, 0.5),
+        )
+        misaligned_stats = ContrastResult(
+            contrast_vector=np.array([0.0, 1.0]),
+            t_statistic=np.zeros(n_points + 2),
+            effect_size=np.zeros(n_points + 2),
+            standard_error=np.ones(n_points + 2),
+            p_values=np.zeros(n_points + 2),
+        )
+        misaligned_mask = ContrastResult(
+            contrast_vector=np.array([0.0, 1.0]),
+            t_statistic=np.linspace(-3.0, 3.0, n_points),
+            effect_size=np.zeros(n_points),
+            standard_error=np.ones(n_points),
+            p_values=np.full(n_points, 0.5),
+            significance_mask=np.zeros(n_points + 1, dtype=bool),
+        )
+        empty_coords = SPMResult(
+            spm_data=SPMData(
+                data=np.zeros(0), coordinates=np.zeros((0, 2)), crs="EPSG:4326"
+            ),
+            design_matrix=self.spm_result.design_matrix,
+            beta_coefficients=np.array([1.0, -0.5]),
+            residuals=np.zeros(0),
+            model_diagnostics={"r_squared": 0.9},
+        )
+        nonfinite_coords = SPMResult(
+            spm_data=SPMData(
+                data=np.zeros(n_points),
+                coordinates=np.full((n_points, 2), np.nan),
+                crs="EPSG:4326",
+            ),
+            design_matrix=self.spm_result.design_matrix,
+            beta_coefficients=np.array([1.0, -0.5]),
+            residuals=np.zeros(n_points),
+            model_diagnostics={"r_squared": 0.9},
+        )
+
+        def with_contrasts(contrast: ContrastResult) -> SPMResult:
+            return SPMResult(
+                spm_data=self.spm_result.spm_data,
+                design_matrix=self.spm_result.design_matrix,
+                beta_coefficients=self.spm_result.beta_coefficients,
+                residuals=self.spm_result.residuals,
+                model_diagnostics={"r_squared": 0.9},
+                contrasts=[contrast],
             )
 
-            # Should return plotly figure or None
-            assert interactive_map is None or hasattr(interactive_map, "show")
-
-        except ImportError:
-            pytest.fail("Plotly not available")
+        cases = [
+            dict(spm_result=with_contrasts(aligned), contrast_idx=-1),
+            dict(spm_result=with_contrasts(aligned), contrast_idx=0.5),
+            dict(spm_result=empty_coords, contrast_idx=0),
+            dict(spm_result=nonfinite_coords, contrast_idx=0),
+            dict(spm_result=with_contrasts(misaligned_stats), contrast_idx=0),
+            dict(spm_result=with_contrasts(misaligned_mask), contrast_idx=0),
+            dict(spm_result=with_contrasts(aligned), contrast_idx=0, map_type="hexbin"),
+        ]
+        for kwargs in cases:
+            with pytest.raises(ValueError):
+                create_interactive_map(**kwargs)
 
     def test_create_dashboard(self):
         """Test dashboard creation."""

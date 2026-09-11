@@ -27,7 +27,9 @@ FORBIDDEN_TEXT = (
 
 def test_files() -> list[Path]:
     """Return all repository test files in stable order."""
-    return sorted(ROOT.glob("GEO-INFER-*/tests/**/*.py"))
+    return sorted(
+        [*ROOT.glob("GEO-INFER-*/tests/**/*.py"), *ROOT.glob("tests/**/*.py")]
+    )
 
 
 def configured_markers() -> set[str]:

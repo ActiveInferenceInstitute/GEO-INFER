@@ -22,7 +22,9 @@
 ## Local Contents
 
 - `comprehensive_test.py`
+- `comprehensive_validation.py`
 - `focused_framework_test.py`
+- `focused_framework_validation.py`
 - `run_comprehensive_validation.py`
 - `test_bioregion_pipeline.py`
 - `test_enhanced_h3_fusion.py`

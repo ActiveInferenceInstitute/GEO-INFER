@@ -23,6 +23,7 @@
 
 - `__init__.py`
 - `test_example_orchestration.py`
+- `test_orchestrator_scripts_execute.py`
 
 ## Validation
 

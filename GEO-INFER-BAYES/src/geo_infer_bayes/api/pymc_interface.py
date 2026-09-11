@@ -91,7 +91,7 @@ class PyMCInterface:
             gp = pm.gp.Marginal(mean_func=mean_func, cov_func=cov_func)
 
             # Add observations
-            gp.marginal_likelihood("y_obs", X=X, y=y, noise=noise)
+            gp.marginal_likelihood("y_obs", X=X, y=y, sigma=noise)
 
         self.pymc_model = model
         self.gp = gp
@@ -146,7 +146,7 @@ class PyMCInterface:
             sigma = pm.HalfNormal("sigma", sigma=1)
 
             # Expected value
-            mu = alpha[groups] + pm.math.dot(X, beta[groups].T)
+            mu = alpha[groups] + pm.math.sum(X * beta[groups], axis=1)
 
             # Likelihood
             pm.Normal("y_obs", mu=mu, sigma=sigma, observed=y)

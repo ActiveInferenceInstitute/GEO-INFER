@@ -10,7 +10,6 @@ Utils workspace within `GEO-INFER-AI`.
 ## Public Interface
 
 - `rng.py:resolve_rng` (function)
-- `rng.py:resolve_optional_rng` (function)
 
 ## Module Metadata
 

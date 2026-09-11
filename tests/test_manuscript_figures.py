@@ -12,9 +12,9 @@ import hashlib
 from pathlib import Path
 from types import ModuleType
 
+import matplotlib
 import pytest
-
-pytest.importorskip("matplotlib")
+import yaml
 
 LEGIBLE_POINT_FLOOR = 6.0
 
@@ -143,7 +143,6 @@ class TestFigureLegibility:
     def test_the_height_bound_matches_the_render_config(
         self, generator: ModuleType, repo_root: Path
     ) -> None:
-        yaml = pytest.importorskip("yaml")
         config = yaml.safe_load(
             (repo_root / "manuscript" / "config.yaml").read_text(encoding="utf-8")
         )

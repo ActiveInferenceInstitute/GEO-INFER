@@ -17,6 +17,7 @@ Unit workspace within `GEO-INFER-AI`.
 - `test_mlflow_integration.py`
 - `test_model_evaluation.py`
 - `test_model_evaluation_coverage.py`
+- `test_rng.py`
 - `test_spatial_lag_features.py`
 - `test_spatial_predictor.py`
 - `test_training.py`

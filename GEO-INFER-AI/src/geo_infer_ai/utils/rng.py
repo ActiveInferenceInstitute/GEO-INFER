@@ -9,7 +9,7 @@ Callers that want fresh entropy pass an explicit unseeded
 
 from __future__ import annotations
 
-from typing import Optional, Union
+from typing import Union
 
 import numpy as np
 
@@ -46,14 +46,3 @@ def resolve_rng(seed: SeedLike = None) -> np.random.Generator:
     if isinstance(seed, np.random.RandomState):
         return np.random.default_rng(int(seed.randint(0, 2**31 - 1)))
     return np.random.default_rng(DEFAULT_SEED if seed is None else seed)
-
-
-def resolve_optional_rng(
-    rng: Optional[Union[SeedLike, np.random.Generator]],
-) -> Optional[np.random.Generator]:
-    """Return ``None`` when ``rng`` is ``None``, else :func:`resolve_rng`.
-
-    For call sites where absence of an RNG means "take the deterministic
-    non-stochastic branch" rather than "use the default seed".
-    """
-    return None if rng is None else resolve_rng(rng)

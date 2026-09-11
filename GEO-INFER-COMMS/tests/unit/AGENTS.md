@@ -22,8 +22,11 @@
 ## Local Contents
 
 - `test_channels.py`
+- `test_collaboration_sessions.py`
 - `test_core.py`
 - `test_email_providers.py`
+- `test_event_scheduler.py`
+- `test_events_delivery_and_filters.py`
 - `test_events_publish_robustness.py`
 - `test_message_models.py`
 - `test_messaging.py`

@@ -86,7 +86,6 @@ def test_read_directory_raises(tmp_path: Path) -> None:
         read_cloud_native_vector(tmp_path)
 
 
-@pytest.mark.skipif(not HAS_DUCKDB, reason="duckdb-spatial not installed")
 def test_duckdb_and_fallback_agree_on_projected_crs(tmp_path: Path) -> None:
     """GS-109: the DuckDB fast path must preserve the file's CRS, not
     hardcode EPSG:4326. A projected (EPSG:32610) FlatGeobuf must yield the
@@ -111,7 +110,6 @@ def test_duckdb_and_fallback_agree_on_projected_crs(tmp_path: Path) -> None:
     assert fast.geometry.iloc[0].x == slow.geometry.iloc[0].x
 
 
-@pytest.mark.skipif(not HAS_DUCKDB, reason="duckdb-spatial not installed")
 def test_duckdb_fast_path_reports_wgs84_for_wgs84_file(tmp_path: Path) -> None:
     """A WGS84 GeoParquet still resolves to EPSG:4326 via spec-default metadata."""
     gdf = gpd.GeoDataFrame(
