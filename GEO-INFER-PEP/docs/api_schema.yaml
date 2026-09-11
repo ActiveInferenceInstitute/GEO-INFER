@@ -1,4 +1,11 @@
 openapi: 3.0.3
+#
+# STATUS: legacy design artifact, NOT a description of running code. The only
+# implemented REST surface is the FastAPI layer under
+# src/geo_infer_pep/api/ (crm_endpoints, hr_endpoints, talent_endpoints, and
+# the api_router aggregates: /pep/health, /pep/status, /pep/dashboard,
+# workflows, performance, learning, conflicts, surveys, validate). Paths below
+# that do not exist in code are DESCOPED and marked in place.
 info:
   title: GEO-INFER-PEP API
   description: |
@@ -52,6 +59,9 @@ tags:
 
 paths:
   # People Management Endpoints
+  #
+  # DESCOPED: no /people endpoints exist in src/geo_infer_pep and there is no
+  # backing domain model for them.
   /people:
     get:
       tags: [people]
@@ -145,6 +155,9 @@ paths:
                 $ref: '#/components/schemas/PersonResponse'
 
   # Organization Management Endpoints
+  #
+  # DESCOPED: no /organizations endpoints exist in src/geo_infer_pep and there
+  # is no backing domain model for them.
   /organizations:
     get:
       tags: [organizations]
@@ -206,6 +219,9 @@ paths:
                 $ref: '#/components/schemas/OrganizationalStructureResponse'
 
   # HR Management Endpoints
+  #
+  # GET /hr/employees IS implemented (src/geo_infer_pep/api/hr_endpoints.py).
+  # The per-employee performance endpoint is DESCOPED: no backing behavior.
   /hr/employees:
     get:
       tags: [hr]
@@ -253,6 +269,11 @@ paths:
                 $ref: '#/components/schemas/PerformanceResponse'
 
   # CRM Endpoints
+  #
+  # DESCOPED as written: /crm/contacts does not exist. The shipped CRM surface
+  # is in src/geo_infer_pep/api/crm_endpoints.py: /crm/upload/csv,
+  # /crm/customers CRUD (create/list/get/update/delete, count), report and
+  # visualization endpoints. Requisition CRUD ships under /talent/requisitions.
   /crm/contacts:
     get:
       tags: [crm]

@@ -70,7 +70,8 @@ The package installs a `geo-infer-git` console script (`geo_infer_git.cli:main`)
 - `cleanup_failed_clones` only removes `owner/repo`-shaped directories under the output
   directory that lack a `.git` folder; unrelated files are never touched.
 - The REST API serves repository management, clone/sync, and branch endpoints only.
-  Data versioning, workflow, and deployment endpoints are not implemented.
+  Data versioning, workflow, and deployment endpoints are descoped: no backing
+  domain behavior exists in src/geo_infer_git and they are not advertised as planned.
 
 ### Integrations
 

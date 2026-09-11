@@ -6,6 +6,12 @@
 # state in memory and the WebAgentWidget fetch() calls target endpoints described
 # here for a future deployment. Treat this file as a roadmap artifact, not a
 # description of running code.
+#
+# STATUS (read before relying on any path below):
+# - HTTP transport: DESCOPED. No HTTP server or client ships; the only real
+#   surface is the in-process AgentAPIClient/AgentManager.
+# - Non-BDI agent interfaces: DESCOPED. AgentFactory.create_interface supports
+#   AgentType.BDI only; every other agent type raises ValueError by design.
 
 openapi: 3.0.3
 info:
@@ -236,6 +242,10 @@ paths:
                 $ref: '#/components/schemas/ComponentRenderResponse'
 
   # Agent Integration Endpoints
+  #
+  # DESCOPED: this HTTP agent-integration surface is not implemented and does
+  # not serve shipped behavior. The in-process API supports AgentType.BDI only
+  # (other types raise ValueError); see src/geo_infer_app/models/agent_factory.py.
   /agents/integrate:
     post:
       tags: [agents]
@@ -300,6 +310,10 @@ paths:
                 $ref: '#/components/schemas/AgentControlResponse'
 
   # Dashboard Management Endpoints
+  #
+  # DESCOPED: dashboards/map HTTP endpoints are not implemented. Agent state to
+  # map-feature and dashboard-dict conversion is in-process only
+  # (AgentVisualization.state_to_map_feature / state_to_dashboard_data).
   /dashboards:
     get:
       tags: [dashboards]

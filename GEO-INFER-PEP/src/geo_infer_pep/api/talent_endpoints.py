@@ -1,10 +1,10 @@
 """Talent Acquisition API Endpoints."""
 
+from datetime import datetime
 from typing import List, Dict, Any
 from fastapi import APIRouter, HTTPException, Query, UploadFile, File
 import logging
-
-from ..models.talent_models import Candidate, CandidateStatus
+from ..models.talent_models import Candidate, CandidateStatus, JobRequisition
 from ..core.data_store import pep_data_manager as store
 from ..talent.importer import CSVTalentImporter
 from ..talent.transformer import clean_candidate_data, enrich_candidate_data
@@ -94,7 +94,80 @@ async def get_candidate_pipeline_status_plot() -> Dict[str, str]:
         raise HTTPException(status_code=500, detail="Failed to generate plot.")
 
 
-# Future enhancements:
-# - Endpoints for JobRequisitions (CRUD operations)
-# - Endpoints for specific candidate by ID, updating candidate status, interviews, offers
-# - Enhanced error handling and data validation with Pydantic models
+@router.get("/requisitions", response_model=List[JobRequisition])
+async def get_all_requisitions(
+    limit: int = Query(100, ge=1, le=1000),
+    offset: int = Query(0, ge=0),
+) -> List[JobRequisition]:
+    """Retrieve job requisitions from the in-memory store."""
+    return store.requisitions[offset : offset + limit]
+
+
+@router.post("/requisitions", response_model=JobRequisition, status_code=201)
+async def create_requisition(requisition: JobRequisition) -> JobRequisition:
+    """Create a job requisition record in the in-memory store."""
+    if any(
+        existing.requisition_id == requisition.requisition_id
+        for existing in store.requisitions
+    ):
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                f"Job requisition with id '{requisition.requisition_id}' "
+                "already exists."
+            ),
+        )
+    store.requisitions.append(requisition)
+    return requisition
+
+
+@router.get("/requisitions/{requisition_id}", response_model=JobRequisition)
+async def get_requisition(requisition_id: str) -> JobRequisition:
+    """Retrieve a single job requisition by id."""
+    for existing in store.requisitions:
+        if existing.requisition_id == requisition_id:
+            return existing
+    raise HTTPException(
+        status_code=404,
+        detail=f"Job requisition with id '{requisition_id}' not found.",
+    )
+
+
+@router.put("/requisitions/{requisition_id}", response_model=JobRequisition)
+async def update_requisition(
+    requisition_id: str, updated: JobRequisition
+) -> JobRequisition:
+    """Replace a requisition record; preserves created_at and refreshes updated_at."""
+    for index, existing in enumerate(store.requisitions):
+        if existing.requisition_id == requisition_id:
+            merged = updated.model_copy(
+                update={
+                    "requisition_id": requisition_id,
+                    "created_at": existing.created_at,
+                    "updated_at": datetime.now(),
+                }
+            )
+            store.requisitions[index] = merged
+            return merged
+    raise HTTPException(
+        status_code=404,
+        detail=f"Job requisition with id '{requisition_id}' not found.",
+    )
+
+
+@router.delete("/requisitions/{requisition_id}", response_model=Dict[str, Any])
+async def delete_requisition(requisition_id: str) -> Dict[str, Any]:
+    """Delete a job requisition record by id."""
+    for index, existing in enumerate(store.requisitions):
+        if existing.requisition_id == requisition_id:
+            store.requisitions.pop(index)
+            return {"deleted": requisition_id}
+    raise HTTPException(
+        status_code=404,
+        detail=f"Job requisition with id '{requisition_id}' not found.",
+    )
+
+
+# Not implemented (no backing behavior yet — do not rely on these):
+# - Endpoints for specific candidate by ID, updating candidate status,
+#   interviews, and offers

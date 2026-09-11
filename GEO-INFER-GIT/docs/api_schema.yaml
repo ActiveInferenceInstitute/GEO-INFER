@@ -1,10 +1,10 @@
 # GEO-INFER-GIT REST API schema
 #
 # This OpenAPI 3.0.3 document describes ONLY the endpoints implemented in
-# src/geo_infer_git/api/rest_api.py. Planned-but-unimplemented capabilities
-# (commit endpoints, workflows, integrations, data versioning, code
-# analysis, deployments, system config) are listed under "Planned" at the
-# end of this file and MUST NOT be treated as available.
+# src/geo_infer_git/api/rest_api.py. Capabilities without backing domain
+# behavior (commit endpoints, workflows, integrations, data versioning, code
+# analysis, deployments, system config) are DESCOPED — see the status note at
+# the end of this file and MUST NOT be treated as available.
 
 openapi: 3.0.3
 info:
@@ -486,11 +486,13 @@ components:
         git_version:
           type: string
 
-# Planned (NOT implemented — do not rely on these):
-#   /repositories/{id}/commits[/{sha}[/diff]]   - commit history and diffs
-#   /workflows, /workflows/{id}/runs             - CI workflow automation
-#   /integrations, /integrations/{id}/test       - platform integration hub
-#   /data-versioning/datasets[...]               - geospatial data versioning
-#   /analysis/repositories/{id}/quality|security - static analysis
-#   /deployments, /deployments/{id}/rollback     - deployment pipeline
-#   /system/config                               - runtime configuration
+#
+# Descoped — no backing domain behavior exists in src/geo_infer_git, so these
+# surfaces are removed from the roadmap entirely (not on any implementation
+# path; do not plan around them): commit history/diffs, CI workflow
+# automation, platform integration hub, geospatial data versioning,
+# repository quality/security analysis, deployment pipeline, runtime system
+# config. SKILL.md states the same descope.
+#
+# This document describes ONLY the endpoints implemented in
+# src/geo_infer_git/api/rest_api.py.

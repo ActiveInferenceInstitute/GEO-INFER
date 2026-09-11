@@ -1,5 +1,6 @@
 """CRM API Endpoints."""
 
+from datetime import datetime
 from typing import List, Dict, Any
 from fastapi import APIRouter, HTTPException, Query, UploadFile, File
 import logging
@@ -148,12 +149,64 @@ async def get_status_distribution_plot() -> Dict[str, str]:
         raise HTTPException(status_code=500, detail="Failed to generate plot.")
 
 
-# Planned endpoints (see GEO-INFER-PEP roadmap):
-#   GET  /customers/{customer_id}
-#   POST /customers
-#   PUT  /customers/{customer_id}
-#   DELETE /customers/{customer_id}
-#   Additional report and visualisation endpoints
+@router.post("/customers", response_model=Customer, status_code=201)
+async def create_customer(customer: Customer) -> Customer:
+    """Create a customer record in the in-memory store."""
+    if any(
+        existing.customer_id == customer.customer_id for existing in store.customers
+    ):
+        raise HTTPException(
+            status_code=409,
+            detail=f"Customer with id '{customer.customer_id}' already exists.",
+        )
+    store.customers.append(customer)
+    return customer
+
+
+@router.get("/customers/{customer_id}", response_model=Customer)
+async def get_customer(customer_id: str) -> Customer:
+    """Retrieve a single customer by id."""
+    for existing in store.customers:
+        if existing.customer_id == customer_id:
+            return existing
+    raise HTTPException(
+        status_code=404, detail=f"Customer with id '{customer_id}' not found."
+    )
+
+
+@router.put("/customers/{customer_id}", response_model=Customer)
+async def update_customer(customer_id: str, updated: Customer) -> Customer:
+    """Replace a customer record; preserves created_at and refreshes updated_at."""
+    for index, existing in enumerate(store.customers):
+        if existing.customer_id == customer_id:
+            merged = updated.model_copy(
+                update={
+                    "customer_id": customer_id,
+                    "created_at": existing.created_at,
+                    "updated_at": datetime.now(),
+                }
+            )
+            store.customers[index] = merged
+            return merged
+    raise HTTPException(
+        status_code=404, detail=f"Customer with id '{customer_id}' not found."
+    )
+
+
+@router.delete("/customers/{customer_id}", response_model=Dict[str, Any])
+async def delete_customer(customer_id: str) -> Dict[str, Any]:
+    """Delete a customer record by id."""
+    for index, existing in enumerate(store.customers):
+        if existing.customer_id == customer_id:
+            store.customers.pop(index)
+            return {"deleted": customer_id}
+    raise HTTPException(
+        status_code=404, detail=f"Customer with id '{customer_id}' not found."
+    )
+
+
+# Not implemented (no backing behavior yet — do not rely on these):
+#   Additional report and visualisation endpoints beyond the ones above.
 
 # To run this (conceptual, assuming main.py wires this router):
 # uvicorn main:app --reload
