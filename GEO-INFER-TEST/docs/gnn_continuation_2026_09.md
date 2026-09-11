@@ -275,3 +275,90 @@ historical error text), or three consecutive clean full combined-process suite r
 Python 3.12 with this probe matrix recorded per cycle, plus recording the interpreter
 build and SQLite version (not just "Python 3.12") in every future receipt. No CRS
 test was weakened and no environment fix is claimed.
+
+## 2026-09-11 combined-process and intra-thread PROJ probe (TEST-GNN-01 follow-up)
+
+Bounded next probe (~2 min compute) targeting the two surfaces the 2026-09-10
+matrix never exercised: (1) the historical trigger shape itself, i.e. CRS
+touching ACT+SPACE+TIME unit tests collected and run TOGETHER in ONE pytest
+process, and (2) intra-process thread concurrency on `proj.db` (the 2026-09-10
+probe (d) covered concurrent processes only). Environment re-verified: Python
+3.12.11, SQLite 3.50.4, pyproj 3.7.1, PROJ 9.5.1; embedded `proj.db`
+`quick_check` `ok`, `journal_mode=delete`, no WAL or journal sidecars, before
+and after all runs.
+
+Test selection note (current tree): the 2026-09-10 reference to
+`tests/unit/test_spatial_functions.py` resolves to
+`GEO-INFER-TEST/tests/unit/test_spatial_functions.py` (29 tests, still present,
+geopandas CRS transform suite). The 2026-09-10 probes ran it alone and paired
+with one ACT integration file; today it is included inside the combined
+selection instead. Current SPACE CRS touching is: 7 unit files
+(`test_spatial_utils.py` and `test_gis_submodule.py` carry the transform
+coverage; `test_spatial_methods.py` is H3 mock only, no CRS). ACT and TIME have
+no CRS touching unit tests in the current tree (ACT's `sample_geodataframe`
+fixture has no unit consumers; TIME unit is pure time series), so one
+representative file each (`ACT/tests/unit/test_h3.py`,
+`TIME/tests/test_event_detection.py`) preserved the combined three package
+import shape.
+
+Probe A: combined one process pytest, 5 reps of the 216 test selection, then
+one corrected rep adding `test_spatial_functions.py` (245 tests). Exact
+command shape (per rep, only the file list and junitxml name changed):
+
+```
+env PROJ_DEBUG=2 uv run --no-sync pytest -q -p no:cacheprovider --junitxml=/tmp/probe-gnn01-0911/<run>.xml GEO-INFER-SPACE/tests/unit/test_spatial_utils.py GEO-INFER-SPACE/tests/unit/test_gis_submodule.py GEO-INFER-SPACE/tests/unit/test_analytics_comprehensive.py GEO-INFER-SPACE/tests/unit/test_data_integrator.py GEO-INFER-SPACE/tests/unit/test_place_analyzer.py GEO-INFER-SPACE/tests/unit/test_io_modules.py GEO-INFER-SPACE/tests/unit/test_raster_expression_security.py GEO-INFER-ACT/tests/unit/test_h3.py GEO-INFER-TIME/tests/test_event_detection.py GEO-INFER-TEST/tests/unit/test_spatial_functions.py
+```
+
+Probe B: intra-process threads in one interpreter, barrier synchronized
+first open of `proj.db` (script `/tmp/probe-gnn01-0911/thread_crs_probe.py`):
+`uv run --no-sync python /tmp/probe-gnn01-0911/thread_crs_probe.py 8 150`
+(1,200 CRS/transform/Geod ops with numeric assertions), then `32 500` twice
+(16,000 ops each).
+
+Probe C (escalation, 2 reps): the combined pytest run and a 16 thread x 300 op
+probe executed concurrently against the same `proj.db` (long lived process plus
+intra process storm).
+
+Outcomes, all clean:
+
+| Probe | Result |
+| --- | --- |
+| A | 5 x 216 tests and 1 x 245 tests: `errors="0" failures="0" skipped="0"`, exit 0; test time 9.7 to 12.2 s per rep |
+| B | 1,200 + 16,000 + 16,000 threaded ops: 0 exceptions, transforms numerically asserted |
+| C | both parts exit 0 concurrently, 2 reps: 216 tests plus 4,800 threaded ops per rep |
+| Integrity | `quick_check` and `integrity_check` `ok` after all runs; `journal_mode` unchanged; no sidecar files appeared |
+
+Instrumentation limitation, recorded honestly: `PROJ_DEBUG=2/3` produced zero
+output under this pyproj build (verified directly on a minimal `CRS.from_epsg`
+run); a ctypes `proj_log_func` handler installed on PROJ's default context
+captured 0 lines because pyproj drives private per object contexts. No
+PROJ/SQLite diagnostic stream was obtainable, so the stderr lane is vacuous
+here, not a positive absence of logging claim. No error signature was captured
+because no error occurred; the historical verbatim message remains unavailable.
+
+Co-tenant activity, recorded as observed evidence: this worktree was not
+quiet during the probe. This lane's session started with a clean tree at
+e31693dc and touched only this receipt file, yet four files outside the lane
+were modified by concurrent co-tenant work: `CLAUDE.md` and `TODO.md` just
+before the window, and inside it
+`GEO-INFER-RISK/src/geo_infer_risk/civic_intel.py` at 09:24:54 (overlapping
+probe C) and `CHANGELOG.md` at 09:28:57 (overlapping the corrected combined
+rep). This is the external
+tree-churn class the 2026-09-10 analysis left unverified, occurring live
+during clean CRS runs; it makes concurrent interference on the tree a
+demonstrated, always-present factor here rather than a hypothetical one,
+while still not reproducing the failure.
+
+Inference: eight combined process pytest runs (5 x 216 + 2 x 216 storm + 1 x
+245 = 1,557 tests) plus ~42,800 threaded CRS operations, with both surfaces
+simultaneously, found no recurrence on this build. This weakens the case that
+intra process or multi process PROJ/SQLite contention alone reproduces the
+failure, since every internal concurrency surface is now clean; it does not
+overturn the leading hypothesis, because the historical run's decisive variable
+(what external processes held or scanned the tree at that moment) is not
+recreatable retroactively, and `journal_mode=delete` on the shared in worktree
+`proj.db` still leaves external interference contention plausible. The exact
+trigger remains unexplained; no repro exists. Status of the 2026-09-10 closure
+criteria: not closed (no minimal reproducer; these bounded runs are not three
+consecutive full suite combined runs). No test was weakened, skipped, or
+suppressed, and no environment fix is claimed.
