@@ -535,6 +535,8 @@ pass at that SHA.
 - Root documentation map linking conceptual INTRA guides to source-backed
   module README/SKILL files and executable GEO-INFER-TEST gates.
 
+### September 2 module wave
+
 - Unified test runner `GEO-INFER-TEST/run_unified_tests.py` with `--module`, `--category`, and `--h3-migration` flags
 - Cross-module integration tests covering SPACE↔TIME, AGENT↔ACT, and DATA↔API interactions
 - `WATER` module WQI calculation and 2D Gaussian pollution plume modeling
@@ -543,8 +545,7 @@ pass at that SHA.
 - `ENERGY` module renewable site suitability mapping and LCOE benchmarking
 - `CLIMATE` module climate change adaptation modeling with Bayesian uncertainty quantification
 
-
-### Changed and Fixed (2026-09-02 fix wave)
+### Changed and Fixed - 2026-09-02 fix wave
 
 - Merged `codex/act-categorical-runtime` hardening into `main`; the
   2026-09-02 fix wave then applied real-implementation, contract, and
