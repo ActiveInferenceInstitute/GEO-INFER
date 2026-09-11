@@ -96,10 +96,7 @@ class TestPredictionFailurePaths:
             assert len(var_predictions) == len(engine.environmental_states)
             for pred in var_predictions:
                 assert pred.uncertainty > 0.0
-                assert (
-                    "temperature_vegetation_interaction"
-                    in pred.contributing_factors
-                )
+                assert "temperature_vegetation_interaction" in pred.contributing_factors
 
     def test_gp_fit_failure_is_logged_not_raised(self, engine, boundary) -> None:
         engine.initialize_spatial_domain(boundary)
@@ -178,9 +175,7 @@ class TestResourceAllocationObjectives:
             resource_types=[],
             optimization_objective="mystery",
         )
-        assert all(
-            a.resource_type == "environmental_monitoring" for a in allocations
-        )
+        assert all(a.resource_type == "environmental_monitoring" for a in allocations)
 
     def test_zero_budget_produces_no_allocations(self, boundary) -> None:
         engine, _ = self._prepared_engine(boundary)
@@ -241,7 +236,6 @@ class TestHierarchicalPropagation:
             ]
         }
 
-
     def test_propagate_with_top_down_priors(self, analyzer, boundary) -> None:
         analyzer.initialize_hierarchy(boundary)
         bottom_level = sorted(analyzer.hierarchical_graphs.keys())[0]
@@ -278,9 +272,9 @@ class TestHierarchicalPropagation:
 
         parent = analyzer._find_parent_cell(child_cell, parent_level)
         # Parent resolution may place the parent outside the level's cells.
-        assert parent is None or parent in analyzer.hierarchical_graphs[
-            parent_level
-        ].cells
+        assert (
+            parent is None or parent in analyzer.hierarchical_graphs[parent_level].cells
+        )
 
     def test_scale_coherence_missing_level(self, analyzer, boundary) -> None:
         analyzer.initialize_hierarchy(boundary)
@@ -288,7 +282,6 @@ class TestHierarchicalPropagation:
             analyzer._compute_scale_coherence("level_missing", "level_also_missing")
             == 0.0
         )
-
 
     def test_find_parent_cell_invalid_level(self, analyzer, boundary) -> None:
         analyzer.initialize_hierarchy(boundary)

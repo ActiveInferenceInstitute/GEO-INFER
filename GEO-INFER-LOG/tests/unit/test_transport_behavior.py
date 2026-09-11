@@ -1,4 +1,5 @@
 """Behavior tests for transport core classes."""
+
 from datetime import datetime
 
 import pickle
@@ -82,7 +83,9 @@ class TestMultiModalPlanner:
         planner.networks["road"] = road_graph()
         planner.networks["rail"] = rail_graph()
         planner.add_transfer_point(
-            (13.405, 52.515), "hub", ["road", "rail"],
+            (13.405, 52.515),
+            "hub",
+            ["road", "rail"],
             {("road", "rail"): 5, ("rail", "road"): 5},
         )
         road = planner.networks["road"]
@@ -104,12 +107,12 @@ class TestMultiModalPlanner:
         planner.networks["road"] = road_graph()
         planner.networks["rail"] = rail_graph()
         planner.add_transfer_point(
-            (13.405, 52.515), "hub", ["road", "rail"],
+            (13.405, 52.515),
+            "hub",
+            ["road", "rail"],
             {("road", "rail"): 5, ("rail", "road"): 5},
         )
-        route = planner.plan_route(
-            (13.40, 52.51), (13.42, 52.53), ["road", "rail"]
-        )
+        route = planner.plan_route((13.40, 52.51), (13.42, 52.53), ["road", "rail"])
         assert route["total_distance"] > 0
         assert route["num_transfers"] >= 0
         assert route["segments"]
@@ -298,9 +301,9 @@ class TestEmissionsCalculator:
         calc = EmissionsCalculator()
         vehicle = make_vehicle("v1", "van", "diesel")
         # 0.5 * 0.5 load * 2.0 terrain = same as base
-        assert calc.calculate_route_emissions(vehicle, 100.0, 0.5, 2.0) == pytest.approx(
-            50.0
-        )
+        assert calc.calculate_route_emissions(
+            vehicle, 100.0, 0.5, 2.0
+        ) == pytest.approx(50.0)
 
     def test_unknown_combination_falls_back_to_vehicle(self) -> None:
         calc = EmissionsCalculator()

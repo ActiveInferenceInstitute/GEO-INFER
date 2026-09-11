@@ -48,9 +48,7 @@ class TestAgentInterface(unittest.TestCase):
                 continue
 
     def test_create_list_info_state(self) -> None:
-        agent_id = _run(
-            self.interface.create_agent("default", {}, agent_id="iface-1")
-        )
+        agent_id = _run(self.interface.create_agent("default", {}, agent_id="iface-1"))
         self.assertEqual(agent_id, "iface-1")
 
         listed = self.interface.list_agents()
@@ -119,7 +117,9 @@ class TestAgentInterface(unittest.TestCase):
         )
         result = _run(
             self.interface.perform_action(
-                "collector", "configure_source", {"source_id": "a", "config": {"path": "x"}}
+                "collector",
+                "configure_source",
+                {"source_id": "a", "config": {"path": "x"}},
             )
         )
         self.assertTrue(result["success"])
@@ -127,9 +127,7 @@ class TestAgentInterface(unittest.TestCase):
     def test_send_message_between_agents(self) -> None:
         for suffix in ("sender", "receiver"):
             _run(self.interface.create_agent("default", {}, agent_id=suffix))
-        success = _run(
-            self.interface.send_message("sender", "receiver", {"ping": 1})
-        )
+        success = _run(self.interface.send_message("sender", "receiver", {"ping": 1}))
         self.assertTrue(success)
 
     def test_broadcast_message_and_channels(self) -> None:
@@ -142,9 +140,7 @@ class TestAgentInterface(unittest.TestCase):
         messaging_service.channels.clear()
         messaging_service.subscribe("b1", "alerts2")
         messaging_service.subscribe("b2", "alerts2")
-        sent = _run(
-            self.interface.broadcast_message("b1", {"alarm": True}, "alerts2")
-        )
+        sent = _run(self.interface.broadcast_message("b1", {"alarm": True}, "alerts2"))
         self.assertEqual(sent, 2)
 
     def test_send_message_queues_even_for_unregistered_recipient(self) -> None:
@@ -152,9 +148,7 @@ class TestAgentInterface(unittest.TestCase):
         # registry: delivery succeeds and the queue is created lazily.
         _run(self.interface.create_agent("default", {}, agent_id="lonely"))
         messaging_service.message_queues.clear()
-        self.assertTrue(
-            _run(self.interface.send_message("lonely", "nobody", {"x": 1}))
-        )
+        self.assertTrue(_run(self.interface.send_message("lonely", "nobody", {"x": 1})))
         self.assertIn("nobody", messaging_service.message_queues)
 
     def test_get_agent_metrics_and_health(self) -> None:
@@ -163,7 +157,9 @@ class TestAgentInterface(unittest.TestCase):
         self.assertEqual(
             self.interface.get_agent_health("watched")["status"], "healthy"
         )
-        self.assertEqual(self.interface.get_agent_health("ghost"), {"status": "unknown"})
+        self.assertEqual(
+            self.interface.get_agent_health("ghost"), {"status": "unknown"}
+        )
         # No metrics registered yet → empty mapping for the agent.
         self.assertEqual(self.interface.get_agent_metrics("watched"), {})
 

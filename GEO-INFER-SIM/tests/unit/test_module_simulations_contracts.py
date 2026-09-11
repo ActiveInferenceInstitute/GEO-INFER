@@ -41,9 +41,7 @@ class TestSimulateActContract:
 
         assert result["module"] == "ACT"
         assert len(result["free_energy_history"]) == len(result["belief_history"])
-        for fe, b in zip(
-            result["free_energy_history"], result["belief_history"]
-        ):
+        for fe, b in zip(result["free_energy_history"], result["belief_history"]):
             expected = -np.sum(b * np.log(b + 1e-10))
             assert fe == pytest.approx(expected)
 
@@ -67,9 +65,7 @@ class TestSimulateBayesContract:
         observations = np.array([1.0, 2.0, 3.0, 4.0])
         prior = {"mean": -2.0, "std": 1.5}
 
-        result = sims.simulate_bayes(
-            observations=observations, prior_params=prior
-        )
+        result = sims.simulate_bayes(observations=observations, prior_params=prior)
 
         sample_mean = float(np.mean(observations))
         sample_std = float(np.std(observations))
@@ -88,12 +84,8 @@ class TestSimulateBayesContract:
         observations = np.array([10.0, 11.0, 12.0])
         prior = {"mean": 0.0, "std": 1.0}
 
-        result = sims.simulate_bayes(
-            observations=observations, prior_params=prior
-        )
+        result = sims.simulate_bayes(observations=observations, prior_params=prior)
 
         exact_conjugate_mean = 11.0  # known-variance Normal posterior mean
         assert result["final_posterior"]["mean"] == pytest.approx(5.5)
-        assert result["final_posterior"]["mean"] != pytest.approx(
-            exact_conjugate_mean
-        )
+        assert result["final_posterior"]["mean"] != pytest.approx(exact_conjugate_mean)

@@ -28,7 +28,9 @@ class TestRule(unittest.TestCase):
     """Tests for Rule condition evaluation and serialization."""
 
     def test_dict_condition(self) -> None:
-        rule = Rule(rule_id="r1", condition={"zone": "east"}, action={"action_type": "scan"})
+        rule = Rule(
+            rule_id="r1", condition={"zone": "east"}, action={"action_type": "scan"}
+        )
         self.assertTrue(rule.matches({"zone": "east"}))
         self.assertFalse(rule.matches({"zone": "west"}))
         self.assertFalse(rule.matches({}))
@@ -53,6 +55,7 @@ class TestRule(unittest.TestCase):
         rule = Rule(rule_id="r3", condition=lambda state: state.get("hot"), action={})
         self.assertTrue(rule.matches({"hot": True}))
         self.assertFalse(rule.matches({"hot": False}))
+
         # A raising condition is treated as non-matching, not propagated.
         def boom(_state):
             raise RuntimeError("boom")
@@ -76,7 +79,9 @@ class TestRule(unittest.TestCase):
         self.assertFalse(rule.matches({"a": 1}))
 
     def test_roundtrip_dict_condition(self) -> None:
-        rule = Rule(rule_id="r8", condition={"a": 1}, action={"action_type": "x"}, priority=3)
+        rule = Rule(
+            rule_id="r8", condition={"a": 1}, action={"action_type": "x"}, priority=3
+        )
         rule.matches({"a": 1})
         restored = Rule.from_dict(rule.to_dict())
         self.assertEqual(restored.id, "r8")
@@ -120,7 +125,9 @@ class TestRuleSet(unittest.TestCase):
         rule_set = RuleSet()
         low = Rule(rule_id="low", condition={"go": True}, action={}, priority=1)
         high = Rule(rule_id="high", condition={"go": True}, action={}, priority=9)
-        off = Rule(rule_id="off", condition={"go": True}, action={}, priority=5, enabled=False)
+        off = Rule(
+            rule_id="off", condition={"go": True}, action={}, priority=5, enabled=False
+        )
         other = Rule(rule_id="other", condition={"stop": True}, action={}, priority=99)
         for rule in (low, high, off, other):
             rule_set.add_rule(rule)
@@ -129,7 +136,9 @@ class TestRuleSet(unittest.TestCase):
 
     def test_roundtrip(self) -> None:
         rule_set = RuleSet()
-        rule_set.add_rule(Rule(rule_id="a", condition={"x": 1}, action={"action_type": "y"}))
+        rule_set.add_rule(
+            Rule(rule_id="a", condition={"x": 1}, action={"action_type": "y"})
+        )
         restored = RuleSet.from_dict(rule_set.to_dict())
         self.assertIn("a", restored.rules)
         self.assertEqual(restored.rules["a"].condition, {"x": 1})
@@ -200,7 +209,11 @@ class TestRuleBasedAgentLifecycle(unittest.TestCase):
             agent_id="rb-2",
             config={
                 "rules": [
-                    {"id": "r1", "condition": {"a": 1}, "action": {"action_type": "scan"}},
+                    {
+                        "id": "r1",
+                        "condition": {"a": 1},
+                        "action": {"action_type": "scan"},
+                    },
                     {"action": {"action_type": "x"}},  # missing id/condition
                     {"id": "r2", "action": {"action_type": "x"}},  # missing condition
                 ]
@@ -310,7 +323,11 @@ class TestRuleBasedAgentActionHandlers(unittest.TestCase):
             agent_id="rb-handlers",
             config={
                 "rules": [
-                    {"id": "existing", "condition": {"a": 1}, "action": {"action_type": "x"}}
+                    {
+                        "id": "existing",
+                        "condition": {"a": 1},
+                        "action": {"action_type": "x"},
+                    }
                 ],
                 "initial_facts": {"temp": 20, "zone": "west"},
             },
@@ -322,13 +339,18 @@ class TestRuleBasedAgentActionHandlers(unittest.TestCase):
         agent = self._make()
         ok = _run(
             agent.act(
-                {"action_type": "update_fact", "parameters": {"key": "temp", "value": 25}}
+                {
+                    "action_type": "update_fact",
+                    "parameters": {"key": "temp", "value": 25},
+                }
             )
         )
         self.assertEqual(ok["status"], "success")
         self.assertEqual(agent.state.get_fact("temp"), 25)
 
-        bad = _run(agent.act({"action_type": "update_fact", "parameters": {"key": "t"}}))
+        bad = _run(
+            agent.act({"action_type": "update_fact", "parameters": {"key": "t"}})
+        )
         self.assertEqual(bad["status"], "error")
 
     def test_remove_fact_handler(self) -> None:
@@ -402,7 +424,10 @@ class TestRuleBasedAgentActionHandlers(unittest.TestCase):
         agent = self._make()
         some = _run(
             agent.act(
-                {"action_type": "query_facts", "parameters": {"keys": ["temp", "ghost"]}}
+                {
+                    "action_type": "query_facts",
+                    "parameters": {"keys": ["temp", "ghost"]},
+                }
             )
         )
         self.assertEqual(some["facts"], {"temp": 20})

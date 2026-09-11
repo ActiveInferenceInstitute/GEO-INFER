@@ -90,9 +90,7 @@ class TestEnhancedLogger:
     def test_sync_log_records_counter(self) -> None:
         logger = make_logger()
         logger.info("route_plan", "planning route", context={"city": "berlin"})
-        assert logger.metrics.counters[
-            "test-enhanced-logger_route_plan"
-        ] == 1
+        assert logger.metrics.counters["test-enhanced-logger_route_plan"] == 1
         assert logger.log_queue.empty()
 
     def test_level_convenience_methods(self) -> None:
@@ -121,7 +119,10 @@ class TestEnhancedLogger:
     def test_spatial_operation(self) -> None:
         logger = make_logger()
         logger.log_spatial_operation(
-            "h3_coverage", h3_index="8928308280fffff", lat=52.52, lon=13.405,
+            "h3_coverage",
+            h3_index="8928308280fffff",
+            lat=52.52,
+            lon=13.405,
             resolution=9,
         )
         assert logger.metrics.counters["test-enhanced-logger_h3_coverage"] == 1
@@ -130,9 +131,7 @@ class TestEnhancedLogger:
         logger = make_logger()
         written: list = []
         logger._write_log_entry = written.append
-        logger.log(
-            "ERROR", "op", "boom", error_info={"type": "ValueError", "msg": "x"}
-        )
+        logger.log("ERROR", "op", "boom", error_info={"type": "ValueError", "msg": "x"})
         assert written[0].error_info["type"] == "ValueError"
 
     def test_async_log_processed(self) -> None:
@@ -178,16 +177,19 @@ def _raise_full(_entry: LogEntry) -> None:
     raise _queue.Full
 
 
-
-
 class TestJSONFormatter:
     """Tests for JSON structured formatting."""
 
     def test_format_plain_record(self) -> None:
         formatter = JSONFormatter()
         record = logging.LogRecord(
-            name="test", level=logging.INFO, pathname=__file__, lineno=1,
-            msg="hello %s", args=("world",), exc_info=None,
+            name="test",
+            level=logging.INFO,
+            pathname=__file__,
+            lineno=1,
+            msg="hello %s",
+            args=("world",),
+            exc_info=None,
         )
         entry = json.loads(formatter.format(record))
         assert entry["message"] == "hello world"
@@ -204,8 +206,13 @@ class TestJSONFormatter:
 
             exc_info = sys.exc_info()
         record = logging.LogRecord(
-            name="test", level=logging.ERROR, pathname=__file__, lineno=1,
-            msg="failed", args=None, exc_info=exc_info,
+            name="test",
+            level=logging.ERROR,
+            pathname=__file__,
+            lineno=1,
+            msg="failed",
+            args=None,
+            exc_info=exc_info,
         )
         record.context = {"k": "v"}
         record.spatial_context = {"resolution": 9}
@@ -297,9 +304,7 @@ class TestLogAnalyzer:
                 + "\n"
             )
         fresh = LogAnalyzer(log_file).find_errors(hours=1)
-        assert all(
-            e["level"] != "ERROR" or "1999" not in e["timestamp"] for e in fresh
-        )
+        assert all(e["level"] != "ERROR" or "1999" not in e["timestamp"] for e in fresh)
         assert len(LogAnalyzer(log_file).find_errors(hours=24 * 365)) == 1
 
     def test_spatial_analysis(self, log_file) -> None:
@@ -313,9 +318,7 @@ class TestLogAnalyzer:
         path = tmp_path / "empty.jsonl"
         path.write_text("")
         analyzer = LogAnalyzer(str(path))
-        assert analyzer.spatial_analysis() == {
-            "message": "No spatial operations found"
-        }
+        assert analyzer.spatial_analysis() == {"message": "No spatial operations found"}
 
     def test_missing_file_starts_empty(self, tmp_path) -> None:
         analyzer = LogAnalyzer(str(tmp_path / "absent.jsonl"))

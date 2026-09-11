@@ -167,9 +167,7 @@ def test_classify_land_use(client):
 
 
 def test_calculate_compatibility(client):
-    response = client.get(
-        "/compatibility", params={"code1": "R1", "code2": "C1"}
-    )
+    response = client.get("/compatibility", params={"code1": "R1", "code2": "C1"})
     assert response.status_code == 200
     assert 0.0 <= response.json() <= 1.0
 

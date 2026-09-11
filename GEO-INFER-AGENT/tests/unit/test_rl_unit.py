@@ -126,7 +126,9 @@ class TestRLState(unittest.TestCase):
         state = RLState(state_size=4, action_size=2)
         state.learning_rate = 0.5
         state.discount_factor = 0.9
-        state.update_q_values(Experience(state=0, action=1, reward=1.0, next_state=1, done=True))
+        state.update_q_values(
+            Experience(state=0, action=1, reward=1.0, next_state=1, done=True)
+        )
         # Terminal: next_q == 0 → q = 0 + 0.5 * (1 - 0) = 0.5
         self.assertAlmostEqual(state.q_table.get_value(0, 1), 0.5)
 
@@ -136,7 +138,9 @@ class TestRLState(unittest.TestCase):
         state.discount_factor = 0.5
         state.q_table.update_value(1, 0, 2.0)
         state.epsilon = state.epsilon_min  # avoid epsilon-decay bookkeeping drift
-        state.update_q_values(Experience(state=0, action=0, reward=0.0, next_state=1, done=False))
+        state.update_q_values(
+            Experience(state=0, action=0, reward=0.0, next_state=1, done=False)
+        )
         # next_q = 2.0 → q = 0 + 1.0 * (0 + 0.5*2 - 0) = 1.0
         self.assertAlmostEqual(state.q_table.get_value(0, 0), 1.0)
 
@@ -145,9 +149,13 @@ class TestRLState(unittest.TestCase):
         state.epsilon_decay = 0.5
         state.epsilon_min = 0.2
         state.epsilon = 0.3
-        state.update_q_values(Experience(state=0, action=0, reward=0.0, next_state=1, done=True))
+        state.update_q_values(
+            Experience(state=0, action=0, reward=0.0, next_state=1, done=True)
+        )
         self.assertAlmostEqual(state.epsilon, 0.15)
-        state.update_q_values(Experience(state=0, action=0, reward=0.0, next_state=1, done=True))
+        state.update_q_values(
+            Experience(state=0, action=0, reward=0.0, next_state=1, done=True)
+        )
         # Now below epsilon_min: no further decay.
         self.assertAlmostEqual(state.epsilon, 0.15)
 
@@ -179,7 +187,9 @@ class TestRLState(unittest.TestCase):
         state.batch_size = 2
         state.train_from_buffer()  # empty buffer → no-op
         self.assertEqual(state.training_iterations, 0)
-        state.update_q_values(Experience(state=0, action=0, reward=0.1, next_state=1, done=True))
+        state.update_q_values(
+            Experience(state=0, action=0, reward=0.1, next_state=1, done=True)
+        )
         state.train_from_buffer(batch_size=5)  # still smaller than batch → no-op
         self.assertEqual(state.training_iterations, 0)
         state.train_from_buffer(batch_size=1)
@@ -188,7 +198,9 @@ class TestRLState(unittest.TestCase):
     def test_roundtrip(self) -> None:
         state = RLState(state_size=3, action_size=2, buffer_capacity=5)
         state.learning_rate = 0.2
-        state.update_q_values(Experience(state=0, action=1, reward=0.7, next_state=1, done=True))
+        state.update_q_values(
+            Experience(state=0, action=1, reward=0.7, next_state=1, done=True)
+        )
         restored = RLState.from_dict(state.to_dict())
         self.assertAlmostEqual(restored.learning_rate, 0.2)
         self.assertEqual(restored.q_table.state_size, 3)
@@ -196,7 +208,6 @@ class TestRLState(unittest.TestCase):
         self.assertAlmostEqual(
             restored.q_table.get_value(0, 1), state.q_table.get_value(0, 1)
         )
-
 
 
 class TestRLAgentConfig(unittest.TestCase):
@@ -248,9 +259,7 @@ class TestRLAgentBehavior(unittest.TestCase):
         self.assertEqual(agent.state.current_state, 4)
         agent.config["sensor_readings"] = {"vector_state": [1.0, 2.0]}
         _run(agent.perceive())
-        np.testing.assert_array_equal(
-            agent.state.current_state, np.array([1.0, 2.0])
-        )
+        np.testing.assert_array_equal(agent.state.current_state, np.array([1.0, 2.0]))
 
     def test_decide_requires_current_state(self) -> None:
         agent = self._make_agent()
@@ -276,7 +285,11 @@ class TestRLAgentBehavior(unittest.TestCase):
     def test_act_records_experience_and_learns(self) -> None:
         agent = self._make_agent(train_frequency=1, train_batch_size=1)
         agent.state.current_state = 0
-        action = {"action_type": "wait", "parameters": {"duration": 0}, "selected_idx": 1}
+        action = {
+            "action_type": "wait",
+            "parameters": {"duration": 0},
+            "selected_idx": 1,
+        }
         result = _run(agent.act(action))
         self.assertEqual(result["status"], "success")
         self.assertEqual(agent.state.training_iterations, 1)
@@ -288,14 +301,21 @@ class TestRLAgentBehavior(unittest.TestCase):
         agent = self._make_agent()
         agent.state.record_episode_reward(2.0, episode_done=True)
         result = _run(
-            agent.act({"action_type": "query_state", "parameters": {"query_type": "performance"}})
+            agent.act(
+                {
+                    "action_type": "query_state",
+                    "parameters": {"query_type": "performance"},
+                }
+            )
         )
         self.assertEqual(result["total_episodes"], 1)
         self.assertAlmostEqual(result["avg_reward_100"], 2.0)
 
         agent.state.current_state = 2
         result = _run(
-            agent.act({"action_type": "query_state", "parameters": {"query_type": "q_values"}})
+            agent.act(
+                {"action_type": "query_state", "parameters": {"query_type": "q_values"}}
+            )
         )
         self.assertEqual(result["current_state_idx"], agent.state._get_state_index(2))
         self.assertEqual(len(result["q_values"]), 3)
@@ -303,7 +323,9 @@ class TestRLAgentBehavior(unittest.TestCase):
     def test_query_state_unknown_type(self) -> None:
         agent = self._make_agent()
         result = _run(
-            agent.act({"action_type": "query_state", "parameters": {"query_type": "bogus"}})
+            agent.act(
+                {"action_type": "query_state", "parameters": {"query_type": "bogus"}}
+            )
         )
         self.assertEqual(result["status"], "error")
 
@@ -328,7 +350,9 @@ class TestRLAgentBehavior(unittest.TestCase):
 
     def test_set_learning_params_noop(self) -> None:
         agent = self._make_agent()
-        result = _run(agent.act({"action_type": "set_learning_params", "parameters": {}}))
+        result = _run(
+            agent.act({"action_type": "set_learning_params", "parameters": {}})
+        )
         self.assertEqual(result["status"], "warning")
 
     def test_initialize_loads_initial_state_and_model(self) -> None:

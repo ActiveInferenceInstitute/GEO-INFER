@@ -1,22 +1,27 @@
 """
-Unit tests for the MLflow pipeline (optional mlops dependency).
+Unit tests for the MLflow pipeline (mlflow is a declared geo-infer-ai
+dependency, so no availability guard is needed).
 
 MLflow runs against a local sqlite tracking store created per test via
 ``tmp_path``, so the suite stays deterministic, isolated, and offline.
 """
 
+import warnings
+
 import numpy as np
 import pytest
 
-from geo_infer_ai.pipelines.mlflow_integration import (
-    MLFLOW_AVAILABLE,
-    MLflowPipeline,
-)
+from geo_infer_ai.pipelines.mlflow_integration import MLflowPipeline
 
-# MLflow emits deprecation/maintenance chatter that the repo's
-# ``filterwarnings = ["error"]`` would promote into failures; tracking
-# behavior is what these tests assert, not warning hygiene.
-pytestmark = pytest.mark.filterwarnings("ignore")
+
+@pytest.fixture(autouse=True)
+def _quiet_mlflow_chatter():
+    """MLflow emits deprecation/maintenance chatter that the repo's
+    ``filterwarnings = ["error"]`` would promote into failures; tracking
+    behavior is what these tests assert, not warning hygiene."""
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        yield
 
 
 @pytest.fixture
@@ -39,8 +44,6 @@ class TestMLflowPipelineEnabled:
     """Pipeline behavior when MLflow is available and enabled."""
 
     def test_enabled_with_local_tracking(self, tracking_dir) -> None:
-        if not MLFLOW_AVAILABLE:
-            pytest.skip("MLflow not installed")
         pipeline = MLflowPipeline(
             experiment_name="unit-local",
             tracking_uri=tracking_dir,
@@ -51,8 +54,6 @@ class TestMLflowPipelineEnabled:
     def test_full_lifecycle_logs_params_metrics_artifacts(
         self, tracking_dir, tmp_path
     ) -> None:
-        if not MLFLOW_AVAILABLE:
-            pytest.skip("MLflow not installed")
         pipeline = MLflowPipeline(
             experiment_name="unit-lifecycle",
             tracking_uri=tracking_dir,
@@ -83,8 +84,6 @@ class TestMLflowPipelineEnabled:
     def test_sklearn_model_log_and_load_round_trip(
         self, tracking_dir, fitted_model
     ) -> None:
-        if not MLFLOW_AVAILABLE:
-            pytest.skip("MLflow not installed")
         pipeline = MLflowPipeline(
             experiment_name="unit-model", tracking_uri=tracking_dir
         )
@@ -103,8 +102,6 @@ class TestMLflowPipelineEnabled:
 
     def test_log_model_unsupported_type_is_noop(self, tracking_dir) -> None:
         """Models without fit/predict are rejected with a warning, not an error."""
-        if not MLFLOW_AVAILABLE:
-            pytest.skip("MLflow not installed")
         pipeline = MLflowPipeline(
             experiment_name="unit-nomodel", tracking_uri=tracking_dir
         )
@@ -115,8 +112,6 @@ class TestMLflowPipelineEnabled:
 
     def test_load_model_failure_raises(self, tracking_dir) -> None:
         """A bogus model URI propagates the load failure to the caller."""
-        if not MLFLOW_AVAILABLE:
-            pytest.skip("MLflow not installed")
         pipeline = MLflowPipeline(
             experiment_name="unit-load-fail", tracking_uri=tracking_dir
         )
@@ -127,8 +122,6 @@ class TestMLflowPipelineEnabled:
 
     def test_broken_tracking_uri_disables_pipeline(self) -> None:
         """An unusable tracking URI degrades gracefully to disabled mode."""
-        if not MLFLOW_AVAILABLE:
-            pytest.skip("MLflow not installed")
         pipeline = MLflowPipeline(
             experiment_name="unit-broken", tracking_uri="unknown-scheme://bogus"
         )
@@ -138,8 +131,6 @@ class TestMLflowPipelineEnabled:
         self, tracking_dir, monkeypatch
     ) -> None:
         """_setup_mlflow flips to disabled when the import guard failed."""
-        if not MLFLOW_AVAILABLE:
-            pytest.skip("MLflow not installed")
         pipeline = MLflowPipeline(
             experiment_name="unit-guard", tracking_uri=tracking_dir
         )

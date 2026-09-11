@@ -106,7 +106,10 @@ def test_evaluate_compliance_missing_field(client):
     assert response.status_code == 200
     body = response.json()
     assert body["is_compliant"] is False
-    assert any("Missing primary field" in str(r.get("notes", "")) for r in body["metric_results"])
+    assert any(
+        "Missing primary field" in str(r.get("notes", ""))
+        for r in body["metric_results"]
+    )
 
 
 def test_evaluate_compliance_at_location(client):
@@ -150,9 +153,7 @@ def test_summary_report(client):
 
 def test_entity_report(client):
     client.post("/status", json=_status_payload())
-    response = client.post(
-        "/reports/entity/ent-1", json={"title": "Entity report"}
-    )
+    response = client.post("/reports/entity/ent-1", json={"title": "Entity report"})
     assert response.status_code == 200
     body = response.json()
     assert body["entity_id"] == "ent-1"

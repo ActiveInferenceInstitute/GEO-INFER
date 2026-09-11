@@ -80,9 +80,7 @@ def test_get_missing_policy(client):
 def test_implementation_lifecycle(client):
     policy_id = client.post("/policies", json=_policy_payload()).json()["policy_id"]
 
-    created = client.post(
-        "/implementations", json=_implementation_payload(policy_id)
-    )
+    created = client.post("/implementations", json=_implementation_payload(policy_id))
     assert created.status_code == 200
     implementation_id = created.json()["implementation_id"]
 
@@ -116,9 +114,7 @@ def test_assess_policy_impact_environmental(client):
     # The history endpoint serves the assessment registry for the policy; the
     # impact endpoint does not append to it in this implementation.
     assert isinstance(history, list)
-    assert all(
-        {"assessment_id", "policy_id"} <= set(h) for h in history
-    )
+    assert all({"assessment_id", "policy_id"} <= set(h) for h in history)
 
 
 def test_assess_policy_impact_unknown_type(client):
@@ -139,7 +135,6 @@ def test_assess_policy_impact_missing_policy(client):
         json={"policy_id": "ghost", "assessment_type": "economic"},
     )
     assert response.status_code == 404
-
 
     response = client.post(
         "/comparison/regulations",

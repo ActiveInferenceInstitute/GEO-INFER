@@ -86,10 +86,9 @@ class TestLastMileRouter:
     def test_cluster_kmeans_partitions_all_deliveries(self) -> None:
         router = LastMileRouter()
         # Two well-separated groups
-        deliveries = (
-            [make_delivery(f"west{i}", 13.0 - i * 0.001, 52.5) for i in range(4)]
-            + [make_delivery(f"east{i}", 14.0 + i * 0.001, 52.5) for i in range(4)]
-        )
+        deliveries = [
+            make_delivery(f"west{i}", 13.0 - i * 0.001, 52.5) for i in range(4)
+        ] + [make_delivery(f"east{i}", 14.0 + i * 0.001, 52.5) for i in range(4)]
         clusters = router._cluster_deliveries(deliveries, 2)
         assert len(clusters) == 2
         assert sum(len(c) for c in clusters) == 8
@@ -145,9 +144,7 @@ class TestDeliveryScheduler:
         )
         route = scheduler.get_daily_schedule(start)[0]
         stops_before = len(route.stops)
-        result = scheduler.reschedule_delivery(
-            route.id, 1, datetime(2026, 2, 1)
-        )
+        result = scheduler.reschedule_delivery(route.id, 1, datetime(2026, 2, 1))
         assert result["success"] is True
         assert result["new_date"] == "2026-02-01"
         assert len(route.stops) == stops_before - 1

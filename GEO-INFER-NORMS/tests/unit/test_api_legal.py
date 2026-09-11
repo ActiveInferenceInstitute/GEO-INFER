@@ -104,9 +104,7 @@ def test_regulation_lifecycle(client):
     got = client.get(f"/regulations/{regulation_id}").json()
     assert got["name"] == "Clean Water Act"
 
-    by_jurisdiction = client.get(
-        f"/regulations/jurisdiction/{jurisdiction_id}"
-    ).json()
+    by_jurisdiction = client.get(f"/regulations/jurisdiction/{jurisdiction_id}").json()
     assert any(r["id"] == regulation_id for r in by_jurisdiction)
 
 

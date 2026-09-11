@@ -82,9 +82,7 @@ class TestModelTrainerSavePaths:
         trainer._save_model(model, path)
         loaded = trainer.load_model(path)
         assert loaded is not None
-        np.testing.assert_array_equal(
-            loaded.predict(X[:5]), model.predict(X[:5])
-        )
+        np.testing.assert_array_equal(loaded.predict(X[:5]), model.predict(X[:5]))
 
     def test_load_missing_model_raises(self, tmp_path: Path) -> None:
         trainer = ModelTrainer()

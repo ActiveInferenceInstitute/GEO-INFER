@@ -21,6 +21,7 @@ from geo_infer_comms.models.spatial import (
     SpatialFilter,
     SpatialIndex,
 )
+
 BAY_AREA_BOUNDS = {
     "min_longitude": -122.6,
     "min_latitude": 37.6,
@@ -44,7 +45,9 @@ def _message(
         recipients=["user-1"],
         message_type="text",
         priority="normal",
-        geospatial_data=GeospatialMetadata(location=_point(lon, lat)) if geospatial else None,
+        geospatial_data=GeospatialMetadata(location=_point(lon, lat))
+        if geospatial
+        else None,
     )
 
 
@@ -117,7 +120,10 @@ class TestAdvancedSpatialRouter:
         routes = router.route_message(
             _message(-122.5, 37.7),
             ["edge-2"],
-            routing_context={"urgency": "high", "network_conditions": {"congestion": True}},
+            routing_context={
+                "urgency": "high",
+                "network_conditions": {"congestion": True},
+            },
         )
 
         # The alternative route must avoid the overloaded relay-1 even at
@@ -259,9 +265,7 @@ class TestSpatialClusteringRouter:
             "cluster_1",
         }
         assert router.route_to_cluster(_point(-122.39, 37.79), "unknown") == "cluster_0"
-        assert (
-            SpatialClusteringRouter().route_to_cluster(_point(-122.4, 37.8)) is None
-        )
+        assert SpatialClusteringRouter().route_to_cluster(_point(-122.4, 37.8)) is None
 
     def test_get_cluster_info(self) -> None:
         router = SpatialClusteringRouter(cluster_radius_km=50)
@@ -294,7 +298,9 @@ class TestAdaptiveRoutingEngine:
         engine = AdaptiveRoutingEngine()
         message = _message()
 
-        engine.learn_from_routing_result(message, ["a", "b"], {"success": True, "latency": 100.0})
+        engine.learn_from_routing_result(
+            message, ["a", "b"], {"success": True, "latency": 100.0}
+        )
         engine.learn_from_routing_result(message, ["a", "b"], {"success": False})
 
         key = next(iter(engine.route_performance))
@@ -347,7 +353,9 @@ class TestAdaptiveRoutingEngine:
 
     def test_get_routing_insights(self) -> None:
         engine = AdaptiveRoutingEngine()
-        engine.learn_from_routing_result(_message(), ["a", "b"], {"success": True, "latency": 5.0})
+        engine.learn_from_routing_result(
+            _message(), ["a", "b"], {"success": True, "latency": 5.0}
+        )
 
         insights = engine.get_routing_insights()
         assert insights["total_routes_tracked"] == 1
@@ -356,7 +364,9 @@ class TestAdaptiveRoutingEngine:
 
 
 class TestGeospatialMessageQueue:
-    def _queued(self) -> tuple[GeospatialMessageQueue, MessageResponse, MessageResponse]:
+    def _queued(
+        self,
+    ) -> tuple[GeospatialMessageQueue, MessageResponse, MessageResponse]:
         queue = GeospatialMessageQueue()
         urgent = _message(-122.4, 37.8)
         urgent.priority = MessagePriority.URGENT.value
@@ -448,12 +458,14 @@ class TestSpatialRoutingOptimizer:
         assert report["total_routes_analyzed"] == 2
         assert report["success_rate"] == pytest.approx(50.0)
         assert report["average_latency"] == pytest.approx(1000.0)
-        assert "Consider increasing retry attempts for failed routes" in report[
-            "optimization_suggestions"
-        ]
-        assert "Consider optimizing network paths for high-latency routes" in report[
-            "optimization_suggestions"
-        ]
+        assert (
+            "Consider increasing retry attempts for failed routes"
+            in report["optimization_suggestions"]
+        )
+        assert (
+            "Consider optimizing network paths for high-latency routes"
+            in report["optimization_suggestions"]
+        )
 
     def test_clean_history_yields_no_suggestions(self) -> None:
         router = _router()

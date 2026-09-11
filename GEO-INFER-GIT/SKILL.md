@@ -71,7 +71,7 @@ The package installs a `geo-infer-git` console script (`geo_infer_git.cli:main`)
   directory that lack a `.git` folder; unrelated files are never touched.
 - The REST API serves repository management, clone/sync, and branch endpoints only.
   Data versioning, workflow, and deployment endpoints are descoped: no backing
-  domain behavior exists in src/geo_infer_git and they are not advertised as planned.
+  domain behavior exists in src/geo_infer_git for them.
 
 ### Integrations
 

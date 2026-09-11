@@ -45,13 +45,17 @@ class TestBDIStateInternals(unittest.TestCase):
 
     def test_intention_helpers(self) -> None:
         state = BDIState()
-        plan = Plan(name="p1", desire_name="d1", actions=[{"type": "log", "message": "x"}])
+        plan = Plan(
+            name="p1", desire_name="d1", actions=[{"type": "log", "message": "x"}]
+        )
         state.set_current_intention(plan)
         self.assertIs(state.get_current_intention(), plan)
         state.set_current_intention(None)
         self.assertIsNone(state.get_current_intention())
 
-        done = Plan(name="p2", desire_name="d2", actions=[{"type": "wait", "duration": 0}])
+        done = Plan(
+            name="p2", desire_name="d2", actions=[{"type": "wait", "duration": 0}]
+        )
         state.intentions.append(plan)
         state.intentions.append(done)
         done.complete = True
@@ -68,7 +72,9 @@ class TestBDIStateInternals(unittest.TestCase):
         state.add_belief(
             Belief(name="rich", value="x", confidence=0.5, metadata={"src": "test"})
         )
-        plan = Plan(name="p1", desire_name="d1", actions=[{"type": "wait", "duration": 0}])
+        plan = Plan(
+            name="p1", desire_name="d1", actions=[{"type": "wait", "duration": 0}]
+        )
         state.set_current_intention(plan)
 
         restored = BDIState.from_dict(state.to_dict())
@@ -80,7 +86,12 @@ class TestBDIStateInternals(unittest.TestCase):
     def test_deserialization_with_raw_values(self) -> None:
         # Plain (non-dict) belief payloads fall back to a bare Belief.
         state = BDIState.from_dict(
-            {"beliefs": {"raw": 42}, "desires": {}, "intentions": [], "current_intention": None}
+            {
+                "beliefs": {"raw": 42},
+                "desires": {},
+                "intentions": [],
+                "current_intention": None,
+            }
         )
         self.assertEqual(state.get_belief("raw").value, 42)
         self.assertIsNone(state.get_current_intention())
@@ -184,7 +195,9 @@ class TestBDIAgentAct(unittest.TestCase):
         agent = self._agent()
 
         result = _run(
-            agent.act({"type": "update_belief", "belief_name": "zone", "belief_value": "E"})
+            agent.act(
+                {"type": "update_belief", "belief_name": "zone", "belief_value": "E"}
+            )
         )
         self.assertTrue(result["success"])
         self.assertEqual(agent.state.get_belief("zone").value, "E")
@@ -212,7 +225,11 @@ class TestBDIAgentAct(unittest.TestCase):
             config={
                 "initial_desires": [
                     {"description": "no name"},
-                    {"name": "bad-deadline", "description": "x", "deadline": "not-a-date"},
+                    {
+                        "name": "bad-deadline",
+                        "description": "x",
+                        "deadline": "not-a-date",
+                    },
                     {
                         "name": "dated",
                         "description": "x",
@@ -275,7 +292,11 @@ class TestBDIAgentAct(unittest.TestCase):
         agent = self._agent()
         self.assertFalse(agent._is_desire_satisfied("ghost"))
         agent.config["initial_desires"] = [
-            {"name": "d", "description": "needs a and b", "conditions": {"a": 1, "b": 2}}
+            {
+                "name": "d",
+                "description": "needs a and b",
+                "conditions": {"a": 1, "b": 2},
+            }
         ]
         _run(agent.initialize())
         agent.state.update_belief("a", 1)
@@ -332,7 +353,10 @@ class TestMessagingServiceLifecycle(unittest.TestCase):
         self.assertEqual(_run(messaging_service.get_messages("ghost")), [])
 
         expired = Message(
-            from_agent_id="a", to_agent_id="b", content={}, expires_at=datetime.now() - timedelta(seconds=1)
+            from_agent_id="a",
+            to_agent_id="b",
+            content={},
+            expires_at=datetime.now() - timedelta(seconds=1),
         )
         fresh = Message(from_agent_id="a", to_agent_id="b", content={"k": 1})
         messaging_service.message_queues["b"] = [expired, fresh]
@@ -367,9 +391,7 @@ class TestMessagingServiceLifecycle(unittest.TestCase):
         try:
             try:
                 _run(
-                    asyncio.wait_for(
-                        messaging_service._process_messages(), timeout=0.2
-                    )
+                    asyncio.wait_for(messaging_service._process_messages(), timeout=0.2)
                 )
             except asyncio.TimeoutError:
                 pass  # loop idles after processing; timeout cancels it
@@ -383,9 +405,7 @@ class TestMessagingServiceLifecycle(unittest.TestCase):
         try:
             try:
                 _run(
-                    asyncio.wait_for(
-                        messaging_service._process_messages(), timeout=0.2
-                    )
+                    asyncio.wait_for(messaging_service._process_messages(), timeout=0.2)
                 )
             except asyncio.TimeoutError:
                 pass
@@ -439,9 +459,7 @@ class TestTelemetryServiceLifecycle(unittest.TestCase):
         self.assertIs(timer, again)
 
     def test_metric_id_includes_agent_and_tags(self) -> None:
-        metric_id = telemetry_service._get_metric_id(
-            "m", "a9", {"z": 1, "a": 2}
-        )
+        metric_id = telemetry_service._get_metric_id("m", "a9", {"z": 1, "a": 2})
         self.assertEqual(metric_id, "a9:m;a=2;z=1")
         self.assertEqual(telemetry_service._get_metric_id("m", None, None), "m")
 
@@ -451,7 +469,8 @@ class TestTelemetryServiceLifecycle(unittest.TestCase):
             telemetry_service.get_health_status("h1")["h1"]["status"], "degraded"
         )
         self.assertEqual(
-            telemetry_service.get_health_status("ghost"), {"ghost": {"status": "unknown"}}
+            telemetry_service.get_health_status("ghost"),
+            {"ghost": {"status": "unknown"}},
         )
         self.assertIn("h1", telemetry_service.get_health_status())
 
@@ -459,9 +478,7 @@ class TestTelemetryServiceLifecycle(unittest.TestCase):
         counter.increment()
         metrics = telemetry_service.get_metrics("h1")
         self.assertEqual(len(metrics), 1)
-        self.assertEqual(
-            list(metrics.values())[0]["value"], 1
-        )
+        self.assertEqual(list(metrics.values())[0]["value"], 1)
         self.assertEqual(len(telemetry_service.get_metrics()), 1)
 
     def test_metric_callback_registration_stored(self) -> None:

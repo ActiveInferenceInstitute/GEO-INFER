@@ -58,7 +58,9 @@ class TestDataCollectorConstruction(unittest.TestCase):
         self.assertEqual(agent.unprocessed_data, [])
 
     def test_user_config_wins_over_defaults(self) -> None:
-        agent = DataCollectorAgent(agent_id="dc-2", config={"timeout": 5, "max_retries": 1})
+        agent = DataCollectorAgent(
+            agent_id="dc-2", config={"timeout": 5, "max_retries": 1}
+        )
         self.assertEqual(agent.config["timeout"], 5)
         self.assertEqual(agent.config["max_retries"], 1)
         # untouched defaults remain
@@ -78,8 +80,16 @@ class TestDataCollectorConstruction(unittest.TestCase):
                 config={
                     "storage_path": tmp,
                     "data_sources": [
-                        {"id": "weather", "name": "Weather", "type": "api", "url": "http://x"},
-                        {"type": "file", "path": "nowhere.json"},  # no id → index fallback
+                        {
+                            "id": "weather",
+                            "name": "Weather",
+                            "type": "api",
+                            "url": "http://x",
+                        },
+                        {
+                            "type": "file",
+                            "path": "nowhere.json",
+                        },  # no id → index fallback
                     ],
                 },
             )
@@ -88,7 +98,9 @@ class TestDataCollectorConstruction(unittest.TestCase):
             self.assertEqual(
                 agent.state.get_belief("data_source.weather.name").value, "Weather"
             )
-            self.assertEqual(agent.state.get_belief("data_source.weather.type").value, "api")
+            self.assertEqual(
+                agent.state.get_belief("data_source.weather.type").value, "api"
+            )
             self.assertFalse(
                 agent.state.get_belief("data_source.weather.available").value
             )
@@ -119,7 +131,9 @@ class TestCollectDataHandler(unittest.TestCase):
     def test_collect_from_file_source(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             store = os.path.join(tmp, "store")
-            os.makedirs(store, exist_ok=True)  # the agent only makedirs its top storage_path
+            os.makedirs(
+                store, exist_ok=True
+            )  # the agent only makedirs its top storage_path
             payload = {"source_id": "f1", "records": [1, 2, 3]}
             src_file = os.path.join(tmp, "src.json")
             with open(src_file, "w") as handle:
@@ -137,9 +151,7 @@ class TestCollectDataHandler(unittest.TestCase):
             self.assertEqual(len(agent.unprocessed_data), 1)
             self.assertTrue(self._belief(agent, "has_unprocessed_data"))
             self.assertEqual(self._belief(agent, "total_collected_datasets"), 1)
-            self.assertIsNotNone(
-                self._belief(agent, "data_source.f1.last_collection")
-            )
+            self.assertIsNotNone(self._belief(agent, "data_source.f1.last_collection"))
             with open(agent.datasets[0]["filename"]) as handle:
                 self.assertEqual(json.load(handle), payload)
 
@@ -268,14 +280,18 @@ class TestCollectFromSource(unittest.TestCase):
                     {"sensor_id": "s1", "url": "http://x", "params": {"unit": "c"}}
                 )
             )
-        self.assertEqual(get.call_args.kwargs["params"], {"sensor_id": "s1", "unit": "c"})
+        self.assertEqual(
+            get.call_args.kwargs["params"], {"sensor_id": "s1", "unit": "c"}
+        )
         self.assertEqual(data["reading"], 9)
 
     def test_sensor_collect_uses_endpoint_fallback(self) -> None:
         response = _FakeResponse(payload={"r": 1})
         with mock.patch.object(dc_module.requests, "get", return_value=response) as get:
             data = _run(
-                self.agent._collect_from_sensor({"sensor_id": "s2", "endpoint": "http://e"})
+                self.agent._collect_from_sensor(
+                    {"sensor_id": "s2", "endpoint": "http://e"}
+                )
             )
         self.assertEqual(get.call_args.args[0], "http://e")
         self.assertEqual(data, {"r": 1})
@@ -289,7 +305,11 @@ class TestCollectFromSource(unittest.TestCase):
         response = _FakeResponse(payload=[1])
         with mock.patch.object(dc_module.requests, "get", return_value=response):
             with self.assertRaises(ValueError):
-                _run(self.agent._collect_from_sensor({"sensor_id": "s4", "url": "http://x"}))
+                _run(
+                    self.agent._collect_from_sensor(
+                        {"sensor_id": "s4", "url": "http://x"}
+                    )
+                )
 
     def test_dispatch_unknown_type_raises(self) -> None:
         with self.assertRaises(ValueError):
@@ -300,9 +320,7 @@ class TestCheckSourcesHandler(unittest.TestCase):
     """Tests for the check_sources_availability handler."""
 
     def _agent(self, sources):
-        return DataCollectorAgent(
-            agent_id="dc-check", config={"data_sources": sources}
-        )
+        return DataCollectorAgent(agent_id="dc-check", config={"data_sources": sources})
 
     def test_only_url_bearing_sources_checked(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -319,12 +337,8 @@ class TestCheckSourcesHandler(unittest.TestCase):
             self.assertEqual(result["available_count"], 1)
             self.assertEqual(result["unavailable_count"], 0)
             self.assertEqual(len(result["results"]), 1)
-            self.assertTrue(
-                agent.state.get_belief("data_source.good.available").value
-            )
-            self.assertIsNotNone(
-                agent.state.get_belief("last_monitoring_time").value
-            )
+            self.assertTrue(agent.state.get_belief("data_source.good.available").value)
+            self.assertIsNotNone(agent.state.get_belief("last_monitoring_time").value)
             self.assertIsNotNone(
                 agent.state.get_belief("data_source.good.last_check").value
             )
@@ -332,13 +346,18 @@ class TestCheckSourcesHandler(unittest.TestCase):
     def test_missing_file_source_is_unavailable(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             agent = self._agent(
-                [{"id": "bad", "type": "file", "path": os.path.join(tmp, "nope.json"), "url": "http://f"}]
+                [
+                    {
+                        "id": "bad",
+                        "type": "file",
+                        "path": os.path.join(tmp, "nope.json"),
+                        "url": "http://f",
+                    }
+                ]
             )
             result = _run(agent._handle_check_sources_action(agent, {}))
             self.assertEqual(result["unavailable_count"], 1)
-            self.assertFalse(
-                agent.state.get_belief("data_source.bad.available").value
-            )
+            self.assertFalse(agent.state.get_belief("data_source.bad.available").value)
 
     def test_api_sources_use_head(self) -> None:
         agent = self._agent(
@@ -367,9 +386,7 @@ class TestCheckSourcesHandler(unittest.TestCase):
         ):
             result = _run(agent._handle_check_sources_action(agent, {}))
         self.assertEqual(result["unavailable_count"], 1)
-        self.assertFalse(
-            agent.state.get_belief("data_source.dead.available").value
-        )
+        self.assertFalse(agent.state.get_belief("data_source.dead.available").value)
 
     def test_sensor_sources(self) -> None:
         agent = self._agent(
@@ -509,9 +526,7 @@ class TestSourceConfiguration(unittest.TestCase):
         )
         self.assertTrue(result["success"])
         self.assertEqual(agent.config["data_sources"][0]["url"], "http://x")
-        self.assertEqual(
-            agent.state.get_belief("data_source.s1.url").value, "http://x"
-        )
+        self.assertEqual(agent.state.get_belief("data_source.s1.url").value, "http://x")
 
         result = _run(
             agent.action_configure_source("new", {"type": "file", "path": "a.json"})
@@ -519,9 +534,7 @@ class TestSourceConfiguration(unittest.TestCase):
         self.assertTrue(result["success"])
         self.assertEqual(len(agent.config["data_sources"]), 2)
         self.assertEqual(agent.config["data_sources"][1]["id"], "new")
-        self.assertEqual(
-            agent.state.get_belief("data_source.new.path").value, "a.json"
-        )
+        self.assertEqual(agent.state.get_belief("data_source.new.path").value, "a.json")
 
     def test_configure_source_error_reported(self) -> None:
         agent = DataCollectorAgent(agent_id="dc-cfg2")

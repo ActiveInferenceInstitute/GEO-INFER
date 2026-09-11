@@ -34,7 +34,10 @@ def _bounds_request(name: str = "bay-stream") -> StreamRequest:
     return StreamRequest(
         name=name,
         stream_type="data",
-        geospatial_filter={"filter_type": "bounds", "parameters": {"bounds": BAY_AREA_BOUNDS}},
+        geospatial_filter={
+            "filter_type": "bounds",
+            "parameters": {"bounds": BAY_AREA_BOUNDS},
+        },
     )
 
 
@@ -148,7 +151,9 @@ class TestStreamManager:
 
     def test_subscribe_unsubscribe_lifecycle(self) -> None:
         manager = StreamManager(enable_persistence=False)
-        response = manager.create_stream(StreamRequest(name="s"), creator_id="creator-1")
+        response = manager.create_stream(
+            StreamRequest(name="s"), creator_id="creator-1"
+        )
         stream_id = response.stream_id
 
         assert manager.subscribe_to_stream(stream_id, "user-1") is True
@@ -168,7 +173,9 @@ class TestStreamManager:
 
     def test_publish_requires_active_stream(self) -> None:
         manager = StreamManager(enable_persistence=False)
-        response = manager.create_stream(StreamRequest(name="s"), creator_id="creator-1")
+        response = manager.create_stream(
+            StreamRequest(name="s"), creator_id="creator-1"
+        )
 
         assert manager.publish_to_stream("missing", "x") is False
 
@@ -179,9 +186,9 @@ class TestStreamManager:
 
         stored.is_active = True
         assert manager.publish_to_stream(response.stream_id, {"v": 1}) is True
-        assert manager.publish_to_stream(
-            response.stream_id, "geo", _sf_metadata()
-        ) is True
+        assert (
+            manager.publish_to_stream(response.stream_id, "geo", _sf_metadata()) is True
+        )
 
     def test_get_streams_by_location(self) -> None:
         manager = StreamManager(enable_persistence=False)
@@ -214,13 +221,18 @@ class TestStreamManager:
         )
 
         assert manager.spatial_streams == {}
-        assert manager.get_streams_by_location(
-            GeospatialPoint(longitude=-122.4, latitude=37.8)
-        ) == []
+        assert (
+            manager.get_streams_by_location(
+                GeospatialPoint(longitude=-122.4, latitude=37.8)
+            )
+            == []
+        )
 
     def test_get_stream_statistics(self) -> None:
         manager = StreamManager(enable_persistence=False)
-        response = manager.create_stream(StreamRequest(name="s"), creator_id="creator-1")
+        response = manager.create_stream(
+            StreamRequest(name="s"), creator_id="creator-1"
+        )
         manager.subscribe_to_stream(response.stream_id, "user-1")
 
         stats = manager.get_stream_statistics()
@@ -343,7 +355,9 @@ class TestGeospatialDataStream:
         stream.add_geospatial_data(point, 100.0)
 
         assert stream.anomalies, "expected the outlier value to be flagged"
-        assert stream.anomalies[0]["location_key"] == stream._generate_location_key(point)
+        assert stream.anomalies[0]["location_key"] == stream._generate_location_key(
+            point
+        )
 
 
 class TestStreamingProtocols:
@@ -352,7 +366,9 @@ class TestStreamingProtocols:
         protocols = StreamingProtocolManager(manager)
 
         assert protocols.list_available_protocols() == ["websocket", "mqtt", "sse"]
-        assert isinstance(protocols.get_protocol("websocket"), WebSocketStreamingProtocol)
+        assert isinstance(
+            protocols.get_protocol("websocket"), WebSocketStreamingProtocol
+        )
         assert protocols.get_protocol("missing") is None
 
         custom = StreamingProtocol(manager)
@@ -413,7 +429,9 @@ class TestStreamingAnalytics:
         manager = StreamManager(enable_persistence=False)
         analytics = StreamingAnalytics(manager)
 
-        analytics.record_streaming_event("s1", "data_streamed", {"protocol": "websocket"})
+        analytics.record_streaming_event(
+            "s1", "data_streamed", {"protocol": "websocket"}
+        )
         analytics.record_streaming_event("s1", "stream_started")
         analytics.record_streaming_event("s2", "stream_started")
 
@@ -449,7 +467,9 @@ class TestStreamingOrchestrator:
         location = GeospatialPoint(longitude=-122.4, latitude=37.8)
 
         assert orchestrator.stream_geospatial_data("geo-1", location, 42.0) is True
-        assert orchestrator.analytics.streaming_history[0]["event_type"] == "data_streamed"
+        assert (
+            orchestrator.analytics.streaming_history[0]["event_type"] == "data_streamed"
+        )
 
         events = orchestrator.analytics.get_streaming_analytics("geo-1")
         assert events["total_events"] == 1
@@ -459,7 +479,9 @@ class TestStreamingOrchestrator:
         location = GeospatialPoint(longitude=-122.4, latitude=37.8)
 
         assert (
-            orchestrator.stream_geospatial_data("unknown", location, 1.0, protocol="bogus")
+            orchestrator.stream_geospatial_data(
+                "unknown", location, 1.0, protocol="bogus"
+            )
             is True
         )
         assert orchestrator.analytics.streaming_history == []

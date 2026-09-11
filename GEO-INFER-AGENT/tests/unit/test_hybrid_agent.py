@@ -228,9 +228,7 @@ class TestHybridAgentDecide(unittest.TestCase):
         self.assertEqual(action["_hybrid_source"]["agent_type"], "rule_based")
         self.assertEqual(agent.state.total_decisions, 1)
         self.assertEqual(len(agent.state.decision_history), 1)
-        self.assertEqual(
-            agent.state.decision_history[0]["agent_id"], "high"
-        )
+        self.assertEqual(agent.state.decision_history[0]["agent_id"], "high")
 
     def test_voting_policy_counts_signatures(self) -> None:
         # Two agents vote for scan:a1, one votes for move:b2.  The majority
@@ -346,9 +344,7 @@ class TestHybridAgentActionHandlers(unittest.TestCase):
 
     def test_query_agents_active(self) -> None:
         agent = self._make()
-        result = _run(
-            agent.act({"action_type": "query_agents", "parameters": {}})
-        )
+        result = _run(agent.act({"action_type": "query_agents", "parameters": {}}))
         self.assertEqual(result["status"], "success")
         self.assertEqual(
             result["active_agents"],
@@ -358,7 +354,9 @@ class TestHybridAgentActionHandlers(unittest.TestCase):
     def test_query_agents_all_and_unknown(self) -> None:
         agent = self._make()
         result = _run(
-            agent.act({"action_type": "query_agents", "parameters": {"query_type": "all"}})
+            agent.act(
+                {"action_type": "query_agents", "parameters": {"query_type": "all"}}
+            )
         )
         self.assertEqual(result["agents"][0]["id"], "sub1")
         self.assertTrue(result["agents"][0]["is_active"])
@@ -377,7 +375,10 @@ class TestHybridAgentActionHandlers(unittest.TestCase):
         wrapper.record_decision(True, 0.4)
         result = _run(
             agent.act(
-                {"action_type": "query_agents", "parameters": {"query_type": "performance"}}
+                {
+                    "action_type": "query_agents",
+                    "parameters": {"query_type": "performance"},
+                }
             )
         )
         self.assertEqual(result["performance"]["overall"]["total_decisions"], 1)
@@ -447,12 +448,18 @@ class TestSubAgentWrapperExtras(unittest.TestCase):
         )
 
     def test_nested_condition_matching(self) -> None:
-        wrapper = self._wrapper(conditions={"location": {"zone": "east", "level": {"depth": 2}}})
+        wrapper = self._wrapper(
+            conditions={"location": {"zone": "east", "level": {"depth": 2}}}
+        )
         self.assertTrue(
-            wrapper.check_activation({"location": {"zone": "east", "level": {"depth": 2}}})
+            wrapper.check_activation(
+                {"location": {"zone": "east", "level": {"depth": 2}}}
+            )
         )
         self.assertFalse(
-            wrapper.check_activation({"location": {"zone": "east", "level": {"depth": 3}}})
+            wrapper.check_activation(
+                {"location": {"zone": "east", "level": {"depth": 3}}}
+            )
         )
         self.assertFalse(wrapper.check_activation({"location": {"zone": "east"}}))
         self.assertFalse(wrapper.check_activation({}))

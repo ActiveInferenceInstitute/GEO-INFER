@@ -126,6 +126,4 @@ class TestTemporalAggregationFeatures:
         # Output is unsorted back to the caller's row order; rolling stats
         # are computed over the time-sorted series [0,1,2,3,4].
         expected = np.array([2.0, 0.0, 3.0, 0.5, 1.0])
-        np.testing.assert_allclose(
-            features["rolling_mean_3"].to_numpy(), expected
-        )
+        np.testing.assert_allclose(features["rolling_mean_3"].to_numpy(), expected)

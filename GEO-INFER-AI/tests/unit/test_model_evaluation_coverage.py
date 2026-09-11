@@ -58,9 +58,7 @@ class TestRocAucMultiClass:
 
     def test_binary_2d_scores_use_positive_column(self) -> None:
         y_true = np.array([0, 0, 0, 1, 1, 1])
-        y_score = np.column_stack(
-            [np.linspace(0.9, 0.4, 6), np.linspace(0.1, 0.6, 6)]
-        )
+        y_score = np.column_stack([np.linspace(0.9, 0.4, 6), np.linspace(0.1, 0.6, 6)])
         result = self.evaluator.compute_roc_auc(y_true, y_score)
         assert result["n_classes"] == 2
         assert result["roc_auc"] == pytest.approx(1.0)

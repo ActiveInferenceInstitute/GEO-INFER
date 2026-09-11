@@ -86,14 +86,10 @@ def test_export_geojson_without_geometry(client):
     assert body["feature_count"] == 0
     assert body["geojson"]["type"] == "FeatureCollection"
 
-    by_category = client.get(
-        "/export/geojson", params={"category": "social"}
-    ).json()
+    by_category = client.get("/export/geojson", params={"category": "social"}).json()
     assert by_category["feature_count"] == 0
 
-    below = client.get(
-        "/export/geojson", params={"min_strength": 0.9}
-    ).json()
+    below = client.get("/export/geojson", params={"min_strength": 0.9}).json()
     assert below["feature_count"] == 0
 
 
