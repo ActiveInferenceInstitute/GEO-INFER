@@ -8,10 +8,11 @@ regulations, and jurisdictional data.
 from typing import Dict, List, Optional, Any
 import datetime
 from fastapi import APIRouter, HTTPException, Query, Path
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 import geopandas as gpd
 from shapely.geometry import Point, shape
 import json
+import uuid
 from shapely.geometry.base import BaseGeometry
 
 from geo_infer_norms.core.legal_frameworks import LegalFramework, JurisdictionHandler
@@ -26,8 +27,7 @@ class GeometryModel(BaseModel):
     type: str
     coordinates: Any
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class JurisdictionCreate(BaseModel):
@@ -44,8 +44,8 @@ class JurisdictionCreate(BaseModel):
     parent_id: Optional[str] = Field(None, description="Parent jurisdiction ID")
     geometry: Optional[GeometryModel] = Field(None, description="GeoJSON geometry")
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "name": "Sample City",
                 "level": "local",
@@ -58,6 +58,7 @@ class JurisdictionCreate(BaseModel):
                 },
             }
         }
+    )
 
 
 class RegulationCreate(BaseModel):
@@ -84,8 +85,8 @@ class RegulationCreate(BaseModel):
     source_url: Optional[str] = Field(None, description="URL to the source document")
     tags: Optional[List[str]] = Field(None, description="Tags for the regulation")
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "name": "Water Conservation Ordinance",
                 "description": "Restrictions on water usage during drought conditions",
@@ -96,6 +97,7 @@ class RegulationCreate(BaseModel):
                 "tags": ["water", "conservation", "drought"],
             }
         }
+    )
 
 
 class RegulatoryFrameworkCreate(BaseModel):
@@ -111,8 +113,8 @@ class RegulatoryFrameworkCreate(BaseModel):
         None, description="IDs of regulations in this framework"
     )
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "name": "Environmental Protection Framework",
                 "description": "Framework of regulations for environmental protection",
@@ -121,6 +123,7 @@ class RegulatoryFrameworkCreate(BaseModel):
                 "regulation_ids": ["reg-001", "reg-002", "reg-003"],
             }
         }
+    )
 
 
 class PointLocation(BaseModel):
@@ -327,7 +330,7 @@ class LegalAPI:
 
             # Create Jurisdiction object
             jurisdiction = Jurisdiction(
-                id=f"jur-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
+                id=f"jur-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:8]}",
                 name=jurisdiction_data.name,
                 level=jurisdiction_data.level,
                 description=jurisdiction_data.description or "",
@@ -504,7 +507,7 @@ class LegalAPI:
         try:
             # Create Regulation object
             regulation = Regulation(
-                id=f"reg-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
+                id=f"reg-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:8]}",
                 name=regulation_data.name,
                 description=regulation_data.description or "",
                 regulation_type=regulation_data.category or "",
@@ -634,7 +637,7 @@ class LegalAPI:
         try:
             # Create RegulatoryFramework object
             framework = RegulatoryFramework(
-                id=f"framework-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
+                id=f"framework-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:8]}",
                 name=framework_data.name,
                 description=framework_data.description or "",
                 authority=framework_data.authority,

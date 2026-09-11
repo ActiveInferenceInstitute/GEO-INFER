@@ -315,8 +315,10 @@ class EnhancedLogger:
         level_method = getattr(self.logger, entry.level.lower(), self.logger.info)
 
         # Create extra fields for structured logging
+        # "module" is a reserved LogRecord attribute; use "log_module" to
+        # avoid the KeyError raised by logging for reserved keys.
         extra = {
-            "module": entry.module,
+            "log_module": entry.module,
             "operation": entry.operation,
             "context": entry.context,
             "trace_id": entry.trace_id,
@@ -459,8 +461,8 @@ class JSONFormatter(logging.Formatter):
             ).isoformat(),
             "level": record.levelname,
             "logger": record.name,
+            "module": getattr(record, "log_module", record.module),
             "message": record.getMessage(),
-            "module": getattr(record, "module", "unknown"),
             "operation": getattr(record, "operation", "unknown"),
         }
 

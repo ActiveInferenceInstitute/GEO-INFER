@@ -8,9 +8,10 @@ functionality, including status checks, evaluations, and reporting.
 from typing import Dict, List, Optional, Any
 import datetime
 from fastapi import APIRouter, HTTPException, Query, Path, Body
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from shapely.geometry import Point
 import json
+import uuid
 
 from geo_infer_norms.core.compliance_tracking import ComplianceTracker, ComplianceReport
 from geo_infer_norms.models.compliance_status import ComplianceStatus, ComplianceMetric
@@ -37,8 +38,8 @@ class ComplianceStatusCreate(BaseModel):
         None, description="Results of individual metric evaluations"
     )
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "entity_id": "entity-123",
                 "regulation_id": "reg-456",
@@ -56,6 +57,7 @@ class ComplianceStatusCreate(BaseModel):
                 ],
             }
         }
+    )
 
 
 class ComplianceMetricCreate(BaseModel):
@@ -86,8 +88,8 @@ class ComplianceMetricCreate(BaseModel):
         None, description="Maximum value for range evaluation"
     )
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "name": "Emissions Limit",
                 "description": "Maximum allowable emissions level",
@@ -99,6 +101,7 @@ class ComplianceMetricCreate(BaseModel):
                 "comparison": "less_than",
             }
         }
+    )
 
 
 class EvaluationData(BaseModel):
@@ -112,8 +115,8 @@ class EvaluationData(BaseModel):
         ..., description="Data points for evaluation"
     )
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "entity_id": "entity-123",
                 "regulation_id": "reg-456",
@@ -125,6 +128,7 @@ class EvaluationData(BaseModel):
                 },
             }
         }
+    )
 
 
 class GeoPoint(BaseModel):
@@ -229,7 +233,7 @@ class ComplianceAPI:
         try:
             # Create a ComplianceStatus object
             status = ComplianceStatus(
-                id=f"status-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
+                id=f"status-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:8]}",
                 entity_id=status_data.entity_id,
                 regulation_id=status_data.regulation_id,
                 is_compliant=status_data.is_compliant,
@@ -323,7 +327,7 @@ class ComplianceAPI:
         try:
             # Create a ComplianceMetric object
             metric = ComplianceMetric(
-                id=f"metric-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
+                id=f"metric-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:8]}",
                 name=metric_data.name,
                 description=metric_data.description or "",
                 regulation_id=metric_data.regulation_id,

@@ -472,6 +472,10 @@ class ComplianceTracker:
                 # Get overall compliance for all regulations
                 compliance_info = self.get_entity_compliance(entity.id, as_of_date)
 
+                if not compliance_info.get("regulations"):
+                    # No recorded statuses: skip rather than emit an empty row.
+                    continue
+
                 data.append(
                     {
                         "entity_id": entity.id,

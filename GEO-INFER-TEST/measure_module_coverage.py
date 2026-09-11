@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -94,6 +95,13 @@ def measure_module(module: str) -> dict:
             capture_output=True,
             text=True,
             timeout=MODULE_TIMEOUT_SECONDS,
+            # Concurrent module jobs share this cwd; without an isolated
+            # data file each job's combine step globs the other jobs'
+            # in-flight .coverage.* files and cross-pollutes every report.
+            env={
+                **os.environ,
+                "COVERAGE_FILE": str(Path(data_dir) / ".coverage"),
+            },
         )
         seconds = round(time.monotonic() - started, 1)
         if completed.returncode not in (0, 1):

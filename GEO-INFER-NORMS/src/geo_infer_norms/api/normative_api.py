@@ -13,7 +13,7 @@ import uuid
 from pathlib import Path as FilePath
 import numpy as np
 from fastapi import APIRouter, HTTPException, Query, Path
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from shapely.geometry import Point, shape
 from shapely.geometry.base import BaseGeometry
 
@@ -30,8 +30,7 @@ class GeometryModel(BaseModel):
     type: str
     coordinates: Any
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class SocialNormCreate(BaseModel):
@@ -56,8 +55,8 @@ class SocialNormCreate(BaseModel):
     )
     tags: Optional[List[str]] = Field(None, description="Tags for the norm")
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "name": "Recycling Behavior",
                 "description": "Social norm around household recycling behavior",
@@ -73,6 +72,7 @@ class SocialNormCreate(BaseModel):
                 "tags": ["recycling", "waste", "environmental"],
             }
         }
+    )
 
 
 class NormDiffusionRequest(BaseModel):
@@ -90,8 +90,8 @@ class NormDiffusionRequest(BaseModel):
         None, description="GeoJSON geometry of simulation area"
     )
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "norm_id": "norm-001",
                 "time_steps": 20,
@@ -110,6 +110,7 @@ class NormDiffusionRequest(BaseModel):
                 },
             }
         }
+    )
 
 
 class NormativeInferenceRequest(BaseModel):
@@ -127,8 +128,8 @@ class NormativeInferenceRequest(BaseModel):
         None, description="Inference parameters"
     )
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "data_source": "survey_responses",
                 "inference_type": "bayesian",
@@ -147,6 +148,7 @@ class NormativeInferenceRequest(BaseModel):
                 },
             }
         }
+    )
 
 
 class NormPolicyImpactRequest(BaseModel):
@@ -161,8 +163,8 @@ class NormPolicyImpactRequest(BaseModel):
         None, description="Assessment parameters"
     )
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "norm_id": "norm-001",
                 "policy_id": "policy-001",
@@ -174,6 +176,7 @@ class NormPolicyImpactRequest(BaseModel):
                 },
             }
         }
+    )
 
 
 class PointLocation(BaseModel):

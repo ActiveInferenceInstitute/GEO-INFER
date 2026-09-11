@@ -582,6 +582,11 @@ class RuleBasedAgent(BaseAgent):
 
         return perceptions
 
+    def update_beliefs(self, perception: Dict[str, Any]) -> None:
+        """Update facts from a perception dict (mirrors perceive())."""
+        if perception:
+            self._update_facts_from_perceptions(perception)
+
     def _update_facts_from_perceptions(self, perceptions: Dict[str, Any]) -> None:
         """
         Update facts based on perceptions.
