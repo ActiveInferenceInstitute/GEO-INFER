@@ -329,7 +329,6 @@ class TestAdaptiveRoutingEngine:
 
     def test_predict_prefers_learned_successful_route(self) -> None:
         engine = AdaptiveRoutingEngine()
-        message = _message()
         reliable = MessageResponse(
             content="route me",
             sender_id="sender-1",
