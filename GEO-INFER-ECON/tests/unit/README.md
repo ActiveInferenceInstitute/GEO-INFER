@@ -16,6 +16,7 @@ Unit workspace within `GEO-INFER-ECON`.
 - `test_macroeconomics.py`
 - `test_market_structure.py`
 - `test_modeling_engine.py`
+- `test_okun_employment_sign.py`
 - `test_policy_engine.py`
 - `test_producer_theory.py`
 - `test_visualizer.py`

@@ -154,9 +154,13 @@ class PolicyAnalysisEngine:
             )
             gdp_impact[region] = gdp_change * baseline_value / 100
 
-            # Employment impact (Okun's law approximation)
+            # Employment impact (Okun's law approximation: du = -beta*dGDP, so
+            # employment moves in the same direction as GDP regardless of the
+            # sign convention of the supplied coefficient)
             okun_coefficient = params.get("okun_coefficient", -2.0)
-            employment_change = gdp_change / okun_coefficient
+            if okun_coefficient == 0:
+                raise ValueError("okun_coefficient must be non-zero")
+            employment_change = gdp_change / abs(okun_coefficient)
             employment_impact[region] = employment_change
 
             # Welfare impact (simplified)

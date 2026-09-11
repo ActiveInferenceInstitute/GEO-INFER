@@ -71,6 +71,9 @@ class TestPolicyAnalysisEngine:
         )
         impact = self.engine.assess_fiscal_policy(scenario)
         assert "region_A" in impact.employment_impact
+        # Okun's law: employment moves with GDP; a tax cut must not produce
+        # a negative employment impact
+        assert impact.employment_impact["region_A"] > 0
 
     def test_assess_infrastructure_policy(self) -> None:
         scenario = PolicyScenario(
