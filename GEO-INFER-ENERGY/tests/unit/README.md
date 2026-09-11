@@ -8,6 +8,7 @@ Unit workspace within `GEO-INFER-ENERGY`.
 - `test_acceptance_energy.py`
 - `test_carbon_footprint.py`
 - `test_energy_demand.py`
+- `test_energy_demand_forecast_trend.py`
 - `test_energy_grid.py`
 - `test_renewable_resources.py`
 - `test_solar_analysis.py`

@@ -39,9 +39,11 @@ class EnergyDemandForecaster:
         Returns:
             Demand forecast
         """
-        # Calculate trend
-        time_numeric = np.arange(len(historical_demand.time))
-        trend = np.polyfit(time_numeric, historical_demand.values.flatten(), 1)[0]
+        historical_demand = _validate_time_series(historical_demand)
+        # Slope per calendar year, derived from the actual time coordinate
+        # (not per index step) so monthly/sub-annual sampling is extrapolated
+        # at the correct per-year rate.
+        trend = _slope_per_year(historical_demand)
 
         # Optional per-period temperature adjustment: use the temperature
         # series (not a single scalar) so each forecast year gets its own
@@ -110,3 +112,52 @@ class EnergyDemandForecaster:
                 "peak_factor": peak_factor,
             }
         )
+
+
+def _validate_time_series(da: xr.DataArray) -> xr.DataArray:
+    """Require a 1D (time,) demand series with a usable time coordinate."""
+    if not isinstance(da, xr.DataArray):
+        raise ValueError(
+            "historical_demand must be an xr.DataArray with a single 'time' "
+            f"dimension, got {type(da).__name__}"
+        )
+    if "time" not in da.dims:
+        raise ValueError(
+            "historical_demand must have a 'time' dimension, got dims "
+            f"{tuple(da.dims)}"
+        )
+    if len(da.dims) != 1:
+        raise ValueError(
+            "historical_demand must be 1D along 'time'; aggregate spatial or "
+            f"other dimensions first, got dims {tuple(da.dims)}"
+        )
+    if "time" not in da.coords:
+        raise ValueError(
+            "historical_demand must carry a 'time' coordinate so the trend "
+            "can be expressed per calendar year"
+        )
+    return da
+
+
+def _slope_per_year(da: xr.DataArray) -> float:
+    """Least-squares slope of ``da`` expressed per calendar year."""
+    tvals = np.asarray(da.coords["time"].values)
+    if np.issubdtype(tvals.dtype, np.datetime64):
+        # Fractional years via month index so monthly/weekly sampling keeps
+        # its true spacing (years-since-epoch / 12 is a pure shift+scale of
+        # calendar time and preserves the fitted slope's per-year units).
+        years = tvals.astype("datetime64[M]").astype(np.int64) / 12.0
+    else:
+        try:
+            years = np.asarray(tvals, dtype=float)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                "time coordinate must be datetime64 or numeric year values, "
+                f"got dtype {tvals.dtype}"
+            ) from exc
+    if years.size < 2 or np.all(years == years.flat[0]):
+        raise ValueError(
+            "historical_demand needs at least two distinct time values to "
+            "estimate a trend"
+        )
+    return float(np.polyfit(years, np.asarray(da.values, dtype=float), 1)[0])
