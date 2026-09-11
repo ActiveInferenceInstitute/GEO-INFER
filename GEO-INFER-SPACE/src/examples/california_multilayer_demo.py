@@ -159,7 +159,9 @@ def geojson_to_h3_polygons(
     centroid (polygon area is not covered cell-by-cell); linestrings map to
     the cell at their normalized midpoint; duplicate indices are collapsed.
     Illustrative-overlay fidelity only — not suitable for area-accurate
-    spatial joins.
+    spatial joins. Area-accurate polygon→cell coverage is available in the
+    SPACE core (``geo_infer_space.core.spatial_indexing.polygon_to_cells``);
+    this demo deliberately keeps the illustrative centroid behavior.
 
     Returns a list of H3 indices and a mapping of properties.
     """

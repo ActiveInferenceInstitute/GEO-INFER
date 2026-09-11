@@ -8,7 +8,7 @@ GEO-INFER-EMERGENCY operates across three functional areas:
 
 1. **Evacuation Planning** -- Zone delineation, route optimization with contraflow support, shelter management, clearance time estimation, and special population handling for hospitals, nursing homes, and schools.
 2. **Incident Coordination** -- Multi-agency coordination following ICS/NIMS principles with command structure establishment, communication channel assignment, sector-based resource allocation, and situation reporting.
-3. **Resource Deployment** -- Optimization of emergency resource allocation using mixed-integer programming, real-time tracking, priority-based request queuing, and dynamic redeployment as conditions change.
+3. **Resource Deployment** -- Greedy nearest-available-resource allocation under a response-time constraint, real-time tracking, priority-based request queuing, and dynamic redeployment as conditions change.
 
 ## Core Capabilities
 

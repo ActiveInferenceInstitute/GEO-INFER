@@ -66,6 +66,12 @@ class ModuleSimulations:
         Simulates belief updating, policy selection, and free energy minimization
         processes characteristic of Active Inference systems.
 
+        Documented contract: the reported "free energy" is the surprisal
+        (negative entropy) of the categorical state belief — not the ACT
+        expected free energy (no observation-likelihood term, complexity
+        decomposition or policy conditioning). See the inline contract
+        comment in the step function.
+
         Args:
             observations: Observation data array
             beliefs: Initial belief states
@@ -651,6 +657,11 @@ class ModuleSimulations:
 
         Simulates Bayesian parameter estimation, posterior updating, and
         uncertainty quantification processes.
+
+        Documented contract: the reported "posterior" is a fixed 50/50 blend
+        of prior and sample moments (mean) with pooled-RMS std — not the
+        exact Normal conjugate posterior. See the inline contract comment in
+        the step function.
 
         Args:
             observations: Observation data
