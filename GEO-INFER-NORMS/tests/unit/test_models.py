@@ -143,6 +143,22 @@ class TestComplianceStatus:
         assert status.compliance_level == 0.95
         assert status.id is not None
 
+    def test_create_status_rejects_out_of_range_compliance_level(self):
+        with pytest.raises(ValueError):
+            ComplianceStatus.create(
+                entity_id="ent-1",
+                regulation_id="reg-1",
+                is_compliant=True,
+                compliance_level=7.5,
+            )
+        with pytest.raises(ValueError):
+            ComplianceStatus.create(
+                entity_id="ent-1",
+                regulation_id="reg-1",
+                is_compliant=False,
+                compliance_level=-0.1,
+            )
+
     def test_add_evidence(self):
         status = ComplianceStatus.create(
             entity_id="ent-1",

@@ -391,7 +391,7 @@ class TemporalAnalyzer:
 
         Args:
             timeseries: TimeSeries object
-            method: Detection method ('cusum', 'pelt', 'binary_segmentation')
+            method: Detection method ('cusum', 'binary_segmentation')
             min_segment_length: Minimum segment length between change points
 
         Returns:
@@ -479,6 +479,11 @@ class TemporalAnalyzer:
                     segments.append((cp["index"], end))
                     if len(change_points) >= 10:  # Limit
                         break
+        else:
+            raise ValueError(
+                f"geo_infer_time.detect_change_points: unknown method {method!r}; "
+                "supported methods are 'cusum' and 'binary_segmentation'"
+            )
 
         # Sort by index
         change_points.sort(key=lambda x: x["index"])

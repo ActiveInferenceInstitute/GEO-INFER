@@ -89,6 +89,17 @@ class TestMicrobiomeDataLoader:
         dataset = loader.load_emp_data(metadata_path=str(metadata_path))
         assert list(dataset.metadata.index) == ["good"]
 
+    def test_quality_filters_skip_missing_ph_column(self, tmp_path) -> None:
+        loader = MicrobiomeDataLoader()
+        metadata_path = tmp_path / "emp_no_ph.tsv"
+        metadata_path.write_text(
+            "sample_id\tlatitude\tlongitude\ns1\t37.7\t-122.4\n", encoding="utf-8"
+        )
+        dataset = loader.load_emp_data(
+            metadata_path=str(metadata_path), quality_filters=True
+        )
+        assert list(dataset.metadata.index) == ["s1"]
+
 
 class TestMicrobiomeDataset:
     """Behavior tests for the microbiome dataset container."""

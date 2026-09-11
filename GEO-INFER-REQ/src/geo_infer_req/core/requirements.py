@@ -5,10 +5,15 @@ Provides dependency graph construction, requirement priority scoring,
 and completeness checking for software and system requirements.
 """
 
+import logging
+import math
 from typing import Dict, List, Optional, Tuple, Set
 from dataclasses import dataclass, field
 from enum import Enum
+
 from geo_infer_req.core.validation import find_dependency_cycles
+
+_logger = logging.getLogger(__name__)
 
 
 class RequirementType(Enum):
@@ -70,6 +75,7 @@ class DependencyGraph:
     cycles: List[List[str]]
     critical_path: List[str]
     depth: int
+    dangling_dependencies: List[str] = field(default_factory=list)
 
 
 @dataclass
@@ -151,12 +157,21 @@ class RequirementsAnalyzer:
         adjacency: Dict[str, List[str]] = {n: [] for n in nodes}
         in_degree: Dict[str, int] = {n: 0 for n in nodes}
 
+        dangling: List[str] = []
         for req_id, req in self._requirements.items():
             for dep_id in req.dependencies:
                 if dep_id in self._requirements:
                     edges.append((dep_id, req_id))
                     adjacency[dep_id].append(req_id)
                     in_degree[req_id] = in_degree.get(req_id, 0) + 1
+                else:
+                    dangling.append(dep_id)
+                    _logger.warning(
+                        "build_dependency_graph: dropping dependency %r "
+                        "(unknown requirement ID, referenced by %r)",
+                        dep_id,
+                        req_id,
+                    )
 
         # Kahn's algorithm for topological sort
         topo_order = []
@@ -182,7 +197,52 @@ class RequirementsAnalyzer:
             cycles=cycles,
             critical_path=critical_path,
             depth=depth,
+            dangling_dependencies=sorted(set(dangling)),
         )
+
+    @staticmethod
+    def _validate_weights(weights: Dict[str, float]) -> Dict[str, float]:
+        """Validate scoring weights: all required keys present, finite, non-negative.
+
+        Weights are normalized to sum to 1 so custom weight sets produce
+        scores on the same [0, 1] scale as the defaults.
+
+        Raises:
+            ValueError: if a required key is missing or a weight is not a
+                finite, non-negative number.
+        """
+        required = ("priority", "dependents", "stakeholders", "effort")
+        missing = [key for key in required if key not in weights]
+        if missing:
+            raise ValueError(
+                "geo_infer_req: compute_priority_scores weights missing required "
+                f"keys: {missing} (required keys: {list(required)})"
+            )
+        for key in required:
+            value = weights[key]
+            if not isinstance(value, (int, float)) or isinstance(value, bool):
+                raise ValueError(
+                    f"geo_infer_req: compute_priority_scores weight {key!r} "
+                    f"must be a number, got {type(value).__name__}"
+                )
+            if not math.isfinite(value):
+                raise ValueError(
+                    f"geo_infer_req: compute_priority_scores weight {key!r} "
+                    "must be finite, got "
+                    f"{value!r}"
+                )
+            if value < 0:
+                raise ValueError(
+                    f"geo_infer_req: compute_priority_scores weight {key!r} "
+                    f"must be non-negative, got {value}"
+                )
+        total = sum(weights[key] for key in required)
+        if total <= 0:
+            raise ValueError(
+                "geo_infer_req: compute_priority_scores weights must sum to a "
+                f"positive value, got {total}"
+            )
+        return {key: weights[key] / total for key in required}
 
     def compute_priority_scores(
         self,
@@ -199,7 +259,10 @@ class RequirementsAnalyzer:
 
         Args:
             weights: Optional weights for scoring factors.
-                Keys: "priority", "dependents", "stakeholders", "effort"
+                Keys: "priority", "dependents", "stakeholders", "effort".
+                All required keys must be present and finite/non-negative;
+                provided weights are normalized to sum to 1. Raises
+                ValueError on missing keys, invalid, or non-positive totals.
 
         Returns:
             Mapping of req_id to composite priority score.
@@ -210,6 +273,7 @@ class RequirementsAnalyzer:
             "stakeholders": 0.15,
             "effort": 0.15,
         }
+        w = self._validate_weights(w)
 
         # Count dependents for each requirement
         dependent_counts: Dict[str, int] = {rid: 0 for rid in self._requirements}

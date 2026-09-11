@@ -269,14 +269,38 @@ def run_hotspot_analysis(args: argparse.Namespace, config: Any) -> None:
         # Convert to internal format
         from geo_infer_health.models import DiseaseReport, Location, PopulationData
 
+        # Location stores EPSG:4326 coordinates; reproject any other CRS
+        # before extracting point coordinates or centroids.
+        if reports_gdf.crs is not None and reports_gdf.crs.to_epsg() != 4326:
+            reports_gdf = reports_gdf.to_crs("EPSG:4326")
+
         reports: List[DiseaseReport] = []
         for _, row in reports_gdf.iterrows():
-            location = Location(latitude=row.geometry.y, longitude=row.geometry.x)
+            geometry = row.geometry
+            if geometry is None:
+                raise ValueError(
+                    "geo_infer_health.cli.run_hotspot_analysis: disease report "
+                    f"{len(reports)} has no geometry; a point or areal geometry "
+                    "is required to derive a Location"
+                )
+            if geometry.geom_type != "Point":
+                # Areal (polygon/multipolygon) inputs are collapsed to their
+                # centroid so hotspot analysis still operates on a point.
+                geometry = geometry.centroid
+            report_date = row.get("report_date")
+            if report_date is None:
+                raise ValueError(
+                    "geo_infer_health.cli.run_hotspot_analysis: input is missing "
+                    "the required 'report_date' column (or a row has no value); "
+                    "every disease report needs a report date for hotspot "
+                    "analysis"
+                )
+            location = Location(latitude=geometry.y, longitude=geometry.x)
             report = DiseaseReport(
                 report_id=str(row.get("report_id", f"report_{len(reports)}")),
                 disease_code=row.get("disease_code", "UNKNOWN"),
                 location=location,
-                report_date=row.get("report_date", None),
+                report_date=report_date,
                 case_count=int(row.get("case_count", 1)),
             )
             reports.append(report)

@@ -446,3 +446,16 @@ class TestBayesianEdgeCases:
 
         assert "method" in comparison
         assert comparison["best_model_index"] == 0
+
+    def test_ess_failure_reports_nan_not_fabricated_constant(self):
+        """ESS failure path must report NaN (missing-value marker), not a
+        plausible fake baseline constant (GS-124)."""
+        bayesian_spm = BayesianSPM()
+
+        class BrokenTrace:
+            posterior = None
+
+        ess = bayesian_spm._compute_ess(BrokenTrace())
+        assert isinstance(ess, np.ndarray)
+        assert len(ess) == 1
+        assert np.isnan(ess[0])

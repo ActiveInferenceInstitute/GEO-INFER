@@ -225,13 +225,29 @@ async def get_polygon_feature(
     status_code=status.HTTP_201_CREATED,
     summary="Create a new polygon feature",
 )
-async def create_polygon_feature_endpoint(feature: PolygonFeature) -> PolygonFeature:
-    """Create a new polygon feature."""
+async def create_polygon_feature_endpoint(
+    feature: PolygonFeature,
+    settings: Settings = Depends(get_settings),
+) -> PolygonFeature:
+    """Create a new polygon feature.
+
+    The in-memory store is capped at ``settings.polygon_store_max_size``
+    entries; creation beyond the cap is rejected with HTTP 409 rather than
+    letting the store grow without bound.
+    """
     if feature.id is None:
         raise ValidationError("Feature must have an ID", field="id")
 
     if feature.id in POLYGON_FEATURES:
         raise ConflictError("Polygon feature", "already exists", str(feature.id))
+
+    if len(POLYGON_FEATURES) >= settings.polygon_store_max_size:
+        raise ConflictError(
+            "Polygon feature store",
+            "at maximum capacity",
+            str(feature.id),
+            additional_info={"max_size": settings.polygon_store_max_size},
+        )
 
     POLYGON_FEATURES[str(feature.id)] = feature
     return feature

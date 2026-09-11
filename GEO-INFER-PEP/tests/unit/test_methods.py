@@ -1,3 +1,5 @@
+import pytest
+
 from geo_infer_pep.methods import (
     process_employee_onboarding_workflow,
     generate_quarterly_people_report,
@@ -118,3 +120,92 @@ def test_generate_quarterly_report_normalizes_numeric_quarter(caplog):
         for m in messages
     )
     assert not any("QQ3" in m for m in messages)
+
+
+def test_onboarding_failure_with_raising_benefits_client_leaves_store_unchanged():
+    """GS-249: a failing downstream client must not leave a partial employee
+    record in the shared store (the FastAPI layer serves the same list)."""
+    from geo_infer_pep.core.data_store import pep_data_manager
+
+    clear_all_data()
+    candidate = _make_candidate("cand249_benefits_fail")
+    methods_module._candidates_db.append(candidate)
+
+    employee_data = {
+        "candidate_id": "cand249_benefits_fail",
+        "benefits_client": lambda e: (_ for _ in ()).throw(
+            RuntimeError("benefits down")
+        ),
+    }
+    before = len(pep_data_manager.employees)
+
+    result = process_employee_onboarding_workflow(employee_data)
+
+    assert result is False
+    assert len(pep_data_manager.employees) == before
+
+
+def test_onboarding_failure_with_raising_learning_client_leaves_store_unchanged():
+    """GS-249: a learning-client failure after successful benefits must also
+    abort cleanly with no employee persisted."""
+    from geo_infer_pep.core.data_store import pep_data_manager
+
+    clear_all_data()
+    candidate = _make_candidate("cand249_learning")
+    methods_module._candidates_db.append(candidate)
+
+    employee_data = {
+        "candidate_id": "cand249_learning",
+        "benefits_client": lambda employee: None,
+        "learning_client": lambda e: (_ for _ in ()).throw(
+            RuntimeError("learning down")
+        ),
+    }
+    before = len(pep_data_manager.employees)
+
+    result = process_employee_onboarding_workflow(employee_data)
+
+    assert result is False
+    assert len(pep_data_manager.employees) == before
+
+
+def test_onboarding_non_callable_benefits_client_raises_and_leaves_store_unchanged():
+    """GS-249: the TypeError guard must escape the broad except (previously it
+    was swallowed into return False with the employee already persisted)."""
+    from geo_infer_pep.core.data_store import pep_data_manager
+
+    clear_all_data()
+    candidate = _make_candidate("cand249_typeerror")
+    methods_module._candidates_db.append(candidate)
+
+    employee_data = {
+        "candidate_id": "cand249_typeerror",
+        "benefits_client": "not-callable",
+    }
+    before = len(pep_data_manager.employees)
+
+    with pytest.raises(TypeError, match="benefits_client must be callable"):
+        process_employee_onboarding_workflow(employee_data)
+
+    assert len(pep_data_manager.employees) == before
+
+
+def test_onboarding_non_callable_learning_client_raises_and_leaves_store_unchanged():
+    """GS-249: a non-callable learning_client must raise TypeError before any
+    store mutation, not be swallowed into return False."""
+    from geo_infer_pep.core.data_store import pep_data_manager
+
+    clear_all_data()
+    candidate = _make_candidate("cand249_typeerror_learning")
+    methods_module._candidates_db.append(candidate)
+
+    employee_data = {
+        "candidate_id": "cand249_typeerror_learning",
+        "learning_client": 42,
+    }
+    before = len(pep_data_manager.employees)
+
+    with pytest.raises(TypeError, match="learning_client must be callable"):
+        process_employee_onboarding_workflow(employee_data)
+
+    assert len(pep_data_manager.employees) == before

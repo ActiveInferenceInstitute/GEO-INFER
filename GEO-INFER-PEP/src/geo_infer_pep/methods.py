@@ -134,6 +134,16 @@ def process_employee_onboarding_workflow(employee_data: dict) -> bool:
         )
         return False
 
+    # Validate integration clients before touching the shared store: a
+    # malformed configuration must abort cleanly, so these TypeErrors
+    # intentionally escape the try block below.
+    benefits_client = employee_data.get("benefits_client")
+    if benefits_client is not None and not callable(benefits_client):
+        raise TypeError("benefits_client must be callable")
+    learning_client = employee_data.get("learning_client")
+    if learning_client is not None and not callable(learning_client):
+        raise TypeError("learning_client must be callable")
+
     try:
         # Create employee record using candidate data
         employee_id = f"emp_{candidate_id}_{candidate.first_name.lower()}_{candidate.last_name.lower()}"
@@ -160,22 +170,19 @@ def process_employee_onboarding_workflow(employee_data: dict) -> bool:
             location=location,
         )
 
-        # Add employee to database
-        _employees_db.append(employee)
-
         # Process through HR pipeline (clean and enrich data)
-        employees_list = [employee]
-        cleaned_employees = clean_employee_data(employees_list)
+
+        cleaned_employees = clean_employee_data([employee])
         enriched_employees = enrich_employee_data(cleaned_employees)
 
         # Update employee with enriched data
         updated_employee = enriched_employees[0]
         employee_id = updated_employee.employee_id
 
-        benefits_client = employee_data.get("benefits_client")
+        # Invoke downstream integrations BEFORE persisting: any failure here
+        # must leave the shared store untouched (clean abort, no partial
+        # employee record).
         if benefits_client is not None:
-            if not callable(benefits_client):
-                raise TypeError("benefits_client must be callable")
             benefits_client(employee)
         else:
             logger.info(
@@ -183,16 +190,16 @@ def process_employee_onboarding_workflow(employee_data: dict) -> bool:
                 employee_id,
             )
 
-        learning_client = employee_data.get("learning_client")
         if learning_client is not None:
-            if not callable(learning_client):
-                raise TypeError("learning_client must be callable")
             learning_client(employee)
         else:
             logger.info(
                 "Training scheduling not performed; no learning integration configured for %s",
                 employee_id,
             )
+
+        # All processing succeeded; only now add employee to the database.
+        _employees_db.append(employee)
 
         logger.info(
             "Onboarding workflow for %s %s (employee ID: %s) completed successfully.",

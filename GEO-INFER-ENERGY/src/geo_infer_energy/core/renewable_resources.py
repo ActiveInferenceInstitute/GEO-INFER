@@ -300,15 +300,24 @@ class RenewableResourceAssessor:
 
         Args:
             resource_type: Type of renewable
-            resource_data: Time series of resource (irradiance, wind, etc.)
+            resource_data: Time series of resource. For solar types this is
+                expected in W/m2 (1000 W/m2 = full rated power); a series in
+                kWh/m2/day (typical documented solar-atlas units, max below
+                24) is auto-detected and converted to mean W/m2 by
+                multiplying by 1000/24.
             rated_capacity_mw: Rated capacity
 
         Returns:
             Capacity factor analysis
         """
         if resource_type in [RenewableType.SOLAR_PV, RenewableType.SOLAR_THERMAL]:
-            # Solar: capacity factor from irradiance
-            # Assume 1000 W/m² = full power
+            # Solar: capacity factor from irradiance. Expected input units are
+            # W/m2 (1000 W/m2 = full power). Auto-detect kWh/m2/day inputs
+            # (daily solar-atlas values max out below 24) and convert to mean
+            # W/m2, so a 5.5 kWh/m2/day raster yields a meaningful capacity
+            # factor instead of a silent ~0.5% one.
+            if float(resource_data.max()) <= 24.0:
+                resource_data = resource_data * (1000.0 / 24.0)
             power_fraction = resource_data / 1000
             power_fraction = xr.where(power_fraction > 1, 1, power_fraction)
             power_fraction = xr.where(power_fraction < 0, 0, power_fraction)
@@ -348,7 +357,7 @@ class RenewableResourceAssessor:
         min_cf = float(power_fraction.min())
 
         # Hours at different output levels
-        hours_total = len(power_fraction)
+        hours_total = int(power_fraction.size)
         hours_zero = int((power_fraction < 0.01).sum())
         hours_full = int((power_fraction > 0.95).sum())
 
@@ -396,7 +405,13 @@ class RenewableResourceAssessor:
         """
         # Get costs
         if capital_cost_usd_kw is None:
-            capital_cost_usd_kw = self.capital_costs.get(resource_type, 2000)
+            if resource_type not in self.capital_costs:
+                raise ValueError(
+                    f"No capital cost registered for {resource_type.value!r}; "
+                    "pass capital_cost_usd_kw explicitly instead of falling "
+                    "back to a default."
+                )
+            capital_cost_usd_kw = self.capital_costs[resource_type]
 
         if opex_usd_kw_year is None:
             # Default O&M is ~2% of capital per year

@@ -151,19 +151,31 @@ class ModelExplainer:
         base_predictions = self.model.predict(X_background)
         base_value = float(np.mean(base_predictions))
 
-        # Compute marginal contributions for each feature
         shap_values = np.zeros((n_obs, n_features))
 
+        # Compute marginal contributions for each feature. Original and
+        # perturbed predictions are batched: one predict call for all
+        # observations, then one predict call per feature over the stacked
+        # (n_obs * bg_size) perturbed matrix — instead of one predict per
+        # (feature, observation) pair.
+        pred_original = np.asarray(self.model.predict(X)).reshape(n_obs)
+
+        # Stacked perturbed copies: for each feature j, every observation is
+        # tiled across the background sample with column j replaced by
+        # background values.
+        X_perturbed_stacked = np.repeat(X[:, np.newaxis, :], bg_size, axis=1)
+
         for j in range(n_features):
-            # Create perturbed copies where feature j is replaced by background values
-            for i in range(n_obs):
-                X_perturbed = np.tile(X[i], (bg_size, 1))
-                X_perturbed[:, j] = X_background[:, j]
+            perturbed = X_perturbed_stacked.copy()
+            perturbed[:, :, j] = X_background[:, j][np.newaxis, :]
+            perturbed_flat = perturbed.reshape(n_obs * bg_size, n_features)
 
-                pred_original = self.model.predict(X[i : i + 1])[0]
-                pred_perturbed_mean = np.mean(self.model.predict(X_perturbed))
+            pred_perturbed = np.asarray(self.model.predict(perturbed_flat)).reshape(
+                n_obs, bg_size
+            )
+            pred_perturbed_mean = np.mean(pred_perturbed, axis=1)
 
-                shap_values[i, j] = pred_original - pred_perturbed_mean
+            shap_values[:, j] = pred_original - pred_perturbed_mean
 
         # Feature-level summaries
         mean_abs_shap = np.mean(np.abs(shap_values), axis=0)

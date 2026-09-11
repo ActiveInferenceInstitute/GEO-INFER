@@ -5,7 +5,6 @@ Geo Infer Iot workspace within `GEO-INFER-IOT`.
 ## Contents
 
 - `api/`
-- `config/`
 - `core/`
 - `models/`
 - `performance/`

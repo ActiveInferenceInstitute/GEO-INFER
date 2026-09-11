@@ -384,7 +384,7 @@ class IntelligentETLPipeline:
 
     Features:
     - Automatic dependency resolution between transformation steps
-    - Multiple error recovery strategies (fail_fast, retry, skip, rollback, intelligent_retry)
+    - Multiple error recovery strategies (fail_fast, retry, skip, intelligent_retry)
     - Performance monitoring and bottleneck identification
     - Parallel execution of independent transformations
     - Real-time progress tracking and logging
@@ -394,7 +394,7 @@ class IntelligentETLPipeline:
     Attributes:
         workflow_config: Pipeline configuration (file path or dictionary)
         dependency_resolution: Strategy for resolving transformation dependencies
-        error_recovery: Error recovery strategy ('fail_fast', 'retry', 'skip', 'rollback', 'intelligent_retry')
+        error_recovery: Error recovery strategy ('fail_fast', 'retry', 'skip', 'intelligent_retry')
         monitoring_enabled: Whether performance monitoring is enabled
         parallel_execution: Whether to execute transformations in parallel
         pipeline: Configured ETLPipeline object
@@ -402,15 +402,15 @@ class IntelligentETLPipeline:
         current_execution: Currently running execution status
         transformation_engine: Engine for executing transformations
         performance_monitor: Performance monitoring instance
+        max_retries: Maximum retry attempts for retry-capable recovery strategies
+        retry_delay: Base delay in seconds for exponential retry backoff
 
     Methods:
         execute_workflow(): Execute the complete ETL workflow
         _extract_data(): Extract data from source systems
         _transform_data(): Apply transformation pipeline
         _load_data(): Load data to target systems
-        _handle_error(): Handle pipeline execution errors
-        _handle_transformation_error(): Handle individual transformation errors
-        _intelligent_error_recovery(): Intelligent error recovery with adaptive strategies
+        _recovery_delay(): Backoff delay before a retry, adapted to error type
         get_performance_metrics(): Get pipeline performance metrics
         identify_bottlenecks(): Identify performance bottlenecks
         _calculate_transformation_progress(): Calculate transformation progress
@@ -422,17 +422,21 @@ class IntelligentETLPipeline:
             Automatic resolution analyzes transformation dependencies and creates optimal execution order.
         error_recovery: Error recovery strategy for handling failures:
             - 'fail_fast': Stop immediately on first error
-            - 'retry': Retry failed operations with backoff
+            - 'retry': Retry the failed workflow up to max_retries times with
+              exponential backoff; return the successful retry's result
             - 'skip': Skip failed operations and continue
-            - 'rollback': Rollback changes on failure
-            - 'intelligent_retry': Adaptive retry with different strategies based on error type
-        monitoring_enabled: Whether to enable detailed performance monitoring and metrics collection
-        parallel_execution: Whether to execute independent transformations in parallel for improved performance
+            - 'rollback': NOT IMPLEMENTED - constructing a pipeline with this
+              strategy raises NotImplementedError instead of silently no-op'ing
+            - 'intelligent_retry': Adaptive retry with error-type-specific
+              backoff, capped at max_retries attempts
+        max_retries: Maximum number of retry attempts after the initial one
+            (default 3). Exhaustion raises with the accumulated error.
+        retry_delay: Base delay in seconds for exponential backoff between
+            retries (default 1.0).
 
     Raises:
-        ConfigurationError: If workflow configuration is invalid
-        PipelineError: If pipeline execution fails
-        DependencyError: If dependency resolution fails
+        NotImplementedError: If error_recovery='rollback' is requested
+        ValueError: If error_recovery is not a known strategy or max_retries/retry_delay is negative
 
     Examples:
         >>> # Initialize with configuration file
@@ -476,10 +480,39 @@ class IntelligentETLPipeline:
         error_recovery: str = "intelligent_retry",
         monitoring_enabled: bool = True,
         parallel_execution: bool = True,
+        max_retries: int = 3,
+        retry_delay: float = 1.0,
     ):
+        if max_retries < 0:
+            raise ValueError(
+                f"GEO-INFER-DATA pipeline: max_retries must be >= 0, got {max_retries}"
+            )
+        if retry_delay < 0:
+            raise ValueError(
+                f"GEO-INFER-DATA pipeline: retry_delay must be >= 0, got {retry_delay}"
+            )
+        try:
+            recovery_strategy = ErrorRecoveryStrategy(error_recovery)
+        except ValueError:
+            raise ValueError(
+                "GEO-INFER-DATA pipeline: unknown error_recovery strategy "
+                f"{error_recovery!r}; expected one of "
+                f"{[s.value for s in ErrorRecoveryStrategy]}"
+            ) from None
+        if recovery_strategy is ErrorRecoveryStrategy.ROLLBACK:
+            raise NotImplementedError(
+                "GEO-INFER-DATA pipeline: error_recovery='rollback' is not "
+                "implemented; no rollback of committed pipeline state is "
+                "available. Use 'fail_fast', 'retry', 'skip', or "
+                "'intelligent_retry' instead."
+            )
+
         self.workflow_config = workflow_config
         self.dependency_resolution = dependency_resolution
         self.error_recovery = error_recovery
+        self.error_recovery_strategy = recovery_strategy
+        self.max_retries = max_retries
+        self.retry_delay = retry_delay
         self.monitoring_enabled = monitoring_enabled
         self.parallel_execution = parallel_execution
 
@@ -568,7 +601,8 @@ class IntelligentETLPipeline:
             }
 
         Raises:
-            PipelineExecutionError: If pipeline execution fails and cannot be recovered
+            RuntimeError: If pipeline execution fails and cannot be recovered
+                (retries exhausted under 'retry'/'intelligent_retry')
             ConfigurationError: If workflow configuration is invalid
             DataExtractionError: If data extraction fails
             TransformationError: If transformation pipeline fails
@@ -605,76 +639,105 @@ class IntelligentETLPipeline:
         """
         logger.info("Starting ETL workflow execution")
 
-        # Create execution status
-        execution_id = f"exec_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
-        self.current_execution = ExecutionStatus(
-            id=execution_id,
-            pipeline_id=self.pipeline.id if self.pipeline else "unknown",
-            status=ExecutionState.RUNNING,
-            started_at=datetime.now(timezone.utc),
+        max_attempts = (
+            self.max_retries + 1
+            if self.error_recovery_strategy
+            in (ErrorRecoveryStrategy.RETRY, ErrorRecoveryStrategy.INTELLIGENT_RETRY)
+            else 1
         )
+        last_error: Optional[Exception] = None
 
-        try:
-            # Extract phase
-            extracted_data = await self._extract_data(source_data)
+        for attempt in range(max_attempts):
+            if attempt > 0:
+                delay = self._recovery_delay(last_error, attempt - 1)
+                logger.warning(
+                    "ETL workflow retry %d/%d after error: %s",
+                    attempt,
+                    self.max_retries,
+                    last_error,
+                )
+                if delay > 0:
+                    await asyncio.sleep(delay)
 
-            # Transform phase
-            transformed_data = await self._transform_data(
-                extracted_data, transformation_rules
+            # Create execution status for this attempt
+            execution_id = (
+                f"exec_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
+            )
+            self.current_execution = ExecutionStatus(
+                id=execution_id,
+                pipeline_id=self.pipeline.id if self.pipeline else "unknown",
+                status=ExecutionState.RUNNING,
+                started_at=datetime.now(timezone.utc),
             )
 
-            # Load phase
-            load_result = await self._load_data(transformed_data, target_storage)
+            try:
+                # Extract phase
+                extracted_data = await self._extract_data(source_data)
 
-            # Update execution status
-            self.current_execution.status = ExecutionState.COMPLETED
-            self.current_execution.completed_at = datetime.now(timezone.utc)
-            self.current_execution.progress = 100.0
+                # Transform phase
+                transformed_data = await self._transform_data(
+                    extracted_data, transformation_rules
+                )
 
-            # Record execution
-            self.execution_history.append(self.current_execution)
+                # Load phase
+                load_result = await self._load_data(transformed_data, target_storage)
 
-            execution_result = {
-                "execution_id": execution_id,
-                "status": "completed",
-                "extracted_records": (
-                    len(extracted_data) if hasattr(extracted_data, "__len__") else 1
-                ),
-                "transformed_records": (
-                    len(transformed_data) if hasattr(transformed_data, "__len__") else 1
-                ),
-                "load_result": load_result,
-                "execution_time": (
-                    (
-                        self.current_execution.completed_at
-                        - self.current_execution.started_at
-                    )
-                    if (
-                        self.current_execution.completed_at
-                        and self.current_execution.started_at
-                    )
-                    else timedelta()
-                ),
-                "performance_metrics": self._get_performance_metrics(),
-            }
+                # Update execution status
+                self.current_execution.status = ExecutionState.COMPLETED
+                self.current_execution.completed_at = datetime.now(timezone.utc)
+                self.current_execution.progress = 100.0
 
-            logger.info(
-                f"ETL workflow completed successfully in {execution_result['execution_time']}"
-            )
-            return execution_result
+                # Record execution
+                self.execution_history.append(self.current_execution)
 
-        except Exception as e:
-            logger.error(f"ETL workflow failed: {e}")
+                execution_result = {
+                    "execution_id": execution_id,
+                    "status": "completed",
+                    "extracted_records": (
+                        len(extracted_data) if hasattr(extracted_data, "__len__") else 1
+                    ),
+                    "transformed_records": (
+                        len(transformed_data)
+                        if hasattr(transformed_data, "__len__")
+                        else 1
+                    ),
+                    "load_result": load_result,
+                    "execution_time": (
+                        (
+                            self.current_execution.completed_at
+                            - self.current_execution.started_at
+                        )
+                        if (
+                            self.current_execution.completed_at
+                            and self.current_execution.started_at
+                        )
+                        else timedelta()
+                    ),
+                    "performance_metrics": self._get_performance_metrics(),
+                }
 
-            # Update execution status
-            self.current_execution.status = ExecutionState.FAILED
-            self.current_execution.completed_at = datetime.now(timezone.utc)
-            self.current_execution.message = str(e)
+                logger.info(
+                    f"ETL workflow completed successfully in {execution_result['execution_time']}"
+                )
+                return execution_result
 
-            # Apply error recovery
-            await self._handle_error(e, source_data, target_storage)
+            except Exception as e:
+                logger.error(
+                    f"ETL workflow attempt {attempt + 1}/{max_attempts} failed: {e}"
+                )
 
-            raise
+                # Update execution status and record the failed attempt
+                self.current_execution.status = ExecutionState.FAILED
+                self.current_execution.completed_at = datetime.now(timezone.utc)
+                self.current_execution.message = str(e)
+                self.execution_history.append(self.current_execution)
+                last_error = e
+
+        raise RuntimeError(
+            "GEO-INFER-DATA pipeline: ETL workflow failed after "
+            f"{max_attempts} attempt(s) (error_recovery={self.error_recovery!r}, "
+            f"max_retries={self.max_retries}): {last_error}"
+        ) from last_error
 
     async def _extract_data(self, source_data: Any) -> Any:
         """Extract data from source systems."""
@@ -848,10 +911,13 @@ class IntelligentETLPipeline:
                     logger.warning(f"Skipping transformation {transformation.type}")
                     continue
                 else:
-                    # Retry or intelligent recovery
+                    # Retry / intelligent_retry: log the failure, then let the
+                    # error bubble to execute_workflow, which owns the single
+                    # capped retry budget with backoff.
                     await self._handle_transformation_error(
                         e, transformation, transformed_data
                     )
+                    raise
 
         logger.debug("Data transformation completed")
         return transformed_data
@@ -994,25 +1060,6 @@ class IntelligentETLPipeline:
             return {"records_loaded": records, "destination": "mapping"}
         raise TypeError("target_storage must be None, a mapping, or expose store()")
 
-    async def _handle_error(
-        self, error: Exception, source_data: Any, target_storage: Any
-    ) -> None:
-        """Handle pipeline execution errors."""
-        logger.error(f"Handling pipeline error: {error}")
-
-        if self.error_recovery == ErrorRecoveryStrategy.RETRY:
-            # Simple retry
-            await asyncio.sleep(5)
-            await self.execute_workflow(source_data, target_storage)
-
-        elif self.error_recovery == ErrorRecoveryStrategy.INTELLIGENT_RETRY:
-            # Intelligent retry with backoff and partial recovery
-            await self._intelligent_error_recovery(error, source_data, target_storage)
-
-        # Record failed execution
-        if self.current_execution is not None:
-            self.execution_history.append(self.current_execution)
-
     async def _handle_transformation_error(
         self, error: Exception, transformation: Transformation, data: Any
     ) -> None:
@@ -1031,34 +1078,25 @@ class IntelligentETLPipeline:
             }
             self.current_execution.logs.append(log_entry)
 
-    async def _intelligent_error_recovery(
-        self, error: Exception, source_data: Any, target_storage: Any
-    ) -> None:
-        """Intelligent error recovery with adaptive strategies."""
-        # Implementation for intelligent error recovery
-        logger.info("Attempting intelligent error recovery")
+    def _recovery_delay(self, error: Optional[Exception], retry_index: int) -> float:
+        """Return the backoff delay (seconds) before retry ``retry_index``.
 
-        # Analyze error type and apply appropriate recovery strategy
-        error_type = type(error).__name__
-
-        if "ConnectionError" in error_type:
-            # Network-related error - retry with exponential backoff
-            await asyncio.sleep(10)
-        elif "ValidationError" in error_type:
-            # Data validation error - attempt data repair
-            logger.warning("Attempting data repair for validation error")
-        elif "MemoryError" in error_type:
-            # Memory error - reduce batch size and retry
-            logger.warning("Memory error detected, reducing batch size")
-
-        # Attempt recovery
-        try:
-            await self.execute_workflow(source_data, target_storage)
-        except Exception as retry_error:
-            logger.error(f"Recovery failed: {retry_error}")
-            # Final failure - record and raise
-            if self.current_execution:
-                self.current_execution.message = f"Recovery failed: {retry_error}"
+        The delay grows exponentially with the retry index. For the
+        INTELLIGENT_RETRY strategy the base delay is adapted to the error
+        type: connection errors get a longer cooldown, validation errors are
+        retried immediately because retrying the same data cannot repair it.
+        """
+        if self.error_recovery_strategy is ErrorRecoveryStrategy.INTELLIGENT_RETRY:
+            error_type = type(error).__name__ if error is not None else ""
+            if "ConnectionError" in error_type:
+                base_delay = max(self.retry_delay, 2.0)
+            elif "ValidationError" in error_type:
+                base_delay = 0.0
+            else:
+                base_delay = self.retry_delay
+        else:
+            base_delay = self.retry_delay
+        return base_delay * (2**retry_index)
 
     def get_performance_metrics(self) -> Dict[str, Any]:
         """Get pipeline performance metrics."""

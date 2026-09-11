@@ -7,6 +7,20 @@ from enum import Enum
 import numpy as np
 import xarray as xr
 
+
+def _normalized(data: xr.DataArray) -> xr.DataArray:
+    """Scale a DataArray to [0, 1] by its finite maximum.
+
+    Returns ``data / max``; uniform 1.0 when the maximum is zero,
+    negative, or not finite, so an all-zero input cannot propagate
+    NaN into downstream risk calculations.
+    """
+    max_value = float(data.max())
+    if max_value <= 0.0 or not np.isfinite(max_value):
+        return xr.ones_like(data)
+    return data / max_value
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -134,11 +148,11 @@ class WildfireRiskAnalyzer:
         risk = (drought_index + temp_factor) / 2
 
         if fuel_load is not None:
-            fuel_factor = fuel_load / fuel_load.max()
+            fuel_factor = _normalized(fuel_load)
             risk = (risk + fuel_factor) / 2
 
         if wind_speed is not None:
-            wind_factor = wind_speed / wind_speed.max()
+            wind_factor = _normalized(wind_speed)
             risk = risk * (1 + wind_factor * 0.5)  # Wind increases risk
 
         risk = xr.where(risk > 1, 1, risk)
@@ -263,7 +277,7 @@ class WildfireRiskAnalyzer:
             the eight principal compass directions (0, 45, ..., 315
             degrees).
         """
-        spread_probability = fuel_load / fuel_load.max()
+        spread_probability = _normalized(fuel_load)
         potential = ignition_points * spread_probability
         directions = np.arange(0.0, 360.0, 45.0)
 

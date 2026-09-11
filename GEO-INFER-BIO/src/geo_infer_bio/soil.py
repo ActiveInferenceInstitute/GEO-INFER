@@ -216,6 +216,8 @@ class SoilDataIntegrator:
                 soil_df = soil_df.copy()
                 soil_df["latitude"] = [lat for lat, _ in coordinates]
                 soil_df["longitude"] = [lon for _, lon in coordinates]
+                latitude_column = "latitude"
+                longitude_column = "longitude"
 
             soil_data = {}
             for col_name, prop_name in property_columns.items():
@@ -226,8 +228,8 @@ class SoilDataIntegrator:
                     "depth": "0-30cm",
                     "coordinates": [
                         {
-                            "latitude": float(row.latitude),
-                            "longitude": float(row.longitude),
+                            "latitude": float(row[latitude_column]),
+                            "longitude": float(row[longitude_column]),
                             "value": row[col_name],
                             "depth": "0-30cm",
                         }

@@ -4,6 +4,22 @@ import logging
 from typing import Dict, Optional
 import xarray as xr
 
+import numpy as np
+
+
+def _normalized(data: xr.DataArray) -> xr.DataArray:
+    """Scale a DataArray to [0, 1] by its finite maximum.
+
+    Returns ``data / max``; uniform 1.0 when the maximum is zero,
+    negative, or not finite, so an all-zero tree density cannot
+    propagate NaN into biomass estimates.
+    """
+    max_value = float(data.max())
+    if max_value <= 0.0 or not np.isfinite(max_value):
+        return xr.ones_like(data)
+    return data / max_value
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -35,7 +51,7 @@ class ForestInventory:
 
         if tree_density is not None:
             # Adjust based on tree density
-            biomass = biomass * (tree_density / tree_density.max())
+            biomass = biomass * _normalized(tree_density)
 
         return biomass
 

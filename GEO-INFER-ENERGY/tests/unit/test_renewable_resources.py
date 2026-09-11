@@ -127,6 +127,19 @@ class TestCapacityFactor:
             result["capacity_factor"] * 100 * 8760
         )
 
+    def test_solar_kwh_m2_day_units_yield_meaningful_cf(self, assessor):
+        """A 5.5 kWh/m2/day raster must not silently yield CF ~0.005 (GS-179)."""
+        raster = xr.DataArray(np.full((2, 2), 5.5), dims=("y", "x"))
+        result = assessor.calculate_capacity_factor(RenewableType.SOLAR_PV, raster)
+        # Auto-detected kWh/m2/day -> mean W/m2 = 5.5 * 1000/24 -> CF ~0.229.
+        assert result["capacity_factor"] == pytest.approx(5.5 * 1000.0 / 24.0 / 1000.0)
+
+    def test_hours_analyzed_counts_all_cells(self, assessor):
+        """hours_analyzed must count every element of (time, y, x) input (GS-179)."""
+        irradiance = xr.DataArray(np.full((24, 3, 3), 400.0), dims=("time", "y", "x"))
+        result = assessor.calculate_capacity_factor(RenewableType.SOLAR_PV, irradiance)
+        assert result["hours_analyzed"] == 216
+
     def test_wind_capacity_factor(self, assessor):
         rng = np.random.default_rng(42)
         wind_speeds = rng.weibull(2, 8760) * 8
@@ -176,6 +189,17 @@ class TestLCOE:
         )
         assert result["lifetime_years"] == 30
         assert result["discount_rate"] == 0.08
+
+    def test_lcoe_unknown_resource_type_raises(self, assessor):
+        """WAVE/TIDAL are absent from the cost table; must raise, not default (GS-178)."""
+        with pytest.raises(ValueError, match="wave"):
+            assessor.calculate_lcoe(
+                RenewableType.WAVE, capacity_mw=10, capacity_factor=0.3
+            )
+        with pytest.raises(ValueError, match="tidal"):
+            assessor.calculate_lcoe(
+                RenewableType.TIDAL, capacity_mw=10, capacity_factor=0.3
+            )
 
 
 class TestStorageAnalysis:

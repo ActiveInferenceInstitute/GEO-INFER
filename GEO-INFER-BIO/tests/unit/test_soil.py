@@ -74,6 +74,21 @@ class TestSoilDataIntegrator:
                 coordinates=[(37.7, -122.4)], properties=["phh2o"], depths=["99m"]
             )
 
+    def test_load_custom_soil_data_accepts_lat_lng_headers(self, tmp_path) -> None:
+        integrator = SoilDataIntegrator()
+        csv_path = tmp_path / "soil.csv"
+        csv_path.write_text(
+            "lat,lng,ph\n37.7,-122.4,6.5\n38.0,-122.0,7.5\n", encoding="utf-8"
+        )
+        dataset = integrator.load_custom_soil_data(
+            str(csv_path), [(0.0, 0.0)], {"ph": "ph"}
+        )
+        points = dataset.data["ph_0-30cm"]["coordinates"]
+        assert [(p["latitude"], p["longitude"], float(p["value"])) for p in points] == [
+            (37.7, -122.4, 6.5),
+            (38.0, -122.0, 7.5),
+        ]
+
 
 class TestSoilDataset:
     """Behavior tests for the soil dataset container."""

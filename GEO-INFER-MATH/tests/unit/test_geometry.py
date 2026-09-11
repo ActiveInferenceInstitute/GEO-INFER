@@ -9,6 +9,8 @@ import numpy as np
 import sys
 import os
 
+import pytest
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
 from geo_infer_math.core.geometry import (
@@ -126,6 +128,40 @@ class TestPolygon:
         assert abs(centroid.x - 1.0) < 1e-10
         assert abs(centroid.y - 1.0) < 1e-10
 
+    def test_polygon_centroid_non_convex(self):
+        # L-shape: area centroid (1.5, 1.0), not the vertex mean (1.667, 1.333)
+        exterior = [
+            Point(x=0.0, y=0.0),
+            Point(x=4.0, y=0.0),
+            Point(x=4.0, y=1.0),
+            Point(x=1.0, y=1.0),
+            Point(x=1.0, y=3.0),
+            Point(x=0.0, y=3.0),
+        ]
+        poly = Polygon(exterior=exterior)
+        centroid = poly.centroid()
+        assert abs(centroid.x - 1.5) < 1e-10
+        assert abs(centroid.y - 1.0) < 1e-10
+
+    def test_polygon_centroid_with_hole(self):
+        exterior = [
+            Point(x=0.0, y=0.0),
+            Point(x=10.0, y=0.0),
+            Point(x=10.0, y=10.0),
+            Point(x=0.0, y=10.0),
+        ]
+        hole = [
+            Point(x=2.0, y=2.0),
+            Point(x=4.0, y=2.0),
+            Point(x=4.0, y=4.0),
+            Point(x=2.0, y=4.0),
+        ]
+        poly = Polygon(exterior=exterior, interiors=[hole])
+        centroid = poly.centroid()
+        # (100*(5,5) - 4*(3,3)) / 96
+        assert abs(centroid.x - 488.0 / 96.0) < 1e-10
+        assert abs(centroid.y - 488.0 / 96.0) < 1e-10
+
 
 class TestHaversineDistance:
     """Tests for haversine distance calculations."""
@@ -161,6 +197,12 @@ class TestVincentyDistance:
         # NYC to London, vincenty returns meters
         dist = vincenty_distance(40.7128, -74.0060, 51.5074, -0.1278)
         assert 5.5e6 < dist < 5.7e6
+
+    def test_near_antipodal_raises(self):
+        # Near-antipodal pairs are Vincenty's classic non-convergence case;
+        # the function must raise rather than return an unconverged result.
+        with pytest.raises(ValueError, match="failed to converge"):
+            vincenty_distance(40.7128, -74.0060, -40.7128, 105.994)
 
 
 class TestBearing:

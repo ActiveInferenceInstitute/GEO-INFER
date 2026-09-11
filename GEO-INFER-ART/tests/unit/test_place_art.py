@@ -93,6 +93,21 @@ class TestPlaceArt(unittest.TestCase):
         # Check that the image was created
         self.assertIsNotNone(place_art.image)
 
+    def test_from_place_name_unknown_place_raises(self):
+        """GS-272: unknown places must raise ValueError, not fabricate coordinates."""
+        with self.assertRaises(ValueError) as ctx:
+            PlaceArt._fetch_place_data("atlantis")
+        self.assertIn("atlantis", str(ctx.exception))
+
+        with self.assertRaises(ValueError):
+            PlaceArt.from_place_name(place_name="Atlantis")
+
+    def test_fetch_place_data_known_place(self):
+        """GS-272: known places return documented deterministic metadata."""
+        data = PlaceArt._fetch_place_data("Paris")
+        self.assertEqual(data["coordinates"], (48.8566, 2.3522))
+        self.assertEqual(data["country"], "France")
+
     @patch("geo_infer_art.core.place.place_art.PlaceArt._fetch_location_data")
     def test_add_metadata_overlay(self, mock_fetch):
         """Test adding metadata overlay to the image."""

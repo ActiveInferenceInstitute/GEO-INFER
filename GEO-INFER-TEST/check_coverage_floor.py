@@ -96,8 +96,17 @@ def main(argv: list[str] | None = None) -> int:
     if missing:
         _fail(f"coverage_baseline.json lacks floors for: {missing}")
 
+    known = set(entries)
+    unknown = sorted(modules - known)
+    if unknown:
+        _fail(
+            "coverage_baseline.json has no entry for diff-derived module(s) "
+            f"{unknown}; the module was deleted or renamed without updating "
+            "the baseline — add or drop its floor entry"
+        )
+
     violations: list[str] = []
-    for module in sorted(modules):
+    for module in sorted(modules & known):
         floor = entries[module]["floor_percent"]
         result = measure_module(module)
         if result["status"] != "measured":

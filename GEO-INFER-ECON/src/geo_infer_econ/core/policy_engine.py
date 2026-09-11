@@ -107,6 +107,26 @@ class PolicyAnalysisEngine:
         self.scenarios[scenario.name] = scenario
         self.logger.info(f"Defined policy scenario: {scenario.name}")
 
+    def _require_baseline(self, data_type: str) -> Dict[str, Any]:
+        """
+        Return required baseline data or raise if missing/empty.
+
+        Args:
+            data_type: Baseline data key ('gdp', 'emissions', etc.)
+
+        Returns:
+            The stored baseline data
+
+        Raises:
+            ValueError: If no baseline data of the requested type exists
+        """
+        data = self.baseline_data.get(data_type, {})
+        if not data:
+            raise ValueError(
+                f"Baseline {data_type.upper()} data required for policy analysis"
+            )
+        return data
+
     def assess_fiscal_policy(self, scenario: PolicyScenario) -> PolicyImpact:
         """
         Assess the impact of fiscal policy changes.
@@ -131,9 +151,7 @@ class PolicyAnalysisEngine:
         # In practice, this would use sophisticated macroeconomic models
 
         # Get baseline GDP data
-        baseline_gdp = self.baseline_data.get("gdp", {})
-        if not baseline_gdp:
-            raise ValueError("Baseline GDP data required for fiscal policy analysis")
+        baseline_gdp = self._require_baseline("gdp")
 
         # Calculate multipliers
         spending_multiplier = params.get("spending_multiplier", 1.5)
@@ -201,7 +219,7 @@ class PolicyAnalysisEngine:
         regional_allocation = params.get("regional_allocation", {})
 
         # Infrastructure impact modeling
-        baseline_gdp = self.baseline_data.get("gdp", {})
+        baseline_gdp = self._require_baseline("gdp")
 
         # Different multipliers for different infrastructure types
         multipliers = {
@@ -293,7 +311,7 @@ class PolicyAnalysisEngine:
         carbon_tax = params.get("carbon_tax", 0)
         green_subsidies = params.get("green_subsidies", 0)
 
-        baseline_gdp = self.baseline_data.get("gdp", {})
+        baseline_gdp = self._require_baseline("gdp")
         baseline_emissions = self.baseline_data.get("emissions", {})
 
         gdp_impact = {}

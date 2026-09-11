@@ -353,6 +353,17 @@ def validate_notification_type(notification_type: str) -> bool:
     return notification_type.lower() in valid_types
 
 
+VALID_DELIVERY_METHODS = ["in_app", "email", "sms", "push", "websocket"]
+
+VALID_EVENT_TYPES = [
+    "data_update",
+    "system_alert",
+    "user_action",
+    "sensor_trigger",
+    "geospatial_change",
+]
+
+
 def validate_delivery_methods(methods: Any) -> bool:
     """
     Validate notification delivery methods.
@@ -366,7 +377,7 @@ def validate_delivery_methods(methods: Any) -> bool:
     if not isinstance(methods, list):
         return False
 
-    valid_methods = ["in_app", "email", "sms", "push"]
+    valid_methods = VALID_DELIVERY_METHODS
     return all(method in valid_methods for method in methods)
 
 
@@ -380,13 +391,7 @@ def validate_event_type(event_type: str) -> bool:
     Returns:
         True if event type is valid, False otherwise
     """
-    valid_types = [
-        "data_update",
-        "system_alert",
-        "user_action",
-        "sensor_trigger",
-        "geospatial_change",
-    ]
+    valid_types = VALID_EVENT_TYPES
     return event_type.lower() in valid_types
 
 

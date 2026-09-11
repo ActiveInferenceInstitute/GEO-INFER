@@ -219,7 +219,7 @@ async def plan_route(
             preferences=request.preferences,
         )
         return route
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -238,7 +238,7 @@ async def compare_routes(
 
         # Convert DataFrame to dict
         return {"comparisons": df.to_dict(orient="records")}
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -251,7 +251,7 @@ async def get_network_metrics(
     try:
         metrics = analyzer.calculate_network_metrics()
         return metrics
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -265,7 +265,7 @@ async def identify_critical_links(
     try:
         links = analyzer.identify_critical_links(top_n=top_n)
         return links
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -282,7 +282,7 @@ async def simulate_traffic(
             departure_time=request.departure_time,
         )
         return result
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -298,7 +298,7 @@ async def analyze_congestion(
             time_period=time_period, congestion_threshold=congestion_threshold
         )
         return result
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -316,7 +316,7 @@ async def calculate_emissions(
             terrain_factor=request.terrain_factor,
         )
         return emissions
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -333,7 +333,7 @@ async def compare_vehicle_emissions(
 
         # Convert DataFrame to dict
         return {"comparisons": df.to_dict(orient="records")}
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -347,5 +347,5 @@ async def calculate_fleet_emissions(
     try:
         result = calculator.calculate_fleet_emissions(fleet=fleet, routes=routes)
         return result
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

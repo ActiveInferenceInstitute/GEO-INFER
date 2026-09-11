@@ -1,5 +1,6 @@
 """Tests for policy impact assessment: cost-benefit, stakeholder, and equity analysis."""
 
+import logging
 import math
 
 import pytest
@@ -227,6 +228,49 @@ class TestStakeholderImpactAnalyzer:
         best, worst = stakeholder_analyzer.find_most_affected()
         assert best == "winners"
         assert worst == "losers"
+
+    def test_duplicate_group_names_merge_with_warning(
+        self, stakeholder_analyzer, caplog
+    ):
+        """Two impacts for one group merge (population-weighted) with a
+        warning, instead of the silent last-wins row."""
+        stakeholder_analyzer.add_impact(
+            StakeholderImpact(
+                "residents",
+                1000,
+                ImpactLevel.NEUTRAL,
+                economic_impact=0.5,
+                quality_of_life_impact=0.8,
+            )
+        )
+        stakeholder_analyzer.add_impact(
+            StakeholderImpact(
+                "residents",
+                3000,
+                ImpactLevel.POSITIVE,
+                economic_impact=-0.2,
+                quality_of_life_impact=-0.5,
+            )
+        )
+        with caplog.at_level(
+            logging.WARNING, logger="geo_infer_civ.core.policy_analysis"
+        ):
+            matrix = stakeholder_analyzer.compute_impact_matrix()
+        assert list(matrix) == ["residents"]
+        expected_economic = (math.tanh(0.5) * 1000 + math.tanh(-0.2) * 3000) / 4000
+        expected_qol = (math.tanh(0.8) * 1000 + math.tanh(-0.5) * 3000) / 4000
+        assert matrix["residents"]["economic"] == pytest.approx(
+            expected_economic, abs=1e-4
+        )
+        assert matrix["residents"]["quality_of_life"] == pytest.approx(
+            expected_qol, abs=1e-4
+        )
+        # The merged row is consistent with the population-weighted aggregate.
+        assert matrix["residents"]["weighted_composite"] == pytest.approx(
+            stakeholder_analyzer.compute_aggregate_score(), abs=2e-4
+        )
+        assert "residents" in caplog.text
+        assert "Duplicate stakeholder group names" in caplog.text
 
 
 class TestEquityAnalyzer:

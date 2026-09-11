@@ -107,6 +107,24 @@ class TestCanopyGaps:
         result = analyzer.detect_canopy_gaps(ndvi)
         assert result.attrs["gap_pixel_count"] == 0
 
+    def test_min_gap_pixels_filters_isolated_pixels(self, analyzer):
+        """A single sub-threshold pixel is not a gap with min_gap_pixels=5."""
+        ndvi = xr.DataArray(np.full((5, 5), 0.8), dims=("y", "x"))
+        ndvi.values[2, 2] = 0.1
+        result = analyzer.detect_canopy_gaps(ndvi, gap_threshold=0.4, min_gap_pixels=5)
+        assert not bool(result["gap_mask"].values[2, 2])
+        assert result.attrs["gap_pixel_count"] == 0
+        assert result.attrs["gap_count"] == 0
+
+    def test_min_gap_pixels_keeps_large_gaps(self, analyzer):
+        ndvi = xr.DataArray(np.full((5, 5), 0.8), dims=("y", "x"))
+        ndvi.values[:4, :4] = 0.1
+        result = analyzer.detect_canopy_gaps(ndvi, gap_threshold=0.4, min_gap_pixels=5)
+        assert int(result["gap_mask"].values.sum()) == 16
+        assert result.attrs["gap_count"] == 1
+        assert result.attrs["max_gap_size_pixels"] == 16
+        assert result.attrs["mean_gap_size_pixels"] == 16.0
+
 
 class TestCanopyDensity:
     def test_classification_categories(self, analyzer):

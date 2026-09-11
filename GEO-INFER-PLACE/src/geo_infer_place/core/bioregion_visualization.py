@@ -209,13 +209,14 @@ def _add_integration_layers(
     forest_results = forest.get("results", {}) if forest.get("available") else {}
     if forest_results and isinstance(forest_results, dict):
         forest_layer = _folium.FeatureGroup(name="Forest Health (GEO-INFER-FOREST)")
+        skipped = 0
         for cell_id, cell_data in forest_results.items():
-            score = float(
-                cell_data.get("score", cell_data)
-                if isinstance(cell_data, dict)
-                else cell_data
-            )
             try:
+                score = float(
+                    cell_data.get("score", cell_data)
+                    if isinstance(cell_data, dict)
+                    else cell_data
+                )
                 boundary = h3lib.cell_to_boundary(cell_id)
                 locations = [[lat, lon] for lat, lon in boundary]
                 g = int(180 * score)
@@ -229,10 +230,18 @@ def _add_integration_layers(
                     fill_opacity=0.35,
                     tooltip=f"Forest health: {score:.2f}",
                 ).add_to(forest_layer)
-            except Exception:
+            except (TypeError, KeyError, ValueError) as exc:
+                skipped += 1
+                logger.warning(
+                    "Skipping malformed forest health hexagon %r: %s", cell_id, exc
+                )
                 continue
         forest_layer.add_to(m)
-        logger.info("Added forest health layer: %d hexagons", len(forest_results))
+        logger.info(
+            "Added forest health layer: %d hexagons (%d skipped)",
+            len(forest_results) - skipped,
+            skipped,
+        )
 
     # Ecosystem services tooltip enrichment (added to h3_data hexagons)
     econ = integration_results.get("ecosystem_services", {})

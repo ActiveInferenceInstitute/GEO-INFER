@@ -148,6 +148,19 @@ class TestOptimizeFacilitySiting:
         result = planner.optimize_facility_siting(resource_potential, demand_centers)
         assert result.suitability.shape == resource_potential.shape
 
+    def test_all_zero_resource_potential_gives_finite_suitability(
+        self, planner, demand_centers
+    ):
+        """All-zero resource_potential must give finite suitability, not NaN (GS-180)."""
+        zero_potential = xr.DataArray(
+            np.zeros((5, 5)), dims=["lat", "lon"], coords=demand_centers.coords
+        )
+        result = planner.optimize_facility_siting(zero_potential, demand_centers)
+        rs = result.resource_suitability.values
+        assert np.all(np.isfinite(rs))
+        assert np.all(rs == 0.0)
+        assert np.all(np.isfinite(result.suitability.values))
+
 
 # ---------------------------------------------------------------------------
 # assess_infrastructure_capacity

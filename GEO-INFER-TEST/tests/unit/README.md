@@ -5,6 +5,7 @@ Unit workspace within `GEO-INFER-TEST`.
 ## Contents
 
 - `test_build_package_wheels.py`
+- `test_check_coverage_floor_gate.py`
 - `test_crescent_city_bundled_seed_uniqueness.py`
 - `test_crescent_city_geo_intel_contract_sync.py`
 - `test_data_domains.py`

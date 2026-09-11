@@ -191,3 +191,52 @@ class TestSpatialMemoryModel:
         assert "nodes" in kg
         assert "edges" in kg
         assert kg["metadata"]["total_items"] >= 1
+
+    def test_search_spatial_bounds_bbox_overlap(self) -> None:
+        model = SpatialMemoryModel()
+        model.store_spatial_memory(
+            content={"type": "spatial_element"},
+            spatial_context={"bbox": [0, 0, 1, 1]},
+        )
+        results = model.search_memory(
+            query={"spatial_bounds": {"bbox": [0.5, 0.5, 2, 2]}}
+        )
+        assert len(results) == 1
+
+    def test_search_spatial_bounds_bbox_no_overlap(self) -> None:
+        model = SpatialMemoryModel()
+        model.store_spatial_memory(
+            content={"type": "spatial_element"},
+            spatial_context={"bbox": [0, 0, 1, 1]},
+        )
+        results = model.search_memory(
+            query={"spatial_bounds": {"bbox": [10, 10, 11, 11]}}
+        )
+        assert results == []
+
+    def test_search_spatial_bounds_missing_geometry_falls_back_to_scale(
+        self,
+    ) -> None:
+        model = SpatialMemoryModel()
+        model.store_spatial_memory(
+            content={"type": "spatial_element"},
+            spatial_context={"scale": "large"},
+        )
+        matching = model.search_memory(query={"spatial_bounds": {"scale": "large"}})
+        assert len(matching) == 1
+        not_matching = model.search_memory(query={"spatial_bounds": {"scale": "small"}})
+        assert not_matching == []
+
+    def test_search_spatial_bounds_scale_ignored_when_geometry_present(
+        self,
+    ) -> None:
+        model = SpatialMemoryModel()
+        model.store_spatial_memory(
+            content={"type": "spatial_element"},
+            spatial_context={"bbox": [0, 0, 1, 1], "scale": "small"},
+        )
+        # Overlapping bbox must match even though scale labels differ.
+        results = model.search_memory(
+            query={"spatial_bounds": {"bbox": [0, 0, 1, 1], "scale": "large"}}
+        )
+        assert len(results) == 1

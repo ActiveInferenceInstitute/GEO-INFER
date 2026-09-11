@@ -110,15 +110,45 @@ class Polygon:
         return area
 
     def centroid(self) -> Point:
-        """Calculate the centroid of the polygon."""
+        """Calculate the area-weighted centroid of the polygon (holes subtracted)."""
         if len(self.exterior) < 3:
             raise ValueError("Polygon must have at least 3 points")
 
-        # Simple calculation for centroid
-        x_sum = sum(p.x for p in self.exterior)
-        y_sum = sum(p.y for p in self.exterior)
+        def ring_contribution(ring: List[Point]) -> Tuple[float, float, float]:
+            """Return (weighted_cx, weighted_cy, abs_area) for one ring."""
+            cx = cy = a2 = 0.0
+            n = len(ring)
+            for i in range(n):
+                j = (i + 1) % n
+                cross = ring[i].x * ring[j].y - ring[j].x * ring[i].y
+                a2 += cross
+                cx += (ring[i].x + ring[j].x) * cross
+                cy += (ring[i].y + ring[j].y) * cross
+            area = abs(a2) / 2.0
+            # Ring centroid; sign of a2 cancels in the ratio.
+            if a2 == 0:
+                return 0.0, 0.0, 0.0
+            return cx / (3.0 * a2) * area, cy / (3.0 * a2) * area, area
 
-        return Point(x=x_sum / len(self.exterior), y=y_sum / len(self.exterior))
+        total_area = 0.0
+        weighted_x = 0.0
+        weighted_y = 0.0
+
+        cx, cy, area = ring_contribution(self.exterior)
+        total_area += area
+        weighted_x += cx
+        weighted_y += cy
+
+        for interior in self.interiors or []:
+            cx, cy, area = ring_contribution(interior)
+            total_area -= area
+            weighted_x -= cx
+            weighted_y -= cy
+
+        if total_area <= 0.0:
+            raise ValueError("Polygon has zero area; centroid is undefined")
+
+        return Point(x=weighted_x / total_area, y=weighted_y / total_area)
 
 
 def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -175,6 +205,11 @@ def vincenty_distance(
 
     Returns:
         Distance in meters
+
+    Raises:
+        ValueError: If the iteration loop exhausts without converging (classic
+            Vincenty failure for near-antipodal points) instead of silently
+            returning an unconverged result.
     """
     # Convert to radians
     lat1_rad = np.radians(lat1)
@@ -198,6 +233,7 @@ def vincenty_distance(
 
     # Initial value
     lambda_old = L
+    converged = False
 
     for _ in range(max_iterations):
         sin_lambda = np.sin(lambda_old)
@@ -232,9 +268,17 @@ def vincenty_distance(
         )
 
         if abs(lambda_new - lambda_old) < tolerance:
+            converged = True
             break
 
         lambda_old = lambda_new
+
+    if not converged:
+        raise ValueError(
+            "vincenty_distance failed to converge after "
+            f"{max_iterations} iterations (tolerance={tolerance}); "
+            "points are likely near-antipodal"
+        )
 
     u2 = cos_sq_alpha * ((a**2 - b**2) / b**2)
     A = 1 + u2 / 16384 * (4096 + u2 * (-768 + u2 * (320 - 175 * u2)))

@@ -379,7 +379,10 @@ class MultiAgentModel(BaseActiveInferenceModel):
                 agent.beliefs = normalize_belief_vector(
                     spatial_bias + spatial_variation
                 )
-            except Exception:
+            except Exception as e:
+                logger.warning(
+                    "Spatial belief initialization used uniform beliefs: %s", e
+                )
                 agent.beliefs = np.ones(4) / 4
             self.agent_models.append(agent)
         self._create_spatial_coordination_graph()

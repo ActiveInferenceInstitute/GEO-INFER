@@ -234,21 +234,33 @@ class PlaceTemporalAnalyzer:
             try:
                 import pandas as pd
 
-                ts = TimeSeries(data=pd.Series(values)) if _HAS_TIME else None
-                if ts is not None:
+                time_series_cls = globals().get("TimeSeries")
+                if time_series_cls is not None:
+                    ts = time_series_cls(data=pd.Series(values))
                     res = self._analyzer.detect_trend(ts)
-                    if isinstance(res, dict):
-                        slope_val = res.get("trend_strength", 0.0)
-                        if res.get("trend_direction") == "decreasing":
-                            slope_val = -slope_val
-                        return {
-                            "slope": slope_val,
-                            "direction": res.get("trend_direction", "stable"),
-                            "r_squared": 1.0,
-                            "significant": True,
-                            **res,
-                            "backend": "geo_infer_time",
-                        }
+                else:
+                    # TIME payload class unavailable despite a patched flag;
+                    # pass raw values so the backend can still be exercised.
+                    res = self._analyzer.detect_trend(values)
+                if isinstance(res, dict):
+                    slope_val = res.get("trend_strength", 0.0)
+                    if res.get("trend_direction") == "decreasing":
+                        slope_val = -slope_val
+                    merged = {
+                        "slope": slope_val,
+                        "direction": res.get("trend_direction", "stable"),
+                        **res,
+                        "backend": "geo_infer_time",
+                    }
+                    # Report fit quality honestly: prefer a real r_squared
+                    # field from the backend, otherwise fall back to the
+                    # reported trend_strength. Never fabricate a perfect fit.
+                    r_sq = float(
+                        merged.get("r_squared", merged.get("trend_strength", 0.0))
+                    )
+                    merged["r_squared"] = r_sq
+                    merged["significant"] = r_sq > 0.5
+                    return merged
             except Exception as exc:
                 logger.debug("TIME trend detection fallback for %s: %s", label, exc)
 

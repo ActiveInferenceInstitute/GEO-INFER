@@ -40,9 +40,19 @@ class CarbonFootprintAnalyzer:
             fuel_type: Type of fuel/technology
 
         Returns:
-            CO2 emissions (kg)
+            Emissions in kg CO2
+
+        Raises:
+            ValueError: If fuel_type has no registered emission factor.
+
         """
-        emission_factor = self.emission_factors.get(fuel_type, 350)
+        if fuel_type not in self.emission_factors:
+            raise ValueError(
+                f"Unknown fuel_type {fuel_type!r}: no emission factor is "
+                f"registered (valid types: {sorted(self.emission_factors)}). "
+                "Refusing to silently price it at a default factor."
+            )
+        emission_factor = self.emission_factors[fuel_type]
         emissions = energy_generation * emission_factor
         return emissions
 

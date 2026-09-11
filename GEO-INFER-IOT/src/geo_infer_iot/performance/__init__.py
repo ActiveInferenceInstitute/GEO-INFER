@@ -190,6 +190,11 @@ class PerformanceMonitor:
             return
 
         try:
+            if not self.metrics_history:
+                # Nothing to annotate yet; system metrics collection owns
+                # history creation.
+                return
+
             # Update measurement throughput
             current_measurements = len(self.iot_system.ingestion.measurements)
             current_time = time.time()
@@ -205,26 +210,21 @@ class PerformanceMonitor:
             self.measurement_count = current_measurements
             self.last_measurement_time = current_time
 
-            # Get system status for additional metrics
-            status = self.iot_system.get_system_status()
-            metrics = (
-                self.metrics_history[-1]
-                if self.metrics_history
-                else PerformanceMetrics()
+            # Real ingest latency, instrumented at IoTDataIngestion
+            # .ingest_measurement entry/exit and surfaced here.
+            metrics = self.metrics_history[-1]
+            metrics.processing_latency_ms = float(
+                getattr(self.iot_system.ingestion, "last_ingest_latency_ms", 0.0)
             )
 
-            # Update IoT-specific metrics
-            metrics.processing_latency_ms = (
-                0.0  # Would need to track actual processing time
-            )
+            status = self.iot_system.get_system_status()
             metrics.error_rate = status.get("error_count", 0) / max(
                 status.get("measurements", 1), 1
             )
-            metrics.queue_size = 0  # Would need to track queue size
-
-            # Update the latest metrics in history
-            if self.metrics_history:
-                self.metrics_history[-1] = metrics
+            # Pending processing tasks are the ingestion queue.
+            metrics.queue_size = len(
+                getattr(self.iot_system.ingestion, "processing_tasks", [])
+            )
 
         except Exception as e:
             logger.error(f"Error collecting IoT metrics: {e}")

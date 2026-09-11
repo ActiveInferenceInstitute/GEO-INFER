@@ -100,9 +100,14 @@ class NormativeInference:
             relationship_type: Type of relationship (e.g., 'supports', 'conflicts')
             strength: Strength of the relationship (0.0 to 1.0)
         """
-        if norm1_id not in self.norms or norm2_id not in self.norms:
-            logger.warning("Cannot add relationship: one or both norms not found")
-            return
+        if norm1_id not in self.norms:
+            raise KeyError(
+                f"normative_inference.add_norm_relationship: norm ID {norm1_id!r} not found"
+            )
+        if norm2_id not in self.norms:
+            raise KeyError(
+                f"normative_inference.add_norm_relationship: norm ID {norm2_id!r} not found"
+            )
 
         relationship_id = f"{norm1_id}_{relationship_type}_{norm2_id}"
 
@@ -168,8 +173,9 @@ class NormativeInference:
             compliance_probability: Prior probability of compliance (0.0 to 1.0)
         """
         if norm_id not in self.norms:
-            logger.warning(f"Cannot set prior belief: norm {norm_id} not found")
-            return
+            raise KeyError(
+                f"normative_inference.set_prior_belief: norm ID {norm_id!r} not found"
+            )
 
         key = (norm_id, entity_id)
         self.prior_beliefs[key] = compliance_probability

@@ -157,7 +157,11 @@ class PersonalizedLearning:
             challenges=learner_profile.get("challenges", []),
         )
         self._learner_profiles[profile.learner_id] = profile
-        self._mastery_data[profile.learner_id] = {}
+        # Initialize mastery only for a genuinely new learner: re-registration
+        # (e.g. create_pathway for an existing learner) must not wipe the
+        # accumulated mastery state used by recommendation/spaced-repetition.
+        if profile.learner_id not in self._mastery_data:
+            self._mastery_data[profile.learner_id] = {}
         return profile
 
     def create_pathway(

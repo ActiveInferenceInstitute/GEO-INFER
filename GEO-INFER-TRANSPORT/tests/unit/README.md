@@ -7,6 +7,7 @@ Unit workspace within `GEO-INFER-TRANSPORT`.
 - `__init__.py`
 - `test_acceptance_transport.py`
 - `test_reverse_edge_travel_time.py`
+- `test_unroutable_endpoints.py`
 
 ## Public Interface
 

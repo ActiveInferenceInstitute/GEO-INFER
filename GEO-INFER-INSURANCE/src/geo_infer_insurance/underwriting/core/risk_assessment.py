@@ -188,9 +188,15 @@ class RiskAssessmentEngine:
         try:
             # Extract property information
             property_info = application_data.get("property", {})
-            location = {
-                "latitude": property_info.get("latitude", 40.7),
-                "longitude": property_info.get("longitude", -74.0),
+            location: Dict[str, Any] = {
+                key: property_info[key]
+                for key in (
+                    "latitude",
+                    "longitude",
+                    "elevation_m",
+                    "distance_to_water_km",
+                )
+                if key in property_info
             }
 
             # Perform core risk assessment
@@ -367,14 +373,6 @@ class RiskAssessmentEngine:
         """Calculate basic risk score from property information."""
         risk_score = 0.5  # Base score
 
-        # Location-based risk
-        latitude = property_info.get("latitude", 40.7)
-        longitude = property_info.get("longitude", -74.0)
-
-        # Coastal areas have higher flood risk
-        if abs(latitude - 40.7) < 1.0 and abs(longitude + 74.0) < 1.0:
-            risk_score += 0.2
-
         # Property age risk
         year_built = property_info.get("year_built", 1980)
         if year_built < 1950:
@@ -419,28 +417,43 @@ class RiskAssessmentEngine:
 
         return factors
 
-    def _analyze_location_risk(self, location: Dict[str, float]) -> Dict[str, Any]:
-        """Analyze location-specific risk factors."""
-        latitude = location.get("latitude", 40.7)
-        longitude = location.get("longitude", -74.0)
+    def _analyze_location_risk(self, location: Dict[str, Any]) -> Dict[str, Any]:
+        """Analyze location-specific risk factors.
 
-        location_risk: Dict[str, Any] = {
-            "coordinates": {"latitude": latitude, "longitude": longitude},
-            "risk_factors": {},
-        }
+        Flood risk is computed from an ``elevation_m`` input and coastal risk
+        from a ``distance_to_water_km`` input. When an input is absent, the
+        corresponding factor is reported as ``unavailable`` with a reason
+        instead of being guessed from hard-coded anchors.
+        """
+        location_risk: Dict[str, Any] = {"risk_factors": {}, "reasons": {}}
+        if "latitude" in location and "longitude" in location:
+            location_risk["coordinates"] = {
+                "latitude": location["latitude"],
+                "longitude": location["longitude"],
+            }
 
-        # Elevation-based flood risk (simplified)
-        elevation = 10.0  # Default elevation in meters
-        if elevation < 5:
+        # Elevation-based flood risk (requires elevation input)
+        elevation = location.get("elevation_m")
+        if elevation is None:
+            location_risk["risk_factors"]["flood_risk"] = "unavailable"
+            location_risk["reasons"]["flood_risk"] = (
+                "flood_risk requires an elevation_m input; none provided"
+            )
+        elif elevation < 5:
             location_risk["risk_factors"]["flood_risk"] = "high"
         elif elevation < 20:
             location_risk["risk_factors"]["flood_risk"] = "medium"
         else:
             location_risk["risk_factors"]["flood_risk"] = "low"
 
-        # Proximity to water bodies (simplified)
-        distance_to_water = min(abs(longitude + 74.0), abs(latitude - 40.7)) * 111  # km
-        if distance_to_water < 10:
+        # Proximity to water bodies (requires water-proximity input)
+        distance_to_water = location.get("distance_to_water_km")
+        if distance_to_water is None:
+            location_risk["risk_factors"]["coastal_risk"] = "unavailable"
+            location_risk["reasons"]["coastal_risk"] = (
+                "coastal_risk requires a distance_to_water_km input; none provided"
+            )
+        elif distance_to_water < 10:
             location_risk["risk_factors"]["coastal_risk"] = "high"
         elif distance_to_water < 50:
             location_risk["risk_factors"]["coastal_risk"] = "medium"

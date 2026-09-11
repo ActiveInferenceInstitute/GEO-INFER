@@ -106,7 +106,7 @@ class AccessibilityAnalyzer:
                         graph, origin_id, cutoff=time_limit * 60, weight="travel_time"
                     )
                     reachable = list(lengths.keys())
-                except (nx.NetworkXError, KeyError):
+                except (nx.NetworkXError, nx.NodeNotFound, KeyError):
                     logger.warning(
                         "Origin %r not routable in network; isochrone degenerates "
                         "to the origin node only",

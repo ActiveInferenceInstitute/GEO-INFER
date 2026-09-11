@@ -6,6 +6,7 @@ reasoning about norms and regulations.
 """
 
 import datetime
+import pytest
 from shapely.geometry import Point, Polygon
 import numpy as np
 
@@ -60,6 +61,20 @@ class TestNormativeInference:
         # Set prior beliefs
         self.inference.set_prior_belief(self.speed_limit_id, self.entity1_id, 0.8)
         self.inference.set_prior_belief(self.helmet_id, self.entity1_id, 0.7)
+
+    def test_add_norm_relationship_unknown_id_raises(self):
+        with pytest.raises(KeyError):
+            self.inference.add_norm_relationship(
+                "bogus_norm_id", self.helmet_id, "supports"
+            )
+        with pytest.raises(KeyError):
+            self.inference.add_norm_relationship(
+                self.speed_limit_id, "bogus_norm_id", "supports"
+            )
+
+    def test_set_prior_belief_unknown_id_raises(self):
+        with pytest.raises(KeyError):
+            self.inference.set_prior_belief("bogus_norm_id", self.entity1_id, 0.8)
 
     def test_add_norm(self):
         """Test adding a norm to the inference engine."""

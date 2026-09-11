@@ -35,6 +35,11 @@ from ..utils.rng import resolve_rng
 # Module-level monotonic counter backing reasoning chain IDs.
 _REASONING_ID_SEQUENCE: "itertools.count[int]" = itertools.count(1)
 
+# Hard cap on candidate assignments evaluated by the constraint solver. When
+# exceeded, the search degrades gracefully with a logged warning instead of
+# running an exponential enumeration.
+_MAX_EVALUATED_CONSTRAINT_ASSIGNMENTS = 1_000_000
+
 logger = logging.getLogger(__name__)
 
 
@@ -747,48 +752,84 @@ class SpatialReasoningEngine:
         # Solve constraint satisfaction problem
         solutions = self._solve_spatial_constraints(variables, domains, constraints)
 
-        # Generate conclusions from solutions
+        # Generate conclusions from solutions. The same novel relation can
+        # recur across many satisfying assignments; deduplicate so the
+        # conclusion set stays proportional to the number of distinct novel
+        # (source, target, relation) tuples rather than to the number of
+        # solutions.
+        seen_conclusions: set = set()
         for solution in solutions:
             conclusion = self._create_constraint_conclusion(solution, premises)
             if conclusion:
-                conclusions.append(conclusion)
+                key = (
+                    conclusion.source_region,
+                    conclusion.target_region,
+                    conclusion.relation_type,
+                )
+                if key not in seen_conclusions:
+                    seen_conclusions.add(key)
+                    conclusions.append(conclusion)
 
         return conclusions
 
     def _setup_spatial_constraints(
         self, premises: List[SpatialRelation]
     ) -> Tuple[List[str], Dict[str, List[str]], List[Dict[str, Any]]]:
-        """Set up constraint satisfaction problem for spatial relations."""
-        variables = []
-        domains = {}
-        constraints = []
+        """Set up constraint satisfaction problem for spatial relations.
 
-        # Extract variables (regions) from premises
+        Domain variables are restricted to premise pairs plus transitive
+        neighbors: only pairs of regions in the same connected component of
+        the premise graph get a domain variable. Pairs in different
+        components cannot constrain each other, so enumerating them would
+        only inflate the search space.
+        """
         regions = set()
         for premise in premises:
             regions.add(premise.source_region)
             regions.add(premise.target_region)
 
-        variables = list(regions)
+        variables = sorted(regions)
 
-        # Define domains (possible relations for each variable pair)
+        # Union-find over premise edges groups transitively related regions.
+        parent = {region: region for region in variables}
+
+        def find(region: str) -> str:
+            while parent[region] != region:
+                parent[region] = parent[parent[region]]
+                region = parent[region]
+            return region
+
+        for premise in premises:
+            parent[find(premise.source_region)] = find(premise.target_region)
+
+        # Define domains (possible relations for each in-component pair)
+        domains: Dict[str, List[str]] = {}
         for i, var1 in enumerate(variables):
             for var2 in variables[i + 1 :]:
-                domains[f"{var1}_{var2}"] = list(
-                    self.spatial_knowledge_base["topological_relations"].keys()
-                )
+                if find(var1) == find(var2):
+                    domains[f"{var1}_{var2}"] = list(
+                        self.spatial_knowledge_base["topological_relations"].keys()
+                    )
 
-        # Add constraints from premises
+        # Add constraints from premises (accept either pair ordering)
+        constraints = []
         for premise in premises:
-            var_pair = f"{premise.source_region}_{premise.target_region}"
-            if var_pair in domains:
-                constraints.append(
-                    {
-                        "type": "fixed_relation",
-                        "variable": var_pair,
-                        "value": premise.relation_type,
-                    }
+            forward = f"{premise.source_region}_{premise.target_region}"
+            reverse = f"{premise.target_region}_{premise.source_region}"
+            var_pair = forward if forward in domains else reverse
+            if var_pair not in domains:
+                raise ValueError(
+                    "spatial_reasoning: premise pair "
+                    f"{premise.source_region}/{premise.target_region} has no "
+                    "domain variable; constraint setup is inconsistent"
                 )
+            constraints.append(
+                {
+                    "type": "fixed_relation",
+                    "variable": var_pair,
+                    "value": premise.relation_type,
+                }
+            )
 
         return variables, domains, constraints
 
@@ -798,37 +839,66 @@ class SpatialReasoningEngine:
         domains: Dict[str, List[str]],
         constraints: List[Dict[str, Any]],
     ) -> List[Dict[str, str]]:
-        """Solve spatial constraint satisfaction problem."""
-        # Simplified constraint solving - in practice would use CSP solver
-        solutions = []
+        """Solve the spatial constraint satisfaction problem.
 
-        # Generate possible assignments
+        Backtracking with incremental constraint checking: premise-fixed
+        pairs are pinned to their required value, each partial assignment is
+        checked as soon as a variable is assigned, and the total number of
+        evaluated candidate values is hard-capped (with a logged degradation
+        warning) instead of enumerating the full Cartesian product.
+        """
+        solutions: List[Dict[str, str]] = []
         variable_pairs = list(domains.keys())
-        if variable_pairs:
-            # Simple enumeration for small problems
-            for assignment in itertools.product(
-                *[domains[var] for var in variable_pairs]
-            ):
-                current_assignment = dict(zip(variable_pairs, assignment))
+        if not variable_pairs:
+            return solutions
 
-                # Check constraints
-                if self._satisfies_constraints(current_assignment, constraints):
-                    solutions.append(current_assignment)
+        constraints_by_var: Dict[str, List[Dict[str, Any]]] = {}
+        for constraint in constraints:
+            constraints_by_var.setdefault(constraint["variable"], []).append(constraint)
+
+        assignment: Dict[str, str] = {}
+        evaluated = 0
+        degraded = False
+
+        def backtrack(index: int) -> None:
+            nonlocal evaluated, degraded
+            if degraded:
+                return
+            if index == len(variable_pairs):
+                solutions.append(dict(assignment))
+                return
+            var = variable_pairs[index]
+            var_constraints = constraints_by_var.get(var, [])
+            if var_constraints:
+                # Fixed constraint: only the required value can succeed.
+                candidate_values: List[str] = [var_constraints[0]["value"]]
+                if candidate_values[0] not in domains[var]:
+                    return  # Unsatisfiable pair: prune the branch.
+            else:
+                candidate_values = domains[var]
+            for value in candidate_values:
+                evaluated += 1
+                if evaluated > _MAX_EVALUATED_CONSTRAINT_ASSIGNMENTS:
+                    degraded = True
+                    return
+                assignment[var] = value
+                if all(
+                    assignment.get(c["variable"]) == c["value"] for c in var_constraints
+                ):
+                    backtrack(index + 1)
+                assignment.pop(var, None)
+
+        backtrack(0)
+
+        if degraded:
+            logger.warning(
+                "spatial_reasoning: constraint search degraded after "
+                f"evaluating {evaluated} candidate assignments "
+                f"(cap {_MAX_EVALUATED_CONSTRAINT_ASSIGNMENTS}); returning "
+                f"{len(solutions)} solutions found so far"
+            )
 
         return solutions
-
-    def _satisfies_constraints(
-        self, assignment: Dict[str, str], constraints: List[Dict[str, Any]]
-    ) -> bool:
-        """Check if assignment satisfies all constraints."""
-        for constraint in constraints:
-            if constraint["type"] == "fixed_relation":
-                var = constraint["variable"]
-                required_value = constraint["value"]
-                if assignment.get(var) != required_value:
-                    return False
-
-        return True
 
     def _create_constraint_conclusion(
         self, solution: Dict[str, str], premises: List[SpatialRelation]

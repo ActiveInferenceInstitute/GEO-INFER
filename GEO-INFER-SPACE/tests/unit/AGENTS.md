@@ -38,8 +38,10 @@
 - `test_h3_enhanced.py`
 - `test_h3_operations_runtime.py`
 - `test_h3_policy.py`
+- `test_h3_predicate_logging.py`
 - `test_io_modules.py`
 - `test_ml_integration_tables.py`
+- `test_morans_i_variance_parity.py`
 - `test_nested_comprehensive.py`
 - `test_nested_h3_contract.py`
 - `test_place_analyzer.py`
@@ -58,6 +60,7 @@
 - `test_unified_comprehensive.py`
 - `test_visualization_engine.py`
 - `test_visualization_receipts.py`
+- `test_weight_matrix_backend_contract.py`
 - `test_whitebox_bridge.py`
 
 ## Validation

@@ -48,11 +48,17 @@ class MarineSpatialPlanner:
         Args:
             biodiversity_data: Biodiversity index
             threat_data: Optional threat/pressure data
-            target_coverage: Target MPA coverage (0-1)
+            target_coverage: Target MPA coverage; must satisfy
+                0 < target_coverage <= 1
 
         Returns:
             MPA network design
         """
+        if not 0.0 < target_coverage <= 1.0:
+            raise ValueError(
+                f"target_coverage must be in (0, 1], got {target_coverage!r}"
+            )
+
         # Prioritize high biodiversity areas; uniform when data is flat,
         # all-zero or non-finite so no NaN priorities are produced.
         priority = _normalized(biodiversity_data)
@@ -92,9 +98,13 @@ class MarineSpatialPlanner:
         Returns:
             Optimal siting analysis
         """
-        # Suitability based on wind and depth
+        # Suitability based on wind and depth. Land/dry cells (negative
+        # depth) are excluded rather than rewarded, so suitability stays
+        # within [0, 1] and never exceeds the wind-only score.
         wind_suitability = _normalized(wind_resource)
-        depth_suitability = xr.where(depth <= max_depth, 1 - depth / max_depth, 0)
+        depth_suitability = xr.where(
+            (depth >= 0) & (depth <= max_depth), 1 - depth / max_depth, 0
+        )
 
         suitability = wind_suitability * depth_suitability
 

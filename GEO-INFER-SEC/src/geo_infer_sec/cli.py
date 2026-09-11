@@ -271,20 +271,27 @@ def save_geospatial_data(
         raise
 
 
-def command_anonymize(args: argparse.Namespace) -> None:
+def command_anonymize(args: argparse.Namespace) -> bool:
     """
     Execute the anonymize command.
 
     Args:
         args: Command-line arguments
+
+    Returns:
+        True on success, False on handled failure.
     """
     # Load input data
     logger.info(f"Loading data from {args.input_file}")
-    gdf = load_geospatial_data(args.input_file)
+    try:
+        gdf = load_geospatial_data(args.input_file)
+    except Exception as e:
+        logger.error(f"Error loading data: {str(e)}")
+        return False
 
     if not isinstance(gdf, gpd.GeoDataFrame):
         logger.error("Input file must contain geospatial data")
-        return
+        return False
 
     # Create anonymizer
     anonymizer = GeospatialAnonymizer()
@@ -308,13 +315,13 @@ def command_anonymize(args: argparse.Namespace) -> None:
         elif args.method == "geographic-masking":
             if not args.admin_boundaries:
                 logger.error("Admin boundaries file is required for geographic masking")
-                return
+                return False
 
             if not args.attribute_cols:
                 logger.error(
                     "Attribute columns must be specified for geographic masking"
                 )
-                return
+                return False
 
             # Load admin boundaries
             admin_boundaries = load_geospatial_data(args.admin_boundaries)
@@ -331,27 +338,34 @@ def command_anonymize(args: argparse.Namespace) -> None:
 
         else:
             logger.error(f"Unknown anonymization method: {args.method}")
-            return
+            return False
     except Exception as e:
         logger.error(f"Error during anonymization: {str(e)}")
-        return
+        return False
 
     # Save results
     logger.info(f"Saving anonymized data to {args.output_file}")
     save_geospatial_data(result, args.output_file)
-    logger.info("Anonymization completed successfully")
+    return True
 
 
-def command_encrypt(args: argparse.Namespace) -> None:
+def command_encrypt(args: argparse.Namespace) -> bool:
     """
     Execute the encrypt command.
 
     Args:
         args: Command-line arguments
+
+    Returns:
+        True on success, False on handled failure.
     """
     # Load input data
     logger.info(f"Loading data from {args.input_file}")
-    df = load_geospatial_data(args.input_file)
+    try:
+        df = load_geospatial_data(args.input_file)
+    except Exception as e:
+        logger.error(f"Error loading data: {str(e)}")
+        return False
 
     # Initialize encryptor
     if args.password:
@@ -393,23 +407,30 @@ def command_encrypt(args: argparse.Namespace) -> None:
         # Save encrypted data
         logger.info(f"Saving encrypted data to {args.output_file}")
         save_geospatial_data(result, args.output_file)
-        logger.info("Encryption completed successfully")
+        return True
 
     except Exception as e:
         logger.error(f"Error during encryption: {str(e)}")
-        return
+        return False
 
 
-def command_decrypt(args: argparse.Namespace) -> None:
+def command_decrypt(args: argparse.Namespace) -> bool:
     """
     Execute the decrypt command.
 
     Args:
         args: Command-line arguments
+
+    Returns:
+        True on success, False on handled failure.
     """
     # Load input data
     logger.info(f"Loading encrypted data from {args.input_file}")
-    df = load_geospatial_data(args.input_file)
+    try:
+        df = load_geospatial_data(args.input_file)
+    except Exception as e:
+        logger.error(f"Error loading data: {str(e)}")
+        return False
 
     # Get encryption key
     if args.key_file:
@@ -425,7 +446,7 @@ def command_decrypt(args: argparse.Namespace) -> None:
         encryptor = GeospatialEncryption.from_password(args.password)
     else:
         logger.error("Either a key file or password must be provided")
-        return
+        return False
 
     # Get columns to decrypt
     if args.columns:
@@ -456,23 +477,30 @@ def command_decrypt(args: argparse.Namespace) -> None:
         # Save decrypted data
         logger.info(f"Saving decrypted data to {args.output_file}")
         save_geospatial_data(result, args.output_file)
-        logger.info("Decryption completed successfully")
+        return True
 
     except Exception as e:
         logger.error(f"Error during decryption: {str(e)}")
-        return
+        return False
 
 
-def command_check_compliance(args: argparse.Namespace) -> None:
+def command_check_compliance(args: argparse.Namespace) -> bool:
     """
     Execute the check-compliance command.
 
     Args:
         args: Command-line arguments
+
+    Returns:
+        True on success, False on handled failure.
     """
     # Load input data
     logger.info(f"Loading data from {args.input_file}")
-    df = load_geospatial_data(args.input_file)
+    try:
+        df = load_geospatial_data(args.input_file)
+    except Exception as e:
+        logger.error(f"Error loading data: {str(e)}")
+        return False
 
     # Create compliance framework
     framework = ComplianceFramework()
@@ -538,19 +566,28 @@ def command_check_compliance(args: argparse.Namespace) -> None:
 
     except Exception as e:
         logger.error(f"Error during compliance check: {str(e)}")
-        return
+        return False
+
+    return True
 
 
-def command_audit(args: argparse.Namespace) -> None:
+def command_audit(args: argparse.Namespace) -> bool:
     """
     Execute the audit command.
 
     Args:
         args: Command-line arguments
+
+    Returns:
+        True on success, False on handled failure.
     """
     # Load input data
     logger.info(f"Loading data from {args.input_file}")
-    df = load_geospatial_data(args.input_file)
+    try:
+        df = load_geospatial_data(args.input_file)
+    except Exception as e:
+        logger.error(f"Error loading data: {str(e)}")
+        return False
 
     audit_results = {
         "file": args.input_file,
@@ -634,8 +671,10 @@ def command_audit(args: argparse.Namespace) -> None:
     else:
         logger.info(f"Audit completed: Found {issue_count} issues")
 
+    return True
 
-def command_risk_assessment(args: argparse.Namespace) -> None:
+
+def command_risk_assessment(args: argparse.Namespace) -> bool:
     """
     Execute the risk-assessment command.
 
@@ -670,8 +709,10 @@ def command_risk_assessment(args: argparse.Namespace) -> None:
 
     logger.info("Risk assessment completed")
 
+    return True
 
-def command_generate_token(args: argparse.Namespace) -> None:
+
+def command_generate_token(args: argparse.Namespace) -> bool:
     """
     Execute the generate-token command.
 
@@ -680,6 +721,7 @@ def command_generate_token(args: argparse.Namespace) -> None:
     """
     token = generate_secure_token(args.length)
     print(f"Secure token: {token}")
+    return True
 
 
 def main() -> None:
@@ -691,23 +733,22 @@ def main() -> None:
     if args.verbose:
         logger.debug("Verbose output enabled")
 
-    # Execute the selected command
-    if args.command == "anonymize":
-        command_anonymize(args)
-    elif args.command == "encrypt":
-        command_encrypt(args)
-    elif args.command == "decrypt":
-        command_decrypt(args)
-    elif args.command == "check-compliance":
-        command_check_compliance(args)
-    elif args.command == "audit":
-        command_audit(args)
-    elif args.command == "risk-assessment":
-        command_risk_assessment(args)
-    elif args.command == "generate-token":
-        command_generate_token(args)
-    else:
+    # Execute the selected command; handlers report success so scripted
+    # pipelines can detect failure via the exit code.
+    handlers = {
+        "anonymize": command_anonymize,
+        "encrypt": command_encrypt,
+        "decrypt": command_decrypt,
+        "check-compliance": command_check_compliance,
+        "audit": command_audit,
+        "risk-assessment": command_risk_assessment,
+        "generate-token": command_generate_token,
+    }
+    handler = handlers.get(args.command)
+    if handler is None:
         parser.print_help()
+        return
+    sys.exit(0 if handler(args) else 1)
 
 
 if __name__ == "__main__":

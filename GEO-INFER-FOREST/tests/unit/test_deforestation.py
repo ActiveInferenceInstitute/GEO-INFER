@@ -49,6 +49,19 @@ class TestTimeSeriesChange:
         assert "z_score" in result
         assert "significant_decrease" in result
 
+    def test_z_scores_finite_and_historical_only(self, detector):
+        """Baseline must exclude the current observation; early z-scores finite."""
+        values = np.concatenate([np.full(10, 0.8), np.full(10, 0.3)])
+        series = xr.DataArray(values, dims=("time",))
+        result = detector.detect_change_time_series(series, window_size=5)
+        assert not bool(result["z_score"].isnull().any())
+        # At the drop step the z-score is strongly negative and flags the event.
+        assert bool(result["significant_decrease"].isel(time=10).values)
+        # A stable series never flags itself: baseline excludes the current value.
+        stable = xr.DataArray(np.full(20, 0.7), dims=("time",))
+        stable_result = detector.detect_change_time_series(stable, window_size=3)
+        assert not bool(stable_result["significant_decrease"].any())
+
     def test_stable_series(self, detector):
         values = np.full(20, 0.7)
         series = xr.DataArray(values, dims=("time",))

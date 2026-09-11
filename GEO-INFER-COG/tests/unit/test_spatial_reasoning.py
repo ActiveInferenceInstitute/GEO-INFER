@@ -7,6 +7,11 @@ from geo_infer_cog.core.spatial_reasoning import (
     ReasoningStep,
     SpatialReasoningEngine,
 )
+import logging
+import time
+
+
+from geo_infer_cog.core import spatial_reasoning as spatial_reasoning_module
 
 
 class TestSpatialRelation:
@@ -182,3 +187,81 @@ class TestSpatialReasoningEngine:
         assert relation is not None
         assert relation.source_region == SpatialReasoningEngine()._region_id(geom1)
         assert relation.target_region == SpatialReasoningEngine()._region_id(geom2)
+
+
+class TestConstraintSolverBounded:
+    """Regression tests for GS-126: constraint search must stay bounded."""
+
+    @staticmethod
+    def _chain_premises() -> list:
+        return [
+            SpatialRelation("A", "B", "disconnected"),
+            SpatialRelation("B", "C", "disconnected"),
+            SpatialRelation("C", "D", "disconnected"),
+            SpatialRelation("D", "E", "disconnected"),
+        ]
+
+    def test_five_region_constraint_reasoning_completes_bounded(self) -> None:
+        engine = SpatialReasoningEngine(reasoning_type="constraint_based")
+        premises = self._chain_premises()
+
+        start = time.perf_counter()
+        conclusions = engine._constraint_based_reasoning(premises, "chain_test")
+        elapsed = time.perf_counter() - start
+
+        assert elapsed < 2.0
+        # Conclusions are deduplicated novel relations for the six
+        # premise-free pairs; none may restate a premise pair.
+        premise_pairs = {(p.source_region, p.target_region) for p in premises}
+        assert 1 <= len(conclusions) <= 6 * 6
+        for conclusion in conclusions:
+            assert (conclusion.source_region, conclusion.target_region) not in (
+                premise_pairs
+            )
+            assert conclusion.reasoning_path == ["constraint_satisfaction"]
+
+    def test_solver_pins_premise_relations(self) -> None:
+        engine = SpatialReasoningEngine(reasoning_type="constraint_based")
+        variables, domains, constraints = engine._setup_spatial_constraints(
+            self._chain_premises()
+        )
+        solutions = engine._solve_spatial_constraints(variables, domains, constraints)
+
+        assert solutions, "pinned premise chain must still yield solutions"
+        for solution in solutions:
+            assert solution["A_B"] == "disconnected"
+            assert solution["B_C"] == "disconnected"
+            assert solution["C_D"] == "disconnected"
+            assert solution["D_E"] == "disconnected"
+
+    def test_disconnected_components_are_not_enumerated(self) -> None:
+        engine = SpatialReasoningEngine(reasoning_type="constraint_based")
+        premises = [
+            SpatialRelation("A", "B", "disconnected"),
+            SpatialRelation("C", "D", "disconnected"),
+        ]
+        _, domains, _ = engine._setup_spatial_constraints(premises)
+
+        # Two components: no cross-component pair may get a domain variable.
+        assert sorted(domains) == ["A_B", "C_D"]
+
+    def test_constraint_search_degrades_with_warning(self, monkeypatch, caplog) -> None:
+        monkeypatch.setattr(
+            spatial_reasoning_module,
+            "_MAX_EVALUATED_CONSTRAINT_ASSIGNMENTS",
+            10,
+        )
+        engine = SpatialReasoningEngine(reasoning_type="constraint_based")
+        premises = self._chain_premises()
+
+        with caplog.at_level(
+            logging.WARNING, logger="geo_infer_cog.core.spatial_reasoning"
+        ):
+            solutions = engine._solve_spatial_constraints(
+                *engine._setup_spatial_constraints(premises)
+            )
+
+        assert any("degraded" in record.message for record in caplog.records)
+        # Cap triggers early: only a few solutions are collected, far fewer
+        # than the full 6**6 Cartesian product of the six free pairs.
+        assert len(solutions) < 6**6

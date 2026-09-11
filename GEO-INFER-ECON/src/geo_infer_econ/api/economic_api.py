@@ -206,9 +206,11 @@ class EconomicAnalysisAPI:
         minute_ago = current_time - 60
         hour_ago = current_time - 3600
 
-        # Clean old entries
+        # Clean entries older than the hourly window only, so the per-hour
+        # counter observes a full 60 minutes of history; the per-minute
+        # counter is computed from the stored timestamps directly.
         self.request_counts = {
-            k: [t for t in v if t > minute_ago] for k, v in self.request_counts.items()
+            k: [t for t in v if t > hour_ago] for k, v in self.request_counts.items()
         }
 
         # Count recent requests
@@ -243,15 +245,12 @@ class EconomicAnalysisAPI:
         if token in self.api_keys:
             return cast(str, self.api_keys[token])
 
-        # JWT token validation (simplified)
-        try:
-            # In production, properly validate JWT
-            return "authenticated_user"
-        except Exception:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid authentication credentials",
-            )
+        # Unknown tokens are rejected. (JWT validation is a production
+        # concern; until it lands, only configured API keys authenticate.)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+        )
 
     def _create_execution_id(self) -> str:
         """Create unique execution ID."""
@@ -408,7 +407,8 @@ class EconomicAnalysisAPI:
                     execution_time=time.time() - start_time,
                     metadata={"user_id": user_id},
                 )
-
+            except HTTPException:
+                raise
             except Exception as e:
                 self.logger.error(f"Model execution failed: {str(e)}")
                 self.api_stats["errors_total"] += 1

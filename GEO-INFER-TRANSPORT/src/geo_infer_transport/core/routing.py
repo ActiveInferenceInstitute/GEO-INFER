@@ -88,10 +88,7 @@ class RoutingEngine:
         self,
         origin: Dict[str, Any],
         destination: Dict[str, Any],
-        mode: str = "car",
         optimization: str = "time",
-        avoid: Optional[List[str]] = None,
-        via: Optional[List[Dict[str, Any]]] = None,
     ) -> Route:
         """
         Calculate a route between origin and destination.
@@ -99,10 +96,7 @@ class RoutingEngine:
         Args:
             origin: Origin point or node
             destination: Destination point or node
-            mode: Transport mode
             optimization: Optimization criteria
-            avoid: Features to avoid
-            via: Intermediate waypoints
 
         Returns:
             Computed Route object. ``route.route_source`` records how the
@@ -110,7 +104,8 @@ class RoutingEngine:
             ``"estimated_fallback"`` when no network is available and the
             route is a haversine estimate. Callers should check
             ``route_source`` before treating metrics as exact. When no
-            path exists on the network the returned Route has an empty
+            path exists on the network, or the origin/destination node is
+            not present in the graph, the returned Route has an empty
             ``path`` and zero distance/time.
         """
         origin_id = origin.get("node_id") or origin.get("id") or "origin"
@@ -164,7 +159,7 @@ class RoutingEngine:
                             edge_data.get(time_key, edge_data.get("travel_time", 0))
                         )
 
-            except nx.NetworkXNoPath:
+            except (nx.NetworkXNoPath, nx.NodeNotFound):
                 logger.warning(f"No path found from {origin_id} to {dest_id}")
                 path = []
         else:
@@ -408,8 +403,7 @@ class RoutingEngine:
                     if tuple(alt_path) not in seen_paths:
                         seen_paths.add(tuple(alt_path))
                         alternatives.append(alt_route)
-
-                except nx.NetworkXNoPath:
+                except (nx.NetworkXNoPath, nx.NodeNotFound):
                     break
 
         logger.info(f"Found {len(alternatives)} routes including primary")

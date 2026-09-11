@@ -21,6 +21,7 @@ Unit workspace within `GEO-INFER-AI`.
 - `test_spatial_predictor.py`
 - `test_training.py`
 - `test_training_coverage.py`
+- `test_training_wave2_fixes.py`
 
 ## Public Interface
 

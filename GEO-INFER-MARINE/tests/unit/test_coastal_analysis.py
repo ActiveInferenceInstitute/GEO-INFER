@@ -41,6 +41,17 @@ class TestCoastalVulnerability:
             result_no_wave["vulnerability_index"].mean()
         )
 
+    def test_below_sea_level_cells_bounded(self, analyzer):
+        # relative_elevation == -1 previously caused division by zero
+        # (inf); < -1 produced a negative, unbounded index.
+        elevation = xr.DataArray([[-1.0, -5.0], [-0.5, 3.0]], dims=("y", "x"))
+        sea_level = xr.DataArray(np.zeros((2, 2)), dims=("y", "x"))
+        result = analyzer.assess_coastal_vulnerability(elevation, sea_level)
+        vuln = result["vulnerability_index"].values
+        assert np.isfinite(vuln).all()
+        assert (vuln >= 0.0).all()
+        assert (vuln <= 1.0).all()
+
 
 class TestCoastalErosion:
     def test_erosion_calculation(self, analyzer):
@@ -52,3 +63,13 @@ class TestCoastalErosion:
         result = analyzer.analyze_coastal_erosion(shoreline, [2020, 2025])
         assert "erosion_rates" in result
         assert float(result["erosion_rates"].mean()) > 0
+
+    def test_single_time_period_raises_clear_error(self, analyzer):
+        shoreline = xr.DataArray(np.full((1, 2, 2), 100.0), dims=("time", "y", "x"))
+        with pytest.raises(ValueError, match="at least 2 time periods"):
+            analyzer.analyze_coastal_erosion(shoreline, [2020])
+
+    def test_no_time_periods_raises_clear_error(self, analyzer):
+        shoreline = xr.DataArray(np.zeros((0, 2, 2)), dims=("time", "y", "x"))
+        with pytest.raises(ValueError, match="at least 2 time periods"):
+            analyzer.analyze_coastal_erosion(shoreline, [])

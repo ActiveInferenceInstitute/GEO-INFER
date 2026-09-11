@@ -5,10 +5,13 @@ Provides cost-benefit scoring, stakeholder impact matrix computation,
 and equity analysis for policy evaluation.
 """
 
+import logging
 import math
-from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
 from enum import Enum
+from typing import Dict, List, Optional, Tuple
+
+logger = logging.getLogger(__name__)
 
 
 class ImpactLevel(Enum):
@@ -317,7 +320,7 @@ class StakeholderImpactAnalyzer:
         if not self._impacts:
             raise ValueError("No stakeholder impacts to analyze")
 
-        matrix: Dict[str, Dict[str, float]] = {}
+        per_group: Dict[str, List[Tuple[Dict[str, float], int]]] = {}
         for impact in self._impacts:
             scores = {
                 "overall_impact": impact.impact_level.value / 2.0,
@@ -328,14 +331,42 @@ class StakeholderImpactAnalyzer:
                 "environmental": self._normalize_impact(impact.environmental_impact),
                 "accessibility": self._normalize_impact(impact.accessibility_impact),
             }
-            weighted_score = (
-                0.30 * scores["economic"]
-                + 0.25 * scores["quality_of_life"]
-                + 0.25 * scores["environmental"]
-                + 0.20 * scores["accessibility"]
+            per_group.setdefault(impact.group_name, []).append(
+                (scores, impact.population_size)
             )
-            scores["weighted_composite"] = round(weighted_score, 4)
-            matrix[impact.group_name] = {k: round(v, 4) for k, v in scores.items()}
+
+        duplicated = sorted(
+            name for name, entries in per_group.items() if len(entries) > 1
+        )
+        if duplicated:
+            logger.warning(
+                "Duplicate stakeholder group names in impact analysis: %s; "
+                "entries are merged with a population-weighted average per "
+                "dimension.",
+                ", ".join(duplicated),
+            )
+
+        matrix: Dict[str, Dict[str, float]] = {}
+        for group, entries in per_group.items():
+            total_pop = sum(pop for _, pop in entries)
+            if total_pop > 0:
+                merged = {
+                    key: sum(s[key] * pop for s, pop in entries) / total_pop
+                    for key in entries[0][0]
+                }
+            else:
+                merged = {
+                    key: sum(s[key] for s, _ in entries) / len(entries)
+                    for key in entries[0][0]
+                }
+            weighted_score = (
+                0.30 * merged["economic"]
+                + 0.25 * merged["quality_of_life"]
+                + 0.25 * merged["environmental"]
+                + 0.20 * merged["accessibility"]
+            )
+            merged["weighted_composite"] = weighted_score
+            matrix[group] = {k: round(v, 4) for k, v in merged.items()}
 
         return matrix
 

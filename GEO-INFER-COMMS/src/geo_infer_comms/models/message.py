@@ -283,9 +283,12 @@ class NotificationRequest(BaseModel):
     recipients: List[str] = Field(..., min_length=1)
     notification_type: NotificationType = NotificationType.INFO
     priority: MessagePriority = MessagePriority.NORMAL
-    delivery_method: List[Literal["in_app", "email", "sms", "push"]] = Field(
-        default_factory=lambda: cast(
-            "list[Literal['in_app', 'email', 'sms', 'push']]", ["in_app"]
+    delivery_method: List[Literal["in_app", "email", "sms", "push", "websocket"]] = (
+        Field(
+            default_factory=lambda: cast(
+                "list[Literal['in_app', 'email', 'sms', 'push', 'websocket']]",
+                ["in_app"],
+            )
         )
     )
     schedule_time: Optional[datetime] = None

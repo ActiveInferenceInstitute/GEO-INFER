@@ -72,10 +72,14 @@ class MarineEcosystemModeler:
         Returns:
             Coral reef health assessment
         """
-        # Thermal stress (bleaching risk)
+        # Thermal stress (bleaching risk). One-sided: only temperatures
+        # above the optimum induce bleaching, matching the hotspot
+        # semantics of CoralReefAssessor; cold water is not thermal
+        # stress. Capped at 1.0 so the risk stays a normalized
+        # probability for very warm SSTs.
         optimal_temp = 26.0  # Optimal coral temperature
-        thermal_stress = np.abs(temperature - optimal_temp)
-        bleaching_risk = thermal_stress / 5.0  # Normalized
+        thermal_stress = np.maximum(temperature - optimal_temp, 0)
+        bleaching_risk = (thermal_stress / 5.0).clip(min=0.0, max=1.0)
 
         results: Dict[str, Any] = {
             "thermal_stress": thermal_stress,

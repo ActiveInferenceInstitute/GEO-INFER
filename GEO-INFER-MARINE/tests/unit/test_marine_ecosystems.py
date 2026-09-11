@@ -52,6 +52,27 @@ class TestCoralReefHealth:
         result = modeler.assess_coral_reef_health(temp, ph=ph)
         assert "acidification_stress" in result
 
+    def test_cold_water_is_not_bleaching_risk(self, modeler):
+        # SST 16C previously scored bleaching_risk 2.0 via abs(); cold
+        # water must contribute zero thermal stress, matching the
+        # one-sided hotspot semantics of CoralReefAssessor.
+        temp = xr.DataArray(np.full((2, 2), 16.0), dims=("y", "x"))
+        result = modeler.assess_coral_reef_health(temp)
+        assert float(result["bleaching_risk"].mean()) == 0.0
+        assert float(result["thermal_stress"].mean()) == 0.0
+
+    def test_hot_bleaching_risk_capped_at_one(self, modeler):
+        temp = xr.DataArray(np.full((2, 2), 31.0), dims=("y", "x"))
+        result = modeler.assess_coral_reef_health(temp)
+        assert float(result["bleaching_risk"].mean()) == pytest.approx(1.0)
+
+    def test_extreme_heat_stays_bounded(self, modeler):
+        temp = xr.DataArray(np.full((2, 2), 40.0), dims=("y", "x"))
+        result = modeler.assess_coral_reef_health(temp)
+        risk = result["bleaching_risk"].values
+        assert np.isfinite(risk).all()
+        assert (risk <= 1.0).all()
+
 
 class TestSpeciesDistribution:
     def test_model_species(self, modeler):

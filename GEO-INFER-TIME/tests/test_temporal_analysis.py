@@ -153,6 +153,13 @@ class TestChangePointDetection:
         assert "change_points" in result
         assert "segments" in result
 
+    def test_detect_change_points_unknown_method_raises(
+        self, analyzer, series_with_change
+    ):
+        """Unknown methods must raise ValueError, not silently return zero change points."""
+        with pytest.raises(ValueError, match="unknown method 'pelt'"):
+            analyzer.detect_change_points(series_with_change, method="pelt")
+
 
 class TestCrossCorrelation:
     """Test suite for cross-correlation."""

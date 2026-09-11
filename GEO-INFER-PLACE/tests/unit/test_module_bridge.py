@@ -75,6 +75,53 @@ class TestPlaceTemporalAnalyzer:
         assert "anomalies" in result
         assert len(result["anomalies"]) >= 1
 
+    def test_detect_trend_time_backend_reports_honest_fit(self, monkeypatch):
+        """The TIME backend path must not fabricate r_squared=1.0/significant=True.
+
+        GS-190: r_squared and significant must be derived from the backend's
+        real fields (trend_strength) rather than hardcoded.
+        """
+        import geo_infer_place.core.module_bridge as module_bridge
+
+        monkeypatch.setattr(module_bridge, "_HAS_TIME", True)
+        analyzer = object.__new__(PlaceTemporalAnalyzer)
+        analyzer._analyzer = type(
+            "FakeAnalyzer",
+            (),
+            {
+                "detect_trend": lambda self, ts: {
+                    "trend_direction": "increasing",
+                    "trend_strength": 0.1,
+                }
+            },
+        )()
+        result = analyzer.detect_trend([1, 2, 3, 4], label="patched_backend")
+        assert result["backend"] == "geo_infer_time"
+        assert result["r_squared"] != 1.0
+        assert result["r_squared"] == 0.1
+        assert result["significant"] is False
+
+    def test_detect_trend_time_backend_strong_trend_is_significant(self, monkeypatch):
+        """A backend-reported strength above the threshold is significant."""
+        import geo_infer_place.core.module_bridge as module_bridge
+
+        monkeypatch.setattr(module_bridge, "_HAS_TIME", True)
+        analyzer = object.__new__(PlaceTemporalAnalyzer)
+        analyzer._analyzer = type(
+            "FakeAnalyzer",
+            (),
+            {
+                "detect_trend": lambda self, ts: {
+                    "trend_direction": "decreasing",
+                    "trend_strength": 0.9,
+                }
+            },
+        )()
+        result = analyzer.detect_trend([5, 4, 3, 2], label="patched_backend")
+        assert result["slope"] < 0
+        assert result["significant"] is True
+        assert result["r_squared"] == 0.9
+
     def test_forecast_returns_values(self):
         """forecast should return predicted values list."""
         analyzer = PlaceTemporalAnalyzer()

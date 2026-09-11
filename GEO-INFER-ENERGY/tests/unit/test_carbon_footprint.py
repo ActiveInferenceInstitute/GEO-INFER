@@ -36,6 +36,12 @@ class TestEmissions:
         ratio = float(em2.mean() / em1.mean())
         assert abs(ratio - 2.0) < 0.01
 
+    def test_unknown_fuel_type_raises(self, analyzer):
+        """A typo'd fuel name must raise, not silently bill natural-gas factor (GS-178)."""
+        energy = xr.DataArray(np.full((3, 3), 100.0), dims=("y", "x"))
+        with pytest.raises(ValueError, match="coalz"):
+            analyzer.calculate_emissions(energy, "coalz")
+
 
 class TestCarbonIntensity:
     def test_intensity_calculation(self, analyzer):

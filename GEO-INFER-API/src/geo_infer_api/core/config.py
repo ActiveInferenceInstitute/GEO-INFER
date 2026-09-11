@@ -61,6 +61,18 @@ class Settings(BaseSettings):
     ogc_api_features_enabled: bool = True
     ogc_api_processes_enabled: bool = True
 
+    # In-memory polygon store settings
+    polygon_store_max_size: int = 10_000
+
+    @field_validator("polygon_store_max_size")
+    @classmethod
+    def check_polygon_store_max_size(cls, v: int) -> int:
+        """Reject non-positive caps; an unbounded or zero-cap store is a
+        configuration error, not something to fall back on."""
+        if v < 1:
+            raise ValueError("polygon_store_max_size must be >= 1")
+        return v
+
     @field_validator("cors_origins", mode="before")
     @classmethod
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:

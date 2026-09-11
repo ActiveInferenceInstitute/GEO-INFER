@@ -639,10 +639,10 @@ class BayesianSPM:
             return np.array([n_draws * n_chains])
         except Exception:
             logger.warning(
-                "ESS computation failed; reporting baseline of 1000 (not a real "
-                "effective sample size)"
+                "ESS computation failed; reporting NaN (not a real effective "
+                "sample size)"
             )
-            return np.array([1000])  # Baseline
+            return np.array([np.nan])
 
     def variational_inference(
         self, data: SPMData, design_matrix: np.ndarray, n_iterations: int = 100

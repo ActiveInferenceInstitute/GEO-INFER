@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `test_api_clients.py`
+- `test_bioregion_visualization.py`
 - `test_caching.py`
 - `test_cascadia_flowlines.py`
 - `test_comprehensive_dashboard.py`

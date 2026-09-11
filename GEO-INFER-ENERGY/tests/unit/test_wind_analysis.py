@@ -34,6 +34,13 @@ class TestWeibullFit:
         result = analyzer.fit_weibull(speeds)
         assert abs(result["mean_speed"] - 8.0) < 0.1
 
+    def test_degenerate_fits_expose_std_speed(self, analyzer):
+        """Early-return paths include std_speed so callers never KeyError (GS-181)."""
+        zero = analyzer.fit_weibull(np.zeros(5))
+        assert zero["std_speed"] == 0.0
+        uniform = analyzer.fit_weibull(np.full(100, 8.0))
+        assert uniform["std_speed"] == pytest.approx(0.0)
+
 
 class TestWeibullPDF:
     def test_pdf_positive(self, analyzer):

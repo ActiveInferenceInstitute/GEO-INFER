@@ -46,6 +46,14 @@ class TestDesignMpaNetwork:
         assert np.isfinite(priority).all()
         assert (priority == 1.0).all()
 
+    def test_target_coverage_out_of_range_raises(self, planner, biodiversity_grid):
+        with pytest.raises(ValueError, match="target_coverage"):
+            planner.design_mpa_network(biodiversity_grid, target_coverage=1.2)
+
+    def test_zero_target_coverage_raises(self, planner, biodiversity_grid):
+        with pytest.raises(ValueError, match="target_coverage"):
+            planner.design_mpa_network(biodiversity_grid, target_coverage=0.0)
+
     def test_all_zero_biodiversity_and_threat_stable(self, planner):
         zero = xr.zeros_like(xr.DataArray(np.ones((4, 4)), dims=("lat", "lon")))
         result = planner.design_mpa_network(zero, threat_data=zero)
@@ -79,3 +87,15 @@ class TestOptimizeOffshoreWindSiting:
         depth = xr.DataArray(np.full((2, 2), 10.0), dims=("lat", "lon"))
         result = planner.optimize_offshore_wind_siting(wind, depth)
         assert np.isfinite(result["suitability"].values).all()
+
+    def test_land_cells_negative_depth_excluded(self, planner):
+        wind = xr.DataArray(np.full((2, 2), 8.0), dims=("lat", "lon"))
+        depth = xr.DataArray([[10.0, -100.0], [-5.0, 20.0]], dims=("lat", "lon"))
+        result = planner.optimize_offshore_wind_siting(wind, depth)
+        land = result["suitability"].values
+        # Negative-depth (land) cells must score 0 and never exceed the
+        # wind-only suitability.
+        assert float(land[0, 1]) == pytest.approx(0.0)
+        assert float(land[1, 0]) == pytest.approx(0.0)
+        assert (land <= result["wind_suitability"].values).all()
+        assert (result["depth_suitability"].values <= 1.0).all()

@@ -24,7 +24,6 @@ class EnergyInfrastructurePlanner:
         resource_potential: xr.DataArray,
         demand_centers: xr.DataArray,
         constraints: Optional[xr.DataArray] = None,
-        max_distance: float = 50.0,
     ) -> xr.Dataset:
         """
         Optimize energy facility siting.
@@ -32,14 +31,13 @@ class EnergyInfrastructurePlanner:
         Args:
             resource_potential: Resource potential map
             demand_centers: Demand center locations
-            constraints: Optional constraint map (0=excluded, 1=allowed)
-            max_distance: Maximum distance from demand (km)
 
         Returns:
             Optimal siting analysis
         """
-        # Resource suitability
-        resource_suitability = resource_potential / resource_potential.max()
+        # Resource suitability, guarded against an all-zero potential map
+        # (the +1e-10 keeps the ratio finite instead of all-NaN).
+        resource_suitability = resource_potential / (resource_potential.max() + 1e-10)
 
         # Demand density index: demand_centers normalized by its own maximum.
         # This is a demand-density proximity proxy, not a geographic distance;

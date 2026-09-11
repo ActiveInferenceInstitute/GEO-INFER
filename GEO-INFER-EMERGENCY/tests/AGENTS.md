@@ -28,6 +28,7 @@
 - `test_coordinator.py`
 - `test_evacuation.py`
 - `test_evacuation_sar.py`
+- `test_geo.py`
 - `test_resources.py`
 - `test_sar.py`
 

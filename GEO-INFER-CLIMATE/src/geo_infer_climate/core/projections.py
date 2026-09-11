@@ -56,26 +56,34 @@ class ClimateProjections:
 
         years = years or [2050, 2100]
 
-        # Calculate trend from historical data
-        trend = self._calculate_trend(historical_data)
+        # Fit the historical trend on a calendar-year axis so the slope is
+        # per year regardless of the sampling frequency (annual, monthly, ...).
+        time_years = self._time_elapsed_years(historical_data)
+        trend = self._calculate_trend(historical_data, time_years)
 
         # Apply scenario-based scaling
         scenario_factor = self._get_scenario_factor(scenario)
 
-        # Last year of the historical record (handles datetime or numeric
-        # year coordinates)
-        t_max = historical_data["time"].max().values
-        if np.issubdtype(np.asarray(t_max).dtype, np.datetime64):
-            last_year = int(np.asarray(t_max, dtype="datetime64[Y]").astype(int)) + 1970
+        # First observation year on the calendar scale (handles datetime or
+        # numeric year coordinates).
+        t_min = historical_data["time"].min().values
+        if np.issubdtype(np.asarray(t_min).dtype, np.datetime64):
+            first_year = (
+                int(np.asarray(t_min, dtype="datetime64[Y]").astype(int)) + 1970
+            )
         else:
-            last_year = int(t_max)
+            first_year = int(t_min)
 
-        # Project future values
+        # The fitted line passes through the historical mean at the mean
+        # elapsed time, so project from there (mean + slope * years is the
+        # least-squares line evaluated at the target year).
+        mean_time = float(np.mean(time_years))
         projections = []
         for year in years:
-            years_ahead = year - last_year
+            years_from_first = year - first_year
             projected = (
-                historical_data.mean(dim="time") + trend * years_ahead * scenario_factor
+                historical_data.mean(dim="time")
+                + trend * (years_from_first - mean_time) * scenario_factor
             )
             projected = projected.expand_dims("time").assign_coords(
                 time=[np.datetime64(f"{year}-01-01")]
@@ -84,11 +92,28 @@ class ClimateProjections:
 
         return cast(xr.DataArray, xr.concat(projections, dim="time"))
 
-    def _calculate_trend(self, data: xr.DataArray) -> xr.DataArray:
-        """Calculate linear trend from time series."""
-        # Simple linear trend
-        time_numeric = np.arange(len(data.time))
-        trend = np.polyfit(time_numeric, data.values, 1)[0]
+    @staticmethod
+    def _time_elapsed_years(data: xr.DataArray) -> np.ndarray:
+        """Elapsed years since the first observation on a calendar scale.
+
+        Datetime coordinates are converted to fractional 365.25-day years so
+        the trend slope is expressed per calendar year instead of per time
+        step; numeric coordinates are already calendar years.
+        """
+        times = np.asarray(data["time"].values)
+        if np.issubdtype(times.dtype, np.datetime64):
+            days = (times - times[0]) / np.timedelta64(1, "D")
+            return days.astype(float) / 365.25
+        years = times.astype(float)
+        return years - years[0]
+
+    def _calculate_trend(
+        self, data: xr.DataArray, time_years: Optional[np.ndarray] = None
+    ) -> xr.DataArray:
+        """Calculate linear trend (per year) from time series."""
+        if time_years is None:
+            time_years = self._time_elapsed_years(data)
+        trend = np.polyfit(time_years, data.values, 1)[0]
         return xr.DataArray(trend, dims=data.dims[:-1])
 
     def _get_scenario_factor(self, scenario: str) -> float:

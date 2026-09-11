@@ -4,7 +4,6 @@ PlaceArt module for creating art based on specific locations and places.
 
 import logging
 import os
-import hashlib
 from typing import Any, Dict, List, Optional, Union
 
 import geopandas as gpd
@@ -65,7 +64,12 @@ class PlaceArt:
 
     @staticmethod
     def _fetch_place_data(place_name: str) -> Dict:
-        """Return deterministic metadata for a named place."""
+        """Return metadata for a named place.
+
+        Raises:
+            ValueError: If the place name is not in the known-places table
+                (matching the from_place_name contract and CulturalMap.from_region).
+        """
         known_places = {
             "new york": (40.7128, -74.0060, "United States"),
             "paris": (48.8566, 2.3522, "France"),
@@ -80,21 +84,13 @@ class PlaceArt:
         }
 
         place_key = place_name.lower()
-        if place_key in known_places:
-            lat, lon, country = known_places[place_key]
-        else:
-            import random
-
-            # Deterministic across processes: Python's hash() is randomized
-            # per interpreter (PYTHONHASHSEED), so it must not seed RNGs.
-            seed = int(hashlib.md5(place_name.encode("utf-8")).hexdigest(), 16) % (
-                2**32
+        if place_key not in known_places:
+            raise ValueError(
+                f"Unknown place: {place_name}. Known places: "
+                f"{', '.join(sorted(known_places.keys()))}"
             )
-            random.seed(seed)
-            lat = random.uniform(-80, 80)
-            lon = random.uniform(-179, 179)
-            country = "Unknown"
 
+        lat, lon, country = known_places[place_key]
         return {"name": place_name, "coordinates": (lat, lon), "country": country}
 
     @classmethod

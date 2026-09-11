@@ -29,12 +29,33 @@ from datetime import datetime
 from typing import Dict, List, Optional, Any
 
 import numpy as np
+from ..utils.rng import resolve_rng
 
 # Module-level monotonic counter backing memory item IDs; combined with an
 # optional generator so IDs stay collision-free and reproducible.
 _ITEM_ID_SEQUENCE: "itertools.count[int]" = itertools.count(1)
 
-from ..utils.rng import resolve_rng
+
+def _extract_bbox(spatial: Dict[str, Any]) -> Optional[tuple]:
+    """Extract an axis-aligned bbox as (min_x, min_y, max_x, max_y) if present.
+
+    Returns None when no valid 4-number bbox is available.
+    """
+    bbox = spatial.get("bbox")
+    if not isinstance(bbox, (list, tuple)) or len(bbox) != 4:
+        return None
+    try:
+        min_x, min_y, max_x, max_y = (float(v) for v in bbox)
+    except (TypeError, ValueError):
+        return None
+    if max_x < min_x or max_y < min_y:
+        return None
+    return (min_x, min_y, max_x, max_y)
+
+
+def _bboxes_intersect(a: tuple, b: tuple) -> bool:
+    """Check whether two (min_x, min_y, max_x, max_y) boxes intersect."""
+    return not (a[2] < b[0] or b[2] < a[0] or a[3] < b[1] or b[3] < a[1])
 
 
 logger = logging.getLogger(__name__)
@@ -547,8 +568,16 @@ class SpatialMemoryModel:
         """
         Search memory using spatial, temporal, or conceptual criteria.
 
-        Args:
-            query: Search query with criteria (spatial, temporal, conceptual)
+            query: Search query with criteria. Accepted keys:
+                - "spatial_bounds": dict with an optional "bbox" ([min_x, min_y,
+                  max_x, max_y]) and/or a "scale" label (small/medium/large).
+                  When both the item's spatial_context and the query carry a
+                  bbox, real bbox intersection is required; the "scale" label
+                  is only compared when geometry is absent.
+                - "temporal_range": (start, end) datetime tuple covering the
+                  item creation time.
+                - "content_type": exact match against item content "type".
+                - "min_importance": minimum item importance threshold.
             memory_types: Memory types to search (default: all)
             limit: Maximum number of results to return
 
@@ -617,14 +646,25 @@ class SpatialMemoryModel:
     def _spatial_overlap(
         self, item_spatial: Dict[str, Any], query_bounds: Dict[str, Any]
     ) -> bool:
-        """Check if item spatial context overlaps with query bounds."""
-        # Simplified spatial overlap check
-        # In practice, would use proper geometric operations
-        item_scale = item_spatial.get("scale", "medium")
-        query_scale = query_bounds.get("scale", "medium")
+        """Check if item spatial context overlaps with query bounds.
 
-        # For now, just check if scales match (could be more sophisticated)
-        return bool(item_scale == query_scale)
+        When both sides carry a ``bbox`` ([min_x, min_y, max_x, max_y]),
+        real axis-aligned bbox intersection is required. The ``scale``
+        label is only compared when geometry is absent from both sides;
+        if exactly one side has geometry, there is no confirmed overlap.
+        """
+        item_bbox = _extract_bbox(item_spatial)
+        query_bbox = _extract_bbox(query_bounds)
+
+        if item_bbox is not None and query_bbox is not None:
+            return _bboxes_intersect(item_bbox, query_bbox)
+
+        if item_bbox is None and query_bbox is None:
+            item_scale = item_spatial.get("scale", "medium")
+            query_scale = query_bounds.get("scale", "medium")
+            return bool(item_scale == query_scale)
+
+        return False
 
     def get_memory_statistics(self) -> Dict[str, Any]:
         """Get comprehensive memory system statistics."""

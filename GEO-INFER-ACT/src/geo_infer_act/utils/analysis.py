@@ -417,7 +417,10 @@ class ActiveInferenceAnalyzer:
             return correlations
         except Exception as e:
             logger.warning(f"Error computing correlations: {e}")
-            return {"error": str(e)}
+            # The contract for this method is a dict of float-valued
+            # state_<i>_obs_<j> entries; an error sentinel would inject a
+            # string into that shape and break consumers far from the cause.
+            return {}
 
     def _assess_perception_quality(self, beliefs_array: np.ndarray) -> Dict[str, Any]:
         """Assess the quality of perception (belief updating)."""

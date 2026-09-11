@@ -41,9 +41,11 @@
 - `test_h3.py`
 - `test_h3_active_inference.py`
 - `test_h3_adapter.py`
+- `test_h3_validation_logging.py`
 - `test_h3_viz_integration.py`
 - `test_inference_hardening.py`
 - `test_markov_decision_process.py`
+- `test_math_and_correlation_contracts.py`
 - `test_model_contracts.py`
 - `test_models.py`
 - `test_nested_h3_active_inference.py`

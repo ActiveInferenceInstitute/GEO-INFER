@@ -82,6 +82,22 @@ class TestGradientDescentOptimizer:
         assert result["x"][0] >= 1.0
         assert result["x"][0] <= 5.0
 
+    def test_divergent_learning_rate_reports_failure(self):
+        # lr=10 on a quadratic diverges / plateaus at the clip bounds; the
+        # optimizer must report success=False instead of a false positive.
+        config = OptimizationConfig(
+            max_iterations=100,
+            learning_rate=10.0,
+            momentum=0.0,
+            tolerance=1e-6,
+        )
+        optimizer = GradientDescentOptimizer(config)
+        bounds = [(-5.0, 5.0), (-5.0, 5.0)]
+        result = optimizer.optimize(
+            quadratic, bounds, initial_guess=np.array([3.0, 4.0])
+        )
+        assert result["success"] is False
+
 
 class TestGeneticAlgorithmOptimizer:
     """Tests for genetic algorithm optimizer."""

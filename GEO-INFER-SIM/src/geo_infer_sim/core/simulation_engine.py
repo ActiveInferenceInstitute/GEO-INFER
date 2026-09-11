@@ -37,7 +37,6 @@ class SimulationConfig:
     max_time: float = 100.0
     output_interval: float = 1.0
     random_seed: Optional[int] = None
-    parallel_execution: bool = False
     save_state_history: bool = True
     checkpoint_interval: Optional[float] = None
 

@@ -396,3 +396,22 @@ class TestSustainabilityAssessment:
         # order of 1,000 km. A value near 10 would indicate degrees were used.
         min_distance = metrics["min_distance_to_protected_m"]
         assert min_distance > 100000.0
+
+    def test_assess_carbon_sequestration_missing_field_id_raises(
+        self, sample_field_data
+    ):
+        """Passing management_practices without a field_id column must raise."""
+        fields = sample_field_data.drop(columns=["field_id"])
+        sa = SustainabilityAssessment(field_data=fields)
+
+        with pytest.raises(ValueError, match="field_id"):
+            sa.assess_carbon_sequestration(
+                management_practices={"field_1": ["no_till"]}
+            )
+
+    def test_assess_carbon_sequestration_model_param_removed(self, sample_field_data):
+        """The dead 'model' parameter must no longer be accepted."""
+        sa = SustainabilityAssessment()
+
+        with pytest.raises(TypeError):
+            sa.assess_carbon_sequestration(field_data=sample_field_data, model="tier2")

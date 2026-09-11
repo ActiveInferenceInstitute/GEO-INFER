@@ -33,3 +33,39 @@ class TestEnhancedExposureModel:
     def test_spatial_resolution_default(self) -> None:
         m = EnhancedExposureModel(exposure_type="property", params={})
         assert m.spatial_resolution == 9
+
+
+class TestExposureDataFailureSurfacing:
+    """Malformed or unmergeable exposure data must surface, not silently
+    disable the model (GS-141)."""
+
+    def test_malformed_exposure_source_raises_value_error(self, tmp_path) -> None:
+        """A configured source missing required columns must raise the
+        validation ValueError instead of degrading to an empty model."""
+        bad_csv = tmp_path / "bad.csv"
+        bad_csv.write_text("lon,value\n0.0,100.0\n")
+        try:
+            EnhancedExposureModel("property", {"data_sources": [f"file://{bad_csv}"]})
+        except ValueError as exc:
+            assert "Required column missing" in str(exc)
+        else:
+            raise AssertionError("Malformed exposure source did not raise ValueError")
+
+    def test_merge_failure_raises_instead_of_dropping_source(self, tmp_path) -> None:
+        """A source that cannot be merged must raise RuntimeError, not be
+        silently discarded while the first source keeps loading."""
+        primary = tmp_path / "primary.csv"
+        primary.write_text("id,longitude,latitude\na,0.0,0.0\n")
+        foreign = tmp_path / "foreign.csv"
+        foreign.write_text("x\n1\n")
+        try:
+            EnhancedExposureModel(
+                "property",
+                {"data_sources": [f"file://{primary}", f"file://{foreign}"]},
+            )
+        except RuntimeError as exc:
+            assert "Failed to merge exposure data" in str(exc)
+        else:
+            raise AssertionError(
+                "Merge failure was silently swallowed and second source dropped"
+            )

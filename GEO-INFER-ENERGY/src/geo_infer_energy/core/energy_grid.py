@@ -31,7 +31,9 @@ class EnergyGridOptimizer:
         Args:
             demand: Energy demand
             supply: Energy supply
-            transmission_capacity: Optional transmission capacity
+            transmission_capacity: Optional per-cell transmission capacity;
+                when provided, surplus and deficit are clipped to this limit
+                (power that cannot be transmitted over the grid).
 
         Returns:
             Grid optimization results
@@ -42,6 +44,16 @@ class EnergyGridOptimizer:
         # Identify deficits and surpluses
         deficit = xr.where(balance < 0, -balance, 0)
         surplus = xr.where(balance > 0, balance, 0)
+
+        # Apply transmission limits: flow beyond capacity cannot be used,
+        # so both surplus export and deficit import are clipped.
+        if transmission_capacity is not None:
+            surplus = xr.where(
+                surplus > transmission_capacity, transmission_capacity, surplus
+            )
+            deficit = xr.where(
+                deficit > transmission_capacity, transmission_capacity, deficit
+            )
 
         # Grid reliability
         reliability = supply / (demand + 1e-10)

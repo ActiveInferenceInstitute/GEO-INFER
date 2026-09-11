@@ -58,11 +58,11 @@ class FireRiskAssessor:
         """
         n_days = len(daily_max_temp_c)
         kbdi = np.zeros(n_days, dtype=float)
-        kbdi[0] = initial_kbdi
 
-        for i in range(1, n_days):
-            q_prev = kbdi[i - 1]
-
+        # Day 0 starts from initial_kbdi and processes that day's weather
+        # (rain deficit reduction and temperature drying) like every other day.
+        q_prev = initial_kbdi
+        for i in range(n_days):
             net_precip = max(0.0, daily_precip_mm[i] - 5.08)
             q_after_rain = max(0.0, q_prev - net_precip * 3.937)
 
@@ -80,6 +80,7 @@ class FireRiskAssessor:
             dq = max(0.0, dq)
 
             kbdi[i] = min(800.0, q_after_rain + dq)
+            q_prev = kbdi[i]
 
         return kbdi
 

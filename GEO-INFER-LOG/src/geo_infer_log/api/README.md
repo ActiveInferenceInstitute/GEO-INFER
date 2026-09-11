@@ -6,6 +6,7 @@ Api workspace within `GEO-INFER-LOG`.
 
 - `__init__.py`
 - `delivery.py`
+- `errors.py`
 - `routes.py`
 - `supply_chain.py`
 - `transport.py`
@@ -27,11 +28,11 @@ Api workspace within `GEO-INFER-LOG`.
 - `delivery.py:reschedule_delivery` (function)
 - `delivery.py:create_service_area` (function)
 - `delivery.py:analyze_coverage` (function)
+- `errors.py:ErrorHandlerMiddleware` (class)
+- `errors.py:register_error_handlers` (function)
 - `routes.py:RouteRequest` (class)
 - `routes.py:VehicleRegistration` (class)
 - `routes.py:VRPRequest` (class)
-- `routes.py:get_route_optimizer` (function)
-- `routes.py:get_fleet_manager` (function)
 
 ## Module Metadata
 

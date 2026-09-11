@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import tempfile
+from pathlib import Path
+from types import SimpleNamespace
+
+
 import base64
 
 import matplotlib
@@ -91,6 +96,43 @@ class TestRestApi:
             "latitude": 37.7,
             "longitude": -122.4,
         }
+
+    def test_analyze_file_cleans_temp_files_on_processing_error(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        import geo_infer_bio.api.rest_api as rest_api_module
+
+        created: list[str] = []
+        real_named = tempfile.NamedTemporaryFile
+
+        def recording_named(*args, **kwargs):
+            handle = real_named(*args, **kwargs)
+            created.append(handle.name)
+            return handle
+
+        monkeypatch.setattr(
+            rest_api_module,
+            "tempfile",
+            SimpleNamespace(
+                NamedTemporaryFile=recording_named,
+                TemporaryDirectory=tempfile.TemporaryDirectory,
+            ),
+        )
+        lenient_client = TestClient(app, raise_server_exceptions=False)
+        fasta = ">seq-1\nATCGATCGAAACCCGGG\n"
+        # Empty CSV: pandas.read_csv raises EmptyDataError mid-processing
+        corrupt_spatial = b""
+        response = lenient_client.post(
+            "/analyze/file",
+            files=[
+                ("file", ("sample.fasta", fasta.encode(), "text/plain")),
+                ("spatial_data", ("spatial.csv", corrupt_spatial, "text/csv")),
+            ],
+        )
+        assert response.status_code == 500
+        assert created, "expected temp files to have been created"
+        for temp in created:
+            assert not Path(temp).exists(), f"temp file leaked: {temp}"
 
     def test_visualize_spatial_returns_base64_png(self, client: TestClient) -> None:
         payload = [

@@ -1096,13 +1096,133 @@ class ProceduralArt:
         # Convert figure to image
         self._figure_to_image()
 
+    @staticmethod
+    def _simplex_noise_2d(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+        """
+        Evaluate classic 2D simplex noise (Gustavson-style simplicial lattice).
+
+        The permutation table is drawn from the module-level numpy random
+        state, so ProceduralArt.generate()'s seeded call makes this
+        deterministic for a fixed seed.
+
+        Returns values in approximately [-1, 1].
+        """
+        f2 = 0.5 * (np.sqrt(3.0) - 1.0)
+        g2 = (3.0 - np.sqrt(3.0)) / 6.0
+        gradients = np.array(
+            [
+                [1.0, 1.0],
+                [-1.0, 1.0],
+                [1.0, -1.0],
+                [-1.0, -1.0],
+                [1.0, 0.0],
+                [-1.0, 0.0],
+                [0.0, 1.0],
+                [0.0, -1.0],
+            ]
+        )
+
+        # Permutation table (doubled to avoid index wraparound arithmetic).
+        perm = np.random.permutation(256)
+        perm = np.concatenate([perm, perm])
+
+        # Skew input space onto the simplicial lattice.
+        s = (x + y) * f2
+        i = np.floor(x + s)
+        j = np.floor(y + s)
+        t = (i + j) * g2
+        x0 = x - (i - t)
+        y0 = y - (j - t)
+
+        # Corner order of the enclosing simplex triangle.
+        i1 = (x0 > y0).astype(np.int64)
+        j1 = 1 - i1
+
+        x1 = x0 - i1 + g2
+        y1 = y0 - j1 + g2
+        x2 = x0 - 1.0 + 2.0 * g2
+        y2 = y0 - 1.0 + 2.0 * g2
+
+        ii = i.astype(np.int64) & 255
+        jj = j.astype(np.int64) & 255
+        gi0 = perm[ii + perm[jj]] % 8
+        gi1 = perm[ii + i1 + perm[jj + j1]] % 8
+        gi2 = perm[ii + 1 + perm[jj + 1]] % 8
+
+        def _corner(tx: np.ndarray, ty: np.ndarray, gi: np.ndarray) -> np.ndarray:
+            """Radial falloff dotted with the corner's gradient direction."""
+            fall = 0.5 - tx * tx - ty * ty
+            contrib = (fall**4) * (gradients[gi, 0] * tx + gradients[gi, 1] * ty)
+            return np.where(fall > 0.0, contrib, 0.0)
+
+        total = _corner(x0, y0, gi0) + _corner(x1, y1, gi1) + _corner(x2, y2, gi2)
+
+        # Standard output scaling for 2D simplex noise.
+        return 70.0 * total
+
     def _generate_simplex_noise(self) -> None:
         """
-        Generate art using Simplex noise.
+        Generate art using simplex noise.
+
+        Unlike ``noise_field`` / ``perlin_noise``, which use a trigonometric
+        approximation on a square lattice, this evaluates classic 2D simplex
+        noise on a skewed simplicial lattice with per-vertex gradients.
         """
-        # Simplex noise is more complex to implement without external libraries
-        # For now, use a similar approach to Perlin but with different characteristics
-        self._generate_perlin_noise()  # Simplified implementation
+        width, height = self.resolution
+        scale = self.params.get("scale", 100.0)
+        octaves = self.params.get("octaves", 6)
+        persistence = self.params.get("persistence", 0.5)
+        lacunarity = self.params.get("lacunarity", 2.0)
+
+        # X and Y influence can be seeded by geo coordinates
+        x_influence = self.params.get("x_influence", 1.0)
+        y_influence = self.params.get("y_influence", 1.0)
+
+        # Same 0.1 spatial attenuation as the Perlin path keeps feature sizes
+        # comparable across the two noise algorithms.
+        x = np.linspace(0, scale * x_influence * 0.1, width)
+        y = np.linspace(0, scale * y_influence * 0.1, height)
+        X, Y = np.meshgrid(x, y)
+
+        noise = np.zeros((height, width))
+        amplitude = 1.0
+        frequency = 1.0
+        max_value = 0.0
+
+        for _ in range(octaves):
+            noise += amplitude * self._simplex_noise_2d(X * frequency, Y * frequency)
+            max_value += amplitude
+            amplitude *= persistence
+            frequency *= lacunarity
+
+        # Normalize noise to 0-1 (simplex output is approximately in [-1, 1])
+        noise = np.clip((noise / max_value + 1.0) / 2.0, 0.0, 1.0)
+
+        # Get color palette
+        palette_name = self.params.get("color_palette", "viridis")
+        palette = ColorPalette.get_palette(palette_name)
+
+        # Create a figure
+        fig, ax = plt.subplots(figsize=(width / 100, height / 100), dpi=100)
+
+        # Plot the noise field with the color palette
+        ax.imshow(
+            noise,
+            cmap=palette.cmap,
+            interpolation="bicubic",
+            aspect="auto",
+            extent=(0, width, 0, height),
+        )
+
+        # Remove axes for artistic effect
+        ax.set_axis_off()
+        plt.tight_layout(pad=0)
+
+        # Store the figure
+        self._figure = fig
+
+        # Convert figure to image
+        self._figure_to_image()
 
     def _generate_wave_function_collapse(self) -> None:
         """

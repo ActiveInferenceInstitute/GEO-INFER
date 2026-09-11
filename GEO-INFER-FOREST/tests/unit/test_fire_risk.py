@@ -35,11 +35,18 @@ class TestKBDI:
         kbdi_wet = assessor.calculate_kbdi(temps, precip_wet, initial_kbdi=500)
         assert kbdi_wet[-1] < kbdi_dry[-1]
 
-    def test_kbdi_starts_at_initial(self, assessor):
-        temps = np.full(5, 20.0)
-        precip = np.zeros(5)
-        kbdi = assessor.calculate_kbdi(temps, precip, initial_kbdi=200)
-        assert kbdi[0] == 200.0
+    def test_kbdi_processes_first_day(self, assessor):
+        # Day 0 weather must be processed: rain reduces the deficit below
+        # the initial value, and drying raises it when there is no rain.
+        kbdi_rain = assessor.calculate_kbdi(
+            np.array([20.0]), np.array([100.0]), initial_kbdi=400.0
+        )
+        assert kbdi_rain[0] < 400.0
+
+        kbdi_dry = assessor.calculate_kbdi(
+            np.full(1, 30.0), np.zeros(1), initial_kbdi=100.0
+        )
+        assert kbdi_dry[0] > 100.0
 
 
 class TestAngstromIndex:

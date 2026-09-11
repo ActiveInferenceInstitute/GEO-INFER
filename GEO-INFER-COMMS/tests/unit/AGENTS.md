@@ -24,6 +24,7 @@
 - `test_channels.py`
 - `test_core.py`
 - `test_email_providers.py`
+- `test_events_publish_robustness.py`
 - `test_message_models.py`
 - `test_messaging.py`
 - `test_notifications.py`

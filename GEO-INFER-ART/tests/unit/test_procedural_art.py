@@ -4,6 +4,7 @@ Unit tests for the ProceduralArt class in geo_infer_art.core.generation.procedur
 """
 
 import os
+import numpy as np
 import tempfile
 import unittest
 import pytest
@@ -189,6 +190,31 @@ class TestProceduralArt(unittest.TestCase):
 
             except Exception as e:
                 self.fail(f"Generation with algorithm {algorithm} failed: {str(e)}")
+
+    def test_simplex_noise_is_distinct_algorithm(self):
+        """GS-271: simplex_noise must differ from noise_field for the same seed."""
+        noise_field = ProceduralArt(
+            algorithm="noise_field", params={"seed": 42}, resolution=(200, 200)
+        ).generate()
+        simplex = ProceduralArt(
+            algorithm="simplex_noise", params={"seed": 42}, resolution=(200, 200)
+        ).generate()
+        self.assertIsNotNone(simplex.image)
+        self.assertFalse(
+            np.array_equal(np.asarray(noise_field.image), np.asarray(simplex.image))
+        )
+
+    def test_simplex_noise_is_seed_deterministic(self):
+        """GS-271: the same seed must reproduce identical simplex output."""
+        first = ProceduralArt(
+            algorithm="simplex_noise", params={"seed": 42}, resolution=(200, 200)
+        ).generate()
+        second = ProceduralArt(
+            algorithm="simplex_noise", params={"seed": 42}, resolution=(200, 200)
+        ).generate()
+        self.assertTrue(
+            np.array_equal(np.asarray(first.image), np.asarray(second.image))
+        )
 
     def test_dla_degenerate_structure(self):
         """DLA with no stuck particles must not divide by zero (NaN -> ValueError)."""

@@ -121,7 +121,6 @@ class GradientDescentOptimizer(Optimizer):
         self.convergence_history = [current_value]
 
         velocity = np.zeros_like(current_params)
-
         for iteration in range(self.config.max_iterations):
             # Calculate gradient
             if self.gradient_function is not None:
@@ -159,8 +158,17 @@ class GradientDescentOptimizer(Optimizer):
             current_value = new_value
             self.convergence_history.append(current_value)
 
+        # Success requires actual progress on the initial best value and a
+        # finite objective: budget-exhausted-without-improvement (including
+        # clipped oscillation plateaus) and non-finite objectives are
+        # failures, not successes.
+        success = bool(
+            np.isfinite(self.best_value)
+            and self.best_value < self.convergence_history[0]
+        )
+
         return {
-            "success": True,
+            "success": success,
             "x": self.best_solution,
             "fun": self.best_value,
             "nit": len(self.convergence_history),
@@ -260,8 +268,16 @@ class GeneticAlgorithmOptimizer(Optimizer):
                     logger.info(f"Converged at generation {generation}")
                     break
 
+        # Success requires actual progress on the initial best value and a
+        # finite objective: budget-exhausted-without-improvement and
+        # non-finite objectives are failures, not successes.
+        success = bool(
+            np.isfinite(self.best_value)
+            and self.best_value < self.convergence_history[0]
+        )
+
         return {
-            "success": True,
+            "success": success,
             "x": self.best_solution,
             "fun": self.best_value,
             "nit": len(self.convergence_history),
@@ -501,8 +517,25 @@ class MultiObjectiveOptimizer(Optimizer):
 
             self.convergence_history.append(self.best_value)
 
+            # Check convergence (stall on the aggregated objective)
+            if len(self.convergence_history) > 10:
+                recent_improvement = abs(
+                    self.convergence_history[-1] - self.convergence_history[-10]
+                )
+                if recent_improvement < self.config.tolerance:
+                    logger.info(f"Converged at generation {generation}")
+                    break
+
+        # Success requires actual progress on the initial best value and a
+        # finite objective: budget-exhausted-without-improvement and
+        # non-finite objectives are failures, not successes.
+        success = bool(
+            np.isfinite(self.best_value)
+            and self.best_value < self.convergence_history[0]
+        )
+
         return {
-            "success": True,
+            "success": success,
             "x": self.best_solution,
             "fun": self.best_value,
             "pareto_front": objectives,

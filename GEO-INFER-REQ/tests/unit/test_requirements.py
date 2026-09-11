@@ -144,6 +144,124 @@ class TestRequirementsAnalyzer:
         assert len(report.orphaned_requirements) > 0
 
 
+class TestCustomWeights:
+    """Custom weight sets are validated and normalized (GS-280)."""
+
+    def _analyzer(self):
+        a = RequirementsAnalyzer()
+        a.add_requirement(
+            Requirement(
+                "R1",
+                "Only",
+                "A single requirement with a full description",
+                RequirementType.FUNCTIONAL,
+            )
+        )
+        return a
+
+    def test_custom_weights_normalized(self):
+        scores = self._analyzer().compute_priority_scores(
+            weights={
+                "priority": 2.0,
+                "dependents": 1.0,
+                "stakeholders": 1.0,
+                "effort": 0.0,
+            }
+        )
+        assert set(scores) == {"R1"}
+        # R1: priority_norm 2/4, dep_norm 0, stake_norm 0, effort_norm 0.5
+        # -> (2/4)*0.5 + 0.5*0.0 = 0.25 after normalization to 0.5/0.25/0.25/0.0
+        assert scores["R1"] == pytest.approx(0.25 * 0.5 + 0.25 * 0.5, abs=1e-3)
+
+    def test_missing_key_raises_value_error(self):
+        with pytest.raises(ValueError, match="missing required keys"):
+            self._analyzer().compute_priority_scores(weights={"priority": 1.0})
+
+    def test_negative_weight_raises_value_error(self):
+        with pytest.raises(ValueError, match="non-negative"):
+            self._analyzer().compute_priority_scores(
+                weights={
+                    "priority": 1.0,
+                    "dependents": -0.5,
+                    "stakeholders": 0.0,
+                    "effort": 0.5,
+                }
+            )
+
+    def test_non_finite_weight_raises_value_error(self):
+        with pytest.raises(ValueError, match="finite"):
+            self._analyzer().compute_priority_scores(
+                weights={
+                    "priority": float("inf"),
+                    "dependents": 0.0,
+                    "stakeholders": 0.0,
+                    "effort": 0.0,
+                }
+            )
+
+    def test_non_numeric_weight_raises_value_error(self):
+        with pytest.raises(ValueError, match="must be a number"):
+            self._analyzer().compute_priority_scores(
+                weights={
+                    "priority": "high",
+                    "dependents": 0.0,
+                    "stakeholders": 0.0,
+                    "effort": 0.0,
+                }
+            )
+
+
+class TestDanglingDependencies:
+    """Dangling dependency IDs are surfaced, not silently dropped (GS-281)."""
+
+    def _analyzer(self):
+        a = RequirementsAnalyzer()
+        a.add_requirement(
+            Requirement(
+                "R1",
+                "Dependent",
+                "Depends on a mistyped requirement ID",
+                RequirementType.FUNCTIONAL,
+                dependencies=["R1_TYPO"],
+            )
+        )
+        return a
+
+    def test_dangling_listed_in_graph_field(self):
+        graph = self._analyzer().build_dependency_graph()
+        assert graph.dangling_dependencies == ["R1_TYPO"]
+        assert graph.nodes == ["R1"]
+        assert graph.edges == []
+
+    def test_dangling_dependency_warns(self, caplog):
+        with caplog.at_level("WARNING", logger="geo_infer_req.core.requirements"):
+            self._analyzer().build_dependency_graph()
+        assert any("R1_TYPO" in rec.message for rec in caplog.records)
+
+    def test_known_dependencies_not_dangling(self):
+        a = RequirementsAnalyzer()
+        a.add_requirements(
+            [
+                Requirement(
+                    "A",
+                    "Req A",
+                    "Requirement A depends on requirement B",
+                    RequirementType.FUNCTIONAL,
+                    dependencies=["B"],
+                ),
+                Requirement(
+                    "B",
+                    "Req B",
+                    "Requirement B stands alone with no dependencies",
+                    RequirementType.FUNCTIONAL,
+                ),
+            ]
+        )
+        graph = a.build_dependency_graph()
+        assert graph.dangling_dependencies == []
+        assert graph.edges == [("B", "A")]
+
+
 class TestCycleDetection:
     """Cycle detection reports well-formed closed loops."""
 

@@ -187,8 +187,8 @@ class EnhancedExposureModel:
                 f"Exposure data initialized with {len(self.exposure_data)} records"
             )
 
-        except Exception as e:
-            self.logger.error(f"Failed to initialize exposure data: {e}")
+        except (OSError, json.JSONDecodeError, pd.errors.ParserError) as e:
+            self.logger.error(f"Failed to initialize exposure data from I/O: {e}")
             self.exposure_data = None
 
     def _load_data_from_source(self, source: str) -> Optional[pd.DataFrame]:
@@ -276,8 +276,12 @@ class EnhancedExposureModel:
             return merged
 
         except Exception as e:
-            self.logger.error(f"Failed to merge exposure data: {e}")
-            return existing_data  # Return original data if merge fails
+            # A failed merge must surface, not silently drop the second data
+            # source: downgraded exposure would silently invalidate risk
+            # calculations downstream.
+            raise RuntimeError(
+                f"Failed to merge exposure data from multiple sources: {e}"
+            ) from e
 
     def _validate_and_clean_exposure_data(self) -> None:
         """Validate and clean exposure data."""

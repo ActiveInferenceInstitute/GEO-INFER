@@ -40,12 +40,19 @@ class CoastalAnalyzer:
         # Calculate relative elevation
         relative_elevation = elevation - sea_level
 
-        # Vulnerability index (lower elevation = higher vulnerability)
-        vulnerability = 1.0 / (relative_elevation + 1.0)  # Normalized
+        # Vulnerability index (lower elevation = higher vulnerability).
+        # Cells at or below sea level (relative elevation <= 0) are the
+        # most exposed; clamping the relative elevation to a floor of 0
+        # keeps the index finite and bounded in [0, 1] instead of
+        # diverging at relative elevation == -1 or turning negative
+        # below it.
+        vulnerability = 1.0 / (relative_elevation.clip(min=0.0) + 1.0)
 
         if wave_height is not None:
             # Incorporate wave impacts
             vulnerability = vulnerability * (1 + wave_height / 10.0)
+
+        vulnerability = vulnerability.clip(min=0.0, max=1.0)
 
         return xr.Dataset(
             {
@@ -64,11 +71,21 @@ class CoastalAnalyzer:
 
         Args:
             shoreline_data: Shoreline position data
-            time_periods: List of time periods to analyze
+            time_periods: List of time periods to analyze; erosion
+                rates need at least two consecutive periods
 
         Returns:
             Erosion analysis results
+
+        Raises:
+            ValueError: If fewer than two time periods are supplied.
         """
+        if len(time_periods) < 2:
+            raise ValueError(
+                "coastal_analysis.analyze_coastal_erosion requires at least "
+                f"2 time periods to compute erosion rates, got {len(time_periods)}"
+            )
+
         erosion_rates = []
 
         for i in range(len(time_periods) - 1):

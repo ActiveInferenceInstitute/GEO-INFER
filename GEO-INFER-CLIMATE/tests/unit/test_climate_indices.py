@@ -33,6 +33,14 @@ class TestSPI:
         spi = calculator.calculate_spi(precip, timescale=1, distribution="gamma")
         assert spi.shape == (120,)
 
+    def test_spi_unknown_distribution_raises(self, calculator):
+        # GS-149: an unknown distribution must fail loudly, not silently
+        # fall back to the normal-distribution path.
+        np.random.seed(42)
+        precip = xr.DataArray(np.random.exponential(50, 120), dims=["time"])
+        with pytest.raises(ValueError, match="bogus"):
+            calculator.calculate_spi(precip, timescale=1, distribution="bogus")
+
     def test_spi_accumulation_timescale(self, calculator):
         np.random.seed(42)
         precip = xr.DataArray(

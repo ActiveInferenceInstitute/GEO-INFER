@@ -195,7 +195,7 @@ Grid network optimization and reliability assessment.
 
 #### `optimize_grid_network(demand: xr.DataArray, supply: xr.DataArray, transmission_capacity: Optional[xr.DataArray] = None) -> xr.Dataset`
 
-Calculate supply-demand balance, identify deficits and surpluses, compute reliability ratio.
+Calculate supply-demand balance, identify deficits and surpluses, compute reliability ratio. When `transmission_capacity` is provided, surplus and deficit are clipped to it.
 
 **Returns**: Dataset with `balance`, `deficit`, `surplus`, `reliability`.
 
@@ -271,7 +271,7 @@ EnergyInfrastructurePlanner(config: Optional[Dict] = None)
 
 ### Methods
 
-#### `optimize_facility_siting(resource_potential: xr.DataArray, demand_centers: xr.DataArray, constraints: Optional[xr.DataArray] = None, max_distance: float = 50.0) -> xr.Dataset`
+#### `optimize_facility_siting(resource_potential: xr.DataArray, demand_centers: xr.DataArray, constraints: Optional[xr.DataArray] = None) -> xr.Dataset`
 
 Weighted suitability (60% resource, 40% demand density); `demand_centers` is normalized by its own maximum into `demand_density` (a demand-density proximity proxy, not a geographic distance). Keys: `suitability`, `optimal_sites` (top 10% by quantile), `resource_suitability`, `demand_density`.
 

@@ -6,9 +6,13 @@ information-theoretic quantities, probability distributions,
 and Active Inference specific calculations.
 """
 
-import numpy as np
+import logging
 from typing import Callable, Dict, Optional, Union, cast
+
+import numpy as np
 from scipy.signal import find_peaks
+
+logger = logging.getLogger(__name__)
 
 
 def softmax(x: np.ndarray, temperature: float = 1.0, axis: int = -1) -> np.ndarray:
@@ -591,15 +595,30 @@ def matrix_log_det(matrix: np.ndarray) -> float:
         matrix: Input matrix
 
     Returns:
-        Log determinant
+        Log determinant; -inf when the determinant is non-positive
+        (log-det is undefined for det <= 0).
     """
     try:
-        return float(np.log(np.linalg.det(matrix)))
-    except Exception:
-        # Fallback using eigenvalues
+        det = float(np.linalg.det(matrix))
+        if det <= 0:
+            logger.debug(
+                "matrix_log_det: non-positive determinant %r; returning -inf", det
+            )
+            return -np.inf
+        return float(np.log(det))
+    except (np.linalg.LinAlgError, ValueError):
+        # Singular or non-finite input: fall back to eigenvalues, keeping the
+        # same non-positive-determinant semantics as the direct path.
         eigenvals = np.linalg.eigvals(matrix)
         eigenvals = eigenvals[eigenvals > 0]  # Only positive eigenvalues
-        return float(np.sum(np.log(eigenvals))) if len(eigenvals) > 0 else -np.inf
+        if len(eigenvals) == 0:
+            return -np.inf
+        logger.debug(
+            "matrix_log_det: eigenvalue fallback used (det <= 0 or singular); "
+            "returning log of pseudo-determinant over %d positive eigenvalues",
+            len(eigenvals),
+        )
+        return float(np.sum(np.log(eigenvals)))
 
 
 # Additional analysis functions for pattern detection

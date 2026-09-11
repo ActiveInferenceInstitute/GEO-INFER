@@ -209,3 +209,115 @@ class TestPipelineEnums:
     def test_error_recovery_strategy_values(self):
         assert ErrorRecoveryStrategy.FAIL_FAST == "fail_fast"
         assert ErrorRecoveryStrategy.INTELLIGENT_RETRY == "intelligent_retry"
+
+
+# ---------------------------------------------------------------------------
+# Error recovery strategies
+# ---------------------------------------------------------------------------
+
+
+class TestErrorRecoveryConfiguration:
+    def test_rollback_strategy_rejected_loudly(self):
+        """error_recovery='rollback' must fail loudly, never silently no-op."""
+        with pytest.raises(NotImplementedError, match="rollback"):
+            IntelligentETLPipeline(error_recovery="rollback")
+
+    def test_unknown_recovery_strategy_rejected(self):
+        with pytest.raises(ValueError, match="unknown error_recovery"):
+            IntelligentETLPipeline(error_recovery="wing_it")
+
+    def test_negative_max_retries_rejected(self):
+        with pytest.raises(ValueError, match="max_retries"):
+            IntelligentETLPipeline(max_retries=-1)
+
+
+def _retry_pipeline_config() -> dict:
+    """Config with one always-failing 'unknown type' transformation."""
+    return {
+        "name": "recovery-test",
+        "source": {"type": "stream", "configuration": {}},
+        "destination": {"type": "dataset", "configuration": {}},
+        "transformations": [{"type": "no_such_transformation_type", "parameters": {}}],
+    }
+
+
+class TestRetryBehavior:
+    def test_retry_terminates_after_max_retries(self):
+        """An always-failing workflow must exhaust max_retries, not recurse."""
+        pipeline = IntelligentETLPipeline(
+            workflow_config=_retry_pipeline_config(),
+            error_recovery="retry",
+            monitoring_enabled=False,
+            max_retries=2,
+            retry_delay=0.0,
+        )
+        calls = {"n": 0}
+
+        async def always_fail(transformation, data, context):
+            calls["n"] += 1
+            raise ValueError("boom")
+
+        pipeline.transformation_engine.execute_transformation = always_fail
+
+        with pytest.raises(RuntimeError, match="failed after 3 attempt"):
+            _run(pipeline.execute_workflow(pd.DataFrame({"x": [1]}), {}))
+
+        assert calls["n"] == 3  # 1 initial attempt + 2 retries
+        assert len(pipeline.execution_history) == 3
+
+    def test_intelligent_retry_terminates_after_max_retries(self):
+        pipeline = IntelligentETLPipeline(
+            workflow_config=_retry_pipeline_config(),
+            error_recovery="intelligent_retry",
+            monitoring_enabled=False,
+            max_retries=1,
+            retry_delay=0.0,
+        )
+
+        async def always_fail(transformation, data, context):
+            raise ValueError("boom")
+
+        pipeline.transformation_engine.execute_transformation = always_fail
+
+        with pytest.raises(RuntimeError, match="failed after 2 attempt"):
+            _run(pipeline.execute_workflow(pd.DataFrame({"x": [1]}), {}))
+
+    def test_successful_retry_result_is_returned(self):
+        """A retry that succeeds must return its result, not the original error."""
+        config = _retry_pipeline_config()
+        config["transformations"] = [
+            {
+                "type": "transform",
+                "parameters": {
+                    "transformations": {"value": {"type": "scale", "factor": 10}}
+                },
+            }
+        ]
+        pipeline = IntelligentETLPipeline(
+            workflow_config=config,
+            error_recovery="retry",
+            monitoring_enabled=False,
+            max_retries=2,
+            retry_delay=0.0,
+        )
+        real_execute = pipeline.transformation_engine.execute_transformation
+        calls = {"n": 0}
+
+        async def flaky(transformation, data, context):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                raise ValueError("transient failure")
+            return await real_execute(transformation, data, context)
+
+        pipeline.transformation_engine.execute_transformation = flaky
+
+        target = {}
+        result = _run(
+            pipeline.execute_workflow(pd.DataFrame({"value": [1.0, 2.0]}), target)
+        )
+
+        assert result["status"] == "completed"
+        assert calls["n"] == 2
+        # The retry's transformed result must actually land in storage.
+        assert target["records_loaded"] == 2
+        assert target["data"]["value"].tolist() == [10.0, 20.0]

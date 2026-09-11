@@ -123,7 +123,8 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
 
         # Add Cascadia-specific initialization here
         self.target_hexagons_by_state, self.target_hexagons = (
-            self._define_target_region(target_counties)
+            _hexagons_by_state,
+            all_hexagons,
         )
 
         logger.info(

@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `test_integration.py`
+- `test_websocket_broadcast.py`
 
 ## Validation
 

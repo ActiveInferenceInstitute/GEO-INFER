@@ -40,6 +40,15 @@ class ResourceType(Enum):
     PERSONNEL = "personnel"
 
 
+# Plural -> singular alias map so configured vocabularies such as the module
+# default ("engines", "ambulances", "rescue_units") resolve to the singular
+# ResourceType values ("engine", "ambulance", "rescue_unit").
+RESOURCE_TYPE_ALIASES: Dict[str, str] = {
+    **{f"{rt.value}s": rt.value for rt in ResourceType},
+    "personnel": "personnel",
+}
+
+
 @dataclass
 class Resource:
     """Represents an emergency resource unit."""
@@ -74,7 +83,12 @@ class ResourceDeployer:
         Initialize resource deployer.
 
         Args:
-            resource_types: Types of resources to manage
+            resource_types: Types of resources to manage. Entries may use the
+                plural configured vocabulary ("engines", "ambulances",
+                "rescue_units", ...) or the singular ResourceType values
+                ("engine", "ambulance", "rescue_unit", ...); plurals are
+                resolved through RESOURCE_TYPE_ALIASES. The set is used as an
+                allowed-type filter in optimize_allocation.
             optimization_algorithm: Allocation-strategy label. The implemented
                 strategy is "greedy_nearest_resource": greedy assignment of the
                 nearest available resource within the response-time constraint.
@@ -82,17 +96,39 @@ class ResourceDeployer:
                 backend is attached to it.
             real_time_updates: Enable real-time tracking
         """
-        self.resource_types = resource_types or [
-            "engines",
-            "ambulances",
-            "rescue_units",
-        ]
+        self.resource_types = list(
+            resource_types
+            if resource_types is not None
+            else ["engines", "ambulances", "rescue_units"]
+        )
+        self._allowed_type_values = {
+            self._resolve_resource_type(entry).value for entry in self.resource_types
+        }
         self.optimization_algorithm = optimization_algorithm
         self.real_time_updates = real_time_updates
         self._resources: Dict[str, Resource] = {}
         logger.info(
             f"Initialized ResourceDeployer with {optimization_algorithm} optimization"
         )
+
+    def _resolve_resource_type(self, value: str) -> ResourceType:
+        """
+        Resolve a configured/serialized type name to a ResourceType.
+
+        Accepts singular ResourceType values and plural aliases via
+        RESOURCE_TYPE_ALIASES. Raises ValueError naming the valid types.
+        """
+        key = value.strip().lower()
+        singular = RESOURCE_TYPE_ALIASES.get(key, key)
+        try:
+            return ResourceType(singular)
+        except ValueError:
+            valid = sorted(rt.value for rt in ResourceType)
+            raise ValueError(
+                f"geo_infer_emergency.core.resources: unknown resource type "
+                f"{value!r}. Valid types: {valid} "
+                "(plural forms like 'engines' are accepted as aliases)."
+            ) from None
 
     def register_resource(self, resource: Resource) -> None:
         """Register a resource in the deployment system."""
@@ -110,19 +146,29 @@ class ResourceDeployer:
         Optimize resource allocation to demand points.
 
         Args:
-            resources: Available resources with locations
-            demand_points: Locations requiring resources
-            constraints: Optimization constraints
-            objectives: Optimization objectives
+            resources: Available resources with locations. Each "type" entry
+                is resolved via RESOURCE_TYPE_ALIASES (singular ResourceType
+                values and plural aliases both accepted) and must be among
+                the deployer's configured resource_types, else ValueError.
 
         Returns:
             Optimized allocation plan
         """
         # Register resources
         for res_data in resources:
+            raw_type = res_data.get("type", "engine")
+            resolved_type = self._resolve_resource_type(raw_type)
+            if resolved_type.value not in self._allowed_type_values:
+                raise ValueError(
+                    f"geo_infer_emergency.core.resources: resource "
+                    f"{res_data.get('id', '<unnamed>')!r} has type "
+                    f"{resolved_type.value!r} which is not among the "
+                    f"allowed types configured for this deployer: "
+                    f"{sorted(self._allowed_type_values)}."
+                )
             resource = Resource(
                 resource_id=res_data.get("id", f"res_{len(self._resources)}"),
-                resource_type=ResourceType(res_data.get("type", "engine").lower()),
+                resource_type=resolved_type,
                 name=res_data.get("name", ""),
                 location=res_data.get("location"),
                 status=ResourceStatus(res_data.get("status", "available")),
@@ -242,7 +288,6 @@ class ResourceDeployer:
             res_id = pos.get("resource_id")
             if res_id in self._resources:
                 self._resources[res_id].location = pos.get("location")
-
         # Find available resources
         available = [
             r for r in self._resources.values() if r.status == ResourceStatus.AVAILABLE
@@ -254,23 +299,59 @@ class ResourceDeployer:
 
             for gap in gap_locations:
                 if available:
-                    # Find unit farthest from any incident
-                    best_unit = available[0]
+                    # Find available unit farthest from any pending incident,
+                    # so the closest units remain held for immediate response.
+                    if pending_incidents:
+                        incident_locs = [
+                            inc["location"]
+                            for inc in pending_incidents
+                            if isinstance(inc, dict)
+                            and isinstance(inc.get("location"), dict)
+                            and "lat" in inc["location"]
+                            and "lon" in inc["location"]
+                        ]
+                        located = [u for u in available if u.location]
+                        if incident_locs and located:
+                            best_unit = max(
+                                located,
+                                key=lambda u: min(
+                                    self._estimate_travel_time(
+                                        u.location,
+                                        loc,  # type: ignore[arg-type]
+                                    )
+                                    for loc in incident_locs
+                                ),
+                            )
+                        else:
+                            best_unit = available[0]
+                    else:
+                        # No pending incidents: keep first-available order.
+                        best_unit = available[0]
+                    gap_valid = isinstance(gap, dict) and "lat" in gap and "lon" in gap
+                    if not gap_valid:
+                        raise ValueError(
+                            "geo_infer_emergency.core.resources: "
+                            "dynamic_redeploy 'move_up' strategy requires each "
+                            "high_risk_areas entry to be a dict with complete "
+                            f"'lat' and 'lon' keys; got {gap!r}."
+                        )
                     redeployments.append(
                         {
                             "resource_id": best_unit.resource_id,
                             "from_location": best_unit.location,
                             "to_location": gap,
                             "reason": "coverage_gap",
-                            "estimated_travel_minutes": self._estimate_travel_time(
-                                best_unit.location or {"lat": 0, "lon": 0}, gap
-                            )
-                            if best_unit.location
-                            else 0,
+                            "estimated_travel_minutes": (
+                                self._estimate_travel_time(
+                                    best_unit.location,
+                                    gap,  # type: ignore[arg-type]
+                                )
+                                if best_unit.location
+                                else 0
+                            ),
                         }
                     )
                     available.remove(best_unit)
-
         result = {
             "strategy": strategy,
             "timestamp": datetime.now().isoformat(),

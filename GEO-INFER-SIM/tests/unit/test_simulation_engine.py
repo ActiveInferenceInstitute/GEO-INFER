@@ -2,6 +2,7 @@
 Unit tests for simulation engine.
 """
 
+import dataclasses
 import threading
 
 import pytest
@@ -257,3 +258,13 @@ class TestCheckpointReproducibility:
         resumed.step(lambda t, s: {"v": resumed.rng.random()})
 
         assert resumed._current_state["v"] == uninterrupted._current_state["v"]
+
+
+class TestSimulationConfigSurface:
+    """GS-274: dead config must not masquerade as an engine feature."""
+
+    def test_parallel_execution_is_not_a_config_option(self) -> None:
+        field_names = {f.name for f in dataclasses.fields(SimulationConfig)}
+        assert "parallel_execution" not in field_names
+        with pytest.raises(TypeError):
+            SimulationConfig(parallel_execution=True)

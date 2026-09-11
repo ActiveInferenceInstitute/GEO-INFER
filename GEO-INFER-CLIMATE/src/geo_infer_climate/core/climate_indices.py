@@ -58,11 +58,16 @@ class ClimateIndicesCalculator:
         else:
             precip_accum = precipitation
 
-        # Calculate SPI using gamma distribution
+        # Calculate SPI using the requested distribution
         if distribution == "gamma":
             spi = self._spi_gamma(precip_accum)
-        else:
+        elif distribution == "normal":
             spi = self._spi_normal(precip_accum)
+        else:
+            raise ValueError(
+                f"climate_indices.calculate_spi: unsupported distribution "
+                f"{distribution!r}; expected 'gamma' or 'normal'"
+            )
 
         spi.name = f"SPI_{timescale}"
         return spi

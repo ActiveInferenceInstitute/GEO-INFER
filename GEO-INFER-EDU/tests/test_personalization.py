@@ -223,6 +223,17 @@ class TestMasteryUpdate:
         new_mastery = pl.update_mastery("l1", "topic", 1.0)
         assert new_mastery <= 1.0
 
+    def test_reregistration_preserves_mastery(self) -> None:
+        """Re-registering an existing learner must not wipe mastery state (GS-241)."""
+        pl = PersonalizedLearning()
+        pl.register_learner({"id": "l1"})
+        pl.update_mastery("l1", "gis_basics", 0.8)
+        before = dict(pl._mastery_data["l1"])
+
+        pl.register_learner({"id": "l1", "learning_style": "kinesthetic"})
+        assert pl._mastery_data["l1"] == before
+        assert pl._mastery_data["l1"]["gis_basics"] > 0
+
     def test_mastery_creates_learner_data(self) -> None:
         pl = PersonalizedLearning()
         pl.update_mastery("new_learner", "topic", 0.5)

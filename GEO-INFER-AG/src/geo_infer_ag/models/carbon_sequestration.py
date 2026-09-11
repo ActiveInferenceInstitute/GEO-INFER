@@ -3,11 +3,14 @@ Carbon sequestration modeling for agricultural lands.
 """
 
 from typing import Dict, List, Optional, Union, Any
+import logging
 import numpy as np
 from datetime import datetime
 from sklearn.ensemble import RandomForestRegressor
 
 from geo_infer_ag.models.base import AgricultureModel
+
+logger = logging.getLogger(__name__)
 
 
 class CarbonSequestrationModel(AgricultureModel):
@@ -173,6 +176,7 @@ class CarbonSequestrationModel(AgricultureModel):
 
         # Train a separate model for each carbon pool
         self.predictors = {}
+        skipped_pools: Dict[str, int] = {}
 
         for pool in self.carbon_pools:
             target_col = target_columns[pool]
@@ -186,8 +190,9 @@ class CarbonSequestrationModel(AgricultureModel):
             X = field_data[feature_columns]
             y = field_data[target_col]
 
-            # Skip pools with insufficient data
+            # Skip pools with insufficient data, recording the skip
             if len(y.dropna()) < 10:
+                skipped_pools[pool] = int(len(y.dropna()))
                 continue
 
             predictor.fit(X.loc[y.notna()], y.dropna())
@@ -198,6 +203,15 @@ class CarbonSequestrationModel(AgricultureModel):
                 "feature_columns": feature_columns,
             }
 
+        if skipped_pools:
+            self.metadata["skipped_pools"] = skipped_pools
+            for skipped_pool, usable_rows in skipped_pools.items():
+                logger.warning(
+                    "Tier 2 fit skipped carbon pool '%s': only %d usable "
+                    "training rows (< 10 required)",
+                    skipped_pool,
+                    usable_rows,
+                )
         self.fitted = True
 
     def predict(self, data: Dict[str, Any]) -> Dict[str, Any]:
@@ -410,6 +424,7 @@ class CarbonSequestrationModel(AgricultureModel):
                     "model_type": self.model_type,
                     "carbon_pools": list(sequestration_rates.keys()),
                     "time_horizon": self.time_horizon,
+                    "skipped_pools": dict(self.metadata.get("skipped_pools", {})),
                 },
             }
 

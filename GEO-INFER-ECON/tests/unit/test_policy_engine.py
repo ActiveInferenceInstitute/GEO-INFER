@@ -148,3 +148,25 @@ class TestPolicyAnalysisEngine:
         )
         with pytest.raises(ValueError, match="Baseline GDP"):
             engine.assess_fiscal_policy(scenario)
+
+    def test_no_baseline_gdp_raises_infrastructure(self) -> None:
+        engine = PolicyAnalysisEngine()
+        scenario = PolicyScenario(
+            name="no_data_infra",
+            description="No baseline",
+            policy_type=PolicyType.INFRASTRUCTURE,
+            parameters={"investment_amount": 100.0},
+        )
+        with pytest.raises(ValueError, match="Baseline GDP"):
+            engine.assess_infrastructure_policy(scenario)
+
+    def test_no_baseline_gdp_raises_environmental(self) -> None:
+        engine = PolicyAnalysisEngine()
+        scenario = PolicyScenario(
+            name="no_data_env",
+            description="No baseline",
+            policy_type=PolicyType.ENVIRONMENTAL,
+            parameters={"carbon_tax": 10.0},
+        )
+        with pytest.raises(ValueError, match="Baseline GDP"):
+            engine.assess_environmental_policy(scenario)

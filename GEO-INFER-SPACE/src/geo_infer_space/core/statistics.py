@@ -100,22 +100,40 @@ class SpatialStatistics:
         # Expected value under null hypothesis
         expected_i = -1.0 / (n - 1)
 
-        # Variance calculation (randomization assumption)
+        # Variance calculation (randomization assumption, Cliff & Ord 1973).
+        # S2 = sum over locations of (row sum_i + column sum_i)^2, matching
+        # geo_infer_math.core.spatial_statistics.morans_i_variance.
         s1 = 0.5 * np.sum((weights + weights.T) ** 2)
-        s2 = np.sum(np.sum(weights, axis=1) ** 2)
+        s2 = np.sum((np.sum(weights, axis=1) + np.sum(weights, axis=0)) ** 2)
         s0 = total_weight
 
-        k = np.sum(deviations**4) / (n * (np.std(values_arr) ** 4 + 1e-10))
+        denominator = (n - 1) * (n - 2) * (n - 3) * s0**2
+        if denominator == 0:
+            return {
+                "moran_i": float(moran_i),
+                "expected_i": float(expected_i),
+                "error": (
+                    "geo_infer_space: Moran's I randomization variance is "
+                    f"undefined for n={n} observations (need n >= 4)"
+                ),
+            }
+
+        b2 = n * np.sum(deviations**4) / np.sum(deviations**2) ** 2
 
         variance = (
-            (
-                n * ((n**2 - 3 * n + 3) * s1 - n * s2 + 3 * s0**2)
-                - k * (n * (n - 1) * s1 - 2 * n * s2 + 6 * s0**2)
-            )
-            / ((n - 1) * (n - 2) * (n - 3) * s0**2 + 1e-10)
-        ) - expected_i**2
+            n * ((n**2 - 3 * n + 3) * s1 - n * s2 + 3 * s0**2)
+            - b2 * (n * (n - 1) * s1 - 2 * n * s2 + 6 * s0**2)
+        ) / denominator - expected_i**2
 
-        variance = max(variance, 1e-10)  # Ensure positive
+        if variance <= 0:
+            return {
+                "moran_i": float(moran_i),
+                "expected_i": float(expected_i),
+                "error": (
+                    "geo_infer_space: non-positive Moran's I variance "
+                    f"({variance:.3e}); z-score and p-value are undefined"
+                ),
+            }
 
         z_score = (moran_i - expected_i) / np.sqrt(variance)
 
@@ -144,34 +162,42 @@ class SpatialStatistics:
         }
 
     def _build_weight_matrix(self, cells: List[str], weight_type: str) -> np.ndarray:
-        """Build spatial weight matrix based on cell adjacency."""
+        """Build spatial weight matrix based on cell adjacency.
+
+        Raises:
+            ValueError: When no backend can be resolved for the weight
+                construction; no fully-connected fallback matrix is ever
+                fabricated.
+        """
         n = len(cells)
         weights = np.zeros((n, n))
 
-        try:
-            backend: Any = self.dispatcher.get_backend(self.backend or "h3")
+        backend_name = self.dispatcher._resolve_backend_name("indexing", self.backend)
+        backend: Any = self.dispatcher.get_backend(backend_name)
+        if backend is None:
+            raise ValueError(
+                f"geo_infer_space: backend '{backend_name}' resolved but not "
+                f"retrievable; cannot build weight matrix"
+            )
 
-            for i, cell_i in enumerate(cells):
-                try:
-                    if weight_type == "queen" or weight_type == "rook":
-                        neighbors = backend.get_cell_neighbors(cell_i, k=1)
-                    else:  # distance
-                        neighbors = backend.get_cell_neighbors(cell_i, k=2)
+        for i, cell_i in enumerate(cells):
+            try:
+                if weight_type == "queen" or weight_type == "rook":
+                    neighbors = backend.get_cell_neighbors(cell_i, k=1)
+                else:  # distance
+                    neighbors = backend.get_cell_neighbors(cell_i, k=2)
+            except Exception as e:
+                logger.warning(
+                    f"Neighbor lookup failed for {cell_i}; treating it as "
+                    f"isolated — Moran's I may be degraded: {e}"
+                )
+                continue
 
-                    neighbor_set = set(neighbors)
+            neighbor_set = set(neighbors)
 
-                    for j, cell_j in enumerate(cells):
-                        if i != j and cell_j in neighbor_set:
-                            weights[i, j] = 1.0
-                except Exception:
-                    continue
-        except Exception as e:
-            logger.warning(f"Could not build weight matrix: {e}")
-            # Fallback: all connected
-            for i in range(n):
-                for j in range(n):
-                    if i != j:
-                        weights[i, j] = 1.0 / (n - 1)
+            for j, cell_j in enumerate(cells):
+                if i != j and cell_j in neighbor_set:
+                    weights[i, j] = 1.0
 
         # Row-standardize
         row_sums = np.sum(weights, axis=1, keepdims=True)
@@ -212,7 +238,10 @@ class SpatialStatistics:
         coldspots = []
 
         try:
-            backend: Any = self.dispatcher.get_backend(self.backend or "h3")
+            backend_name = self.dispatcher._resolve_backend_name(
+                "indexing", self.backend
+            )
+            backend: Any = self.dispatcher.get_backend(backend_name)
             cell_values = dict(zip(cells, values))
             cell_set = set(cells)
 
@@ -304,7 +333,10 @@ class SpatialStatistics:
         logger.info(f"Calculating Nearest Neighbor Index for {n} cells")
 
         try:
-            backend: Any = self.dispatcher.get_backend(self.backend or "h3")
+            backend_name = self.dispatcher._resolve_backend_name(
+                "indexing", self.backend
+            )
+            backend: Any = self.dispatcher.get_backend(backend_name)
 
             total_distance: float = 0
             valid_pairs = 0
@@ -519,7 +551,10 @@ class SpatialStatistics:
         logger.info(f"Performing quadrat count analysis for {n} cells")
 
         try:
-            backend: Any = self.dispatcher.get_backend(self.backend or "h3")
+            backend_name = self.dispatcher._resolve_backend_name(
+                "indexing", self.backend
+            )
+            backend: Any = self.dispatcher.get_backend(backend_name)
 
             # Get parent cells as quadrats
             quadrat_counts: Dict[str, float] = {}

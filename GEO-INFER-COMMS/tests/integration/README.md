@@ -5,6 +5,7 @@ Integration workspace within `GEO-INFER-COMMS`.
 ## Contents
 
 - `test_integration.py`
+- `test_websocket_broadcast.py`
 
 ## Public Interface
 

@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `test_config_loader.py`
+- `test_distributed_coordinator.py`
 - `test_error_handler.py`
 - `test_error_recovery_strategies.py`
 - `test_github_api.py`

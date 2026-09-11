@@ -47,13 +47,23 @@ class WindAnalyzer:
         """
         valid = wind_speeds[wind_speeds > 0]
         if len(valid) < 2:
-            return {"shape_k": 2.0, "scale_c": 0.0, "mean_speed": 0.0}
+            return {
+                "shape_k": 2.0,
+                "scale_c": 0.0,
+                "mean_speed": 0.0,
+                "std_speed": 0.0,
+            }
 
         mean_v = float(np.mean(valid))
         std_v = float(np.std(valid))
 
         if std_v == 0 or mean_v == 0:
-            return {"shape_k": 2.0, "scale_c": mean_v, "mean_speed": mean_v}
+            return {
+                "shape_k": 2.0,
+                "scale_c": mean_v,
+                "mean_speed": mean_v,
+                "std_speed": float(std_v),
+            }
 
         k = (std_v / mean_v) ** (-1.086)
         k = max(1.0, min(10.0, k))

@@ -84,3 +84,49 @@ def test_read_directory_raises(tmp_path: Path) -> None:
     """A path that exists but is not a regular file is rejected."""
     with pytest.raises(FileNotFoundError, match="Not a regular file"):
         read_cloud_native_vector(tmp_path)
+
+
+@pytest.mark.skipif(not HAS_DUCKDB, reason="duckdb-spatial not installed")
+def test_duckdb_and_fallback_agree_on_projected_crs(tmp_path: Path) -> None:
+    """GS-109: the DuckDB fast path must preserve the file's CRS, not
+    hardcode EPSG:4326. A projected (EPSG:32610) FlatGeobuf must yield the
+    identical CRS through both engines."""
+    gdf = gpd.GeoDataFrame(
+        {"name": ["a", "b"]},
+        geometry=[
+            shapely.Point(500000, 4649776),
+            shapely.Point(500100, 4649800),
+        ],
+        crs="EPSG:32610",
+    )
+    path = tmp_path / "projected.fgb"
+    gdf.to_file(path, driver="FlatGeobuf")
+
+    fast = read_cloud_native_vector(path, use_duckdb=True)
+    slow = read_cloud_native_vector(path, use_duckdb=False)
+
+    assert fast.crs == slow.crs
+    assert fast.crs is not None and fast.crs.to_epsg() == 32610
+    assert fast["name"].tolist() == slow["name"].tolist()
+    assert fast.geometry.iloc[0].x == slow.geometry.iloc[0].x
+
+
+@pytest.mark.skipif(not HAS_DUCKDB, reason="duckdb-spatial not installed")
+def test_duckdb_fast_path_reports_wgs84_for_wgs84_file(tmp_path: Path) -> None:
+    """A WGS84 GeoParquet still resolves to EPSG:4326 via spec-default metadata."""
+    gdf = gpd.GeoDataFrame(
+        {"name": ["x"]}, geometry=[shapely.Point(1, 2)], crs="EPSG:4326"
+    )
+    path = tmp_path / "wgs.parquet"
+    gdf.to_parquet(path)
+
+    from geo_infer_data.utils.duckdb_spatial import _resolve_crs
+    import duckdb as _duckdb
+
+    conn = _duckdb.connect()
+    try:
+        conn.execute("INSTALL spatial; LOAD spatial;")
+        crs = _resolve_crs(conn, path.as_posix())
+    finally:
+        conn.close()
+    assert crs is not None and crs.to_epsg() == 4326

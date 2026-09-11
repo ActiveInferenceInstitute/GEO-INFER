@@ -50,6 +50,9 @@ of carrying unexplained deferral text.
 - **Site:** `core/bayesian.py` `BayesianSPM._compute_ess`
 - **Ships today:** ESS reported as `n_draws * n_chains` (upper bound, no
   autocorrelation adjustment).
+- **Failure mode:** if posterior chain/draw dimensions are unavailable,
+  `_compute_ess` logs a warning and reports `NaN` (missing-value marker),
+  mirroring `_compute_r_hat` — never a fabricated baseline constant.
 - **Full estimator requires:** ESS from the autocorrelation function of the
   chains with Geyer initial-monotone-sequence truncation, using split chains.
 

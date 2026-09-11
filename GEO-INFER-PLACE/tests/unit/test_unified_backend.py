@@ -1,5 +1,7 @@
 """Unit tests for CascadianAgriculturalH3Backend."""
 
+import sys
+
 import pytest
 
 from geo_infer_place.core.unified_backend import CascadianAgriculturalH3Backend
@@ -47,6 +49,36 @@ class TestCascadianBackendInit:
 
     def test_modules_attribute_set(self, backend, backend_modules):
         assert hasattr(backend, "modules") or hasattr(backend, "_modules")
+
+    def test_init_does_not_recompute_target_region(
+        self, backend_modules, tmp_path, monkeypatch
+    ):
+        """GS-191: CascadianAgriculturalH3Backend.__init__ must use the cached
+        region result instead of calling _define_target_region a second time
+        directly (the SPACE parent's own dispatch is out of scope)."""
+        callers = []
+
+        place_init_file = CascadianAgriculturalH3Backend.__init__.__code__.co_filename
+
+        def counting_define(self, target_counties=None):
+            caller = sys._getframe(1)
+            if caller.f_code.co_filename != place_init_file:
+                return {}, []
+            callers.append(caller.f_code.co_name)
+            return {}, []
+
+        monkeypatch.setattr(
+            CascadianAgriculturalH3Backend, "_define_target_region", counting_define
+        )
+        b = CascadianAgriculturalH3Backend(
+            modules=backend_modules,
+            resolution=8,
+            base_data_dir=tmp_path,
+            enable_caching=False,
+        )
+        assert callers == ["_define_target_region_cached"]
+        assert b.target_hexagons == []
+        assert b.target_hexagons_by_state == {}
 
 
 class TestCascadianBackendH3Operations:

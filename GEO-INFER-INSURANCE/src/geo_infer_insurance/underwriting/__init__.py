@@ -17,7 +17,7 @@ This module provides enterprise-grade underwriting capabilities including:
 __version__ = "1.0.0"
 __author__ = "GEO-INFER-RISK Team"
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 # Import main underwriting components
 from .core.underwriting_engine import (
@@ -42,6 +42,7 @@ from .core.claims_processing import (
     ClaimsEngine,
     Claim,
     ClaimStatus,
+    ClaimsProcessingConfig,
     Payment,
     Reserve,
 )
@@ -108,7 +109,11 @@ def underwrite_policy(
 def process_claim(
     claim_data: Dict[str, Any], config: Optional[Dict[str, Any]] = None
 ) -> Claim:
-    """Convenience function to process a claim."""
+    """Convenience function to process a claim.
+
+    ``config`` maps onto ``ClaimsProcessingConfig`` fields, e.g.
+    ``{"processing_mode": "manual"}`` keeps claims under review.
+    """
     processor = create_claims_processor(config)
     return processor.process_claim(claim_data)
 
@@ -163,11 +168,31 @@ def create_policy_manager(config: Optional[Dict[str, Any]] = None) -> PolicyMana
     return PolicyManager(config)
 
 
-def create_claims_processor(config: Optional[Dict[str, Any]] = None) -> ClaimsProcessor:
-    """Create a claims processor."""
-    from .core.claims_processing import ClaimsProcessor, ClaimsProcessingConfig
+def create_claims_processor(
+    config: Optional[Union[Dict[str, Any], ClaimsProcessingConfig]] = None,
+) -> ClaimsProcessor:
+    """Create a claims processor.
 
-    return ClaimsProcessor(ClaimsProcessingConfig())
+    Args:
+        config: A ``ClaimsProcessingConfig`` instance or a dict whose keys are
+            ``ClaimsProcessingConfig`` field names, e.g.
+            ``{"processing_mode": "manual"}``. Unknown fields are rejected.
+    """
+    if config is None or isinstance(config, ClaimsProcessingConfig):
+        return ClaimsProcessor(config)
+    if isinstance(config, dict):
+        claims_config = ClaimsProcessingConfig()
+        for key, value in config.items():
+            if not hasattr(claims_config, key):
+                raise ValueError(
+                    f"create_claims_processor: unknown claims config field {key!r}"
+                )
+            setattr(claims_config, key, value)
+        return ClaimsProcessor(claims_config)
+    raise TypeError(
+        "create_claims_processor: config must be a ClaimsProcessingConfig or "
+        f"dict, got {type(config).__name__}"
+    )
 
 
 # Package exports

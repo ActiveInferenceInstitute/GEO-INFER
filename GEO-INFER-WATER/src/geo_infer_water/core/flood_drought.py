@@ -53,15 +53,15 @@ class FloodDroughtAnalyzer:
         elevation_threshold = elevation.quantile(0.2).drop_vars("quantile")
         low_elevation = elevation < elevation_threshold
 
-        # Combined risk
-        flood_risk = (
-            extreme_precip.astype(float).mean(dim="time") + low_elevation.astype(float)
-        ) / 2
-
+        indicators = [
+            extreme_precip.astype(float).mean(dim="time"),
+            low_elevation.astype(float),
+        ]
         if soil_saturation is not None:
             # Saturated soil increases risk
             saturated = soil_saturation > 0.8
-            flood_risk = (flood_risk + saturated.astype(float)) / 2
+            indicators.append(saturated.astype(float))
+        flood_risk = sum(indicators) / len(indicators)
 
         return xr.Dataset(
             {
@@ -102,13 +102,12 @@ class FloodDroughtAnalyzer:
         else:
             high_deficit = low_precip
 
-        # Combined risk
-        drought_risk = (low_precip.astype(int) + high_deficit.astype(int)) / 2
-
+        indicators = [low_precip.astype(float), high_deficit.astype(float)]
         if soil_moisture is not None:
             # Low soil moisture increases risk
             low_moisture = soil_moisture < soil_moisture.quantile(0.2)
-            drought_risk = (drought_risk + low_moisture.astype(int)) / 2
+            indicators.append(low_moisture.astype(float))
+        drought_risk = sum(indicators) / len(indicators)
 
         return xr.Dataset(
             {

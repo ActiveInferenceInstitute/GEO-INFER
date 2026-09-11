@@ -25,6 +25,8 @@ from geo_infer_comms import (
     GeospatialPoint,
     GeospatialMetadata,
 )
+from geo_infer_comms.models.message import EventSubscriptionRequest
+from geo_infer_comms.utils.validation import VALID_EVENT_TYPES
 
 
 class WebSocketManager:
@@ -41,6 +43,10 @@ class WebSocketManager:
         self.subscriptions: Dict[str, Set[str]] = {}  # message_type -> connection_ids
 
         self.logger = logging.getLogger(__name__)
+        # Event loop of the running WebSocket server; captured at
+        # start_server so broker/worker threads can hand off broadcasts.
+        self.server_loop: Optional[asyncio.AbstractEventLoop] = None
+        self.broadcasts_sent = 0
 
     async def handle_connection(self, websocket: ServerConnection) -> None:
         """Handle a new WebSocket connection."""
@@ -83,8 +89,40 @@ class WebSocketManager:
                 connection_ids.discard(connection_id)
 
     def broadcast_message(self, message: Dict[str, Any]) -> None:
-        """Broadcast a message to all connected clients."""
-        asyncio.create_task(self._broadcast_to_all(message))
+        """Broadcast a message to all connected clients.
+
+        Safe to call from both async contexts and plain threads (e.g. a
+        message-broker worker thread). When no event loop is running in the
+        calling thread, the coroutine is handed to the server's loop via
+        ``run_coroutine_threadsafe``; if no server loop is known, a warning
+        is logged and the broadcast is dropped.
+        """
+        self._schedule_broadcast(self._broadcast_to_all(message))
+
+    def _schedule_broadcast(self, coro) -> None:
+        """Schedule ``coro`` on the server's event loop, loop-safely."""
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = None
+        if loop is not None:
+            loop.create_task(coro)
+            return
+        if self.server_loop is not None:
+            asyncio.run_coroutine_threadsafe(coro, self.server_loop)
+            return
+        self.logger.warning(
+            "Broadcast requested with no running event loop and no server "
+            "loop captured; message dropped (server not started?)"
+        )
+        coro.close()
+
+    def _capture_server_loop(self) -> None:
+        """Capture the running loop so threads can hand off broadcasts."""
+        try:
+            self.server_loop = asyncio.get_running_loop()
+        except RuntimeError:
+            self.server_loop = None
 
     async def _broadcast_to_all(self, message: Dict[str, Any]) -> None:
         """Broadcast message to all connections."""
@@ -93,6 +131,7 @@ class WebSocketManager:
         for connection_id, connection in self.connections.items():
             try:
                 await connection.send_message(message)
+                self.broadcasts_sent += 1
             except Exception as e:
                 self.logger.error(f"Error broadcasting to {connection_id}: {e}")
                 disconnected.append(connection_id)
@@ -417,6 +456,7 @@ class WebSocketServer:
             ping_timeout=10,
             close_timeout=10,
         )
+        self.websocket_manager._capture_server_loop()
 
         self.logger.info("WebSocket server started")
 
@@ -540,8 +580,14 @@ class RealTimeMessageBroadcaster:
         self.logger = logging.getLogger(__name__)
 
     def broadcast_message(self, message: MessageResponse) -> None:
-        """Broadcast a message to appropriate WebSocket connections."""
-        asyncio.create_task(self._broadcast_message_async(message))
+        """Broadcast a message to appropriate WebSocket connections.
+
+        Loop-safe: callable from async contexts or plain worker threads
+        (see :meth:`WebSocketManager._schedule_broadcast`).
+        """
+        self.websocket_manager._schedule_broadcast(
+            self._broadcast_message_async(message)
+        )
 
     async def _broadcast_message_async(self, message: MessageResponse) -> None:
         """Asynchronously broadcast message to connections."""
@@ -583,14 +629,20 @@ class RealTimeMessageBroadcaster:
 
     def _format_message_for_websocket(self, message: MessageResponse) -> Dict[str, Any]:
         """Format a message for WebSocket transmission."""
+
+        def _enum_value(field: Any) -> Any:
+            """Return ``field.value`` for enums, the raw value otherwise
+            (models configured with ``use_enum_values=True`` store str)."""
+            return field.value if hasattr(field, "value") else field
+
         formatted: Dict[str, Any] = {
             "type": "message",
             "message_id": message.message_id,
             "content": message.content,
             "sender_id": message.sender_id,
             "timestamp": message.timestamp.isoformat(),
-            "priority": message.priority.value,
-            "message_type": message.message_type.value,
+            "priority": _enum_value(message.priority),
+            "message_type": _enum_value(message.message_type),
         }
 
         # Add geospatial data if present
@@ -635,22 +687,45 @@ class WebSocketAPIManager:
         self.logger = logging.getLogger(__name__)
 
     def _register_broadcasters(self) -> None:
-        """Register message broadcasting callbacks with the system."""
+        """Register broadcasting callbacks at the system's emission points.
 
-        # Register message broadcasting
+        - Messages: subscribed on the system's :class:`MessageBroker`.
+        - Events: subscribed on the system's :class:`EventManager` for every
+          valid event type.
+        - Notifications: registered as the ``websocket`` delivery handler on
+          the system's :class:`NotificationManager` (notifications must
+          include ``"websocket"`` in their delivery methods to be broadcast).
+        """
+
         def broadcast_message_callback(message: MessageResponse) -> None:
             self.message_broadcaster.broadcast_message(message)
 
-        # Register event broadcasting
         def broadcast_event_callback(event: EventPublishResponse) -> None:
             self._broadcast_event(event)
 
-        # Register notification broadcasting
-        def broadcast_notification_callback(notification: NotificationResponse) -> None:
+        def broadcast_notification_callback(
+            notification: NotificationResponse,
+        ) -> bool:
             self._broadcast_notification(notification)
+            return True
 
-        # In a real implementation, would register these callbacks with the system
-        # For now, they are available for manual use
+        # Messages: broker publishes dispatch to subscriber callbacks.
+        self.system.message_broker.subscribe(
+            "websocket_api_broadcaster", broadcast_message_callback
+        )
+
+        # Events: subscribe to each valid event type via one subscription
+        # request (the manager matches subscribers by event type).
+        self.system.event_manager.subscribe_to_events(
+            "websocket_api_broadcaster",
+            EventSubscriptionRequest(event_types=list(VALID_EVENT_TYPES)),
+            broadcast_event_callback,
+        )
+
+        # Notifications: deliver via the websocket delivery handler.
+        self.system.notification_manager.register_delivery_handler(
+            "websocket", broadcast_notification_callback
+        )
 
     def _broadcast_event(self, event: EventPublishResponse) -> None:
         """Broadcast an event to WebSocket connections."""
@@ -699,6 +774,6 @@ class WebSocketAPIManager:
         return {
             "websocket_server": self.websocket_server.get_stats(),
             "message_broadcaster": {
-                "broadcasts_sent": 0  # Would track in real implementation
+                "broadcasts_sent": self.websocket_server.websocket_manager.broadcasts_sent,
             },
         }

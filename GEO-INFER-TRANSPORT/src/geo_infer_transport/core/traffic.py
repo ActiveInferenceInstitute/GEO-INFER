@@ -71,9 +71,18 @@ class TrafficAnalyzer:
 
         Args:
             data_sources: Traffic data sources
-            model_type: Traffic model type ('bpr', 'akcelik', 'hcm')
+            model_type: Traffic model type; only ``'bpr'`` (the BPR delay
+                function) is implemented and accepted
             time_resolution: Temporal resolution
+
+        Raises:
+            ValueError: If ``model_type`` is not ``'bpr'``
         """
+        if model_type != "bpr":
+            raise ValueError(
+                "TrafficAnalyzer: model_type "
+                f"{model_type!r} is not supported; only 'bpr' is implemented"
+            )
         self.data_sources = data_sources or ["sensor", "probe"]
         self.model_type = model_type
         self.time_resolution = time_resolution
@@ -278,8 +287,11 @@ class TrafficAnalyzer:
         Returns:
             Simulation results
         """
+        if time_step_seconds <= 0:
+            raise ValueError(
+                f"simulate_traffic: time_step_seconds must be > 0, got {time_step_seconds}"
+            )
         num_steps = (simulation_hours * 3600) // time_step_seconds
-
         results_out: List[Dict[str, Any]] = []
         statistics_out: Dict[str, Any] = {
             "total_trips": 0,

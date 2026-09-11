@@ -425,6 +425,43 @@ class TestAPI(unittest.TestCase):
         response = self.client.post("/api/models/execute", json=request_data)
         self.assertEqual(response.status_code, 403)
 
+    def test_model_execution_rejects_invalid_token(self):
+        """Test model execution endpoint rejects unknown bearer tokens with 401."""
+        request_data = {
+            "model_type": "sar_model",
+            "model_configuration": {},
+            "data_source": "test_data",
+            "parameters": {},
+        }
+        headers = {"Authorization": "Bearer not-a-real-token"}
+        response = self.client.post(
+            "/api/models/execute", json=request_data, headers=headers
+        )
+        self.assertEqual(response.status_code, 401)
+
+    def test_hourly_rate_limit_enforced(self):
+        """Test hourly rate limit can trigger with requests spread over one hour."""
+        import time as time_module
+        from unittest import mock
+
+        clock = {"t": 0.0}
+
+        def fake_time():
+            return clock["t"]
+
+        with mock.patch.object(time_module, "time", fake_time):
+            api = self.api
+            api.rate_limits["requests_per_minute"] = 1000
+            api.rate_limits["requests_per_hour"] = 5
+            api.request_counts = {}
+            for i in range(5):
+                clock["t"] = i * 61.0  # spread over >1 minute, one per minute
+                self.assertTrue(api._check_rate_limit("client_a"))
+                api._record_request("/api/models/execute", "client_a")
+            # 6th request: 5 entries within the past hour, hourly limit is 5
+            clock["t"] = 5 * 61.0
+            self.assertFalse(api._check_rate_limit("client_a"))
+
     def test_spatial_analysis_endpoint(self):
         """Test spatial analysis endpoint returns the documented contract."""
         request_data = {

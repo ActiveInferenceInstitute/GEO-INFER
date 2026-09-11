@@ -28,6 +28,30 @@ from sklearn.model_selection import KFold, StratifiedKFold, train_test_split
 logger = logging.getLogger(__name__)
 
 
+def _instantiate_with_random_state(
+    model_class: Any, random_state: int, params: Dict[str, Any]
+) -> Any:
+    """Instantiate ``model_class`` with ``random_state`` when supported.
+
+    Not every scikit-learn estimator accepts ``random_state`` (e.g.
+    KNeighborsClassifier, SVR, LinearRegression). Try the full constructor
+    first; on TypeError, retry without ``random_state`` so estimators that
+    genuinely reject a caller-supplied parameter still surface a clear
+    error rather than a silent misconfiguration.
+    """
+    import inspect
+
+    try:
+        return model_class(random_state=random_state, **params)
+    except TypeError:
+        signature = inspect.signature(model_class)
+        if "random_state" in signature.parameters:
+            # The ctor does accept random_state; the TypeError came from
+            # params themselves — do not mask the caller's mistake.
+            raise
+        return model_class(**params)
+
+
 @dataclass
 class TrainingConfig:
     """
@@ -87,6 +111,16 @@ class ModelTrainer:
         self.best_model: Optional[Any] = None
         self.best_score: float = float("-inf")
 
+    def _reset_best(self) -> None:
+        """Reset best-model tracking at the start of each train_* call.
+
+        Accuracy (classification) and R² (regression) live on
+        incomparable scales, so best_score is only meaningful within a
+        single training call's task type.
+        """
+        self.best_model = None
+        self.best_score = float("-inf")
+
     def train_classifier(
         self,
         model: Any,
@@ -109,6 +143,8 @@ class ModelTrainer:
             Dictionary containing training history and evaluation metrics
         """
         logger.info(f"Training classifier with {len(X_train)} samples")
+
+        self._reset_best()
 
         # Split validation data if not provided
         if X_val is None or y_val is None:
@@ -169,6 +205,7 @@ class ModelTrainer:
         """
         logger.info(f"Training regressor with {len(X_train)} samples")
 
+        self._reset_best()
         # Split validation data if not provided
         if X_val is None or y_val is None:
             X_train, X_val, y_train, y_val = train_test_split(
@@ -271,10 +308,20 @@ class ModelTrainer:
                 r2 = r2_score(y_test, y_pred)
             rmse = np.sqrt(mse)
 
-            # Additional regression metrics
-            mape = (
-                np.mean(np.abs((y_test - y_pred) / (y_test + 1e-10))) * 100
-            )  # Mean Absolute Percentage Error
+            # Mean Absolute Percentage Error: standard definition divides by
+            # |y_true|. Observations where y_true == 0 are excluded from the
+            # mean (the percentage error is undefined there); an all-zero
+            # target yields mape == 0.0.
+            nonzero = y_test != 0
+            if np.any(nonzero):
+                mape = (
+                    np.mean(
+                        np.abs((y_test[nonzero] - y_pred[nonzero]) / y_test[nonzero])
+                    )
+                    * 100
+                )
+            else:
+                mape = 0.0
             median_ae = np.median(np.abs(y_test - y_pred))  # Median Absolute Error
 
             # Calculate residuals
@@ -417,8 +464,15 @@ class ModelTrainer:
         """
         import itertools
 
+        supported_metrics = {"accuracy", "r2"}
         if scoring is None:
             scoring = "accuracy" if task_type == "classification" else "r2"
+        elif scoring not in supported_metrics:
+            raise ValueError(
+                f"geo_infer_ai.core.training.hyperparameter_search: unsupported "
+                f"scoring {scoring!r}. Supported metrics: "
+                f"{sorted(supported_metrics)}"
+            )
 
         logger.info(f"Starting hyperparameter search over {len(param_grid)} parameters")
 
@@ -434,7 +488,7 @@ class ModelTrainer:
 
         for combo in all_combinations:
             params = dict(zip(param_names, combo))
-            model = model_class(random_state=random_state, **params)
+            model = _instantiate_with_random_state(model_class, random_state, params)
 
             cv_result = self.cross_validate(
                 model=model,
@@ -445,8 +499,15 @@ class ModelTrainer:
                 random_state=random_state,
             )
 
+            aggregate = cv_result["aggregate"]
             score_key = f"{scoring}_mean"
-            score = cv_result["aggregate"].get(score_key, 0.0)
+            if score_key not in aggregate:
+                raise ValueError(
+                    f"geo_infer_ai.core.training.hyperparameter_search: cross-"
+                    f"validation aggregate missing {score_key!r} for scoring "
+                    f"{scoring!r}; aggregate keys: {sorted(aggregate)}"
+                )
+            score = aggregate[score_key]
 
             search_results.append(
                 {

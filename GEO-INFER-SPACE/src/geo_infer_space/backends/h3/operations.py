@@ -811,7 +811,10 @@ def is_valid_cell(h3_index: str) -> bool:
 
     try:
         return bool(h3.is_valid_cell(h3_index))
+    except (TypeError, ValueError):
+        return False
     except Exception:
+        logger.debug("Unexpected error validating H3 cell %r", h3_index, exc_info=True)
         return False
 
 
@@ -835,7 +838,15 @@ def are_neighbor_cells(h3_index1: str, h3_index2: str) -> bool:
 
     try:
         return bool(h3.are_neighbor_cells(h3_index1, h3_index2))
+    except (TypeError, ValueError):
+        return False
     except Exception:
+        logger.debug(
+            "Unexpected error checking H3 neighborship for %r, %r",
+            h3_index1,
+            h3_index2,
+            exc_info=True,
+        )
         return False
 
 

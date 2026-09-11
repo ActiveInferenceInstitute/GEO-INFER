@@ -7,10 +7,13 @@ available and uses direct H3 v4 calls for operations SPACE does not expose.
 
 from __future__ import annotations
 
+import logging
 import os
 from pathlib import Path
 import sys
 from typing import Any, Dict, Iterable, List, Optional
+
+logger = logging.getLogger(__name__)
 
 
 class H3Adapter:
@@ -168,12 +171,20 @@ class H3Adapter:
         if self.h3 is not None:
             try:
                 return bool(self.h3.is_valid_cell(cell))
+            except (TypeError, ValueError):
+                return False
             except Exception:
+                logger.debug(
+                    "Unexpected error validating H3 cell %r", cell, exc_info=True
+                )
                 return False
         try:
             self.cell_to_latlng(cell)
             return True
+        except (TypeError, ValueError):
+            return False
         except Exception:
+            logger.debug("Unexpected error validating H3 cell %r", cell, exc_info=True)
             return False
 
     def validate_cells(self, cells: Iterable[str]) -> List[str]:

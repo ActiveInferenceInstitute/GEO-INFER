@@ -9,6 +9,7 @@ from typing import Dict, Optional, cast
 
 import numpy as np
 import xarray as xr
+import scipy.ndimage
 
 logger = logging.getLogger(__name__)
 
@@ -183,6 +184,21 @@ class CanopyAnalyzer:
         )
 
         gap_mask = ndvi < threshold
+
+        # Filter to contiguous gaps of at least min_gap_pixels via connected
+        # component labeling; isolated sub-threshold pixels are not gaps.
+        gap_array = np.asarray(gap_mask.values, dtype=bool)
+        labels, _ = scipy.ndimage.label(gap_array)
+        component_sizes = np.bincount(labels.ravel())
+        small_components = np.isin(
+            labels, np.nonzero(component_sizes < min_gap_pixels)[0]
+        )
+        gap_array = gap_array & ~small_components
+        gap_mask = xr.DataArray(gap_array, coords=ndvi.coords, dims=ndvi.dims)
+
+        gap_sizes = component_sizes[1:]  # skip background label 0
+        gap_sizes = gap_sizes[gap_sizes >= min_gap_pixels]
+
         total_pixels = float(ndvi.size)
         gap_pixels = float(gap_mask.sum())
         gap_fraction = gap_pixels / total_pixels if total_pixels > 0 else 0.0
@@ -206,6 +222,14 @@ class CanopyAnalyzer:
                 "total_pixel_count": int(total_pixels),
                 "mean_gap_ndvi": mean_gap_ndvi,
                 "mean_forest_ndvi": mean_forest_ndvi,
+                "gap_count": int(gap_sizes.size),
+                "mean_gap_size_pixels": float(gap_sizes.mean())
+                if gap_sizes.size > 0
+                else 0.0,
+                "max_gap_size_pixels": int(gap_sizes.max())
+                if gap_sizes.size > 0
+                else 0,
+                "min_gap_pixels": int(min_gap_pixels),
             },
         )
 

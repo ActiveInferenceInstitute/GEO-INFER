@@ -49,7 +49,6 @@ class SustainabilityAssessment:
         soil_carbon_column: Optional[str] = None,
         biomass_column: Optional[str] = None,
         management_practices: Optional[Dict[str, List[str]]] = None,
-        model: str = "tier1",
     ) -> Dict[str, Any]:
         """
         Assess carbon sequestration potential of agricultural fields.
@@ -60,13 +59,12 @@ class SustainabilityAssessment:
             soil_carbon_column: Column name for soil carbon content
             biomass_column: Column name for biomass data
             management_practices: Dictionary mapping field IDs to practices
-            model: Carbon model to use ('tier1', 'tier2', 'century')
 
         Returns:
             Dictionary of carbon sequestration metrics
 
         Raises:
-            ValueError: If field_data is not provided and not set in constructor
+            ValueError: If field_data is not provided and not set in constructor, or if management_practices are provided but the field data lacks a 'field_id' column
         """
         if field_data is None:
             if self.field_data is None:
@@ -116,6 +114,12 @@ class SustainabilityAssessment:
 
         # Apply management practice modifiers if provided
         if management_practices:
+            if "field_id" not in result_data.columns:
+                raise ValueError(
+                    "field data must include 'field_id' when management_practices "
+                    "are provided"
+                )
+
             # Create management modifier column with default value of 1.0
             result_data["management_modifier"] = 1.0
 

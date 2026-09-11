@@ -1,5 +1,8 @@
 """Tests for carbon sequestration model."""
 
+import logging
+
+import numpy as np
 import pytest
 import pandas as pd
 from geo_infer_ag.models.carbon_sequestration import CarbonSequestrationModel
@@ -63,6 +66,78 @@ class TestCarbonSequestrationFit:
         model = CarbonSequestrationModel(model_type="tier2")
         with pytest.raises(ValueError, match="Field data required"):
             model.fit({})
+
+    def test_tier2_fit_predict_both_pools_in_total(self) -> None:
+        """Tier 2 fit -> predict must include every adequately-trained pool."""
+        model = CarbonSequestrationModel(model_type="tier2")
+        n = 12
+        field_df = pd.DataFrame(
+            {
+                "soil_ph": np.linspace(5.0, 7.5, n),
+                "annual_rainfall": np.linspace(400.0, 900.0, n),
+                "soil_carbon_sequestration": np.linspace(0.2, 0.5, n),
+                "biomass_carbon_sequestration": np.linspace(0.1, 0.4, n),
+            }
+        )
+        model.fit({"field_data": field_df})
+        assert set(model.predictors) == {"soil_carbon", "biomass_carbon"}
+
+        predict_df = pd.DataFrame(
+            {
+                "crop_type": ["corn", "wheat", "corn"],
+                "area_ha": [10.0, 20.0, 30.0],
+                "soil_ph": [6.0, 6.5, 7.0],
+                "annual_rainfall": [500.0, 600.0, 700.0],
+            }
+        )
+        result = model.predict(
+            {
+                "field_data": predict_df,
+                "soil_data": pd.DataFrame({"soil_type": ["loam"]}),
+                "management_data": pd.DataFrame({"practices": [[], []]}),
+            }
+        )
+
+        assert set(result["sequestration_rates"]) == {
+            "soil_carbon",
+            "biomass_carbon",
+        }
+        assert set(result["metadata"]["carbon_pools"]) == {
+            "soil_carbon",
+            "biomass_carbon",
+        }
+        # The total must be the sum of both pools, not a single-pool value
+        expected_total = (
+            result["sequestration_rates"]["soil_carbon"]
+            + result["sequestration_rates"]["biomass_carbon"]
+        )
+        np.testing.assert_allclose(result["total_sequestration_rate"], expected_total)
+        assert result["metadata"]["skipped_pools"] == {}
+
+    def test_tier2_fit_warns_and_records_insufficient_pool(self, caplog) -> None:
+        """A pool with < 10 training rows must be skipped with a warning."""
+        model = CarbonSequestrationModel(model_type="tier2")
+        n = 12
+        biomass = np.full(n, np.nan)
+        biomass[:3] = [0.1, 0.2, 0.3]
+        field_df = pd.DataFrame(
+            {
+                "soil_ph": np.linspace(5.0, 7.5, n),
+                "annual_rainfall": np.linspace(400.0, 900.0, n),
+                "soil_carbon_sequestration": np.linspace(0.2, 0.5, n),
+                "biomass_carbon_sequestration": biomass,
+            }
+        )
+
+        with caplog.at_level(
+            logging.WARNING,
+            logger="geo_infer_ag.models.carbon_sequestration",
+        ):
+            model.fit({"field_data": field_df})
+
+        assert set(model.predictors) == {"soil_carbon"}
+        assert model.metadata["skipped_pools"] == {"biomass_carbon": 3}
+        assert "biomass_carbon" in caplog.text
 
 
 class TestCarbonSequestrationPredict:

@@ -64,7 +64,18 @@ class ComplianceStatus:
 
         Returns:
             A new ComplianceStatus instance
+
+        Raises:
+            ValueError: If compliance_level is outside the range [0.0, 1.0].
         """
+        if (
+            not isinstance(compliance_level, (int, float))
+            or not 0.0 <= compliance_level <= 1.0
+        ):
+            raise ValueError(
+                "compliance_status.create: compliance_level must be within [0.0, 1.0], "
+                f"got {compliance_level!r}"
+            )
         return cls(
             id=str(uuid.uuid4()),
             entity_id=entity_id,

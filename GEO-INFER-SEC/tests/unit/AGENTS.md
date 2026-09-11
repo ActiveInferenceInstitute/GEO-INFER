@@ -27,6 +27,7 @@
 - `test_audit_logging.py`
 - `test_authentication.py`
 - `test_authorization.py`
+- `test_cli_exit_codes.py`
 - `test_digital_indicators.py`
 - `test_encryption.py`
 - `test_geospatial_utils.py`

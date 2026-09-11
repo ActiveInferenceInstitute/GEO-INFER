@@ -142,52 +142,56 @@ async def analyze_file(
         with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as spatial_temp:
             spatial_temp.write(await spatial_data.read())
             spatial_path = spatial_temp.name
+
+    try:
         # Read after the temp-file handle is closed so written bytes are flushed
-        spatial_df = pd.read_csv(spatial_path)
+        spatial_df: Optional[pd.DataFrame] = None
+        if spatial_path is not None:
+            spatial_df = pd.read_csv(spatial_path)
 
-    # Load and validate sequences
-    loaded = analyzer.load_sequence(fasta_path)
-    sequences: List[SeqRecord] = loaded if isinstance(loaded, list) else [loaded]
-    results: List[Dict[str, Any]] = []
+        # Load and validate sequences
+        loaded = analyzer.load_sequence(fasta_path)
+        sequences: List[SeqRecord] = loaded if isinstance(loaded, list) else [loaded]
+        results: List[Dict[str, Any]] = []
 
-    for i, record in enumerate(sequences):
-        # Add spatial data if available
-        if spatial_df is not None and i < len(spatial_df):
-            setattr(record, "spatial_data", spatial_df.iloc[[i]])
+        for i, record in enumerate(sequences):
+            # Add spatial data if available
+            if spatial_df is not None and i < len(spatial_df):
+                setattr(record, "spatial_data", spatial_df.iloc[[i]])
 
-        # Validate sequence
-        validation = validator.validate_sequence_record(record)
-        if not all(validation.values()):
-            continue
+            # Validate sequence
+            validation = validator.validate_sequence_record(record)
+            if not all(validation.values()):
+                continue
 
-        # Perform analysis
-        seq_value = cast("Seq", record.seq)
-        gc_content = analyzer.calculate_gc_content(seq_value)
-        motifs = analyzer.find_motifs(seq_value)
-        coding_regions = analyzer.predict_coding_regions(seq_value)
+            # Perform analysis
+            seq_value = cast("Seq", record.seq)
+            gc_content = analyzer.calculate_gc_content(seq_value)
+            motifs = analyzer.find_motifs(seq_value)
+            coding_regions = analyzer.predict_coding_regions(seq_value)
 
-        result: Dict[str, Any] = {
-            "sequence_id": record.id,
-            "gc_content": gc_content,
-            "motif_count": len(motifs),
-            "coding_regions": len(coding_regions),
-        }
-
-        spatial_attr = getattr(record, "spatial_data", None)
-        if spatial_attr is not None:
-            result["spatial_data"] = {
-                "latitude": spatial_attr.iloc[0]["latitude"],
-                "longitude": spatial_attr.iloc[0]["longitude"],
+            result: Dict[str, Any] = {
+                "sequence_id": record.id,
+                "gc_content": gc_content,
+                "motif_count": len(motifs),
+                "coding_regions": len(coding_regions),
             }
 
-        results.append(result)
+            spatial_attr = getattr(record, "spatial_data", None)
+            if spatial_attr is not None:
+                result["spatial_data"] = {
+                    "latitude": spatial_attr.iloc[0]["latitude"],
+                    "longitude": spatial_attr.iloc[0]["longitude"],
+                }
 
-    # Clean up temporary files
-    Path(fasta_path).unlink()
-    if spatial_data:
-        Path(spatial_path).unlink()
+            results.append(result)
 
-    return results
+        return results
+    finally:
+        # Remove any temporary files that were created, even on failure
+        for temp_path in (fasta_path, spatial_path):
+            if temp_path is not None:
+                Path(temp_path).unlink(missing_ok=True)
 
 
 @app.post("/visualize/spatial")

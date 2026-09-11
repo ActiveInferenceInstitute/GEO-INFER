@@ -334,3 +334,35 @@ def test_create_feature_with_integer_zero_id():
     stored = client.get("/api/v1/collections/polygons/items/0")
     assert stored.status_code == 200
     assert stored.json()["id"] == 0
+
+
+def test_create_polygon_feature_rejects_beyond_store_cap(monkeypatch):
+    """Regression: the in-memory polygon store must be bounded.
+
+    Creating more features than ``polygon_store_max_size`` is rejected with
+    HTTP 409 instead of the store growing without limit (GS-211).
+    """
+    from geo_infer_api.core.config import get_settings
+
+    cap = 2
+    monkeypatch.setattr(get_settings(), "polygon_store_max_size", cap)
+
+    def feature_payload(fid):
+        return {
+            "type": "Feature",
+            "id": fid,
+            "geometry": {"type": "Polygon", "coordinates": SAMPLE_POLYGON_COORDS},
+            "properties": {"name": f"cap-{fid}"},
+        }
+
+    for i in range(cap):
+        response = client.post(
+            "/api/v1/collections/polygons/items", json=feature_payload(f"cap-{i}")
+        )
+        assert response.status_code == 201
+
+    overflow = client.post(
+        "/api/v1/collections/polygons/items", json=feature_payload("cap-overflow")
+    )
+    assert overflow.status_code == 409
+    assert len(POLYGON_FEATURES) == cap

@@ -309,25 +309,37 @@ class UnderwritingQueue:
     average_wait_time: float = 0.0
     longest_wait_time: float = 0.0
 
+    # Completed removals used as the running-average denominator
+    _completed_waits: int = field(default=0, repr=False)
+
+    # Entry timestamps per enqueued case
+    _case_enqueued_at: Dict[str, datetime] = field(default_factory=dict)
+
     def add_to_queue(self, case_id: str, priority: str = "normal") -> bool:
-        """Add case to queue."""
+        """Add case to queue, recording its entry timestamp."""
         if priority not in self.priority_levels:
             return False
+        if case_id in self._case_enqueued_at:
+            return False
 
+        self._case_enqueued_at[case_id] = datetime.now()
         self.total_pending += 1
-        # Update wait time statistics (simplified)
-        self.average_wait_time = (
-            self.average_wait_time * (self.total_pending - 1) + 0.0
-        ) / self.total_pending
-
         return True
 
     def remove_from_queue(self, case_id: str) -> bool:
-        """Remove case from queue."""
-        if self.total_pending > 0:
-            self.total_pending -= 1
-            return True
-        return False
+        """Remove case from queue, updating wait-time statistics."""
+        enqueued_at = self._case_enqueued_at.pop(case_id, None)
+        if enqueued_at is None:
+            return False
+
+        wait_seconds = (datetime.now() - enqueued_at).total_seconds()
+        self._completed_waits += 1
+        self.total_pending = max(0, self.total_pending - 1)
+        self.average_wait_time = (
+            self.average_wait_time * (self._completed_waits - 1) + wait_seconds
+        ) / self._completed_waits
+        self.longest_wait_time = max(self.longest_wait_time, wait_seconds)
+        return True
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert queue to dictionary."""

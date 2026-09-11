@@ -22,7 +22,6 @@
 ## Local Contents
 
 - `api/`
-- `config/`
 - `core/`
 - `models/`
 - `performance/`

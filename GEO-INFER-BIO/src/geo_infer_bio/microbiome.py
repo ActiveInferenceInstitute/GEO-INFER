@@ -140,8 +140,11 @@ class MicrobiomeDataLoader:
             & (metadata["longitude"].between(-180, 180))
         ]
 
-        # Remove samples with extreme pH values (likely errors)
-        metadata = metadata[metadata["ph"].between(0, 14)]
+        # Remove samples with extreme pH values (likely errors), when pH data exists
+        if "ph" in metadata.columns:
+            metadata = metadata[metadata["ph"].between(0, 14)]
+        else:
+            logger.debug("Skipping pH quality filter: metadata has no 'ph' column")
 
         final_count = len(metadata)
         logger.info(

@@ -146,11 +146,52 @@ class DistributedCoordinator:
         self.heartbeat_thread: Optional[threading.Thread] = None
         self.job_scheduler_thread: Optional[threading.Thread] = None
 
+        # Server sockets held by background services (closed on stop() to
+        # unblock threads parked in recvfrom/accept).
+        self._discovery_socket: Optional[socket.socket] = None
+        self._coordination_socket: Optional[socket.socket] = None
+
         # Initialize message handlers
         self._setup_message_handlers()
 
-        # Start background services
+        # Background services are NOT started here; call start() explicitly.
+
+    def start(self) -> None:
+        """Start background coordination services.
+
+        Spawns the discovery, coordination, heartbeat-monitor, and job-scheduler
+        threads. For ``coordinator``/``master`` roles this binds the UDP
+        discovery socket and the TCP coordination listener, so call this
+        explicitly rather than relying on construction side effects.
+        """
         self._start_services()
+
+    def stop(self) -> None:
+        """Stop background coordination services and release resources."""
+        logger.info("Shutting down distributed coordinator...")
+
+        # Signal shutdown
+        self.shutdown_event.set()
+
+        # Close server sockets so threads parked in recvfrom/accept wake up.
+        for server_socket in (self._discovery_socket, self._coordination_socket):
+            if server_socket is not None:
+                try:
+                    server_socket.close()
+                except OSError:
+                    logger.debug("Service socket already closed", exc_info=True)
+
+        # Wait for threads to finish
+        for thread in (
+            self.discovery_thread,
+            self.coordination_thread,
+            self.heartbeat_thread,
+            self.job_scheduler_thread,
+        ):
+            if thread and thread.is_alive():
+                thread.join(timeout=5)
+
+        logger.info("Distributed coordinator shutdown complete")
 
     def _generate_node_id(self) -> str:
         """Generate a unique node ID."""
@@ -218,11 +259,12 @@ class DistributedCoordinator:
         """Service for discovering and registering nodes."""
         import socket as sock
 
-        discovery_socket = None
+        discovery_socket: Optional[sock.socket] = None
         try:
             discovery_socket = sock.socket(sock.AF_INET, sock.SOCK_DGRAM)
             discovery_socket.setsockopt(sock.SOL_SOCKET, sock.SO_BROADCAST, 1)
             discovery_socket.bind(("", self.discovery_port))
+            self._discovery_socket = discovery_socket
 
             logger.info(f"Discovery service listening on port {self.discovery_port}")
 
@@ -279,12 +321,13 @@ class DistributedCoordinator:
         """Service for handling coordination messages."""
         import socket as sock
 
+        coord_socket: Optional[sock.socket] = None
         try:
             coord_socket = sock.socket(sock.AF_INET, sock.SOCK_STREAM)
             coord_socket.setsockopt(sock.SOL_SOCKET, sock.SO_REUSEADDR, 1)
             coord_socket.bind((self.current_node.ip_address, self.coordination_port))
             coord_socket.listen(10)
-
+            self._coordination_socket = coord_socket
             logger.info(
                 f"Coordination service listening on {self.current_node.ip_address}:{self.coordination_port}"
             )
@@ -308,7 +351,8 @@ class DistributedCoordinator:
         except Exception as e:
             logger.error(f"Failed to start coordination service: {e}")
         finally:
-            coord_socket.close()
+            if coord_socket is not None:
+                coord_socket.close()
 
     def _handle_client_connection(self, client_socket: Any, client_addr: Any) -> None:
         """Handle a client connection for coordination."""
@@ -323,78 +367,79 @@ class DistributedCoordinator:
         finally:
             client_socket.close()
 
+    def _check_heartbeats(self, current_time: datetime) -> None:
+        """Run one heartbeat sweep: mark stale nodes inactive, drop long-dead ones.
+
+        Nodes whose last heartbeat is older than 30 seconds are marked
+        ``inactive``; nodes still unheard from after 60 seconds are removed.
+        """
+        with self.lock:
+            # Check for dead nodes
+            dead_nodes = []
+            for node_id, node in self.nodes.items():
+                if node_id != self.node_id:  # Don't check self
+                    time_since_heartbeat = (
+                        current_time - node.last_heartbeat
+                    ).total_seconds()
+
+                    if time_since_heartbeat > 30:  # 30 second timeout
+                        node.status = "inactive"
+                        dead_nodes.append(node_id)
+                        logger.warning(f"Node {node_id} marked as inactive")
+
+            # Remove dead nodes after longer timeout
+            for node_id in dead_nodes:
+                if node_id in self.nodes:
+                    time_since_inactive = (
+                        current_time - self.nodes[node_id].last_heartbeat
+                    ).total_seconds()
+                    if time_since_inactive > 60:  # 60 second removal timeout
+                        del self.nodes[node_id]
+                        logger.info(f"Removed dead node {node_id}")
+
     def _heartbeat_monitor(self) -> None:
         """Monitor node heartbeats and detect failures."""
         while not self.shutdown_event.is_set():
             try:
-                current_time = datetime.now(timezone.utc)
-
-                with self.lock:
-                    # Check for dead nodes
-                    dead_nodes = []
-                    for node_id, node in self.nodes.items():
-                        if node_id != self.node_id:  # Don't check self
-                            time_since_heartbeat = (
-                                current_time - node.last_heartbeat
-                            ).total_seconds()
-
-                            if time_since_heartbeat > 30:  # 30 second timeout
-                                node.status = "inactive"
-                                dead_nodes.append(node_id)
-                                logger.warning(f"Node {node_id} marked as inactive")
-
-                    # Remove dead nodes after longer timeout
-                    for node_id in dead_nodes:
-                        if node_id in self.nodes:
-                            time_since_inactive = (
-                                current_time - self.nodes[node_id].last_heartbeat
-                            ).total_seconds()
-                            if time_since_inactive > 60:  # 60 second removal timeout
-                                del self.nodes[node_id]
-                                logger.info(f"Removed dead node {node_id}")
-
-                time.sleep(10)  # Check every 10 seconds
-
+                self._check_heartbeats(datetime.now(timezone.utc))
+                self.shutdown_event.wait(10)  # Check every 10 seconds
             except Exception as e:
                 logger.error(f"Error in heartbeat monitor: {e}")
                 time.sleep(10)
+
+    def _schedule_once(self) -> None:
+        """Run one scheduling pass: drain the job queue onto available nodes."""
+        available_nodes = self._get_available_nodes()
+
+        if available_nodes:
+            # Process job queue
+            while not self.job_queue.empty():
+                try:
+                    priority, job_id = self.job_queue.get_nowait()
+
+                    if job_id in self.jobs:
+                        job = self.jobs[job_id]
+
+                        # Find suitable node
+                        assigned_node = self._select_node_for_job(job, available_nodes)
+
+                        if assigned_node:
+                            self._assign_job_to_node(job, assigned_node)
+                            available_nodes = self._get_available_nodes()  # Refresh
+                        else:
+                            # No suitable node, put job back in queue
+                            self.job_queue.put((priority, job_id))
+                            break
+
+                except queue.Empty:
+                    break
 
     def _job_scheduler(self) -> None:
         """Schedule and distribute jobs to available nodes."""
         while not self.shutdown_event.is_set():
             try:
-                # Get available nodes
-                available_nodes = self._get_available_nodes()
-
-                if available_nodes:
-                    # Process job queue
-                    while not self.job_queue.empty():
-                        try:
-                            priority, job_id = self.job_queue.get_nowait()
-
-                            if job_id in self.jobs:
-                                job = self.jobs[job_id]
-
-                                # Find suitable node
-                                assigned_node = self._select_node_for_job(
-                                    job, available_nodes
-                                )
-
-                                if assigned_node:
-                                    self._assign_job_to_node(job, assigned_node)
-                                    available_nodes = (
-                                        self._get_available_nodes()
-                                    )  # Refresh
-                                else:
-                                    # No suitable node, put job back in queue
-                                    self.job_queue.put((priority, job_id))
-                                    break
-
-                        except queue.Empty:
-                            break
-
-                time.sleep(5)  # Schedule every 5 seconds
-
+                self._schedule_once()
+                self.shutdown_event.wait(5)  # Schedule every 5 seconds
             except Exception as e:
                 logger.error(f"Error in job scheduler: {e}")
                 time.sleep(5)
@@ -631,9 +676,12 @@ class DistributedCoordinator:
             ).encode("utf-8")
 
             client_socket = sock.socket(sock.AF_INET, sock.SOCK_STREAM)
-            client_socket.connect((target_ip, target_port))
-            client_socket.send(message_data)
-            client_socket.close()
+            try:
+                client_socket.settimeout(5)
+                client_socket.connect((target_ip, target_port))
+                client_socket.send(message_data)
+            finally:
+                client_socket.close()
 
         except Exception as e:
             logger.error(f"Error sending message to node {node}: {e}")
@@ -830,28 +878,6 @@ class DistributedCoordinator:
                 if node.node_id != self.node_id:
                     self._send_message_to_node(node, message)
 
-    def shutdown(self) -> None:
-        """Shutdown the distributed coordinator."""
-        logger.info("Shutting down distributed coordinator...")
-
-        # Signal shutdown
-        self.shutdown_event.set()
-
-        # Wait for threads to finish
-        if self.discovery_thread and self.discovery_thread.is_alive():
-            self.discovery_thread.join(timeout=5)
-
-        if self.coordination_thread and self.coordination_thread.is_alive():
-            self.coordination_thread.join(timeout=5)
-
-        if self.heartbeat_thread and self.heartbeat_thread.is_alive():
-            self.heartbeat_thread.join(timeout=5)
-
-        if self.job_scheduler_thread and self.job_scheduler_thread.is_alive():
-            self.job_scheduler_thread.join(timeout=5)
-
-        logger.info("Distributed coordinator shutdown complete")
-
 
 def create_distributed_coordinator(
     role: str = "coordinator", coordinator_host: str = "localhost"
@@ -864,7 +890,8 @@ def create_distributed_coordinator(
         coordinator_host: Host of the coordinator node
 
     Returns:
-        Configured DistributedCoordinator instance
+            Configured DistributedCoordinator instance with background
+            services started (call ``stop()`` to tear them down).
     """
     # If this is a worker node, try to connect to coordinator
     if role in ["worker"]:
@@ -876,4 +903,6 @@ def create_distributed_coordinator(
             logger.warning(f"Failed to connect to coordinator: {e}")
             role = "coordinator"  # Fallback to coordinator
 
-    return DistributedCoordinator(role=role)
+    coordinator = DistributedCoordinator(role=role)
+    coordinator.start()
+    return coordinator

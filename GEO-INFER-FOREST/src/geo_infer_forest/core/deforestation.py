@@ -99,9 +99,17 @@ class DeforestationDetector:
         Returns:
             Dataset with anomaly scores and change detection results.
         """
-        baseline_mean = ndvi_series.rolling(time=window_size, min_periods=1).mean()
-        baseline_std = ndvi_series.rolling(time=window_size, min_periods=1).std()
+        # Historical-only baseline: shift one step so each observation is
+        # compared against the window *before* it, never against itself.
+        shifted = ndvi_series.shift(time=1)
+        baseline_mean = shifted.rolling(time=window_size, min_periods=1).mean()
+        baseline_std = shifted.rolling(time=window_size, min_periods=1).std()
+        # NaN std (too few distinct historical values) falls back to the
+        # 0.01 floor; a NaN baseline mean falls back to the current value
+        # so the first step gets a zero anomaly instead of NaN.
         baseline_std = xr.where(baseline_std < 0.01, 0.01, baseline_std)
+        baseline_std = baseline_std.fillna(0.01)
+        baseline_mean = baseline_mean.fillna(ndvi_series)
 
         z_score = (ndvi_series - baseline_mean) / baseline_std
 

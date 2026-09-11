@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `test_api_error_handling.py`
 - `test_api_state.py`
 - `test_core.py`
 - `test_delivery.py`

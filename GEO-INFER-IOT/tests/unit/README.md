@@ -6,6 +6,7 @@ Unit workspace within `GEO-INFER-IOT`.
 
 - `test_data_ingestion.py`
 - `test_fixwave_regressions.py`
+- `test_ingest_error_and_latency.py`
 - `test_ingestion.py`
 - `test_performance_monitor.py`
 - `test_quality_control.py`

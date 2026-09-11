@@ -161,6 +161,10 @@ class IoTDataIngestion:
         # Processing state
         self.is_processing = False
         self.processing_tasks: List[asyncio.Task[Any]] = []
+        # Observability: last ingest duration (ms) and last error, for
+        # performance monitoring and caller-side error discrimination.
+        self.last_ingest_latency_ms: float = 0.0
+        self.last_ingest_error: Optional[str] = None
 
         logger.info("IoT Data Ingestion engine initialized")
 
@@ -184,6 +188,7 @@ class IoTDataIngestion:
         Returns:
             bool: True if measurement was successfully ingested and processed
         """
+        start = time.perf_counter()
         try:
             # Convert to SensorMeasurement if needed
             if isinstance(measurement, dict):
@@ -193,6 +198,9 @@ class IoTDataIngestion:
             if not self._validate_measurement(measurement):
                 logger.warning(
                     f"Invalid measurement from sensor {measurement.sensor_id}"
+                )
+                self.last_ingest_error = (
+                    f"invalid measurement from sensor {measurement.sensor_id}"
                 )
                 return False
 
@@ -219,11 +227,17 @@ class IoTDataIngestion:
             logger.debug(
                 f"Ingested measurement: {measurement.sensor_id} -> {measurement.value}"
             )
+            self.last_ingest_error = None
             return True
 
-        except Exception as e:
+        except (ValueError, KeyError, TypeError) as e:
+            # Expected input errors from parsing/validation: report as a
+            # failed ingest, not a crash.
+            self.last_ingest_error = f"{type(e).__name__}: {e}"
             logger.error(f"Error ingesting measurement: {e}")
             return False
+        finally:
+            self.last_ingest_latency_ms = (time.perf_counter() - start) * 1000.0
 
     def _dict_to_measurement(self, data: Dict) -> SensorMeasurement:
         """Convert dictionary to SensorMeasurement object.

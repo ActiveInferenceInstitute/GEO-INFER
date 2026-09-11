@@ -50,6 +50,24 @@ class TestWildfireRiskAnalyzer:
 
         assert "wildfire_risk" in result
 
+    def test_all_zero_inputs_produce_finite_risk(self, analyzer):
+        """All-zero fuel load / wind speed must not produce NaN risk."""
+        temp = xr.DataArray([30.0, 30.0], dims=["location"])
+        precip = xr.DataArray([[10.0, 5.0], [5.0, 2.0]], dims=["time", "location"])
+        fuel = xr.DataArray(np.zeros(2), dims=["location"])
+        wind = xr.DataArray(np.zeros(2), dims=["location"])
+
+        result = analyzer.assess_wildfire_risk(
+            temp, precip, fuel_load=fuel, wind_speed=wind
+        )
+        assert np.isfinite(result["wildfire_risk"].values).all()
+
+        spread = analyzer.predict_fire_spread(
+            xr.DataArray(np.ones(2), dims=["location"]),
+            xr.DataArray(np.zeros(2), dims=["location"]),
+        )
+        assert np.isfinite(spread["spread_probability"].values).all()
+
 
 class TestFireWeatherIndex:
     """Test suite for FWI calculation."""

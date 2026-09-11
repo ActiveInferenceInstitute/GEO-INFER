@@ -77,6 +77,8 @@ print(f"Forecast points: {len(forecast['forecasts'])}")
 - `simulate_traffic` uses the real BPR delay function; `forecast_traffic` uses EWMA + trend estimation with widening prediction intervals.
 - `forecast_horizon` strings must be a number plus an s/m/h/d unit (e.g. `"30m"`, `"90m"`, `"1h"`, `"1d"`) and must span at least one `time_resolution` interval; anything else raises `ValueError`.
 - Routing fallback semantics: `Route.route_source` is `"network"` when computed on the graph, `"estimated_fallback"` when no network is set (haversine estimate). When no path exists on the network, the returned Route has an empty `path` and zero distance/time — check `route_source` before trusting metrics.
+- Missing-node routing: if the origin or destination node is not present in the graph, `route()` and `calculate_isochrone()` degrade instead of raising — `route()` returns an empty-path Route (`route_source == "network"`, zero distance/time) and the isochrone degenerates to the origin node only.
+- `TrafficAnalyzer` accepts only `model_type="bpr"` (the implemented BPR delay model); any other value raises `ValueError`. `simulate_traffic` raises `ValueError` for `time_step_seconds <= 0`. `route()` takes only `origin`, `destination`, and `optimization` — there are no mode/avoid/via parameters.
 - Emissions calculation lives in GEO-INFER-LOG (`geo_infer_log.core.transport.EmissionsCalculator`), not in this module. Install the `log` extra (`pip install geo-infer-transport[log]`) to enable the guarded critical-links integration in `TransportNetwork.analyze_connectivity(method="critical_links")`.
 - Test: `uv run python -m pytest GEO-INFER-TRANSPORT/tests/ -v`
 

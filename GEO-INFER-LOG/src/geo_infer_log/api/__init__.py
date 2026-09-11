@@ -9,10 +9,16 @@ from geo_infer_log.api.routes import router as routes_router
 from geo_infer_log.api.supply_chain import router as supply_chain_router
 from geo_infer_log.api.delivery import router as delivery_router
 from geo_infer_log.api.transport import router as transport_router
+from geo_infer_log.api.errors import (
+    ErrorHandlerMiddleware,
+    register_error_handlers,
+)
 
 __all__ = [
     "routes_router",
     "supply_chain_router",
     "delivery_router",
     "transport_router",
+    "ErrorHandlerMiddleware",
+    "register_error_handlers",
 ]

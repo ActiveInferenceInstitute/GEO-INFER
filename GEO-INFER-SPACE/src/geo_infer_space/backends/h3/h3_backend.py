@@ -1266,7 +1266,10 @@ class H3Backend:
         """
         try:
             return bool(self.h3.is_valid_cell(cell))
+        except (TypeError, ValueError):
+            return False
         except Exception:
+            logger.debug("Unexpected error validating H3 cell %r", cell, exc_info=True)
             return False
 
     def validate_resolution(self, resolution: int) -> Dict[str, Any]:
@@ -1335,7 +1338,15 @@ class H3Backend:
         """
         try:
             return bool(self.h3.are_neighbor_cells(cell1, cell2))
+        except (TypeError, ValueError):
+            return False
         except Exception:
+            logger.debug(
+                "Unexpected error checking H3 neighborship for %r, %r",
+                cell1,
+                cell2,
+                exc_info=True,
+            )
             return False
 
     @_require_h3("is_pentagon")
@@ -1351,7 +1362,12 @@ class H3Backend:
         """
         try:
             return bool(self.h3.is_pentagon(cell))
+        except (TypeError, ValueError):
+            return False
         except Exception:
+            logger.debug(
+                "Unexpected error checking pentagon status for %r", cell, exc_info=True
+            )
             return False
 
     @_require_h3("is_res_class_iii")
@@ -1371,7 +1387,12 @@ class H3Backend:
         try:
             res = self.h3.get_resolution(cell)
             return bool(res % 2 == 1)
+        except (TypeError, ValueError):
+            return False
         except Exception:
+            logger.debug(
+                "Unexpected error checking resolution class for %r", cell, exc_info=True
+            )
             return False
 
     @_require_h3("get_base_cell")

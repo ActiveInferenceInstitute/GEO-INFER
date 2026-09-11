@@ -43,6 +43,41 @@ def _extract_geospatial_coord(ctx: Any, key: str) -> Optional[float]:
     return cast(Optional[float], getattr(ctx, key, None))
 
 
+def _event_location_from_context(ctx: Any) -> Optional[GeospatialPoint]:
+    """Extract a :class:`GeospatialPoint` from an event geospatial context.
+
+    Accepts both a flat dict ``{"latitude": ..., "longitude": ...}`` and a
+    nested ``{"location": {"latitude": ..., "longitude": ...}}`` shape (the
+    same shapes :func:`_extract_geospatial_coord` accepts), or an object
+    exposing the coordinates as attributes.
+
+    Returns ``None`` when the context carries no coordinate data at all.
+
+    Raises:
+        ValueError: When coordinates are present but incomplete or not
+            convertible to floats. Raised before any state is mutated so a
+            malformed context can never leave events/metrics inconsistent.
+    """
+    if ctx is None:
+        return None
+    latitude = _extract_geospatial_coord(ctx, "latitude")
+    longitude = _extract_geospatial_coord(ctx, "longitude")
+    if latitude is None and longitude is None:
+        return None
+    if latitude is None or longitude is None:
+        raise ValueError(
+            "geo_infer_comms.events: geospatial context supplies only one of "
+            "latitude/longitude; both are required for spatial indexing"
+        )
+    try:
+        return GeospatialPoint(longitude=float(longitude), latitude=float(latitude))
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            f"geo_infer_comms.events: invalid coordinates in geospatial "
+            f"context ({latitude!r}, {longitude!r}): {exc}"
+        ) from exc
+
+
 class EventManager:
     """
     Central event management system.
@@ -131,6 +166,11 @@ class EventManager:
         if not validate_event_type(request.event_type):
             raise ValueError(f"Invalid event type: {request.event_type}")
 
+        # Validate and extract the location from the geospatial context BEFORE
+        # any state mutation, so malformed contexts cannot leave events,
+        # metrics, or the spatial index inconsistent.
+        location = _event_location_from_context(request.geospatial_context)
+
         # Create event response
         event = EventPublishResponse(
             event_type=request.event_type,
@@ -145,18 +185,11 @@ class EventManager:
         with self._lock:
             self.events[event.event_id] = event
 
-            # Add to spatial index if geospatial context provided
-            if request.geospatial_context:
-                # Extract location from geospatial context
-                geo_data = request.geospatial_context
-                if "location" in geo_data:
-                    location_data = geo_data["location"]
-                    location = GeospatialPoint(
-                        longitude=location_data["longitude"],
-                        latitude=location_data["latitude"],
-                    )
-                    self.spatial_index.insert(location, event.event_id)
-
+            # Add to spatial index if a valid location was provided. Both the
+            # nested {"location": {...}} and flat {"latitude", "longitude"}
+            # context shapes are indexed.
+            if location is not None:
+                self.spatial_index.insert(location, event.event_id)
             # Queue for processing
             priority_value = self._get_priority_value(request.priority)
             self.event_queue.put((priority_value, event.event_id, event))

@@ -29,6 +29,7 @@
 - `test_environmental_health.py`
 - `test_geospatial_utils.py`
 - `test_healthcare_accessibility.py`
+- `test_hotspot_loader.py`
 - `test_models.py`
 
 ## Validation

@@ -31,14 +31,15 @@ def _historical_linear(
 class TestProjectFutureClimate:
     def test_known_trend_extrapolates_correctly(self, projector):
         # Exact linear series with 0.1 deg C/yr trend; ssp245 factor is 1.0.
-        # The projection anchors on the historical mean (10.5, the 2005
-        # value) plus trend * years_ahead (2050 - 2010 = 40):
-        # 10.5 + 0.1 * 40 = 14.5.
+        # The least-squares line passes through the historical mean (10.5,
+        # the mid-2005 value on a calendar-year axis), so the 2050 projection
+        # is 10.5 + 0.1 * (2050 - 2005) = 15.0 (tiny leap-day fuzz for
+        # datetime coordinates).
         hist = _historical_linear(0.1)
         projected = projector.project_future_climate(
             hist, scenario="ssp245", years=[2050]
         )
-        assert float(projected.values[0]) == pytest.approx(14.5, abs=1e-6)
+        assert float(projected.values[0]) == pytest.approx(15.0, abs=1e-2)
 
     def test_scenario_scaling_is_monotonic(self, projector):
         hist = _historical_linear(0.1)
@@ -68,4 +69,45 @@ class TestProjectFutureClimate:
         projected = projector.project_future_climate(
             hist, scenario="ssp245", years=[2050]
         )
-        assert float(projected.values[0]) == pytest.approx(14.5, abs=1e-6)
+        assert float(projected.values[0]) == pytest.approx(15.0, abs=1e-6)
+
+    def test_monthly_and_annual_same_span_identical_projections(self, projector):
+        # GS-150: the trend slope is per calendar year, so monthly and
+        # annual series covering the same span (both exactly linear in
+        # elapsed 365.25-day years) must yield the same projection. Under
+        # the old per-index-step slope the monthly projection was ~12x low.
+        slope = 0.1
+        annual_dates = pd.date_range("2000-01-01", periods=11, freq="YS")
+        annual_days = (annual_dates - annual_dates[0]).days.values.astype(float)
+        annual = xr.DataArray(
+            10.0 + slope * annual_days / 365.25,
+            dims=["time"],
+            coords={"time": annual_dates},
+        )
+        monthly_dates = pd.date_range("2000-01-01", "2010-12-01", freq="MS")
+        monthly_days = (monthly_dates - monthly_dates[0]).days.values.astype(float)
+        monthly = xr.DataArray(
+            10.0 + slope * monthly_days / 365.25,
+            dims=["time"],
+            coords={"time": monthly_dates},
+        )
+        from_annual = projector.project_future_climate(annual, years=[2050])
+        from_monthly = projector.project_future_climate(monthly, years=[2050])
+        assert float(from_monthly.values[0]) == pytest.approx(
+            float(from_annual.values[0]), rel=1e-9
+        )
+        assert float(from_annual.values[0]) == pytest.approx(15.0, abs=1e-6)
+
+    def test_monthly_trend_is_per_year_not_per_step(self, projector):
+        # A monthly series rising 0.1 deg C per *year* must extrapolate at
+        # the per-year rate, not be deflated by the per-step slope.
+        dates = pd.date_range("2000-01-01", periods=120, freq="MS")
+        years_elapsed = (dates.year - 2000) + (dates.month - 1) / 12.0
+        hist = xr.DataArray(
+            10.0 + 0.1 * years_elapsed, dims=["time"], coords={"time": dates}
+        )
+        projected = projector.project_future_climate(
+            hist, scenario="ssp245", years=[2050]
+        )
+        # mean (10.49 at mid-2004.96) + 0.1 * (2050 - 2004.96)
+        assert float(projected.values[0]) == pytest.approx(15.0, abs=1e-2)
