@@ -172,6 +172,7 @@ class TransportNetwork:
                     edge_id=f"{edge.edge_id}_rev",
                     length=edge.length_m,
                     speed_limit=edge.speed_limit_kmh,
+                    travel_time=travel_time_s,
                     road_class=edge.road_class.value,
                     **{
                         attr: edge_data[attr]
