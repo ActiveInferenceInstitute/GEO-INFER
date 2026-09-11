@@ -23,10 +23,13 @@
 
 - `examples/`
 - `api_reference.md`
+- `benchmark_baseline_2026-09-10.md`
 - `getting_started.md`
 - `gnn_continuation_2026_09.md`
 - `gnn_space_time_2026_09.md`
+- `import_latency_2026_09.md`
 - `index.md`
+- `pin_review_2026-Q3.md`
 - `secret_scan_policy.md`
 
 ## Validation

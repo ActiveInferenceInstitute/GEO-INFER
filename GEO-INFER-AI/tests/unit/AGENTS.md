@@ -25,14 +25,19 @@
 - `test_explainability.py`
 - `test_explainability_determinism.py`
 - `test_feature_engineering.py`
+- `test_feature_engineering_coverage.py`
 - `test_geospatial_ai.py`
+- `test_geospatial_ai_coverage.py`
 - `test_idw_interpolation.py`
 - `test_image_classifier.py`
 - `test_kriging.py`
+- `test_mlflow_integration.py`
 - `test_model_evaluation.py`
+- `test_model_evaluation_coverage.py`
 - `test_spatial_lag_features.py`
 - `test_spatial_predictor.py`
 - `test_training.py`
+- `test_training_coverage.py`
 
 ## Validation
 

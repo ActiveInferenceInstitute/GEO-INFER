@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `api_schema.yaml`
+- `deferred_statistical_methods.md`
 
 ## Validation
 

@@ -22,6 +22,11 @@
 ## Local Contents
 
 - `test_acceptance_norms.py`
+- `test_api_compliance.py`
+- `test_api_legal.py`
+- `test_api_normative.py`
+- `test_api_policy.py`
+- `test_api_zoning.py`
 - `test_compliance_tracking.py`
 - `test_legal_frameworks.py`
 - `test_models.py`

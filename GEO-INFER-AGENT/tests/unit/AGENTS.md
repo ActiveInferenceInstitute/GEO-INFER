@@ -25,18 +25,24 @@
 - `test_agent_base.py`
 - `test_agent_communication.py`
 - `test_api_endpoints.py`
+- `test_bdi_agent_and_services.py`
 - `test_bdi_placeholders.py`
 - `test_cli.py`
 - `test_coordination.py`
 - `test_core_active_inference.py`
 - `test_data_collector.py`
+- `test_data_collector_agent.py`
 - `test_hybrid.py`
+- `test_hybrid_agent.py`
+- `test_interface_and_cli.py`
 - `test_llm_proxy.py`
 - `test_messaging.py`
 - `test_package_import_hygiene.py`
 - `test_planning.py`
 - `test_rl_state_index.py`
+- `test_rl_unit.py`
 - `test_rule_based.py`
+- `test_rule_based_agent.py`
 - `test_task_management.py`
 - `test_telemetry.py`
 

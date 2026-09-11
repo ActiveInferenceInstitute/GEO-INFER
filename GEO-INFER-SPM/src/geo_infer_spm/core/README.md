@@ -15,6 +15,7 @@ Core workspace within `GEO-INFER-SPM`.
 
 ## Public Interface
 
+- `bayesian.py:gelman_rubin_r_hat` (function)
 - `bayesian.py:BayesianSPM` (class)
 - `contrasts.py:Contrast` (class)
 - `contrasts.py:contrast` (function)

@@ -3996,7 +3996,7 @@ provides-extras = ["dev", "docs"]
 
 [[package]]
 name = "geo-infer-insurance"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "GEO-INFER-INSURANCE" }
 dependencies = [
     { name = "numpy" },
