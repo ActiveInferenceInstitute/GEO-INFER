@@ -9,7 +9,7 @@ from typing import Dict, List, Optional, Union, Any
 import datetime
 import uuid
 from fastapi import APIRouter, HTTPException, Query, Path
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 import geopandas as gpd
 from shapely.geometry import shape
 import json
@@ -29,8 +29,7 @@ class GeometryModel(BaseModel):
     type: str
     coordinates: Any
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class PolicyCreate(BaseModel):
@@ -57,8 +56,8 @@ class PolicyCreate(BaseModel):
     source_url: Optional[str] = Field(None, description="URL to the source document")
     tags: Optional[List[str]] = Field(None, description="Tags for the policy")
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "name": "Green Infrastructure Policy",
                 "description": "Policy promoting sustainable stormwater management using green infrastructure",
@@ -70,6 +69,7 @@ class PolicyCreate(BaseModel):
                 "tags": ["stormwater", "green", "infrastructure", "sustainability"],
             }
         }
+    )
 
 
 class PolicyImplementationCreate(BaseModel):
@@ -102,8 +102,8 @@ class PolicyImplementationCreate(BaseModel):
         None, description="Metrics for measuring implementation"
     )
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "policy_id": "policy-001",
                 "name": "Downtown Green Infrastructure Program",
@@ -123,6 +123,7 @@ class PolicyImplementationCreate(BaseModel):
                 },
             }
         }
+    )
 
 
 class ImpactAssessmentRequest(BaseModel):
@@ -142,8 +143,8 @@ class ImpactAssessmentRequest(BaseModel):
         None, description="Assessment parameters"
     )
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "policy_id": "policy-001",
                 "assessment_type": "environmental",
@@ -163,6 +164,7 @@ class ImpactAssessmentRequest(BaseModel):
                 },
             }
         }
+    )
 
 
 class RegulationComparisonRequest(BaseModel):
@@ -176,8 +178,8 @@ class RegulationComparisonRequest(BaseModel):
         ..., description="Metrics to use for comparison"
     )
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "regulation_ids": ["reg-001", "reg-002", "reg-003"],
                 "jurisdiction_id": "city-001",
@@ -188,6 +190,7 @@ class RegulationComparisonRequest(BaseModel):
                 ],
             }
         }
+    )
 
 
 class PolicyAPI:
@@ -374,7 +377,7 @@ class PolicyAPI:
         """
         try:
             # Create Policy object
-            policy_id = f"policy-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
+            policy_id = f"policy-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:8]}"
             policy = Policy(
                 id=policy_id,
                 name=policy_data.name,
@@ -501,9 +504,7 @@ class PolicyAPI:
             geometry = self._geometry_from_model(implementation_data.geometry)
 
             # Create PolicyImplementation object
-            implementation_id = (
-                f"impl-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
-            )
+            implementation_id = f"impl-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:8]}"
             implementation = PolicyImplementation(
                 id=implementation_id,
                 policy_id=implementation_data.policy_id,
@@ -661,7 +662,7 @@ class PolicyAPI:
 
             # This would be a real impact assessment in a production implementation
             # For now, generate a deterministic response
-            assessment_id = f"impact-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
+            assessment_id = f"impact-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:8]}"
             assessment_date = (
                 assessment_request.assessment_date or datetime.datetime.now()
             )

@@ -151,8 +151,8 @@ def create_interactive_map(
         )
 
     elif map_type == "choropleth":
-        # For choropleth, we would need polygon data
-        # This is a extension point for future implementation
+        # Deferred: see docs/deferred_statistical_methods.md
+        # ("Choropleth rendering (polygon data)").
         warnings.warn(
             "Choropleth map requires polygon data. Using scatter plot instead."
         )
@@ -290,7 +290,8 @@ def create_dashboard(
             col=2,
         )
 
-        # Cook's distance (simplified)
+        # Deferred: see docs/deferred_statistical_methods.md
+        # ("Cook's distance (diagnostic plots)").
         n, p = spm_result.design_matrix.matrix.shape
         mse = np.sum(residuals**2) / max(n - p, 1)
         hat_matrix = (

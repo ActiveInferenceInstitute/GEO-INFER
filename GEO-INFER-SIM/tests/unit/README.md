@@ -6,6 +6,7 @@ Unit workspace within `GEO-INFER-SIM`.
 
 - `test_abm.py`
 - `test_mesa_bridge.py`
+- `test_module_simulations_contracts.py`
 - `test_scenario_manager.py`
 - `test_simulation_engine.py`
 

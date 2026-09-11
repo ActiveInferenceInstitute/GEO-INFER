@@ -294,7 +294,8 @@ class SpatialRegression:
 
         This model accounts for spatial dependence in the error term.
         """
-        # Simplified SEM implementation (similar to SAR)
+        # Deferred: see docs/deferred_statistical_methods.md
+        # ("Exact-ML spatial error model (SEM)").
         n_points, n_predictors = X.shape
 
         def sem_loglik(params: np.ndarray) -> float:

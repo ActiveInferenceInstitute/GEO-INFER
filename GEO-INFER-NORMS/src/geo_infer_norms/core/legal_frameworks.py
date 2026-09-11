@@ -240,6 +240,7 @@ class JurisdictionHandler:
             return self._hierarchy_cache[jurisdiction_id]
 
         hierarchy = []
+        visited: set = set()
         current_id: Optional[str] = jurisdiction_id
 
         while current_id:
@@ -247,6 +248,11 @@ class JurisdictionHandler:
             if not jurisdiction:
                 break
 
+            if current_id in visited:
+                # Malformed data: a parent cycle would loop forever.
+                break
+
+            visited.add(current_id)
             hierarchy.append(jurisdiction)
             current_id = jurisdiction.parent_id
 

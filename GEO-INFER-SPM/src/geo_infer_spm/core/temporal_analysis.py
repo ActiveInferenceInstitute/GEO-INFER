@@ -199,8 +199,8 @@ class TemporalAnalyzer:
 
         median_slope = np.median(slopes)
 
-        # Test significance (simplified approximation)
-        # In practice, would use more sophisticated significance testing
+        # Deferred: see docs/deferred_statistical_methods.md
+        # ("Theil-Sen significance test").
         slope_std = np.std(slopes)
         if slope_std > 0:
             z_score = median_slope / (slope_std / np.sqrt(len(slopes)))
@@ -577,7 +577,8 @@ class TemporalAnalyzer:
 
                 basis = np.zeros((n_timepoints, n_basis))
                 for i in range(n_basis):
-                    # Simple implementation - in practice would use proper B-spline library
+                    # Deferred: see docs/deferred_statistical_methods.md
+                    # ("Temporal B-spline basis functions").
                     centers = np.linspace(0, 1, n_basis)
                     basis[:, i] = np.exp(-(((t_norm - centers[i]) / 0.1) ** 2))
 

@@ -352,9 +352,11 @@ def _plot_model_diagnostics(spm_result: SPMResult, **kwargs: Any) -> Dict[str, A
     ax3.set_ylabel("√|Residuals|")
     ax3.set_title("Scale-Location Plot")
 
-    # 4. Cook's distance (simplified)
+    # 4. Cook's distance — Deferred: see docs/deferred_statistical_methods.md
+    # ("Cook's distance (diagnostic plots)").
     ax4 = axes[1, 1]
-    # Simplified Cook's distance calculation
+    # Deferred: see docs/deferred_statistical_methods.md
+    # ("Cook's distance (diagnostic plots)").
     n = len(residuals)
     p = spm_result.design_matrix.n_regressors
     mse = np.sum(residuals**2) / max(n - p, 1)

@@ -6,6 +6,7 @@ Unit workspace within `GEO-INFER-PEP`.
 
 - `test_crm.py`
 - `test_crm_models.py`
+- `test_crm_talent_endpoints.py`
 - `test_hr.py`
 - `test_hr_models.py`
 - `test_methods.py`

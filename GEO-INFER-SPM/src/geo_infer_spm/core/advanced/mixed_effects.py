@@ -201,8 +201,8 @@ class MixedEffectsSPM:
 
         REML provides unbiased estimation of variance components.
         """
-        # Simplified REML implementation
-        # In practice, this would use more sophisticated optimization
+        # Deferred: see docs/deferred_statistical_methods.md
+        # ("Full REML / ML variance components").
 
         def negative_reml_loglik(params: np.ndarray) -> float:
             """Negative REML log-likelihood."""
@@ -211,7 +211,7 @@ class MixedEffectsSPM:
             sigma2 = np.exp(params[X.shape[1]])  # Ensure positive
             tau2 = np.exp(params[X.shape[1] + 1])  # Random effects variance
 
-            # Compute V = ZGZ' + R (simplified)
+            # Compute V = ZGZ' + R
             V = tau2 * Z @ Z.T + sigma2 * np.eye(len(y))
 
             try:
@@ -224,7 +224,7 @@ class MixedEffectsSPM:
                 mu = X @ beta
                 resid = y - mu
 
-                # REML log-likelihood (simplified)
+                # REML log-likelihood
                 n = len(y)
                 p = X.shape[1]
                 loglik = -0.5 * (n - p) * np.log(2 * np.pi) - 0.5 * log_det_V
@@ -280,7 +280,8 @@ class MixedEffectsSPM:
         Fit mixed effects model using Maximum Likelihood (ML).
         """
 
-        # Simplified ML implementation (similar to REML but without restriction)
+        # Deferred: see docs/deferred_statistical_methods.md
+        # ("Full REML / ML variance components").
         def negative_ml_loglik(params: np.ndarray) -> float:
             beta = params[: X.shape[1]]
             sigma2 = np.exp(params[X.shape[1]])
@@ -354,10 +355,10 @@ class MixedEffectsSPM:
         """
         if self.fitted_model is None:
             raise ValueError("Model must be fitted before making predictions")
-
-        # For simplicity, return fixed effects predictions only
-        # Full implementation would handle random effects properly
-        X_pred = self.fixed_design.matrix  # Would need to construct for new data
+        # Fixed-effects-only prediction using the training design matrix.
+        # Deferred: see docs/deferred_statistical_methods.md
+        # ("Mixed-effects prediction (random effects + new data)").
+        X_pred = self.fixed_design.matrix
         beta = self.fitted_model["beta"]
 
         return cast(np.ndarray, X_pred @ beta)

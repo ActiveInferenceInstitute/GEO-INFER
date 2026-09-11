@@ -191,7 +191,8 @@ class PropertyInsuranceModel(InsuranceModel):
             ("loss_amount", "std"), expected_loss * 0.5
         )
 
-        # Calculate VaR and CVaR
+        # Gaussian-quantile VaR/CVaR stand-in — see SKILL.md
+        # "Honest Capability Register".
         var_95 = expected_loss + 1.645 * loss_std
         cvar_95 = expected_loss + 2.063 * loss_std
 
@@ -480,8 +481,8 @@ class CatastropheInsuranceModel(InsuranceModel):
 
         return {
             "expected_loss": total_expected_loss,
-            "var_95": total_expected_loss * 2.0,  # Simplified VaR
-            "cvar_95": total_expected_loss * 3.0,  # Simplified CVaR
+            "var_95": total_expected_loss * 2.0,  # SKILL.md capability register
+            "cvar_95": total_expected_loss * 3.0,  # SKILL.md capability register
             "max_loss": max_loss,
         }
 

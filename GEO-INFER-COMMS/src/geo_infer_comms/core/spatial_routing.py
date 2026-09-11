@@ -710,10 +710,15 @@ class AdaptiveRoutingEngine:
 
     def _generate_route_key(self, message: MessageResponse, route: List[str]) -> str:
         """Generate a unique key for a route."""
-        # Create key based on message characteristics and route
+        # MessageResponse uses ``use_enum_values``, so message_type and
+        # priority are already plain strings; calling ``.value`` on them
+        # raises AttributeError. Keep enum members working too, in case a
+        # caller passes raw enum values.
+        message_type = getattr(message.message_type, "value", message.message_type)
+        priority = getattr(message.priority, "value", message.priority)
         key_parts = [
-            message.message_type.value,
-            message.priority.value,
+            message_type,
+            priority,
             str(len(route)),
             "_".join(route[:2]),  # First two nodes
         ]
@@ -975,7 +980,10 @@ class SpatialRoutingOptimizer:
             "success_rate": sum(1 for r in history if r["success"])
             / len(history)
             * 100,
-            "average_latency": sum(r.get("latency", 0) for r in history) / len(history),
+            # ``latency`` is stored as None for failed routes; a plain
+            # ``r.get("latency", 0)`` would then sum int + None and crash.
+            "average_latency": sum(r.get("latency") or 0 for r in history)
+            / len(history),
             "optimization_suggestions": self._generate_optimization_suggestions(
                 history
             ),
@@ -992,7 +1000,7 @@ class SpatialRoutingOptimizer:
         if success_rate < 0.9:
             suggestions.append("Consider increasing retry attempts for failed routes")
 
-        if any(r.get("latency", 0) > 1000 for r in history):  # > 1 second
+        if any((r.get("latency") or 0) > 1000 for r in history):  # > 1 second
             suggestions.append(
                 "Consider optimizing network paths for high-latency routes"
             )

@@ -8,10 +8,11 @@ land use classifications, and zoning district analysis.
 from typing import Dict, List, Optional, Any
 import datetime
 from fastapi import APIRouter, HTTPException, Query, Path
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 import geopandas as gpd
 from shapely.geometry import Point, shape
 import json
+import uuid
 from shapely.geometry.base import BaseGeometry
 
 from geo_infer_norms.core.zoning_analysis import ZoningAnalyzer, LandUseClassifier
@@ -25,8 +26,7 @@ class GeometryModel(BaseModel):
     type: str
     coordinates: Any
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class ZoningCodeCreate(BaseModel):
@@ -62,8 +62,8 @@ class ZoningCodeCreate(BaseModel):
         None, description="Maximum lot coverage as percentage"
     )
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "code": "R-1",
                 "name": "Single Family Residential",
@@ -86,6 +86,7 @@ class ZoningCodeCreate(BaseModel):
                 "max_lot_coverage": 40.0,
             }
         }
+    )
 
 
 class ZoningDistrictCreate(BaseModel):
@@ -102,8 +103,8 @@ class ZoningDistrictCreate(BaseModel):
     )
     geometry: GeometryModel = Field(..., description="GeoJSON geometry of the district")
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "name": "North Heights R-1 District",
                 "description": "Single family residential district in North Heights neighborhood",
@@ -116,6 +117,7 @@ class ZoningDistrictCreate(BaseModel):
                 },
             }
         }
+    )
 
 
 class LandUseTypeCreate(BaseModel):
@@ -130,8 +132,8 @@ class LandUseTypeCreate(BaseModel):
         None, ge=0.0, le=1.0, description="Intensity score (0.0 to 1.0)"
     )
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "name": "Single Family Residential",
                 "category": "residential",
@@ -139,6 +141,7 @@ class LandUseTypeCreate(BaseModel):
                 "intensity": 0.3,
             }
         }
+    )
 
 
 class ZoningChangeRequest(BaseModel):
@@ -147,8 +150,11 @@ class ZoningChangeRequest(BaseModel):
     district_id: str = Field(..., description="ID of the district to change")
     new_code: str = Field(..., description="New zoning code to apply")
 
-    class Config:
-        schema_extra = {"example": {"district_id": "district-001", "new_code": "R-2"}}
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {"district_id": "district-001", "new_code": "R-2"}
+        }
+    )
 
 
 class PointLocation(BaseModel):
@@ -168,8 +174,8 @@ class LandClassificationRequest(BaseModel):
         ..., description="Feature columns to use for classification"
     )
 
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "geojson_features": {
                     "type": "FeatureCollection",
@@ -197,6 +203,7 @@ class LandClassificationRequest(BaseModel):
                 ],
             }
         }
+    )
 
 
 class ZoningAPI:
@@ -483,7 +490,7 @@ class ZoningAPI:
 
             # Create ZoningDistrict object
             district = ZoningDistrict(
-                id=f"district-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
+                id=f"district-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:8]}",
                 name=district_data.name,
                 description=district_data.description or "",
                 zoning_code=district_data.zoning_code,
@@ -608,7 +615,7 @@ class ZoningAPI:
         try:
             # Create LandUseType object
             land_use_type = LandUseType(
-                id=f"land-use-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
+                id=f"land-use-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:8]}",
                 name=land_use_data.name,
                 category=land_use_data.category,
                 description=land_use_data.description or "",

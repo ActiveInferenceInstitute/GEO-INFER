@@ -137,6 +137,9 @@ a `SeedSequence`, a `BitGenerator`, a `numpy.random.Generator`, or a legacy
   beyond the record are clamped, not extrapolated
 - Pass `exposure_years` to any per-year metric (AAL, OEP, AEP, and the
   annualized EP curve); the fallback treats the table as spanning one year
+- Simplified conversions, stand-in probabilities, and loss-tail multipliers
+  are catalogued in the Honest Capability Register below; source sites point
+  here instead of re-explaining themselves
 - Test: `uv run python -m pytest GEO-INFER-RISK/tests/ -v`
 
 ### Integrations
@@ -146,3 +149,33 @@ a `SeedSequence`, a `BitGenerator`, a `numpy.random.Generator`, or a legacy
 - **CLIMATE** → Climate-driven hazard projections
 - **SPACE** → Spatial correlation of hazards
 - **AG** → Crop loss risk assessment
+
+## Honest Capability Register
+
+The simplified conversions and multipliers in this module are deliberate
+engineering stand-ins, not calibrated geoscience or actuarial models. They are
+listed once here; the inline code comments point back to this register.
+
+- **Magnitude → PGA (GMPE stand-ins)** —
+  `EnhancedHazardModel._magnitude_to_intensity` (banded step table,
+  `core/hazard_model.py`) and `EnhancedEarthquakeModel._magnitude_to_pga`
+  (log-distance attenuation, `core/catastrophe_models.py`). Neither is a
+  calibrated ground-motion prediction equation; site effects in the
+  catastrophe loss path are fixed soil multipliers (soft 1.3, rock 0.8).
+- **Secondary perils (liquefaction, landslide)** —
+  `EnhancedHazardModel._calculate_liquefaction_probability` and
+  `_calculate_landslide_probability` return magnitude-band probability tables;
+  they ignore soil conditions, saturation, and slope.
+- **Storm surge** — `EnhancedHurricaneModel._calculate_storm_surge` is linear
+  in wind speed above 30 m/s with a ±30% random tidal factor; it includes no
+  bathymetry, pressure forcing, or track integration.
+- **VaR / CVaR multipliers** — `PropertyInsuranceModel.estimate_losses` uses
+  Gaussian quantiles (mean + 1.645σ and mean + 2.063σ);
+  `CatastropheInsuranceModel.estimate_losses` applies flat 2.0× and 3.0×
+  multipliers to total expected loss. Neither is an empirical
+  loss-distribution tail, and the catastrophe multipliers ignore per-peril
+  aggregation.
+- **Model calibration** — only `cross_validation` against a mean-loss
+  baseline is implemented (`EnhancedRiskEngine.calibrate_models`); `bayesian`
+  and `maximum_likelihood` are rejected with a documented error rather than
+  accepted as options that would hard-fail.

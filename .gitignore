@@ -65,3 +65,4 @@ GEO-INFER-PLACE/locations/cascadia/output/data/cache/region_cache_*.json
 /.coverage.*
 .gitnexus/
 .claude/
+mlruns/

@@ -337,7 +337,7 @@ class ResourceDeployer:
     def __init__(
         self,
         resource_types: Optional[List[str]] = None,
-        optimization_algorithm: str = "mixed_integer",
+        optimization_algorithm: str = "greedy_nearest_resource",
         real_time_updates: bool = True,
     )
 ```
@@ -345,7 +345,7 @@ class ResourceDeployer:
 | Parameter | Type | Default | Description |
 |-----------|------|---------|------------|
 | `resource_types` | `Optional[List[str]]` | `["engines", "ambulances", "rescue_units"]` | Resource types to manage |
-| `optimization_algorithm` | `str` | `"mixed_integer"` | Optimization method |
+| `optimization_algorithm` | `str` | `"greedy_nearest_resource"` | Allocation strategy (greedy nearest-available-resource heuristic under the response-time constraint; no solver backend) |
 | `real_time_updates` | `bool` | `True` | Enable real-time tracking |
 
 #### `register_resource(resource) -> None`

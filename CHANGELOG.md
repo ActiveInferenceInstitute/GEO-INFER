@@ -5,7 +5,7 @@ All notable changes to the GEO-INFER framework will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.0] - 2026-09-10
 
 ### Deep horizon 2026-09-08 - Green-Ampt infiltration (WATER-01)
 
@@ -620,7 +620,7 @@ pass at that SHA.
 
 ---
 
-## [0.2.0] - 2026-02-25
+### February 2026 groundwork
 
 ### Added
 
@@ -634,12 +634,12 @@ pass at that SHA.
 
 - **SPACE module**: Fully migrated to H3 v4 API (`latlng_to_cell`, `cell_to_latlng`, `geo_to_cells`)
 - **PLACE module**: Fully migrated to H3 v4 API (FULLY MIGRATED status)
-- **Environmental modules**: Groundwork for lowercase package dir normalization landed (completed in Unreleased).
-- **Zero-Mock Policy**: Enforced across all 44 modules — every function has real algorithmic logic
+- **Environmental modules**: Groundwork for lowercase package dir normalization landed (completed in this release).
+- **Zero-Mock Policy**: Enforced across all 45 modules — every function has real algorithmic logic
 - **BAYES module**: GaussianProcess upgraded to real Cholesky decomposition; model comparison uses LOO/WAIC/DIC/BIC/AIC
 - **ACT module**: Free energy calculation hardened with proper NumPy array handling
-- License standardized to CC BY-NC-SA 4.0 across all 44 modules
-- All 44 modules now maintain minimum 4 test files (unit, integration, performance, system)
+- License standardized to CC BY-NC-SA 4.0 across all 45 modules
+- All 45 modules now maintain minimum 4 test files (unit, integration, performance, system)
 
 ### Fixed
 
@@ -718,6 +718,5 @@ pass at that SHA.
 
 ---
 
-[Unreleased]: https://github.com/ActiveInferenceInstitute/GEO-INFER/compare/v0.2.0...HEAD
 [0.2.0]: https://github.com/ActiveInferenceInstitute/GEO-INFER/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/ActiveInferenceInstitute/GEO-INFER/releases/tag/v0.1.0

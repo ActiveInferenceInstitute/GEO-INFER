@@ -283,8 +283,13 @@ class ModelValidator:
         design_matrix: DesignMatrix,
         **model_kwargs: Any,
     ) -> Dict[str, Any]:
-        """Perform spatial cross-validation."""
-        # Simplified spatial CV - in practice would use spatial clustering
+        """Perform spatial block cross-validation.
+
+        Coordinates are clustered into ``n_folds`` spatial blocks with
+        K-means; each block is held out in turn while the model is refit on
+        the remaining blocks, so test folds are geographically contiguous
+        rather than randomly interleaved.
+        """
         coordinates = data.coordinates
 
         # Create spatial folds based on coordinate clusters
@@ -405,7 +410,8 @@ class ModelValidator:
         full_design: DesignMatrix,
     ) -> np.ndarray:
         """Make predictions on a subset of data."""
-        # Simplified prediction - assumes linear model
+        # Deferred: see docs/deferred_statistical_methods.md
+        # ("CV prediction layer").
         if (
             hasattr(model_result, "beta_coefficients")
             and len(model_result.beta_coefficients) > 0
@@ -433,7 +439,8 @@ class ModelValidator:
         y = self._extract_response(data)
         residuals = y - predictions
 
-        # Simplified optimism calculation
+        # Deferred: see docs/deferred_statistical_methods.md
+        # ("Bootstrap optimism").
         return float(np.var(residuals))
 
     def compare_models(
@@ -501,14 +508,15 @@ class ModelValidator:
         return float(np.log(n_points) * n_params - 2 * ll)
 
     def _compute_dic(self, result: SPMResult) -> float:
-        """Compute Deviance Information Criterion (simplified)."""
-        # Simplified DIC calculation
+        """Compute Deviance Information Criterion."""
+        # Deferred: see docs/deferred_statistical_methods.md
+        # ("DIC effective-parameters").
         deviance = -2 * result.model_diagnostics.get("log_likelihood", 0)
         n_params = (
             len(result.beta_coefficients) if hasattr(result, "beta_coefficients") else 1
         )
 
-        # Effective number of parameters (simplified)
+        # Effective number of parameters (see register: "DIC effective-parameters").
         p_d = n_params
 
         return float(deviance + 2 * p_d)
@@ -566,7 +574,8 @@ class ModelValidator:
     ) -> Dict[str, float]:
         """Test for heteroscedasticity using Breusch-Pagan test."""
         try:
-            # Simplified Breusch-Pagan test
+            # Deferred: see docs/deferred_statistical_methods.md
+            # ("Studentized Breusch-Pagan test").
             residuals_sq = residuals**2
             X = np.column_stack([np.ones(len(fitted)), fitted])
 
@@ -637,7 +646,11 @@ def validate_spm_model(
         method: Validation method ('diagnostics', 'cross_validate')
 
     Returns:
-        Dictionary with validation results
+        Dictionary with validation results. For ``'cross_validate'``, the
+        result of spatial block cross-validation: coordinates are clustered
+        into contiguous K-means blocks, the model is refit on each training
+        block set with the module GLM fitter, and each held-out block is
+        scored.
 
     Example:
         >>> diagnostics = validate_spm_model(model_result, method='diagnostics')
@@ -651,7 +664,13 @@ def validate_spm_model(
         if validation_data is None:
             raise ValueError("validation_data required for cross-validation")
 
-        # Baseline - would need model refitting function
-        return {"method": "cross_validate", "status": "not_implemented"}
+        # Spatial block CV: refit the model on each training block using the
+        # module's own GLM fitter and the existing fold/predict primitives.
+        from ..glm import fit_glm
+
+        validator = ModelValidator(validation_method="spatial")
+        return validator.cross_validate(
+            fit_glm, validation_data, model_result.design_matrix
+        )
     else:
         raise ValueError(f"Unknown validation method: {method}")

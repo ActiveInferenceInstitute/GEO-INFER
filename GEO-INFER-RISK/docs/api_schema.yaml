@@ -1052,7 +1052,7 @@ components:
           $ref: '#/components/schemas/CalibrationData'
         method:
           type: string
-          enum: [maximum_likelihood, bayesian, cross_validation, ensemble]
+          enum: [cross_validation]
         validation_metrics:
           type: array
           items:

@@ -114,7 +114,7 @@ def main():
     # 3. Optimize Resource Deployment
     print("\n3. Optimizing Emergency Resource Deployment...")
     deployer = ResourceDeployer(
-        optimization_algorithm="mixed_integer",
+        optimization_algorithm="greedy_nearest_resource",
         resource_types=["engines", "ambulances", "rescue_units"],
     )
 

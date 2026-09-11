@@ -5,6 +5,7 @@ Docs workspace within `GEO-INFER-SPM`.
 ## Contents
 
 - `api_schema.yaml`
+- `deferred_statistical_methods.md`
 
 ## Public Interface
 

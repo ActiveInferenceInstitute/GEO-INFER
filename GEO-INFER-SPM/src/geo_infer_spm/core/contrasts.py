@@ -356,11 +356,9 @@ def _compute_f_contrast(
     beta = model_result.beta_coefficients
     cov_beta = model_result.cov_beta
 
-    # F-statistic: (Cβ)^T (C Var(β) C^T)^(-1) (Cβ) / rank(C)
+    # F-statistic: (Cβ)^T (C Var(β) C^T)^(-1) (Cβ) / rank(C) — the matrix
+    # form handles both single- and multi-hypothesis contrasts.
     C_beta = C @ beta
-
-    # This is a simplified implementation for single hypothesis F-tests
-    # Full implementation would handle multiple hypotheses
 
     if C.ndim == 1:
         C = C.reshape(1, -1)
@@ -370,8 +368,6 @@ def _compute_f_contrast(
     rank_C = np.linalg.matrix_rank(C)
     if rank_C == 0:
         raise ValueError("F-contrast matrix has zero rank")
-
-    # Simplified for single contrast
     if C.shape[0] == 1:
         c = C[0]
         var_contrast = c @ cov_beta @ c

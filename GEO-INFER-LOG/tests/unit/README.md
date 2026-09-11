@@ -7,11 +7,14 @@ Unit workspace within `GEO-INFER-LOG`.
 - `test_api_state.py`
 - `test_core.py`
 - `test_delivery.py`
+- `test_delivery_behavior.py`
 - `test_geo_utils.py`
+- `test_log_init.py`
 - `test_observability.py`
 - `test_optimization.py`
 - `test_supply_chain.py`
 - `test_transport.py`
+- `test_transport_behavior.py`
 - `test_visualization.py`
 
 ## Public Interface

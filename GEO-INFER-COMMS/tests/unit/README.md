@@ -13,6 +13,8 @@ Unit workspace within `GEO-INFER-COMMS`.
 - `test_protocol_handling.py`
 - `test_rest_api.py`
 - `test_spatial_models.py`
+- `test_spatial_routing.py`
+- `test_streaming.py`
 - `test_validation.py`
 
 ## Public Interface

@@ -103,7 +103,7 @@ def main():
     # two highest-priority hazards.
     print("\n" + "-" * 60)
     print("Optimizing resource allocation across hazards...")
-    deployer = ResourceDeployer(optimization_algorithm="mixed_integer")
+    deployer = ResourceDeployer(optimization_algorithm="greedy_nearest_resource")
     allocation = deployer.optimize_allocation(
         resources=[
             {

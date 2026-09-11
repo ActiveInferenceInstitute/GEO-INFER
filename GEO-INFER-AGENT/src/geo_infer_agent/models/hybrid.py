@@ -480,6 +480,11 @@ class HybridAgent(BaseAgent):
 
         return perceptions
 
+    def update_beliefs(self, perception: Dict[str, Any]) -> None:
+        """Update the shared context from a perception dict (mirrors perceive())."""
+        if perception:
+            self._update_context_from_perceptions(perception)
+
     def _update_context_from_perceptions(self, perceptions: Dict[str, Any]) -> None:
         """
         Update context based on perceptions.

@@ -543,6 +543,13 @@ class RLAgent(BaseAgent):
 
         return observations
 
+    def update_beliefs(self, perception: Dict[str, Any]) -> None:
+        """Update the RL state from a perception dict (mirrors perceive())."""
+        if "state" in perception:
+            self.state.current_state = perception["state"]
+        elif "vector_state" in perception:
+            self.state.current_state = np.array(perception["vector_state"])
+
     async def decide(self) -> Optional[Dict[str, Any]]:
         """
         Decide on the next action.

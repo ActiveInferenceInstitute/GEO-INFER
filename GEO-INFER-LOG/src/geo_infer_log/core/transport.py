@@ -469,7 +469,7 @@ class TransportationNetworkAnalyzer:
         Returns:
             Dictionary with flow analysis results
         """
-        if not self.network or not self.flow_data:
+        if self.network is None or self.flow_data is None:
             raise ValueError("Network and flow data must be loaded before analysis")
 
         edge_flows = self._edge_flows()

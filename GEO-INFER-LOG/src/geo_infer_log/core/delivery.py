@@ -85,7 +85,7 @@ class LastMileRouter:
         from shapely import affinity
 
         scaled = affinity.scale(point, xfact=1.0 / deg_lon, yfact=1.0 / deg_lat)
-        circle = scaled.buffer(1.0, resolution=64)
+        circle = scaled.buffer(1.0, quad_segs=64)
         service_area = affinity.scale(circle, xfact=deg_lon, yfact=deg_lat)
 
         self.service_areas[depot_id] = service_area
@@ -433,7 +433,7 @@ class ServiceAreaAnalyzer:
             scaled = affinity.scale(
                 point, xfact=1.0 / (ring_km * deg_lon), yfact=1.0 / (ring_km * deg_lat)
             )
-            circle = scaled.buffer(1.0, resolution=64)
+            circle = scaled.buffer(1.0, quad_segs=64)
             ring = affinity.scale(
                 circle, xfact=ring_km * deg_lon, yfact=ring_km * deg_lat
             )
@@ -532,7 +532,7 @@ class ServiceAreaAnalyzer:
             scaled = affinity.scale(
                 Point(loc), xfact=1.0 / deg_lon, yfact=1.0 / deg_lat
             )
-            circle = scaled.buffer(1.0, resolution=64)
+            circle = scaled.buffer(1.0, quad_segs=64)
             area = affinity.scale(circle, xfact=deg_lon, yfact=deg_lat)
             self.service_areas = {did: area}
             return self.service_areas
@@ -563,7 +563,7 @@ class ServiceAreaAnalyzer:
             scaled = affinity.scale(
                 depot_point, xfact=1.0 / deg_lon, yfact=1.0 / deg_lat
             )
-            circle = scaled.buffer(1.0, resolution=64)
+            circle = scaled.buffer(1.0, quad_segs=64)
             buffer_area = affinity.scale(circle, xfact=deg_lon, yfact=deg_lat)
             optimized_areas[depot_id] = voronoi_cell.intersection(buffer_area)
 

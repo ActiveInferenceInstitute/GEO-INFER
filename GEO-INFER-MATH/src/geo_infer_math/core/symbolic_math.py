@@ -3,6 +3,46 @@ Symbolic Mathematics Module
 
 This module provides symbolic mathematics capabilities for geospatial analysis,
 including symbolic expressions, derivatives, integrals, and equation solving.
+
+Numpy-backend capability boundaries
+-----------------------------------
+
+``SymbolicMath`` runs on a real symbolic engine when one is importable
+(``sympy`` or ``symengine``). If the requested engine cannot be imported, the
+class falls back to a **numpy backend** — a numeric approximation layer, not a
+symbolic engine. Its exact boundaries:
+
+What the numpy backend CAN do
+    * Numeric evaluation of string expressions through a restricted eval
+      namespace; numpy members that reach the filesystem or pickle
+      (``np.load``/``np.loads``/...) are rejected by an AST guard.
+    * Numeric integration of any sympy-parsable string over one variable via
+      ``scipy.integrate.quad`` (``_numpy_integrate``).
+    * Numeric solution of square, non-singular, *linear* systems via
+      ``np.linalg.solve`` (``_numpy_solve``); non-linear, non-square or
+      singular systems raise ``ValueError``.
+    * Numeric optimization when the objective is a callable
+      (``optimize_symbolic_model``); string objectives require a symbolic
+      backend.
+    * Derivatives of callables by central finite differences evaluated at
+      x=1.0, and identity/zero rules for bare symbol descriptors
+      (``_numpy_diff``).
+
+What the numpy backend CANNOT do
+    * Symbolic simplification, expansion and factoring are no-ops: the input
+      descriptor is returned unchanged (``_numpy_simplify`` /
+      ``_numpy_expand`` / ``_numpy_factor``).
+    * Symbolic (closed-form) integration or differentiation of compound
+      expressions: compound descriptors yield unevaluated ``"derivative"``
+      descriptors, not symbolic results.
+    * Non-linear equation solving; evaluation of compound descriptors
+      (``evaluate_symbolic_expression`` raises ``ValueError``/``KeyError``
+      instead of inventing a value).
+    * Exact arithmetic — every result is floating point.
+
+Unsupported numpy-backend operations raise ``ValueError`` naming the backend;
+there is no silent substitution. ``get_backend_info()`` reports the same
+limitations programmatically.
 """
 
 import numpy as np

@@ -654,8 +654,8 @@ class EnhancedHazardModel:
 
     def _magnitude_to_intensity(self, magnitude: float) -> float:
         """Convert earthquake magnitude to intensity measure (PGA)."""
-        # Simplified magnitude to PGA conversion
-        # In practice, this would use ground motion prediction equations (GMPEs)
+        # Simplified magnitude-to-PGA stand-in (banded step table), not a
+        # calibrated GMPE — see SKILL.md "Honest Capability Register".
         if magnitude < 4.0:
             return 0.01  # Very low PGA for small earthquakes
         elif magnitude < 5.0:
@@ -1378,7 +1378,8 @@ class EnhancedEarthquakeModel(EnhancedHazardModel):
         self, magnitude: float, location: Dict[str, Any]
     ) -> float:
         """Calculate liquefaction probability (simplified)."""
-        # Simplified model based on magnitude and depth
+        # Simplified magnitude-band table, soil-independent — see SKILL.md
+        # "Honest Capability Register".
         if magnitude < 5.0:
             return 0.1
         elif magnitude < 6.0:
@@ -1392,7 +1393,8 @@ class EnhancedEarthquakeModel(EnhancedHazardModel):
         self, magnitude: float, location: Dict[str, Any]
     ) -> float:
         """Calculate landslide probability (simplified)."""
-        # Simplified model
+        # Simplified magnitude-band table, slope-independent — see SKILL.md
+        # "Honest Capability Register".
         if magnitude < 4.0:
             return 0.05
         elif magnitude < 5.0:
@@ -1480,7 +1482,8 @@ class EnhancedHurricaneModel(EnhancedHazardModel):
         self, wind_speed: float, location: Dict[str, Any]
     ) -> float:
         """Calculate storm surge height."""
-        # Simplified storm surge calculation
+        # Simplified wind-linear stand-in, no bathymetry or track integration —
+        # see SKILL.md "Honest Capability Register".
         base_surge = (wind_speed - 30) * 0.01  # meters per m/s above 30 m/s
 
         # Add tidal effects

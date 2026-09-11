@@ -238,8 +238,8 @@ class GeneralLinearModel:
         # Final residuals
         residuals = y - X @ beta
 
-        # Covariance estimation (sandwich estimator for robustness)
-        # This is a simplified version; full robust covariance would be more complex
+        # Deferred: see docs/deferred_statistical_methods.md
+        # ("Huber-White robust covariance").
         XtX_inv = linalg.pinvh(X.T @ X)
         cov_beta = XtX_inv @ (X.T @ np.diag(weights.flatten()) @ X) @ XtX_inv
 
@@ -268,8 +268,9 @@ class GeneralLinearModel:
         spatial_weights = regularization_params.get("spatial_weights", None)
 
         if spatial_weights is None:
-            # Use default exponential decay based on distance
-            # This is a simplified spatial regularization
+            # Default: ridge-style regularization when no spatial weights are
+            # supplied. Deferred: see docs/deferred_statistical_methods.md
+            # ("Spatial regularization default weights").
             logger.debug("No spatial weights provided; using default regularization")
             n = X.shape[0]
             spatial_weights = np.eye(n) * lambda_reg
@@ -335,7 +336,7 @@ class GeneralLinearModel:
         self.diagnostics["residual_mean"] = float(np.mean(self.residuals))
         self.diagnostics["residual_std"] = float(np.std(self.residuals))
 
-        # Durbin-Watson statistic for autocorrelation (simplified)
+        # Durbin-Watson statistic for autocorrelation (averaged over columns)
         if n_points > 1:
             dw_numerator = np.sum(np.diff(self.residuals, axis=0) ** 2, axis=0)
             dw_denominator = np.sum(self.residuals**2, axis=0)
