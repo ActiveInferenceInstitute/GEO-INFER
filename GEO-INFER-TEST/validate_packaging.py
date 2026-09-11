@@ -72,9 +72,7 @@ DEVELOPMENT_STATUS_PATTERN = re.compile(r"^Development Status :: (\d) - ")
 # by module directory name. The release gate (REL-01) owns promoting these;
 # the uniformity check reports them as diagnostics so --strict stays
 # meaningful for NEW outliers.
-KNOWN_VERSION_DEVIATIONS = {
-    "GEO-INFER-INSURANCE": "0.1.0",
-}
+KNOWN_VERSION_DEVIATIONS: dict[str, str] = {}
 
 _PACKAGE_DATA_EXCLUDED_DIRS = ("__pycache__",)
 
