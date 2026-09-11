@@ -48,6 +48,61 @@ from ..models.data_models import SPMData, SPMResult  # noqa: E402
 from ..utils.rng import resolve_rng  # noqa: E402
 
 
+def gelman_rubin_r_hat(chains: np.ndarray) -> np.ndarray:
+    """Compute the split Gelman-Rubin R-hat convergence diagnostic.
+
+    Implements the standard split-R-hat (Gelman et al., *Bayesian Data
+    Analysis*, 3rd ed.): each chain is split into two half-chains and the
+    potential scale reduction factor is computed from the between-half-chain
+    variance ``B`` and within-half-chain variance ``W``::
+
+        var_hat = (n - 1) / n * W + B / n
+        R-hat   = sqrt(var_hat / W)
+
+    Args:
+        chains: Posterior draws with shape ``(n_chains, n_draws)`` for a
+            scalar parameter, or ``(n_chains, n_draws, n_components)`` for a
+            vector parameter. Requires at least 2 chains and 4 draws.
+
+    Returns:
+        Array of R-hat values, one per component (shape ``(1,)`` for scalar
+        parameters). Chains that are constant and identical across chains
+        yield 1.0; constant chains that differ between chains yield ``inf``.
+
+    Raises:
+        ValueError: If fewer than 2 chains or fewer than 4 draws per chain.
+    """
+    chains = np.asarray(chains, dtype=float)
+    if chains.ndim == 2:
+        chains = chains[:, :, np.newaxis]
+    if chains.ndim != 3:
+        raise ValueError(
+            "chains must have shape (n_chains, n_draws) or "
+            f"(n_chains, n_draws, n_components); got {chains.shape}"
+        )
+    n_chains, n_draws, _ = chains.shape
+    if n_chains < 2:
+        raise ValueError("Split R-hat requires at least 2 chains")
+    half = n_draws // 2
+    if half < 2:
+        raise ValueError("Split R-hat requires at least 4 draws per chain")
+
+    # Split each chain into two half-chains: (2 * n_chains, half, n_components)
+    split = np.concatenate([chains[:, :half], chains[:, half : 2 * half]], axis=0)
+
+    means = split.mean(axis=1)
+    variances = split.var(axis=1, ddof=1)
+    W = variances.mean(axis=0)
+    B = half * means.var(axis=0, ddof=1)
+
+    # Constant chains: W == 0. Identical constants are trivially converged;
+    # unequal constants never converge.
+    var_hat = (half - 1) / half * W + B / half
+    safe_W = np.where(W > 0, W, 1.0)
+    r_hat = np.where(W > 0, np.sqrt(var_hat / safe_W), np.where(B > 0, np.inf, 1.0))
+    return r_hat
+
+
 class BayesianSPM:
     """
     Bayesian Statistical Parametric Mapping implementation.
@@ -261,7 +316,8 @@ class BayesianSPM:
 
         # Approximate posterior covariance
         # Hessian of negative log posterior ≈ posterior precision
-        # This is a simplified approximation
+        # Deferred: see docs/deferred_statistical_methods.md
+        # ("Empirical-Bayes MAP posterior covariance").
         cov_beta = np.linalg.pinv(X.T @ X + np.eye(X.shape[1]))
 
         # Compute residuals
@@ -317,7 +373,6 @@ class BayesianSPM:
             )
 
         # For Bayesian GLM, posterior probability that effect > 0
-        # This is a simplified implementation
         beta_samples = self.posterior_samples.get("beta", None)
         if beta_samples is None:
             raise ValueError("Beta posterior samples not available")
@@ -357,8 +412,8 @@ class BayesianSPM:
 
     def _compute_bayes_factors(self, models: List[SPMResult]) -> Dict[str, Any]:
         """Compute Bayes factors for model comparison."""
-        # Simplified implementation using BIC approximation
-        # In practice, would compute marginal likelihoods properly
+        # Deferred: see docs/deferred_statistical_methods.md
+        # ("Bayes factors via marginal likelihoods").
 
         bic_values = []
         for model in models:
@@ -391,12 +446,13 @@ class BayesianSPM:
 
         for model in models:
             # DIC = D_bar + p_D, where D_bar is expected deviance, p_D is effective parameters
-            # Simplified approximation
+            # Deferred: see docs/deferred_statistical_methods.md
+            # ("DIC effective-parameters").
             deviance = -2 * model.model_diagnostics.get("log_likelihood", 0)
             n_params = model.design_matrix.n_regressors
 
             # Approximate effective number of parameters
-            p_d = n_params  # Simplified
+            p_d = n_params
 
             dic = deviance + 2 * p_d
             dic_values.append(dic)
@@ -486,11 +542,11 @@ class BayesianSPM:
         Returns:
             SPMResult with hierarchical parameter estimates
         """
-        # This is a complex implementation that would typically use
-        # conditional autoregressive (CAR) models or Gaussian processes
-
-        # Simplified implementation using empirical Bayes
-        logger.debug("Spatial hierarchical model uses a simplified approximation")
+        # Deferred: see docs/deferred_statistical_methods.md
+        # ("Spatial hierarchical model (CAR / Gaussian process)").
+        logger.debug(
+            "Spatial hierarchical model uses an empirical-Bayes basis augmentation"
+        )
 
         # Add spatial random effects to design matrix
         spatial_basis = self._create_spatial_basis(
@@ -550,21 +606,33 @@ class BayesianSPM:
         return sizes if sizes is not None else posterior.dims
 
     def _compute_r_hat(self, trace: Any) -> np.ndarray:
-        """Compute R-hat convergence diagnostic."""
-        # Simplified R-hat computation
-        # In practice, would use proper Gelman-Rubin diagnostic
-        try:
-            return np.array([1.0] * self._posterior_dim_sizes(trace.posterior)["chain"])
-        except Exception:
-            logger.warning(
-                "R-hat computation failed; reporting baseline 1.0 (not a real "
-                "convergence diagnostic)"
-            )
-            return np.array([1.0])
+        """Compute split Gelman-Rubin R-hat for each posterior parameter.
+
+        For vector parameters the reported value is the maximum across
+        components (the conservative summary).
+        """
+        posterior = getattr(trace, "posterior", None)
+        if posterior is not None and hasattr(posterior, "data_vars"):
+            r_hat_values = []
+            for var in posterior.data_vars:
+                samples = np.asarray(posterior[var].values, dtype=float)
+                if samples.ndim < 2:
+                    continue
+                if samples.ndim > 3:
+                    samples = samples.reshape(samples.shape[0], samples.shape[1], -1)
+                # Conservative summary for vector parameters: worst component.
+                r_hat_values.append(float(np.max(gelman_rubin_r_hat(samples))))
+            if r_hat_values:
+                return np.array(r_hat_values)
+        logger.warning(
+            "R-hat requires posterior samples with chain/draw dimensions; reporting NaN"
+        )
+        return np.array([np.nan])
 
     def _compute_ess(self, trace: Any) -> np.ndarray:
         """Compute effective sample size."""
-        # Simplified ESS computation
+        # Deferred: see docs/deferred_statistical_methods.md
+        # ("MCMC effective sample size").
         try:
             n_draws = len(trace.posterior.draw)
             n_chains = self._posterior_dim_sizes(trace.posterior)["chain"]
@@ -591,7 +659,8 @@ class BayesianSPM:
             SPMResult with variational parameter estimates
         """
         # Implementation of mean-field variational inference
-        # This is a simplified version for educational purposes
+        # Deferred: see docs/deferred_statistical_methods.md
+        # ("Mean-field variational inference").
 
         y = data.data.flatten() if data.data.ndim > 1 else data.data
         X = design_matrix

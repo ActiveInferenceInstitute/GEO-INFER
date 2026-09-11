@@ -383,7 +383,7 @@ def spatial_filter(
 
     # Convert point data to grid for filtering
     if data.data.ndim == 1:
-        # Create grid from point data (simplified approach)
+        # Point data: neighbor-weighted local filtering.
         filtered_data = data.data.copy()
 
         # Apply local filtering using spatial neighbors
@@ -409,10 +409,11 @@ def spatial_filter(
                     filtered_data[i] = np.mean(nearby_values)
     else:
         # For gridded data, apply 2D filtering
+        # Deferred: see docs/deferred_statistical_methods.md
+        # ("Gridded spatial filtering").
         filtered_data = data.data.copy()
         for var_idx in range(data.data.shape[1]):
-            var_data = data.data[:, var_idx].reshape(-1, 1)  # Simplified
-            # This would need proper grid reconstruction for full implementation
+            var_data = data.data[:, var_idx]
             filtered_data[:, var_idx] = var_data.flatten()
 
     # Update metadata

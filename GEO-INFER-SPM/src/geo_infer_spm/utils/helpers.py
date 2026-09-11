@@ -58,7 +58,7 @@ def create_design_matrix(
     n_points = data.n_points
 
     if formula is not None:
-        # Parse formula (simplified implementation)
+        # Deferred: see docs/deferred_statistical_methods.md ("Formula parser").
         design_matrix, names = _parse_formula(formula, data, intercept)
     else:
         # Build from factors and covariates
@@ -104,8 +104,8 @@ def create_design_matrix(
 def _parse_formula(
     formula: str, data: SPMData, intercept: bool
 ) -> Tuple[np.ndarray, List[str]]:
-    """Parse formula string to create design matrix (simplified implementation)."""
-    # This is a basic parser - full implementation would be more comprehensive
+    """Parse formula string to create design matrix (see register: "Formula parser")."""
+    # Deferred: see docs/deferred_statistical_methods.md ("Formula parser").
     if "~" not in formula:
         raise ValueError("Formula must contain '~' separator")
 
@@ -131,7 +131,7 @@ def _parse_formula(
             design_components.append(covariates_map[term])
             names.append(term)
         elif "*" in term:
-            # Interaction term (simplified)
+            # Interaction term (see register: "Formula parser").
             var1, var2 = term.split("*", 1)
             var1, var2 = var1.strip(), var2.strip()
             if var1 in covariates_map and var2 in covariates_map:
@@ -516,8 +516,8 @@ def compute_power_analysis(
     Returns:
         Dictionary with power analysis results
     """
-    # Simplified power analysis for t-tests
-    # In practice, this would account for spatial autocorrelation
+    # Deferred: see docs/deferred_statistical_methods.md
+    # ("Power analysis with spatial autocorrelation").
     rng = _resolve_rng(random_seed)
 
     # Degrees of freedom for one-sample t-test

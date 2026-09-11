@@ -267,10 +267,11 @@ class NonparametricSPM:
     ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
         """
         Fit smoothing spline.
-
-        Uses a simplified spline implementation.
+        Ships a moving-average approximation of a smoothing spline; see
+        docs/deferred_statistical_methods.md ("Smoothing spline / GAM").
         """
-        # Simplified implementation - in practice would use proper spline libraries
+        # Deferred: see docs/deferred_statistical_methods.md
+        # ("Smoothing spline / GAM").
         x = X[:, 0] if X.shape[1] > 0 else np.arange(len(y))
 
         # Sort data by x
@@ -278,11 +279,9 @@ class NonparametricSPM:
         _x_sorted = x[sort_idx]
         y_sorted = y[sort_idx]
 
-        # Simple smoothing spline approximation
         if self.bandwidth is None:
             self.bandwidth = 0.1
 
-        # Use moving average as approximation
         window_size = max(3, int(self.bandwidth * len(y)))
         y_hat_sorted = np.convolve(
             y_sorted, np.ones(window_size) / window_size, mode="same"
@@ -292,7 +291,7 @@ class NonparametricSPM:
         y_hat = np.zeros_like(y)
         y_hat[sort_idx] = y_hat_sorted
 
-        # Identity weights (simplified)
+        # Identity weights (see register: "Smoothing spline / GAM").
         weights = np.eye(len(y))
 
         # Compute diagnostics
@@ -312,10 +311,10 @@ class NonparametricSPM:
     def _fit_gam(
         self, X: np.ndarray, y: np.ndarray
     ) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
-        """
-        Fit Generalized Additive Model (simplified).
+        """Fit Generalized Additive Model.
 
-        Simplified GAM implementation using smoothing of individual predictors.
+        Ships per-predictor smoothing summed without backfitting; see
+        docs/deferred_statistical_methods.md ("Smoothing spline / GAM").
         """
         n_predictors = X.shape[1]
         n_points = len(y)
@@ -326,7 +325,6 @@ class NonparametricSPM:
         for j in range(n_predictors):
             x_j = X[:, j]
 
-            # Simple smoothing (could be improved with proper GAM implementation)
             if self.bandwidth is None:
                 bw = 0.1
             else:
@@ -337,8 +335,7 @@ class NonparametricSPM:
 
         # Combine smooth components
         y_hat = np.sum(smooth_components, axis=1)
-
-        # Simplified weights
+        # Identity weights (see register: "Smoothing spline / GAM").
         weights = np.eye(n_points)
 
         # Compute diagnostics
@@ -494,7 +491,8 @@ class NonparametricSPM:
         if self.fitted_model is None:
             raise ValueError("Model must be fitted before making predictions")
 
-        # Simplified prediction - in practice would need proper interpolation
+        # Deferred: see docs/deferred_statistical_methods.md
+        # ("Out-of-sample prediction (nonparametric)").
         return cast(np.ndarray, self.fitted_model["y_hat"])
 
     def get_smooth_components(self) -> Optional[np.ndarray]:

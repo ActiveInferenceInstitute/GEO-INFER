@@ -346,6 +346,25 @@ class TestModelValidator:
         assert isinstance(diagnostics, dict)
         assert len(diagnostics) > 0
 
+    def test_convenience_cross_validation_spatial_blocks(self):
+        """validate_spm_model('cross_validate') refits per spatial block."""
+        cv_results = validate_spm_model(
+            self.model_result,
+            validation_data=self.spm_data,
+            method="cross_validate",
+        )
+
+        assert cv_results["method"] == "spatial"
+        assert len(cv_results["cv_scores"]) > 0
+        assert "overall_mse" in cv_results
+        assert "overall_r2" in cv_results
+        # Test blocks are spatially contiguous K-means clusters, not random
+        # interleaving, so no fold is size 1 here.
+        assert all(score["n_test"] > 1 for score in cv_results["cv_scores"])
+        # Held-out predictions should reconstruct the response well for a
+        # well-specified linear model.
+        assert cv_results["overall_r2"] > 0.8
+
 
 class TestSpatialRegression:
     """Test SpatialRegression implementation."""

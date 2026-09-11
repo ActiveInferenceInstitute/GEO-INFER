@@ -4,9 +4,10 @@ Unit tests for Bayesian analysis functionality
 
 import numpy as np
 import pytest
+from types import SimpleNamespace
 
 from geo_infer_spm.models.data_models import SPMData, DesignMatrix
-from geo_infer_spm.core.bayesian import BayesianSPM
+from geo_infer_spm.core.bayesian import BayesianSPM, gelman_rubin_r_hat
 
 
 class TestBayesianSPM:
@@ -193,24 +194,6 @@ class TestBayesianModelTypes:
 class TestBayesianDiagnostics:
     """Test Bayesian diagnostic and utility functions."""
 
-    def test_r_hat_computation_placeholder(self):
-        """Test R-hat computation (placeholder)."""
-        bayesian_spm = BayesianSPM()
-
-        # Mock trace object
-        class MockTrace:
-            def __init__(self):
-                self.posterior = type(
-                    "obj", (object,), {"dims": {"chain": 4, "draw": 100}}
-                )()
-
-        mock_trace = MockTrace()
-        r_hat = bayesian_spm._compute_r_hat(mock_trace)
-
-        # Should return array of appropriate shape
-        assert isinstance(r_hat, np.ndarray)
-        assert len(r_hat) == 4  # Number of chains
-
     def test_ess_computation_placeholder(self):
         """Test ESS computation (placeholder)."""
         bayesian_spm = BayesianSPM()
@@ -241,6 +224,136 @@ class TestBayesianDiagnostics:
 
         assert basis.shape == (20, 5)
         assert np.all(basis >= 0)  # Gaussian basis should be non-negative
+
+
+class TestSplitRHat:
+    """Test the split Gelman-Rubin R-hat implementation."""
+
+    def _trace(self, posterior):
+        """Wrap a posterior in a minimal trace-like namespace."""
+        return SimpleNamespace(posterior=posterior)
+
+    def test_converged_chains_have_r_hat_near_one(self):
+        """I.i.d. chains from the same distribution give R-hat near 1."""
+        rng = np.random.default_rng(42)
+        chains = rng.normal(0.0, 1.0, size=(4, 2000))
+
+        r_hat = gelman_rubin_r_hat(chains)
+
+        assert r_hat.shape == (1,)
+        assert 0.99 < float(r_hat[0]) < 1.05
+
+    def test_non_converged_chains_have_r_hat_far_above_one(self):
+        """Chains sampling separated distributions give R-hat well above 1."""
+        rng = np.random.default_rng(42)
+        means = np.array([[0.0], [5.0], [-5.0], [10.0]])
+        chains = rng.normal(means, 1.0, size=(4, 2000))
+
+        r_hat = gelman_rubin_r_hat(chains)
+
+        assert float(r_hat[0]) > 1.5
+
+    def test_vector_parameter_gives_per_component_values(self):
+        """A (chains, draws, components) input yields one R-hat per component."""
+        rng = np.random.default_rng(7)
+        chains = rng.normal(0.0, 1.0, size=(3, 1500, 2))
+
+        r_hat = gelman_rubin_r_hat(chains)
+
+        assert r_hat.shape == (2,)
+        assert np.all((r_hat > 0.9) & (r_hat < 1.1))
+
+    def test_equal_constant_chains_are_converged(self):
+        """Identical constant chains are trivially converged (R-hat 1)."""
+        chains = np.ones((4, 100))
+
+        r_hat = gelman_rubin_r_hat(chains)
+
+        assert float(r_hat[0]) == 1.0
+
+    def test_unequal_constant_chains_never_converge(self):
+        """Constant chains that differ between chains give R-hat inf."""
+        chains = np.array([[0.0] * 100, [1.0] * 100, [2.0] * 100])
+
+        r_hat = gelman_rubin_r_hat(chains)
+
+        assert np.isinf(float(r_hat[0]))
+
+    def test_rejects_single_chain(self):
+        """R-hat is undefined for a single chain."""
+        rng = np.random.default_rng(0)
+
+        with pytest.raises(ValueError, match="at least 2 chains"):
+            gelman_rubin_r_hat(rng.normal(size=(1, 100)))
+
+    def test_rejects_too_few_draws(self):
+        """Split-R-hat needs at least two draws per half-chain."""
+        rng = np.random.default_rng(0)
+
+        with pytest.raises(ValueError, match="at least 4 draws"):
+            gelman_rubin_r_hat(rng.normal(size=(4, 3)))
+
+    def test_compute_r_hat_extracts_posterior_parameters(self):
+        """_compute_r_hat reports one (worst-component) value per parameter."""
+        import xarray as xr
+
+        rng = np.random.default_rng(42)
+        converged = rng.normal(0.0, 1.0, size=(4, 1000))
+        divergent = rng.normal(
+            np.array([[0.0], [8.0], [0.0], [8.0]]), 1.0, size=(4, 1000)
+        )
+
+        posterior = xr.Dataset(
+            {
+                "beta_intercept": (("chain", "draw"), converged),
+                "beta_wandering": (("chain", "draw"), divergent),
+            }
+        )
+        bayesian_spm = BayesianSPM()
+
+        r_hat = bayesian_spm._compute_r_hat(self._trace(posterior))
+
+        assert isinstance(r_hat, np.ndarray)
+        assert r_hat.shape == (2,)
+        assert 0.99 < float(r_hat[0]) < 1.05
+        assert float(r_hat[1]) > 1.5
+
+    def test_compute_r_hat_vector_parameter_uses_worst_component(self):
+        """A vector posterior parameter contributes its maximum component."""
+        import xarray as xr
+
+        rng = np.random.default_rng(3)
+        scalar = rng.normal(0.0, 1.0, size=(4, 800))
+        vector = rng.normal(
+            np.array([[[0.0]], [[6.0]], [[0.0]], [[6.0]]]), 1.0, size=(4, 800, 1)
+        )
+
+        posterior = xr.Dataset(
+            {
+                "beta_intercept": (("chain", "draw"), scalar),
+                "beta_other": (("chain", "draw", "beta_other_dim_0"), vector),
+            }
+        )
+        bayesian_spm = BayesianSPM()
+
+        r_hat = bayesian_spm._compute_r_hat(self._trace(posterior))
+
+        assert r_hat.shape == (2,)
+        assert 0.99 < float(r_hat[0]) < 1.05
+        assert float(r_hat[1]) > 1.5
+
+    def test_compute_r_hat_reports_nan_without_samples(self):
+        """A trace without posterior samples yields NaN, not a fake 1.0."""
+        bayesian_spm = BayesianSPM()
+
+        class EmptyTrace:
+            pass
+
+        r_hat = bayesian_spm._compute_r_hat(EmptyTrace())
+
+        assert isinstance(r_hat, np.ndarray)
+        assert r_hat.shape == (1,)
+        assert np.isnan(float(r_hat[0]))
 
 
 class TestBayesianEdgeCases:
