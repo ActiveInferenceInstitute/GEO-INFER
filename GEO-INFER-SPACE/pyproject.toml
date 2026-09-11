@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=77.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,17 +7,25 @@ name = "geo-infer-space"
 version = "0.2.0"
 description = "H3 v4 spatial indexing and comprehensive geospatial analysis framework with advanced spatial methods and coordinate transformations"
 readme = "README.md"
-license = {text = "CC BY-NC-SA 4.0"}
+license = "CC-BY-NC-SA-4.0"
 requires-python = ">=3.11"
 authors = [
     {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"}
 ]
-keywords = ["geospatial", "active inference", "geoinformatics", "spatial-analysis, h3, geospatial, coordinate-systems, spatial-indexing, geometric-operations"]
+keywords = [
+    "geospatial",
+    "active inference",
+    "geoinformatics",
+    "spatial-analysis",
+    "h3",
+    "coordinate-systems",
+    "spatial-indexing",
+    "geometric-operations",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: Creative Commons License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -34,14 +42,16 @@ dependencies = [
     "networkx>=2.6.0",
     "numpy>=1.20.0,<2.0",
     "pandas>=1.3.0",
+    "psutil>=5.9.0",
     "pydantic>=2.0.0",
     "pyproj>=3.3.0",
     "python-multipart>=0.0.5",
     "pyyaml>=6.0",
+    "requests>=2.28.0",
     "rasterio>=1.3.0",
     "scikit-learn>=1.0.0",
     "scipy>=1.7.0",
-    "shapely>=1.8.0",
+    "shapely>=2.0.0",
     "uvicorn>=0.15.0"
 ]
 
@@ -77,20 +87,7 @@ viz = [
     "folium>=0.12.0"
 ]
 all = [
-    "laspy>=2.0.0",
-    "osmnx>=1.2.0",
-    "xarray>=0.20.0",
-    "rioxarray>=0.11.0",
-    "numba>=0.56.0",
-    "dask>=2021.10.0",
-    "dask[dataframe]>=2021.10.0",
-    "redis>=4.0.0",
-    "matplotlib>=3.5.0",
-    "seaborn>=0.11.0",
-    "plotly>=5.0.0",
-    "folium>=0.12.0",
-    "sphinx>=4.0.0",
-    "sphinx-rtd-theme>=1.0.0"
+    "geo-infer-space[optional,viz]"
 ]
 
 [project.urls]

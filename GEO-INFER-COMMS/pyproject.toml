@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=77.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,17 +7,27 @@ name = "geo-infer-comms"
 version = "0.2.0"
 description = "Communications infrastructure for geospatial systems enabling data exchange, messaging, networking, and outreach across distributed applications"
 readme = "README.md"
-license = {text = "CC BY-NC-SA 4.0"}
+license = "CC-BY-NC-SA-4.0"
 requires-python = ">=3.11"
 authors = [
     {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"}
 ]
-keywords = ["geospatial", "active inference", "geoinformatics", "communications, messaging, networking, outreach, real-time, notifications, distributed-systems"]
+keywords = [
+    "geospatial",
+    "active inference",
+    "geoinformatics",
+    "communications",
+    "messaging",
+    "networking",
+    "outreach",
+    "real-time",
+    "notifications",
+    "distributed-systems",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: Creative Commons License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -91,7 +101,7 @@ line_length = 88
 known_first_party = ["geo_infer_comms"]
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

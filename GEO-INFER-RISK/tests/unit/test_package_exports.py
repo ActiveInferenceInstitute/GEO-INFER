@@ -48,3 +48,29 @@ def test_silent_none_exports_were_removed() -> None:
         assert not hasattr(geo_infer_risk, name), (
             f"{name!r} is bound on the package but not implemented"
         )
+
+
+def test_enhanced_exposure_export_surface() -> None:
+    """EnhancedExposureModel and its subclasses/factories export from core."""
+    from geo_infer_risk.core import (
+        EnhancedExposureModel,
+        EnhancedInfrastructureExposureModel,
+        EnhancedPropertyExposureModel,
+        EnhancedPopulationExposureModel,
+        create_enhanced_infrastructure_exposure_model,
+        create_enhanced_property_exposure_model,
+        create_enhanced_population_exposure_model,
+    )
+
+    from geo_infer_risk import EnhancedExposureModel as package_level
+
+    assert package_level is EnhancedExposureModel
+    for cls in (
+        EnhancedPropertyExposureModel,
+        EnhancedPopulationExposureModel,
+        EnhancedInfrastructureExposureModel,
+    ):
+        assert issubclass(cls, EnhancedExposureModel)
+    assert callable(create_enhanced_property_exposure_model)
+    assert callable(create_enhanced_population_exposure_model)
+    assert callable(create_enhanced_infrastructure_exposure_model)

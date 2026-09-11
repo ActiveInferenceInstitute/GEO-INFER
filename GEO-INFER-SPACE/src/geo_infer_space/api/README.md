@@ -49,10 +49,10 @@ Api workspace within `GEO-INFER-SPACE`.
 - `networkx>=2.6.0`
 - `numpy>=1.20.0,<2.0`
 - `pandas>=1.3.0`
+- `psutil>=5.9.0`
 - `pydantic>=2.0.0`
 - `pyproj>=3.3.0`
 - `python-multipart>=0.0.5`
-- `pyyaml>=6.0`
 
 
 ## Validation

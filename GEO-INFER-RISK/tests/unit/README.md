@@ -46,6 +46,8 @@ Unit workspace within `GEO-INFER-RISK`.
 - `geopandas>=0.13.0`
 - `shapely>=2.0.0`
 - `geo-infer-bayes>=0.2.0`
+- `jsonschema>=4.17.0`
+- `pyyaml>=6.0`
 
 
 ## Validation

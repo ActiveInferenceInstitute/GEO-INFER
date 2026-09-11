@@ -4,13 +4,9 @@ Geo Infer Sim workspace within `GEO-INFER-SIM`.
 
 ## Contents
 
-- `analysis/`
 - `core/`
-- `io/`
-- `models/`
 - `paradigms/`
 - `scenarios/`
-- `utils/`
 - `__init__.py`
 - `module_simulations.py`
 

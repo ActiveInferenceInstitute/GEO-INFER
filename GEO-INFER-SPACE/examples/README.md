@@ -4,6 +4,7 @@ Examples workspace within `GEO-INFER-SPACE`.
 
 ## Contents
 
+- `demo_all_methods.py`
 - `h3_advanced_applications.py`
 - `h3_comprehensive_examples.py`
 - `h3_examples.py`
@@ -11,9 +12,13 @@ Examples workspace within `GEO-INFER-SPACE`.
 - `multiple_dispatch_demo.py`
 - `nested_orchestrator_examples.py`
 - `run_all.py`
+- `verify_installation.py`
 
 ## Public Interface
 
+- `demo_all_methods.py:success` (function)
+- `demo_all_methods.py:info` (function)
+- `demo_all_methods.py:section` (function)
 - `h3_advanced_applications.py:example_demand_forecasting_ml` (function)
 - `h3_advanced_applications.py:example_disaster_response_system` (function)
 - `h3_advanced_applications.py:example_performance_optimization` (function)
@@ -31,9 +36,6 @@ Examples workspace within `GEO-INFER-SPACE`.
 - `h3_integration_examples.py:example_h3_vector_integration` (function)
 - `h3_integration_examples.py:example_h3_density_clustering` (function)
 - `h3_integration_examples.py:example_h3_temporal_analysis` (function)
-- `h3_integration_examples.py:example_h3_multi_resolution_analysis` (function)
-- `h3_integration_examples.py:example_h3_orchestration_workflow` (function)
-- `h3_integration_examples.py:main` (function)
 
 ## Module Metadata
 
@@ -53,10 +55,10 @@ Examples workspace within `GEO-INFER-SPACE`.
 - `networkx>=2.6.0`
 - `numpy>=1.20.0,<2.0`
 - `pandas>=1.3.0`
+- `psutil>=5.9.0`
 - `pydantic>=2.0.0`
 - `pyproj>=3.3.0`
 - `python-multipart>=0.0.5`
-- `pyyaml>=6.0`
 
 
 ## Validation

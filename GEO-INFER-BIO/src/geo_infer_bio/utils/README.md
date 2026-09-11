@@ -4,6 +4,7 @@ Utils workspace within `GEO-INFER-BIO`.
 
 ## Contents
 
+- `__init__.py`
 - `validation.py`
 - `visualization.py`
 

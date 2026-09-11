@@ -12,7 +12,6 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: Creative Commons License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -31,7 +30,7 @@ dependencies = [
     "scikit-learn>=1.0.0",
     # Geospatial libraries
     "geopandas>=0.10.0",
-    "shapely>=1.8.0",
+    "shapely>=2.0.0",
     "h3>=4.5.0,<5",
     "pyproj>=3.3.0",
     "rasterio>=1.2.0",
@@ -134,7 +133,7 @@ quality = [
     "mypy>=0.910",
     "hypothesis>=6.0.0",
     "ruptures>=1.1.9",
-    "srai>=0.8.0",
+    "srai>=0.10.2",
     "pydocstyle>=6.0.0",
 ]
 
@@ -206,7 +205,7 @@ all = [
     "pytest-mock>=3.12.0",
     "hypothesis>=6.0.0",
     "ruptures>=1.1.9",
-    "srai>=0.8.0",
+    "srai>=0.10.2",
         # docs
     "sphinx>=4.2.0",
     "sphinx-rtd-theme>=1.0.0",

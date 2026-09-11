@@ -17,7 +17,7 @@ class ClimateDataProcessor:
 
 **Attributes:**
 
-- `supported_formats`: `['netcdf', 'grib', 'csv', 'hdf5']`
+- `supported_formats`: `['netcdf', 'grib']`
 - `supported_datasets`: `['cmip6', 'era5', 'ncep', 'observations']`
 
 #### `load_dataset(file_path: str, dataset_type: str, variables: Optional[List[str]] = None) -> xr.Dataset`

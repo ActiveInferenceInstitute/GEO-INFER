@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=77.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,17 +7,26 @@ name = "geo-infer-sim"
 version = "0.2.0"
 description = "Advanced simulation environments for geospatial hypothesis testing, policy evaluation, and scenario analysis using agent-based modeling and system dynamics"
 readme = "README.md"
-license = {text = "CC BY-NC-SA 4.0"}
+license = "CC-BY-NC-SA-4.0"
 requires-python = ">=3.11"
 authors = [
     {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"}
 ]
-keywords = ["geospatial", "active inference", "geoinformatics", "simulation, agent-based-modeling, system-dynamics, scenario-analysis, hypothesis-testing, policy-evaluation"]
+keywords = [
+    "geospatial",
+    "active inference",
+    "geoinformatics",
+    "simulation",
+    "agent-based-modeling",
+    "system-dynamics",
+    "scenario-analysis",
+    "hypothesis-testing",
+    "policy-evaluation",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: Creative Commons License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",

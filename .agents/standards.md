@@ -119,3 +119,20 @@ Before tagging any version release:
 ---
 
 Every line of code should reflect production-quality engineering: mathematical rigour, functional completeness, structured logging, and precise documentation. Use technical accuracy over promotional language.
+
+## Dependency Floor Policy (2026-09-11, GS-025)
+
+Shared geospatial/HTTP stack families must agree on one support surface across
+the root pyproject and all module pyprojects:
+
+- `shapely>=2.0.0` fleet-wide (1.x/2.x API split is behavioral; every consumer
+  passes current 2.x tests). No `shapely>=1.*` declarations anywhere.
+- `urllib3>=2.0.6` wherever `urllib3` is declared (matches root).
+- `numpy` floors may vary per module (they reflect each module's own needs),
+  but `<2.0` caps are permitted only with a documented incompatibility reason
+  (today: BAYES, SPACE).
+- `requests`/`uvicorn` floors may vary per module; they are transport-only and
+  are not behaviorally version-split.
+
+Rule: when raising or lowering a floor for a family above, change it in the
+root pyproject and every module that declares it, or do not change it.

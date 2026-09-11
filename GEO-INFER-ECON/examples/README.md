@@ -39,7 +39,6 @@ Examples workspace within `GEO-INFER-ECON`.
 - `scikit-learn>=1.0.0`
 - `matplotlib>=3.5.0`
 - `seaborn>=0.12.0`
-- `networkx>=2.8.0`
 - `h3>=4.5.0,<5`
 - `requests>=2.28.0`
 

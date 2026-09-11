@@ -15,15 +15,16 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import make_asgi_app
-from typing import Any, Dict, Tuple
+from typing import Dict
 
+from geo_infer_ops import __version__
 from geo_infer_ops.utils import load_config, configure_logging, get_logger
 
 # Initialize logger
 logger = get_logger("geo_infer_ops.app")
 
 
-def create_app() -> Tuple[FastAPI, Dict[str, Any]]:
+def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
     # Load configuration
     try:
@@ -50,7 +51,7 @@ def create_app() -> Tuple[FastAPI, Dict[str, Any]]:
     app = FastAPI(
         title="GEO-INFER-OPS",
         description="Operational kernel for system orchestration, logging, testing, and architecture",
-        version="0.1.0",
+        version=__version__,
     )
 
     # Configure CORS
@@ -76,26 +77,31 @@ def create_app() -> Tuple[FastAPI, Dict[str, Any]]:
     # Version endpoint
     @app.get("/version")
     def version() -> Dict[str, str]:
-        from geo_infer_ops import __version__
-
         return {"version": __version__}
 
-    return app, config
+    # Expose the resolved configuration on the ASGI app state
+    app.state.config = config
+    return app
 
-
-app, config = create_app()
 
 if __name__ == "__main__":
     """Run the application when executed as a script."""
+    app = create_app()
+    config = app.state.config
     logger.info(
         "Starting GEO-INFER-OPS",
         host=config["service"]["host"],
         port=config["service"]["port"],
     )
 
+    reload_enabled = config["development"].get("hot_reload", False)
+    # With reload enabled uvicorn must re-import the module itself, so hand it
+    # the factory string; otherwise pass the already-built app and skip the
+    # redundant second construction.
     uvicorn.run(
-        "geo_infer_ops.app:app",
+        "geo_infer_ops.app:create_app" if reload_enabled else app,
+        factory=reload_enabled,
         host=config["service"]["host"],
         port=config["service"]["port"],
-        reload=config["development"].get("hot_reload", False),
+        reload=reload_enabled,
     )

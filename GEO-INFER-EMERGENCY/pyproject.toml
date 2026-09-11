@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=77.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,17 +7,23 @@ name = "geo-infer-emergency"
 version = "0.2.0"
 description = "Emergency management and disaster response capabilities for geospatial systems"
 readme = "README.md"
-license = {text = "CC BY-NC-SA 4.0"}
+license = "CC-BY-NC-SA-4.0"
 requires-python = ">=3.11"
 authors = [
     {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"}
 ]
-keywords = ["geospatial", "emergency", "disaster-response", "evacuation", "ics", "search-rescue"]
+keywords = [
+    "geospatial",
+    "emergency",
+    "disaster-response",
+    "evacuation",
+    "ics",
+    "search-rescue",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: Creative Commons License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -37,7 +43,7 @@ dev = [
     # Test-only spatial dependencies used by tests/conftest.py fixtures.
     "numpy>=1.20.0",
     "geopandas>=0.10.0",
-    "shapely>=1.8.0",
+    "shapely>=2.0.0",
 ]
 
 

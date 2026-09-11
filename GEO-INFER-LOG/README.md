@@ -37,6 +37,8 @@ Geospatial intelligence for logistics optimization, supply chain management, rou
 - `scipy>=1.9.0`
 - `matplotlib>=3.5.0`
 - `folium>=0.14.0`
+- `starlette>=0.27.0`
+- `numpy>=1.20.0`
 
 
 ## Validation

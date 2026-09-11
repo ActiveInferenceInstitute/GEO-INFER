@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=77.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,17 +7,26 @@ name = "geo-infer-metagov"
 version = "0.2.0"
 description = "Advanced meta-governance frameworks, organizational governance methods, and multilevel governance coordination for geospatial systems"
 readme = "README.md"
-license = {text = "CC BY-NC-SA 4.0"}
+license = "CC-BY-NC-SA-4.0"
 requires-python = ">=3.11"
 authors = [
     {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"}
 ]
-keywords = ["geospatial", "active inference", "geoinformatics", "meta-governance, organizational-governance, multi-stakeholder-coordination, governance-frameworks, institutional-design, collaborative-governance"]
+keywords = [
+    "geospatial",
+    "active inference",
+    "geoinformatics",
+    "meta-governance",
+    "organizational-governance",
+    "multi-stakeholder-coordination",
+    "governance-frameworks",
+    "institutional-design",
+    "collaborative-governance",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: Creative Commons License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -43,6 +52,9 @@ docs = [
 ]
 integrations = [
     "geo-infer-space",
+    "geo-infer-org",
+    "geo-infer-norms",
+    "geo-infer-sec",
 ]
 
 [project.urls]
@@ -106,6 +118,9 @@ module = ["geo_infer_space.*"]
 ignore_missing_imports = true
 
 [tool.uv.sources]
+geo-infer-org = { workspace = true }
+geo-infer-norms = { workspace = true }
+geo-infer-sec = { workspace = true }
 geo-infer-space = { workspace = true }
 
 [tool.coverage.run]

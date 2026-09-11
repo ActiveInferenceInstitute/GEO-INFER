@@ -11,7 +11,7 @@ estimated_time: 45min
 
 ### Core Capabilities
 
-- **Data processing**: load (NetCDF/GRIB/CSV/HDF5) and validate climate datasets from CMIP6, ERA5, NCEP, and observational sources
+- **Data processing**: load (NetCDF/GRIB) and validate climate datasets from CMIP6, ERA5, NCEP, and observational sources
 - **Climate indices**: SPI (gamma or normal distribution), heat index (Rothfusz), extreme indices, first-order Palmer-style drought index
 - **Extreme events**: heatwave, cold spell, drought, flood, and compound event detection; return period estimation
 - **Temperature trends**: OLS linear regression and Mann-Kendall non-parametric trend tests

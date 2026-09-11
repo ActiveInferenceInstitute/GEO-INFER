@@ -37,16 +37,20 @@ across all ``GEO-INFER-*`` modules:
 from __future__ import annotations
 
 import argparse
+import ast
 import fnmatch
 import re
 from collections import Counter
 from pathlib import Path
+import sys
 from typing import List, Optional
 
 from _validator_common import (
     ContractReport,
+    STDLIB_REQUIREMENT_NAMES,
     discover_module_dirs,
     distribution_name,
+    internal_requirement_names,
     package_name_from_distribution,
     parse_requirements_names,
     parse_setup_py_requires,
@@ -255,6 +259,47 @@ def validate_classifier_consistency(
         )
 
 
+trove_top_level_categories = {
+    "Development Status",
+    "Environment",
+    "Framework",
+    "Intended Audience",
+    "Natural Language",
+    "Operating System",
+    "Programming Language",
+    "Topic",
+    "Typing",
+}
+
+
+def validate_classifier_validity(
+    inventories: List[tuple[str, dict]], report: ContractReport
+) -> None:
+    """Reject trove classifiers PyPI would refuse on upload.
+
+    The fleet declares licenses via PEP 639 SPDX expressions in
+    [project].license, so any ``License ::`` classifier is deprecated
+    alongside a license expression and PyPI rejects the combination;
+    every License classifier is an error regardless of children.
+    """
+    for module_name, pyproject in inventories:
+        classifiers = pyproject.get("project", {}).get("classifiers") or []
+        for classifier in classifiers:
+            top_level = classifier.split(" :: ")[0]
+            if top_level == "License":
+                report.error(
+                    f"{module_name}: deprecated trove classifier {classifier!r} "
+                    "(License :: classifiers are rejected by PyPI alongside a "
+                    "PEP 639 license expression; the license field carries the "
+                    "license)"
+                )
+            elif top_level not in trove_top_level_categories:
+                report.error(
+                    f"{module_name}: invalid trove classifier {classifier!r} "
+                    f"(unknown top-level category {top_level!r})"
+                )
+
+
 def validate_module(module_dir: Path, pyproject: dict, report: ContractReport) -> None:
     """Validate namespace and package-data metadata for one module."""
     label = module_dir.name
@@ -349,6 +394,147 @@ def validate_source_traversal(module_dir: Path, report: ContractReport) -> None:
             )
 
 
+# Third-party import roots that map to a different distribution name.
+IMPORT_ROOT_ALIASES = {
+    "yaml": "pyyaml",
+    "cv2": "opencv-python",
+    "Bio": "biopython",
+    "PIL": "pillow",
+    "sklearn": "scikit-learn",
+    "dateutil": "python-dateutil",
+    "dotenv": "python-dotenv",
+    "git": "gitpython",
+    "jwt": "pyjwt",
+    "jose": "python-jose",
+    "strawberry": "strawberry-graphql",
+}
+
+# Complete standard-library root set for the running interpreter; the
+# hand-maintained STDLIB_REQUIREMENT_NAMES stays as a belt-and-braces floor.
+_STDLIB_ROOTS = frozenset(getattr(sys, "stdlib_module_names", ())) | frozenset(
+    STDLIB_REQUIREMENT_NAMES
+)
+
+
+def _handles_import_error(handler: ast.ExceptHandler) -> bool:
+    """True when the handler catches ImportError (bare, tuple, or catch-all)."""
+    if handler.type is None:
+        return True
+    names: List[str] = []
+    if isinstance(handler.type, ast.Name):
+        names = [handler.type.id]
+    elif isinstance(handler.type, ast.Tuple):
+        names = [elt.id for elt in handler.type.elts if isinstance(elt, ast.Name)]
+    return any(
+        name in ("ImportError", "ModuleNotFoundError", "Exception") for name in names
+    )
+
+
+def _is_type_checking(test: ast.expr) -> bool:
+    """True for the ``if TYPE_CHECKING:`` guard pattern."""
+    return isinstance(test, ast.Name) and test.id == "TYPE_CHECKING"
+
+
+def _top_level_import_roots(tree: ast.Module) -> set:
+    """Import roots that execute at module import time.
+
+    Walks module-level statements directly, so a root imported BOTH at the
+    top level and inside a guard is still reported. Optional-import sites
+    are excluded: imports inside functions only run when the code path is
+    exercised, imports under ``if TYPE_CHECKING:`` never run at runtime, and
+    imports inside a try block whose handlers catch ImportError (or bare/
+    Exception) degrade gracefully — none of these can break ``import
+    <package>`` on a clean install. A try block WITHOUT such a handler is
+    descended into, because its body still executes at import time.
+    """
+    roots: set = set()
+
+    def record(node) -> None:
+        if isinstance(node, ast.Import):
+            roots.update(alias.name.split(".")[0] for alias in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.module and node.level == 0:
+            roots.add(node.module.split(".")[0])
+
+    def walk_body(body) -> None:
+        for node in body:
+            if isinstance(node, (ast.Import, ast.ImportFrom)):
+                record(node)
+            elif isinstance(node, ast.Try):
+                if not any(_handles_import_error(handler) for handler in node.handlers):
+                    walk_body(node.body)
+            elif isinstance(node, ast.If):
+                if _is_type_checking(node.test):
+                    continue
+                walk_body(node.body)
+                walk_body(node.orelse)
+
+    walk_body(tree.body)
+    return roots
+
+
+def module_import_roots(module_dir: Path) -> dict:
+    """Top-level (import-time) import roots per module, via ast walk.
+
+    Returns ``{module_dir_name: {import_root, ...}}`` for modules with a
+    ``src/<package>/`` layout; guarded and function-local imports are
+    excluded because they cannot break a clean install.
+    """
+    src_dir = module_dir / "src"
+    result: dict = {}
+    if not src_dir.is_dir():
+        return result
+    packages = sorted(p for p in src_dir.iterdir() if (p / "__init__.py").is_file())
+    for package in packages:
+        roots: set = set()
+        for path in sorted(package.rglob("*.py")):
+            tree = ast.parse(path.read_text(encoding="utf-8", errors="ignore"))
+            roots.update(_top_level_import_roots(tree))
+        result[module_dir.name] = roots
+    return result
+
+
+def validate_import_parity(
+    module_dir: Path, pyproject: dict, report: ContractReport
+) -> None:
+    """Compare top-level third-party import roots against declared dependencies.
+
+    An unguarded module-level ``import x`` must be backed by a declared
+    dependency (runtime or optional extra), otherwise a clean wheel install
+    raises ModuleNotFoundError on ``import <package>``. Standard-library
+    roots and this repo's own ``geo_infer_*`` packages are exempt; the
+    rest map through IMPORT_ROOT_ALIASES to distribution names.
+    """
+    declared = {
+        name.rstrip(".")
+        for name in (
+            pyproject_dependency_names(pyproject) | pyproject_optional_names(pyproject)
+        )
+    }
+    declared |= internal_requirement_names(REPO_ROOT)
+    for roots in module_import_roots(module_dir).values():
+        for root in sorted(roots):
+            if root in _STDLIB_ROOTS:
+                continue
+            if root == "src":
+                continue
+            dist = IMPORT_ROOT_ALIASES.get(root, root.lower().replace("_", "-"))
+            if dist in declared:
+                continue
+            rel = None
+            src_dir = module_dir / "src"
+            for path in sorted((src_dir).rglob("*.py")):
+                text = path.read_text(encoding="utf-8", errors="ignore")
+                if re.search(
+                    rf"^import {re.escape(root)}\b", text, re.MULTILINE
+                ) or re.search(rf"^from {re.escape(root)}\b", text, re.MULTILINE):
+                    rel = path.relative_to(module_dir)
+                    break
+            report.errors.append(
+                f"{module_dir.name}: top-level import '{root}' is not declared in "
+                f"pyproject dependencies{f' (first: {rel})' if rel else ''}"
+            )
+
+
 def validate_all(target_dirs: Optional[List[Path]] = None) -> ContractReport:
     report = ContractReport()
     if target_dirs is None:
@@ -362,9 +548,11 @@ def validate_all(target_dirs: Optional[List[Path]] = None) -> ContractReport:
         inventories.append((module_dir.name, pyproject))
         validate_module(module_dir, pyproject, report)
         validate_requirements_parity(module_dir, pyproject, report)
+        validate_import_parity(module_dir, pyproject, report)
         validate_source_traversal(module_dir, report)
     validate_version_uniformity(inventories, report)
     validate_classifier_consistency(inventories, report)
+    validate_classifier_validity(inventories, report)
     return report
 
 

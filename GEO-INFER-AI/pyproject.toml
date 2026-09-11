@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=77.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,12 +7,22 @@ name = "geo-infer-ai"
 version = "0.2.0"
 description = "Advanced machine learning and artificial intelligence capabilities specifically designed for geospatial analysis and decision-making"
 readme = "README.md"
-license = {text = "CC BY-NC-SA 4.0"}
+license = "CC-BY-NC-SA-4.0"
 requires-python = ">=3.11"
 authors = [
     {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"}
 ]
-keywords = ["geospatial", "active inference", "geoinformatics", "artificial-intelligence, machine-learning, deep-learning, computer-vision, neural-networks, predictive-modeling"]
+keywords = [
+    "geospatial",
+    "active inference",
+    "geoinformatics",
+    "artificial-intelligence",
+    "machine-learning",
+    "deep-learning",
+    "computer-vision",
+    "neural-networks",
+    "predictive-modeling",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",

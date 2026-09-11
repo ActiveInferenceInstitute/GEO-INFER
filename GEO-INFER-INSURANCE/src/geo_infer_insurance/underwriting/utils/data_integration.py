@@ -16,7 +16,6 @@ from typing import Dict, List, Optional, Any, cast
 from datetime import datetime
 from dataclasses import dataclass, field
 import json
-import requests
 
 logger = logging.getLogger(__name__)
 
@@ -230,6 +229,13 @@ class DataIntegrationManager:
         query_parameters: Optional[Dict[str, Any]] = None,
     ) -> Optional[Dict[str, Any]]:
         """Fetch data from API endpoint."""
+        try:
+            import requests
+        except ImportError:
+            self.logger.warning(
+                f"requests not installed; cannot fetch API {source.name}"
+            )
+            return None
         try:
             # Prepare request
             url = source.endpoint

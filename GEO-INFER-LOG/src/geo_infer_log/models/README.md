@@ -42,6 +42,8 @@ Models workspace within `GEO-INFER-LOG`.
 - `scipy>=1.9.0`
 - `matplotlib>=3.5.0`
 - `folium>=0.14.0`
+- `starlette>=0.27.0`
+- `numpy>=1.20.0`
 
 
 ## Validation

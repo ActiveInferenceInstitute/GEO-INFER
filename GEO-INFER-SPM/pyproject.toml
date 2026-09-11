@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=77.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,17 +7,25 @@ name = "geo-infer-spm"
 version = "0.2.0"
 description = "Statistical parametric mapping methodology adapted for geospatial analysis to identify significant patterns in spatial-temporal data"
 readme = "README.md"
-license = {text = "CC BY-NC-SA 4.0"}
+license = "CC-BY-NC-SA-4.0"
 requires-python = ">=3.11"
 authors = [
     {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"}
 ]
-keywords = ["geospatial", "active inference", "geoinformatics", "statistics, parametric-mapping, spatial-statistics, significance-testing, pattern-analysis"]
+keywords = [
+    "geospatial",
+    "active inference",
+    "geoinformatics",
+    "statistics",
+    "parametric-mapping",
+    "spatial-statistics",
+    "significance-testing",
+    "pattern-analysis",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: Creative Commons License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",

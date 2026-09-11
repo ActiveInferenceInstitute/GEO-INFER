@@ -21,13 +21,10 @@ Src workspace within `GEO-INFER-API`.
 ## Dependencies
 
 - `fastapi>=0.100.0`
-- `httpx>=0.24.0`
 - `pydantic>=2.0.0`
 - `pydantic-settings>=2.0.0`
-- `python-dotenv>=1.0.0`
-- `python-multipart>=0.0.6`
-- `requests>=2.28.2`
 - `uvicorn>=0.21.0`
+- `starlette>=0.27.0`
 
 
 ## Validation

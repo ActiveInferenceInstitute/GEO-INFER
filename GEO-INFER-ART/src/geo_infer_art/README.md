@@ -4,9 +4,7 @@ Geo Infer Art workspace within `GEO-INFER-ART`.
 
 ## Contents
 
-- `api/`
 - `core/`
-- `models/`
 - `utils/`
 - `__init__.py`
 - `cli.py`

@@ -44,11 +44,12 @@ from geo_infer_risk.utils import (
 )
 
 
-# Enhanced core components (hazard/vulnerability/catastrophe model classes).
+# Enhanced core components (hazard/vulnerability/exposure/catastrophe model classes).
 from geo_infer_risk.core import (
     EnhancedRiskEngine,  # noqa: F811  (re-export of the same class)
     EnhancedHazardModel as EnhancedHazardModel,
     EnhancedVulnerabilityModel as EnhancedVulnerabilityModel,
+    EnhancedExposureModel as EnhancedExposureModel,
     EnhancedCatastropheModel as EnhancedCatastropheModel,
     CatastropheConfig as CatastropheConfig,
     MultiHazardInteractionMatrix,  # noqa: F811
@@ -101,6 +102,7 @@ __all__ = [
     "HazardModel",
     "VulnerabilityModel",
     "ExposureModel",
+    "EnhancedExposureModel",
     "MultiHazardInteractionMatrix",
     "calculate_compound_exceedance_probability",
     "DEFAULT_CONFIDENCE_LEVEL",

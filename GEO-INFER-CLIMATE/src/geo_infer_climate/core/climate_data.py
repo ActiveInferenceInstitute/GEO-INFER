@@ -5,6 +5,7 @@ Handles loading, processing, and validation of climate datasets including
 CMIP models, reanalysis data, and observational data.
 """
 
+import importlib.util
 import logging
 from typing import Dict, List, Optional, Tuple
 import numpy as np
@@ -29,7 +30,7 @@ class ClimateDataProcessor:
             config: Configuration dictionary with processing parameters
         """
         self.config = config or {}
-        self.supported_formats = ["netcdf", "grib", "csv", "hdf5"]
+        self.supported_formats = ["netcdf", "grib"]
         self.supported_datasets = ["cmip6", "era5", "ncep", "observations"]
 
     def load_dataset(
@@ -60,6 +61,11 @@ class ClimateDataProcessor:
             if file_path.endswith(".nc") or file_path.endswith(".netcdf"):
                 ds = xr.open_dataset(file_path)
             elif file_path.endswith(".grib") or file_path.endswith(".grib2"):
+                if importlib.util.find_spec("cfgrib") is None:
+                    raise ImportError(
+                        "Reading GRIB files requires the cfgrib engine "
+                        "(install the 'grib' extra of geo-infer-climate)"
+                    )
                 ds = xr.open_dataset(file_path, engine="cfgrib")
             else:
                 raise ValueError(f"Unsupported file format: {file_path}")

@@ -4,6 +4,7 @@ Api workspace within `GEO-INFER-BIO`.
 
 ## Contents
 
+- `__init__.py`
 - `graphql_api.py`
 - `rest_api.py`
 

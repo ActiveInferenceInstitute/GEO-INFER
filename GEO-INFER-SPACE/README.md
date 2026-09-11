@@ -11,8 +11,6 @@ H3 v4 spatial indexing and comprehensive geospatial analysis framework with adva
 - `src/`
 - `test_output/`
 - `tests/`
-- `demo_all_methods.py`
-- `verify_installation.py`
 - `.gitignore`
 - `SKILL.md`
 - `pyproject.toml`
@@ -21,12 +19,7 @@ H3 v4 spatial indexing and comprehensive geospatial analysis framework with adva
 
 ## Public Interface
 
-- `demo_all_methods.py:success` (function)
-- `demo_all_methods.py:info` (function)
-- `demo_all_methods.py:section` (function)
-- `verify_installation.py:verify_h3_backend` (function)
-- `verify_installation.py:verify_srai_backend` (function)
-- `verify_installation.py:verify_dispatcher` (function)
+- No public Python symbols are defined directly in this directory.
 
 ## Module Metadata
 
@@ -46,10 +39,10 @@ H3 v4 spatial indexing and comprehensive geospatial analysis framework with adva
 - `networkx>=2.6.0`
 - `numpy>=1.20.0,<2.0`
 - `pandas>=1.3.0`
+- `psutil>=5.9.0`
 - `pydantic>=2.0.0`
 - `pyproj>=3.3.0`
 - `python-multipart>=0.0.5`
-- `pyyaml>=6.0`
 
 
 ## Validation

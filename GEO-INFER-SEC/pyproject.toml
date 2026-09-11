@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=77.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,17 +7,26 @@ name = "geo-infer-sec"
 version = "0.2.0"
 description = "Comprehensive security and privacy framework for geospatial information systems with encryption, access control, and compliance"
 readme = "README.md"
-license = {text = "CC BY-NC-SA 4.0"}
+license = "CC-BY-NC-SA-4.0"
 requires-python = ">=3.11"
 authors = [
     {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"}
 ]
-keywords = ["geospatial", "active inference", "geoinformatics", "security, privacy, encryption, access-control, compliance, authentication"]
+keywords = [
+    "geospatial",
+    "active inference",
+    "geoinformatics",
+    "security",
+    "privacy",
+    "encryption",
+    "access-control",
+    "compliance",
+    "authentication",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: Creative Commons License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -34,7 +43,7 @@ dependencies = [
     "pandas>=1.3.0",
     "pyjwt>=2.3.0",
     "pyyaml>=6.0",
-    "shapely>=1.8.0"
+    "shapely>=2.0.0"
 ]
 
 [project.optional-dependencies]

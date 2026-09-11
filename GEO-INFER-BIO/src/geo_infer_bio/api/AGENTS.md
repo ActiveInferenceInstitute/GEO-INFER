@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `__init__.py`
 - `graphql_api.py`
 - `rest_api.py`
 

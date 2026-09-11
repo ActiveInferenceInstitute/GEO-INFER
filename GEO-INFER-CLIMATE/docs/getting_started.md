@@ -20,7 +20,7 @@ Required:
 Optional (for tests and data loading):
 
 - `netCDF4` -- NetCDF file reading
-- `cfgrib` -- GRIB file reading (requires eccodes)
+- `cfgrib` -- GRIB file reading (requires eccodes); optional `grib` extra
 - `geopandas`, `h3`, `shapely` -- used by the test fixtures
 
 ## Core Concepts
@@ -33,8 +33,6 @@ Optional (for tests and data loading):
 |--------|-----------|--------|
 | NetCDF | `.nc`, `.netcdf` | xarray default |
 | GRIB | `.grib`, `.grib2` | cfgrib |
-| CSV | `.csv` | pandas |
-| HDF5 | `.hdf5`, `.h5` | h5netcdf |
 
 Supported dataset types: `cmip6`, `era5`, `ncep`, `observations`.
 

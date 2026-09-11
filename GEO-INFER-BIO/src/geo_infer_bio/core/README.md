@@ -4,6 +4,7 @@ Core workspace within `GEO-INFER-BIO`.
 
 ## Contents
 
+- `__init__.py`
 - `sequence_analysis.py`
 
 ## Public Interface

@@ -61,6 +61,15 @@ from .vulnerability_model import (
     create_enhanced_infrastructure_vulnerability_model,
     create_enhanced_population_vulnerability_model,
 )
+from .exposure_model import (
+    EnhancedExposureModel,
+    EnhancedPropertyExposureModel,
+    EnhancedPopulationExposureModel,
+    EnhancedInfrastructureExposureModel,
+    create_enhanced_property_exposure_model,
+    create_enhanced_population_exposure_model,
+    create_enhanced_infrastructure_exposure_model,
+)
 
 # Package exports
 __all__ = [
@@ -115,4 +124,13 @@ __all__ = [
     # Analysis job management
     "AnalysisJob",
     "ModelIntegrationStatus",
+    # Enhanced Exposure Models
+    "EnhancedExposureModel",
+    "EnhancedPropertyExposureModel",
+    "EnhancedPopulationExposureModel",
+    "EnhancedInfrastructureExposureModel",
+    # Exposure model factory functions
+    "create_enhanced_property_exposure_model",
+    "create_enhanced_population_exposure_model",
+    "create_enhanced_infrastructure_exposure_model",
 ]

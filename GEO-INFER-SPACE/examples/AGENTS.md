@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `demo_all_methods.py`
 - `h3_advanced_applications.py`
 - `h3_comprehensive_examples.py`
 - `h3_examples.py`
@@ -28,6 +29,7 @@
 - `multiple_dispatch_demo.py`
 - `nested_orchestrator_examples.py`
 - `run_all.py`
+- `verify_installation.py`
 
 ## Validation
 

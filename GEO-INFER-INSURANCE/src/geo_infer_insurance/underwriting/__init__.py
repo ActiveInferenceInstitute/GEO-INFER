@@ -14,8 +14,8 @@ This module provides enterprise-grade underwriting capabilities including:
 - Integration with external data sources and APIs
 """
 
-__version__ = "1.0.0"
-__author__ = "GEO-INFER-RISK Team"
+__version__ = "0.2.0"
+__author__ = "GEO-INFER Development Team"
 
 from typing import Any, Dict, Optional, Union
 

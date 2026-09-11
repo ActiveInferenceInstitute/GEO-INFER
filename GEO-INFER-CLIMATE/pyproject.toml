@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=77.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,17 +7,25 @@ name = "geo-infer-climate"
 version = "0.2.0"
 description = "Climate modeling, weather analysis, and climate change impact assessment for geospatial systems"
 readme = "README.md"
-license = {text = "CC BY-NC-SA 4.0"}
+license = "CC-BY-NC-SA-4.0"
 requires-python = ">=3.11"
 authors = [
     {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"}
 ]
-keywords = ["geospatial", "climate", "weather", "climate-change", "geoinformatics", "climate-modeling", "downscaling", "climate-indices"]
+keywords = [
+    "geospatial",
+    "climate",
+    "weather",
+    "climate-change",
+    "geoinformatics",
+    "climate-modeling",
+    "downscaling",
+    "climate-indices",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: Creative Commons License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -33,6 +41,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+grib = [
+    "cfgrib>=0.9.9",
+]
 dev = [
     "pytest>=6.2.0",
     "pytest-cov>=2.12.0",

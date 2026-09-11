@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=77.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,17 +7,25 @@ name = "geo-infer-act"
 version = "0.2.0"
 description = "Advanced Active Inference framework implementing Free Energy Principle for geospatial decision-making, perception, and learning"
 readme = "README.md"
-license = {text = "CC BY-NC-SA 4.0"}
+license = "CC-BY-NC-SA-4.0"
 requires-python = ">=3.11"
 authors = [
     {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"}
 ]
-keywords = ["geospatial", "active inference", "geoinformatics", "active-inference, free-energy-principle, variational-inference, bayesian, perception-action-loops, intelligent-agents"]
+keywords = [
+    "geospatial",
+    "active inference",
+    "geoinformatics",
+    "free-energy-principle",
+    "variational-inference",
+    "bayesian",
+    "perception-action-loops",
+    "intelligent-agents",
+]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: Creative Commons License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -35,7 +43,6 @@ dependencies = [
     "seaborn>=0.11.0",
     "inferactively-pymdp==1.0.3",
     "h3>=4.5.0,<5",
-    "geo-infer-ai>=0.2.0",
     "geo-infer-bayes>=0.2.0",
 ]
 
@@ -48,7 +55,7 @@ backends = [
     "bayeux-ml>=0.0.1",
     "jax>=0.2.0",
     "networkx>=2.6.0",
-    "shapely>=1.7.0",
+    "shapely>=2.0.0",
     "imageio>=2.9.0",
     "plotly>=5.0.0",
 ]
@@ -60,6 +67,7 @@ dev = [
     "pytest-asyncio>=0.20.0",
     "black>=21.9.0",
     "mypy>=0.910",
+    "geo-infer-ai>=0.2.0",
     ]
 docs = [
     "sphinx>=4.2.0",
