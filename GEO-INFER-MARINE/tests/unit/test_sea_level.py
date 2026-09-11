@@ -53,6 +53,48 @@ class TestProjectSeaLevelRise:
         )
         assert float(unknown.max()) == float(default.max())
 
+    def test_projection_absolute_values_match_linear_model(
+        self, analyzer, historical_sea_level
+    ):
+        """GS-166: projections equal mean + per-year trend * years_ahead."""
+        result = analyzer.project_sea_level_rise(
+            historical_sea_level, scenario="rcp45", years=[2050, 2100]
+        )
+        mean_historical = float(historical_sea_level.mean())
+        # Fixture: 10 mm/yr over 2000-2010, last year 2010.
+        assert float(result.sel(time="2050-01-01")) == pytest.approx(
+            mean_historical + 10.0 * (2050 - 2010)
+        )
+        assert float(result.sel(time="2100-01-01")) == pytest.approx(
+            mean_historical + 10.0 * (2100 - 2010)
+        )
+
+    def test_scenario_factor_scales_trend(self, analyzer, historical_sea_level):
+        rcp45 = analyzer.project_sea_level_rise(
+            historical_sea_level, scenario="rcp45", years=[2050]
+        )
+        rcp85 = analyzer.project_sea_level_rise(
+            historical_sea_level, scenario="rcp85", years=[2050]
+        )
+        mean_historical = float(historical_sea_level.mean())
+        expected_rcp45 = mean_historical + 10.0 * (2050 - 2010)
+        assert float(rcp85.sel(time="2050-01-01")) == pytest.approx(
+            mean_historical + 2.0 * 10.0 * (2050 - 2010)
+        )
+        assert float(rcp45.sel(time="2050-01-01")) == pytest.approx(expected_rcp45)
+
+    def test_multidimensional_historical_data_raises_value_error(
+        self, analyzer, historical_sea_level
+    ):
+        """GS-166: (space, time) input gets a clear error, not a TypeError."""
+        two_d = xr.DataArray(
+            np.tile(historical_sea_level.values, (2, 1)),
+            dims=("space", "time"),
+            coords={"time": historical_sea_level.time.values, "space": [0, 1]},
+        )
+        with pytest.raises(ValueError, match="one-dimensional"):
+            analyzer.project_sea_level_rise(two_d, scenario="rcp45", years=[2050])
+
 
 class TestAssessInundation:
     def test_low_elevation_inundated(self, analyzer):

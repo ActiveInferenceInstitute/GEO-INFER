@@ -48,9 +48,12 @@ class SeaLevelAnalyzer:
         # Project
         projections = []
         for year in years:
-            years_ahead = year - historical_data.time.max().values.astype(
-                "datetime64[Y]"
-            ).astype(int)
+            years_ahead = year - (
+                historical_data.time.max().values.astype("datetime64[Y]").astype(
+                    int
+                )
+                + 1970
+            )
             projected = historical_data.mean(dim="time") + trend * years_ahead * factor
             projected = projected.expand_dims("time").assign_coords(
                 time=[np.datetime64(f"{year}-01-01")]
@@ -60,9 +63,19 @@ class SeaLevelAnalyzer:
         return cast(xr.DataArray, xr.concat(projections, dim="time"))
 
     def _calculate_trend(self, data: xr.DataArray) -> float:
-        """Calculate linear trend."""
-        time_numeric = np.arange(len(data.time))
-        trend = np.polyfit(time_numeric, data.values.flatten(), 1)[0]
+        """Calculate linear trend in units per year.
+
+        Raises:
+            ValueError: If ``data`` is not a one-dimensional time series.
+        """
+        if data.ndim != 1 or "time" not in data.dims:
+            raise ValueError(
+                "historical_data must be a one-dimensional time series with a "
+                "'time' dimension; got dims "
+                f"{tuple(str(d) for d in data.dims)} with ndim={data.ndim}"
+            )
+        time_numeric = data.time.values.astype("datetime64[Y]").astype(int) + 1970
+        trend = np.polyfit(time_numeric, data.values, 1)[0]
         return float(trend)
 
     def assess_inundation(
