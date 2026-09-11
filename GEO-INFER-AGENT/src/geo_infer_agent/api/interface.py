@@ -18,6 +18,14 @@ from geo_infer_agent.api.messaging import messaging_service, Message
 from geo_infer_agent.api.telemetry import telemetry_service
 
 logger = logging.getLogger("geo_infer_agent.api.interface")
+_pending_start_tasks: set = set()
+
+
+def _on_start_task_done(task: asyncio.Task) -> None:
+    """Log any exception from a fire-and-forget start task, then discard it."""
+    _pending_start_tasks.discard(task)
+    if not task.cancelled() and task.exception() is not None:
+        logger.error(f"Background agent start task failed: {task.exception()}")
 
 
 class AgentInterface:
@@ -102,7 +110,9 @@ class AgentInterface:
                 return False
 
             # Start the agent
-            asyncio.create_task(agent_registry.start_agent(agent_id))
+            task = asyncio.create_task(agent_registry.start_agent(agent_id))
+            _pending_start_tasks.add(task)
+            task.add_done_callback(_on_start_task_done)
             logger.info(f"Started agent {agent_id}")
             return True
         except KeyError:

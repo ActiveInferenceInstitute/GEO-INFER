@@ -7,6 +7,7 @@ Unit workspace within `GEO-INFER-AGENT`.
 - `models/`
 - `test_agent_base.py`
 - `test_agent_communication.py`
+- `test_agent_start_task_retention.py`
 - `test_api_endpoints.py`
 - `test_bdi_agent_and_services.py`
 - `test_bdi_placeholders.py`
