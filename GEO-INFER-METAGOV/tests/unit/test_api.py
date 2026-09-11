@@ -89,6 +89,21 @@ class TestGovernanceAPICrud:
         assert structure_id not in api.governance_structures
         assert api.get_governance_structure(structure_id).code == 404
 
+    def test_recreate_after_delete_does_not_collide(
+        self, api: GovernanceAPI, structure_id: str
+    ) -> None:
+        first = structure_id
+        second = api.create_governance_structure(
+            {"name": "Second"}, [], []
+        ).data["governance_id"]
+        assert api.delete_governance_structure(first).code == 200
+        third = api.create_governance_structure(
+            {"name": "Third"}, [], []
+        ).data["governance_id"]
+        assert len({first, second, third}) == 3
+        assert api.governance_structures[third]["spatial_scope"]["name"] == "Third"
+        assert api.governance_structures[second]["spatial_scope"]["name"] == "Second"
+
     def test_update_unknown_returns_404(self, api: GovernanceAPI) -> None:
         response = api.update_governance_structure("gov_missing", {"status": "x"})
         assert response.code == 404

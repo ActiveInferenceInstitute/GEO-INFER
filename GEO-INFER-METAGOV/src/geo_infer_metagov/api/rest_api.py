@@ -47,6 +47,7 @@ class GovernanceAPI:
         self.version = version
         self.governance_structures: Dict[str, Any] = {}
         self.analysis_cache: Dict[str, Any] = {}
+        self._next_governance_id: int = 0
         logger.info(f"GovernanceAPI initialized (v{version})")
 
     def create_governance_structure(
@@ -79,7 +80,8 @@ class GovernanceAPI:
             API response with created structure
         """
         try:
-            governance_id = f"gov_{len(self.governance_structures)}"
+            governance_id = f"gov_{self._next_governance_id}"
+            self._next_governance_id += 1
 
             structure = {
                 "governance_id": governance_id,
