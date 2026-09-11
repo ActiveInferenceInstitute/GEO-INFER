@@ -327,29 +327,35 @@ def parse_crescent_city_hazard(
 
 
 def load_crescent_city_hazard(
+    source: CrescentCitySeed = None,
+    *,
     seed: CrescentCitySeed = None,
 ) -> CrescentCityHazardIntel:
     """Load Crescent City hazard policy from an injected mapping or JSON path.
 
-    ``None`` loads the reviewed package seed.  A missing package seed or
-    explicit path returns an empty result.  Existing but malformed files fail
-    closed.  The loader never searches sibling projects, downloads data, or
-    falls back to a live service.
+    ``source`` accepts an injected mapping, an explicit local JSON path, or
+    ``None`` to load the reviewed package seed.  ``seed`` is a deprecated
+    keyword alias retained for compatibility and is used only when
+    ``source`` is ``None``.  A missing package seed or explicit path returns
+    an empty result.  Existing but malformed files fail closed.  The loader
+    never searches sibling projects, downloads data, or falls back to a live
+    service.
     """
 
-    if isinstance(seed, Mapping):
-        return parse_crescent_city_hazard(seed)
-    if seed is None:
+    resolved = source if source is not None else seed
+    if isinstance(resolved, Mapping):
+        return parse_crescent_city_hazard(resolved)
+    if resolved is None:
         # The reviewed package seed is the canonical bundled contract copy
         # owned by GEO-INFER-BAYES; RISK no longer ships its own duplicate.
         contract = load_crescent_city_contract()
         if contract is None:
             return _empty_hazard_intel()
         return parse_crescent_city_hazard(contract)
-    if not isinstance(seed, (str, os.PathLike)):
-        raise TypeError("seed must be a mapping, local JSON path, or None")
+    if not isinstance(resolved, (str, os.PathLike)):
+        raise TypeError("source must be a mapping, local JSON path, or None")
 
-    path = Path(seed)
+    path = Path(resolved)
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:

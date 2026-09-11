@@ -148,6 +148,17 @@ def test_local_json_path_and_missing_seed_are_deterministic(tmp_path: Path) -> N
     assert load_crescent_city_hazard(tmp_path / "missing.json") == empty
 
 
+def test_source_parameter_replaces_deprecated_seed_alias() -> None:
+    """``source`` is the primary parameter; ``seed`` still routes for compatibility."""
+
+    fixture = _contract_fixture()
+
+    assert load_crescent_city_hazard(fixture) == load_crescent_city_hazard(seed=fixture)
+    assert load_crescent_city_hazard(fixture) == parse_crescent_city_hazard(fixture)
+    with pytest.raises(TypeError, match="source must be"):
+        load_crescent_city_hazard(seed=object())
+
+
 def test_policy_weights_align_with_multi_hazard_matrix_names() -> None:
     """Municipal section evidence maps to matrix hazards without causal rewiring."""
 
