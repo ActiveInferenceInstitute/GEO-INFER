@@ -11,12 +11,15 @@ module logger instead of vanishing unobserved.
 """
 
 import asyncio
-import logging
 import unittest
 from unittest import mock
 
 from geo_infer_agent.api import interface as interface_module
-from geo_infer_agent.api.interface import AgentInterface, _on_start_task_done, _pending_start_tasks
+from geo_infer_agent.api.interface import (
+    AgentInterface,
+    _on_start_task_done,
+    _pending_start_tasks,
+)
 from geo_infer_agent.core.agent_registry import agent_registry
 
 
@@ -43,20 +46,28 @@ class TestStartAgentTaskRetention(unittest.TestCase):
                 continue
 
     def test_start_agent_becomes_running_within_tick(self) -> None:
-        agent_id = _run(self.interface.create_agent("default", {}, agent_id="start-retain-1"))
+        agent_id = _run(
+            self.interface.create_agent("default", {}, agent_id="start-retain-1")
+        )
         self.assertTrue(_run(self.interface.start_agent(agent_id)))
         _run(asyncio.sleep(0.2))
         self.assertTrue(agent_registry.is_agent_running(agent_id))
         self.assertEqual(len(_pending_start_tasks), 0)
 
     def test_start_failure_is_logged_and_task_discarded(self) -> None:
-        agent_id = _run(self.interface.create_agent("default", {}, agent_id="start-fail-1"))
+        agent_id = _run(
+            self.interface.create_agent("default", {}, agent_id="start-fail-1")
+        )
 
         async def exploding_start(_agent_id: str) -> None:
             raise RuntimeError("boom")
 
-        with mock.patch.object(agent_registry, "start_agent", side_effect=exploding_start), \
-                self.assertLogs("geo_infer_agent.api.interface", level="ERROR") as logs:
+        with (
+            mock.patch.object(
+                agent_registry, "start_agent", side_effect=exploding_start
+            ),
+            self.assertLogs("geo_infer_agent.api.interface", level="ERROR") as logs,
+        ):
             self.assertTrue(_run(self.interface.start_agent(agent_id)))
             _run(asyncio.sleep(0.2))
 

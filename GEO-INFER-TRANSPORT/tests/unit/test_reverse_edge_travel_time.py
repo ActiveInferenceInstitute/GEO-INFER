@@ -30,9 +30,7 @@ class TestReverseEdgeTravelTime:
         self, network: TransportNetwork
     ):
         """nx.dijkstra on the reverse edge costs length/speed * 3600, not 1.0."""
-        cost = nx.dijkstra_path_length(
-            network.graph, "b", "a", weight="travel_time"
-        )
+        cost = nx.dijkstra_path_length(network.graph, "b", "a", weight="travel_time")
         assert cost == pytest.approx((1000 / 1000) / 50 * 3600)  # 72.0 s
 
     def test_reverse_edge_graph_attribute(self, network: TransportNetwork):
@@ -47,7 +45,8 @@ class TestReverseEdgeTravelTime:
         engine = RoutingEngine(network=network, real_time_traffic=True)
         engine.update_traffic({"e1_rev": 2.0})
         route = engine.route(
-            origin={"node_id": "b"}, destination={"node_id": "a"},
+            origin={"node_id": "b"},
+            destination={"node_id": "a"},
             optimization="time",
         )
         assert route.path == ["b", "a"]

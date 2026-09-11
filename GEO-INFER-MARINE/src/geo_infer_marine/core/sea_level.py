@@ -49,9 +49,7 @@ class SeaLevelAnalyzer:
         projections = []
         for year in years:
             years_ahead = year - (
-                historical_data.time.max().values.astype("datetime64[Y]").astype(
-                    int
-                )
+                historical_data.time.max().values.astype("datetime64[Y]").astype(int)
                 + 1970
             )
             projected = historical_data.mean(dim="time") + trend * years_ahead * factor

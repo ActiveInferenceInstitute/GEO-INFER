@@ -107,3 +107,24 @@ def test_enforce_rate_limit_rejects() -> None:
             client_id="alice",
             rate_limiter=bucket,
         )
+
+
+def test_policy_rate_limit_per_minute_is_enforced() -> None:
+    """policy.rate_limit_per_minute must rate-limit on its own, no bucket needed."""
+    policy = LLMProxyPolicy(rate_limit_per_minute=1)
+    enforce_llm_proxy_policy(policy, model="m", client_id="c")
+    with pytest.raises(LLMProxyPolicyError):
+        enforce_llm_proxy_policy(policy, model="m", client_id="c")
+
+
+def test_policy_rate_limit_ignored_without_client_id() -> None:
+    policy = LLMProxyPolicy(rate_limit_per_minute=1)
+    for _ in range(3):
+        enforce_llm_proxy_policy(policy, model="m")
+
+
+def test_policy_rate_limit_other_clients_unaffected() -> None:
+    policy = LLMProxyPolicy(rate_limit_per_minute=1)
+    enforce_llm_proxy_policy(policy, model="m", client_id="a")
+    # A different client still has its full budget within the same window.
+    enforce_llm_proxy_policy(policy, model="m", client_id="b")

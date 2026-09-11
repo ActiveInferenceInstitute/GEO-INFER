@@ -17,7 +17,12 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
-from typing import Dict, Optional, Sequence
+from typing import Dict, Optional, Sequence, Tuple
+
+# Buckets backing LLMProxyPolicy.rate_limit_per_minute, keyed by the policy's
+# canonical value tuple so repeated enforcement against the same policy shares
+# one window. Explicitly-passed TokenBuckets bypass this registry.
+_policy_rate_buckets: Dict[Tuple, TokenBucket] = {}
 
 
 class LLMProxyPolicyError(ValueError):
@@ -111,9 +116,10 @@ def enforce_llm_proxy_policy(
     """Apply the full policy guard to one request.
 
     Checks (in order): model allowlist, request size, output-token cap, and
-    (when a ``rate_limiter`` and ``client_id`` are supplied) the per-client
-    rate limit.
-
+    the per-client rate limit. Rate limiting consults the supplied
+    ``rate_limiter``; when none is given and the policy declares
+    ``rate_limit_per_minute``, a shared per-policy bucket is created and
+    reused across calls. No rate limiting applies without a ``client_id``.
     Args:
         policy: The active policy.
         model: Requested model identifier.
@@ -122,7 +128,8 @@ def enforce_llm_proxy_policy(
             count (used when the payload is already serialised).
         requested_output_tokens: Requested output token budget.
         client_id: Client identifier for rate limiting.
-        rate_limiter: Optional rate limiter to consult.
+        rate_limiter: Optional rate limiter to consult; defaults to a shared
+            per-policy bucket built from ``policy.rate_limit_per_minute``.
 
     Raises:
         LLMProxyPolicyError: On any policy violation.
@@ -136,9 +143,26 @@ def enforce_llm_proxy_policy(
     if requested_output_tokens:
         check_output_tokens(policy, requested_output_tokens)
 
-    if rate_limiter is not None and client_id is not None:
-        if not rate_limiter.allow(client_id):
-            raise LLMProxyPolicyError(f"rate limit exceeded for client {client_id!r}")
+    if client_id is None:
+        return
+
+    if rate_limiter is None:
+        if policy.rate_limit_per_minute is None:
+            return
+        key = (
+            tuple(policy.allowed_models),
+            policy.max_request_chars,
+            policy.max_output_tokens,
+            policy.rate_limit_per_minute,
+        )
+        bucket = _policy_rate_buckets.get(key)
+        if bucket is None:
+            bucket = TokenBucket(limit=policy.rate_limit_per_minute)
+            _policy_rate_buckets[key] = bucket
+        rate_limiter = bucket
+
+    if not rate_limiter.allow(client_id):
+        raise LLMProxyPolicyError(f"rate limit exceeded for client {client_id!r}")
 
 
 __all__ = [

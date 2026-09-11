@@ -69,7 +69,9 @@ class TestForecastTrend:
     def test_constant_time_raises_value_error(self, forecaster):
         """Fewer than two distinct time values cannot estimate a trend."""
         demand = xr.DataArray(
-            np.arange(5.0), dims=("time",), coords={"time": [2020, 2020, 2020, 2020, 2020]}
+            np.arange(5.0),
+            dims=("time",),
+            coords={"time": [2020, 2020, 2020, 2020, 2020]},
         )
         with pytest.raises(ValueError, match="distinct time values"):
             forecaster.forecast_demand(demand, forecast_years=3)

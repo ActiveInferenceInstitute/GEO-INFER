@@ -123,8 +123,7 @@ def _validate_time_series(da: xr.DataArray) -> xr.DataArray:
         )
     if "time" not in da.dims:
         raise ValueError(
-            "historical_demand must have a 'time' dimension, got dims "
-            f"{tuple(da.dims)}"
+            f"historical_demand must have a 'time' dimension, got dims {tuple(da.dims)}"
         )
     if len(da.dims) != 1:
         raise ValueError(
