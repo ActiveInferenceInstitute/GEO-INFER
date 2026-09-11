@@ -222,3 +222,56 @@ the tool reported success but the page received no key/click event. Newly
 created window IDs disappeared before resizing, so a real narrow screenshot
 could not be captured without affecting an unrelated window. Owned tabs and
 the test server were closed. These tool limitations leave DOCS-01 deferred.
+
+## Advisor probe (2026-09-10)
+
+TEST-04 re-probe: the configured advisor is the Cato cross-vendor adversarial
+audit, surfaced through the Codex CLI. Probe found codex-cli 0.153.2 installed
+but authenticated via ChatGPT account with no OPENAI_API_KEY set. One bounded
+invocation (`codex exec -m gpt-5.2` with a trivial prompt) failed with
+`ERROR status 400: The 'gpt-5.2' model is not supported when using Codex with a
+ChatGPT account.` (exit 1). Cato remains unavailable; TEST-04 advisor review is
+re-deferred as of 2026-09-10. Resolution requires switching Codex auth to an
+API-key account (an account-level decision).
+
+## 2026-09-10 investigation of the historical PROJ SQLite disk-I/O failure (TEST-GNN-01)
+
+A bounded probe matrix investigated the one-time Python 3.12 combined-process failure
+(32 SPACE failures/errors reporting a PROJ SQLite disk-I/O error; fresh-process rerun
+passed all 587 SPACE tests, per the SPACE/TIME receipt). Full detail is in the
+investigation report at /tmp/ledger-closeout/report-test-gnn-01.md; probes live in
+/tmp/ledger-closeout/.
+
+Method and results:
+
+| Probe | Setup | Result |
+| --- | --- | --- |
+| (a) Current environment | This workstation's GEO `.venv` | Python 3.12.11, SQLite 3.50.4, pyproj 3.7.1, PROJ 9.5.1; embedded `proj.db` `PRAGMA quick_check` = `ok`. The interpreter build differs from the recorded 3.12.13/SQLite 3.53.1 (different build, not a record error). |
+| (b) Import order | ACT→SPACE→TIME, TIME→SPACE→ACT, SPACE→ACT→TIME; 2 reps each = 6 direct import+CRS/H3 smoke runs | All 6 passed with identical numerical outputs (4326→3857 transform and H3 cell identical across orders). No PROJ/SQLite error. |
+| (b) pytest | `tests/unit/test_spatial_functions.py` (29 tests, includes CRS transform tests), alone and paired with `tests/integration/test_act_agent_ant_coordination.py` | All passed. |
+| (c) Exact historical versions | Throwaway uv venv: CPython 3.12.13, SQLite 3.53.1, pyproj 3.7.1, PROJ 9.5.1 — exactly the recorded combination | Two runs of a 200-iteration CRS/transform/authority loop (cold and warm): zero errors, `quick_check` = `ok`. |
+| (d) Concurrent processes | 3 iterations of two simultaneous pytest processes on `test_spatial_functions.py`, same tree and same embedded `proj.db` | 6 × 29 tests, all `errors="0" failures="0" skipped="0"`; no disk-I/O text in any output. |
+
+Structural observation: on this machine every PROJ-opening process shares one
+embedded SQLite database, `GEO-INFER/.venv/lib/python3.12/site-packages/pyproj/
+proj_dir/share/proj/proj.db`, which lives inside the git worktree. The historical
+failure occurred in a single long-running combined multi-module process — the setup
+that holds that file open longest while other processes operate on the same tree.
+
+Classification: transient concurrent-access contention on the shared embedded
+`proj.db` is the most plausible cause — consistent with failure in one process, full
+recovery in a fresh process, stable integrity and descriptor count, and zero
+recurrence across 8 fresh single-process smoke/pytest runs, 6 concurrent-pair
+processes and 400 CRS iterations on the exact historical version combination.
+Environmental stale cache is effectively ruled out (integrity `ok` before and after,
+no cache reset needed). What remains honestly unexplained: the exact trigger. There
+is no reproducer; the single historical occurrence cannot be inspected
+retroactively, and what other processes may have held or scanned the tree at that
+moment is unknown. Contention is consistent with the evidence, not demonstrated by it.
+
+Closing the row fully requires one of: a reproducible minimal case (for example an
+exclusive lock or induced I/O failure on `proj.db` while a CRS opens, matching the
+historical error text), or three consecutive clean full combined-process suite runs on
+Python 3.12 with this probe matrix recorded per cycle, plus recording the interpreter
+build and SQLite version (not just "Python 3.12") in every future receipt. No CRS
+test was weakened and no environment fix is claimed.
