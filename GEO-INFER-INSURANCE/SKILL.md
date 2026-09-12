@@ -92,7 +92,7 @@ pricing = PricingEngine()
 ## Guidelines
 
 - Run the module suite with the shared workspace venv:
-  `uv run --no-sync python -m pytest GEO-INFER-INSURANCE/tests -q --timeout=300`.
+  `uv run python GEO-INFER-TEST/run_unified_tests.py --module INSURANCE --timeout=300`.
 - Cross-module scoring imports are guarded: the module works without the
   optional integrations and says so in results rather than guessing.
 - Keep pyproject.toml as the canonical dependency ledger; setup.py stays a thin

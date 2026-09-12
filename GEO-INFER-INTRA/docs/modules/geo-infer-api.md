@@ -23,7 +23,7 @@ The module provides RESTful endpoints following OpenAPI standards with features:
 ```
 python # Illustrative; see GEO-INFER-API/examples for runnable scripts
 ```
- ### Links - Module README: ../../GEO-INFER-API/README.md - OpenAPI: ../../GEO-INFER-API/docs/openapi_spec.yaml - Modules Overview: ../modules/index.md #### GraphQL Schema Flexible GraphQL schema for complex queries with real-time capabilities:
+ ### Links - Module README: [Module README](../../../GEO-INFER-API/README.md) - OpenAPI: ../../GEO-INFER-API/docs/openapi_spec.yaml - Modules Overview: ../modules/index.md #### GraphQL Schema Flexible GraphQL schema for complex queries with real-time capabilities:
 ```
 python from geo_infer_api.graphql import GraphQLSchema # Define GraphQL schema schema = GraphQLSchema( real_time_subscriptions=True, caching_enabled=True, introspection_enabled=True ) # Define types spatial_analysis_type = schema.define_type('SpatialAnalysis', { 'id': 'ID!', 'analysis_type': 'String!', 'results': 'JSON!', 'created_at': 'DateTime!', 'spatial_bounds': 'GeoJSON!', 'confidence_intervals': 'JSON', 'metadata': 'JSON' }) # Define queries with filtering schema.define_query('spatialAnalysis', { 'type': '[SpatialAnalysis]', 'args': { 'analysis_type': 'String', 'location': 'GeoJSON', 'date_range': 'DateRange', 'confidence_level': 'Float' }, 'resolver': advanced_spatial_analysis_resolver, 'caching': True, 'rate_limiting': True }) # Define real-time subscriptions schema.define_subscription('realTimeSpatialUpdates', { 'type': 'SpatialUpdate', 'args': { 'spatial_bounds': 'GeoJSON', 'update_types': '[String]' }, 'resolver': real_time_spatial_resolver })
 ```

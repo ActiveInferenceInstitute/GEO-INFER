@@ -303,6 +303,32 @@ class TestEquityAnalyzer:
         result = equity_analyzer.analyze()
         assert any("disfavored" in f for f in result.disparate_impact_flags)
 
+    def test_per_capita_rates_drive_flags_with_equal_raw_impacts(self, equity_analyzer):
+        """Equal absolute impact but a 10x population difference produces
+        per-capita disparate-impact flags (raw impacts alone would not)."""
+        equity_analyzer.set_group_impact("small", 1.0, 100)
+        equity_analyzer.set_group_impact("large", 1.0, 1000)
+        result = equity_analyzer.analyze()
+        # Raw impacts are identical, so only the per-capita comparison
+        # can flag the group with the larger population.
+        assert any("large" in f for f in result.disparate_impact_flags)
+        assert not any("small" in f for f in result.disparate_impact_flags)
+
+    def test_per_capita_rates_invert_raw_impact_ranking(self, equity_analyzer):
+        """Raw impacts favor 'big_total', but per-capita rates favor
+        'small_dense', so the flag inverts."""
+        equity_analyzer.set_group_impact("big_total", 100.0, 1000)
+        equity_analyzer.set_group_impact("small_dense", 5.0, 10)
+        result = equity_analyzer.analyze()
+        assert result.most_impacted_group == "big_total"
+        assert any("big_total" in f for f in result.disparate_impact_flags)
+        assert not any("small_dense" in f for f in result.disparate_impact_flags)
+
+    def test_non_positive_population_raises(self, equity_analyzer):
+        """A group needs a positive population to have a per-capita rate."""
+        with pytest.raises(ValueError, match="positive"):
+            equity_analyzer.set_group_impact("ghost", 1.0, 0)
+
     def test_most_and_least_impacted(self, equity_analyzer):
         equity_analyzer.set_group_impact("high", 5.0, 100)
         equity_analyzer.set_group_impact("low", 1.0, 100)

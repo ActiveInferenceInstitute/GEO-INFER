@@ -10,7 +10,7 @@
 ## Overview
 Note: All examples are runnable; see `GEO-INFER-EXAMPLES/examples` for scripts.
 ### Links
-- Module README: ../../GEO-INFER-EXAMPLES/README.md
+- Module README: [Module README](../../../GEO-INFER-EXAMPLES/README.md)
 - Modules Overview: ../modules/index.md
 GEO-INFER-EXAMPLES provides learning resources for the framework. It includes:
 - **Basic Tutorials**: Getting started guides for core modules

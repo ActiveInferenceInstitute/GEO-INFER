@@ -33,6 +33,52 @@ AUTHORITATIVE_DOCS = (
     "GEO-INFER-INTRA/docs/developer_guide/repo_guidelines.md",
     "GEO-INFER-INTRA/docs/architecture/index.md",
     "GEO-INFER-INTRA/docs/modules/index.md",
+    "GEO-INFER-INTRA/docs/guides/README.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-act.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-ag.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-agent.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-ai.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-ant.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-api.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-app.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-art.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-bayes.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-bio.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-civ.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-climate.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-cog.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-comms.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-data.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-econ.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-edu.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-emergency.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-energy.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-examples.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-forest.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-git.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-health.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-insurance.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-intra.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-iot.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-log.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-marine.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-math.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-metagov.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-norms.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-ops.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-org.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-pep.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-place.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-req.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-risk.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-sec.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-sim.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-space.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-spm.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-test.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-time.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-transport.md",
+    "GEO-INFER-INTRA/docs/modules/geo-infer-water.md",
     "GEO-INFER-INTRA/docs/geospatial/data_formats/h3/index.md",
     "GEO-INFER-INTRA/docs/geospatial/visualization/index.md",
     "GEO-INFER-INTRA/docs/api/index.md",
@@ -104,6 +150,28 @@ def validate_current_state_language(paths: tuple[Path, ...]) -> list[str]:
     return errors
 
 
+def import_truth_errors(repo_root: Path) -> list[str]:
+    """Run the import-truth check over the documentation hub.
+
+    The checker is loaded by file path (sibling of this script) so spec-based
+    test loading never depends on ``sys.path``; ``repo_root`` is threaded
+    through so monkeypatched roots are honored.
+    """
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "geo_infer_validate_doc_imports",
+        Path(__file__).resolve().parent / "validate_doc_imports.py",
+    )
+    if spec is None or spec.loader is None:
+        raise ImportError("validate_doc_imports.py not found next to validator")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    errors, _, _ = module.validate(repo_root)
+    return errors
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -127,6 +195,7 @@ def main() -> int:
                 tuple(path for path in paths if path.is_file())
             )
         )
+        errors.extend(import_truth_errors(REPO_ROOT))
 
     if errors:
         print("Documentation validation failed:", file=sys.stderr)

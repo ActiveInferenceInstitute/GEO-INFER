@@ -91,7 +91,7 @@ from geo_infer_examples.models import WorkflowDefinition, GEO_INFER_MODULES
 - `module_orchestrator.py` convergence check uses numeric relative-change
 - Track new tutorial requests in the root task ledger before adding examples
 - Verified runnable examples live under `examples/*/scripts/`
-- Test: `uv run python -m pytest GEO-INFER-EXAMPLES/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module EXAMPLES`
 
 ### Integrations
 

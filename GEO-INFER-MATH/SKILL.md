@@ -97,7 +97,7 @@ print(stats)
 - All distance calculations default to WGS84 ellipsoid
 - Weight matrices should be row-standardized for spatial statistics
 - Core deps are numpy/scipy/pandas/psutil/scikit-learn/sympy (see pyproject.toml); no external geo-dependencies (no GDAL/h3/shapely required). Optional: z3-solver for theorem proving, matplotlib for examples (`examples` extra).
-- Test: `uv run python -m pytest GEO-INFER-MATH/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH`
 
 ### Integrations
 

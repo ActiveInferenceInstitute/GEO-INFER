@@ -66,3 +66,41 @@ def test_skill_claim_language_ignores_code_blocks():
     errors = skills.validate_skill_claim_language(content, "[TEST]")
 
     assert errors == []
+
+
+def test_cli_help_lists_documented_flags():
+    """Every flag advertised in the usage docstring must be accepted by the CLI (GS-292)."""
+    import re
+    import subprocess
+
+    docstring = Path(SKILLS_PATH).read_text()
+    documented = sorted(set(re.findall(r"--[a-z][a-z-]*\b", docstring)))
+    assert documented, "usage docstring advertises no flags"
+
+    proc = subprocess.run(
+        [sys.executable, str(SKILLS_PATH), "--help"],
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert proc.returncode == 0, f"--help exited {proc.returncode}: {proc.stderr}"
+    for flag in documented:
+        assert flag in proc.stdout, (
+            f"docstring advertises {flag} but the parser does not accept it"
+        )
+
+
+def test_cli_accepts_documented_flags_without_argparse_error():
+    """Documented flag combinations must parse (exit never 2 from argparse)."""
+    import subprocess
+
+    for argv in ([], ["--verbose"], ["--check-xrefs"], ["--verbose", "--check-xrefs"]):
+        proc = subprocess.run(
+            [sys.executable, str(SKILLS_PATH), *argv],
+            capture_output=True,
+            text=True,
+            timeout=300,
+        )
+        assert proc.returncode in (0, 1), (
+            f"{' '.join(argv) or '(no flags)'} exited {proc.returncode}: {proc.stderr}"
+        )

@@ -18,7 +18,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-MATH/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-MATH/README.md - Modules Overview: ../modules/index.md GEO-INFER-MATH is the mathematical foundations module that provides core mathematical capabilities for the GEO-INFER framework. It enables:
+- Module README: [Module README](../../../GEO-INFER-MATH/README.md) - Modules Overview: ../modules/index.md GEO-INFER-MATH is the mathematical foundations module that provides core mathematical capabilities for the GEO-INFER framework. It enables:
 
 - **Statistical Methods**: statistical analysis and inference - **Optimization Algorithms**: Mathematical optimization for geospatial problems - **Linear Algebra**: Matrix operations and linear transformations - **Numerical Methods**: Efficient numerical computation - **Mathematical Modeling**: Framework for mathematical models - **Probability Theory**: probabilistic methods - **Information Theory**: Entropy and information measures
 

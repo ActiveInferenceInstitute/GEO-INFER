@@ -60,7 +60,7 @@ if deployer.build_docker_image(tag="geo-infer-api:local"):
 - Uses structured logging (JSON format)
 - Prometheus-compatible metrics export
 - `start_metrics_server()` yields the selected port and closes server/thread handles on exit
-- Test: `uv run python -m pytest GEO-INFER-OPS/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module OPS`
 
 ### Integrations
 

@@ -61,15 +61,15 @@ backend = H3Backend()
 cell = backend.latlng_to_cell(45.5231, -122.6765, resolution=7)
 print(f"H3 cell: {cell}")
 
-# Get neighbors
-neighbors = backend.grid_disk(cell, k=2)
+# Get neighbors within 2 grid rings (excludes the center cell)
+neighbors = backend.get_cells_within_radius(cell, k=2)
 print(f"Neighbors (k=2): {len(neighbors)} cells")
 
-# Tessellate a region
+# Convert a polygon region to H3 cells
 from shapely.geometry import box
 region = box(-122.8, 45.4, -122.5, 45.6)
-cells = backend.tessellate(region, resolution=8)
-print(f"Tessellation: {len(cells)} cells")
+cells = backend.polygon_to_cells(region, resolution=8)
+print(f"Region coverage: {len(cells)} cells")
 ```
 
 ```python
@@ -108,7 +108,7 @@ print(f"UTM Zone 10N: ({x:.0f}, {y:.0f})")
 - EPSG:4326 (WGS84) is the default CRS
 - Test:
   `uv run pytest GEO-INFER-SPACE/tests/unit/test_nested_h3_contract.py -q`
-  and `uv run python -m pytest GEO-INFER-SPACE/tests/ -v`
+  and `uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE`
 
 ### Integrations
 

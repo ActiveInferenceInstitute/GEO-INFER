@@ -443,8 +443,15 @@ class EquityAnalyzer:
         Args:
             group_name: Name of the demographic group.
             impact_value: Numeric impact value (higher = more benefit).
-            population: Population size of the group.
+            population: Population size of the group (must be positive).
+
+        Raises:
+            ValueError: If population is not positive.
         """
+        if population <= 0:
+            raise ValueError(
+                f"Population for '{group_name}' must be positive, got {population}"
+            )
         self._group_impacts[group_name] = impact_value
         self._group_populations[group_name] = population
 
@@ -532,24 +539,31 @@ class EquityAnalyzer:
         populations: Dict[str, int],
     ) -> List[str]:
         """
-        Check for disparate impact using the 4/5ths rule analog.
+        Check for disparate impact using the 4/5ths rule analog on
+        per-capita impact rates.
 
-        If any group's benefit rate is less than 80% of the highest
-        group's benefit rate (adjusted for population), flag it.
+        Each group's per-capita rate is impact / population. If any
+        group's per-capita rate is less than 80% of the highest rate,
+        flag it.
         """
         flags: List[str] = []
         if not impacts:
             return flags
 
-        max_impact = max(impacts.values())
-        if max_impact <= 0:
+        rates: Dict[str, float] = {
+            group: impact / populations[group] for group, impact in impacts.items()
+        }
+
+        max_rate = max(rates.values())
+        if max_rate <= 0:
             return flags
 
-        threshold = 0.8 * max_impact
-        for group, impact in impacts.items():
-            if impact < threshold:
+        threshold = 0.8 * max_rate
+        for group, rate in rates.items():
+            if rate < threshold:
                 flags.append(
-                    f"{group}: impact ({impact:.2f}) is below 80% of highest ({max_impact:.2f})"
+                    f"{group}: per-capita impact ({rate:.6f}) is below 80% of "
+                    f"highest per-capita impact ({max_rate:.6f})"
                 )
 
         return flags

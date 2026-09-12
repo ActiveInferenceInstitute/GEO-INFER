@@ -244,7 +244,9 @@ class ProgressTracker:
         # Update or create competency record
         if competency_id in progress.competencies:
             record = progress.competencies[competency_id]
-            # Update only if new level is higher or same with higher confidence
+            # Update only if the new level is equal or higher (assessments never
+            # silently downgrade an achieved level); same-level updates refresh
+            # evidence, last_assessed, and confidence.
             if _COMPETENCY_LEVEL_ORDER[level] >= _COMPETENCY_LEVEL_ORDER[record.level]:
                 record.level = level
                 record.last_assessed = datetime.now()

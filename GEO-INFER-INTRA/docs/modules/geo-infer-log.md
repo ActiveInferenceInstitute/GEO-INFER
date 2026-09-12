@@ -1,5 +1,12 @@
 # GEO-INFER-LOG: Logistics
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
+
 > **Explanation**: Understanding Logistics in GEO-INFER
 >
 > This module provides logistics and supply chain management capabilities for geospatial applications, including route optimization, supply chain analysis, and logistics planning.
@@ -8,7 +15,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-LOG/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-LOG/README.md GEO-INFER-LOG is the logistics engine that provides supply chain and logistics management capabilities for geospatial information systems. It enables:
+- Module README: [Module README](../../../GEO-INFER-LOG/README.md) GEO-INFER-LOG is the logistics engine that provides supply chain and logistics management capabilities for geospatial information systems. It enables:
 
 - **Route Optimization**: Optimize transportation routes and logistics paths - **Supply Chain Analysis**: Analyze supply chain networks and performance - **Logistics Planning**: Plan and optimize logistics operations - **Transportation Management**: Manage transportation networks and fleets - **Inventory Optimization**: Optimize inventory levels and distribution
 

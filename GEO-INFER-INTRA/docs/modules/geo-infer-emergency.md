@@ -10,7 +10,7 @@
 ## Overview
 Note: Code examples are illustrative; see `GEO-INFER-EMERGENCY/examples` for runnable scripts.
 ### Links
-- Module README: ../../GEO-INFER-EMERGENCY/README.md
+- Module README: [Module README](../../../GEO-INFER-EMERGENCY/README.md)
 - Modules Overview: ../modules/index.md
 GEO-INFER-EMERGENCY implements emergency management for geospatial applications. It provides:
 - **Emergency Coordination**: Multi-agency incident command and coordination

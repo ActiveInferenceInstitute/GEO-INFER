@@ -14,7 +14,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-FOREST/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-FOREST/README.md - Modules Overview: ../modules/index.md GEO-INFER-FOREST implements forest analysis for geospatial applications. It provides:
+- Module README: [Module README](../../../GEO-INFER-FOREST/README.md) - Modules Overview: ../modules/index.md GEO-INFER-FOREST implements forest analysis for geospatial applications. It provides:
 
 - **Forest Health Monitoring**: Vegetation indices, condition assessment, and stress detection - **Deforestation Detection**: Change detection, early warning alerts, and degradation mapping - **Biomass Estimation**: Above-ground carbon stocks and carbon sequestration rates - **Fire Risk Assessment**: Wildfire probability modeling and fuel load mapping - **Sustainable Forestry**: Harvest planning, regeneration monitoring, and certification support
 

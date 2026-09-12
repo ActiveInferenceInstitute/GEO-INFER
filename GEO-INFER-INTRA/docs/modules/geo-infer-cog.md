@@ -1,5 +1,12 @@
 # GEO-INFER-COG: Cognitive Modeling
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
+
 > **Explanation**: Understanding Cognitive Modeling in GEO-INFER
 >
 > This module provides cognitive modeling capabilities for understanding human spatial cognition, attention mechanisms, and decision-making processes in geospatial contexts.
@@ -8,7 +15,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-COG/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-COG/README.md GEO-INFER-COG is the cognitive modeling engine that provides capabilities for understanding and modeling human cognitive processes in geospatial contexts. It enables:
+- Module README: [Module README](../../../GEO-INFER-COG/README.md) GEO-INFER-COG is the cognitive modeling engine that provides capabilities for understanding and modeling human cognitive processes in geospatial contexts. It enables:
 
 - **Spatial Cognition**: Modeling how humans perceive and understand spatial relationships - **Attention Mechanisms**: Understanding what spatial information humans focus on - **Memory Models**: Modeling spatial memory and recall processes - **Decision Making**: Understanding cognitive biases in spatial decision-making - **Trust Modeling**: Modeling trust in spatial information sources
 

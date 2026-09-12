@@ -153,10 +153,10 @@ lat, lng = h3.cell_to_latlng(cell)
 uv run python GEO-INFER-TEST/run_unified_tests.py
 
 # Single module
-uv run python -m pytest GEO-INFER-MATH/tests/ -v
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
 
 # With coverage
-uv run python -m pytest GEO-INFER-MATH/tests/ --cov=GEO-INFER-MATH/src
+uv run python GEO-INFER-TEST/run_unified_tests.py --category coverage
 ```
 
 ### Modular Hygiene

@@ -84,5 +84,5 @@ assert window["aggregated_value"] == 21.5
 - Install the TIME `streaming` extra for WebSocket and Kafka ingestion.
 - Supply explicit event timestamps; naive input means UTC and output is timezone-aware UTC.
 - Read [streaming migration and delivery contracts](docs/streaming_migration.md) before changing callers.
-- Run `uv run python -m pytest GEO-INFER-TIME/tests/ -v` for local verification.
+- Run `uv run python GEO-INFER-TEST/run_unified_tests.py --module TIME` for local verification.
 - Run the explicit live Kafka service check against a disposable broker when validating network delivery.

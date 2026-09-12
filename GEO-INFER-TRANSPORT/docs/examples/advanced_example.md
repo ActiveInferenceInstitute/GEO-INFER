@@ -15,8 +15,10 @@ The workflow covers:
 
 ## Prerequisites
 
+Sync the module from the root uv workspace:
+
 ```bash
-uv pip install -e ./GEO-INFER-TRANSPORT
+uv sync --package geo-infer-transport
 ```
 
 ## Step 1: Traffic Flow Analysis per Segment

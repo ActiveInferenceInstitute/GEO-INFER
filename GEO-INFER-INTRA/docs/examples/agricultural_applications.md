@@ -1,4 +1,11 @@
 # Agricultural Applications: Precision Farming with GEO-INFER
+
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
 > **Illustrative guide.** The code in this page is illustrative: it sketches
 > how the module APIs compose for this use case. Some identifiers shown are
 > conceptual; always import from the current package exports (see the module

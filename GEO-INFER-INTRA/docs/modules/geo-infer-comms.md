@@ -1,5 +1,12 @@
 # GEO-INFER-COMMS: Communication Systems
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
+
 > **Explanation**: Understanding Communication Systems in GEO-INFER
 >
 > This module provides communication and information systems for geospatial applications, including data communication, messaging systems, information sharing, and collaborative platforms.
@@ -8,7 +15,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-COMMS/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-COMMS/README.md GEO-INFER-COMMS is the communication systems engine that provides communication and information sharing capabilities for geospatial information systems. It enables:
+- Module README: [Module README](../../../GEO-INFER-COMMS/README.md) GEO-INFER-COMMS is the communication systems engine that provides communication and information sharing capabilities for geospatial information systems. It enables:
 
 - **Data Communication**: Secure and efficient data communication protocols - **Messaging Systems**: Messaging and notification systems - **Information Sharing**: Collaborative information sharing platforms - **Communication Networks**: Distributed communication network management - **Collaborative Platforms**: Multi-stakeholder collaboration tools
 

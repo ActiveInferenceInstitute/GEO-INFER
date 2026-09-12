@@ -1,5 +1,12 @@
 # GEO-INFER-OPS: Operations
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
+
 > **Explanation**: Understanding Operations in GEO-INFER
 >
 > This module provides operations management and orchestration capabilities for geospatial applications, including system operations, deployment management, and operational monitoring.
@@ -8,7 +15,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-OPS/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-OPS/README.md GEO-INFER-OPS is the operations engine that provides system operations and orchestration capabilities for GEO-INFER modules. It enables:
+- Module README: [Module README](../../../GEO-INFER-OPS/README.md) GEO-INFER-OPS is the operations engine that provides system operations and orchestration capabilities for GEO-INFER modules. It enables:
 
 - **System Operations**: Manage system operations and infrastructure - **Deployment Management**: Manage deployments and system configurations - **Operational Monitoring**: Monitor system performance and health - **Resource Management**: Manage computational and storage resources - **Service Orchestration**: Orchestrate services and workflows
 

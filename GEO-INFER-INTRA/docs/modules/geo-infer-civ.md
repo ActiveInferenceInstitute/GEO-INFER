@@ -18,7 +18,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-CIV/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-CIV/README.md GEO-INFER-CIV is the civic engagement engine that provides participatory governance and community engagement capabilities for geospatial information systems. It enables:
+- Module README: [Module README](../../../GEO-INFER-CIV/README.md) GEO-INFER-CIV is the civic engagement engine that provides participatory governance and community engagement capabilities for geospatial information systems. It enables:
 
 - **Community Participation**: Community engagement and participation - **Stakeholder Engagement**: Stakeholder analysis and engagement - **Public Consultation**: Public consultation and feedback systems - **Democratic Decision-Making**: Participatory decision-making frameworks - **Civic Technology**: Civic technology and digital democracy tools
 

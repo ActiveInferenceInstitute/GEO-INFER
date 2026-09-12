@@ -1,5 +1,12 @@
 # GEO-INFER-RISK: Risk Assessment
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
+
 > **Explanation**: Understanding Risk Assessment in GEO-INFER
 >
 > This module provides risk assessment and management capabilities for geospatial applications, including risk modeling, vulnerability analysis, and risk mitigation strategies.
@@ -8,7 +15,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-RISK/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-RISK/README.md GEO-INFER-RISK is the risk assessment engine that provides risk modeling and analysis capabilities for geospatial information systems. It enables:
+- Module README: [Module README](../../../GEO-INFER-RISK/README.md) GEO-INFER-RISK is the risk assessment engine that provides risk modeling and analysis capabilities for geospatial information systems. It enables:
 
 - **Risk Modeling**: Model and analyze various types of risks - **Vulnerability Analysis**: Analyze vulnerabilities and exposure - **Risk Assessment**: Assess risk levels and impacts - **Mitigation Strategies**: Develop risk mitigation strategies - **Risk Monitoring**: Monitor and track risk changes
 

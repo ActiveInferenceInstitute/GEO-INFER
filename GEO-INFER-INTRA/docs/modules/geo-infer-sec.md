@@ -1,5 +1,12 @@
 # GEO-INFER-SEC: Security
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
+
 > **Explanation**: Understanding Security in GEO-INFER
 >
 > This module provides security and cybersecurity capabilities for geospatial applications, including data protection, access control, and security monitoring.
@@ -8,7 +15,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-SEC/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-SEC/README.md GEO-INFER-SEC is the security engine that provides cybersecurity and data protection capabilities for geospatial information systems. It enables:
+- Module README: [Module README](../../../GEO-INFER-SEC/README.md) GEO-INFER-SEC is the security engine that provides cybersecurity and data protection capabilities for geospatial information systems. It enables:
 
 - **Data Protection**: Protect sensitive geospatial data and information - **Access Control**: Manage access control and authentication - **Security Monitoring**: Monitor security threats and vulnerabilities - **Encryption**: Implement data encryption and security measures - **Compliance**: Ensure security compliance and standards
 

@@ -60,4 +60,4 @@ conflicts = analysis["interest_conflicts"]
 - Integrates with SPACE for spatial governance indexing (optional, guarded import in
   `integrations/spatial.py`; degrades gracefully when absent)
 - Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module METAGOV`
-  (or directly: `uv run python -m pytest GEO-INFER-METAGOV/tests/ -v`)
+  (or directly: `uv run python GEO-INFER-TEST/run_unified_tests.py --module METAGOV`)

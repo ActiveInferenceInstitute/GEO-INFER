@@ -66,4 +66,4 @@ biomass = inventory.estimate_biomass(
 - Integrates with BIO for forest biodiversity assessment
 - Integrates with CLIMATE for climate-driven forest risk
 - Integrates with SPACE for H3-based forest tessellation
-- Test: `uv run python -m pytest GEO-INFER-FOREST/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module FOREST`

@@ -18,7 +18,7 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 - **Documentation hub**: Central `docs/` directory with comprehensive guides
 - **Integration guides**: Cross-module data flow patterns and examples
 - **Architecture docs**: System design diagrams, module dependency graph
-- **API reference**: Consolidated API documentation for all 45 modules
+- **API reference**: API navigation and per-module reference index for all 45 modules
 - **Tutorials**: Step-by-step workflows spanning multiple modules
 
 ### Key Directories
@@ -29,7 +29,7 @@ GEO-INFER-INTRA/docs/
 ├── tutorials/       # Step-by-step multi-module tutorials
 ├── integration/     # Cross-module integration patterns
 ├── architecture/    # System design and data flow diagrams
-└── api/             # Consolidated API reference
+└── api/             # API navigation and per-module reference index
 ```
 
 ### Cross-Module Integration Pattern
@@ -41,7 +41,7 @@ from geo_infer_math.core.spatial_statistics import MoranI
 from geo_infer_bayes.models.spatial_gp import SpatialGP
 
 # 1. Index → 2. Analyze → 3. Model
-cells = H3Backend().tessellate(region, resolution=7)
+cells = H3Backend().polygon_to_cells(region, resolution=7)
 moran = MoranI(weights)
 autocorrelation = moran.compute(values)
 model = SpatialGP()
@@ -59,7 +59,7 @@ from geo_infer_bayes.models.spatial_gp import SpatialGP
 # 1. Load → 2. Index → 3. Analyze → 4. Model
 connector = FileConnector(base_path="data")
 # In an async workflow: features = await connector.read_geospatial("observations.geojson")
-cells = H3Backend().tessellate(region, resolution=7)
+cells = H3Backend().polygon_to_cells(region, resolution=7)
 moran = MoranI(weights)
 autocorrelation = moran.compute(values)
 model = SpatialGP()
@@ -78,7 +78,7 @@ for module_name in ["math", "space", "bayes", "act", "risk"]:
 - Start here when onboarding to GEO-INFER
 - Each module's README.md and AGENTS.md provide module-level detail
 - Each module's SKILL.md provides quick-reference for Claude Code
-- Test: `uv run python -m pytest GEO-INFER-INTRA/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module INTRA`
 
 ### Integrations
 

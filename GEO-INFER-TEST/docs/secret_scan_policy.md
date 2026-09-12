@@ -1,7 +1,7 @@
 # Secret-Scan Policy (SEC-02)
 
 The repository runs gitleaks over the **full git history** on every pull
-request and every push to `main` (the `.github/workflows/ci.yml`
+request and every push/pull request targeting `main` **or** `develop` (the
 "Install pinned gitleaks" and "Scan full history for secrets" steps; the
 binary is a sha256-pinned 8.30.1 release tarball). The committed
 `.gitleaks.toml` extends gitleaks' default rule set with file-path- and
@@ -10,7 +10,7 @@ finding fails the job).
 
 ## Cadence
 
-- Every pull request and every push to `main`: full-history scan.
+- Every pull request and every push to `main` or `develop`: full-history scan.
 - The autoresearch harness (`GEO-INFER-TEST/secret_scan_metric.py`)
   measures `secret_scan_findings` on demand; the 2026-09-08 baseline was
   29 findings (default rules, 426 commits, 1.22 GB).

@@ -8,8 +8,14 @@ Run from the repository root:
 
 ```bash
 uv sync --all-packages --all-extras
-python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
+uv run python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
 uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
+uv run python GEO-INFER-TEST/validate_packaging.py --strict
+uv run python GEO-INFER-TEST/validate_logging_hygiene.py
+uv run python GEO-INFER-TEST/validate_documentation.py --strict
+uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
+uv run python GEO-INFER-TEST/validate_active_inference_contract.py
+uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check
 uv run python GEO-INFER-TEST/validate_test_contracts.py --strict
 uv run python GEO-INFER-TEST/validate_model_contracts.py --strict --seed 42
 uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs

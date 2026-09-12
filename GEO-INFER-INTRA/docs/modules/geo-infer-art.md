@@ -1,5 +1,12 @@
 # GEO-INFER-ART: Artificial Intelligence Art
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
+
 > **Explanation**: Understanding Artificial Intelligence Art in GEO-INFER
 >
 > This module provides AI-generated art and creative systems for geospatial applications, including generative art, creative visualization, artistic data representation, aesthetic analysis, and immersive experiences with mathematical foundations.
@@ -8,7 +15,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-ART/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-ART/README.md - Modules Overview: ../modules/index.md GEO-INFER-ART is the artificial intelligence art engine that provides AI-generated art and creative visualization capabilities for geospatial information systems. It enables:
+- Module README: [Module README](../../../GEO-INFER-ART/README.md) - Modules Overview: ../modules/index.md GEO-INFER-ART is the artificial intelligence art engine that provides AI-generated art and creative visualization capabilities for geospatial information systems. It enables:
 
 - **Generative Art**: AI-generated artistic representations of geospatial data with mathematical foundations - **Creative Visualization**: Innovative data visualization and artistic rendering with AI enhancement - **Aesthetic Analysis**: Analysis of visual aesthetics and artistic patterns with machine learning - **Interactive Art**: Interactive artistic experiences and installations with immersive technology - **Artistic Data Representation**: Creative representation of complex geospatial information with AI interpretation - **Immersive Experiences**: VR/AR artistic experiences and 3D visualization - **Style Transfer**: Neural style transfer and artistic style synthesis
 

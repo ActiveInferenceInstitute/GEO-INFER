@@ -76,4 +76,4 @@ The package installs a `geo-infer-git` console script (`geo_infer_git.cli:main`)
 ### Integrations
 
 - Works with cloned geospatial dataset repositories used by GEO-INFER-DATA
-- Test: `uv run --no-sync python -m pytest GEO-INFER-GIT/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module GIT`

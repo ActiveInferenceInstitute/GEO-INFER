@@ -5,6 +5,7 @@ This module provides FastAPI endpoints for multimodal transportation planning,
 transportation network analysis, and emissions calculation.
 """
 
+import pickle
 from functools import lru_cache
 
 from fastapi import APIRouter, HTTPException, Depends, Query
@@ -79,14 +80,33 @@ class CompareRoutesRequest(BaseModel):
     )
 
 
-class NetworkMetricsRequest(BaseModel):
-    """Request model for network metrics calculation."""
+class NetworkLoadRequest(BaseModel):
+    """Request model for loading a transportation network."""
 
-    network_id: str
+    network_file: str = Field(..., description="Path to the pickled network file")
 
     model_config = ConfigDict(
-        json_schema_extra={"example": {"network_id": "transport-network-001"}}
+        json_schema_extra={"example": {"network_file": "networks/transport.gpickle"}}
     )
+
+
+class TimePeriodsRequest(BaseModel):
+    """Request model for setting traffic-simulation time periods."""
+
+    periods: List[str] = Field(..., description="Time-period labels")
+
+    model_config = ConfigDict(
+        json_schema_extra={"example": {"periods": ["morning_peak", "evening_peak"]}}
+    )
+
+
+class NetworkMetricsRequest(BaseModel):
+    """Request model for network metrics calculation.
+
+    The analyzer must have a network loaded first via POST
+    ``/transport/network/load``; metrics are computed for that loaded
+    network (there is no network-selection parameter).
+    """
 
 
 class TrafficSimulationRequest(BaseModel):
@@ -242,6 +262,30 @@ async def compare_routes(
         raise HTTPException(status_code=400, detail=str(e))
 
 
+@router.post("/network/load", response_model=Dict)
+async def load_network(
+    request: NetworkLoadRequest,
+    analyzer: TransportationNetworkAnalyzer = Depends(get_network_analyzer),
+) -> Dict:
+    """Load a transportation network for metrics and critical-link analysis.
+
+    Must be called before POST ``/network/metrics`` or
+    ``/network/critical-links``; those endpoints operate on the network
+    loaded here.
+    """
+    try:
+        analyzer.load_network(request.network_file)
+    except (OSError, ValueError, pickle.UnpicklingError) as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    network = analyzer.network
+    assert network is not None
+    return {
+        "loaded": True,
+        "num_nodes": network.number_of_nodes(),
+        "num_edges": network.number_of_edges(),
+    }
+
+
 @router.post("/network/metrics", response_model=Dict)
 async def get_network_metrics(
     request: NetworkMetricsRequest,
@@ -267,6 +311,46 @@ async def identify_critical_links(
         return links
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/traffic/load", response_model=Dict)
+async def load_traffic_network(
+    request: NetworkLoadRequest,
+    simulator: TrafficSimulator = Depends(get_traffic_simulator),
+) -> Dict:
+    """Load a transportation network for traffic simulation.
+
+    Must be called before POST ``/traffic/simulate`` or
+    ``/traffic/congestion``, together with POST ``/traffic/time-periods``.
+    """
+    try:
+        simulator.load_network(request.network_file)
+    except (OSError, ValueError, pickle.UnpicklingError) as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    network = simulator.network
+    assert network is not None
+    return {
+        "loaded": True,
+        "num_nodes": network.number_of_nodes(),
+        "num_edges": network.number_of_edges(),
+    }
+
+
+@router.post("/traffic/time-periods", response_model=Dict)
+async def set_time_periods(
+    request: TimePeriodsRequest,
+    simulator: TrafficSimulator = Depends(get_traffic_simulator),
+) -> Dict:
+    """Set the time periods available for traffic simulation.
+
+    POST ``/traffic/simulate`` only accepts departure times among these
+    periods.
+    """
+    try:
+        simulator.set_time_periods(request.periods)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"time_periods": list(simulator.time_periods)}
 
 
 @router.post("/traffic/simulate", response_model=Dict)

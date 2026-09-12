@@ -4,6 +4,13 @@
 
 # GEO-INFER-ORG: Organizational Systems
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
+
 > **Purpose**: Organizational modeling and analysis for geospatial applications
 >
 > This module provides organizational modeling and analysis capabilities for geospatial information systems, including organizational structure analysis, governance modeling, institutional frameworks, and organizational dynamics.
@@ -12,7 +19,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-ORG/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-ORG/README.md GEO-INFER-ORG is the organizational systems engine that provides organizational modeling and analysis capabilities for geospatial information systems. It enables:
+- Module README: [Module README](../../../GEO-INFER-ORG/README.md) GEO-INFER-ORG is the organizational systems engine that provides organizational modeling and analysis capabilities for geospatial information systems. It enables:
 
 - **Organizational Modeling**: Model organizational structures and relationships - **Governance Analysis**: Analyze governance structures and decision-making - **Institutional Frameworks**: Model institutional frameworks and policies - **Stakeholder Analysis**: Analyze stakeholder relationships and interests - **Organizational Dynamics**: Model organizational change and adaptation
 

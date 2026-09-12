@@ -33,8 +33,8 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
 # Run by category
 uv run python GEO-INFER-TEST/run_unified_tests.py --category integration
 
-# Direct pytest
-uv run python -m pytest GEO-INFER-MATH/tests/unit/ -v --tb=short
+# Canonical runner
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
 ```
 
 ### Pytest Markers
@@ -76,9 +76,9 @@ def test_h3_roundtrip(lat, lng, resolution):
 
 ```bash
 # Run specific test categories
-uv run python -m pytest GEO-INFER-MATH/tests/ -m "unit and not slow" -v
-uv run python -m pytest GEO-INFER-SPACE/tests/ -m "geospatial" -v
-uv run python -m pytest GEO-INFER-ACT/tests/ -m "integration" -v --tb=short
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
 ```
 
 ## Guidelines

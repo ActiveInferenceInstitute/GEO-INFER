@@ -14,7 +14,6 @@ Checks:
 Usage:
     python GEO-INFER-TEST/validate_skills.py
     python GEO-INFER-TEST/validate_skills.py --verbose
-    python GEO-INFER-TEST/validate_skills.py --fix-names
 """
 
 import argparse

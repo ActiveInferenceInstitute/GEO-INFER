@@ -134,8 +134,9 @@ class FireRiskAssessor:
         """Estimate dead fuel moisture content from weather conditions.
 
         Uses the equilibrium moisture content (EMC) approach based on
-        temperature and humidity. Implements the Nelson (2000) formulation of the
-        method for time-lag fuel moisture estimation.
+        temperature and humidity. The piecewise EMC tables are the Simard
+        (1968) formulation (as tabulated in Simard/Jonas USFS references);
+        a time-lag factor is applied for time-lag fuel moisture estimation.
 
         Args:
             temperature_c: Air temperature (Celsius).

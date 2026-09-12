@@ -64,4 +64,4 @@ See `examples/basic_marine_analysis.py` and `examples/marine_ecosystem_analysis.
 
 - Integrates with CLIMATE for ocean temperature projections
 - Integrates with BIO for marine biodiversity assessment
-- Test: `uv run python -m pytest GEO-INFER-MARINE/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module MARINE`

@@ -1,5 +1,12 @@
 # GEO-INFER-ECON: Economic Analysis
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
+
 > **Explanation**: Understanding Economic Analysis in GEO-INFER
 >
 > This module provides economic modeling and analysis for geospatial applications, including economic forecasting, resource allocation, and impact assessment.
@@ -8,7 +15,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-ECON/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-ECON/README.md GEO-INFER-ECON is the economic analysis engine that provides economic modeling and forecasting capabilities for geospatial information systems. It enables:
+- Module README: [Module README](../../../GEO-INFER-ECON/README.md) GEO-INFER-ECON is the economic analysis engine that provides economic modeling and forecasting capabilities for geospatial information systems. It enables:
 
 - **Economic Forecasting**: Economic trend prediction and scenario analysis - **Resource Allocation**: Optimization of resource distribution and allocation - **Impact Assessment**: Economic impact analysis for projects and policies - **Market Analysis**: Market trend analysis and demand forecasting - **Cost-Benefit Analysis**: Evaluation of economic feasibility and efficiency
 

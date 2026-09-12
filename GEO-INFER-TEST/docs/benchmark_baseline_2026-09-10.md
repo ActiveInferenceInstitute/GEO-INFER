@@ -50,6 +50,13 @@ Notes:
   regressed (fix it) or the environment changed (re-record explicitly, per below,
   with a dated new baseline file — never overwrite this one).
 - Sub-threshold variance (≤2x) is acceptable measurement noise; no action.
+- **In-suite assertion floors** (`tests/unit/test_parametric_load_benchmarks.py`):
+  H3 > **130k ops/s** (~0.77 s per 100k) and PIP > **50k pts/s** (~2 s per
+  100k). These floors are loose CI smoke guards derived from the same baselines
+  above (H3 ≈ 2x the warm figure; PIP keeps large headroom because its raw call
+  is ~10–40 ms and noisy) — they are deliberately looser than the 2x-flag rule,
+  which remains a **manual pre-publication check** before any performance claim
+  is shipped (see flag rule above).
 
 ## Machine-dependence caveat
 

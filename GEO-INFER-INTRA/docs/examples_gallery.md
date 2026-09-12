@@ -80,13 +80,13 @@ Compute Moran's I spatial autocorrelation on a synthetic dataset.
 - **Directory**: `GEO-INFER-EXAMPLES/examples/math/`
 
 ```python
-from geo_infer_math.core.statistics import compute_morans_i
+from geo_infer_math import MoranI
 import numpy as np
 
 values = np.random.randn(100)
 coordinates = np.random.rand(100, 2) * 10  # 100 random points in 10x10 space
-result = compute_morans_i(values, coordinates)
-print(f"Moran's I: {result['statistic']:.4f}, p-value: {result['p_value']:.4f}")
+result = MoranI().compute(values, coords=coordinates)
+print(f"Moran's I: {result['I']:.4f}, p-value: {result['p_value']:.4f}")
 ```
 
 ### SPACE Module: H3 Grid Creation
@@ -233,14 +233,14 @@ with uncertainty bounds.
 - **Directory**: `GEO-INFER-EXAMPLES/examples/bayesian/gp_regression/`
 
 ```python
-from geo_infer_bayes.core.inference import GaussianProcess
+from geo_infer_bayes import GaussianProcess
 import numpy as np
 
 # Training data: spatial coordinates and observed values
 X_train = np.random.rand(50, 2) * 10  # 50 points in 2D space
 y_train = np.sin(X_train[:, 0]) + np.cos(X_train[:, 1]) + np.random.randn(50) * 0.1
 
-gp = GaussianProcess(kernel="rbf", length_scale=2.0)
+gp = GaussianProcess(kernel_type="rbf", length_scale=2.0)
 gp.fit(X_train, y_train)
 
 # Predict at new locations

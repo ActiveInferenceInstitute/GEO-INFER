@@ -10,7 +10,7 @@
 ## Overview
 Note: Code examples are illustrative; see `GEO-INFER-ENERGY/examples` for runnable scripts.
 ### Links
-- Module README: ../../GEO-INFER-ENERGY/README.md
+- Module README: [Module README](../../../GEO-INFER-ENERGY/README.md)
 - Modules Overview: ../modules/index.md
 GEO-INFER-ENERGY implements energy analysis for geospatial applications. It provides:
 - **Renewable Assessment**: Solar, wind, hydro, and geothermal potential analysis

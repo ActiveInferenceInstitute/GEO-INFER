@@ -84,7 +84,7 @@ print(assignment["route"]["distance"])  # km
 - FastAPI dependencies are cached singletons — fleet/network/schedule state
   persists across requests
 - Logger used for all output — no `print()` statements
-- Test: `uv run python -m pytest GEO-INFER-LOG/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module LOG`
 
 ### Integrations
 

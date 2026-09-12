@@ -3,19 +3,20 @@
 -
 
 ## Overview
-All 36 GEO-INFER modules have been migrated to use `uv` and `pyproject.toml` for Python package management. This replaces the mixed setup.py/pyproject.toml approach and ensures consistent dependency management across all modules. --
+All 45 GEO-INFER modules (see README.md for the current module count) use `uv` and `pyproject.toml` for Python package management. This replaces the mixed setup.py/pyproject.toml approach and ensures consistent dependency management across all modules.
 -
 
 ## Migration Summary
 
-### Before Migration
-- **Modules with setup.py**: 21 modules - **Modules with pyproject.toml**: 4 modules (MATH, HEALTH, PEP, PLACE/cascadia)
+### Before Migration (historical snapshot, November 2025)
+- **Modules with setup.py**: 21 modules
+- **Modules with pyproject.toml**: 4 modules (MATH, HEALTH, PEP, PLACE/cascadia)
 
 - **Modules with both**: 2 modules (HEALTH, PEP)
 - **Modules with neither**: 13 modules - **Modules with requirements.txt**: 11 modules
 
 ### After Migration
-- **All 36 modules**: ✅ Have pyproject.toml - **All dependencies**: ✅ Declared in pyproject.toml - **Setup files**: ✅ Standardized across all modules - **uv compatibility**: ✅ All modules installable with `uv pip install -e .` --
+- **All 45 modules**: ✅ Have pyproject.toml - **All dependencies**: ✅ Declared in pyproject.toml - **Setup files**: ✅ Standardized across all modules - **uv compatibility**: ✅ All modules installable with `uv pip install -e .`
 -
 
 ## Installation
@@ -35,7 +36,7 @@ bash # From project root for module in GEO-INFER-*/; do cd "$module" uv pip inst
 ```
  --- ## Module Structure All modules now follow this standard structure:
 ```
- GEO-INFER-MODULE/ ├── pyproject.toml # Package configuration (REQUIRED) ├── setup.py # Removed (deprecated) ├── requirements.txt # Optional (dependencies in pyproject.toml) ├── src/ │ └── geo_infer_module/ ├── tests/ ├── docs/ └── README.md
+ GEO-INFER-MODULE/ ├── pyproject.toml # Package configuration and canonical packaging surface (REQUIRED) ├── setup.py # Compatibility shim retained; pyproject.toml is canonical per ISA.md ├── requirements.txt # Optional (dependencies in pyproject.toml) ├── src/ │ └── geo_infer_module/ ├── tests/ ├── docs/ └── README.md
 ```
  --- ## pyproject.toml Structure All modules use a standardized pyproject.toml format:
 ```toml
@@ -43,14 +44,14 @@ bash # From project root for module in GEO-INFER-*/; do cd "$module" uv pip inst
 ```
  --- ## Migration Tools ### Migration Script Located at: `GEO-INFER-INTRA/scripts/migrate_to_uv.py`
 ```
-bash # Migrate all modules python3 GEO-INFER-INTRA/scripts/migrate_to_uv.py # Migrate specific module python3 GEO-INFER-INTRA/scripts/migrate_to_uv.py --module SPACE # Dry run (simulate) python3 GEO-INFER-INTRA/scripts/migrate_to_uv.py --dry-run
+bash # Migrate all modules uv run python GEO-INFER-INTRA/scripts/migrate_to_uv.py # Migrate specific module uv run python GEO-INFER-INTRA/scripts/migrate_to_uv.py --module SPACE # Dry run (simulate) uv run python GEO-INFER-INTRA/scripts/migrate_to_uv.py --dry-run
 ```
  ### Cleanup Script Located at: `GEO-INFER-INTRA/scripts/cleanup_pyproject_deps.py` Removes duplicate dependencies from pyproject.toml files.
 ```
-bash python3 GEO-INFER-INTRA/scripts/cleanup_pyproject_deps.py
+bash uv run python GEO-INFER-INTRA/scripts/cleanup_pyproject_deps.py
 ```
  ### Validation Script Located at: `GEO-INFER-INTRA/scripts/validate_uv_setup.py` Validates all pyproject.toml files and tests uv installation.
 ```
-bash python3 GEO-INFER-INTRA/scripts/validate_uv_setup.py
+bash uv run python GEO-INFER-INTRA/scripts/validate_uv_setup.py
 ```
- --- ## Benefits 1. **Consistency**: All modules use the same package management approach 2. **Standards**: Uses pyproject.toml (PEP 518, PEP 621) 3. **Faster Installs**: uv is faster than pip 4. **Better Dependency Resolution**: uv's resolver is more reliable 5. **Unified Tooling**: Single tool for all package management 6. **Future-Proof**: Aligns with Python packaging standards --- ## Troubleshooting ### Installation Issues If a module fails to install: 1. Check pyproject.toml syntax 2. Verify dependencies are available 3. Check Python version compatibility 4. Review dependency conflicts ### Dependency Conflicts If you encounter dependency conflicts: 1. Use `uv pip install -e .` to see error messages 2. Check for version conflicts in dependencies 3. Consider using optional dependencies 4. Review module-specific requirements ### Validation Errors If validation fails: 1. Run `python3 GEO-INFER-INTRA/scripts/validate_uv_setup.py` for details 2. Check for syntax errors in pyproject.toml 3. Verify all dependencies are properly quoted 4. Ensure no missing commas or brackets --- ## Next Steps 1. ✅ All modules have pyproject.toml 2. ✅ Dependencies declared in pyproject.toml 3. ✅ Validation scripts created 4. ⏳ Update CI/CD pipelines to use uv 5. ⏳ Update documentation with uv examples 6. ⏳ Remove setup.py files (after validation) --- ## References - [uv Documentation](https://github.com/astral-sh/uv) - [PEP 518 - Specifying Build System for Python Projects](https://peps.python.org/pep-0518/) - [PEP 621 - Project Metadata](https://peps.python.org/pep-0621/) - [pyproject.toml Specification](https://packaging.python.org/en/latest/specifications/pyproject-toml/)
+ --- ## Benefits 1. **Consistency**: All modules use the same package management approach 2. **Standards**: Uses pyproject.toml (PEP 518, PEP 621) 3. **Faster Installs**: uv is faster than pip 4. **Better Dependency Resolution**: uv's resolver is more reliable 5. **Unified Tooling**: Single tool for all package management 6. **Future-Proof**: Aligns with Python packaging standards --- ## Troubleshooting ### Installation Issues If a module fails to install: 1. Check pyproject.toml syntax 2. Verify dependencies are available 3. Check Python version compatibility 4. Review dependency conflicts ### Dependency Conflicts If you encounter dependency conflicts: 1. Use `uv pip install -e .` to see error messages 2. Check for version conflicts in dependencies 3. Consider using optional dependencies 4. Review module-specific requirements ### Validation Errors If validation fails: 1. Run `uv run python GEO-INFER-INTRA/scripts/validate_uv_setup.py` for details 2. Check for syntax errors in pyproject.toml 3. Verify all dependencies are properly quoted 4. Ensure no missing commas or brackets --- ## Next Steps 1. ✅ All modules have pyproject.toml 2. ✅ Dependencies declared in pyproject.toml 3. ✅ Validation scripts created 4. ⏳ Update CI/CD pipelines to use uv 5. ⏳ Update documentation with uv examples 6. ⏳ Keep setup.py files as compatibility shims (pyproject.toml is canonical per ISA.md) --- ## References - [uv Documentation](https://github.com/astral-sh/uv) - [PEP 518 - Specifying Build System for Python Projects](https://peps.python.org/pep-0518/) - [PEP 621 - Project Metadata](https://peps.python.org/pep-0621/) - [pyproject.toml Specification](https://packaging.python.org/en/latest/specifications/pyproject-toml/)

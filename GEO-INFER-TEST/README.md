@@ -10,6 +10,7 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `examples/`
 - `src/`
 - `tests/`
+- `tools/`
 - `_validator_common.py`
 - `build_package_wheels.py`
 - `check_coverage_floor.py`
@@ -29,6 +30,7 @@ Unified testing framework for quality assurance across all GEO-INFER modules wit
 - `validate_act_geospatial_contract.py`
 - `validate_act_script_orchestration.py`
 - `validate_active_inference_contract.py`
+- `validate_doc_imports.py`
 - `validate_documentation.py`
 - `validate_gnn_interchange.py`
 - `validate_h3_active_inference_contract.py`

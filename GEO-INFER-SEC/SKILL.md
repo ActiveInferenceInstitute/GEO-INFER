@@ -111,4 +111,4 @@ geo-infer-sec --help   # anonymize / encrypt / decrypt / check-compliance /
 
 - Integrates with API for endpoint security (`geo_infer_sec.api.security_api`,
   Flask blueprint; requires `init_security_api(app, secret_key)` before use).
-- Test: `uv run python -m pytest GEO-INFER-SEC/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module SEC`

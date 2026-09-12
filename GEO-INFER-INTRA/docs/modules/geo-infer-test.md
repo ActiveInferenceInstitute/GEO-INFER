@@ -1,5 +1,12 @@
 # GEO-INFER-TEST: Testing Framework
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
+
 > **Explanation**: Understanding Testing Framework in GEO-INFER
 >
 > This module provides testing and validation capabilities for geospatial applications, including unit testing, integration testing, and performance testing.
@@ -8,7 +15,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-TEST/README.md` and `GEO-INFER-TEST/run_unified_tests.py` for runnable commands.
 
 ### Links
-- Module README: ../../GEO-INFER-TEST/README.md GEO-INFER-TEST is the testing framework engine that provides testing and validation capabilities for GEO-INFER modules. It enables:
+- Module README: [Module README](../../../GEO-INFER-TEST/README.md) GEO-INFER-TEST is the testing framework engine that provides testing and validation capabilities for GEO-INFER modules. It enables:
 
 - **Unit Testing**: Test individual components and functions - **Integration Testing**: Test module integration and interactions - **Performance Testing**: Test system performance and scalability - **Validation Testing**: Validate data and model accuracy - **Regression Testing**: Test for regressions and changes
 

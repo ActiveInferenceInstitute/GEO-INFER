@@ -10,7 +10,7 @@
 ## Overview
 Note: Code examples are illustrative; see `GEO-INFER-EDU/examples` for runnable scripts.
 ### Links
-- Module README: ../../GEO-INFER-EDU/README.md
+- Module README: [Module README](../../../GEO-INFER-EDU/README.md)
 - Modules Overview: ../modules/index.md
 GEO-INFER-EDU implements educational technology for geospatial applications. It provides:
 - **Curriculum Design**: Standards-aligned geospatial curriculum generation

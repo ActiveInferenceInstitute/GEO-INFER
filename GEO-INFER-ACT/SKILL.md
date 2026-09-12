@@ -185,7 +185,7 @@ uv run pytest GEO-INFER-ACT/tests/unit/test_spatial_research_statistics.py -q
 uv run pytest GEO-INFER-ACT/tests/unit/test_pymdp_h3_backend.py -q
 uv run pytest GEO-INFER-ACT/tests/unit/test_nested_h3_active_inference.py -q
 uv run python GEO-INFER-ACT/examples/spatial_active_inference_gallery.py --json
-uv run --package geo-infer-act --extra dev python -m pytest GEO-INFER-ACT/tests -q
+uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
 ```
 
 Do not add inert placeholders, fake policy selection, first-policy defaults, or

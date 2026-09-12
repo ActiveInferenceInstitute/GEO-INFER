@@ -152,7 +152,7 @@ Every sampler and predictive method takes a `random_seed` routed through
 - LOO and WAIC need a *posterior* pointwise log-likelihood matrix. Passing data
   without one falls back to prior draws, which is not cross-validation and whose
   elpd is not comparable with a posterior-based one
-- Test: `uv run python -m pytest GEO-INFER-BAYES/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module BAYES`
 
 ### Integrations
 

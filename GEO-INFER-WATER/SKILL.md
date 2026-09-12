@@ -75,4 +75,4 @@ wqi = assessor.calculate_wqi(sample)
 
 - Integrates with CLIMATE for precipitation projections
 - Integrates with AG for irrigation water demand
-- Test: `uv run python -m pytest GEO-INFER-WATER/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module WATER`

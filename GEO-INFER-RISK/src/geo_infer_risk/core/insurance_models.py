@@ -490,7 +490,9 @@ class CatastropheInsuranceModel(InsuranceModel):
         self, coverage_limit: float, location: Dict[str, float]
     ) -> float:
         """Hurricane catastrophe model."""
-        # Simplified hurricane model
+        # Hand-set latitude-band base rates; stand-in probabilities
+        # catalogued in SKILL.md Honest Capability Register
+        # ("Catastrophe base-rate tables").
         lat = location.get("lat", 0)
 
         # Hurricane risk by latitude
@@ -510,7 +512,9 @@ class CatastropheInsuranceModel(InsuranceModel):
         # Simplified earthquake model
         lat = location.get("lat", 0)
 
-        # Earthquake risk by location (simplified)
+        # Hand-set latitude-band base rates; stand-in probabilities
+        # catalogued in SKILL.md Honest Capability Register
+        # ("Catastrophe base-rate tables").
         if abs(lat) < 30:  # Tropical/subtropical regions
             base_rate = 0.015
         elif abs(lat) < 60:  # Temperate regions
@@ -525,7 +529,9 @@ class CatastropheInsuranceModel(InsuranceModel):
         # Simplified flood model
         lat = location.get("lat", 0)
 
-        # Flood risk by elevation (simplified by latitude)
+        # Hand-set latitude-band base rates; stand-in probabilities
+        # catalogued in SKILL.md Honest Capability Register
+        # ("Catastrophe base-rate tables").
         if abs(lat) < 30:  # Coastal/low elevation
             base_rate = 0.025
         elif abs(lat) < 60:  # Mid-latitudes
@@ -542,7 +548,9 @@ class CatastropheInsuranceModel(InsuranceModel):
         # Simplified wildfire model
         lat = location.get("lat", 0)
 
-        # Wildfire risk by climate zone
+        # Hand-set latitude-band base rates; stand-in probabilities
+        # catalogued in SKILL.md Honest Capability Register
+        # ("Catastrophe base-rate tables").
         if 30 <= abs(lat) <= 45:  # Mediterranean climate
             base_rate = 0.02
         elif 45 <= abs(lat) <= 60:  # Boreal forest
@@ -556,6 +564,9 @@ class CatastropheInsuranceModel(InsuranceModel):
         self, cat_type: str, coverage_limit: float, location: Dict[str, float]
     ) -> Dict[str, float]:
         """Estimate loss for a specific catastrophe type."""
+        # Flat per-peril expected-loss fractions of coverage limit,
+        # independent of location; catalogued in SKILL.md Honest
+        # Capability Register ("Catastrophe base-rate tables").
         if cat_type == "hurricane":
             expected_loss = coverage_limit * 0.01
         elif cat_type == "earthquake":

@@ -6,6 +6,7 @@ from typing import Dict, Any, List, Optional
 import numpy as np
 
 from geo_infer_act.core.active_inference import ActiveInferenceModel
+from geo_infer_act.utils.pymdp_adapter import obj_array_zeros
 
 
 class EcologicalModel(ActiveInferenceModel):
@@ -72,16 +73,7 @@ class EcologicalModel(ActiveInferenceModel):
     def _build_A_matrix(self) -> List[np.ndarray]:
         """Build Likelihood Matrix A: P(o|s)."""
         A: List[np.ndarray]
-        try:
-            from pymdp.utils import obj_array_zeros
-
-            A = obj_array_zeros([self.num_obs, self.num_states])
-        except ImportError:
-            # Fallback if pymdp utils not available (though we added it)
-            A = [
-                np.zeros((self.num_obs[m], np.prod(self.num_states)))
-                for m in range(self.num_modalities)
-            ]
+        A = obj_array_zeros([self.num_obs, self.num_states])
 
         # --- Modality 0: Food Signal (mapping from Resource Level) ---
         # State Factor 0 (Resources): Low(0) -> None(0), Med(1) -> Scant(1), High(2) -> Abundant(2)
@@ -194,12 +186,7 @@ class EcologicalModel(ActiveInferenceModel):
     def _build_C_matrix(self) -> List[np.ndarray]:
         """Build Preference Matrix C: P(o)."""
         C: List[np.ndarray]
-        try:
-            from pymdp.utils import obj_array_zeros
-
-            C = obj_array_zeros(self.num_obs)
-        except Exception:
-            C = [np.zeros(dim) for dim in self.num_obs]
+        C = obj_array_zeros(self.num_obs)
 
         # Prefer Abundant Food (Modality 0, Index 2)
         # C values are log-probabilities (utilities)
@@ -216,12 +203,7 @@ class EcologicalModel(ActiveInferenceModel):
     def _build_D_matrix(self) -> List[np.ndarray]:
         """Build Prior Matrix D: P(s)."""
         D: List[np.ndarray]
-        try:
-            from pymdp.utils import obj_array_zeros
-
-            D = obj_array_zeros(self.num_states)
-        except Exception:
-            D = [np.zeros(dim) for dim in self.num_states]
+        D = obj_array_zeros(self.num_states)
 
         # Start expecting High Resources
         D[0][0] = 0.1

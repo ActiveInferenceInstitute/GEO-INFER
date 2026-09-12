@@ -17,7 +17,7 @@ from geo_infer_math.core.geometry import points_in_polygon_vectorized
 
 
 def test_h3_high_volume_conversion_throughput():
-    """Verify that H3 coordinate conversion maintains high throughput (>50k ops/sec)."""
+    """Verify H3 conversion throughput stays above the 2x-baseline smoke floor (>130k ops/sec)."""
     n_points = 100_000
     rng = np.random.default_rng(42)
     lats = rng.uniform(37.0, 38.0, size=n_points)
@@ -29,7 +29,12 @@ def test_h3_high_volume_conversion_throughput():
 
     assert len(cells) == n_points
     throughput = n_points / elapsed
-    assert throughput > 10_000, f"Throughput too low: {throughput:.2f} lookups/sec"
+    # Smoke floor: 2x the documented warm baseline (0.46 s / 100k ≈ 215k ops/s)
+    # from GEO-INFER-TEST/docs/benchmark_baseline_2026-09-10.md. The 2x-flag
+    # rule (call time > 1.5 s for 100k) is a manual pre-publication check, so
+    # this floor is intentionally tighter than a pure smoke floor but looser
+    # than the flag threshold (100k / 130k ≈ 0.77 s).
+    assert throughput > 130_000, f"Throughput too low: {throughput:.2f} lookups/sec"
 
 
 def test_vectorized_geometry_load_throughput():

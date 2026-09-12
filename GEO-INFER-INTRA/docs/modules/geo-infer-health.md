@@ -6,6 +6,13 @@
 
 # GEO-INFER-HEALTH: Geospatial Health Analytics
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
+
 > **Explanation**: geospatial health analytics framework implementing Active Inference principles for public health surveillance, disease modeling, and healthcare accessibility analysis.
 
 ## 🎯 What is GEO-INFER-HEALTH?
@@ -22,7 +29,7 @@ GEO-INFER-HEALTH is a geospatial health analytics framework that implements Acti
 - HL7 FHIR and OMOP CDM support
 
 ### Links
-- Module README: ../../GEO-INFER-HEALTH/README.md - API Documentation: ../../GEO-INFER-HEALTH/docs/api_schema.yaml - Examples: ../../GEO-INFER-HEALTH/examples/ - Tests: ../../GEO-INFER-HEALTH/tests/ The module integrates seamlessly with the GEO-INFER framework, leveraging:
+- Module README: [Module README](../../../GEO-INFER-HEALTH/README.md) - API Documentation: ../../GEO-INFER-HEALTH/docs/api_schema.yaml - Examples: ../../GEO-INFER-HEALTH/examples/ - Tests: ../../GEO-INFER-HEALTH/tests/ The module integrates seamlessly with the GEO-INFER framework, leveraging:
 
 - **GEO-INFER-DATA**: Population demographics, environmental data, and health indicators - **GEO-INFER-SPACE**: spatial analysis, clustering, and accessibility modeling - **GEO-INFER-TIME**: Temporal trend analysis and forecasting - **GEO-INFER-AI**: Machine learning for predictive modeling and pattern recognition - **GEO-INFER-RISK**: Hazard assessment and vulnerability analysis - **GEO-INFER-SPM**: statistical methods for epidemiological analysis
 

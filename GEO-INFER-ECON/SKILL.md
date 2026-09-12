@@ -110,7 +110,7 @@ print("Getis-Ord G* z:", diagnostics["getis_ord_g_star_z"])
 - SAC models are estimated by full ML over (rho, beta, lambda, sigma2); standard errors for spatial models are OLS-style approximations and are documented as such in `convergence_info`
 - Logistics integration bridges ECON to LOG module (`LogisticsEconomicAnalyzer` degrades gracefully when LOG is unavailable)
 - Logger used instead of print() for all library output
-- Test: `uv run python -m pytest GEO-INFER-ECON/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ECON`
 
 ### Integrations
 

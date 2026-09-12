@@ -298,25 +298,28 @@ class ModernToolsIntegration:
             )
 
         try:
-            import jax.numpy as jnp
-            import jax.random as jr
-            from pymdp.agent import Agent
-            from pymdp.utils import random_A_array, random_B_array
+            from geo_infer_act.utils.pymdp_adapter import (
+                build_agent,
+                jax_prng_key,
+                onehot_batch,
+                random_A_array,
+                random_B_array,
+            )
 
             # Create observation model if not provided
             if A is None:
-                A = random_A_array(jr.PRNGKey(0), num_obs, num_states)
+                A = random_A_array(jax_prng_key(0), num_obs, num_states)
 
             # Create transition model if not provided
             if B is None:
-                B = random_B_array(jr.PRNGKey(1), num_states, num_states)
+                B = random_B_array(jax_prng_key(1), num_states, num_states)
 
-            # Create agent
-            agent = Agent(
+            # Create agent through the module's only pymdp bridge
+            agent = build_agent(
                 A=A,
                 B=B,
-                C=[jnp.zeros(obs_dim) for obs_dim in num_obs],
-                D=[jnp.ones(state_dim) / state_dim for state_dim in num_states],
+                C=[np.zeros(obs_dim) for obs_dim in num_obs],
+                D=[np.ones(state_dim) / state_dim for state_dim in num_states],
                 num_controls=list(num_states),
                 categorical_obs=True,
                 batch_size=1,
@@ -325,10 +328,9 @@ class ModernToolsIntegration:
             # Test inference with a deterministic observation.  This helper is
             # a contract smoke test, not a source of model randomness.
             rng = np.random.default_rng(0)
-            obs = [
-                jnp.eye(num_obs[i])[rng.integers(0, num_obs[i])].reshape(1, -1)
-                for i in range(len(num_obs))
-            ]
+            obs = onehot_batch(
+                num_obs, [int(rng.integers(0, num_obs[i])) for i in range(len(num_obs))]
+            )
             qs = agent.infer_states(obs, empirical_prior=agent.D)
 
             # Test policy inference

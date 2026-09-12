@@ -384,3 +384,75 @@ def run_model_step(
         posterior=posterior,
         perception_free_energy=perception_free_energy,
     )
+
+
+def obj_array_zeros(shape_list: List[Any]) -> Any:
+    """Zero-init pymdp-style matrix list under legacy ``obj_array_zeros`` semantics.
+
+    pymdp 1.0.3 renamed this helper to ``list_array_zeros`` and returns immutable
+    JAX arrays. GEO-INFER matrix builders mutate entries after allocation, so
+    this facade returns mutable numpy equivalents with identical shapes.
+    """
+
+    def _as_shape(dim: Any) -> tuple:
+        return (dim,) if isinstance(dim, int) else tuple(dim)
+
+    return [np.zeros(_as_shape(shape)) for shape in shape_list]
+
+
+def jax_prng_key(seed: int) -> Any:
+    """Bridge facade for ``jax.random.PRNGKey``."""
+    import jax.random as jr  # noqa: PLC0415
+
+    return jr.PRNGKey(seed)
+
+
+def random_A_array(rng_key: Any, num_obs: List[int], num_states: List[int]) -> Any:
+    """Bridge facade for ``pymdp.utils.random_A_array`` with version validation."""
+    validate_pymdp_version()
+    from pymdp.utils import random_A_array as _pymdp_random_A_array  # noqa: PLC0415
+
+    return _pymdp_random_A_array(rng_key, num_obs, num_states)
+
+
+def random_B_array(rng_key: Any, num_states: List[int], num_controls: List[int]) -> Any:
+    """Bridge facade for ``pymdp.utils.random_B_array`` with version validation."""
+    validate_pymdp_version()
+    from pymdp.utils import random_B_array as _pymdp_random_B_array  # noqa: PLC0415
+
+    return _pymdp_random_B_array(rng_key, num_states, num_controls)
+
+
+def onehot_batch(num_obs: List[int], indices: List[Any]) -> List[Any]:
+    """Return one-hot (1, dim) JAX rows for each modality, pymdp batch style."""
+    import jax.numpy as jnp  # noqa: PLC0415
+
+    return [
+        jnp.eye(num_obs[i])[int(indices[i])].reshape(1, -1) for i in range(len(num_obs))
+    ]
+
+
+def build_agent(
+    *,
+    A: Any,
+    B: Any,
+    C: Any,
+    D: Any,
+    num_controls: List[int],
+    categorical_obs: bool = True,
+    batch_size: int = 1,
+) -> Any:
+    """Build a JAX ``pymdp.agent.Agent`` under the adapter's version contract."""
+    validate_pymdp_version()
+    import jax.numpy as jnp  # noqa: PLC0415
+    from pymdp.agent import Agent  # noqa: PLC0415
+
+    return Agent(
+        A=A,
+        B=B,
+        C=[jnp.asarray(c) for c in C],
+        D=[jnp.asarray(d) for d in D],
+        num_controls=num_controls,
+        categorical_obs=categorical_obs,
+        batch_size=batch_size,
+    )

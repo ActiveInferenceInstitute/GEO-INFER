@@ -74,4 +74,4 @@ print(heatwaves["events_detected"], heatwaves["threshold_temp"])
 - Integrates with WATER for hydrological climate impacts
 - Integrates with AG for agricultural climate adaptation
 - Integrates with ENERGY for renewable resource projections
-- Test: `uv run python -m pytest GEO-INFER-CLIMATE/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module CLIMATE`

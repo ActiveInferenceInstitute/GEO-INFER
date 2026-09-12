@@ -63,7 +63,7 @@ Module load order does not matter at install time; Python resolves imports at ru
 ```python
 # Pattern used in every GEO-INFER module's __init__.py
 try:
-    from geo_infer_bayes.core.gaussian_process import GaussianProcess
+    from geo_infer_bayes import GaussianProcess
 except ImportError:
     GaussianProcess = None  # GEO-INFER-BAYES not installed
 ```
@@ -130,9 +130,9 @@ Raster data and matrix computations pass as NumPy arrays. MATH, BAYES, and AI mo
 This pipeline reads spatial data, computes statistics with GEO-INFER-MATH, then quantifies uncertainty with GEO-INFER-BAYES.
 
 ```python
-from geo_infer_math.core.spatial_statistics import SpatialStatistics
-from geo_infer_math.core.transforms import CoordinateTransform
-from geo_infer_bayes.core.gaussian_process import GaussianProcess
+from geo_infer_math import MoranI
+from geo_infer_math.core.transforms import CoordinateTransformer
+from geo_infer_bayes import GaussianProcess
 import geopandas as gpd
 import numpy as np
 
@@ -142,12 +142,11 @@ coords = np.column_stack([gdf.geometry.x, gdf.geometry.y])
 values = gdf["nitrogen_ppm"].values
 
 # Compute spatial autocorrelation (GEO-INFER-MATH)
-stats = SpatialStatistics()
-morans_i = stats.morans_i(coords, values)
-print(f"Moran's I: {morans_i.statistic:.3f} (p={morans_i.p_value:.4f})")
+morans_i = MoranI().compute(values, coords=coords)
+print(f"Moran's I: {morans_i['I']:.3f} (p={morans_i['p_value']:.4f})")
 
 # Fit a Gaussian Process for interpolation (GEO-INFER-BAYES)
-gp = GaussianProcess(kernel="matern", length_scale=0.1)
+gp = GaussianProcess(kernel_type="matern32", length_scale=0.1)
 gp.fit(coords, values)
 
 # Predict on a grid with uncertainty estimates
@@ -156,7 +155,7 @@ grid_y = np.linspace(coords[:, 1].min(), coords[:, 1].max(), 50)
 grid_xx, grid_yy = np.meshgrid(grid_x, grid_y)
 grid_points = np.column_stack([grid_xx.ravel(), grid_yy.ravel()])
 
-mean, variance = gp.predict(grid_points, return_variance=True)
+mean, std = gp.predict(grid_points, return_std=True)
 ```
 
 ### Active Inference with Spatial Context
@@ -164,7 +163,7 @@ mean, variance = gp.predict(grid_points, return_variance=True)
 Combine GEO-INFER-ACT with GEO-INFER-SPACE for spatially-aware Active Inference.
 
 ```python
-from geo_infer_act.core.active_inference import ActiveInferenceAgent
+from geo_infer_act.core.active_inference import ActiveInferenceModel
 from geo_infer_space.backends.h3.h3_backend import H3Backend
 import numpy as np
 
@@ -173,7 +172,8 @@ h3_backend = H3Backend()
 region_cells = h3_backend.polygon_to_cells(region_boundary, resolution=7)
 
 # Build a generative model over the spatial region (GEO-INFER-ACT)
-agent = ActiveInferenceAgent(
+agent = ActiveInferenceModel(
+    model_type="categorical",
     num_states=len(region_cells),
     num_observations=4,  # e.g., land cover categories
     num_actions=3,
@@ -193,7 +193,7 @@ A complete agricultural analysis combining four modules:
 
 ```python
 from geo_infer_space.backends.h3.h3_backend import H3Backend
-from geo_infer_math.core.spatial_statistics import SpatialStatistics
+from geo_infer_math import MoranI
 from geo_infer_bayes.core.model_comparison import ModelComparison
 
 # Step 1: Spatial indexing (SPACE)
@@ -305,7 +305,7 @@ predictions = response.json()["predictions"]
 The simplest pattern. One module imports classes from another.
 
 ```python
-from geo_infer_math.core.transforms import CoordinateTransform
+from geo_infer_math.core.transforms import CoordinateTransformer
 from geo_infer_space.backends.h3.h3_backend import H3Backend
 ```
 

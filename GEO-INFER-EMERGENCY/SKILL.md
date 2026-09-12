@@ -15,7 +15,7 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 - **Incident coordination**: ICS command structure, mutual aid requests, situation reports (`EmergencyCoordinator`)
 - **Resource deployment**: travel-time-based allocation optimization, dynamic redeployment, staging management, resource tracking (`ResourceDeployer`)
 - **Evacuation planning**: Dijkstra route optimization over a NetworkX road network, phasing, contraflow, shelter management, clearance-time estimation (`EvacuationPlanner`)
-- **Situational awareness**: common operating picture layers, sensor integration, threat assessment, data fusion, dashboards (`SituationalAwareness`)
+- **Situational awareness**: common operating picture layers, sensor integration, threat assessment, confidence-weighted data fusion (weighted average only; other fusion methods raise `ValueError`), dashboards (`SituationalAwareness`)
 - **Search and rescue**: mission planning, probability-of-detection, search-pattern generation (parallel, expanding square, sector, grid), team coordination, Bayesian probability updates (`SearchAndRescue`)
 
 ### Key Imports
@@ -79,4 +79,4 @@ uv run --no-sync python examples/multi_hazard_assessment.py
 
 - Cross-module integration (TRANSPORT, COMMS, RISK, SPACE) is aspirational —
   no `geo_infer_*` imports exist in this module yet.
-- Test: `uv run --no-sync python -m pytest GEO-INFER-EMERGENCY/tests -q`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module EMERGENCY`

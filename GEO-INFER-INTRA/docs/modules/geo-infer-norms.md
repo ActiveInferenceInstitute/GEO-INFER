@@ -1,5 +1,12 @@
 # GEO-INFER-NORMS: Norms & Standards
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
+
 > **Explanation**: Understanding Norms & Standards in GEO-INFER
 >
 > This module provides norms, standards, and governance capabilities for geospatial applications, including compliance management, standards enforcement, and governance frameworks.
@@ -8,7 +15,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-NORMS/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-NORMS/README.md GEO-INFER-NORMS is the norms and standards engine that provides governance and compliance capabilities for geospatial information systems. It enables:
+- Module README: [Module README](../../../GEO-INFER-NORMS/README.md) GEO-INFER-NORMS is the norms and standards engine that provides governance and compliance capabilities for geospatial information systems. It enables:
 
 - **Compliance Management**: Manage regulatory compliance and standards adherence - **Standards Enforcement**: Enforce data and process standards - **Governance Frameworks**: Implement governance frameworks and policies - **Quality Assurance**: Ensure quality standards and best practices - **Audit Management**: Manage audits and compliance monitoring
 

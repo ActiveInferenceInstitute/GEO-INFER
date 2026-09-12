@@ -1,5 +1,12 @@
 # Production Architecture
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
+
 This guide provides a reference architecture for deploying GEO-INFER in production environments. It covers service topology, database selection, security integration, observability, and deployment strategies for geospatial workloads.
 
 ## Reference Architecture

@@ -1,4 +1,11 @@
 # Cross-Module Interaction in GEO-INFER
+
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
 This document details how the various modules within the GEO-INFER framework interact with each other to create a cohesive ecosystem for geospatial active inference. Understanding these interactions is crucial for both users and developers working with multiple modules.
 
 ## Architecture Overview

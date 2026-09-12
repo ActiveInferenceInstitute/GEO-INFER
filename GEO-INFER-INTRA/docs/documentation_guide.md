@@ -1,5 +1,12 @@
 # GEO-INFER Documentation Guide
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
+
 This guide defines the documentation standards for all 45 GEO-INFER modules.
 Every document, docstring, README, and code example in the framework must follow
 these conventions to maintain consistency and technical precision.

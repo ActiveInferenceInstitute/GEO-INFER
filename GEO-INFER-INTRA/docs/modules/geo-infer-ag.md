@@ -14,7 +14,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-AG/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-AG/README.md - Modules Overview: ../modules/index.md GEO-INFER-AG provides agricultural analysis and precision farming capabilities for geospatial information systems. It enables:
+- Module README: [Module README](../../../GEO-INFER-AG/README.md) - Modules Overview: ../modules/index.md GEO-INFER-AG provides agricultural analysis and precision farming capabilities for geospatial information systems. It enables:
 
 - **Crop Modeling**: Crop modeling and yield prediction with physiological models - **Soil Analysis**: Soil analysis and monitoring with spatial variability mapping - **Precision Agriculture**: Precision agriculture tools and techniques with variable rate application - **Climate Impact Assessment**: Climate change impact assessment on agriculture with adaptation strategies - **Resource Optimization**: Water, fertilizer, and pesticide management with sustainability focus - **Agricultural Machine Learning**: ML-based crop prediction and disease detection - **Sustainable Agriculture**: Environmental impact assessment and conservation practices
 

@@ -513,10 +513,10 @@ class TestSituationalAwareness:
         # Weighted avg: (70*0.9 + 72*0.6) / (0.9 + 0.6) = (63 + 43.2) / 1.5 = 70.8
         assert abs(fused["fused_data"]["temp"] - 70.8) < 0.1
 
-    def test_fuse_data_empty_returns_error(self, sa):
-        """fuse_data with no sources returns an error."""
-        result = sa.fuse_data(sources=[])
-        assert "error" in result
+    def test_fuse_data_empty_raises(self, sa):
+        """fuse_data with no sources raises ValueError."""
+        with pytest.raises(ValueError, match="at least one source"):
+            sa.fuse_data(sources=[])
 
     def test_get_current_threat_level(self, sa):
         """get_current_threat_level returns the current level string."""

@@ -14,7 +14,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-DATA/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-DATA/README.md - Modules Overview: ../modules/index.md GEO-INFER-DATA is the data management engine that provides data handling capabilities for geospatial information. It enables:
+- Module README: [Module README](../../../GEO-INFER-DATA/README.md) - Modules Overview: ../modules/index.md GEO-INFER-DATA is the data management engine that provides data handling capabilities for geospatial information. It enables:
 
 - **Multi-format Data Support**: Handle various geospatial data formats with validation - **Data Validation**: Quality control and data integrity checks with diagnostics - **ETL Pipelines**: Extract, transform, and load data workflows with parallel processing - **Data Versioning**: Track data lineage and changes with semantic versioning - **Storage Management**: Efficient data storage and retrieval with compression and indexing - **Real-time Data Streaming**: Real-time data processing and streaming capabilities - **Data Governance**: Data governance and compliance framework - **Analytics**: Data analytics and machine learning integration
 

@@ -89,4 +89,4 @@ feature = AgentVisualization.state_to_map_feature(state)  # GeoJSON Point, [lng,
 ### Integrations
 
 - Integrates with AGENT via an optional `geo_infer_agent` import (graceful fallback when absent)
-- Test: `uv run python -m pytest GEO-INFER-APP/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module APP`

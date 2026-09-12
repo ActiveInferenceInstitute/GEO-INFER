@@ -2,11 +2,13 @@
 # -*- coding: utf-8 -*-
 
 """
+
 GEO-INFER-APP Agent API
 
-This module provides integration with GEO-INFER-AGENT,
-allowing the application to create, manage, and interact with
-intelligent agents.
+In-process agent registry for the application. Agents are created,
+managed, and inspected entirely within this process: state is persisted
+to a JSON file (no HTTP transport, no external GEO-INFER-AGENT service),
+with status callbacks, monitoring, and per-agent operational counters.
 """
 
 import os
@@ -67,9 +69,8 @@ class AgentAPIClient:
         self._agent_counters: Dict[str, Dict[str, int]] = {}
 
     async def initialize(self) -> None:
-        """Initialize the API client and connect to agent service."""
+        """Initialize the API client: start status monitoring and load persisted agents."""
         logger.info("Initializing Agent API client")
-
         # Start status monitoring task
         self._status_monitoring_task = asyncio.create_task(self._monitor_agent_status())
 

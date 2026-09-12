@@ -91,7 +91,7 @@ rule_id = system.alert_system.create_alert_rule(rule)
 - REST auth: set `COMMS_JWT_SECRET` to enable HS256 JWT validation (PyJWT); invalid tokens are rejected with 401. Without a secret, a deterministic hash fallback derives the user ID from the token. WebSocket auth follows the same policy.
 - Notification delivery handlers for email/SMS/push log intended delivery; register custom handlers via `NotificationManager.register_delivery_handler` for real transports.
 - System metrics are nested: `metrics["message_metrics"]["metrics"]["messages_sent"]`, etc.
-- Test: `uv run python -m pytest GEO-INFER-COMMS/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module COMMS`
 
 ### Integrations
 

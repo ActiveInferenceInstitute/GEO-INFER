@@ -12,7 +12,7 @@ Comprehensive collection of working examples and tutorials demonstrating cross-m
 - `scripts/`
 - `src/`
 - `tests/`
-- `run_orchestrator.py`
+- `demo_orchestrator.py`
 - `setup.py`
 - `.gitignore`
 - `SKILL.md`

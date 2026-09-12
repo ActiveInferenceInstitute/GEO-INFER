@@ -2,7 +2,7 @@
 > **Illustrative example notice.** This page contains historical or > conceptual integration sketches. Names such as `SpatialAnalyzer` and > domain-specific facade classes are not public GEO-INFER exports in the > current checkout; verify imports against each module's `src/` package > and use the module README/tests for executable examples. > **Purpose**: Bayesian statistical analysis capabilities for geospatial data
 >
 > This module provides Bayesian statistical analysis capabilities for geospatial data, including uncertainty quantification, model comparison, and hierarchical modeling.
-## Overview Note: Code examples are illustrative; see `GEO-INFER-BAYES/examples` for runnable scripts. ### Links - Module README: ../../GEO-INFER-BAYES/README.md - Modules Overview: ../modules/index.md
+## Overview Note: Code examples are illustrative; see `GEO-INFER-BAYES/examples` for runnable scripts. ### Links - Module README: [Module README](../../../GEO-INFER-BAYES/README.md) - Modules Overview: ../modules/index.md
 GEO-INFER-BAYES provides statistical analysis capabilities for geospatial data. It enables:
 - **Bayesian Parameter Estimation**: Probabilistic parameter inference with MCMC sampling
 - **Uncertainty Quantification**: Uncertainty analysis with credible intervals

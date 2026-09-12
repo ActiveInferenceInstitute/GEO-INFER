@@ -109,4 +109,4 @@ feasibility = validator.assess_feasibility(available_effort=20.0)
 No cross-module imports are implemented; the module is self-contained
 (Governance category). Integrations with NORMS/SEC/SPACE would be new work.
 
-- Test: `uv run python -m pytest GEO-INFER-REQ/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module REQ`

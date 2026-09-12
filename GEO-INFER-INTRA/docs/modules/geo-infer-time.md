@@ -27,7 +27,7 @@ Where:
 ```python
 # Illustrative; see GEO-INFER-TIME/examples
 for runnable scripts ``` ### Links -
-Module README: ../../GEO-INFER-TIME/README.md
+Module README: [Module README](../../../GEO-INFER-TIME/README.md)
 - Modules Overview: ../modules/index.md
 #### Temporal Patterns
 The module identifies various temporal patterns with detection methods:

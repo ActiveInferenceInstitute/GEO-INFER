@@ -65,24 +65,25 @@ ray.init(address="ray://cluster:10001")
 @ray.remote
 def run_mcmc_chain(
     chain_id: int,
+    spatial_model,
     observations: np.ndarray,
     num_samples: int,
 ) -> np.ndarray:
     """Run a single MCMC chain for Bayesian spatial model."""
-    from geo_infer_bayes.core.samplers import MetropolisHastings
+    from geo_infer_bayes.core.hmc import HMC
 
-    sampler = MetropolisHastings(seed=chain_id)
-    samples = sampler.sample(
-        observations=observations,
-        num_samples=num_samples,
-        burn_in=num_samples // 4,
+    sampler = HMC(model=spatial_model, random_seed=chain_id)
+    samples = sampler.run(
+        observations,
+        n_samples=num_samples,
+        n_warmup=num_samples // 4,
     )
     return samples
 
 # Run 8 MCMC chains in parallel across the Ray cluster
 observations = np.load("spatial_observations.npy")
 futures = [
-    run_mcmc_chain.remote(i, observations, num_samples=10000)
+    run_mcmc_chain.remote(i, spatial_model, observations, num_samples=10000)
     for i in range(8)
 ]
 all_chains = ray.get(futures)

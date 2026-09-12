@@ -6,6 +6,7 @@ Unit workspace within `GEO-INFER-EXAMPLES`.
 
 - `test_data_models.py`
 - `test_integration_models.py`
+- `test_module_extras.py`
 - `test_module_orchestrator_public.py`
 - `test_workflow_definition.py`
 

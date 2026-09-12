@@ -111,7 +111,10 @@ def process_employee_onboarding_workflow(employee_data: dict) -> bool:
 
     Raises:
         ValueError: If required data is missing
-        RuntimeError: If candidate not found or not in offer accepted state
+        TypeError: If benefits_client or learning_client is provided but not callable
+
+    Returns False (and does not raise) when the candidate_id does not match
+    an existing candidate or the candidate is not in OFFER_ACCEPTED state.
     """
     candidate_id = employee_data.get("candidate_id")
     if not candidate_id:

@@ -4,17 +4,13 @@ This guide covers installation, core concepts, and first working examples for tr
 
 ## Installation
 
-Install the module in editable mode:
+Sync the module from the root uv workspace:
 
 ```bash
-uv pip install -e ./GEO-INFER-TRANSPORT
+uv sync --package geo-infer-transport
 ```
 
-Core dependency is `networkx`. Install optional dependencies for visualization:
-
-```bash
-uv pip install folium geopandas
-```
+Core dependency is `networkx`. Optional dependencies for visualization (`folium`, `geopandas`) are declared as package extras in the root `pyproject.toml`; consult the package metadata for the extras group that installs them.
 
 Verify the installation:
 
@@ -38,7 +34,7 @@ GEO-INFER-TRANSPORT uses `networkx.DiGraph` as its graph backend, which provides
 
 ### Road Classification
 
-The module uses a seven-class road hierarchy:
+The module uses an eight-class road hierarchy:
 
 | Class | Example | Typical Speed |
 |-------|---------|--------------|
@@ -49,6 +45,7 @@ The module uses a seven-class road hierarchy:
 | `TERTIARY` | Local connector | 30-50 km/h |
 | `RESIDENTIAL` | Neighborhood street | 20-40 km/h |
 | `SERVICE` | Parking, access road | 10-20 km/h |
+| `PATH` | Trail, footpath, cycleway | 5-15 km/h |
 
 ### Transport Modes
 

@@ -10,7 +10,7 @@
 ## Overview
 Note: Code examples are illustrative; see `GEO-INFER-CLIMATE/examples` for runnable scripts.
 ### Links
-- Module README: ../../GEO-INFER-CLIMATE/README.md
+- Module README: [Module README](../../../GEO-INFER-CLIMATE/README.md)
 - Modules Overview: ../modules/index.md
 GEO-INFER-CLIMATE implements climate analysis for geospatial applications. It provides:
 - **Weather Analysis**: Pattern detection, forecasting, and extreme event identification

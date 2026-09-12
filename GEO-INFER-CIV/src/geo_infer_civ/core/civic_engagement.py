@@ -460,8 +460,9 @@ class VoterTurnoutModel:
         """
         Predict voter turnout for an upcoming election.
 
-        Uses a linear model fit on historical data, adjusting for
-        election type, contestedness, and media coverage.
+        Estimates turnout as the historical baseline rate for the election
+        type, plus fixed offsets for contestedness and media coverage. No
+        statistical fitting is performed.
 
         Args:
             eligible_voters: Number of eligible voters.

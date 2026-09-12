@@ -107,7 +107,7 @@ result = await pipeline.execute_workflow(
 - SQL uses parameterized queries (`:param` placeholders) — never string interpolation
 - All coordinate data validated against WGS84 bounds
 - H3 indexing uses the v4 API (`latlng_to_cell`, `cell_to_latlng`, `geo_to_cells`)
-- Test: `uv run python -m pytest GEO-INFER-DATA/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module DATA`
 
 ### Integrations
 

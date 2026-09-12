@@ -76,7 +76,9 @@ class SituationalAwareness:
 
         Args:
             data_sources: Data sources to integrate
-            fusion_algorithms: Algorithms for data fusion
+            fusion_algorithms: Descriptive label for the fusion approach used by
+                downstream reporting. Not executed algorithmically; ``fuse_data``
+                always performs a confidence-weighted average.
             update_interval: Update interval in seconds
         """
         self.data_sources = data_sources or ["sensors", "field_reports", "satellite"]
@@ -321,14 +323,21 @@ class SituationalAwareness:
 
         Args:
             sources: Data sources to fuse
-            fusion_method: Fusion algorithm to use
+            fusion_method: Fusion algorithm to use. Only
+                ``"weighted_average"`` is supported; any other value raises
+                ``ValueError``.
             confidence_weighting: Weight by source confidence
 
         Returns:
             Fused data product
         """
         if not sources:
-            return {"error": "No sources provided"}
+            raise ValueError("fuse_data requires at least one source; got none")
+        if fusion_method != "weighted_average":
+            raise ValueError(
+                f"Unsupported fusion_method {fusion_method!r}: only "
+                "'weighted_average' is implemented"
+            )
 
         fused_data_out: Dict[str, Any] = {}
         fused: Dict[str, Any] = {

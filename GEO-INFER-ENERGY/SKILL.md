@@ -99,4 +99,4 @@ Full runnable scripts live in `examples/` (`renewable_energy_planning.py`, `basi
 
 - Integrates with CLIMATE for renewable resource projections
 - Integrates with SPACE for spatial optimization grid
-- Test: `uv run python -m pytest GEO-INFER-ENERGY/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ENERGY`

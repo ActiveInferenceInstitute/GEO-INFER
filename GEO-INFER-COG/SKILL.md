@@ -76,7 +76,7 @@ path = cmap.get_navigation_path("pier", "museum")
 
 ### Test
 
-`uv run python -m pytest GEO-INFER-COG/tests/ -v`
+`uv run python GEO-INFER-TEST/run_unified_tests.py --module COG`
 
 ### Integrations
 

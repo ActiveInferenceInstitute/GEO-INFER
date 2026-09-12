@@ -223,6 +223,26 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
 
+  /transport/network/load:
+    post:
+      tags: [transport]
+      summary: Load a transportation network for metrics/critical-link analysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [network_file]
+              properties:
+                network_file:
+                  type: string
+      responses:
+        '200':
+          description: Load status (num_nodes/num_edges)
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
   /transport/network/metrics:
     post:
       tags: [transport]
@@ -230,6 +250,48 @@ paths:
       responses:
         '200':
           description: Network metrics
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /transport/traffic/load:
+    post:
+      tags: [transport]
+      summary: Load a transportation network for traffic simulation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [network_file]
+              properties:
+                network_file:
+                  type: string
+      responses:
+        '200':
+          description: Load status (num_nodes/num_edges)
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /transport/traffic/time-periods:
+    post:
+      tags: [transport]
+      summary: Set traffic-simulation time periods
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [periods]
+              properties:
+                periods:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Configured time periods
         '400':
           $ref: '#/components/responses/BadRequest'
 

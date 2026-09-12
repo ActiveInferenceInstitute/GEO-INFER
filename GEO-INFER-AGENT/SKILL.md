@@ -159,7 +159,7 @@ unregistered agent returns False.
   messaging should subclass/override `send_message` with a real transport.
 - `run()` logs and stores crashes in `agent.last_error` without re-raising —
   check `agent.last_error` to distinguish crash vs clean stop.
-- Test: `uv run --no-sync python -m pytest GEO-INFER-AGENT/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module AGENT`
 
 ### Integrations
 

@@ -1,11 +1,18 @@
 # GEO-INFER-METAGOV: Meta-Governance & Organizational Governance Module
+
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
 > **Purpose**: Multi-level governance frameworks, institutional design, and organizational governance
 >
 > This module provides meta-governance capabilities including multi-level governance coordination, institutional analysis, organizational governance frameworks, and integration with Active Inference principles.
 ## Overview
 Note: Code examples are illustrative; see `GEO-INFER-METAGOV/examples` for runnable scripts.
 ### Links
-- Module README: ../../GEO-INFER-METAGOV/README.md
+- Module README: [Module README](../../../GEO-INFER-METAGOV/README.md)
 - Modules Overview: ../modules/index.md
 GEO-INFER-METAGOV implements meta-governance for geospatial applications. It provides:
 - **Multi-Level Governance**: Coordinate governance across local, regional, national, and international levels

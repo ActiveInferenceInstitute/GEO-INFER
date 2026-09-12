@@ -1,4 +1,11 @@
 # Spatial Concepts
+
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
 This document describes the spatial concepts defined in the GEO-INFER-INTRA ontology system, which provide a standardized vocabulary for spatial entities, relationships, and properties.
 
 ## Core Spatial Entities

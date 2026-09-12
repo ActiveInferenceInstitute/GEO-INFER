@@ -87,6 +87,25 @@ Plausible mechanism for the historical observations (hypothesis, not measured he
 
 ## Provenance
 
-- Probes: `/tmp/perf01_probe.py` (guarded wrapper), importtime dumps at `/tmp/perf01-pandas-importtime.txt` and `/tmp/perf01-act-importtime.txt`.
-- Venvs used: `/tmp/perf01-a` … `/tmp/perf01-f` (throwaway; safe to delete).
-- Report copy: `/tmp/ledger-closeout/report-perf-01.md`.
+- Probe wrapper: committed at `GEO-INFER-TEST/tools/perf01_import_probe.py`
+  (guarded `subprocess` wrapper; requires the literal `IMPORTED` stdout line).
+- `importtime` attribution dumps: committed at
+  `GEO-INFER-TEST/docs/perf01-pandas-importtime.txt` and
+  `GEO-INFER-TEST/docs/perf01-act-importtime.txt`.
+- Measurement venvs lived under `/tmp/perf01-*` (throwaway; not committed and
+  ephemeral across reboots).
+- Report copy: `GEO-INFER-TEST/docs/import_latency_2026_09.md` (this file;
+  the earlier `/tmp/ledger-closeout/report-perf-01.md` copy is ephemeral).
+
+## Environment caveat (appended 2026-09-11, GS-080)
+
+The venvs used for these measurements were built with `uv pip install -e` /
+`uv pip install`, which **ignores `uv.lock`**. The recorded versions
+(pandas 3.0.5, scipy 1.17.1, Python 3.12.13) do **not** match the locked
+workspace environment (uv.lock pins pandas 2.3.1 and scipy 1.16.1;
+`.python-version` is 3.12.11). All timings in this receipt are therefore
+**environment-specific and not directly comparable** to the locked
+environment recorded in `GEO-INFER-TEST/docs/benchmark_baseline_2026-09-10.md`.
+The receipt's regression policy ("same package versions") can only be
+verified against a re-measurement under a `uv sync --all-packages`
+environment, not against this receipt.

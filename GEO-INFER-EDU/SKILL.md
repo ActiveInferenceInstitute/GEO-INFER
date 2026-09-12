@@ -72,4 +72,4 @@ export = tracker.export_progress("student_042")  # JSON string, FERPA-pseudonymi
 ### Integrations
 
 - Optional integration with SPACE and DATA for spatial exercise content (not imported at runtime)
-- Test: `uv run python -m pytest GEO-INFER-EDU/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module EDU`

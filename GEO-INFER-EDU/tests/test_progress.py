@@ -479,6 +479,22 @@ class TestCompetencyOrdering:
         record = tracker._learner_data["student_2"].competencies["spatial_analysis"]
         assert record.level is CompetencyLevel.EXEMPLARY
 
+    def test_same_level_assessment_refreshes_record(self):
+        """Two same-level assessments keep the level and accumulate evidence/confidence."""
+        tracker = ProgressTracker()
+        tracker.track_progress(
+            learner_id="student_10",
+            activity_log=[],
+            assessments=[
+                {"competency": "spatial_analysis", "score": 0.7, "id": "a1"},
+                {"competency": "spatial_analysis", "score": 0.65, "id": "a2"},
+            ],
+        )
+        record = tracker._learner_data["student_10"].competencies["spatial_analysis"]
+        assert record.level is CompetencyLevel.DEVELOPING
+        assert record.evidence == ["a1", "a2"]
+        assert record.confidence == 0.6
+
     def test_export_serializes_competency_levels(self):
         """export_progress must return valid JSON even with competency records."""
         tracker = ProgressTracker(privacy_compliance="none")

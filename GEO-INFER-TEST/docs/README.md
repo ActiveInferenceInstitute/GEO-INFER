@@ -12,6 +12,8 @@ Docs workspace within `GEO-INFER-TEST`.
 - `gnn_space_time_2026_09.md`
 - `import_latency_2026_09.md`
 - `index.md`
+- `perf01-act-importtime.txt`
+- `perf01-pandas-importtime.txt`
 - `pin_review_2026-Q3.md`
 - `secret_scan_policy.md`
 

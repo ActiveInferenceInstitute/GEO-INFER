@@ -14,7 +14,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-PLACE/examples` and `GEO-INFER-PLACE/locations/` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-PLACE/README.md GEO-INFER-PLACE is the place-based analysis engine that provides location and place modeling capabilities for geospatial information systems. It enables:
+- Module README: [Module README](../../../GEO-INFER-PLACE/README.md) GEO-INFER-PLACE is the place-based analysis engine that provides location and place modeling capabilities for geospatial information systems. It enables:
 
 - **Location Analysis**: Analyze locations and their characteristics - **Place Modeling**: Model places and their spatial contexts - **Spatial Context**: Understand spatial context and relationships - **Place-Based Intelligence**: Apply place-based intelligence and insights - **Location Optimization**: Optimize location-based decisions
 

@@ -1,5 +1,12 @@
 # GEO-INFER-REQ: Requirements Management
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
+
 > **Explanation**: Understanding Requirements Management in GEO-INFER
 >
 > This module provides requirements management capabilities for geospatial applications, including requirement analysis, specification management, and validation frameworks.
@@ -8,7 +15,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-REQ/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-REQ/README.md GEO-INFER-REQ is the requirements management engine that provides requirement analysis and specification capabilities for geospatial information systems. It enables:
+- Module README: [Module README](../../../GEO-INFER-REQ/README.md) GEO-INFER-REQ is the requirements management engine that provides requirement analysis and specification capabilities for geospatial information systems. It enables:
 
 - **Requirement Analysis**: Analyze and model system requirements - **Specification Management**: Manage requirement specifications and documentation - **Validation Frameworks**: Validate requirements and specifications - **Traceability**: Track requirement traceability and relationships - **Change Management**: Manage requirement changes and evolution
 

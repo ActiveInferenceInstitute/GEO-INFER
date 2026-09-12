@@ -67,7 +67,7 @@ buffered = create_buffer(square, distance=1.0, unit="kilometers")
 - FastAPI with async handlers for spatial operations
 - Response format defaults to GeoJSON (RFC 7946, `[lon, lat]` coordinate order)
 - The polygon feature store is process-local memory — data does not survive worker restarts; it is capped at `polygon_store_max_size` (default 10,000) and further POSTs beyond the cap return 409 RESOURCE_CONFLICT
-- Test: `uv run python -m pytest GEO-INFER-API/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module API`
 
 ### Integrations
 

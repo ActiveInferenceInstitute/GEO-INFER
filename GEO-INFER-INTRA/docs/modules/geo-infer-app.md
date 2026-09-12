@@ -14,7 +14,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-APP/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-APP/README.md - Modules Overview: ../modules/index.md GEO-INFER-APP is the application framework that provides user interfaces, accessibility tools, and application development capabilities for the GEO-INFER framework. It enables:
+- Module README: [Module README](../../../GEO-INFER-APP/README.md) - Modules Overview: ../modules/index.md GEO-INFER-APP is the application framework that provides user interfaces, accessibility tools, and application development capabilities for the GEO-INFER framework. It enables:
 
 - **Interactive Dashboards**: Real-time geospatial data visualization with mathematical foundations - **Web Applications**: Full-stack geospatial web applications with AI integration - **Mobile Applications**: Cross-platform mobile geospatial apps with offline capabilities - **Accessibility Tools**: Inclusive design for diverse user needs with AI assistance - **User Experience**: Intuitive interfaces for complex geospatial workflows with adaptive learning - **Visualization**: 3D visualization, AR/VR integration, and immersive experiences - **Security**: End-to-end encryption, secure authentication, and privacy protection
 

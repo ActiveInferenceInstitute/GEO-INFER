@@ -10,7 +10,7 @@
 ## Overview
 Note: Code examples are illustrative; see `GEO-INFER-WATER/examples` for runnable scripts.
 ### Links
-- Module README: ../../GEO-INFER-WATER/README.md
+- Module README: [Module README](../../../GEO-INFER-WATER/README.md)
 - Modules Overview: ../modules/index.md
 GEO-INFER-WATER implements water resource analysis for geospatial applications. It provides:
 - **Water Quality Monitoring**: Real-time quality assessment and contamination detection

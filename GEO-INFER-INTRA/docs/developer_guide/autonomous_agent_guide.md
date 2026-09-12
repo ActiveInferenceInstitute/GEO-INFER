@@ -1,5 +1,12 @@
 # Guide for Autonomous Agent Coders
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
+
 ## Introduction
 This guide is designed specifically for autonomous agent coders working on the GEO-INFER framework. It provides essential information on navigating the codebase, understanding the project paradigm, and making effective contributions while maintaining consistency with project standards.
 

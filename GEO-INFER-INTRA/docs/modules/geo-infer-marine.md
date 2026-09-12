@@ -10,7 +10,7 @@
 ## Overview
 Note: Code examples are illustrative; see `GEO-INFER-MARINE/examples` for runnable scripts.
 ### Links
-- Module README: ../../GEO-INFER-MARINE/README.md
+- Module README: [Module README](../../../GEO-INFER-MARINE/README.md)
 - Modules Overview: ../modules/index.md
 GEO-INFER-MARINE implements marine analysis for geospatial applications. It provides:
 - **Ocean Monitoring**: Sea surface temperature, salinity, currents, chlorophyll tracking

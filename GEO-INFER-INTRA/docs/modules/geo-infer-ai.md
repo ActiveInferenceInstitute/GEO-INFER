@@ -14,7 +14,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-AI/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-AI/README.md - Modules Overview: ../modules/index.md GEO-INFER-AI provides machine learning capabilities for geospatial analysis. It enables:
+- Module README: [Module README](../../../GEO-INFER-AI/README.md) - Modules Overview: ../modules/index.md GEO-INFER-AI provides machine learning capabilities for geospatial analysis. It enables:
 
 - **Neural Networks**: Deep learning models for spatial data with architectures - **Predictive Modeling**: Forecasting and trend analysis with uncertainty quantification - **Computer Vision**: Image and satellite data processing with algorithms - **Natural Language Processing**: Text analysis for geospatial context with semantic understanding - **Automated Decision Making**: AI-driven spatial reasoning with explainable AI - **Reinforcement Learning**: Adaptive learning for spatial decision-making - **Federated Learning**: Privacy-preserving distributed AI training
 

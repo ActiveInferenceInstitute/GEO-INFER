@@ -88,4 +88,4 @@ for api_cls in (ComplianceAPI, LegalAPI, NormativeAPI, PolicyAPI, ZoningAPI):
 ### Integrations
 
 - None: this module has no runtime imports of other GEO-INFER modules.
-- Test: `uv run python -m pytest GEO-INFER-NORMS/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module NORMS`

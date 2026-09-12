@@ -14,7 +14,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-AGENT/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-AGENT/README.md - Modules Overview: ../modules/index.md GEO-INFER-AGENT provides agent frameworks for autonomous geospatial decision-making. It enables:
+- Module README: [Module README](../../../GEO-INFER-AGENT/README.md) - Modules Overview: ../modules/index.md GEO-INFER-AGENT provides agent frameworks for autonomous geospatial decision-making. It enables:
 
 - **Agents**: Autonomous decision-making entities with spatial awareness and active inference - **Multi-Agent Coordination**: Collaborative behavior and emergent intelligence with coordination strategies - **Spatial Reasoning**: Geographic context in agent decision processes with spatial-temporal awareness - **Adaptive Behavior**: Learning and evolution of agent strategies with reinforcement learning - **Swarm Intelligence**: Collective behavior from individual agent interactions with emergent properties - **Agent Communication**: Communication protocols and negotiation mechanisms - **Agent Security**: Secure agent interactions and privacy-preserving coordination
 

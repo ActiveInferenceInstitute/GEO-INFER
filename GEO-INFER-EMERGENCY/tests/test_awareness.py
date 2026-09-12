@@ -199,10 +199,18 @@ class TestDataFusion:
         )
         assert result["confidence"] == pytest.approx(1.0)
 
-    def test_fuse_empty_sources(self) -> None:
+    def test_fuse_empty_sources_raises(self) -> None:
         sa = SituationalAwareness()
-        result = sa.fuse_data(sources=[])
-        assert "error" in result
+        with pytest.raises(ValueError, match="at least one source"):
+            sa.fuse_data(sources=[])
+
+    def test_fuse_unsupported_method_raises(self) -> None:
+        sa = SituationalAwareness()
+        with pytest.raises(ValueError, match="Unsupported fusion_method"):
+            sa.fuse_data(
+                sources=[{"data": {"temperature": 30.0}}],
+                fusion_method="kalman",
+            )
 
 
 class TestDashboard:

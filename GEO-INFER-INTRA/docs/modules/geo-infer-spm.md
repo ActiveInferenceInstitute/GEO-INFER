@@ -14,7 +14,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-SPM/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-SPM/README.md GEO-INFER-SPM is the spatial process modeling engine that provides process analysis and modeling capabilities for geospatial information systems. It enables:
+- Module README: [Module README](../../../GEO-INFER-SPM/README.md) GEO-INFER-SPM is the spatial process modeling engine that provides process analysis and modeling capabilities for geospatial information systems. It enables:
 
 - **Process Analysis**: Analyze spatial processes and dynamics - **Spatial Dynamics**: Model spatial dynamics and interactions - **Process Optimization**: Optimize spatial processes and workflows - **Spatial Modeling**: Create spatial process models - **Process Monitoring**: Monitor and track process changes
 

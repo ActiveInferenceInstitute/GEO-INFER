@@ -102,4 +102,4 @@ features = engineer.create_spatial_features(coordinates, include_distances=True)
 - GEO-INFER-MATH provides the config-driven general-purpose interpolation
   counterparts (see `geo_infer_ai.models.predictive` docstring for the
   deliberate API differences)
-- Test: `uv run python -m pytest GEO-INFER-AI/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module AI`

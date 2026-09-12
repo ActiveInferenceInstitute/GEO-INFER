@@ -8,7 +8,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-INSURANCE` package sources and tests for runnable usage.
 
 ### Links
-- Module README: ../../GEO-INFER-INSURANCE/README.md GEO-INFER-INSURANCE is the insurance operations layer of GEO-INFER. It packages the underwriting subsystem (previously shipped inside GEO-INFER-RISK) as an independently installable workspace module. It enables:
+- Module README: [Module README](../../../GEO-INFER-INSURANCE/README.md) GEO-INFER-INSURANCE is the insurance operations layer of GEO-INFER. It packages the underwriting subsystem (previously shipped inside GEO-INFER-RISK) as an independently installable workspace module. It enables:
 
 - **Underwriting**: Score applications and produce approve/refer/decline decisions - **Pricing**: Calculate premiums from coverage limits and assessed risk - **Claims**: Intake, validate, and process claims with reserves and payments - **Policy Management**: Policy lifecycle, coverage, and endorsements - **Portfolio**: Aggregate policies and claims, optimize capacity - **Compliance**: Check operations against declared regulatory frameworks
 
@@ -85,4 +85,4 @@ python # Inspect validation errors before underwriting from geo_infer_insurance.
 
 ### Efficient Claims Processing Use the `ClaimsEngine` for high-volume claim intake instead of one-off `process_claim` calls.
 
-## 🔗 Related Documentation ### Tutorials - **[Risk Assessment](geo-infer-risk.md)** — the upstream risk engine feeding hazard scores ### How-to Guides - **[Examples Gallery](../../../GEO-INFER-EXAMPLES/docs/index.md)** — runnable examples including the INSURANCE orchestrator ### Technical Reference - **[Module README](../../GEO-INFER-INSURANCE/README.md)** — install and validation commands - **[Skill Notes](../../GEO-INFER-INSURANCE/SKILL.md)** — capability map and guidelines
+## 🔗 Related Documentation ### Tutorials - **[Risk Assessment](geo-infer-risk.md)** — the upstream risk engine feeding hazard scores ### How-to Guides - **[Examples Gallery](../../../GEO-INFER-EXAMPLES/docs/index.md)** — runnable examples including the INSURANCE orchestrator ### Technical Reference - **[Module README](../../../GEO-INFER-INSURANCE/README.md)** — install and validation commands - **[Skill Notes](../../../GEO-INFER-INSURANCE/SKILL.md)** — capability map and guidelines

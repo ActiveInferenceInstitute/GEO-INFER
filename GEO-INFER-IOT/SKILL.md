@@ -81,7 +81,7 @@ print(f"Passed: {result.passed}, score: {result.quality_score:.2f}, issues: {res
 - MQTT handlers use real paho-mqtt (thread bridge) or aiomqtt (async); broker connection happens in `start_stream_processing` inside a running event loop
 - geo_infer_space and geo_infer_bayes are required workspace dependencies — they import unconditionally and fail loudly on a broken install
 - Quality-control config nests under documented keys (e.g. `temporal_consistency.max_change_rate`); a flat `max_change_rate` is a legacy fallback
-- Test: `uv run python -m pytest GEO-INFER-IOT/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module IOT`
 
 ### Integrations
 

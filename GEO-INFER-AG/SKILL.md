@@ -40,6 +40,7 @@ from geo_infer_ag.models.crop_yield import CropYieldModel
 from geo_infer_ag.core.field_boundary import FieldBoundaryManager
 from geo_infer_ag.core.sustainability import SustainabilityAssessment
 from geo_infer_ag.core.seasonal_analysis import SeasonalAnalysis
+from geo_infer_ag.api.agricultural_api import AgriculturalAPI
 ```
 
 ## Examples
@@ -99,12 +100,16 @@ print(prediction["summary"]["mean_yield"])  # t/ha
 - Carbon Tier 1 uses crop-specific default rates; pass `management_data`/`soil_data` for Tier 2 modifiers
 - Water requirements use FAO-56 crop coefficients with Penman-Monteith reference ET
 - Field areas are computed in a true equal-area projection (EPSG:6933), never Web Mercator
-- Test: `uv run python -m pytest GEO-INFER-AG/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module AG`
 
 ### Integrations
 
 Cross-module links (the counterpart modules own the implementation; AG itself
-contains no H3 or external-service code):
+contains no H3 code). Note: AG ships an `AgriculturalAPI` HTTP client targeting
+`https://api.geo-infer.ag` — that domain does not resolve publicly, so its
+network methods (`get_crop_data`, `get_soil_data`, `get_weather_forecast`,
+`get_precision_agriculture_data`) raise RuntimeError unless a reachable service
+is configured; the offline `analyze_crop_yield` path works without it.
 
 - **CLIMATE** → Precipitation projections for irrigation planning
 - **WATER** → Irrigation water demand modeling

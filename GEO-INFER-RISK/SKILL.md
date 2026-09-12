@@ -140,7 +140,7 @@ a `SeedSequence`, a `BitGenerator`, a `numpy.random.Generator`, or a legacy
 - Simplified conversions, stand-in probabilities, and loss-tail multipliers
   are catalogued in the Honest Capability Register below; source sites point
   here instead of re-explaining themselves
-- Test: `uv run python -m pytest GEO-INFER-RISK/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module RISK`
 
 ### Integrations
 
@@ -179,3 +179,16 @@ listed once here; the inline code comments point back to this register.
   baseline is implemented (`EnhancedRiskEngine.calibrate_models`); `bayesian`
   and `maximum_likelihood` are rejected with a documented error rather than
   accepted as options that would hard-fail.
+- **Catastrophe base-rate tables** — `CatastropheInsuranceModel` premium
+  models (`core/insurance_models.py`) price per-peril coverage from
+  hand-set latitude-band base rates: hurricane `_hurricane_model`
+  (0.02/0.01/0.005 by latitude band), earthquake `_earthquake_model`
+  (0.015/0.01/0.005 by |lat| band), flood `_flood_model`
+  (0.025/0.015/0.005 by |lat| band), wildfire `_wildfire_model`
+  (0.02/0.015/0.005 by |lat| band). None accounts for real exposure
+  drivers (elevation, bathymetry, fuel load, fault proximity). Separately,
+  `_estimate_catastrophe_loss` applies flat per-peril expected-loss
+  fractions (hurricane 0.01, earthquake 0.008, flood 0.012, wildfire
+  0.015; other 0.01) of coverage limit, independent of location or the
+  premium rate tables.
+

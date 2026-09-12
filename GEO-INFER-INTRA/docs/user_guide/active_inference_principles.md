@@ -1,4 +1,11 @@
 # Active Inference Principles in GEO-INFER
+
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
 This guide provides an overview of the core active inference principles used in the GEO-INFER framework and explains how they are applied to geospatial problems.
 ## What is Active Inference?
 Active inference is a unified framework for understanding perception, learning, and decision-making based on the Free Energy Principle. It proposes that adaptive systems (from cells to societies) minimize the difference between their internal models and the external world through a combination of:

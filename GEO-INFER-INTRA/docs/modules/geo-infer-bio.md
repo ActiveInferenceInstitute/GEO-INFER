@@ -14,7 +14,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-BIO/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-BIO/README.md GEO-INFER-BIO is the biological systems engine that provides ecosystem modeling and biodiversity analysis capabilities for geospatial information systems. It enables:
+- Module README: [Module README](../../../GEO-INFER-BIO/README.md) GEO-INFER-BIO is the biological systems engine that provides ecosystem modeling and biodiversity analysis capabilities for geospatial information systems. It enables:
 
 - **Ecosystem Modeling**: Mathematical modeling of ecological systems with machine learning and optimization algorithms - **Biodiversity Analysis**: Biodiversity assessment and analysis with machine learning, uncertainty quantification, and spatial analysis - **Species Distribution Modeling**: Species distribution prediction with uncertainty quantification, machine learning, and spatial analysis - **Ecological Forecasting**: Ecological system forecasting with AI enhancement, uncertainty quantification, and scenario analysis - **Conservation Planning**: Conservation strategy development with optimization algorithms, uncertainty quantification, and stakeholder analysis - **Population Dynamics**: Mathematical modeling of population dynamics with stochastic processes and spatial dynamics - **Genetic Analysis**: Evolutionary modeling, population structure analysis, and selection analysis
 

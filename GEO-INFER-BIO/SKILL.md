@@ -93,4 +93,4 @@ micro = MicrobiomeDataLoader()
 ### Integrations
 
 - SPACE: dataset classes provide `export_for_h3_integration()` producing coordinate/data dicts suitable for H3 ingestion in GEO-INFER-SPACE (no direct import at runtime).
-- Test: `uv run python -m pytest GEO-INFER-BIO/tests -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module BIO`

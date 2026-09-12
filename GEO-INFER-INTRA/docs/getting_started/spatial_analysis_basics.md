@@ -86,7 +86,8 @@ Key H3 concepts:
 - **Hierarchy**: Every cell at resolution `r` has 7 children at resolution `r+1`.
 
 ```python
-from geo_infer_space import latlng_to_cell, cell_to_latlng, grid_disk
+from geo_infer_space import latlng_to_cell, cell_to_latlng
+from geo_infer_space.utils.h3_utils import grid_disk
 
 # Convert a lat/lng to an H3 cell at resolution 8
 cell = latlng_to_cell(37.7749, -122.4194, 8)

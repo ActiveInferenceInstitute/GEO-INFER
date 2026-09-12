@@ -10,7 +10,7 @@
 ## Overview
 Note: Code examples are illustrative; see `GEO-INFER-TRANSPORT/examples` for runnable scripts.
 ### Links
-- Module README: ../../GEO-INFER-TRANSPORT/README.md
+- Module README: [Module README](../../../GEO-INFER-TRANSPORT/README.md)
 - Modules Overview: ../modules/index.md
 GEO-INFER-TRANSPORT implements transportation analysis for geospatial applications. It provides:
 - **Traffic Analysis**: Real-time traffic monitoring, congestion detection, and pattern analysis

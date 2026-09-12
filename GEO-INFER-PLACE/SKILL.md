@@ -74,7 +74,7 @@ print(f"cell {cell}, area {cell_area(cell):.2f} km2, {len(neighbors)} neighbors"
 - Uses H3 v4 API exclusively (`latlng_to_cell`/`cell_to_latlng`, `[lat, lng]` ordering)
 - Supported locations: `del_norte`, `cascadia` (`get_supported_locations()`)
 - `locations/cascadia/` is a standalone application (own entry point, `cascadia_main.py`) — `run_full_analysis` does not drive it; run its `cascadia_main.py` directly
-- Test: `uv run python -m pytest GEO-INFER-PLACE/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module PLACE`
 
 ### Integrations
 

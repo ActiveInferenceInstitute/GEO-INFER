@@ -104,4 +104,4 @@ geo-infer-health serve --host 0.0.0.0 --port 8000
 
 None: this module has no runtime imports of other GEO-INFER modules.
 
-Test: `uv run python -m pytest GEO-INFER-HEALTH/tests/ -v`
+Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module HEALTH`

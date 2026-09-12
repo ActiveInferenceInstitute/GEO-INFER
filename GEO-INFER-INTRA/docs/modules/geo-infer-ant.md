@@ -1,5 +1,12 @@
 # GEO-INFER-ANT: Ant Colony Optimization
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
+
 > **Explanation**: Understanding Ant Colony Optimization in GEO-INFER
 >
 > This module provides ant colony optimization algorithms for geospatial applications, including swarm intelligence, optimization algorithms, pathfinding, collective behavior modeling, and metaheuristic search with mathematical rigor.
@@ -8,7 +15,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-ANT/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-ANT/README.md - Modules Overview: ../modules/index.md GEO-INFER-ANT is the ant colony optimization engine that provides swarm intelligence and optimization capabilities for geospatial information systems. It enables:
+- Module README: [Module README](../../../GEO-INFER-ANT/README.md) - Modules Overview: ../modules/index.md GEO-INFER-ANT is the ant colony optimization engine that provides swarm intelligence and optimization capabilities for geospatial information systems. It enables:
 
 - **Swarm Intelligence**: Collective behavior and emergent intelligence algorithms with mathematical foundations - **Optimization Algorithms**: Metaheuristic optimization techniques for complex spatial problems - **Pathfinding**: pathfinding and routing optimization with uncertainty quantification - **Collective Behavior**: Modeling of collective behavior patterns with emergent properties - **Metaheuristic Search**: Metaheuristic search and optimization strategies with adaptive parameters - **Pheromone Management**: pheromone trail management and evaporation strategies - **Ant Communication**: Secure ant communication protocols and coordination mechanisms
 

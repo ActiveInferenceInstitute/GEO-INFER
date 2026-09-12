@@ -7,11 +7,11 @@ contract validators.
 
 ## Install and run
 
-`bash
+```bash
 uv sync --all-packages --all-extras
 uv run python GEO-INFER-TEST/run_unified_tests.py --list-modules
 uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT
-`
+```
 
 Use `uv run` so the command uses the shared workspace interpreter.
 
@@ -54,7 +54,7 @@ pytest files and a generated `tests/README.md` inventory.
 
 ## Programmatic API
 
-`python
+```python
 from geo_infer_test import GeoInferTestRunner, TestConfiguration
 
 config = TestConfiguration(
@@ -67,7 +67,7 @@ discovered = runner.discover_tests()
 report = runner.run_all_tests()
 print(discovered)
 print(report)
-`
+```
 
 For lower-level reusable assertions, import from `geo_infer_test.testing` or
 the package exports: finite arrays, normalized probabilities, stochastic

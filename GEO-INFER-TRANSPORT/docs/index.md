@@ -49,7 +49,7 @@ TrafficAnalyzer
 - The underlying graph is a `networkx.DiGraph`, supporting directed edges for one-way streets.
 - Non-one-way edges automatically get reverse edges with identical attributes.
 - Travel time is computed as `(length_m / 1000) / speed_limit_kmh * 3600` (seconds).
-- Seven road classes are supported: motorway, trunk, primary, secondary, tertiary, residential, service, path.
+- Eight road classes are supported: motorway, trunk, primary, secondary, tertiary, residential, service, path.
 - The routing engine defaults to Dijkstra but supports A* and Bellman-Ford.
 - Traffic congestion uses the BPR (Bureau of Public Roads) function: `t = t0 * (1 + 0.15 * (V/C)^4)`.
 - Level of Service (LOS) follows HCM A-F classification based on volume-to-capacity ratio.

@@ -1,7 +1,7 @@
 # GEO-INFER-ACT: Active Inference Engine
 > **Illustrative example notice.** This page contains historical or > conceptual integration sketches. Names such as `SpatialAnalyzer` and > domain-specific facade classes are not public GEO-INFER exports in the > current checkout; verify imports against each module's `src/` package > and use the module README/tests for executable examples. > **Purpose**: Active Inference implementation for geospatial analysis
 >
-> This module provides Active Inference capabilities for geospatial data, implementing the Free Energy Principle for spatial reasoning and decision-making. ## Overview Note: Code examples are illustrative; see `GEO-INFER-ACT/examples` for runnable scripts. ### Links - Module README: ../../GEO-INFER-ACT/README.md GEO-INFER-ACT implements Active Inference principles for geospatial
+> This module provides Active Inference capabilities for geospatial data, implementing the Free Energy Principle for spatial reasoning and decision-making. ## Overview Note: Code examples are illustrative; see `GEO-INFER-ACT/examples` for runnable scripts. ### Links - Module README: [Module README](../../../GEO-INFER-ACT/README.md) GEO-INFER-ACT implements Active Inference principles for geospatial
 analysis. It provides:
 - **Generative Models**: Internal models of spatial processes
 - **Belief Updating**: Learning from observations to update understanding

@@ -60,4 +60,4 @@ print(result.winner)
 ### Integrations
 
 - Integrates with METAGOV (GEO-INFER-METAGOV imports `OrganizationModel`).
-- Test: `uv run python -m pytest GEO-INFER-ORG/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ORG`

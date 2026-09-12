@@ -1,5 +1,12 @@
 # GEO-INFER-INTRA: Knowledge Integration
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
+
 > **Explanation**: Understanding Knowledge Integration in GEO-INFER
 >
 > This module provides knowledge integration and management capabilities for the GEO-INFER framework, including documentation, tutorials, and knowledge organization.

@@ -29,7 +29,7 @@
 - `scripts/`
 - `src/`
 - `tests/`
-- `run_orchestrator.py`
+- `demo_orchestrator.py`
 - `setup.py`
 - `.gitignore`
 - `SKILL.md`

@@ -1,5 +1,12 @@
 # GEO-INFER-PEP: People & Communities
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
+
 > **Explanation**: Understanding People & Communities in GEO-INFER
 >
 > This module provides people and community modeling capabilities for geospatial applications, including demographic analysis, community engagement, and social dynamics modeling.
@@ -8,7 +15,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-PEP/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-PEP/README.md GEO-INFER-PEP is the people and communities engine that provides demographic and social modeling capabilities for geospatial information systems. It enables:
+- Module README: [Module README](../../../GEO-INFER-PEP/README.md) GEO-INFER-PEP is the people and communities engine that provides demographic and social modeling capabilities for geospatial information systems. It enables:
 
 - **Demographic Analysis**: Analyze population demographics and characteristics - **Community Modeling**: Model community structures and dynamics - **Social Dynamics**: Model social interactions and relationships - **Behavioral Analysis**: Analyze human behavior patterns - **Community Engagement**: Support community engagement and participation
 

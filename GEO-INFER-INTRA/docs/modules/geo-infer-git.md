@@ -1,5 +1,12 @@
 # GEO-INFER-GIT: Git & Orchestration
 
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `SpatialAnalyzer` and
+> domain-specific facade classes are not public GEO-INFER exports in the
+> current checkout; verify imports against each module's `src/` package
+> and use the module README/tests for executable examples.
+
+
 > **Explanation**: Understanding Git & Orchestration in GEO-INFER
 >
 > This module provides version control, repository management, and orchestration tools for the GEO-INFER framework.
@@ -8,7 +15,7 @@
 Note: Code examples are illustrative; see `GEO-INFER-GIT/examples` for runnable scripts.
 
 ### Links
-- Module README: ../../GEO-INFER-GIT/README.md GEO-INFER-GIT is the git and orchestration engine that provides version control and repository management capabilities for GEO-INFER modules. It enables:
+- Module README: [Module README](../../../GEO-INFER-GIT/README.md) GEO-INFER-GIT is the git and orchestration engine that provides version control and repository management capabilities for GEO-INFER modules. It enables:
 
 - **Repository Management**: Manage code repositories and submodules - **Version Control**: Track changes, branches, and releases - **Orchestration**: Automate workflows and module integration - **Continuous Integration**: Support for CI/CD pipelines - **Collaboration**: Enable collaborative development and code review
 

@@ -86,4 +86,4 @@ print(result.net_present_value, result.benefit_cost_ratio, result.payback_period
 ### Integrations
 
 - No cross-module `geo_infer_*` imports exist in the code today; `geo-infer-space`, `geo-infer-data`, and `geo-infer-econ` are recommended companions only. The core runs on the standard library alone.
-- Test: `uv run python -m pytest GEO-INFER-CIV/tests/ -v`
+- Test: `uv run python GEO-INFER-TEST/run_unified_tests.py --module CIV`
