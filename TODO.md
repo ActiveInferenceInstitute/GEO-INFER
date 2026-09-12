@@ -58,6 +58,18 @@ history, and standing receipts live in `GEO-INFER-TEST/docs/` and the
 CHANGELOG.
 The fresh pass itself lands as `SCOPE-2026-09-11.md`.
 
+## Campaign execution record (2026-09-11)
+
+The full 189-item spec was executed the same day in six reviewed waves,
+each pushed with CI green (probe-confirmed bug fixes; 82 silent-fabrication
+fixes across 36 modules; packaging coherence with a single integration
+re-lock; 21 test-gap closures; 29 docs/API-honesty fixes including the new
+`validate_doc_imports.py` gate; 31 CI/structural items via
+[PR #28](https://github.com/ActiveInferenceInstitute/GEO-INFER/pull/28)).
+The campaign is recorded in CHANGELOG under
+`## [0.2.0] - 2026-09-11 - repo-wide quality campaign`. All spec items are
+delivered; the ledger's open rows below are the survivors.
+
 ---
 
 
