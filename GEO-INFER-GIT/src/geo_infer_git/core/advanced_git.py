@@ -24,6 +24,26 @@ from ..utils.logging_utils import get_logger
 logger = get_logger(__name__)
 
 
+def _git_path_exists(repo: "git.Repo", repo_path: Path, git_file: str) -> bool:
+    """Return True if a path reported by ``git rev-parse --git-path`` exists.
+
+    Version-robust in-progress detection: state files such as
+    ``CHERRY_PICK_HEAD`` or the ``rebase-merge``/``rebase-apply``/``sequencer``
+    directories exist exactly while the corresponding operation is mid-flight,
+    independent of human-readable git output wording.
+    """
+    try:
+        reported = repo.git.rev_parse("--git-path", git_file).strip()
+    except git.GitCommandError:
+        return False
+    if not reported:
+        return False
+    candidate = Path(reported)
+    if not candidate.is_absolute():
+        candidate = repo_path / candidate
+    return candidate.exists()
+
+
 @dataclass
 class SubmoduleInfo:
     """Information about a Git submodule."""
@@ -385,7 +405,7 @@ class CherryPickManager:
             operation.message = f"Successfully cherry-picked {commit_sha}"
 
         except git.GitCommandError as e:
-            if "conflict" in str(e).lower():
+            if self._cherry_pick_in_progress():
                 operation.status = "conflicts"
                 operation.conflicts = self._detect_conflicts()
                 operation.message = (
@@ -507,6 +527,17 @@ class CherryPickManager:
             operation.message = f"Conflict resolution failed: {e}"
             return False
 
+    def _cherry_pick_in_progress(self) -> bool:
+        """Detect an in-progress cherry-pick via git state files, not output text.
+
+        ``CHERRY_PICK_HEAD`` (and the ``sequencer`` directory on newer git)
+        exist exactly while a cherry-pick is stopped on a conflict, regardless
+        of stderr wording across git versions.
+        """
+        return _git_path_exists(
+            self.repo, self.repo_path, "CHERRY_PICK_HEAD"
+        ) or _git_path_exists(self.repo, self.repo_path, "sequencer")
+
     def _detect_conflicts(self) -> List[MergeConflict]:
         """Detect current merge conflicts in the repository."""
         conflicts = []
@@ -618,7 +649,7 @@ class RebaseManager:
             operation.current_step = 0
 
         except git.GitCommandError as e:
-            if "conflict" in str(e).lower():
+            if self._rebase_in_progress():
                 operation.status = "conflicts"
                 operation.conflicts = self._detect_rebase_conflicts()
                 operation.message = f"Conflicts detected during rebase of {base_commit}"
@@ -651,22 +682,35 @@ class RebaseManager:
             self.repo.git.rebase("--continue")
             self.current_rebase.current_step += 1
 
-            # Check if rebase is complete
-            if self.current_rebase.current_step >= self.current_rebase.total_steps:
+            # The rebase is complete once git tears down its state directory;
+            # while it still exists, more steps remain regardless of the
+            # pre-computed step count.
+            if not self._rebase_in_progress():
                 self.current_rebase.status = "completed"
                 self.current_rebase = None
 
             return True
 
-        except git.GitCommandError as e:
+        except git.GitCommandError:
             assert self.current_rebase is not None
-            if "conflict" in str(e).lower():
+            if self._rebase_in_progress():
                 self.current_rebase.status = "conflicts"
                 self.current_rebase.conflicts = self._detect_rebase_conflicts()
                 return False
             else:
                 self.current_rebase.status = "failed"
                 return False
+
+    def _rebase_in_progress(self) -> bool:
+        """Detect an in-progress rebase via git state directories, not output text.
+
+        The ``rebase-merge`` (interactive/merge backend) or ``rebase-apply``
+        (apply backend) directory exists exactly while a rebase is stopped,
+        regardless of stderr wording across git versions.
+        """
+        return _git_path_exists(
+            self.repo, self.repo_path, "rebase-merge"
+        ) or _git_path_exists(self.repo, self.repo_path, "rebase-apply")
 
     def abort_rebase(self) -> bool:
         """

@@ -24,6 +24,7 @@
 - `analytics/`
 - `api/`
 - `backends/`
+- `config/`
 - `core/`
 - `gis/`
 - `io/`

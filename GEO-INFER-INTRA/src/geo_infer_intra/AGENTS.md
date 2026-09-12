@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `config/`
 - `core/`
 - `data/`
 - `utils/`

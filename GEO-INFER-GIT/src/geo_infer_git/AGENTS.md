@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `api/`
+- `config/`
 - `core/`
 - `utils/`
 - `__init__.py`

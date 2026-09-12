@@ -1,0 +1,304 @@
+# Del Norte County Analysis Configuration
+# Location-specific parameters for forest health, coastal resilience, fire risk, and community development
+
+location:
+  name: "Del Norte County, California"
+  code: "del_norte_county"
+  timezone: "America/Los_Angeles"
+  
+  # Geographic boundaries (WGS84)
+  bounds:
+    north: 42.006
+    south: 41.458
+    east: -123.536
+    west: -124.408
+  
+  # Local coordinate reference systems
+  coordinate_systems:
+    local_crs: "EPSG:2227"  # California State Plane Zone I
+    utm_zone: "EPSG:32610"  # UTM Zone 10N
+    analysis_crs: "EPSG:3857"  # Web Mercator for web mapping
+
+# Analysis configurations by research theme
+analyses:
+  
+  # Forest Ecosystem Management
+  forest_health:
+    enabled: true
+    update_frequency: "monthly"
+    
+    # Vegetation indices and thresholds
+    vegetation_indices:
+      ndvi:
+        threshold_healthy: 0.7
+        threshold_stressed: 0.4
+        threshold_critical: 0.2
+      
+      evi:
+        threshold_healthy: 0.5
+        threshold_stressed: 0.3
+        threshold_critical: 0.1
+      
+      moisture_stress:
+        threshold_low: 0.3
+        threshold_moderate: 0.5
+        threshold_high: 0.7
+    
+    # Forest type classifications
+    forest_types:
+      - "Redwood"
+      - "Douglas Fir"
+      - "Mixed Conifer"
+      - "Oak Woodland"
+      - "Riparian"
+    
+    # Analysis parameters
+    change_detection:
+      baseline_years: [2010, 2015, 2020]
+      minimum_change_threshold: 0.1
+      time_series_length: 10  # years
+    
+    # Data sources and update schedules
+    data_sources:
+      landsat:
+        update_frequency: "bi-weekly"
+        cloud_threshold: 20  # percent
+      
+      sentinel2:
+        update_frequency: "weekly"
+        cloud_threshold: 15  # percent
+      
+      calfire_inventory:
+        update_frequency: "annually"
+      
+      field_surveys:
+        update_frequency: "quarterly"
+
+  # Coastal Resilience Analysis
+  coastal_resilience:
+    enabled: true
+    update_frequency: "daily"
+    
+    # Sea level rise scenarios (meters)
+    sea_level_scenarios:
+      low: 0.3
+      medium: 0.6
+      high: 1.0
+      extreme: 1.5
+    
+    # Erosion analysis parameters
+    erosion_analysis:
+      baseline_year: 2010
+      annual_rate_threshold: 0.5  # meters per year
+      storm_surge_heights: [1.0, 2.0, 3.0, 5.0]  # meters
+    
+    # Vulnerability assessment
+    vulnerability_factors:
+      - "elevation"
+      - "slope"
+      - "soil_type"
+      - "vegetation_cover"
+      - "infrastructure_proximity"
+    
+    # Monitoring locations
+    monitoring_sites:
+      crescent_city_harbor:
+        lat: 41.7450
+        lon: -124.1840
+        type: "infrastructure"
+      
+      battery_point_lighthouse:
+        lat: 41.7612
+        lon: -124.2026
+        type: "historical"
+      
+      pelican_state_beach:
+        lat: 41.8751
+        lon: -124.2620
+        type: "recreation"
+    
+    # Data sources
+    data_sources:
+      noaa_tide_gauges:
+        update_frequency: "hourly"
+        station_id: "9419750"  # Crescent City
+      
+      lidar_surveys:
+        update_frequency: "annually"
+        resolution: 1.0  # meters
+      
+      coastal_erosion_monitoring:
+        update_frequency: "quarterly"
+
+  # Fire Risk Assessment
+  fire_risk:
+    enabled: true
+    update_frequency: "hourly"
+    
+    # Fire weather thresholds
+    fire_weather:
+      critical_temperature: 80  # Fahrenheit
+      critical_humidity: 15     # percent
+      critical_wind_speed: 25   # mph
+      extreme_fire_weather_days: 3  # consecutive days
+    
+    # Fuel moisture thresholds
+    fuel_moisture:
+      critical_live: 60   # percent
+      critical_dead: 8    # percent
+      extreme_dead: 6     # percent
+    
+    # Fire danger rating classes
+    fire_danger_classes:
+      - "Low"
+      - "Moderate" 
+      - "High"
+      - "Very High"
+      - "Extreme"
+    
+    # Wildland-urban interface zones
+    wui_zones:
+      buffer_distances: [100, 500, 1000]  # meters from structures
+      vegetation_types: ["grass", "shrub", "forest"]
+    
+    # Historical fire analysis
+    historical_analysis:
+      start_year: 1950
+      fire_size_classes:
+        small: [0, 10]      # acres
+        medium: [10, 100]
+        large: [100, 1000]
+        very_large: [1000, 5000]
+        mega: [5000, null]
+    
+    # Data sources
+    data_sources:
+      calfire_stations:
+        update_frequency: "hourly"
+        parameters: ["temperature", "humidity", "wind_speed", "wind_direction"]
+      
+      fuel_moisture:
+        update_frequency: "weekly"
+        measurement_sites: 5
+      
+      fire_history:
+        update_frequency: "annually"
+        source: "CAL FIRE FRAP"
+
+  # Rural Community Development
+  community_development:
+    enabled: true
+    update_frequency: "annually"
+    
+    # Economic indicators
+    economic_indicators:
+      - "employment_rate"
+      - "median_income"
+      - "poverty_rate"
+      - "housing_costs"
+      - "business_diversity"
+    
+    # Infrastructure assessment
+    infrastructure_categories:
+      transportation:
+        - "road_condition"
+        - "bridge_condition" 
+        - "public_transit_access"
+      
+      utilities:
+        - "broadband_coverage"
+        - "power_reliability"
+        - "water_quality"
+        - "waste_management"
+      
+      services:
+        - "healthcare_access"
+        - "education_facilities"
+        - "emergency_services"
+        - "social_services"
+    
+    # Demographic analysis
+    demographic_focus:
+      age_groups: ["under_18", "18_65", "over_65"]
+      vulnerability_factors: ["income", "age", "disability", "language"]
+    
+    # Community resilience metrics
+    resilience_indicators:
+      social_cohesion: 
+        - "community_organizations"
+        - "volunteer_participation"
+        - "social_networks"
+      
+      economic_resilience:
+        - "economic_diversity"
+        - "local_business_density"
+        - "employment_stability"
+      
+      environmental_adaptation:
+        - "ecosystem_health"
+        - "natural_resource_management"
+        - "climate_preparedness"
+
+# Data management settings
+data_management:
+  
+  # Storage configuration
+  storage:
+    local_cache_size: "50GB"
+    cloud_backup: true
+    retention_policy: "7_years"
+  
+  # Quality control
+  quality_control:
+    automated_checks: true
+    manual_review_threshold: "high_priority"
+    validation_rules: "strict"
+  
+  # Privacy and security
+  privacy:
+    anonymize_personal_data: true
+    community_data_protocols: "obtain_consent"
+    sharing_restrictions: ["confidential", "community_sensitive"]
+
+# Reporting and visualization
+reporting:
+  
+  # Automated reports
+  automated_reports:
+    frequency: "monthly"
+    recipients: ["county_staff", "research_team", "community_liaisons"]
+    formats: ["pdf", "html", "dashboard"]
+  
+  # Dashboard configuration
+  dashboard:
+    refresh_interval: "hourly"
+    public_access_level: "summary_only"
+    real_time_alerts: true
+  
+  # Community engagement
+  community_engagement:
+    public_meetings: "quarterly"
+    community_input_portals: true
+    feedback_integration: "continuous"
+
+# Integration with other GEO-INFER modules
+integrations:
+  geo_infer_space:
+    spatial_indexing: "h3"
+    resolution: 8
+    buffer_analysis: true
+  
+  geo_infer_time:
+    temporal_resolution: "daily"
+    forecasting_horizon: "6_months"
+    trend_analysis: true
+  
+  geo_infer_ai:
+    machine_learning: true
+    model_types: ["random_forest", "neural_network"]
+    prediction_confidence: 0.8
+  
+  geo_infer_risk:
+    risk_assessment: true
+    vulnerability_mapping: true
+    scenario_planning: true 

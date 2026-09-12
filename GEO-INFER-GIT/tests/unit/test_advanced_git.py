@@ -70,10 +70,18 @@ def current_branch(repo_dir) -> str:
 
 
 def init_repo(repo_dir, file_name: str = "README.md", content: str = "# Test\n"):
-    """Create an isolated git repository with one commit."""
+    """Create an isolated git repository with one commit.
+
+    Identity is configured repo-locally: commits created by GitPython
+    (cherry-pick, cherry-pick --continue, rebase --continue) inherit the
+    process environment, and CI runners have no global git identity. Linux
+    git refuses to auto-detect one, which fails every commit-creating path.
+    """
     repo_dir.mkdir(parents=True)
     git("init", cwd=repo_dir)
     git("config", "protocol.file.allow", "always", cwd=repo_dir)
+    git("config", "user.name", "Test User", cwd=repo_dir)
+    git("config", "user.email", "test@example.com", cwd=repo_dir)
     (repo_dir / file_name).write_text(content)
     commit_all(repo_dir, "initial commit")
     return repo_dir

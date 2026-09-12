@@ -4,6 +4,7 @@ Del Norte County workspace within `GEO-INFER-PLACE`.
 
 ## Contents
 
+- `config/`
 - `dashboard/`
 - `data/`
 - `__init__.py`

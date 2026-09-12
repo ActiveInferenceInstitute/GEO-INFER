@@ -1,0 +1,113 @@
+# GEO-INFER-OPS Configuration
+# This is an example configuration file. Copy to local.yaml and modify as needed.
+
+# Environment name (development, staging, production)
+environment: development
+
+# Logging configuration
+logging:
+  level: INFO  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: json  # json or text
+  file: logs/geo_infer_ops.log  # Optional log file path
+
+# Monitoring configuration
+monitoring:
+  enabled: true
+  metrics_port: 9090
+  metrics_path: /metrics
+  prometheus:
+    scrape_interval: 15s
+    evaluation_interval: 15s
+  alerting:
+    enabled: true
+    rules_file: monitoring/rules/*.yml
+  grafana:
+    enabled: true
+    port: 3000
+    dashboards:
+      - monitoring/grafana/dashboards/*.json
+
+# Testing configuration
+testing:
+  coverage_threshold: 95.0
+  parallel: true
+  timeout: 300
+  pytest_args:
+    - --tb=short
+    - --cov-report=term-missing
+    - --cov-report=html
+  fixtures:
+    enabled: true
+    data_dir: tests/fixtures
+
+# Deployment configuration
+deployment:
+  docker:
+    registry: geo-infer-registry
+    tag: latest
+  kubernetes:
+    namespace: geo-infer
+    replicas: 3
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+    ingress:
+      enabled: true
+      host: geo-infer.example.com
+      tls: true
+
+# Security configuration
+security:
+  tls:
+    enabled: true
+    cert_file: /etc/geo-infer/tls/tls.crt
+    key_file: /etc/geo-infer/tls/tls.key
+  auth:
+    enabled: true
+    jwt_secret: ${JWT_SECRET}
+    token_expiry: 3600
+  cors:
+    enabled: true
+    allowed_origins:
+      - https://geo-infer.example.com
+      - http://localhost:3000
+
+# Cache configuration
+cache:
+  enabled: true
+  type: redis
+  redis:
+    host: redis
+    port: 6379
+    db: 0
+    password: ${REDIS_PASSWORD}
+
+# Database configuration
+database:
+  type: postgresql
+  host: postgres
+  port: 5432
+  name: geo_infer
+  user: ${DB_USER}
+  password: ${DB_PASSWORD}
+  pool_size: 20
+  max_overflow: 10
+
+# API configuration
+api:
+  host: 0.0.0.0
+  port: 8000
+  workers: 4
+  timeout: 60
+  rate_limit:
+    enabled: true
+    requests_per_minute: 100
+  docs:
+    enabled: true
+    path: /docs
+    title: GEO-INFER API
+    description: API documentation for GEO-INFER framework 

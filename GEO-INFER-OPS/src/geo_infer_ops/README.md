@@ -4,6 +4,7 @@ Geo Infer Ops workspace within `GEO-INFER-OPS`.
 
 ## Contents
 
+- `config/`
 - `core/`
 - `deployment/`
 - `health/`

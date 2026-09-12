@@ -5,6 +5,7 @@ Geo Infer Sec workspace within `GEO-INFER-SEC`.
 ## Contents
 
 - `api/`
+- `config/`
 - `core/`
 - `models/`
 - `utils/`

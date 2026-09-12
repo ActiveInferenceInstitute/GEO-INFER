@@ -4,6 +4,7 @@ Geo Infer Intra workspace within `GEO-INFER-INTRA`.
 
 ## Contents
 
+- `config/`
 - `core/`
 - `data/`
 - `utils/`

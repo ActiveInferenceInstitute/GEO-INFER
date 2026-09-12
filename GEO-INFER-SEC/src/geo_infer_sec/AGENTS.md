@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `api/`
+- `config/`
 - `core/`
 - `models/`
 - `utils/`

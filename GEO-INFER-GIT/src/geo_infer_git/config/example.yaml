@@ -1,0 +1,120 @@
+# GEO-INFER-GIT Example Configuration
+# This is a template configuration file that should be copied to local.yaml and modified
+
+# API Configuration
+api:
+  host: 0.0.0.0
+  port: 8010
+  workers: 4
+  timeout: 30
+
+# Git Repository Configuration
+repositories:
+  # Base directory for repository operations
+  base_dir: repositories
+  
+  # Default repository configuration
+  defaults:
+    clone_depth: 1
+    branch: main
+    protocol: https  # https or ssh
+    timeout: 60  # seconds
+  
+  # Authentication configuration
+  auth:
+    method: ssh_key  # ssh_key, https_token, or none
+    ssh_key_path: ~/.ssh/id_rsa
+    https_token_env: GIT_TOKEN
+    credentials_cache: true
+    credentials_timeout: 3600  # seconds
+
+# Repository Lists
+repo_lists:
+  # Sources for repository lists
+  sources:
+    - type: file
+      path: repos.yaml
+    - type: github_org
+      org: geo-infer
+    - type: gitlab_group
+      group: geo-infer
+    - type: github_stars
+      username: geo-infer-bot
+      topic: geospatial
+  
+  # Repository list caching
+  cache:
+    enabled: true
+    ttl: 3600  # seconds
+    path: .geo-infer-git/cache
+
+# Operations Configuration
+operations:
+  # Clone operation
+  clone:
+    parallel: true
+    max_workers: 4
+    retry_attempts: 3
+    sparse_checkout: false
+    lfs: true
+  
+  # Synchronization operation
+  sync:
+    auto_stash: true
+    prune: true
+    submodules: true
+    fetch_all: true
+  
+  # Branch operation
+  branch:
+    auto_track: true
+    name_template: "{type}/{description}"
+    allowed_types:
+      - feature
+      - fix
+      - docs
+      - refactor
+      - test
+      - chore
+
+# CI/CD Integration
+ci_cd:
+  # GitHub Actions integration
+  github_actions:
+    enabled: true
+    workflow_dir: .github/workflows
+    templates_dir: templates/github
+  
+  # GitLab CI integration
+  gitlab_ci:
+    enabled: false
+    template_path: templates/gitlab-ci.yml
+
+# Hooks Configuration
+hooks:
+  # Pre-commit hooks
+  pre_commit:
+    enabled: true
+    config_path: templates/pre-commit-config.yaml
+    auto_install: true
+  
+  # Custom hooks
+  custom:
+    - name: geospatial-validation
+      path: hooks/geospatial-validation.sh
+      events:
+        - pre-commit
+        - pre-push
+
+# Monitoring
+monitoring:
+  enabled: true
+  prometheus_port: 9010
+  metrics_path: /metrics
+  collection_interval: 15  # seconds
+
+# Logging Configuration
+logging:
+  level: INFO  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: json  # console, json
+  file: null  # null or path to log file 

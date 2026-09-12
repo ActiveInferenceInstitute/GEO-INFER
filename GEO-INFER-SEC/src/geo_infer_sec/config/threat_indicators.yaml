@@ -1,0 +1,17 @@
+# SIMULATION-ONLY threat intelligence defaults for GEO-INFER-SEC.
+#
+# These entries are illustrative examples for demos and tests. They are NOT
+# live threat-intelligence feeds and must not be used as a production blocklist.
+# Override via the DigitalSecurityManager "threat_indicators_file" config key
+# or the GEO_INFER_SEC_THREAT_INDICATORS environment variable.
+#
+# Shape:
+#   blocked_ips: [str]        -- IPs denied at connection monitoring time
+#   threat_indicators: [str]  -- domains, hashes, URL patterns treated as threats
+#   trusted_ips: [str]        -- IPs always allowed (checked before blocklist)
+blocked_ips: []
+threat_indicators:
+  - suspicious-domain.example
+  - malware-hash-example-0000000000000000
+  - phishing-url-pattern-example
+trusted_ips: []
