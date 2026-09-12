@@ -425,8 +425,8 @@ class IntelligentETLPipeline:
             - 'retry': Retry the failed workflow up to max_retries times with
               exponential backoff; return the successful retry's result
             - 'skip': Skip failed operations and continue
-            - 'rollback': NOT IMPLEMENTED - constructing a pipeline with this
-              strategy raises NotImplementedError instead of silently no-op'ing
+            - 'rollback': NOT SUPPORTED - constructing a pipeline with this
+              strategy raises ValueError naming the supported strategies
             - 'intelligent_retry': Adaptive retry with error-type-specific
               backoff, capped at max_retries attempts
         max_retries: Maximum number of retry attempts after the initial one
@@ -435,7 +435,7 @@ class IntelligentETLPipeline:
             retries (default 1.0).
 
     Raises:
-        NotImplementedError: If error_recovery='rollback' is requested
+        ValueError: If error_recovery='rollback' (unsupported) is requested
         ValueError: If error_recovery is not a known strategy or max_retries/retry_delay is negative
 
     Examples:
@@ -500,9 +500,9 @@ class IntelligentETLPipeline:
                 f"{[s.value for s in ErrorRecoveryStrategy]}"
             ) from None
         if recovery_strategy is ErrorRecoveryStrategy.ROLLBACK:
-            raise NotImplementedError(
+            raise ValueError(
                 "GEO-INFER-DATA pipeline: error_recovery='rollback' is not "
-                "implemented; no rollback of committed pipeline state is "
+                "supported; no rollback of committed pipeline state is "
                 "available. Use 'fail_fast', 'retry', 'skip', or "
                 "'intelligent_retry' instead."
             )

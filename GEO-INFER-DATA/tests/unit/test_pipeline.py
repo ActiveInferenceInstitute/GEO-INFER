@@ -219,7 +219,7 @@ class TestPipelineEnums:
 class TestErrorRecoveryConfiguration:
     def test_rollback_strategy_rejected_loudly(self):
         """error_recovery='rollback' must fail loudly, never silently no-op."""
-        with pytest.raises(NotImplementedError, match="rollback"):
+        with pytest.raises(ValueError, match="rollback"):
             IntelligentETLPipeline(error_recovery="rollback")
 
     def test_unknown_recovery_strategy_rejected(self):
