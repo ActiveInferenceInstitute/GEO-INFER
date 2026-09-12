@@ -4,6 +4,7 @@ Geo Infer Risk workspace within `GEO-INFER-RISK`.
 
 ## Contents
 
+- `config/`
 - `core/`
 - `utils/`
 - `__init__.py`

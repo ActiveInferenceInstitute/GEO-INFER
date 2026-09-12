@@ -7,6 +7,7 @@ Geo Infer Space workspace within `GEO-INFER-SPACE`.
 - `analytics/`
 - `api/`
 - `backends/`
+- `config/`
 - `core/`
 - `gis/`
 - `io/`

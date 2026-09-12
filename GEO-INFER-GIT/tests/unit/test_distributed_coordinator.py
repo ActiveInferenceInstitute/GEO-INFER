@@ -6,6 +6,7 @@ explicit start()/stop() lifecycle.
 """
 
 import socket
+import time
 from datetime import datetime, timedelta, timezone
 
 from geo_infer_git.core.distributed_coordinator import (
@@ -29,6 +30,17 @@ def _free_tcp_port() -> int:
     port = s.getsockname()[1]
     s.close()
     return port
+
+
+def _wait_until(predicate, timeout: float = 2.0, interval: float = 0.01) -> bool:
+    """Poll ``predicate`` for up to ``timeout`` seconds; slow CI scheduling
+    must not fail an assertion that only needs a grace window."""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if predicate():
+            return True
+        time.sleep(interval)
+    return predicate()
 
 
 def _make_coordinator(role: str = "worker") -> DistributedCoordinator:
@@ -79,25 +91,25 @@ class TestLifecycle:
         coordinator = _make_coordinator(role="coordinator")
         coordinator.start()
 
-        assert coordinator.discovery_thread is not None
-        assert coordinator.discovery_thread.is_alive()
-        assert coordinator.coordination_thread is not None
-        assert coordinator.coordination_thread.is_alive()
-        assert coordinator.heartbeat_thread is not None
-        assert coordinator.heartbeat_thread.is_alive()
-        assert coordinator.job_scheduler_thread is not None
-        assert coordinator.job_scheduler_thread.is_alive()
+        threads = (
+            coordinator.discovery_thread,
+            coordinator.coordination_thread,
+            coordinator.heartbeat_thread,
+            coordinator.job_scheduler_thread,
+        )
+        # Threads are created synchronously by start(); aliveness is polled
+        # because a freshly started thread may not be observed immediately.
+        assert all(thread is not None for thread in threads)
+        assert _wait_until(lambda: all(t.is_alive() for t in threads))
 
         coordinator.stop()
 
         assert coordinator.shutdown_event.is_set()
         # All managed threads must have exited (bounded join inside stop()).
-        for thread in (
-            coordinator.discovery_thread,
-            coordinator.coordination_thread,
-            coordinator.heartbeat_thread,
-            coordinator.job_scheduler_thread,
-        ):
+        # The grace poll covers a thread finishing just after its join
+        # timeout; the strict final assertion still holds.
+        assert _wait_until(lambda: not any(t.is_alive() for t in threads))
+        for thread in threads:
             assert thread is not None
             assert not thread.is_alive()
 

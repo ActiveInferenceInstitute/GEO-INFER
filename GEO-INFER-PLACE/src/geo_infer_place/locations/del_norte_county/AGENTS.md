@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `config/`
 - `dashboard/`
 - `data/`
 - `__init__.py`

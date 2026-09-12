@@ -173,13 +173,32 @@ class DistributedCoordinator:
         # Signal shutdown
         self.shutdown_event.set()
 
-        # Close server sockets so threads parked in recvfrom/accept wake up.
-        for server_socket in (self._discovery_socket, self._coordination_socket):
-            if server_socket is not None:
-                try:
-                    server_socket.close()
-                except OSError:
-                    logger.debug("Service socket already closed", exc_info=True)
+        # Close server sockets so threads parked in accept()/recvfrom() wake
+        # up. On Linux, close() alone does not interrupt a concurrent blocked
+        # accept()/recvfrom(); shutdown(SHUT_RDWR) does for TCP, and an
+        # empty datagram to the bound port does for UDP (shutdown() raises
+        # ENOTCONN on an unconnected UDP socket).
+        coordination_socket = self._coordination_socket
+        if coordination_socket is not None:
+            try:
+                coordination_socket.shutdown(socket.SHUT_RDWR)
+            except OSError:
+                logger.debug("Coordination socket already shut down", exc_info=True)
+            try:
+                coordination_socket.close()
+            except OSError:
+                logger.debug("Service socket already closed", exc_info=True)
+
+        discovery_socket = self._discovery_socket
+        if discovery_socket is not None:
+            try:
+                discovery_socket.sendto(b"", ("127.0.0.1", self.discovery_port))
+            except OSError:
+                logger.debug("Discovery wakeup datagram failed", exc_info=True)
+            try:
+                discovery_socket.close()
+            except OSError:
+                logger.debug("Service socket already closed", exc_info=True)
 
         # Wait for threads to finish
         for thread in (

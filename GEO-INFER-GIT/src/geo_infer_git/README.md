@@ -5,6 +5,7 @@ Geo Infer Git workspace within `GEO-INFER-GIT`.
 ## Contents
 
 - `api/`
+- `config/`
 - `core/`
 - `utils/`
 - `__init__.py`
