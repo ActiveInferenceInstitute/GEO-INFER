@@ -69,3 +69,8 @@ mlruns/
 
 # pytest-html test outputs
 GEO-INFER-NORMS/tests/test-outputs/
+
+# GS-023: packaged resource configs under src/ are shipped wheel content,
+# not runtime output — re-include them despite the blanket config/ rule.
+!GEO-INFER-*/src/**/config/
+!GEO-INFER-*/src/**/config/**

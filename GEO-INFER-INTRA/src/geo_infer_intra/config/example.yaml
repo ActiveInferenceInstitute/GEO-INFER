@@ -1,0 +1,316 @@
+# GEO-INFER-INTRA Example Configuration
+
+# General settings
+general:
+  # Enable debug mode (provides more detailed logging)
+  debug_mode: false
+  
+  # Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+  log_level: INFO
+  
+  # Log file location
+  log_file: ~/.geo-infer/logs/intra.log
+  
+  # Default language for the system
+  default_language: en-US
+  
+  # Temporary file directory
+  temp_dir: ~/.geo-infer/temp
+  
+  # Enable telemetry for usage statistics (can be disabled)
+  telemetry_enabled: true
+
+# Documentation settings
+documentation:
+  # Documentation server configuration
+  server:
+    # Host for the documentation server
+    host: 127.0.0.1
+    
+    # Port for the documentation server
+    port: 8000
+    
+    # Enable HTTPS
+    use_https: false
+    
+    # SSL certificate (if HTTPS is enabled)
+    ssl_cert: null
+    
+    # SSL key (if HTTPS is enabled)
+    ssl_key: null
+  
+  # Directory containing documentation content
+  content_dir: ~/.geo-infer/docs
+  
+  # Documentation site theme
+  theme: material
+  
+  # Enable search functionality
+  search_enabled: true
+  
+  # Documentation versioning
+  versioning:
+    enabled: true
+    default_version: latest
+    
+  # Documentation formats to generate
+  formats:
+    - html
+    - pdf
+    - epub
+
+# Ontology settings
+ontology:
+  # Base directory for ontology files
+  base_dir: ~/.geo-infer/ontologies
+  
+  # Default format for ontology storage
+  default_format: turtle
+  
+  # Enable inference
+  inference_enabled: true
+  
+  # Cache settings
+  cache:
+    enabled: true
+    max_size_mb: 100
+    ttl_seconds: 3600
+  
+  # External ontology repositories
+  repositories:
+    - name: GeoSPARQL
+      url: http://www.opengis.net/ont/geosparql
+      enabled: true
+    - name: Dublin Core
+      url: http://purl.org/dc/elements/1.1/
+      enabled: true
+    - name: FOAF
+      url: http://xmlns.com/foaf/0.1/
+      enabled: true
+
+# Knowledge base settings
+knowledge_base:
+  # Storage type for knowledge base content
+  storage_type: elasticsearch
+  
+  # Elasticsearch configuration (if storage_type is elasticsearch)
+  elasticsearch:
+    # Elasticsearch host
+    host: localhost
+    
+    # Elasticsearch port
+    port: 9200
+    
+    # Index prefix for knowledge base indices
+    index_prefix: geo-infer-kb
+    
+    # Authentication (optional)
+    username: null
+    password: null
+    
+    # SSL settings
+    use_ssl: false
+    verify_certs: true
+  
+  # Alternative file-based storage (if storage_type is file)
+  file:
+    # Directory for knowledge base files
+    directory: ~/.geo-infer/knowledge_base
+    
+    # File format (json, yaml)
+    format: json
+  
+  # Full-text search settings
+  search:
+    # Default operator for search queries (AND, OR)
+    default_operator: AND
+    
+    # Minimum score for search results
+    min_score: 0.2
+    
+    # Maximum number of results to return
+    max_results: 100
+    
+    # Enable fuzzy matching
+    fuzzy_matching: true
+    
+    # Fuzzy matching threshold (0.0 to 1.0)
+    fuzzy_threshold: 0.8
+
+# Workflow settings
+workflow:
+  # Directory for workflow storage
+  storage_dir: ~/.geo-infer/workflows
+  
+  # Execution settings
+  execution:
+    # Enable parallel execution
+    parallel: true
+    
+    # Maximum number of parallel workers
+    max_workers: 4
+    
+    # Timeout for workflow execution (seconds)
+    timeout: 3600
+    
+    # Retry settings for failed operations
+    retry:
+      enabled: true
+      max_attempts: 3
+      backoff_factor: 2
+  
+  # Workflow visualization settings
+  visualization:
+    # Enable workflow visualization
+    enabled: true
+    
+    # Default layout algorithm
+    layout: dagre
+    
+    # Enable interactive editing
+    interactive: true
+
+# API settings
+api:
+  # API server configuration
+  server:
+    # Host for the API server
+    host: 127.0.0.1
+    
+    # Port for the API server
+    port: 8080
+    
+    # Enable CORS
+    cors_enabled: true
+    
+    # Allowed origins for CORS (if enabled)
+    cors_origins:
+      - http://localhost:3000
+      - https://app.geo-infer.org
+  
+  # Authentication settings
+  auth:
+    # Enable authentication
+    enabled: true
+    
+    # Authentication method (jwt, api_key, oauth2)
+    method: jwt
+    
+    # JWT settings (if method is jwt)
+    jwt:
+      secret_key: change_this_to_a_secure_secret
+      algorithm: HS256
+      token_expiry_minutes: 60
+    
+    # API key settings (if method is api_key)
+    api_key:
+      header_name: X-API-Key
+      
+  # Rate limiting settings
+  rate_limit:
+    # Enable rate limiting
+    enabled: true
+    
+    # Requests per minute
+    rate: 60
+    
+    # Burst allowance
+    burst: 10
+
+# Database settings
+database:
+  # Database type (postgresql, sqlite)
+  type: postgresql
+  
+  # PostgreSQL settings (if type is postgresql)
+  postgresql:
+    # Database host
+    host: localhost
+    
+    # Database port
+    port: 5432
+    
+    # Database name
+    database: geo_infer_intra
+    
+    # Database user
+    user: geo_infer
+    
+    # Database password
+    password: change_this_to_a_secure_password
+    
+    # SSL mode
+    ssl_mode: prefer
+  
+  # SQLite settings (if type is sqlite)
+  sqlite:
+    # Database file path
+    path: ~/.geo-infer/data/geo_infer_intra.db
+  
+  # Connection pool settings
+  pool:
+    # Minimum connections
+    min_size: 5
+    
+    # Maximum connections
+    max_size: 20
+    
+    # Connection idle timeout (seconds)
+    idle_timeout: 300
+
+# Integration settings
+integration:
+  # GEO-INFER-SPACE integration
+  space:
+    # Enable integration
+    enabled: true
+    
+    # API endpoint
+    api_url: http://localhost:8081/api/v1
+    
+    # Authentication token
+    auth_token: null
+  
+  # GEO-INFER-TIME integration
+  time:
+    # Enable integration
+    enabled: true
+    
+    # API endpoint
+    api_url: http://localhost:8082/api/v1
+    
+    # Authentication token
+    auth_token: null
+  
+  # GEO-INFER-API integration
+  api:
+    # Enable integration
+    enabled: true
+    
+    # API endpoint
+    api_url: http://localhost:8083/api/v1
+    
+    # Authentication token
+    auth_token: null
+  
+  # GEO-INFER-OPS integration
+  ops:
+    # Enable integration
+    enabled: true
+    
+    # API endpoint
+    api_url: http://localhost:8084/api/v1
+    
+    # Authentication token
+    auth_token: null
+  
+  # GEO-INFER-APP integration
+  app:
+    # Enable integration
+    enabled: true
+    
+    # API endpoint
+    api_url: http://localhost:8085/api/v1
+    
+    # Authentication token
+    auth_token: null 

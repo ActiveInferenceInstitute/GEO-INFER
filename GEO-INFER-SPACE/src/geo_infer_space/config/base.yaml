@@ -1,0 +1,30 @@
+# Packaged base configuration for LocationConfigLoader.
+# Mirrors LocationConfigLoader._load_default_config; merged over the
+# in-code defaults at load time.
+location:
+  timezone: UTC
+  coordinate_systems:
+    local_crs: EPSG:4326
+    analysis_crs: EPSG:3857
+    utm_zone: null
+spatial:
+  h3_resolution: 8
+  buffer_distance_meters: 1000
+temporal:
+  default_frequency: daily
+  lookback_days: 30
+data_management:
+  cache_enabled: true
+  retention_policy: 1_year
+  quality_control:
+    automated_checks: true
+    validation_rules: standard
+reporting:
+  automated_reports:
+    frequency: monthly
+    formats:
+      - html
+      - pdf
+  dashboard:
+    refresh_interval: hourly
+    public_access_level: summary_only
