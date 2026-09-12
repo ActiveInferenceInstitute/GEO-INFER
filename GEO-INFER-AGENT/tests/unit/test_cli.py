@@ -97,6 +97,8 @@ class TestLoadAgentClass:
     def test_cli_registry_and_list_descriptions_agree(self) -> None:
         AgentRegistry._instance = None
         registry = AgentRegistry()
-        assert set(cli.AGENT_MODULES) == set(registry.agent_types) == set(
-            cli.AGENT_DESCRIPTIONS
+        assert (
+            set(cli.AGENT_MODULES)
+            == set(registry.agent_types)
+            == set(cli.AGENT_DESCRIPTIONS)
         )

@@ -353,7 +353,6 @@ class ModuleOrchestrator:
             if child.is_file() and child.name.endswith(".yaml")
         )
 
-
     def _initialize_modules(self) -> None:
         """Initialize and health-check available modules."""
         module_configs = self.config_manager.get_config("modules", {})

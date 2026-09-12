@@ -56,14 +56,11 @@ class LocationConfigLoader:
             config_dir: Directory for configuration files
         """
         self.config_dir = (
-            Path(config_dir)
-            if config_dir
-            else self._resolve_default_config_dir()
+            Path(config_dir) if config_dir else self._resolve_default_config_dir()
         )
         self.default_config = self._load_default_config()
         self.loaded_config: Dict[str, Dict[str, Any]] = {}
         logger.info(f"Config loader initialized with directory: {self.config_dir}")
-
 
     @staticmethod
     def _resolve_default_config_dir() -> Path:

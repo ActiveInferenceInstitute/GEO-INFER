@@ -121,10 +121,6 @@ def setup_ant_module(config_path: Optional[str] = None) -> Dict[str, Any]:
     return config
 
 
-
-
-
-
 def get_available_components() -> Dict[str, List[str]]:
     """
     Get information about available components in the ANT module.

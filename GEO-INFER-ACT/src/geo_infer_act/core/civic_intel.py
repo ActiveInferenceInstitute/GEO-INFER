@@ -344,9 +344,7 @@ def _extract_hazard_domains(contract: Dict[str, Any]) -> List[HazardDomain]:
     """
     hazard_value = contract.get("hazard", {})
     hazard = require_mapping(hazard_value, "hazard")
-    explicit = require_list(
-        hazard.get("relevantDomains", []), "hazard.relevantDomains"
-    )
+    explicit = require_list(hazard.get("relevantDomains", []), "hazard.relevantDomains")
     if explicit:
         domains = [
             _read_hazard_domain(

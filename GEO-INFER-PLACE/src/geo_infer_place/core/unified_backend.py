@@ -167,9 +167,7 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
             "locations/cascadia/config/cascadia_config.yaml"
         )
         if not packaged.is_file():
-            raise FileNotFoundError(
-                f"Cascadia configuration is required: {packaged}"
-            )
+            raise FileNotFoundError(f"Cascadia configuration is required: {packaged}")
 
         with importlib.resources.as_file(packaged) as config_path:
             with config_path.open(encoding="utf-8") as config_file:
@@ -574,9 +572,9 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                                                 "properties" in feature
                                                 and "geometry" in feature
                                             ):
-                                                county_name = feature[
-                                                    "properties"
-                                                ].get("county_name")
+                                                county_name = feature["properties"].get(
+                                                    "county_name"
+                                                )
                                                 if county_name:
                                                     county_geometries[state][
                                                         county_name

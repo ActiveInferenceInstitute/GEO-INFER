@@ -226,8 +226,7 @@ def list_agents_command(args: argparse.Namespace) -> None:
     # Descriptions come from the registry's single-source constants, so
     # this listing can never drift from load_agent_class().
     agents = {
-        agent_type: AGENT_DESCRIPTIONS.get(agent_type, "")
-        for agent_type in AGENT_TYPES
+        agent_type: AGENT_DESCRIPTIONS.get(agent_type, "") for agent_type in AGENT_TYPES
     }
 
     print("Available Agent Types:\n")

@@ -5,12 +5,14 @@ default resolution must come from the installed ``geo_infer_sec`` package
 (even with cwd pointing nowhere useful), and the only filesystem override is
 the explicit ``GEO_INFER_SEC_THREAT_INDICATORS`` environment variable.
 """
+
 import importlib.resources
 from pathlib import Path
 
 from geo_infer_sec.core.digital_security import DigitalSecurityManager
 
 PACKAGED_RESOURCE = "config/threat_indicators.yaml"
+
 
 def _fresh_manager() -> DigitalSecurityManager:
     return DigitalSecurityManager()

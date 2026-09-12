@@ -139,8 +139,7 @@ def test_fallback_honors_explicit_repo_root(
             target: Optional[Any] = None,
         ) -> None:
             if self.armed and (
-                fullname == "geo_infer_space"
-                or fullname.startswith("geo_infer_space.")
+                fullname == "geo_infer_space" or fullname.startswith("geo_infer_space.")
             ):
                 self.armed = False
                 raise ImportError(f"blocked: {fullname}")

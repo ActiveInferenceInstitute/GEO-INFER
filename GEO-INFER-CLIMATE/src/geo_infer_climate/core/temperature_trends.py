@@ -130,11 +130,15 @@ class TemperatureTrendAnalyzer:
         chunk = max(1, int(2**23 // max(n, 1)))  # ~64MB of float64 per block
         for start in range(0, n - 1, chunk):
             b = min(chunk, n - 1 - start)
-            i_blk = cols[start:start + b]
+            i_blk = cols[start : start + b]
             d = x[None, :] - x[i_blk, None]  # d[a, j] = x_j - x_i
             if start + b < n:
-                s += int(np.sign(d[:, start + b:]).sum())  # all j >= start+b satisfy j > i
-            s += int(np.triu(np.sign(d[:, start:start + b]), k=1).sum())  # start <= i < j < start+b
+                s += int(
+                    np.sign(d[:, start + b :]).sum()
+                )  # all j >= start+b satisfy j > i
+            s += int(
+                np.triu(np.sign(d[:, start : start + b]), k=1).sum()
+            )  # start <= i < j < start+b
 
         unique, counts = np.unique(x, return_counts=True)
         tied_groups = counts[counts > 1]
@@ -210,20 +214,22 @@ class TemperatureTrendAnalyzer:
         off = 0
         for start in range(0, n - 1, chunk):
             b = min(chunk, n - 1 - start)
-            i_blk = cols[start:start + b]
+            i_blk = cols[start : start + b]
             if start + b < n:
-                jt = cols[start + b:]
-                tail = (x[None, start + b:] - x[i_blk, None]) / (jt[None, :] - i_blk[:, None])
+                jt = cols[start + b :]
+                tail = (x[None, start + b :] - x[i_blk, None]) / (
+                    jt[None, :] - i_blk[:, None]
+                )
                 m = tail.size
-                slopes[off:off + m] = tail.ravel()
+                slopes[off : off + m] = tail.ravel()
                 off += m
-            jc = cols[start:start + b]
+            jc = cols[start : start + b]
             den = jc[None, :] - i_blk[:, None]
             if den.shape[0] == den.shape[1]:
                 np.fill_diagonal(den, 1)  # masked by triu below; avoids 0-division
-            inb = (x[None, start:start + b] - x[i_blk, None]) / den
+            inb = (x[None, start : start + b] - x[i_blk, None]) / den
             tri = inb[np.triu(np.ones((b, b), dtype=bool), k=1)]
-            slopes[off:off + len(tri)] = tri
+            slopes[off : off + len(tri)] = tri
             off += len(tri)
 
         n_slopes = len(slopes)

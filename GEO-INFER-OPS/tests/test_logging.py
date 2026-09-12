@@ -89,5 +89,7 @@ def test_single_logging_context_implementation() -> None:
         text=True,
     )
     hits = [line for line in result.stdout.splitlines() if line.strip()]
-    assert len(hits) == 1, f"expected exactly one LoggingContext definition, got: {hits}"
+    assert len(hits) == 1, (
+        f"expected exactly one LoggingContext definition, got: {hits}"
+    )
     assert "shared_logging.py" in hits[0]

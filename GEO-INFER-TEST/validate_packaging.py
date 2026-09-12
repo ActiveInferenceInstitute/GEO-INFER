@@ -423,9 +423,7 @@ def validate_source_traversal(module_dir: Path, report: ContractReport) -> None:
                     climbs = max(climbs, len(chain.split(".")) - 1)
         if climbs >= 2:
             rel = path.relative_to(src_dir)
-            finding = (
-                f"{module_dir.name}/{rel}: climbs parent dirs from __file__"
-            )
+            finding = f"{module_dir.name}/{rel}: climbs parent dirs from __file__"
             if module_dir.name in MIGRATED_SOURCE_TRAVERSAL_MODULES:
                 report.errors.append(finding)
             else:

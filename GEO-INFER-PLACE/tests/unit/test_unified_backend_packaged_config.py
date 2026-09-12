@@ -9,7 +9,6 @@ environment variable.
 from types import SimpleNamespace
 
 
-
 def _backend_cls():
     from geo_infer_place.core.unified_backend import (
         CascadianAgriculturalH3Backend,

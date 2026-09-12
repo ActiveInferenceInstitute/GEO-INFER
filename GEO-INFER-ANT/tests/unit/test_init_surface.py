@@ -11,7 +11,11 @@ def test_setup_ant_module_returns_configured_integration_manager(tmp_path):
     config_path.write_text(
         json.dumps(
             {
-                "simulation": {"name": "test", "description": "test", "version": "1.0.0"},
+                "simulation": {
+                    "name": "test",
+                    "description": "test",
+                    "version": "1.0.0",
+                },
                 "agents": {},
                 "environment": {},
                 "integrations": {"geo_infer_space": {"enabled": True}},
@@ -68,4 +72,10 @@ def test_get_available_components_groups_match_defining_subpackages():
     assert "EnvironmentalMonitoringSwarm" in components["applications"]
     assert "SwarmPatternAnalyzer" in components["analysis"]
     assert "load_config" in components["utils"]
-    assert set(components) == {"core", "algorithms", "applications", "analysis", "utils"}
+    assert set(components) == {
+        "core",
+        "algorithms",
+        "applications",
+        "analysis",
+        "utils",
+    }

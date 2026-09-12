@@ -9,7 +9,17 @@ import sys
 import warnings
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, Sequence, cast
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
+    cast,
+)
 
 import matplotlib
 import numpy as np
@@ -1273,9 +1283,7 @@ def _plotly_or_table(
     header_html = "".join(f"<th>{header}</th>" for header in headers)
     caption_html = f"<p>{caption}</p>" if caption else ""
     body_rows = "\n".join(
-        "<tr>"
-        + "".join(f"<td>{cell}</td>" for cell in row_cells(row))
-        + "</tr>"
+        "<tr>" + "".join(f"<td>{cell}</td>" for cell in row_cells(row)) + "</tr>"
         for row in rows
     )
     return (
@@ -1314,6 +1322,7 @@ def _write_pymdp_policy_free_energy_html(
                 ),
             }
         )
+
     def _build_pymdp_policy_figure() -> Any:
         import plotly.graph_objects as go  # noqa: PLC0415
 
@@ -2122,6 +2131,7 @@ def _write_interactive_h3_map(
         f"Interactive {config.scenario} H3 map with each cell plotted by "
         "latitude and longitude and colored by free-energy value."
     )
+
     def _build_interactive_h3_map_figure() -> Any:
         import plotly.express as px  # noqa: PLC0415
 
@@ -2208,6 +2218,7 @@ def _write_h3_belief_flux_map(
     """Write an interactive H3 belief-flux and posterior-delta map."""
     rows = _latest_leaf_trace_rows(trace_rows)
     title = f"{config.scenario.upper()} H3 Belief Flux"
+
     def _build_belief_flux_figure() -> Any:
         import plotly.express as px  # noqa: PLC0415
 
@@ -2288,6 +2299,7 @@ def _write_h3_policy_surface(
         for cell in cells
     ]
     title = f"{config.scenario.upper()} H3 Policy Confidence Surface"
+
     def _build_policy_surface_figure() -> Any:
         import plotly.graph_objects as go  # noqa: PLC0415
 
@@ -2357,6 +2369,7 @@ def _write_h3_policy_transitions(
         for (timestep, action), count in sorted(counts.items())
     ]
     title = f"{config.scenario.upper()} H3 Policy Transitions"
+
     def _build_policy_transitions_figure() -> Any:
         import plotly.express as px  # noqa: PLC0415
 
@@ -2414,6 +2427,7 @@ def _write_h3_spatial_autocorrelation(
     """Write per-timestep graph-aware spatial trace diagnostics."""
     rows = _spatial_autocorrelation_rows(trace_rows, edge_rows)
     title = f"{config.scenario.upper()} H3 Spatial Autocorrelation"
+
     def _build_spatial_autocorrelation_figure() -> Any:
         import plotly.graph_objects as go  # noqa: PLC0415
 
@@ -2490,6 +2504,7 @@ def _write_h3_entropy_free_energy_phase(
     """Write entropy/free-energy phase-space diagnostics."""
     rows = _leaf_trace_rows(trace_rows)
     title = f"{config.scenario.upper()} H3 Entropy-Free Energy Phase Space"
+
     def _build_entropy_free_energy_phase_figure() -> Any:
         import plotly.express as px  # noqa: PLC0415
 
@@ -3088,6 +3103,7 @@ def _write_nested_h3_parent_child_residuals(
 ) -> Path:
     """Write nested parent-child consistency residual diagnostics."""
     title = f"{config.scenario.upper()} Nested H3 Parent-Child Residuals"
+
     def _build_parent_child_residuals_figure() -> Any:
         import plotly.express as px  # noqa: PLC0415
 

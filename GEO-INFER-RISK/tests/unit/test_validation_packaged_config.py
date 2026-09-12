@@ -8,7 +8,9 @@ from geo_infer_risk.utils.validation import ConfigurationValidator
 class TestPackagedSchemaResolution:
     """ConfigurationValidator must resolve schema.json from the package tree."""
 
-    def test_default_resolution_works_from_empty_cwd(self, tmp_path, monkeypatch) -> None:
+    def test_default_resolution_works_from_empty_cwd(
+        self, tmp_path, monkeypatch
+    ) -> None:
         """Default schema resolution must not depend on cwd (no parent climbing)."""
         monkeypatch.delenv("GEO_INFER_RISK_SCHEMA_PATH", raising=False)
         monkeypatch.chdir(tmp_path)

@@ -232,6 +232,7 @@ class TestGreenAmptValidation:
             point["infiltration_mm"] + point["runoff_mm"], rain, atol=1e-9
         )
         np.testing.assert_allclose(
-            raster["runoff"].values + raster["infiltration"].values, rain,
+            raster["runoff"].values + raster["infiltration"].values,
+            rain,
             atol=1e-9,
         )

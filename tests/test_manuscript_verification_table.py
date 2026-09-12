@@ -483,9 +483,7 @@ class TestRunVerificationTimeout:
             ("answers", "true"),
         )
         monkeypatch.setattr(generator, "VERIFICATION_COMMANDS", commands)
-        monkeypatch.setattr(
-            generator, "VERIFICATION_TIMEOUT_SECONDS", 2
-        )
+        monkeypatch.setattr(generator, "VERIFICATION_TIMEOUT_SECONDS", 2)
         results = generator.run_verification(tmp_path)
         assert len(results) == 2
         assert results[0].status == "timeout"
@@ -533,6 +531,4 @@ class TestRunVerificationTimeout:
 
         monkeypatch.setattr(generator, "run_verification", _run)
         with pytest.raises(RuntimeError, match=name):
-            generator.generate(
-                generatable_checkout, verify=True, publication=True
-            )
+            generator.generate(generatable_checkout, verify=True, publication=True)

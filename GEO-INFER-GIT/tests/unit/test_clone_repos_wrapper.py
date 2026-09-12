@@ -41,9 +41,7 @@ def _restore_modules(real_pkg, real_main):
 def test_wrapper_delegates_to_package_main(monkeypatch):
     """The standalone wrapper must delegate to geo_infer_git.main.main."""
     called = []
-    real_pkg, real_main = _install_stub_main(
-        monkeypatch, lambda: called.append("main")
-    )
+    real_pkg, real_main = _install_stub_main(monkeypatch, lambda: called.append("main"))
     try:
         runpy.run_path(str(WRAPPER), run_name="__main__")
     finally:
@@ -64,6 +62,7 @@ def test_wrapper_exits_nonzero_on_interrupt(monkeypatch):
     finally:
         _restore_modules(real_pkg, real_main)
     assert excinfo.value.code == 1
+
 
 def test_duplicate_clone_script_removed():
     """clone_script.py (subprocess duplicate of the main pipeline) must be gone."""

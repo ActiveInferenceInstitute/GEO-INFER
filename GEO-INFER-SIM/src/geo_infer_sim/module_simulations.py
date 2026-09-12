@@ -1270,7 +1270,10 @@ class ModuleSimulations:
 
         results = self._run_toy_model(
             step_func,
-            init_state={ "cases": health_data["initial_cases"], "epidemiological_models": epidemiological_models, },
+            init_state={
+                "cases": health_data["initial_cases"],
+                "epidemiological_models": epidemiological_models,
+            },
         )
 
         return {

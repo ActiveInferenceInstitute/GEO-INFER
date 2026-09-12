@@ -113,6 +113,7 @@ class TestHeatIsland:
         result = analyzer.calculate_heat_island_effect(urban, rural)
         assert result["n_observations"] == 20
 
+
 class TestVectorizedStatistics:
     """Pin the vectorized Mann-Kendall / Sen's slope behavior (GS-151)."""
 
@@ -131,7 +132,10 @@ class TestVectorizedStatistics:
 
     def test_mann_kendall_exact_s_values(self, analyzer):
         assert analyzer.mann_kendall_test(np.arange(10.0))["s_statistic"] == 45
-        assert analyzer.mann_kendall_test(np.arange(10.0)[::-1].copy())["s_statistic"] == -45
+        assert (
+            analyzer.mann_kendall_test(np.arange(10.0)[::-1].copy())["s_statistic"]
+            == -45
+        )
 
     def test_sen_slope_matches_brute_force(self, analyzer):
         rng = np.random.default_rng(11)
@@ -161,6 +165,7 @@ class TestVectorizedStatistics:
     def test_10k_series_under_one_second(self, analyzer):
         data = np.random.default_rng(3).normal(0, 1, 10_000)
         import time
+
         start = time.perf_counter()
         analyzer.mann_kendall_test(data)
         mid = time.perf_counter()

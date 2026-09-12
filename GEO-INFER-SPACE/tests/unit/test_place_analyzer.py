@@ -56,7 +56,9 @@ class TestPlaceAnalyzer(unittest.TestCase):
             {"name": "test2", "path": str(geojson_path2)},
             {"name": "test3", "path": str(gdf3_path)},
         ]
-        self.analyzer = WorkspacePlaceAnalyzer("TestPlace", self.temp_dir, SpatialProcessor())
+        self.analyzer = WorkspacePlaceAnalyzer(
+            "TestPlace", self.temp_dir, SpatialProcessor()
+        )
 
     def tearDown(self):
         shutil.rmtree(self.temp_dir)

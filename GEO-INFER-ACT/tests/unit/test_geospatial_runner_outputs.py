@@ -457,9 +457,7 @@ def test_plotly_or_table_degrades_to_logged_static_table(caplog) -> None:
     def broken_builder() -> object:
         raise RuntimeError("plotly unavailable")
 
-    with caplog.at_level(
-        logging.WARNING, logger="geo_infer_act.runners.scenarios"
-    ):
+    with caplog.at_level(logging.WARNING, logger="geo_infer_act.runners.scenarios"):
         html = _plotly_or_table(
             broken_builder,
             [{"cell": "811", "value": 0.25}],
@@ -499,9 +497,7 @@ def test_plotly_or_table_prefers_figure_html_when_builder_succeeds(caplog) -> No
             assert full_html is True
             return "<html><body>plotly-figure-html</body></html>"
 
-    with caplog.at_level(
-        logging.WARNING, logger="geo_infer_act.runners.scenarios"
-    ):
+    with caplog.at_level(logging.WARNING, logger="geo_infer_act.runners.scenarios"):
         html = _plotly_or_table(
             FakeFigure,
             [],
