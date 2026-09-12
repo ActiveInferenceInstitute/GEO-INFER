@@ -9,7 +9,6 @@ __version__ = "0.2.0"
 
 from geo_infer_ops.core.monitoring import setup_monitoring
 from geo_infer_ops.core.config import load_config, get_config
-from geo_infer_ops.core.testing import setup_testing
 from geo_infer_ops.core.orchestrator import Orchestrator, Task, TaskStatus
 from geo_infer_ops.health.checks import HealthChecker, HealthStatus, HealthCheck
 
@@ -30,3 +29,14 @@ __all__ = [
     "HealthStatus",
     "HealthCheck",
 ]
+
+
+def __getattr__(name):
+    """Lazily export the test-support helper so `import geo_infer_ops`
+    stays clean-install safe: core.testing pulls fastapi.testclient,
+    which requires httpx — a dev-only dependency."""
+    if name == "setup_testing":
+        from geo_infer_ops.core import testing
+
+        return testing.setup_testing
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
