@@ -64,3 +64,58 @@ def test_baseline_entries_are_dict_shaped():
         (REPO_ROOT / "GEO-INFER-TEST" / "coverage_baseline.json").read_text()
     )
     assert isinstance(manifest.get("modules"), dict)
+
+
+def _baseline_module() -> str:
+    baseline = json.loads(
+        (REPO_ROOT / "GEO-INFER-TEST" / "coverage_baseline.json").read_text()
+    )
+    return sorted(baseline["modules"])[0]
+
+
+def test_failing_suite_during_measurement_fails_gate(monkeypatch, capsys):
+    """GS-004: coverage measured while tests were failing must not pass."""
+    module = _load_module()
+    name = _baseline_module()
+
+    def fake_measure(target):
+        return {
+            "module": target,
+            "status": "measured",
+            "coverage_percent": 100.0,
+            "pytest_rc": 1,
+            "seconds": 0.1,
+        }
+
+    monkeypatch.setattr(module, "measure_module", fake_measure)
+
+    try:
+        module.main(["--base", "HEAD", "--head", "HEAD", "--modules", name])
+    except SystemExit as exc:
+        assert exc.code == 1
+    else:
+        raise AssertionError("gate must fail when the measured suite had failures")
+
+    captured = capsys.readouterr()
+    assert "FAILED-SUITE" in captured.out
+    assert "pytest rc=1" in captured.err
+
+
+def test_clean_suite_measurement_passes_gate(monkeypatch, capsys):
+    """GS-004: a measurement whose suite passed still passes the floor."""
+    module = _load_module()
+    name = _baseline_module()
+
+    def fake_measure(target):
+        return {
+            "module": target,
+            "status": "measured",
+            "coverage_percent": 100.0,
+            "pytest_rc": 0,
+            "seconds": 0.1,
+        }
+
+    monkeypatch.setattr(module, "measure_module", fake_measure)
+
+    assert module.main(["--base", "HEAD", "--head", "HEAD", "--modules", name]) == 0
+    assert "FAILED-SUITE" not in capsys.readouterr().out

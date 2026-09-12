@@ -3,6 +3,9 @@ name: GEO-INFER CI
 on:
   push:
     branches: ["main", "develop"]
+    # GS-002: the wheel release's ci-gate job waits for a successful GEO-INFER
+    # CI run on the exact tagged commit before any wheel upload.
+    tags: ["v*"]
   pull_request:
     branches: ["main", "develop"]
   workflow_dispatch:
@@ -15,36 +18,33 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
+  # GS-005: the interpreter-independent gates (repo contracts, syntax/test
+  # contracts, model audit, source hygiene, gitleaks, coverage floor) ran
+  # identically in every test matrix leg; they now execute once in this
+  # dedicated job, and each test category becomes its own matrix job so wall
+  # time is max(category) rather than sum(category).
+  validate:
     runs-on: ubuntu-latest
-    # SC-27: 90-minute wall budget (~1.5x observed leg time); the per-category
-    # summary in run_unified_tests.py makes a leg approaching its ceiling
-    # visible before the job timeout trips.
     timeout-minutes: 90
     env:
-      UV_PYTHON: ${{ matrix.python-version }}
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.11", "3.12"]
-
+      UV_PYTHON: "3.11"
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python 3.11
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.11"
 
       - name: Set up uv
         uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           version: "0.10.7"
           enable-cache: true
-          cache-suffix: py${{ matrix.python-version }}
+          cache-suffix: validate
           cache-dependency-glob: |
             **/pyproject.toml
             **/uv.lock
@@ -70,6 +70,7 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
           HEAD_SHA: ${{ github.sha }}
         run: |
+          # shellcheck disable=SC2153
           base_sha="$BASE_SHA"
           if ! [[ "$base_sha" =~ ^[0-9a-f]{40}$ ]] || ! git cat-file -e "$base_sha^{commit}" 2>/dev/null; then
             base_sha="$(git rev-parse --verify "$HEAD_SHA^" 2>/dev/null || git hash-object -t tree /dev/null)"
@@ -96,11 +97,16 @@ jobs:
 
       - name: Validate repository contracts
         run: |
-          uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
+          # GS-003: import-smoke and skills cross-reference problems used to
+          # be advisory-only; both gates are now fatal so a package that
+          # raises on import (or resolves from site-packages) and a broken
+          # README/AGENTS<->SKILL cross-reference fail the job.
+          uv run python GEO-INFER-TEST/validate_repo_contracts.py \
+            --strict-source-language --strict-import-smoke
           uv run python GEO-INFER-TEST/validate_packaging.py --strict
           uv run python GEO-INFER-TEST/validate_logging_hygiene.py
           uv run python GEO-INFER-TEST/validate_documentation.py --strict
-          uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
+          uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs --warnings-fatal
           uv run python GEO-INFER-TEST/validate_active_inference_contract.py
           uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check
 
@@ -144,92 +150,164 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
           HEAD_SHA: ${{ github.sha }}
         run: |
+          # shellcheck disable=SC2153
           # TEST-03: modules whose src or tests changed in this event are
           # re-measured and must meet their recorded floor
           # (GEO-INFER-TEST/coverage_baseline.json).
+          # GS-004: the fallback is the empty tree, matching the code-quality
+          # step: a base that cannot be resolved measures every module rather
+          # than degrading to base==head and an unconditional pass.
           base_sha="$BASE_SHA"
           if ! [[ "$base_sha" =~ ^[0-9a-f]{40}$ ]] || ! git cat-file -e "$base_sha^{commit}" 2>/dev/null; then
-            base_sha="$(git rev-parse --verify "$HEAD_SHA^" 2>/dev/null || echo "$HEAD_SHA")"
+            base_sha="$(git rev-parse --verify "$HEAD_SHA^" 2>/dev/null || git hash-object -t tree /dev/null)"
           fi
           uv run --with pytest-cov python GEO-INFER-TEST/check_coverage_floor.py \
             --base "$base_sha" --head "$HEAD_SHA"
 
-      - name: Run unit tests
-        id: unit_tests
+      - name: Prune uv cache
+        if: always()
+        continue-on-error: true
+        run: uv cache prune --ci
+
+  build-smoke:
+    # GS-006: the real 45-wheel build previously first executed at release
+    # time; PR CI now exercises `uv build` for every member so a pyproject
+    # change that breaks a wheel build surfaces before a v* tag. Install
+    # verification stays release-only to keep this job cheap; per-wheel
+    # builds are timeout-bounded inside build_package_wheels.py.
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      UV_PYTHON: "3.11"
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.10.7"
+          enable-cache: true
+          cache-suffix: build-smoke
+
+      - name: Build one wheel per module
+        # The builder needs only the stdlib plus its sibling GEO-INFER-TEST
+        # helpers, so no workspace sync is required; `uv build` resolves each
+        # member's build backend in isolation and the artifacts are discarded.
+        run: |
+          python GEO-INFER-TEST/build_package_wheels.py \
+            --outdir /tmp/geo-infer-build-smoke
+
+  workflow-lint:
+    # GS-008: CI meta-gate. The workflow definitions carry non-trivial
+    # embedded shell and GitHub expressions; actionlint fails them statically
+    # before any runner time is spent.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Install pinned actionlint
+        run: |
+          curl -fsSL -o /tmp/actionlint.tar.gz \
+            https://github.com/rhysd/actionlint/releases/download/v1.7.7/actionlint_1.7.7_linux_amd64.tar.gz
+          curl -fsSL -o /tmp/actionlint-checksums.txt \
+            https://github.com/rhysd/actionlint/releases/download/v1.7.7/actionlint_1.7.7_checksums.txt
+          grep 'actionlint_1.7.7_linux_amd64.tar.gz' /tmp/actionlint-checksums.txt | \
+            sed 's|actionlint_1.7.7_linux_amd64.tar.gz|/tmp/actionlint.tar.gz|' | \
+            sha256sum -c -
+          sudo tar -xzf /tmp/actionlint.tar.gz -C /usr/local/bin --no-same-owner actionlint
+          actionlint -version
+
+      - name: Lint workflow definitions
+        run: actionlint -color
+
+  test:
+    # GS-005: one leg per interpreter x category instead of two legs each
+    # running all categories serially. Keep fail-fast=false; the artifact
+    # names geo-infer-<category>-reports-py<version> are unchanged so any
+    # required checks keyed on them stay stable.
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      UV_PYTHON: ${{ matrix.python-version }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+        category: [unit, integration, performance, system, h3]
+
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.10.7"
+          enable-cache: true
+          cache-suffix: py${{ matrix.python-version }}-${{ matrix.category }}
+          cache-dependency-glob: |
+            **/pyproject.toml
+            **/uv.lock
+            .python-version
+
+      - name: Install locked dependencies
+        run: |
+          # CuPy requires a CUDA toolchain when no compatible wheel is
+          # available; the hosted CPU runners do not provide one. Keep the
+          # performance extra available to developers while excluding it from
+          # this CPU-only validation environment.
+          # Mayavi is an optional Python <3.12 3-D extra whose source build is
+          # incompatible with the hosted runner's VTK dependency; no CI test
+          # requires that optional backend.
+          # Vaex is an optional Python <3.12 performance extra whose C++
+          # extension does not build against the hosted runner toolchain.
+          uv sync --locked --python "$(command -v python)" --all-packages --all-extras \
+            --no-install-package cupy --no-install-package mayavi \
+            --no-install-package vaex --no-install-package vaex-core
+
+      - name: Run ${{ matrix.category }} tests
+        id: category_tests
         run: |
           # ACT's real-H3 and visualization unit surface is CPU-bound on the
           # hosted runner; keep the per-module timeout explicit without
-          # converting a slow but valid module into a false CI failure.
-          uv run python GEO-INFER-TEST/run_unified_tests.py --category unit \
-            --timeout 600
+          # converting a slow but valid module into a false CI failure. The
+          # per-category summary in run_unified_tests.py keeps a leg
+          # approaching its ceiling visible before the job timeout trips.
+          if [ "${{ matrix.category }}" = "h3" ]; then
+            uv run python GEO-INFER-TEST/run_unified_tests.py --h3-migration
+          else
+            uv run python GEO-INFER-TEST/run_unified_tests.py \
+              --category ${{ matrix.category }} \
+              --timeout 600
+          fi
 
-      - name: Retain unit test reports
-        if: always() && steps.unit_tests.outcome != 'skipped' && steps.unit_tests.outcome != ''
+      - name: Retain ${{ matrix.category }} test reports
+        # GS-001: every category uploads its reports immediately after its
+        # own run, so the shared results dir can never be wiped by a later
+        # category before the upload (the performance artifact used to upload
+        # system output because the system run wiped the dir first).
+        if: always() && steps.category_tests.outcome != 'skipped' && steps.category_tests.outcome != ''
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: geo-infer-unit-reports-py${{ matrix.python-version }}
+          name: geo-infer-${{ matrix.category }}-reports-py${{ matrix.python-version }}
           path: .geo-infer-test-results/
-          if-no-files-found: error
-          include-hidden-files: true
-          retention-days: 14
-
-      - name: Run integration tests
-        id: integration_tests
-        run: |
-          uv run python GEO-INFER-TEST/run_unified_tests.py --category integration \
-            --timeout 600
-
-      - name: Retain integration test reports
-        if: always() && steps.integration_tests.outcome != 'skipped' && steps.integration_tests.outcome != ''
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: geo-infer-integration-reports-py${{ matrix.python-version }}
-          path: .geo-infer-test-results/
-          if-no-files-found: error
-          include-hidden-files: true
-          retention-days: 14
-
-      - name: Run performance tests
-        id: performance_tests
-        run: |
-          uv run python GEO-INFER-TEST/run_unified_tests.py --category performance \
-            --timeout 600
-
-      - name: Run system tests
-        id: system_tests
-        run: |
-          uv run python GEO-INFER-TEST/run_unified_tests.py --category system \
-            --timeout 600
-      - name: Retain system test reports
-        if: always() && steps.system_tests.outcome != 'skipped' && steps.system_tests.outcome != ''
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: geo-infer-system-reports-py${{ matrix.python-version }}
-          path: .geo-infer-test-results/
-          if-no-files-found: error
-          include-hidden-files: true
-          retention-days: 14
-      - name: Retain performance test reports
-        if: always() && steps.performance_tests.outcome != 'skipped' && steps.performance_tests.outcome != ''
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: geo-infer-performance-reports-py${{ matrix.python-version }}
-          path: .geo-infer-test-results/
-          if-no-files-found: error
-          include-hidden-files: true
-          retention-days: 14
-
-      - name: Run H3 contracts
-        id: h3_contracts
-        run: |
-          uv run python GEO-INFER-TEST/run_unified_tests.py --h3-migration
-
-      - name: Retain H3 contract reports
-        if: always() && steps.h3_contracts.outcome != 'skipped' && steps.h3_contracts.outcome != ''
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: geo-infer-h3-reports-py${{ matrix.python-version }}
-          path: .geo-infer-test-results/summary.json
           if-no-files-found: error
           include-hidden-files: true
           retention-days: 14

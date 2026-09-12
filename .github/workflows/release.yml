@@ -19,11 +19,54 @@ on:
 
 permissions:
   contents: read
+  # GS-002: the ci-gate job polls `gh run list` for the CI run on the tagged
+  # commit; without actions:read that call fails closed on the first tag.
+  actions: read
 
 jobs:
-  release:
+  ci-gate:
+    # GS-002: a tag can point at any commit; the wheel release must not
+    # upload artifacts until full CI has passed on the tagged revision.
+    # The gate polls the GEO-INFER CI run for this exact SHA (ci.yml also
+    # triggers on v* tags) and fails closed on failure, cancellation, or a
+    # 120-minute wait ceiling. Manual dispatches skip the gate.
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 130
+    steps:
+      - name: Wait for CI success on the tagged commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          deadline=$(( $(date +%s) + 7200 ))
+          while :; do
+            row="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml \
+              --commit "$GITHUB_SHA" --limit 1 --json status,conclusion --jq '.[0] // empty')"
+            if [ -n "$row" ]; then
+              status="$(printf '%s' "$row" | jq -r .status)"
+              conclusion="$(printf '%s' "$row" | jq -r '.conclusion // ""')"
+              if [ "$status" = "completed" ]; then
+                if [ "$conclusion" = "success" ]; then
+                  echo "GEO-INFER CI passed on $GITHUB_SHA; release proceeds"
+                  exit 0
+                fi
+                echo "FAIL: GEO-INFER CI on $GITHUB_SHA concluded '$conclusion'; blocking the wheel release" >&2
+                exit 1
+              fi
+            fi
+            echo "Waiting for GEO-INFER CI on $GITHUB_SHA ..."
+            [ "$(date +%s)" -lt "$deadline" ] || {
+              echo "FAIL: GEO-INFER CI did not finish within 120 minutes of the tag push" >&2
+              exit 1
+            }
+            sleep 60
+          done
+
+  release:
+    needs: ci-gate
+    if: ${{ !cancelled() && (needs.ci-gate.result == 'success' || needs.ci-gate.result == 'skipped') }}
+    runs-on: ubuntu-latest
     env:
       UV_PYTHON: "3.11"
 
@@ -61,10 +104,14 @@ jobs:
           uv run python GEO-INFER-TEST/validate_repo_contracts.py --skip-import-smoke
 
       - name: Build multi-package wheels
+        # GS-002: the workflow_dispatch input defaults to opt-out semantics
+        # and is empty on tag pushes, so the conditional is inverted: tag
+        # builds always run the isolated-wheel verification and only an
+        # explicit run_isolated_verify=false dispatch skips it.
         run: |
           uv run python GEO-INFER-TEST/build_package_wheels.py \
             --outdir dist \
-            ${{ github.event.inputs.run_isolated_verify == 'true' && '--verify' || '' }}
+            ${{ github.event.inputs.run_isolated_verify != 'false' && '--verify' || '' }}
       - name: Verify built wheels cover all distribution namespaces
         run: |
           uv run python - <<'EOF'

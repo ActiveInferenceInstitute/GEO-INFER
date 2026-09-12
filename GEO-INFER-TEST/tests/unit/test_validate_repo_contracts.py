@@ -458,3 +458,21 @@ def test_import_smoke_rejects_nonfinite_timeout(timeout):
     contracts = load_contracts_module()
     with pytest.raises(ValueError, match="finite and positive"):
         contracts.validate_import_smoke([], contracts.ContractReport(), timeout=timeout)
+
+
+def test_import_smoke_strict_promotes_failures_to_errors(tmp_path, monkeypatch):
+    """--strict-import-smoke makes a failed probe a contract error (GS-003)."""
+    contracts = load_contracts_module()
+    monkeypatch.setattr(contracts, "REPO_ROOT", tmp_path)
+    module = tmp_path / "GEO-INFER-SLOW"
+    package = module / "src" / "geo_infer_slow"
+    package.mkdir(parents=True)
+    (package / "__init__.py").write_text("import time\ntime.sleep(10)\n")
+    (module / "pyproject.toml").write_text('[project]\nname = "geo-infer-slow"\n')
+    report = contracts.ContractReport()
+
+    contracts.validate_import_smoke([module], report, timeout=2, strict=True)
+
+    assert len(report.errors) == 1
+    assert not report.warnings
+    assert "timed out" in report.errors[0]
