@@ -74,3 +74,8 @@ GEO-INFER-NORMS/tests/test-outputs/
 # not runtime output — re-include them despite the blanket config/ rule.
 !GEO-INFER-*/src/**/config/
 !GEO-INFER-*/src/**/config/**
+
+# ...but packaged-resource config dirs must still exclude bytecode caches
+# (the re-include above overrides the global pycache rules for those trees).
+GEO-INFER-*/src/**/config/__pycache__/
+GEO-INFER-*/src/**/config/**/*.pyc

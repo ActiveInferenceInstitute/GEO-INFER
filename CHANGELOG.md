@@ -49,12 +49,17 @@ at every wave boundary.
 
 ### Verification
 
-Every wave pushed with CI green; strict gates: `validate_repo_contracts
---strict-source-language` (45 modules, 0 errors), `validate_packaging
---strict` (45/0/0 incl. the new import-parity + classifier gates),
-`validate_test_contracts --strict`, `validate_model_contracts --strict
---seed 42`, `validate_documentation --strict` (76 pages),
-`validate_skills --check-xrefs --warnings-fatal` (46/46).
+Every wave's full battery went green at the release tag; per-push CI was
+green on waves 1-3, the wave-4 push surfaced the source-language-debt gate
+(fixed in the wave-5 push), and the release tag's always-verify wheel gate
+then caught two real cross-platform defects (GIT identity handling, OPS
+clean-install import) that were fixed via PRs #30/#31 before publication.
+Strict gates at tag: `validate_repo_contracts --strict-source-language`
+(45 modules, 0 errors), `validate_packaging --strict` (45/0/0 including
+the new import-parity and classifier gates), `validate_test_contracts
+--strict`, `validate_model_contracts --strict --seed 42`,
+`validate_documentation --strict` (76 pages), `validate_skills
+--check-xrefs --warnings-fatal` (46/46).
 
 ## [0.2.0] - 2026-09-10
 
