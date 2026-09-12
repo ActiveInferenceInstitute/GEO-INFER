@@ -4,7 +4,7 @@ Logs workspace within `GEO-INFER-HEALTH`.
 
 ## Contents
 
-- `health.log`
+- No direct tracked child entries.
 
 ## Public Interface
 

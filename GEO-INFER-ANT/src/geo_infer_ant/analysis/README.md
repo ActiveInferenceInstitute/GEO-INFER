@@ -4,16 +4,14 @@ Analysis workspace within `GEO-INFER-ANT`.
 
 ## Contents
 
+- `patterns/`
 - `__init__.py`
 - `metrics.py`
-- `patterns.py`
 
 ## Public Interface
 
 - `metrics.py:PerformanceConfiguration` (class)
 - `metrics.py:SwarmPerformanceMetrics` (class)
-- `patterns.py:AnalysisConfiguration` (class)
-- `patterns.py:SwarmPatternAnalyzer` (class)
 
 ## Module Metadata
 

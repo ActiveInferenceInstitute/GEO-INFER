@@ -3,12 +3,23 @@
 from __future__ import annotations
 
 import json
+import logging
 import math
 import sys
 import warnings
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, cast
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
+    cast,
+)
 
 import matplotlib
 import numpy as np
@@ -54,6 +65,8 @@ from geo_infer_act.utils.spatial_research import (
     build_spatial_research_statistics,
     statistics_summary_rows,
 )
+
+logger = logging.getLogger(__name__)
 
 
 SCENARIO_PARAMETERS: Dict[str, Dict[str, Any]] = {
@@ -1241,6 +1254,47 @@ def _write_pymdp_h3_outputs(config: RunConfig, records: List[Dict[str, Any]]) ->
         _write_pymdp_policy_free_energy_html(config, records)
 
 
+def _plotly_or_table(
+    fig_builder: Callable[[], Any],
+    rows: Iterable[Mapping[str, Any]],
+    headers: Sequence[str],
+    row_cells: Callable[[Mapping[str, Any]], Sequence[str]],
+    title: str,
+    *,
+    page_title: Optional[str] = None,
+    caption: Optional[str] = None,
+) -> str:
+    """Render a Plotly figure as HTML, degrading to a static table on failure.
+
+    The graceful-degradation contract for scenario reports: any failure while
+    importing, building, or serializing the Plotly figure is logged at warning
+    level (module name plus exception) and downgraded to a static HTML table so
+    report generation continues instead of aborting the run.
+    """
+    try:
+        fig = fig_builder()
+        return fig.to_html(include_plotlyjs="cdn", full_html=True)
+    except Exception:  # noqa: BLE001 - deliberate degradation path for reports
+        logger.warning(
+            "Plotly figure %r failed to render; downgrading to a static HTML table",
+            title,
+            exc_info=True,
+        )
+    header_html = "".join(f"<th>{header}</th>" for header in headers)
+    caption_html = f"<p>{caption}</p>" if caption else ""
+    body_rows = "\n".join(
+        "<tr>" + "".join(f"<td>{cell}</td>" for cell in row_cells(row)) + "</tr>"
+        for row in rows
+    )
+    return (
+        "<!doctype html><html><head><meta charset='utf-8'>"
+        f"<title>{page_title or title}</title></head><body>"
+        f"<h1>{title}</h1>{caption_html}"
+        f"<table><thead><tr>{header_html}</tr></thead>"
+        f"<tbody>{body_rows}</tbody></table></body></html>"
+    )
+
+
 def _write_pymdp_policy_free_energy_html(
     config: RunConfig, records: List[Dict[str, Any]]
 ) -> Path:
@@ -1268,7 +1322,8 @@ def _write_pymdp_policy_free_energy_html(
                 ),
             }
         )
-    try:
+
+    def _build_pymdp_policy_figure() -> Any:
         import plotly.graph_objects as go  # noqa: PLC0415
 
         fig = go.Figure()
@@ -1320,26 +1375,25 @@ def _write_pymdp_policy_free_energy_html(
             },
             margin={"l": 60, "r": 90, "t": 80, "b": 70},
         )
-        html = fig.to_html(include_plotlyjs="cdn", full_html=True)
-    except Exception:
-        rows_html = "\n".join(
-            "<tr>"
-            f"<td>{row['timestep']}</td>"
-            f"<td>{row['mean_free_energy']:.6f}</td>"
-            f"<td>{row['mean_selected_negative_expected_free_energy']:.6f}</td>"
-            f"<td>{row['mean_selected_action_probability']:.6f}</td>"
-            "</tr>"
-            for row in aggregate_rows
-        )
-        html = (
-            "<!doctype html><html><head><meta charset='utf-8'>"
-            "<title>pymdp H3 Policy and Free Energy</title></head><body>"
-            "<h1>pymdp H3 Policy and Free Energy</h1>"
-            "<table><thead><tr><th>Timestep</th><th>Mean VFE</th>"
-            "<th>Mean selected negative EFE</th>"
-            "<th>Mean selected action probability</th></tr></thead>"
-            f"<tbody>{rows_html}</tbody></table></body></html>"
-        )
+        return fig
+
+    html = _plotly_or_table(
+        _build_pymdp_policy_figure,
+        aggregate_rows,
+        [
+            "Timestep",
+            "Mean VFE",
+            "Mean selected negative EFE",
+            "Mean selected action probability",
+        ],
+        lambda row: (
+            row["timestep"],
+            f"{row['mean_free_energy']:.6f}",
+            f"{row['mean_selected_negative_expected_free_energy']:.6f}",
+            f"{row['mean_selected_action_probability']:.6f}",
+        ),
+        "pymdp H3 Policy and Free Energy",
+    )
     return write_html_figure_artifact(
         config,
         "visualizations/pymdp_policy_free_energy.html",
@@ -1470,7 +1524,7 @@ def _write_nested_h3_hierarchy_map(config: RunConfig, nested_update: Any) -> Pat
                 }
             )
 
-    try:
+    def _build_nested_h3_hierarchy_figure() -> Any:
         import plotly.graph_objects as go  # noqa: PLC0415
 
         fig = go.Figure()
@@ -1529,24 +1583,21 @@ def _write_nested_h3_hierarchy_map(config: RunConfig, nested_update: Any) -> Pat
             title="Nested H3 Parent-Child Diagnostics",
             margin={"r": 0, "t": 70, "l": 0, "b": 35},
         )
-        html = fig.to_html(include_plotlyjs="cdn", full_html=True)
-    except Exception:
-        table_rows = "\n".join(
-            "<tr>"
-            f"<td>{row['parent']}</td><td>{row['child']}</td>"
-            f"<td>{row['cross_level_consistency']:.6f}</td>"
-            f"<td>{row['cross_level_residual']:.6f}</td>"
-            "</tr>"
-            for row in rows
-        )
-        html = (
-            "<!doctype html><html><head><meta charset='utf-8'>"
-            "<title>Nested H3 Hierarchy Map</title></head><body>"
-            "<h1>Nested H3 Parent-Child Diagnostics</h1>"
-            "<table><thead><tr><th>Parent</th><th>Child</th>"
-            "<th>Consistency</th><th>Residual</th></tr></thead>"
-            f"<tbody>{table_rows}</tbody></table></body></html>"
-        )
+        return fig
+
+    html = _plotly_or_table(
+        _build_nested_h3_hierarchy_figure,
+        rows,
+        ["Parent", "Child", "Consistency", "Residual"],
+        lambda row: (
+            row["parent"],
+            row["child"],
+            f"{row['cross_level_consistency']:.6f}",
+            f"{row['cross_level_residual']:.6f}",
+        ),
+        "Nested H3 Parent-Child Diagnostics",
+        page_title="Nested H3 Hierarchy Map",
+    )
 
     return write_html_figure_artifact(
         config,
@@ -2080,7 +2131,8 @@ def _write_interactive_h3_map(
         f"Interactive {config.scenario} H3 map with each cell plotted by "
         "latitude and longitude and colored by free-energy value."
     )
-    try:
+
+    def _build_interactive_h3_map_figure() -> Any:
         import plotly.express as px  # noqa: PLC0415
 
         fig = px.scatter_geo(
@@ -2119,24 +2171,25 @@ def _write_interactive_h3_map(
                 }
             ],
         )
-        html = fig.to_html(include_plotlyjs="cdn", full_html=True)
-    except Exception:
-        rows = "\n".join(
-            "<tr>"
-            f"<td>{row['cell']}</td><td>{row['lat']:.6f}</td><td>{row['lng']:.6f}</td>"
-            f"<td>{row['free_energy']:.6f}</td><td>{row['belief_entropy']:.6f}</td>"
-            "</tr>"
-            for row in cell_metrics
-        )
-        html = (
-            "<!doctype html><html><head><meta charset='utf-8'>"
-            f"<title>{config.scenario} H3 map</title></head><body>"
-            f"<h1>{config.scenario.upper()} H3 Active Inference Map</h1>"
-            f"<p>{_provenance_caption(config, 'Data: data/h3_cells.csv and data/h3_cells.geojson')}</p>"
-            "<table><thead><tr><th>Cell</th><th>Lat</th><th>Lng</th>"
-            "<th>Free energy</th><th>Belief entropy</th></tr></thead>"
-            f"<tbody>{rows}</tbody></table></body></html>"
-        )
+        return fig
+
+    html = _plotly_or_table(
+        _build_interactive_h3_map_figure,
+        cell_metrics,
+        ["Cell", "Lat", "Lng", "Free energy", "Belief entropy"],
+        lambda row: (
+            row["cell"],
+            f"{row['lat']:.6f}",
+            f"{row['lng']:.6f}",
+            f"{row['free_energy']:.6f}",
+            f"{row['belief_entropy']:.6f}",
+        ),
+        title,
+        page_title=f"{config.scenario} H3 map",
+        caption=_provenance_caption(
+            config, "Data: data/h3_cells.csv and data/h3_cells.geojson"
+        ),
+    )
     return write_html_figure_artifact(
         config,
         "visualizations/interactive_h3_map.html",
@@ -2165,7 +2218,8 @@ def _write_h3_belief_flux_map(
     """Write an interactive H3 belief-flux and posterior-delta map."""
     rows = _latest_leaf_trace_rows(trace_rows)
     title = f"{config.scenario.upper()} H3 Belief Flux"
-    try:
+
+    def _build_belief_flux_figure() -> Any:
         import plotly.express as px  # noqa: PLC0415
 
         fig = px.scatter_geo(
@@ -2189,24 +2243,20 @@ def _write_h3_belief_flux_map(
         )
         fig.update_geos(fitbounds="locations", visible=True)
         fig.update_layout(margin={"r": 0, "t": 70, "l": 0, "b": 35})
-        html = fig.to_html(include_plotlyjs="cdn", full_html=True)
-    except Exception:
-        table_rows = "\n".join(
-            "<tr>"
-            f"<td>{row['cell']}</td><td>{row['belief_flux_divergence']:.6f}</td>"
-            f"<td>{row['posterior_delta']:.6f}</td>"
-            f"<td>{row['local_coherence']:.6f}</td>"
-            "</tr>"
-            for row in rows
-        )
-        html = (
-            "<!doctype html><html><head><meta charset='utf-8'>"
-            f"<title>{title}</title></head><body>"
-            f"<h1>{title}</h1>"
-            "<table><thead><tr><th>Cell</th><th>Flux divergence</th>"
-            "<th>Posterior delta</th><th>Local coherence</th></tr></thead>"
-            f"<tbody>{table_rows}</tbody></table></body></html>"
-        )
+        return fig
+
+    html = _plotly_or_table(
+        _build_belief_flux_figure,
+        rows,
+        ["Cell", "Flux divergence", "Posterior delta", "Local coherence"],
+        lambda row: (
+            row["cell"],
+            f"{row['belief_flux_divergence']:.6f}",
+            f"{row['posterior_delta']:.6f}",
+            f"{row['local_coherence']:.6f}",
+        ),
+        title,
+    )
 
     return write_html_figure_artifact(
         config,
@@ -2249,7 +2299,8 @@ def _write_h3_policy_surface(
         for cell in cells
     ]
     title = f"{config.scenario.upper()} H3 Policy Confidence Surface"
-    try:
+
+    def _build_policy_surface_figure() -> Any:
         import plotly.graph_objects as go  # noqa: PLC0415
 
         fig = go.Figure(
@@ -2268,24 +2319,20 @@ def _write_h3_policy_surface(
             height=max(420, min(900, 32 * max(1, len(cells)))),
             margin={"r": 20, "t": 70, "l": 160, "b": 55},
         )
-        html = fig.to_html(include_plotlyjs="cdn", full_html=True)
-    except Exception:
-        table_rows = "\n".join(
-            "<tr>"
-            f"<td>{row['timestep']}</td><td>{row['cell']}</td>"
-            f"<td>{row['selected_action_probability']:.6f}</td>"
-            f"<td>{row['policy_entropy']:.6f}</td>"
-            "</tr>"
-            for row in rows
-        )
-        html = (
-            "<!doctype html><html><head><meta charset='utf-8'>"
-            f"<title>{title}</title></head><body>"
-            f"<h1>{title}</h1>"
-            "<table><thead><tr><th>Timestep</th><th>Cell</th>"
-            "<th>Selected action probability</th><th>Policy entropy</th>"
-            f"</tr></thead><tbody>{table_rows}</tbody></table></body></html>"
-        )
+        return fig
+
+    html = _plotly_or_table(
+        _build_policy_surface_figure,
+        rows,
+        ["Timestep", "Cell", "Selected action probability", "Policy entropy"],
+        lambda row: (
+            row["timestep"],
+            row["cell"],
+            f"{row['selected_action_probability']:.6f}",
+            f"{row['policy_entropy']:.6f}",
+        ),
+        title,
+    )
 
     return write_html_figure_artifact(
         config,
@@ -2322,7 +2369,8 @@ def _write_h3_policy_transitions(
         for (timestep, action), count in sorted(counts.items())
     ]
     title = f"{config.scenario.upper()} H3 Policy Transitions"
-    try:
+
+    def _build_policy_transitions_figure() -> Any:
         import plotly.express as px  # noqa: PLC0415
 
         fig = px.bar(
@@ -2340,22 +2388,19 @@ def _write_h3_policy_transitions(
             legend_title_text="Selected action",
             margin={"r": 20, "t": 70, "l": 55, "b": 55},
         )
-        html = fig.to_html(include_plotlyjs="cdn", full_html=True)
-    except Exception:
-        table_rows = "\n".join(
-            "<tr>"
-            f"<td>{row['timestep']}</td><td>{row['selected_action_index']}</td>"
-            f"<td>{row['count']}</td>"
-            "</tr>"
-            for row in plotted
-        )
-        html = (
-            "<!doctype html><html><head><meta charset='utf-8'>"
-            f"<title>{title}</title></head><body><h1>{title}</h1>"
-            "<table><thead><tr><th>Timestep</th><th>Selected action</th>"
-            f"<th>Cell count</th></tr></thead><tbody>{table_rows}</tbody></table>"
-            "</body></html>"
-        )
+        return fig
+
+    html = _plotly_or_table(
+        _build_policy_transitions_figure,
+        plotted,
+        ["Timestep", "Selected action", "Cell count"],
+        lambda row: (
+            row["timestep"],
+            row["selected_action_index"],
+            row["count"],
+        ),
+        title,
+    )
 
     return write_html_figure_artifact(
         config,
@@ -2382,7 +2427,8 @@ def _write_h3_spatial_autocorrelation(
     """Write per-timestep graph-aware spatial trace diagnostics."""
     rows = _spatial_autocorrelation_rows(trace_rows, edge_rows)
     title = f"{config.scenario.upper()} H3 Spatial Autocorrelation"
-    try:
+
+    def _build_spatial_autocorrelation_figure() -> Any:
         import plotly.graph_objects as go  # noqa: PLC0415
 
         fig = go.Figure()
@@ -2407,26 +2453,27 @@ def _write_h3_spatial_autocorrelation(
             height=500,
             margin={"r": 20, "t": 70, "l": 65, "b": 55},
         )
-        html = fig.to_html(include_plotlyjs="cdn", full_html=True)
-    except Exception:
-        table_rows = "\n".join(
-            "<tr>"
-            f"<td>{row['timestep']}</td>"
-            f"<td>{row['moran_entropy_proxy']:.6f}</td>"
-            f"<td>{row['mean_edge_belief_distance']:.6f}</td>"
-            f"<td>{row['mean_neighbor_entropy_contrast']:.6f}</td>"
-            f"<td>{row['mean_abs_flux_balance']:.6f}</td>"
-            "</tr>"
-            for row in rows
-        )
-        html = (
-            "<!doctype html><html><head><meta charset='utf-8'>"
-            f"<title>{title}</title></head><body><h1>{title}</h1>"
-            "<table><thead><tr><th>Timestep</th><th>Moran entropy proxy</th>"
-            "<th>Mean edge belief distance</th><th>Neighbor entropy contrast</th>"
-            f"<th>Abs flux balance</th></tr></thead><tbody>{table_rows}</tbody>"
-            "</table></body></html>"
-        )
+        return fig
+
+    html = _plotly_or_table(
+        _build_spatial_autocorrelation_figure,
+        rows,
+        [
+            "Timestep",
+            "Moran entropy proxy",
+            "Mean edge belief distance",
+            "Neighbor entropy contrast",
+            "Abs flux balance",
+        ],
+        lambda row: (
+            row["timestep"],
+            f"{row['moran_entropy_proxy']:.6f}",
+            f"{row['mean_edge_belief_distance']:.6f}",
+            f"{row['mean_neighbor_entropy_contrast']:.6f}",
+            f"{row['mean_abs_flux_balance']:.6f}",
+        ),
+        title,
+    )
 
     return write_html_figure_artifact(
         config,
@@ -2457,7 +2504,8 @@ def _write_h3_entropy_free_energy_phase(
     """Write entropy/free-energy phase-space diagnostics."""
     rows = _leaf_trace_rows(trace_rows)
     title = f"{config.scenario.upper()} H3 Entropy-Free Energy Phase Space"
-    try:
+
+    def _build_entropy_free_energy_phase_figure() -> Any:
         import plotly.express as px  # noqa: PLC0415
 
         fig = px.scatter(
@@ -2482,23 +2530,21 @@ def _write_h3_entropy_free_energy_phase(
             yaxis_title="Variational free energy",
             margin={"r": 20, "t": 70, "l": 70, "b": 60},
         )
-        html = fig.to_html(include_plotlyjs="cdn", full_html=True)
-    except Exception:
-        table_rows = "\n".join(
-            "<tr>"
-            f"<td>{row['timestep']}</td><td>{row['cell']}</td>"
-            f"<td>{row['entropy']:.6f}</td><td>{row['free_energy']:.6f}</td>"
-            f"<td>{row['selected_action_probability']:.6f}</td>"
-            "</tr>"
-            for row in rows
-        )
-        html = (
-            "<!doctype html><html><head><meta charset='utf-8'>"
-            f"<title>{title}</title></head><body><h1>{title}</h1>"
-            "<table><thead><tr><th>Timestep</th><th>Cell</th><th>Entropy</th>"
-            "<th>Free energy</th><th>Selected action probability</th></tr></thead>"
-            f"<tbody>{table_rows}</tbody></table></body></html>"
-        )
+        return fig
+
+    html = _plotly_or_table(
+        _build_entropy_free_energy_phase_figure,
+        rows,
+        ["Timestep", "Cell", "Entropy", "Free energy", "Selected action probability"],
+        lambda row: (
+            row["timestep"],
+            row["cell"],
+            f"{row['entropy']:.6f}",
+            f"{row['free_energy']:.6f}",
+            f"{row['selected_action_probability']:.6f}",
+        ),
+        title,
+    )
 
     return write_html_figure_artifact(
         config,
@@ -3057,7 +3103,8 @@ def _write_nested_h3_parent_child_residuals(
 ) -> Path:
     """Write nested parent-child consistency residual diagnostics."""
     title = f"{config.scenario.upper()} Nested H3 Parent-Child Residuals"
-    try:
+
+    def _build_parent_child_residuals_figure() -> Any:
         import plotly.express as px  # noqa: PLC0415
 
         fig = px.scatter(
@@ -3082,23 +3129,20 @@ def _write_nested_h3_parent_child_residuals(
             yaxis_title="Cross-level residual",
             margin={"r": 20, "t": 70, "l": 70, "b": 55},
         )
-        html = fig.to_html(include_plotlyjs="cdn", full_html=True)
-    except Exception:
-        table_rows = "\n".join(
-            "<tr>"
-            f"<td>{row['timestep']}</td><td>{row['parent']}</td>"
-            f"<td>{row['child']}</td>"
-            f"<td>{row['cross_level_residual']:.6f}</td>"
-            "</tr>"
-            for row in parent_child_rows
-        )
-        html = (
-            "<!doctype html><html><head><meta charset='utf-8'>"
-            f"<title>{title}</title></head><body><h1>{title}</h1>"
-            "<table><thead><tr><th>Timestep</th><th>Parent</th><th>Child</th>"
-            f"<th>Residual</th></tr></thead><tbody>{table_rows}</tbody></table>"
-            "</body></html>"
-        )
+        return fig
+
+    html = _plotly_or_table(
+        _build_parent_child_residuals_figure,
+        parent_child_rows,
+        ["Timestep", "Parent", "Child", "Residual"],
+        lambda row: (
+            row["timestep"],
+            row["parent"],
+            row["child"],
+            f"{row['cross_level_residual']:.6f}",
+        ),
+        title,
+    )
 
     return write_html_figure_artifact(
         config,

@@ -86,3 +86,19 @@ class TestLoadAgentClass:
         AgentRegistry._instance = None
         registry = AgentRegistry()
         assert set(registry.agent_types) == set(cli.AGENT_MODULES)
+
+    def test_type_to_path_mapping_has_a_single_definition(self) -> None:
+        # The CLI must not hand-copy the registry's mapping: both must be
+        # backed by the same module-level AGENT_TYPES constant.
+        import geo_infer_agent.core.agent_registry as ar
+
+        assert cli.AGENT_MODULES is ar.AGENT_TYPES
+
+    def test_cli_registry_and_list_descriptions_agree(self) -> None:
+        AgentRegistry._instance = None
+        registry = AgentRegistry()
+        assert (
+            set(cli.AGENT_MODULES)
+            == set(registry.agent_types)
+            == set(cli.AGENT_DESCRIPTIONS)
+        )

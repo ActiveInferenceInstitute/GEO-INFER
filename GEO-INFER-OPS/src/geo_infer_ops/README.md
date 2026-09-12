@@ -5,6 +5,7 @@ Geo Infer Ops workspace within `GEO-INFER-OPS`.
 ## Contents
 
 - `core/`
+- `deployment/`
 - `health/`
 - `utils/`
 - `__init__.py`

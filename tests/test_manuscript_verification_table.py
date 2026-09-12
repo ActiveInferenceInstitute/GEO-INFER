@@ -462,3 +462,73 @@ class TestTierAxisOfReuse:
             )
             is None
         )
+
+
+class TestRunVerificationTimeout:
+    """A hung validator is recorded as timed out rather than stalling the run.
+
+    The verification runner is unbounded at the CI level (the manuscript job
+    has no per-command ceiling of its own), so the runner itself must bound
+    every command.  A command that exceeds the envelope is published as a
+    ``timeout`` result with the elapsed duration, and the publication gate
+    treats it exactly like a failure — the record must never show a hung
+    group as a pass or as silently absent.
+    """
+
+    def test_a_hanging_command_times_out_and_is_recorded(
+        self, generator: ModuleType, tmp_path: Path, monkeypatch
+    ) -> None:
+        commands = (
+            ("hangs", "sleep 30"),
+            ("answers", "true"),
+        )
+        monkeypatch.setattr(generator, "VERIFICATION_COMMANDS", commands)
+        monkeypatch.setattr(generator, "VERIFICATION_TIMEOUT_SECONDS", 2)
+        results = generator.run_verification(tmp_path)
+        assert len(results) == 2
+        assert results[0].status == "timeout"
+        assert results[0].return_code is None
+        assert results[0].duration_seconds >= 2
+        assert "timed out" in results[0].output_tail
+        assert results[1].status == "passed"
+
+    def test_a_timeout_result_counts_as_a_failure_in_the_summary(
+        self, generator: ModuleType
+    ) -> None:
+        results = [
+            generator.VerificationResult(
+                name=generator.VERIFICATION_COMMANDS[0][0],
+                command="true",
+                status="timeout",
+                return_code=None,
+                duration_seconds=2.0,
+                output_tail="",
+            )
+        ]
+        summary, passed, failed, _unrun = generator._verification_summary(
+            results, full_validation=False
+        )
+        assert failed == 1
+        assert passed == 0
+        assert "failed" in summary
+
+    def test_a_timed_out_group_refuses_publication(
+        self, generator: ModuleType, generatable_checkout: Path, monkeypatch
+    ) -> None:
+        name = generator.VERIFICATION_COMMANDS[0][0]
+
+        def _run(_root, *, full_validation):
+            return (
+                generator.VerificationResult(
+                    name=name,
+                    command="sleep 30",
+                    status="timeout",
+                    return_code=None,
+                    duration_seconds=2.0,
+                    output_tail="timed out",
+                ),
+            )
+
+        monkeypatch.setattr(generator, "run_verification", _run)
+        with pytest.raises(RuntimeError, match=name):
+            generator.generate(generatable_checkout, verify=True, publication=True)

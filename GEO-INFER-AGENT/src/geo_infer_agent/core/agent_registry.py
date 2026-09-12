@@ -18,6 +18,29 @@ from geo_infer_agent.core.agent_base import BaseAgent
 
 logger = logging.getLogger("geo_infer_agent.core.agent_registry")
 
+# Single source of truth for the agent-type -> class mapping and its
+# human-readable descriptions.  AgentRegistry and the CLI both derive from
+# these constants; adding an agent type means editing only this block.
+AGENT_TYPES: Dict[str, str] = {
+    "default": "geo_infer_agent.core.agent_base.ExampleAgent",
+    "data_collector": "geo_infer_agent.agents.data_collector.DataCollectorAgent",
+    "bdi": "geo_infer_agent.models.bdi.BDIAgent",
+    "active_inference": "geo_infer_agent.models.active_inference.ActiveInferenceAgent",
+    "reinforcement_learning": "geo_infer_agent.models.rl.RLAgent",
+    "rule_based": "geo_infer_agent.models.rule_based.RuleBasedAgent",
+    "hybrid": "geo_infer_agent.models.hybrid.HybridAgent",
+}
+
+AGENT_DESCRIPTIONS: Dict[str, str] = {
+    "default": "Basic example agent for testing",
+    "data_collector": "Collects data from configured sources",
+    "bdi": "Belief-Desire-Intention cognitive architecture",
+    "active_inference": "Free-energy-minimising agent (matrix model)",
+    "reinforcement_learning": "Q-learning agent with replay buffer",
+    "rule_based": "Decision-tree agents for simple spatial tasks",
+    "hybrid": "Combines rule-based and learning architectures",
+}
+
 
 class AgentRegistry:
     """
@@ -50,16 +73,8 @@ class AgentRegistry:
         # Set of running agent IDs
         self.running_agents: Set[str] = set()
 
-        # Map of agent types to class paths
-        self.agent_types = {
-            "default": "geo_infer_agent.core.agent_base.ExampleAgent",
-            "data_collector": "geo_infer_agent.agents.data_collector.DataCollectorAgent",
-            "bdi": "geo_infer_agent.models.bdi.BDIAgent",
-            "active_inference": "geo_infer_agent.models.active_inference.ActiveInferenceAgent",
-            "reinforcement_learning": "geo_infer_agent.models.rl.RLAgent",
-            "rule_based": "geo_infer_agent.models.rule_based.RuleBasedAgent",
-            "hybrid": "geo_infer_agent.models.hybrid.HybridAgent",
-        }
+        # Map of agent types to class paths (from the module-level constants)
+        self.agent_types = dict(AGENT_TYPES)
 
         # Running tasks for agents
         self.agent_tasks: Dict[str, asyncio.Task] = {}

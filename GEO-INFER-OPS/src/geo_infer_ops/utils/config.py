@@ -5,10 +5,11 @@ This module provides functionality for loading and validating configuration
 from YAML files, environment variables, and command-line arguments.
 """
 
+import importlib.resources
 import os
+
 import yaml
 from typing import Any, Dict, Optional, cast
-from pathlib import Path
 
 
 def find_config_file(config_path: Optional[str] = None) -> str:
@@ -17,9 +18,10 @@ def find_config_file(config_path: Optional[str] = None) -> str:
 
     Order of precedence:
     1. Explicitly provided path
-    2. Environment variable GEO_INFER_OPS_CONFIG
+    2. Environment variable GEO_INFER_OPS_CONFIG (must exist when set)
     3. ./config/local.yaml
     4. ./config/example.yaml
+
 
     Args:
         config_path: Optional explicit path to configuration file
@@ -36,6 +38,9 @@ def find_config_file(config_path: Optional[str] = None) -> str:
     if env_path := os.environ.get("GEO_INFER_OPS_CONFIG"):
         if os.path.exists(env_path):
             return env_path
+        raise FileNotFoundError(
+            f"GEO_INFER_OPS_CONFIG is set but does not exist: {env_path}"
+        )
 
     # Try to find config relative to the current working directory
     local_config = os.path.join("config", "local.yaml")
@@ -46,15 +51,13 @@ def find_config_file(config_path: Optional[str] = None) -> str:
     if os.path.exists(example_config):
         return example_config
 
-    # Try to find config relative to the module directory
-    module_dir = Path(__file__).parent.parent.parent.parent
-    local_module_config = os.path.join(module_dir, "config", "local.yaml")
-    if os.path.exists(local_module_config):
-        return local_module_config
-
-    example_module_config = os.path.join(module_dir, "config", "example.yaml")
-    if os.path.exists(example_module_config):
-        return example_module_config
+    # Fall back to the config bundled inside the installed package.
+    package_resources = importlib.resources.files("geo_infer_ops")
+    for name in ("local.yaml", "example.yaml"):
+        candidate = package_resources.joinpath("config", name)
+        if candidate.is_file():
+            with importlib.resources.as_file(candidate) as path:
+                return str(path)
 
     raise FileNotFoundError("No configuration file found")
 

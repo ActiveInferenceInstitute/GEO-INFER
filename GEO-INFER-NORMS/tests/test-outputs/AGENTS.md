@@ -21,10 +21,7 @@
 
 ## Local Contents
 
-- `all_tests.html`
-- `normative_inference.html`
-- `report.html`
-- `social_norm_diffusion.html`
+- No direct tracked child entries.
 
 ## Validation
 

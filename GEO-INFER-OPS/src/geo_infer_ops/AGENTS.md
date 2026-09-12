@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `core/`
+- `deployment/`
 - `health/`
 - `utils/`
 - `__init__.py`

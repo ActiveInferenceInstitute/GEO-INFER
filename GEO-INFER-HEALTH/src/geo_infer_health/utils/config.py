@@ -6,6 +6,7 @@ Provides functions for loading, validating, and managing configuration files.
 
 import os
 import json
+import importlib.resources
 import re
 from pathlib import Path
 from typing import Dict, Any, Optional, Union, cast
@@ -246,25 +247,23 @@ def get_default_config_path() -> Path:
         Path to the default configuration file
     """
     # Try to find config in the following order:
-    # 1. Current working directory
-    # 2. Module directory
-    # 3. Environment variable GEO_INFER_HEALTH_CONFIG
-
-    search_paths = [
-        Path.cwd() / "config" / "health_config.yaml",
-        Path.cwd() / "health_config.yaml",
-        Path(__file__).parent.parent.parent / "config" / "health_config.yaml",
-    ]
+    # 1. Environment variable GEO_INFER_HEALTH_CONFIG (explicit override)
+    # 2. Packaged resource shipped inside geo_infer_health
+    # 3. Current working directory
 
     env_config = os.getenv("GEO_INFER_HEALTH_CONFIG")
-    if env_config:
-        search_paths.insert(0, Path(env_config))
+    if env_config and Path(env_config).exists():
+        return Path(env_config)
 
-    for config_path in search_paths:
-        if config_path.exists():
-            return config_path
+    packaged = importlib.resources.files("geo_infer_health").joinpath(
+        "health_config.yaml"
+    )
+    if packaged.is_file():
+        with importlib.resources.as_file(packaged) as path:
+            return path
 
-    # Return the most likely path if none exist
+    # Fall back to the working directory only when the packaged resource is
+    # unavailable (e.g. namespace/zip layouts without the resource).
     return Path.cwd() / "config" / "health_config.yaml"
 
 

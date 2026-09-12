@@ -1,9 +1,17 @@
 name: Paired GNN interchange
 
 on:
-  push:
-    branches: ["main"]
+  # GS-007: the paired ACT<->GNN interchange is a schema contract between two
+  # specific surfaces, so runs are scoped to the files that can change that
+  # contract. The bare push:[main] leg is dropped: every merged change already
+  # ran the interchange on its PR, and the push leg re-ran the identical job
+  # back-to-back under a different concurrency group.
   pull_request:
+    paths:
+      - "GEO-INFER-ACT/**"
+      - "GEO-INFER-TEST/validate_gnn_interchange.py"
+      - ".github/gnn-pair.json"
+      - ".github/workflows/gnn-interchange.yml"
   workflow_dispatch:
 
 permissions:

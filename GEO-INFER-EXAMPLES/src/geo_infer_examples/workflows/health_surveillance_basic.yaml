@@ -1,0 +1,20 @@
+id: health_surveillance_basic
+name: Basic Health Surveillance
+description: Simple health data analysis workflow
+execution_strategy: sequential
+steps:
+  - name: data_ingestion
+    module: DATA
+    endpoint: /ingest
+    dependencies: []
+    optional: false
+  - name: spatial_analysis
+    module: SPACE
+    endpoint: /analyze/spatial
+    dependencies: [data_ingestion]
+    optional: false
+  - name: health_assessment
+    module: HEALTH
+    endpoint: /assess/outbreak
+    dependencies: [spatial_analysis]
+    optional: false

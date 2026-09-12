@@ -66,3 +66,6 @@ GEO-INFER-PLACE/locations/cascadia/output/data/cache/region_cache_*.json
 .gitnexus/
 .claude/
 mlruns/
+
+# pytest-html test outputs
+GEO-INFER-NORMS/tests/test-outputs/

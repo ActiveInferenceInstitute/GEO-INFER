@@ -43,9 +43,9 @@ CivicIntelSource: TypeAlias = Union[None, str, Path, Dict[str, Any], Mapping[str
 try:
     from geo_infer_bayes.civic_intel import (
         CRESCENT_CITY_INTEL_SCHEMA,
-        _parse_contract_bounds,
-        _require_list,
-        _require_mapping,
+        parse_contract_bounds,
+        require_list,
+        require_mapping,
         decode_contract_json,
         load_crescent_city_contract,
     )
@@ -88,12 +88,12 @@ except ImportError:  # pragma: no cover - sibling-absent degradation path
             )
         return loaded
 
-    def _require_mapping(value: object, field_name: str) -> Mapping[str, Any]:
+    def require_mapping(value: object, field_name: str) -> Mapping[str, Any]:
         if not isinstance(value, Mapping):
             raise ValueError(f"{field_name} must be an object")
         return value
 
-    def _require_list(value: object, field_name: str) -> List[Any]:
+    def require_list(value: object, field_name: str) -> List[Any]:
         if not isinstance(value, list):
             raise ValueError(f"{field_name} must be an array")
         return value
@@ -106,9 +106,9 @@ except ImportError:  # pragma: no cover - sibling-absent degradation path
             raise ValueError(f"{field_name} must be a finite number")
         return number
 
-    def _parse_contract_bounds(value: object) -> Dict[str, Any]:
+    def parse_contract_bounds(value: object) -> Dict[str, Any]:
         """Degraded-mode WGS84 bounds validation matching the BAYES core."""
-        raw = _require_mapping(value, "anchor.bounds")
+        raw = require_mapping(value, "anchor.bounds")
         bounds = {
             "west": _require_finite_float(raw.get("west"), "anchor.bounds.west"),
             "south": _require_finite_float(raw.get("south"), "anchor.bounds.south"),
@@ -279,11 +279,11 @@ def _base_hazard_tag(tag: str) -> Optional[str]:
 def _read_topic(
     raw: Mapping[str, Any], field_name: str = "hazard topic"
 ) -> GeoIntelTopic:
-    raw_tags = _require_list(raw.get("tags", []), f"{field_name}.tags")
-    raw_sections = _require_list(raw.get("sections", []), f"{field_name}.sections")
+    raw_tags = require_list(raw.get("tags", []), f"{field_name}.tags")
+    raw_sections = require_list(raw.get("sections", []), f"{field_name}.sections")
     sections: List[GeoIntelSection] = []
     for index, section_value in enumerate(raw_sections):
-        section = _require_mapping(section_value, f"{field_name}.sections[{index}]")
+        section = require_mapping(section_value, f"{field_name}.sections[{index}]")
         sections.append(
             GeoIntelSection(
                 sectionNumber=str(section.get("sectionNumber", "")),
@@ -304,17 +304,17 @@ def _read_hazard_domain(
     fallback_to_domain_tags: bool = False,
 ) -> HazardDomain:
     if "hazardTags" in raw:
-        raw_hazard_tags = _require_list(raw["hazardTags"], f"{field_name}.hazardTags")
+        raw_hazard_tags = require_list(raw["hazardTags"], f"{field_name}.hazardTags")
     elif fallback_to_domain_tags:
-        domain_tags = _require_list(raw.get("tags", []), f"{field_name}.tags")
+        domain_tags = require_list(raw.get("tags", []), f"{field_name}.tags")
         raw_hazard_tags = [tag for tag in domain_tags if _base_hazard_tag(str(tag))]
     else:
         raw_hazard_tags = []
 
-    raw_topics = _require_list(raw.get("topics", []), f"{field_name}.topics")
+    raw_topics = require_list(raw.get("topics", []), f"{field_name}.topics")
     topics: List[GeoIntelTopic] = []
     for index, topic_value in enumerate(raw_topics):
-        topic = _require_mapping(topic_value, f"{field_name}.topics[{index}]")
+        topic = require_mapping(topic_value, f"{field_name}.topics[{index}]")
         topics.append(_read_topic(topic, f"{field_name}.topics[{index}]"))
 
     return HazardDomain(
@@ -328,7 +328,7 @@ def _read_hazard_domain(
 
 def _has_hazard_signal(raw: Mapping[str, Any]) -> bool:
     """True when a raw domain references any recognised hazard tag."""
-    raw_tags = _require_list(raw.get("tags", []), "domain.tags")
+    raw_tags = require_list(raw.get("tags", []), "domain.tags")
     tag_sources: List[str] = [str(item) for item in raw_tags]
     tag_sources.extend(_read_hazard_domain(raw).hazardTags)
     return any(_base_hazard_tag(tag) is not None for tag in tag_sources)
@@ -343,23 +343,21 @@ def _extract_hazard_domains(contract: Dict[str, Any]) -> List[HazardDomain]:
     result is stable regardless of source shape.
     """
     hazard_value = contract.get("hazard", {})
-    hazard = _require_mapping(hazard_value, "hazard")
-    explicit = _require_list(
-        hazard.get("relevantDomains", []), "hazard.relevantDomains"
-    )
+    hazard = require_mapping(hazard_value, "hazard")
+    explicit = require_list(hazard.get("relevantDomains", []), "hazard.relevantDomains")
     if explicit:
         domains = [
             _read_hazard_domain(
-                _require_mapping(item, f"hazard.relevantDomains[{index}]"),
+                require_mapping(item, f"hazard.relevantDomains[{index}]"),
                 f"hazard.relevantDomains[{index}]",
             )
             for index, item in enumerate(explicit)
         ]
         return _dedupe_domains([domain for domain in domains if domain.id])
 
-    full_domain_values = _require_list(contract.get("domains", []), "domains")
+    full_domain_values = require_list(contract.get("domains", []), "domains")
     full_domains = [
-        _require_mapping(item, f"domains[{index}]")
+        require_mapping(item, f"domains[{index}]")
         for index, item in enumerate(full_domain_values)
     ]
     domains = [
@@ -378,7 +376,7 @@ def _read_bounds(anchor: Mapping[str, Any]) -> Optional[CivicIntelBounds]:
     """Parse and validate optional WGS84 municipal bounds."""
     if "bounds" not in anchor:
         return None
-    return CivicIntelBounds(**_parse_contract_bounds(anchor["bounds"]))
+    return CivicIntelBounds(**parse_contract_bounds(anchor["bounds"]))
 
 
 def _dedupe_domains(domains: Sequence[HazardDomain]) -> List[HazardDomain]:
@@ -432,7 +430,7 @@ def parse_crescent_city_intel(
             f"expected {SUPPORTED_SCHEMA!r}"
         )
 
-    anchor = _require_mapping(contract.get("anchor", {}), "anchor")
+    anchor = require_mapping(contract.get("anchor", {}), "anchor")
     bounds = _read_bounds(anchor)
 
     record = CrescentCityIntel(

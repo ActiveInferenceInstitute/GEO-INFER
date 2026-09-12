@@ -16,7 +16,9 @@ import yaml
 import asyncio
 import json
 import importlib
-from typing import Dict, Any, cast
+from typing import Any, Dict, cast
+
+from geo_infer_agent.core.agent_registry import AGENT_DESCRIPTIONS, AGENT_TYPES
 
 # Configure logger
 logger = logging.getLogger("geo_infer_agent.cli")
@@ -78,16 +80,10 @@ CONFIG_TEMPLATES: Dict[str, Dict[str, Any]] = {
 }
 
 
-# Agent types map 1:1 onto the registry's real agent_types entries.
-AGENT_MODULES: Dict[str, str] = {
-    "default": "geo_infer_agent.core.agent_base.ExampleAgent",
-    "data_collector": "geo_infer_agent.agents.data_collector.DataCollectorAgent",
-    "bdi": "geo_infer_agent.models.bdi.BDIAgent",
-    "active_inference": "geo_infer_agent.models.active_inference.ActiveInferenceAgent",
-    "reinforcement_learning": "geo_infer_agent.models.rl.RLAgent",
-    "rule_based": "geo_infer_agent.models.rule_based.RuleBasedAgent",
-    "hybrid": "geo_infer_agent.models.hybrid.HybridAgent",
-}
+# Single definition lives in core.agent_registry (AGENT_TYPES); the CLI
+# derives class paths and descriptions from it.  AGENT_MODULES is kept as
+# an alias for existing importers.
+AGENT_MODULES = AGENT_TYPES
 
 
 def setup_logging(verbose: bool = False) -> None:
@@ -227,16 +223,10 @@ def list_agents_command(args: argparse.Namespace) -> None:
     Args:
         args: Command-line arguments
     """
-    # List of available agent types and descriptions
-    # Must stay in sync with load_agent_class()'s agent_modules mapping.
+    # Descriptions come from the registry's single-source constants, so
+    # this listing can never drift from load_agent_class().
     agents = {
-        "default": "Basic example agent for testing",
-        "data_collector": "Collects data from configured sources",
-        "bdi": "Belief-Desire-Intention cognitive architecture",
-        "active_inference": "Free-energy-minimising agent (matrix model)",
-        "reinforcement_learning": "Q-learning agent with replay buffer",
-        "rule_based": "Decision-tree agents for simple spatial tasks",
-        "hybrid": "Combines rule-based and learning architectures",
+        agent_type: AGENT_DESCRIPTIONS.get(agent_type, "") for agent_type in AGENT_TYPES
     }
 
     print("Available Agent Types:\n")

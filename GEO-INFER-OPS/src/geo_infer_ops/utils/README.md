@@ -6,32 +6,16 @@ Utils workspace within `GEO-INFER-OPS`.
 
 - `__init__.py`
 - `config.py`
-- `error_handling.py`
-- `logger.py`
 - `shared_logging.py`
 
 ## Public Interface
 
 - `config.py:find_config_file` (function)
 - `config.py:load_config` (function)
-- `error_handling.py:ErrorSeverity` (class)
-- `error_handling.py:ErrorCategory` (class)
-- `error_handling.py:GeoInferError` (class)
-- `error_handling.py:NetworkError` (class)
-- `error_handling.py:AuthenticationError` (class)
-- `error_handling.py:PermissionError` (class)
-- `error_handling.py:FilesystemError` (class)
-- `error_handling.py:ConfigurationError` (class)
-- `error_handling.py:ValidationError` (class)
-- `error_handling.py:ProcessingError` (class)
-- `error_handling.py:DataError` (class)
-- `error_handling.py:RetryConfig` (class)
-- `error_handling.py:classify_error` (function)
-- `error_handling.py:handle_error` (function)
-- `error_handling.py:retry_on_error` (function)
-- `error_handling.py:with_error_handling` (function)
-- `logger.py:get_logger` (function)
-- `logger.py:LoggingContext` (class)
+- `shared_logging.py:configure_logging` (function)
+- `shared_logging.py:get_logger` (function)
+- `shared_logging.py:LoggingContext` (class)
+- `shared_logging.py:setup_module_logging` (function)
 
 ## Module Metadata
 

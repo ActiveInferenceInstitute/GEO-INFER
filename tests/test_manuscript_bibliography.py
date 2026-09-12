@@ -101,6 +101,63 @@ class TestBibliographyAudit:
         assert generator.bibliography_policy(bib_tree)["fail_on_unused"] is True
 
 
+class TestPolicySectionAwareness:
+    """The policy read is section-aware and fails closed on a parse miss.
+
+    The line-prefix scan used to accept any two-space-prefixed key anywhere
+    in the file and silently fall back to defaults on a miss.  Because
+    ``fail_on_unused`` defaults to ``False``, a reindentation of the
+    ``bibliography:`` block — or a same-named key under another section —
+    quietly disabled the orphaned-citation gate.
+    """
+
+    def test_a_reindented_bibliography_block_raises_instead_of_defaulting(
+        self, generator: ModuleType, bib_tree: Path
+    ) -> None:
+        config = bib_tree / "manuscript" / "config.yaml"
+        config.write_text(
+            "bibliography:\n"
+            '    references_path: "manuscript/references.bib"\n'
+            "    fail_on_missing: true\n"
+            "    fail_on_unused: true\n",
+            encoding="utf-8",
+        )
+        with pytest.raises(ValueError, match="bibliography block"):
+            generator.bibliography_policy(bib_tree)
+
+    def test_a_same_prefixed_key_in_another_section_is_ignored(
+        self, generator: ModuleType, bib_tree: Path
+    ) -> None:
+        config = bib_tree / "manuscript" / "config.yaml"
+        config.write_text(
+            "render:\n"
+            "  fail_on_unused: true\n"
+            "\n"
+            "bibliography:\n"
+            '  references_path: "manuscript/references.bib"\n'
+            "  fail_on_missing: true\n"
+            "  fail_on_unused: false\n",
+            encoding="utf-8",
+        )
+        assert generator.bibliography_policy(bib_tree) == {
+            "fail_on_missing": True,
+            "fail_on_unused": False,
+        }
+
+    def test_a_missing_fail_on_unused_key_raises(
+        self, generator: ModuleType, bib_tree: Path
+    ) -> None:
+        config = bib_tree / "manuscript" / "config.yaml"
+        config.write_text(
+            "bibliography:\n"
+            '  references_path: "manuscript/references.bib"\n'
+            "  fail_on_missing: true\n",
+            encoding="utf-8",
+        )
+        with pytest.raises(ValueError, match="fail_on_unused"):
+            generator.bibliography_policy(bib_tree)
+
+
 class TestRealBibliography:
     def test_no_citation_is_missing_an_entry(
         self, generator: ModuleType, repo_root: Path

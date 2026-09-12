@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import json
+import logging
 import math
 from pathlib import Path
 
@@ -447,3 +448,77 @@ def test_spatial_active_inference_gallery_emits_four_manifested_runs(
             ),
             expected_timesteps=2,
         )
+
+
+def test_plotly_or_table_degrades_to_logged_static_table(caplog) -> None:
+    """A Plotly failure is logged and downgraded to a static HTML table."""
+    from geo_infer_act.runners.scenarios import _plotly_or_table
+
+    def broken_builder() -> object:
+        raise RuntimeError("plotly unavailable")
+
+    with caplog.at_level(logging.WARNING, logger="geo_infer_act.runners.scenarios"):
+        html = _plotly_or_table(
+            broken_builder,
+            [{"cell": "811", "value": 0.25}],
+            ["Cell", "Value"],
+            lambda row: (row["cell"], f"{row['value']:.6f}"),
+            "H3 Diagnostics",
+            page_title="Diagnostics Map",
+            caption="Source: data/example.csv",
+        )
+
+    assert "<!doctype html>" in html
+    assert "<title>Diagnostics Map</title>" in html
+    assert "<h1>H3 Diagnostics</h1>" in html
+    assert "<p>Source: data/example.csv</p>" in html
+    assert "<th>Cell</th><th>Value</th>" in html
+    assert "<td>811</td><td>0.250000</td>" in html
+    assert "plotly" not in html
+    fallback_warnings = [
+        record
+        for record in caplog.records
+        if record.levelno == logging.WARNING
+        and "downgrading to a static HTML table" in record.getMessage()
+        and record.exc_info is not None
+        and record.exc_info[0] is RuntimeError
+    ]
+    assert fallback_warnings, "fallback must log a warning with the exception"
+
+
+def test_plotly_or_table_prefers_figure_html_when_builder_succeeds(caplog) -> None:
+    """A working Plotly builder produces figure HTML with no fallback warning."""
+    from geo_infer_act.runners.scenarios import _plotly_or_table
+
+    class FakeFigure:
+        @staticmethod
+        def to_html(include_plotlyjs: str, full_html: bool) -> str:
+            assert include_plotlyjs == "cdn"
+            assert full_html is True
+            return "<html><body>plotly-figure-html</body></html>"
+
+    with caplog.at_level(logging.WARNING, logger="geo_infer_act.runners.scenarios"):
+        html = _plotly_or_table(
+            FakeFigure,
+            [],
+            ["Unused"],
+            lambda row: (),
+            "Report",
+        )
+
+    assert "plotly-figure-html" in html
+    assert "<table>" not in html
+    assert not [
+        record for record in caplog.records if record.levelno >= logging.WARNING
+    ]
+
+
+def test_scenario_report_fallbacks_are_deduplicated_to_one_plotly_call() -> None:
+    """All nine report builders share the single helper's Plotly call."""
+    import inspect
+
+    from geo_infer_act.runners import scenarios
+
+    source = inspect.getsource(scenarios)
+    assert source.count("include_plotlyjs=") == 1
+    assert source.count("_plotly_or_table(") == 10  # 1 definition + 9 call sites

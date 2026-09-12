@@ -247,7 +247,14 @@ def main() -> int:
     parser.add_argument(
         "--check-xrefs",
         action="store_true",
-        help="Also check README/AGENTS cross-references (warnings only)",
+        help="Also check README/AGENTS cross-references "
+        "(advisory unless --warnings-fatal is set)",
+    )
+    parser.add_argument(
+        "--warnings-fatal",
+        action="store_true",
+        help="Fail when cross-reference warnings are present, so broken "
+        "README/AGENTS<->SKILL links can fail CI.",
     )
     args = parser.parse_args()
 
@@ -298,7 +305,7 @@ def main() -> int:
         f"{len(all_errors)} errors, {len(all_warnings)} warnings"
     )
 
-    return 1 if all_errors else 0
+    return 1 if (all_errors or (args.warnings_fatal and all_warnings)) else 0
 
 
 if __name__ == "__main__":

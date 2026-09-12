@@ -1,20 +1,15 @@
 """Unit tests for DelNorteComprehensiveDashboard.
 
-Source: src/geo_infer_place/core/comprehensive_dashboard.py
+Source: src/geo_infer_place/locations/del_norte_county/comprehensive_dashboard.py
 
 These tests exercise the implemented dashboard contract.
 """
 
 import folium
 
-try:
-    from geo_infer_place.core.comprehensive_dashboard import (
-        DelNorteComprehensiveDashboard,
-    )
-
-    _HAS_MODULE = True
-except ImportError:
-    _HAS_MODULE = False
+from geo_infer_place.locations.del_norte_county.comprehensive_dashboard import (
+    DelNorteComprehensiveDashboard,
+)
 
 
 class TestDelNorteComprehensiveDashboard:

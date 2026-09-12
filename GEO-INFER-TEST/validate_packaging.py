@@ -31,7 +31,9 @@ across all ``GEO-INFER-*`` modules:
   (lowercase, ``_`` == ``-``) with version specifiers and extras stripped.
 - Out-of-package source traversal is reported as a diagnostic so authors can
   migrate ``Path(__file__).parent...`` config lookups to an installed-wheel
-  safe discovery mechanism when publishing wheels.
+  safe discovery mechanism when publishing wheels. Modules migrated to
+  importlib.resources (``MIGRATED_SOURCE_TRAVERSAL_MODULES``) fail the run
+  outright if a parent climb reappears.
 """
 
 from __future__ import annotations
@@ -77,6 +79,25 @@ DEVELOPMENT_STATUS_PATTERN = re.compile(r"^Development Status :: (\d) - ")
 # the uniformity check reports them as diagnostics so --strict stays
 # meaningful for NEW outliers.
 KNOWN_VERSION_DEVIATIONS: dict[str, str] = {}
+
+# Modules whose out-of-package ``Path(__file__)`` resource climbs have been
+# migrated to importlib.resources discovery under the package tree
+# (SCOPE-2026-09-11 GS-023). For these modules a parent climb is an ERROR,
+# not a diagnostic: the wheel contract is enforced, not merely reported.
+MIGRATED_SOURCE_TRAVERSAL_MODULES = frozenset(
+    {
+        "GEO-INFER-ACT",
+        "GEO-INFER-EXAMPLES",
+        "GEO-INFER-GIT",
+        "GEO-INFER-HEALTH",
+        "GEO-INFER-INTRA",
+        "GEO-INFER-OPS",
+        "GEO-INFER-PLACE",
+        "GEO-INFER-RISK",
+        "GEO-INFER-SEC",
+        "GEO-INFER-SPACE",
+    }
+)
 
 _PACKAGE_DATA_EXCLUDED_DIRS = ("__pycache__",)
 
@@ -385,13 +406,28 @@ def validate_source_traversal(module_dir: Path, report: ContractReport) -> None:
         text = path.read_text(encoding="utf-8", errors="ignore")
         if "__file__" not in text:
             continue
-        matches = re.findall(r"\.parent(?:\.parent)*", text)
-        climbs = max((len(m.split(".")) for m in matches), default=0)
-        if climbs >= 1:
+        # Only a parent chain attached to a ``__file__`` expression is a
+        # climb: one ``.parent`` stays inside the package (wheel-safe), and
+        # ``.parent`` on an unrelated Path (e.g. a log dir) is not a climb.
+        climbs = 0
+        for line in text.splitlines():
+            if "__file__" not in line:
+                continue
+            chains = re.findall(r"\.parents\[\s*-?\d+\s*\]", line)
+            chains += re.findall(r"parents\[\s*\d+\s*\]", line)
+            chains += re.findall(r"\.parent(?:\.parent)*", line)
+            for chain in chains:
+                if chain.endswith("]") or "]" in chain:
+                    climbs = max(climbs, int(re.search(r"-?\d+", chain).group()))
+                else:
+                    climbs = max(climbs, len(chain.split(".")) - 1)
+        if climbs >= 2:
             rel = path.relative_to(src_dir)
-            report.diagnostics.append(
-                f"{module_dir.name}/{rel}: climbs parent dirs from __file__"
-            )
+            finding = f"{module_dir.name}/{rel}: climbs parent dirs from __file__"
+            if module_dir.name in MIGRATED_SOURCE_TRAVERSAL_MODULES:
+                report.errors.append(finding)
+            else:
+                report.diagnostics.append(finding)
 
 
 # Third-party import roots that map to a different distribution name.

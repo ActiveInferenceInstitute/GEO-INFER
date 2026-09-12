@@ -8,12 +8,15 @@ bounds, analysis settings, data source configurations, and integration
 parameters for different GEO-INFER modules.
 """
 
+import importlib.resources
 import logging
+import os
 import yaml
 from pathlib import Path
 from typing import Dict, Any, Optional
 from dataclasses import dataclass
 
+CONFIG_DIR_ENV_VAR = "GEO_INFER_SPACE_CONFIG"
 logger = logging.getLogger(__name__)
 
 
@@ -53,14 +56,26 @@ class LocationConfigLoader:
             config_dir: Directory for configuration files
         """
         self.config_dir = (
-            Path(config_dir)
-            if config_dir
-            else Path(__file__).parent.parent.parent / "config"
+            Path(config_dir) if config_dir else self._resolve_default_config_dir()
         )
         self.default_config = self._load_default_config()
         self.loaded_config: Dict[str, Dict[str, Any]] = {}
-
         logger.info(f"Config loader initialized with directory: {self.config_dir}")
+
+    @staticmethod
+    def _resolve_default_config_dir() -> Path:
+        """Resolve the default config directory.
+
+        Honors the explicit GEO_INFER_SPACE_CONFIG env var when set;
+        otherwise resolves the packaged config/ directory inside the
+        geo_infer_space package via importlib.resources.
+        """
+        override = os.environ.get(CONFIG_DIR_ENV_VAR)
+        if override:
+            return Path(override)
+        packaged = importlib.resources.files("geo_infer_space").joinpath("config")
+        with importlib.resources.as_file(packaged) as config_path:
+            return config_path
 
     def load_location_config(self, location: str) -> Dict[str, Any]:
         """
@@ -68,6 +83,7 @@ class LocationConfigLoader:
 
         Args:
             location: Location identifier (e.g., 'del_norte_county')
+
 
         Returns:
             Merged configuration dictionary

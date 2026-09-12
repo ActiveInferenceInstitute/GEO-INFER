@@ -209,20 +209,34 @@ def get_nested_h3_grid_class() -> Any:
         return NestedH3Grid
     except ImportError:
         # Monorepo-only fallback: extend sys.path with the sibling SPACE
-        # checkout. Opt-in via environment flag so installed (non-monorepo)
-        # deployments never depend on the checkout layout.
+        # checkout. Opt-in via environment flags so installed (non-monorepo)
+        # deployments never depend on the checkout layout, and the checkout
+        # location is always supplied explicitly instead of inferred from
+        # this file's path.
         if os.environ.get("GEO_INFER_ACT_ALLOW_REPO_PATH_FALLBACK", "").lower() not in {
             "1",
             "true",
             "yes",
         }:
             raise
-        repo_root = Path(__file__).resolve().parents[4]
-        space_src = repo_root / "GEO-INFER-SPACE" / "src"
+        repo_root = os.environ.get("GEO_INFER_ACT_REPO_ROOT")
+        if not repo_root:
+            raise RuntimeError(
+                "GEO_INFER_ACT_ALLOW_REPO_PATH_FALLBACK requires "
+                "GEO_INFER_ACT_REPO_ROOT to point at the monorepo checkout "
+                "root that contains GEO-INFER-SPACE/"
+            ) from None
+        space_src = Path(repo_root) / "GEO-INFER-SPACE" / "src"
         if space_src.exists() and str(space_src) not in sys.path:
             sys.path.insert(0, str(space_src))
-        from geo_infer_space.nested import NestedH3Grid  # noqa: PLC0415
-
+        try:
+            from geo_infer_space.nested import NestedH3Grid  # noqa: PLC0415
+        except ImportError as exc:
+            raise RuntimeError(
+                f"NestedH3Grid not found under {space_src}; install "
+                "geo-infer-act[space] or point GEO_INFER_ACT_REPO_ROOT at "
+                "the monorepo checkout root"
+            ) from exc
         return NestedH3Grid
 
 

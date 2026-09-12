@@ -23,6 +23,7 @@
 
 - `core/`
 - `models/`
+- `workflows/`
 - `__init__.py`
 
 ## Validation

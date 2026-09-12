@@ -5,7 +5,9 @@ Validate repo-wide GEO-INFER structural contracts.
 The default mode fails on structural drift that should never be tolerated:
 module inventory, local signposting, package casing, setup.py syntax, and
 pyproject package-name sanity. Source-language debt is reported by default and
-can be made fatal with ``--strict-source-language``.
+can be made fatal with ``--strict-source-language``. Import-smoke failures are
+advisory warnings by default and can be made fatal with
+``--strict-import-smoke``.
 """
 
 from __future__ import annotations
@@ -544,10 +546,27 @@ def validate_pymdp_runtime_imports(report: ContractReport) -> None:
             )
 
 
+def _smoke_problem(report: ContractReport, strict: bool, message: str) -> None:
+    """Route an import-smoke failure to warnings or fatal errors."""
+    if strict:
+        report.error(message)
+    else:
+        report.warning(message)
+
+
 def validate_import_smoke(
-    module_dirs: list[Path], report: ContractReport, timeout: float = 30
+    module_dirs: list[Path],
+    report: ContractReport,
+    timeout: float = 30,
+    *,
+    strict: bool = False,
 ) -> None:
-    """Probe source packages in bounded processes and verify their import origins."""
+    """Probe source packages in bounded processes and verify their import origins.
+
+    Failures are advisory warnings unless ``strict`` is set, which promotes
+    every probe failure to a contract error so CI can fail on a package
+    that raises on import or resolves from outside its src tree.
+    """
     if not math.isfinite(timeout) or timeout <= 0:
         raise ValueError("Import timeout must be finite and positive")
     env = os.environ.copy()
@@ -580,17 +599,25 @@ def validate_import_smoke(
                 timeout=timeout,
             )
         except subprocess.TimeoutExpired:
-            report.warning(
-                f"{module_dir.name}: import {package_name} timed out after {timeout}s"
+            _smoke_problem(
+                report,
+                strict,
+                f"{module_dir.name}: import {package_name} timed out after {timeout}s",
             )
             continue
         except subprocess.CalledProcessError as exc:
             detail = (exc.stderr or exc.stdout or str(exc)).strip()[-1500:]
-            report.warning(
-                f"{module_dir.name}: import {package_name} failed ({exc.returncode}): {detail}"
+            _smoke_problem(
+                report,
+                strict,
+                f"{module_dir.name}: import {package_name} failed ({exc.returncode}): {detail}",
             )
         except ValueError as exc:
-            report.warning(f"{module_dir.name}: import {package_name} failed: {exc}")
+            _smoke_problem(
+                report,
+                strict,
+                f"{module_dir.name}: import {package_name} failed: {exc}",
+            )
 
 
 def validate_source_language(report: ContractReport, strict: bool) -> None:
@@ -792,6 +819,12 @@ def main() -> int:
         help="Skip best-effort per-package import smoke warnings.",
     )
     parser.add_argument(
+        "--strict-import-smoke",
+        action="store_true",
+        help="Fail when any per-package import probe fails or resolves "
+        "outside its expected src tree.",
+    )
+    parser.add_argument(
         "--import-timeout",
         type=float,
         default=30,
@@ -824,7 +857,12 @@ def main() -> int:
     validate_module_task_markers(report)
     validate_logging_configuration(report)
     if not args.skip_import_smoke:
-        validate_import_smoke(module_dirs, report, timeout=args.import_timeout)
+        validate_import_smoke(
+            module_dirs,
+            report,
+            timeout=args.import_timeout,
+            strict=args.strict_import_smoke,
+        )
     validate_source_language(report, strict=args.strict_source_language)
 
     print(f"Modules checked: {len(module_dirs)}")

@@ -23,8 +23,6 @@
 
 - `__init__.py`
 - `config.py`
-- `error_handling.py`
-- `logger.py`
 - `shared_logging.py`
 
 ## Validation

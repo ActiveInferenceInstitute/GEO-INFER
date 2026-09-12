@@ -10,7 +10,6 @@ Tests workspace within `GEO-INFER-INTRA`.
 - `unit/`
 - `utils/`
 - `conftest.py`
-- `run_tests.py`
 
 ## Public Interface
 

@@ -104,3 +104,35 @@ def test_cli_accepts_documented_flags_without_argparse_error():
         assert proc.returncode in (0, 1), (
             f"{' '.join(argv) or '(no flags)'} exited {proc.returncode}: {proc.stderr}"
         )
+
+
+def test_warnings_fatal_fails_on_cross_reference_warnings(monkeypatch):
+    """--warnings-fatal promotes xref warnings to a non-zero exit (GS-003)."""
+    skills = load_skills_module()
+    monkeypatch.setattr(skills, "validate_root_skill", lambda verbose=False: [])
+    monkeypatch.setattr(skills, "find_module_dirs", lambda: [])
+    monkeypatch.setattr(
+        skills,
+        "validate_cross_references",
+        lambda verbose=False: ["[root] broken cross-reference"],
+    )
+    monkeypatch.setattr(
+        sys, "argv", ["validate_skills.py", "--check-xrefs", "--warnings-fatal"]
+    )
+
+    assert skills.main() == 1
+
+
+def test_cross_reference_warnings_stay_advisory_without_flag(monkeypatch):
+    """Without --warnings-fatal, xref warnings alone must not fail the run."""
+    skills = load_skills_module()
+    monkeypatch.setattr(skills, "validate_root_skill", lambda verbose=False: [])
+    monkeypatch.setattr(skills, "find_module_dirs", lambda: [])
+    monkeypatch.setattr(
+        skills,
+        "validate_cross_references",
+        lambda verbose=False: ["[root] broken cross-reference"],
+    )
+    monkeypatch.setattr(sys, "argv", ["validate_skills.py", "--check-xrefs"])
+
+    assert skills.main() == 0

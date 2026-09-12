@@ -10,7 +10,6 @@ Core workspace within `GEO-INFER-PLACE`.
 - `api_clients.py`
 - `base_module.py`
 - `bioregion_visualization.py`
-- `comprehensive_dashboard.py`
 - `module_bridge.py`
 - `place_interface.py`
 - `regional_layers.py`

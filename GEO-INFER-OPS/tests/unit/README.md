@@ -8,6 +8,7 @@ Unit workspace within `GEO-INFER-OPS`.
 - `test_health_checks.py`
 - `test_logging_hygiene.py`
 - `test_orchestrator.py`
+- `test_packaged_resources.py`
 
 ## Public Interface
 

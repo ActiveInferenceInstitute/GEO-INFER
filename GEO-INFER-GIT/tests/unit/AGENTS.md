@@ -23,7 +23,9 @@
 
 - `test_advanced_git.py`
 - `test_cli.py`
+- `test_clone_repos_wrapper.py`
 - `test_config_loader.py`
+- `test_config_loader_packaged_config.py`
 - `test_distributed_coordinator.py`
 - `test_error_handler.py`
 - `test_error_recovery_strategies.py`

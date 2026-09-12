@@ -13,6 +13,7 @@ Unit workspace within `GEO-INFER-PLACE`.
 - `test_dashboard_advanced.py`
 - `test_data_sources.py`
 - `test_del_norte_analyzers.py`
+- `test_del_norte_dashboard_packaged_config.py`
 - `test_del_norte_demo_orchestration.py`
 - `test_h3_operations.py`
 - `test_hydrography_ingestion.py`
@@ -21,6 +22,7 @@ Unit workspace within `GEO-INFER-PLACE`.
 - `test_place_analyzer.py`
 - `test_place_interface.py`
 - `test_unified_backend.py`
+- `test_unified_backend_packaged_config.py`
 - `test_visualization_engine.py`
 
 ## Public Interface

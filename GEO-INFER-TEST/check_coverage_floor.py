@@ -115,6 +115,17 @@ def main(argv: list[str] | None = None) -> int:
             )
             continue
         measured = float(result["coverage_percent"])
+        pytest_rc = result.get("pytest_rc")
+        if pytest_rc not in (None, 0):
+            # GS-004: pytest rc=1 with a coverage report means the suite
+            # failed mid-measurement; the number is coverage of whatever ran
+            # before the failure and must never read as a passing floor.
+            print(f"{module}: measured {measured}% vs floor {floor}% -> FAILED-SUITE")
+            violations.append(
+                f"{module}: measurement ran with pytest rc={pytest_rc}; "
+                "failing tests make the measured floor unreliable"
+            )
+            continue
         verdict = "ok" if measured >= floor else "VIOLATION"
         print(f"{module}: measured {measured}% vs floor {floor}% -> {verdict}")
         if measured < floor:

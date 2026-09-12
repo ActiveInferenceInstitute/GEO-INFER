@@ -112,3 +112,64 @@ class TestHeatIsland:
         rural = np.full(30, 19.0)
         result = analyzer.calculate_heat_island_effect(urban, rural)
         assert result["n_observations"] == 20
+
+
+class TestVectorizedStatistics:
+    """Pin the vectorized Mann-Kendall / Sen's slope behavior (GS-151)."""
+
+    def test_mann_kendall_s_matches_brute_force_with_ties_and_nan(self, analyzer):
+        rng = np.random.default_rng(7)
+        data = np.round(rng.normal(0, 1, 120))  # heavy ties
+        data[17] = np.nan
+        clean = data[~np.isnan(data)]
+        expected = sum(
+            1 if clean[j] > clean[i] else -1 if clean[j] < clean[i] else 0
+            for i in range(len(clean) - 1)
+            for j in range(i + 1, len(clean))
+        )
+        result = analyzer.mann_kendall_test(data)
+        assert result["s_statistic"] == expected
+
+    def test_mann_kendall_exact_s_values(self, analyzer):
+        assert analyzer.mann_kendall_test(np.arange(10.0))["s_statistic"] == 45
+        assert (
+            analyzer.mann_kendall_test(np.arange(10.0)[::-1].copy())["s_statistic"]
+            == -45
+        )
+
+    def test_sen_slope_matches_brute_force(self, analyzer):
+        rng = np.random.default_rng(11)
+        data = rng.normal(0, 1, 90)
+        data[40] = np.nan
+        clean = data[~np.isnan(data)]
+        n = len(clean)
+        expected = np.sort(
+            [(clean[j] - clean[i]) / (j - i) for i in range(n) for j in range(i + 1, n)]
+        )
+        result = analyzer.sens_slope(data)
+        ns = len(expected)
+        assert result["n_slopes"] == ns
+        assert result["median_slope"] == pytest.approx(float(np.median(expected)))
+        c_alpha = 1.96 * np.sqrt(n * (n - 1) * (2 * n + 5) / 18.0)
+        m1 = max(0, int((ns - c_alpha) / 2))
+        m2 = min(ns - 1, int((ns + c_alpha) / 2))
+        assert result["lower_ci"] == pytest.approx(float(expected[m1]))
+        assert result["upper_ci"] == pytest.approx(float(expected[m2]))
+
+    def test_sen_slope_median_even_count_semantics(self, analyzer):
+        # 4 slopes: (2-1)/1, (3-1)/2, (3-2)/1, (4-1)/3, (4-2)/2, (4-3)/1 for 1..4
+        result = analyzer.sens_slope(np.array([1.0, 2.0, 3.0, 4.0]))
+        slopes = np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
+        assert result["median_slope"] == pytest.approx(float(np.median(slopes)))
+
+    def test_10k_series_under_one_second(self, analyzer):
+        data = np.random.default_rng(3).normal(0, 1, 10_000)
+        import time
+
+        start = time.perf_counter()
+        analyzer.mann_kendall_test(data)
+        mid = time.perf_counter()
+        analyzer.sens_slope(data)
+        elapsed = time.perf_counter() - start
+        assert elapsed < 2.0  # both calls combined; each well under 1s pre-CI jitter
+        assert mid - start < 1.0  # MK alone: the probe's sub-second bound

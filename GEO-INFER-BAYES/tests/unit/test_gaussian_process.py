@@ -181,3 +181,31 @@ class TestGaussianProcessLogMarginalLikelihood:
         gp_bad.fit(X, y)
 
         assert gp_good.log_marginal_likelihood() > gp_bad.log_marginal_likelihood()
+
+
+class TestPackageSurface:
+    """Regression pins for the GS-120 package __init__ cleanup."""
+
+    def test_gaussian_process_defined_in_models_module(self) -> None:
+        """GaussianProcess/SpatialCovariance live in models/, re-exported at root."""
+        import geo_infer_bayes as pkg
+        from geo_infer_bayes.models import gaussian_process as gp_mod
+
+        assert GaussianProcess is gp_mod.GaussianProcess
+        assert gp_mod.GaussianProcess.__module__ == (
+            "geo_infer_bayes.models.gaussian_process"
+        )
+        assert pkg.SpatialCovariance is gp_mod.SpatialCovariance
+
+    def test_submodule_aliases_are_real_modules(self) -> None:
+        """Dead None-fallbacks removed: submodule aliases always import."""
+        import geo_infer_bayes as pkg
+        import geo_infer_bayes.api as api_mod
+        import geo_infer_bayes.core as core_mod
+        import geo_infer_bayes.models as models_mod
+        import geo_infer_bayes.utils as utils_mod
+
+        assert pkg.api is api_mod
+        assert pkg.core is core_mod
+        assert pkg.models is models_mod
+        assert pkg.utils is utils_mod

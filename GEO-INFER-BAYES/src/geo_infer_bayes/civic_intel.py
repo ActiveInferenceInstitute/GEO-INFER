@@ -37,6 +37,9 @@ __all__ = [
     "decode_contract_json",
     "load_crescent_city_contract",
     "load_crescent_city_intel",
+    "parse_contract_bounds",
+    "require_list",
+    "require_mapping",
 ]
 
 CRESCENT_CITY_INTEL_SCHEMA: Final[str] = "crescent-city-geo-intel/v1"
@@ -208,13 +211,13 @@ def _empty_intel() -> CrescentCityIntel:
 # ----------------------------------------------------------------------------
 
 
-def _require_mapping(value: object, field: str) -> Mapping[str, object]:
+def require_mapping(value: object, field: str) -> Mapping[str, object]:
     if not isinstance(value, Mapping):
         raise ValueError(f"{field} must be an object")
     return cast(Mapping[str, object], value)
 
 
-def _require_list(value: object, field: str) -> list[object]:
+def require_list(value: object, field: str) -> list[object]:
     if not isinstance(value, list):
         raise ValueError(f"{field} must be an array")
     return cast(list[object], value)
@@ -227,7 +230,7 @@ def _require_string(value: object, field: str) -> str:
 
 
 def _require_string_list(value: object, field: str) -> list[str]:
-    items = _require_list(value, field)
+    items = require_list(value, field)
     return [
         _require_string(item, f"{field}[{index}]") for index, item in enumerate(items)
     ]
@@ -258,9 +261,9 @@ def _require_float(value: object, field: str) -> float:
     return number
 
 
-def _parse_contract_bounds(value: object) -> _GeoBounds:
+def parse_contract_bounds(value: object) -> _GeoBounds:
     """Validate the shared WGS84 anchor bounds (civic-intel family-wide)."""
-    raw = _require_mapping(value, "anchor.bounds")
+    raw = require_mapping(value, "anchor.bounds")
     bounds: _GeoBounds = {
         "west": _require_float(raw.get("west"), "anchor.bounds.west"),
         "south": _require_float(raw.get("south"), "anchor.bounds.south"),
@@ -276,7 +279,7 @@ def _parse_contract_bounds(value: object) -> _GeoBounds:
 
 def _parse_contract_anchor(value: object) -> tuple[_City, _GeoBounds]:
     """Validate the shared v1 city anchor consumed by the ingestion family."""
-    raw = _require_mapping(value, "anchor")
+    raw = require_mapping(value, "anchor")
     city: _City = {
         "name": _require_string(raw.get("name"), "anchor.name"),
         "guid": _require_string(raw.get("guid"), "anchor.guid"),
@@ -292,11 +295,11 @@ def _parse_contract_anchor(value: object) -> tuple[_City, _GeoBounds]:
         raise ValueError("anchor.latitude must lie in [-90, 90]")
     if not -180.0 <= city["longitude"] <= 180.0:
         raise ValueError("anchor.longitude must lie in [-180, 180]")
-    return city, _parse_contract_bounds(raw.get("bounds"))
+    return city, parse_contract_bounds(raw.get("bounds"))
 
 
 def _parse_section(value: object, field: str) -> _CivicSection:
-    raw = _require_mapping(value, field)
+    raw = require_mapping(value, field)
     return {
         "sectionNumber": _require_string(
             raw.get("sectionNumber"), f"{field}.sectionNumber"
@@ -308,13 +311,13 @@ def _parse_section(value: object, field: str) -> _CivicSection:
 def _parse_sections(value: object, field: str) -> list[_CivicSection]:
     return [
         _parse_section(item, f"{field}[{index}]")
-        for index, item in enumerate(_require_list(value, field))
+        for index, item in enumerate(require_list(value, field))
     ]
 
 
 def _parse_civic_domain(value: object, index: int) -> _CivicDomain:
     field = f"domains[{index}]"
-    raw = _require_mapping(value, field)
+    raw = require_mapping(value, field)
     return {
         "id": _require_string(raw.get("id"), f"{field}.id"),
         "name": _require_string(raw.get("name"), f"{field}.name"),
@@ -328,7 +331,7 @@ def _parse_civic_domain(value: object, index: int) -> _CivicDomain:
 
 
 def _parse_hazard_topic(value: object, field: str) -> _HazardTopic:
-    raw = _require_mapping(value, field)
+    raw = require_mapping(value, field)
     return {
         "name": _require_string(raw.get("name"), f"{field}.name"),
         "tags": _require_string_list(raw.get("tags"), f"{field}.tags"),
@@ -338,14 +341,14 @@ def _parse_hazard_topic(value: object, field: str) -> _HazardTopic:
 
 def _parse_hazard_domain(value: object, index: int) -> _HazardDomain:
     field = f"hazard.relevantDomains[{index}]"
-    raw = _require_mapping(value, field)
+    raw = require_mapping(value, field)
     hazard_tags = _require_string_list(raw.get("hazardTags"), f"{field}.hazardTags")
     if not hazard_tags:
         raise ValueError(f"{field}.hazardTags must not be empty")
     topics = [
         _parse_hazard_topic(item, f"{field}.topics[{topic_index}]")
         for topic_index, item in enumerate(
-            _require_list(raw.get("topics"), f"{field}.topics")
+            require_list(raw.get("topics"), f"{field}.topics")
         )
     ]
     if not topics:
@@ -387,7 +390,7 @@ def decode_contract_json(text: str, path_label: str) -> Mapping[str, object]:
         raise ValueError(
             f"invalid Crescent City intel JSON at {path_label}: {exc}"
         ) from exc
-    return _require_mapping(loaded, "contract")
+    return require_mapping(loaded, "contract")
 
 
 def load_crescent_city_contract(
@@ -469,7 +472,7 @@ def load_crescent_city_intel(
     city, bounds = _parse_contract_anchor(contract.get("anchor"))
     domains = [
         _parse_civic_domain(value, index)
-        for index, value in enumerate(_require_list(contract.get("domains"), "domains"))
+        for index, value in enumerate(require_list(contract.get("domains"), "domains"))
     ]
     domain_count = _require_int(contract.get("domainCount"), "domainCount")
     if domain_count != len(domains):
@@ -478,11 +481,11 @@ def load_crescent_city_intel(
     if len(set(domain_ids)) != len(domain_ids):
         raise ValueError("domain IDs must be unique")
 
-    hazard = _require_mapping(contract.get("hazard"), "hazard")
+    hazard = require_mapping(contract.get("hazard"), "hazard")
     hazard_domains = [
         _parse_hazard_domain(value, index)
         for index, value in enumerate(
-            _require_list(hazard.get("relevantDomains"), "hazard.relevantDomains")
+            require_list(hazard.get("relevantDomains"), "hazard.relevantDomains")
         )
     ]
     relevant_count = _require_int(

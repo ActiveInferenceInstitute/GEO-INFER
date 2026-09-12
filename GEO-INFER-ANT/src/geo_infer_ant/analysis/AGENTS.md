@@ -21,9 +21,9 @@
 
 ## Local Contents
 
+- `patterns/`
 - `__init__.py`
 - `metrics.py`
-- `patterns.py`
 
 ## Validation
 
