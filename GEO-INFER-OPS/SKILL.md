@@ -28,7 +28,7 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 from geo_infer_ops.core.monitoring import record_request, record_error, start_metrics_server
 from geo_infer_ops.core.deployment import DeploymentManager
 from geo_infer_ops.utils.shared_logging import configure_logging
-from geo_infer_ops.utils.logger import get_logger
+from geo_infer_ops.core.logging import get_logger
 ```
 
 ## Examples
@@ -45,7 +45,7 @@ with start_metrics_server(port=9090) as metrics_port:
 ```python
 from geo_infer_ops.core.deployment import DeploymentManager
 from geo_infer_ops.utils.shared_logging import configure_logging
-from geo_infer_ops.utils.logger import get_logger
+from geo_infer_ops.core.logging import get_logger
 
 configure_logging(log_level="INFO", json_format=True)
 logger = get_logger(__name__)

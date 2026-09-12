@@ -10,6 +10,7 @@ Geo Infer Health workspace within `GEO-INFER-HEALTH`.
 - `utils/`
 - `__init__.py`
 - `cli.py`
+- `health_config.yaml`
 
 ## Public Interface
 

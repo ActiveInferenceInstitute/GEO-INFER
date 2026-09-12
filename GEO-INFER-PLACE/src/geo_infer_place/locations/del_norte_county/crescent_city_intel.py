@@ -23,6 +23,7 @@ Data source:
     output/ or sibling-repo path needed) and gracefully reports when absent.
 """
 
+import importlib.resources
 import json
 import logging
 import math
@@ -35,8 +36,15 @@ import h3
 
 logger = logging.getLogger(__name__)
 
-# Default packaged seed path bundled with the module.
-_SEED_REL = Path(__file__).resolve().parent / "data" / "crescent-city-geo-intel.json"
+# Default packaged seed path bundled with the module (resolved from the
+# installed package, not a repo-relative path).
+_SEED_REL = Path(
+    str(
+        importlib.resources.files(
+            "geo_infer_place.locations.del_norte_county"
+        ).joinpath("data/crescent-city-geo-intel.json")
+    )
+)
 
 # Hazard-class orientation sets used by the geometry-derived coverage scoring.
 _SEISMIC_TAGS = frozenset({"tsunami", "seismic"})

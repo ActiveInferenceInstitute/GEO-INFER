@@ -408,14 +408,20 @@ class TemporalAnalyzer:
             mean = np.mean(values)
             cumsum = np.cumsum(values - mean)
 
+            # Precompute prefix sums so segment means are O(1) per candidate
+            # index instead of O(n) — the scan below stays O(n) overall.
+            prefix = np.concatenate(([0.0], np.cumsum(values)))
+            total = prefix[n]
+            std = np.std(values)
+
             # Find points where CUSUM changes significantly
             for i in range(min_segment_length, n - min_segment_length):
-                left_mean = np.mean(values[:i])
-                right_mean = np.mean(values[i:])
+                left_mean = prefix[i] / i
+                right_mean = (total - prefix[i]) / (n - i)
                 diff = abs(right_mean - left_mean)
 
                 # Threshold based on overall std
-                threshold = 0.5 * np.std(values)
+                threshold = 0.5 * std
                 if diff > threshold:
                     # Check if this is a local maximum in cumsum
                     window = min_segment_length // 2

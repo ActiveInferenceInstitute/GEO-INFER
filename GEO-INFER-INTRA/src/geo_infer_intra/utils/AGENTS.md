@@ -26,7 +26,6 @@
 - `geospatial_utils.py`
 - `module_discovery.py`
 - `time_series_utils.py`
-- `visual_preview.py`
 
 ## Validation
 

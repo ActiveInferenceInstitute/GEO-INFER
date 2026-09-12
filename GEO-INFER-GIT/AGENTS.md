@@ -27,7 +27,6 @@
 - `src/`
 - `tests/`
 - `clone_repos.py`
-- `clone_script.py`
 - `setup.py`
 - `.gitignore`
 - `SKILL.md`

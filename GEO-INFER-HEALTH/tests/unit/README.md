@@ -8,6 +8,7 @@ Unit workspace within `GEO-INFER-HEALTH`.
 - `test_api_routers.py`
 - `test_cli_validation.py`
 - `test_config.py`
+- `test_config_packaged.py`
 - `test_disease_surveillance.py`
 - `test_enhanced_disease_surveillance.py`
 - `test_environmental_health.py`

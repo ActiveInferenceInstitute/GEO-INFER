@@ -10,7 +10,6 @@ Version control and repository management tools specifically designed for geospa
 - `src/`
 - `tests/`
 - `clone_repos.py`
-- `clone_script.py`
 - `setup.py`
 - `.gitignore`
 - `SKILL.md`
@@ -19,11 +18,7 @@ Version control and repository management tools specifically designed for geospa
 
 ## Public Interface
 
-- `clone_script.py:load_yaml_config` (function)
-- `clone_script.py:get_github_repo_info` (function)
-- `clone_script.py:clone_repository` (function)
-- `clone_script.py:main` (function)
-- `clone_script.py:match_wildcard` (function)
+- No public Python symbols are defined directly in this directory.
 
 ## Module Metadata
 

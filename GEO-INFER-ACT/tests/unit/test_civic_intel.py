@@ -417,3 +417,34 @@ class TestObservationsDelegation:
         )
         assert envelope is not None
         assert envelope["composite"] is None
+
+
+def test_bayes_validator_helpers_are_public_contract() -> None:
+    """ACT consumes the crescent-city contract via public BAYES names only.
+
+    Regression pin for the underscore-import coupling: the require/parse
+    helpers ACT's non-degraded path needs are part of the cross-module
+    contract and must stay importable by their public names from
+    ``geo_infer_bayes.civic_intel``.
+    """
+    import geo_infer_bayes.civic_intel as bayes_civic_intel
+
+    from geo_infer_act.core.civic_intel import (
+        parse_contract_bounds,
+        require_list,
+        require_mapping,
+    )
+
+    for name in ("parse_contract_bounds", "require_list", "require_mapping"):
+        assert name in bayes_civic_intel.__all__, name
+        assert getattr(bayes_civic_intel, name) is not None
+    assert parse_contract_bounds is bayes_civic_intel.parse_contract_bounds
+    assert require_list is bayes_civic_intel.require_list
+    assert require_mapping is bayes_civic_intel.require_mapping
+
+    bounds = parse_contract_bounds(
+        {"west": -124.4, "south": 41.4, "east": -123.5, "north": 42.0}
+    )
+    assert bounds["west"] == -124.4
+    assert require_list([1, 2], "field") == [1, 2]
+    assert require_mapping({"a": 1}, "field") == {"a": 1}

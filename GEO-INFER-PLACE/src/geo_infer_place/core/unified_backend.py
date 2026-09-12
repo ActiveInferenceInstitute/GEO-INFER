@@ -7,8 +7,10 @@ through H3 spatial indexing, enabling cross-border analysis between California
 and Oregon agricultural areas with full GEO-INFER-SPACE integration.
 """
 
+import importlib.resources
 import json
 import hashlib
+import os
 import time
 import logging
 from typing import Dict, List, Optional, Tuple, Any, cast
@@ -142,20 +144,36 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
         """Load the tracked Cascadia configuration required by the backend."""
         import yaml
 
-        config_path = (
-            Path(__file__).resolve().parents[3]
-            / "locations"
-            / "cascadia"
-            / "config"
-            / "cascadia_config.yaml"
+        # Explicit environment override wins; otherwise resolve the packaged
+        # resource so installed wheels work from any working directory.
+        env_override = os.environ.get("GEO_INFER_PLACE_CASCADIA_CONFIG")
+        if env_override:
+            override_path = Path(env_override)
+            if override_path.exists():
+                logger.info(
+                    "Cascadia configuration override from "
+                    "GEO_INFER_PLACE_CASCADIA_CONFIG: %s",
+                    override_path,
+                )
+                with override_path.open(encoding="utf-8") as config_file:
+                    config = yaml.safe_load(config_file)
+                if not isinstance(config, dict) or not config:
+                    raise ValueError(
+                        f"Cascadia configuration is empty or invalid: {override_path}"
+                    )
+                return config
+
+        packaged = importlib.resources.files("geo_infer_place").joinpath(
+            "locations/cascadia/config/cascadia_config.yaml"
         )
-        if not config_path.exists():
+        if not packaged.is_file():
             raise FileNotFoundError(
-                f"Cascadia configuration is required: {config_path}"
+                f"Cascadia configuration is required: {packaged}"
             )
 
-        with config_path.open(encoding="utf-8") as config_file:
-            config = yaml.safe_load(config_file)
+        with importlib.resources.as_file(packaged) as config_path:
+            with config_path.open(encoding="utf-8") as config_file:
+                config = yaml.safe_load(config_file)
         if not isinstance(config, dict) or not config:
             raise ValueError(
                 f"Cascadia configuration is empty or invalid: {config_path}"
@@ -498,27 +516,22 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
         logger.info("Loading county geometries with boundary loader...")
 
         try:
-            # Import the county boundary loader
-            import sys
             import json
-            from pathlib import Path
 
-            # Add the config directory to the path
-            config_dir = (
-                Path(__file__).parent.parent.parent.parent
-                / "locations"
-                / "cascadia"
-                / "config"
+            # Resolve the packaged Cascadia config directory so installed
+            # wheels work from any working directory.
+            config_root = importlib.resources.files("geo_infer_place").joinpath(
+                "locations/cascadia/config"
             )
-            if str(config_dir) not in sys.path:
-                sys.path.insert(0, str(config_dir))
 
             # Try multiple approaches to load county geometries
             county_geometries = {}
 
-            # Approach 1: Try using county_boundary_loader
+            # Approach 1: Try using the packaged county_boundary_loader module
             try:
-                from county_boundary_loader import create_county_boundary_loader  # type: ignore[import-not-found]
+                from geo_infer_place.locations.cascadia.config.county_boundary_loader import (
+                    create_county_boundary_loader,
+                )
 
                 # Create the loader and get geometries
                 loader = create_county_boundary_loader()
@@ -535,96 +548,101 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
             except Exception as e:
                 logger.warning(f"Error using county_boundary_loader: {e}")
 
-            # Approach 2: Try direct loading from GeoJSON files
-            try:
-                for state, counties in target_counties.items():
-                    if state not in county_geometries:
-                        county_geometries[state] = {}
+            # Approaches 2 and 3 read GeoJSON files directly; as_file yields
+            # the real filesystem path of the packaged config directory.
+            with importlib.resources.as_file(config_root) as config_dir:
+                # Approach 2: Try direct loading from GeoJSON files
+                try:
+                    for state, counties in target_counties.items():
+                        if state not in county_geometries:
+                            county_geometries[state] = {}
 
-                    for county in counties:
-                        if county == "all":
-                            # Try to load state-wide file
-                            state_file = (
-                                config_dir
-                                / f"{state.lower()}_counties_boundary.geojson"
-                            )
-                            if state_file.exists():
-                                with open(state_file, "r") as f:
-                                    geojson_data = json.load(f)
+                        for county in counties:
+                            if county == "all":
+                                # Try to load state-wide file
+                                state_file = (
+                                    config_dir
+                                    / f"{state.lower()}_counties_boundary.geojson"
+                                )
+                                if state_file.exists():
+                                    with open(state_file, "r") as f:
+                                        geojson_data = json.load(f)
 
-                                if geojson_data.get("type") == "FeatureCollection":
-                                    for feature in geojson_data.get("features", []):
-                                        if (
-                                            "properties" in feature
-                                            and "geometry" in feature
-                                        ):
-                                            county_name = feature["properties"].get(
-                                                "county_name"
-                                            )
-                                            if county_name:
-                                                county_geometries[state][
-                                                    county_name
-                                                ] = feature["geometry"]
-                                                logger.info(
-                                                    f"Loaded geometry for {county_name}, {state}"
+                                    if geojson_data.get("type") == "FeatureCollection":
+                                        for feature in geojson_data.get("features", []):
+                                            if (
+                                                "properties" in feature
+                                                and "geometry" in feature
+                                            ):
+                                                county_name = feature[
+                                                    "properties"
+                                                ].get("county_name")
+                                                if county_name:
+                                                    county_geometries[state][
+                                                        county_name
+                                                    ] = feature["geometry"]
+                                                    logger.info(
+                                                        f"Loaded geometry for {county_name}, {state}"
+                                                    )
+                            else:
+                                # Try to load specific county file
+                                county_file = (
+                                    config_dir
+                                    / f"{state.lower()}_{county.lower()}_boundary.geojson"
+                                )
+                                if county_file.exists():
+                                    with open(county_file, "r") as f:
+                                        geojson_data = json.load(f)
+
+                                    if geojson_data.get("type") == "FeatureCollection":
+                                        for feature in geojson_data.get("features", []):
+                                            if "geometry" in feature:
+                                                county_geometries[state][county] = (
+                                                    feature["geometry"]
                                                 )
-                        else:
-                            # Try to load specific county file
-                            county_file = (
-                                config_dir
-                                / f"{state.lower()}_{county.lower()}_boundary.geojson"
-                            )
-                            if county_file.exists():
-                                with open(county_file, "r") as f:
-                                    geojson_data = json.load(f)
+                                                logger.info(
+                                                    f"Loaded geometry for {county}, {state}"
+                                                )
+                                    elif geojson_data.get("type") == "Feature":
+                                        county_geometries[state][county] = geojson_data[
+                                            "geometry"
+                                        ]
+                                        logger.info(
+                                            f"Loaded geometry for {county}, {state}"
+                                        )
 
-                                if geojson_data.get("type") == "FeatureCollection":
-                                    for feature in geojson_data.get("features", []):
-                                        if "geometry" in feature:
-                                            county_geometries[state][county] = feature[
-                                                "geometry"
-                                            ]
-                                            logger.info(
-                                                f"Loaded geometry for {county}, {state}"
-                                            )
-                                elif geojson_data.get("type") == "Feature":
-                                    county_geometries[state][county] = geojson_data[
+                    if county_geometries and any(
+                        counties for counties in county_geometries.values()
+                    ):
+                        logger.info(
+                            "Successfully loaded county geometries from GeoJSON files"
+                        )
+                        return county_geometries
+                except Exception as e:
+                    logger.warning(f"Error loading from GeoJSON files: {e}")
+
+                # Approach 3: Try loading from a specific file we know exists
+                try:
+                    lassen_file = config_dir / "ca_lassen_boundary.geojson"
+                    if lassen_file.exists():
+                        with open(lassen_file, "r") as f:
+                            geojson_data = json.load(f)
+
+                        if "CA" not in county_geometries:
+                            county_geometries["CA"] = {}
+
+                        if geojson_data.get("type") == "FeatureCollection":
+                            for feature in geojson_data.get("features", []):
+                                if "geometry" in feature:
+                                    county_geometries["CA"]["Lassen"] = feature[
                                         "geometry"
                                     ]
                                     logger.info(
-                                        f"Loaded geometry for {county}, {state}"
+                                        "Loaded geometry for Lassen, CA from specific file"
                                     )
-
-                if county_geometries and any(
-                    counties for counties in county_geometries.values()
-                ):
-                    logger.info(
-                        "Successfully loaded county geometries from GeoJSON files"
-                    )
-                    return county_geometries
-            except Exception as e:
-                logger.warning(f"Error loading from GeoJSON files: {e}")
-
-            # Approach 3: Try loading from a specific file we know exists
-            try:
-                lassen_file = config_dir / "ca_lassen_boundary.geojson"
-                if lassen_file.exists():
-                    with open(lassen_file, "r") as f:
-                        geojson_data = json.load(f)
-
-                    if "CA" not in county_geometries:
-                        county_geometries["CA"] = {}
-
-                    if geojson_data.get("type") == "FeatureCollection":
-                        for feature in geojson_data.get("features", []):
-                            if "geometry" in feature:
-                                county_geometries["CA"]["Lassen"] = feature["geometry"]
-                                logger.info(
-                                    "Loaded geometry for Lassen, CA from specific file"
-                                )
-                                return county_geometries
-            except Exception as e:
-                logger.warning(f"Error loading from specific file: {e}")
+                                    return county_geometries
+                except Exception as e:
+                    logger.warning(f"Error loading from specific file: {e}")
 
             # If we still don't have geometries, fall back to bounding box geometries
             if not county_geometries or not any(

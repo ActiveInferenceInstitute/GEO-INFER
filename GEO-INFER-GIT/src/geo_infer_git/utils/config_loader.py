@@ -9,6 +9,7 @@ for the GEO-INFER-GIT repository management system.
 """
 
 import os
+import importlib.resources
 import yaml
 import json
 import logging
@@ -128,12 +129,12 @@ class ConfigLoader:
         """
         if config_dir:
             self.config_dir = Path(config_dir)
+        elif os.environ.get("GEO_INFER_GIT_CONFIG"):
+            # Explicit env-var override pointing at a checkout's config directory
+            self.config_dir = Path(os.environ["GEO_INFER_GIT_CONFIG"])
         else:
-            # Find config directory relative to this file
-            current_path = Path(__file__).resolve()
-            # Go up to GEO-INFER-GIT directory and then to config
-            git_dir = current_path.parent.parent.parent
-            self.config_dir = git_dir / "config"
+            # Packaged default: config resources ship inside the package tree
+            self.config_dir = importlib.resources.files("geo_infer_git") / "config"
 
         self.schemas = self._load_schemas()
         self.config_cache: Dict[str, Dict[str, Any]] = {}
@@ -256,32 +257,33 @@ class ConfigLoader:
         if cache_key in self.config_cache:
             return self.config_cache[cache_key]
 
-        config_path = self.config_dir / filename
-
-        if not config_path.exists():
-            raise FileNotFoundError(f"Configuration file not found: {config_path}")
-
         try:
-            with open(config_path, "r", encoding="utf-8") as f:
-                config = yaml.safe_load(f)
+            with importlib.resources.as_file(self.config_dir / filename) as config_path:
+                if not config_path.exists():
+                    raise FileNotFoundError(
+                        f"Configuration file not found: {config_path}"
+                    )
 
-            if config is None:
-                config = {}
+                with config_path.open("r", encoding="utf-8") as f:
+                    config = yaml.safe_load(f)
 
-            # Validate against schema if available
-            schema_key = filename.replace(".yaml", "").replace(".yml", "")
-            if schema_key in self.schemas:
-                jsonschema.validate(config, self.schemas[schema_key])
+                if config is None:
+                    config = {}
 
-            self.config_cache[cache_key] = config
-            logger.info(f"Loaded configuration from {config_path}")
-            return cast(Dict[str, Any], config)
+                # Validate against schema if available
+                schema_key = filename.replace(".yaml", "").replace(".yml", "")
+                if schema_key in self.schemas:
+                    jsonschema.validate(config, self.schemas[schema_key])
+
+                self.config_cache[cache_key] = config
+                logger.info(f"Loaded configuration from {config_path}")
+                return cast(Dict[str, Any], config)
 
         except yaml.YAMLError as e:
-            logger.error(f"Error parsing YAML file {config_path}: {e}")
+            logger.error(f"Error parsing YAML file {filename}: {e}")
             raise
         except jsonschema.ValidationError as e:
-            logger.error(f"Configuration validation failed for {config_path}: {e}")
+            logger.error(f"Configuration validation failed for {filename}: {e}")
             raise
 
     def load_json_config(self, filename: str) -> Dict[str, Any]:
@@ -297,22 +299,22 @@ class ConfigLoader:
         cache_key = f"json_{filename}"
         if cache_key in self.config_cache:
             return self.config_cache[cache_key]
-
-        config_path = self.config_dir / filename
-
-        if not config_path.exists():
-            raise FileNotFoundError(f"Configuration file not found: {config_path}")
-
         try:
-            with open(config_path, "r", encoding="utf-8") as f:
-                config = json.load(f)
+            with importlib.resources.as_file(self.config_dir / filename) as config_path:
+                if not config_path.exists():
+                    raise FileNotFoundError(
+                        f"Configuration file not found: {config_path}"
+                    )
 
-            self.config_cache[cache_key] = config
-            logger.info(f"Loaded configuration from {config_path}")
-            return cast(Dict[str, Any], config)
+                with config_path.open("r", encoding="utf-8") as f:
+                    config = json.load(f)
+
+                self.config_cache[cache_key] = config
+                logger.info(f"Loaded configuration from {config_path}")
+                return cast(Dict[str, Any], config)
 
         except json.JSONDecodeError as e:
-            logger.error(f"Error parsing JSON file {config_path}: {e}")
+            logger.error(f"Error parsing JSON file {filename}: {e}")
             raise
 
     def load_clone_config(self, config_dir: Optional[str] = None) -> CloneConfig:
@@ -469,6 +471,12 @@ class ConfigLoader:
             config: Configuration dictionary to save
             filename: Name of the file to save to (without path)
         """
+        if not isinstance(self.config_dir, Path):
+            raise RuntimeError(
+                "save_config requires a filesystem config directory; "
+                "the packaged default config is read-only"
+            )
+
         config_path = self.config_dir / filename
 
         # Create config directory if it doesn't exist

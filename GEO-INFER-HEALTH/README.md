@@ -11,6 +11,7 @@ Epidemiology, healthcare accessibility analysis, disease surveillance, and spati
 - `src/`
 - `tests/`
 - `setup.py`
+- `.gitignore`
 - `MANIFEST.in`
 - `SKILL.md`
 - `pyproject.toml`

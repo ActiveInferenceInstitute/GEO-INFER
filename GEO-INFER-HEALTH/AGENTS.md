@@ -28,6 +28,7 @@
 - `src/`
 - `tests/`
 - `setup.py`
+- `.gitignore`
 - `MANIFEST.in`
 - `SKILL.md`
 - `pyproject.toml`

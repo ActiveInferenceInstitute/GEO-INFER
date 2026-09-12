@@ -1,5 +1,6 @@
 """Configuration utility functions for GEO-INFER-INTRA."""
 
+import os
 import importlib.resources
 import yaml
 import json
@@ -162,11 +163,24 @@ def get_default_config_path() -> Path:
     if local_config.exists():
         return local_config
 
-    # Fall back to example config in package
-    package_dir = Path(__file__).parent.parent.parent.parent
-    example_config = package_dir / "config" / "example.yaml"
-    if example_config.exists():
-        return example_config
+    # Fall back to the example config packaged inside geo_infer_intra. A
+    # repo-checkout path is honored only via the explicit GEO_INFER_INTRA_CONFIG
+    # override below; there is no silent repo-relative fallback.
+    override = os.environ.get("GEO_INFER_INTRA_CONFIG")
+    if override:
+        override_path = Path(override)
+        if override_path.is_file():
+            return override_path
+        raise FileNotFoundError(
+            f"GEO_INFER_INTRA_CONFIG is set but does not point to a file: {override}"
+        )
+
+    packaged = importlib.resources.files("geo_infer_intra").joinpath(
+        "config/example.yaml"
+    )
+    if packaged.is_file():
+        with importlib.resources.as_file(packaged) as example_path:
+            return example_path
 
     raise FileNotFoundError("No configuration file found")
 

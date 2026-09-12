@@ -41,8 +41,12 @@ Example:
     ... )
 """
 
+import json
 import logging
+from pathlib import Path
 from typing import Optional, Dict, Any, List
+
+import yaml
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -81,7 +85,8 @@ def setup_ant_module(config_path: Optional[str] = None) -> Dict[str, Any]:
         config_path: Path to configuration file (YAML/JSON)
 
     Returns:
-        Configuration dictionary with validated parameters
+        Configuration dictionary with validated parameters, including the
+        configured :class:`IntegrationManager` under ``integration_manager``.
     """
     logger.info("Setting up GEO-INFER-ANT module")
 
@@ -96,16 +101,36 @@ def setup_ant_module(config_path: Optional[str] = None) -> Dict[str, Any]:
             logger.error(f"Failed to load configuration: {e}")
             logger.info("Using default configuration")
 
-    # Set up integrations
+        # Integration settings live outside the AntModuleConfig dataclass
+        # contract, so read them from the raw document.
+        try:
+            raw_path = Path(config_path)
+            if raw_path.suffix.lower() in {".yaml", ".yml"}:
+                raw_config = yaml.safe_load(raw_path.read_text()) or {}
+            else:
+                raw_config = json.loads(raw_path.read_text())
+            if isinstance(raw_config.get("integrations"), dict):
+                config["integrations"] = raw_config["integrations"]
+        except Exception as e:
+            logger.debug(f"Could not read integration settings from {config_path}: {e}")
+    # Set up integrations and keep the manager reachable by callers.
     integration_manager = IntegrationManager()
     integration_manager.setup_integrations(config.get("integrations", {}))
+    config["integration_manager"] = integration_manager
 
     return config
+
+
+
+
 
 
 def get_available_components() -> Dict[str, List[str]]:
     """
     Get information about available components in the ANT module.
+
+    The mapping is derived from ``__all__`` by inspecting each export's
+    defining subpackage, so the export surface and this report cannot drift.
 
     Returns:
         Dictionary with component availability information
@@ -118,29 +143,16 @@ def get_available_components() -> Dict[str, List[str]]:
         "utils": [],
     }
 
-    components["core"] = [
-        "SwarmAgent",
-        "AgentPopulation",
-        "PheromoneSystem",
-        "DigitalStigmergy",
-    ]
-    components["algorithms"] = [
-        "AntColonyOptimization",
-        "ParticleSwarmOptimization",
-        "ArtificialBeeColony",
-    ]
-    components["applications"] = [
-        "EnvironmentalMonitoringSwarm",
-        "DisasterResponseSwarm",
-        "UrbanTrafficSwarm",
-    ]
-    components["analysis"] = ["SwarmPatternAnalyzer", "SwarmPerformanceMetrics"]
-    components["utils"] = [
-        "load_config",
-        "config_to_dict",
-        "setup_logging",
-        "IntegrationManager",
-    ]
+    for name in __all__:
+        if name in {"__version__", "__author__", "__description__"}:
+            continue
+        module = getattr(globals()[name], "__module__", "")
+        for group in ("core", "algorithms", "applications", "analysis"):
+            if f".{group}." in module:
+                components[group].append(name)
+                break
+        else:
+            components["utils"].append(name)
 
     return components
 

@@ -27,6 +27,7 @@
 - `utils/`
 - `__init__.py`
 - `cli.py`
+- `health_config.yaml`
 
 ## Validation
 

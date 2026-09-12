@@ -6,6 +6,7 @@ Geo Infer Examples workspace within `GEO-INFER-EXAMPLES`.
 
 - `core/`
 - `models/`
+- `workflows/`
 - `__init__.py`
 
 ## Public Interface

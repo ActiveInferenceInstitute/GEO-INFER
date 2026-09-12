@@ -19,7 +19,7 @@ from geo_infer_space.core.spatial_processor import SpatialProcessor
 logger = logging.getLogger(__name__)
 
 
-class PlaceAnalyzer:
+class WorkspacePlaceAnalyzer:
     """
     Comprehensive analyzer for place-based geospatial intelligence.
     """
@@ -31,7 +31,7 @@ class PlaceAnalyzer:
         processor: Optional[SpatialProcessor] = None,
     ) -> None:
         """
-        Initialize the PlaceAnalyzer.
+        Initialize the WorkspacePlaceAnalyzer.
 
         Args:
             place_name: Name of the place/region being analyzed
@@ -50,7 +50,7 @@ class PlaceAnalyzer:
         self.data_dir.mkdir(exist_ok=True)
         self.output_dir.mkdir(exist_ok=True)
 
-        logger.info(f"Initialized PlaceAnalyzer for {place_name}")
+        logger.info(f"Initialized WorkspacePlaceAnalyzer for {place_name}")
 
     def load_place_data(self, data_sources: List[Dict[str, str]]) -> None:
         """

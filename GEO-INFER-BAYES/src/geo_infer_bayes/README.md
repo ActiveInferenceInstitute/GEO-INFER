@@ -16,11 +16,12 @@ Geo Infer Bayes workspace within `GEO-INFER-BAYES`.
 
 ## Public Interface
 
-- `__init__.py:SpatialCovariance` (class)
-- `__init__.py:GaussianProcess` (class)
 - `civic_intel.py:CrescentCityIntel` (class)
 - `civic_intel.py:HazardPriorEntry` (class)
 - `civic_intel.py:HazardCategoricalPrior` (class)
+- `civic_intel.py:require_mapping` (function)
+- `civic_intel.py:require_list` (function)
+- `civic_intel.py:parse_contract_bounds` (function)
 - `civic_intel.py:decode_contract_json` (function)
 - `civic_intel.py:load_crescent_city_contract` (function)
 - `civic_intel.py:load_crescent_city_intel` (function)

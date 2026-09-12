@@ -2,7 +2,7 @@ import unittest
 from pathlib import Path
 import json
 import geopandas as gpd
-from geo_infer_space.core.place_analyzer import PlaceAnalyzer
+from geo_infer_space.core.place_analyzer import WorkspacePlaceAnalyzer
 from geo_infer_space.core.spatial_processor import SpatialProcessor
 import shutil
 from shapely.geometry import Point
@@ -56,7 +56,7 @@ class TestPlaceAnalyzer(unittest.TestCase):
             {"name": "test2", "path": str(geojson_path2)},
             {"name": "test3", "path": str(gdf3_path)},
         ]
-        self.analyzer = PlaceAnalyzer("TestPlace", self.temp_dir, SpatialProcessor())
+        self.analyzer = WorkspacePlaceAnalyzer("TestPlace", self.temp_dir, SpatialProcessor())
 
     def tearDown(self):
         shutil.rmtree(self.temp_dir)

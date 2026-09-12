@@ -4,11 +4,13 @@ Core implementation of the AdvancedDashboard for Del Norte County.
 
 from __future__ import annotations
 
+import importlib.resources
 import folium
 import folium.plugins
 import h3
 import json
 import logging
+import os
 import yaml
 from datetime import datetime
 from pathlib import Path
@@ -79,28 +81,37 @@ class AdvancedDashboard:
         }
 
     def _load_location_config_bounds(self) -> None:
-        """Load bounds/center from the Del Norte analysis_config.yaml if available."""
+        """Load bounds/center from the packaged Del Norte analysis_config.yaml."""
         try:
-            # Try to find config file relative to this file
-            config_path = (
-                Path(__file__).parent.parent.parent.parent.parent
-                / "locations"
-                / "del_norte_county"
-                / "config"
-                / "analysis_config.yaml"
-            )
-            if config_path.exists():
-                with open(config_path, "r") as f:
-                    cfg = yaml.safe_load(f)
-                bounds = cfg.get("location", {}).get("bounds", {})
-                if all(k in bounds for k in ["north", "south", "east", "west"]):
-                    self.county_bounds = bounds
-                    cy = (bounds["north"] + bounds["south"]) / 2.0
-                    cx = (bounds["east"] + bounds["west"]) / 2.0
-                    self.county_center = [cy, cx]
-                    logger.info("Loaded bounds from analysis_config.yaml")
+            # Explicit environment override wins; otherwise resolve the
+            # packaged resource so installed wheels work from any cwd.
+            env_override = os.environ.get("GEO_INFER_PLACE_DEL_NORTE_CONFIG")
+            if env_override and Path(env_override).exists():
+                self._apply_location_bounds(Path(env_override))
+                return
+
+            packaged = importlib.resources.files(
+                "geo_infer_place.locations.del_norte_county"
+            ).joinpath("config/analysis_config.yaml")
+            if not packaged.is_file():
+                logger.info("Packaged analysis_config.yaml not found")
+                return
+            with importlib.resources.as_file(packaged) as config_path:
+                self._apply_location_bounds(config_path)
         except Exception as e:
             logger.warning(f"Could not load location bounds from config: {e}")
+
+    def _apply_location_bounds(self, config_path: Path) -> None:
+        """Apply location.bounds/center from an analysis_config.yaml file."""
+        with open(config_path, "r") as f:
+            cfg = yaml.safe_load(f)
+        bounds = cfg.get("location", {}).get("bounds", {})
+        if all(k in bounds for k in ["north", "south", "east", "west"]):
+            self.county_bounds = bounds
+            cy = (bounds["north"] + bounds["south"]) / 2.0
+            cx = (bounds["east"] + bounds["west"]) / 2.0
+            self.county_center = [cy, cx]
+            logger.info("Loaded bounds from analysis_config.yaml")
 
     def fetch_real_time_data(self) -> Dict[str, Any]:
         """Fetch real-time data from all configured sources using the shared integrator."""

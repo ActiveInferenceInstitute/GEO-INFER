@@ -60,7 +60,7 @@ def test_module_loggers_do_not_add_handlers() -> None:
     modules = [
         "geo_infer_ops",
         "geo_infer_ops.core",
-        "geo_infer_ops.utils.logger",
+        "geo_infer_ops.utils.shared_logging",
         "geo_infer_ops.utils.shared_logging",
     ]
     before = list(logging.root.handlers)
@@ -69,3 +69,25 @@ def test_module_loggers_do_not_add_handlers() -> None:
         assert logging.root.handlers == before, (
             f"importing {module_name} mutated the root logger"
         )
+
+
+def test_single_logging_context_implementation() -> None:
+    """Regression: exactly one LoggingContext implementation ships in src.
+
+    GEO-INFER-OPS historically carried three parallel get_logger/LoggingContext
+    implementations (core/logging.py, utils/logger.py, utils/shared_logging.py)
+    that drifted apart. shared_logging is now the single app-level entry and
+    core/logging the single passive accessor; this pins that consolidation.
+    """
+    import subprocess
+    from pathlib import Path
+
+    src = Path(__file__).resolve().parents[1] / "src" / "geo_infer_ops"
+    result = subprocess.run(
+        ["grep", "-rn", "class LoggingContext", str(src)],
+        capture_output=True,
+        text=True,
+    )
+    hits = [line for line in result.stdout.splitlines() if line.strip()]
+    assert len(hits) == 1, f"expected exactly one LoggingContext definition, got: {hits}"
+    assert "shared_logging.py" in hits[0]

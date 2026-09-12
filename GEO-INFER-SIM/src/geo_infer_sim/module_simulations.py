@@ -54,6 +54,32 @@ class ModuleSimulations:
         # Deterministic-by-default: isolated Generator instead of global state
         self.rng: np.random.Generator = np.random.default_rng(self.config.random_seed)
 
+    def _run_toy_model(
+        self,
+        step_func,
+        init_state: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """
+        Shared engine runner for the toy module simulations.
+
+        Builds a SimulationConfig from the module configuration, initializes
+        the engine with ``init_state`` and runs ``step_func`` to completion.
+
+        Args:
+            step_func: Per-step function ``(time, state) -> Dict[str, Any]``
+            init_state: State passed to ``SimulationEngine.initialize``
+
+        Returns:
+            Raw engine results from ``SimulationEngine.run``
+        """
+        config = SimulationConfig(
+            time_step=self.config.time_step,
+            max_time=self.config.time_horizon,
+        )
+        engine = SimulationEngine(config)
+        engine.initialize(init_state)
+        return engine.run(step_func)
+
     def simulate_act(
         self,
         observations: Optional[np.ndarray] = None,
@@ -106,12 +132,6 @@ class ModuleSimulations:
             )
 
         # Simulate belief updating process
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         belief_history = []
         free_energy_history = []
 
@@ -139,8 +159,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"beliefs": beliefs, "observations": observations})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"beliefs": beliefs, "observations": observations},
+        )
 
         return {
             "module": "ACT",
@@ -182,12 +204,6 @@ class ModuleSimulations:
         if weather_data is None:
             weather_data = self.rng.random((100, 3))  # temp, precip, sunlight
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         crop_growth_history = []
         yield_history = []
 
@@ -206,8 +222,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"crop_parameters": crop_parameters})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"crop_parameters": crop_parameters},
+        )
 
         return {
             "module": "AG",
@@ -241,12 +259,6 @@ class ModuleSimulations:
         if training_data is None:
             training_data = self.rng.random((100, 10))
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         loss_history = []
         accuracy_history = []
 
@@ -267,8 +279,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"model_type": model_type, "learning_rate": learning_rate})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"model_type": model_type, "learning_rate": learning_rate},
+        )
 
         return {
             "module": "AI",
@@ -310,12 +324,6 @@ class ModuleSimulations:
                 "decision_frequency": 1.0,
             }
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         # Initialize agent positions
         agent_positions = self.rng.uniform(
             low=[spatial_bounds["x_min"], spatial_bounds["y_min"]],
@@ -349,8 +357,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"agent_positions": agent_positions})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"agent_positions": agent_positions},
+        )
 
         return {
             "module": "AGENT",
@@ -384,12 +394,6 @@ class ModuleSimulations:
         if food_sources is None:
             food_sources = self.rng.random((5, 2)) * 100
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         pheromone_trails = np.zeros((100, 100))
         ant_positions = self.rng.random((colony_size, 2)) * 100
 
@@ -420,8 +424,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"colony_size": colony_size})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"colony_size": colony_size},
+        )
 
         return {
             "module": "ANT",
@@ -458,12 +464,6 @@ class ModuleSimulations:
         if response_times is None:
             response_times = {endpoint: 0.1 for endpoint in endpoints}
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         request_history = []
         latency_history = []
 
@@ -490,8 +490,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"endpoints": endpoints})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"endpoints": endpoints},
+        )
 
         return {
             "module": "API",
@@ -530,12 +532,6 @@ class ModuleSimulations:
         if ui_components is None:
             ui_components = ["map", "dashboard", "chart", "table"]
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         interaction_history = []
         component_usage = {component: 0 for component in ui_components}
 
@@ -558,8 +554,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"user_count": user_count})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"user_count": user_count},
+        )
 
         return {
             "module": "APP",
@@ -604,12 +602,6 @@ class ModuleSimulations:
         if spatial_patterns is None:
             spatial_patterns = ["grid", "spiral", "fractal", "organic"]
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         aesthetic_scores = []
         pattern_history = []
 
@@ -633,8 +625,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"artistic_parameters": artistic_parameters})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"artistic_parameters": artistic_parameters},
+        )
 
         return {
             "module": "ART",
@@ -679,12 +673,6 @@ class ModuleSimulations:
         if observations is None:
             observations = self.rng.normal(5.0, 2.0, 100)
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         posterior_means = []
         posterior_stds = []
 
@@ -715,8 +703,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"prior_params": prior_params})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"prior_params": prior_params},
+        )
 
         return {
             "module": "BAYES",
@@ -763,12 +753,6 @@ class ModuleSimulations:
         if spatial_locations is None:
             spatial_locations = self.rng.random((100, 2)) * 100
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         diversity_history = []
         distribution_history = []
 
@@ -788,8 +772,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"species_data": species_data})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"species_data": species_data},
+        )
 
         return {
             "module": "BIO",
@@ -826,12 +812,6 @@ class ModuleSimulations:
         if participation_rates is None:
             participation_rates = {group: 0.3 for group in stakeholder_groups}
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         engagement_history = []
         participation_history: Dict[str, List[int]] = {
             group: [] for group in stakeholder_groups
@@ -856,8 +836,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"stakeholder_groups": stakeholder_groups})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"stakeholder_groups": stakeholder_groups},
+        )
 
         return {
             "module": "CIV",
@@ -904,12 +886,6 @@ class ModuleSimulations:
         if spatial_perception_data is None:
             spatial_perception_data = self.rng.random((100, 5))
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         attention_scores = []
         memory_usage = []
 
@@ -931,8 +907,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"cognitive_models": cognitive_models})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"cognitive_models": cognitive_models},
+        )
 
         return {
             "module": "COG",
@@ -973,12 +951,6 @@ class ModuleSimulations:
         if stakeholder_groups is None:
             stakeholder_groups = ["developers", "users", "stakeholders"]
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         message_history: Dict[str, List[int]] = {
             channel: [] for channel in communication_channels
         }
@@ -1010,8 +982,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"communication_channels": communication_channels})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"communication_channels": communication_channels},
+        )
 
         return {
             "module": "COMMS",
@@ -1052,12 +1026,6 @@ class ModuleSimulations:
         if processing_pipeline is None:
             processing_pipeline = ["extract", "transform", "validate", "load"]
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         processing_history = []
         quality_scores = []
 
@@ -1081,8 +1049,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"data_sources": data_sources})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"data_sources": data_sources},
+        )
 
         return {
             "module": "DATA",
@@ -1125,12 +1095,6 @@ class ModuleSimulations:
         if market_data is None:
             market_data = self.rng.random((100, 4))  # price, volume, demand, supply
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         gdp_history = []
         market_history = []
 
@@ -1150,8 +1114,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"economic_indicators": economic_indicators})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"economic_indicators": economic_indicators},
+        )
 
         return {
             "module": "ECON",
@@ -1190,12 +1156,6 @@ class ModuleSimulations:
                 "release": 0.2,
             }
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         commit_history: Dict[str, List[int]] = {
             commit_type: [] for commit_type in commit_rates.keys()
         }
@@ -1222,8 +1182,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"branch_strategy": branch_strategy})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"branch_strategy": branch_strategy},
+        )
 
         return {
             "module": "GIT",
@@ -1274,12 +1236,6 @@ class ModuleSimulations:
                 (100, 2)
             )  # air_quality, water_quality
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         cases_history = []
         recovery_history = []
 
@@ -1312,13 +1268,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize(
-            {
-                "cases": health_data["initial_cases"],
-                "epidemiological_models": epidemiological_models,
-            }
+        results = self._run_toy_model(
+            step_func,
+            init_state={ "cases": health_data["initial_cases"], "epidemiological_models": epidemiological_models, },
         )
-        results = engine.run(step_func)
 
         return {
             "module": "HEALTH",
@@ -1356,12 +1309,6 @@ class ModuleSimulations:
         if workflow_templates is None:
             workflow_templates = ["development", "testing", "deployment", "maintenance"]
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         documentation_history = []
         workflow_usage = {template: 0 for template in workflow_templates}
 
@@ -1384,8 +1331,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"documentation_needs": documentation_needs})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"documentation_needs": documentation_needs},
+        )
 
         return {
             "module": "INTRA",
@@ -1426,12 +1375,6 @@ class ModuleSimulations:
         if spatial_coordinates is None:
             spatial_coordinates = self.rng.random((50, 2)) * 100
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         sensor_data_history: Dict[str, List[float]] = {
             network: [] for network in sensor_networks
         }
@@ -1462,8 +1405,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"sensor_networks": sensor_networks})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"sensor_networks": sensor_networks},
+        )
 
         return {
             "module": "IOT",
@@ -1510,12 +1455,6 @@ class ModuleSimulations:
                 "variables": 10,
             }
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         computation_history = []
         optimization_history = []
 
@@ -1537,8 +1476,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"mathematical_problems": mathematical_problems})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"mathematical_problems": mathematical_problems},
+        )
 
         return {
             "module": "MATH",
@@ -1580,12 +1521,6 @@ class ModuleSimulations:
                 "adherence": 0.75,
             }
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         compliance_history = []
         norm_adherence = []
 
@@ -1610,8 +1545,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"regulatory_requirements": regulatory_requirements})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"regulatory_requirements": regulatory_requirements},
+        )
 
         return {
             "module": "NORMS",
@@ -1655,12 +1592,6 @@ class ModuleSimulations:
         if monitoring_targets is None:
             monitoring_targets = ["servers", "databases", "APIs", "storage"]
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         metric_history: Dict[str, List[float]] = {
             metric: [] for metric in system_metrics.keys()
         }
@@ -1700,8 +1631,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"system_metrics": system_metrics})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"system_metrics": system_metrics},
+        )
 
         return {
             "module": "OPS",
@@ -1743,12 +1676,6 @@ class ModuleSimulations:
                 "voting_participation": 0.6,
             }
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         governance_history = []
         proposal_history = []
 
@@ -1768,8 +1695,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"governance_frameworks": governance_frameworks})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"governance_frameworks": governance_frameworks},
+        )
 
         return {
             "module": "ORG",
@@ -1810,12 +1739,6 @@ class ModuleSimulations:
         if skill_requirements is None:
             skill_requirements = ["technical", "communication", "leadership", "domain"]
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         satisfaction_history = []
         skill_coverage: Dict[str, List[float]] = {
             skill: [] for skill in skill_requirements
@@ -1841,8 +1764,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"personnel_data": personnel_data})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"personnel_data": personnel_data},
+        )
 
         return {
             "module": "PEP",
@@ -1887,12 +1812,6 @@ class ModuleSimulations:
         if system_constraints is None:
             system_constraints = ["technical", "regulatory", "budget", "timeline"]
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         validation_history = []
         compliance_history = []
 
@@ -1911,8 +1830,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"requirements_specs": requirements_specs})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"requirements_specs": requirements_specs},
+        )
 
         return {
             "module": "REQ",
@@ -1958,12 +1879,6 @@ class ModuleSimulations:
         if access_control_policies is None:
             access_control_policies = ["RBAC", "ABAC", "MAC", "DAC"]
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         security_events = []
         threat_detection = []
 
@@ -1981,8 +1896,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"security_requirements": security_requirements})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"security_requirements": security_requirements},
+        )
 
         return {
             "module": "SEC",
@@ -2025,12 +1942,6 @@ class ModuleSimulations:
                 "parallel_runs": 1,
             }
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         simulation_runs = []
         execution_times = []
 
@@ -2048,8 +1959,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"simulation_models": simulation_models})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"simulation_models": simulation_models},
+        )
 
         return {
             "module": "SIM",
@@ -2091,12 +2004,6 @@ class ModuleSimulations:
         if spatial_data is None:
             spatial_data = self.rng.random((100, 2)) * 100  # x, y coordinates
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         operation_history = []
         spatial_index_history = []
 
@@ -2118,8 +2025,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"coordinate_systems": coordinate_systems})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"coordinate_systems": coordinate_systems},
+        )
 
         return {
             "module": "SPACE",
@@ -2160,12 +2069,6 @@ class ModuleSimulations:
                 (100, 10, 5)
             )  # time, space, features
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         model_fits = []
         significance_scores = []
 
@@ -2187,8 +2090,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"statistical_models": statistical_models})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"statistical_models": statistical_models},
+        )
 
         return {
             "module": "SPM",
@@ -2226,12 +2131,6 @@ class ModuleSimulations:
         if time_series_data is None:
             time_series_data = self.rng.standard_normal(100) + np.linspace(0, 5, 100)
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         forecast_history = []
         pattern_detection = []
 
@@ -2251,8 +2150,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"temporal_patterns": temporal_patterns})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"temporal_patterns": temporal_patterns},
+        )
 
         return {
             "module": "TIME",
@@ -2293,12 +2194,6 @@ class ModuleSimulations:
         if hazard_data is None:
             hazard_data = self.rng.random((100, 3))  # intensity, frequency, duration
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         risk_scores = []
         exposure_history = []
 
@@ -2323,8 +2218,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"risk_factors": risk_factors})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"risk_factors": risk_factors},
+        )
 
         return {
             "module": "RISK",
@@ -2366,12 +2263,6 @@ class ModuleSimulations:
                 "capacity": 1000.0,
             }
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         route_efficiency = []
         delivery_times = []
 
@@ -2393,8 +2284,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"logistics_requirements": logistics_requirements})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"logistics_requirements": logistics_requirements},
+        )
 
         return {
             "module": "LOG",
@@ -2441,12 +2334,6 @@ class ModuleSimulations:
                 "environment": self.rng.random((10)),
             }
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         place_insights = []
         regional_scores = []
 
@@ -2473,8 +2360,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"location_data": location_data})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"location_data": location_data},
+        )
 
         return {
             "module": "PLACE",
@@ -2516,12 +2405,6 @@ class ModuleSimulations:
                 "performance": 0.9,
             }
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         test_results = []
         coverage_history = []
 
@@ -2542,8 +2425,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"test_requirements": test_requirements})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"test_requirements": test_requirements},
+        )
 
         return {
             "module": "TEST",
@@ -2592,12 +2477,6 @@ class ModuleSimulations:
                 "best_practices",
             ]
 
-        config = SimulationConfig(
-            time_step=self.config.time_step,
-            max_time=self.config.time_horizon,
-        )
-        engine = SimulationEngine(config)
-
         example_generation = []
         tutorial_creation = []
 
@@ -2620,8 +2499,10 @@ class ModuleSimulations:
                 "time": time,
             }
 
-        engine.initialize({"integration_requirements": integration_requirements})
-        results = engine.run(step_func)
+        results = self._run_toy_model(
+            step_func,
+            init_state={"integration_requirements": integration_requirements},
+        )
 
         return {
             "module": "EXAMPLES",

@@ -11,6 +11,7 @@ Unit workspace within `GEO-INFER-SPACE`.
 - `test_api_schemas.py`
 - `test_backends_comprehensive.py`
 - `test_base_module.py`
+- `test_config_loader_packaged_config.py`
 - `test_core.py`
 - `test_data_integrator.py`
 - `test_degradation_warnings.py`

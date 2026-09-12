@@ -5,7 +5,7 @@ Realms workspace within `GEO-INFER-INTRA`.
 ## Contents
 
 - `outputs/`
-- `test_realms_api.py`
+- `realms_api_probe.py`
 - `API_TESTING_GUIDE.md`
 - `UPDATES_SUMMARY.md`
 - `realm_schema.json`
@@ -14,7 +14,8 @@ Realms workspace within `GEO-INFER-INTRA`.
 
 ## Public Interface
 
-- No public Python symbols are defined directly in this directory.
+- `realms_api_probe.py:RealmsAPITester` (class)
+- `realms_api_probe.py:main` (function)
 
 ## Module Metadata
 

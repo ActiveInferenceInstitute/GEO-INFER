@@ -22,9 +22,11 @@ evaluation) is fully functional locally.
 """
 
 import asyncio
+import importlib.resources
 import ast
 import logging
 import operator
+import os
 import time
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field
@@ -310,20 +312,47 @@ class ModuleOrchestrator:
             self.default_timeout = orchestrator_config.get("default_timeout", 300)
             self.retry_attempts = orchestrator_config.get("retry_attempts", 3)
 
-            # Load workflow definitions
-            workflows_path = Path(__file__).parent.parent / "workflows"
-            if workflows_path.exists():
-                for workflow_file in workflows_path.glob("*.yaml"):
-                    with open(workflow_file, "r") as f:
-                        workflow_data = yaml.safe_load(f)
-                        workflow = WorkflowDefinition.from_dict(workflow_data)
-                        self.workflows[workflow.id] = workflow
+            # Load packaged workflow definitions (see _workflow_definition_files).
+            for workflow_file in self._workflow_definition_files():
+                with workflow_file.open("r", encoding="utf-8") as f:
+                    workflow_data = yaml.safe_load(f)
+                    workflow = WorkflowDefinition.from_dict(workflow_data)
+                    self.workflows[workflow.id] = workflow
 
             self.logger.info(f"Loaded {len(self.workflows)} workflow definitions")
 
         except Exception as e:
             self.logger.error(f"Error loading configuration: {e}")
             raise
+
+    def _workflow_definition_files(self) -> List[Any]:
+        """Return workflow-definition YAML files from the packaged directory.
+
+        Discovery uses ``importlib.resources`` against
+        ``geo_infer_examples/workflows`` so installed wheels resolve the
+        packaged resources without parent-path climbing. An explicit
+        ``GEO_INFER_EXAMPLES_WORKFLOWS`` environment variable overrides the
+        packaged location with a filesystem directory (e.g. a repo checkout);
+        a missing override directory falls back to the packaged resources
+        with a warning.
+        """
+        override = os.environ.get("GEO_INFER_EXAMPLES_WORKFLOWS")
+        if override:
+            override_path = Path(override)
+            if override_path.is_dir():
+                return sorted(override_path.glob("*.yaml"))
+            self.logger.warning(
+                "GEO_INFER_EXAMPLES_WORKFLOWS is not a directory: %s", override
+            )
+        workflows_root = importlib.resources.files("geo_infer_examples") / "workflows"
+        if not workflows_root.is_dir():
+            return []
+        return sorted(
+            child
+            for child in workflows_root.iterdir()
+            if child.is_file() and child.name.endswith(".yaml")
+        )
+
 
     def _initialize_modules(self) -> None:
         """Initialize and health-check available modules."""

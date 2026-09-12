@@ -1,7 +1,7 @@
 # Realms API Testing Guide
 
 ## Overview
-The `test_realms_api.py` script provides testing for all documented Realms API endpoints. It validates responses against the provided JSON schema and generates reports.
+The `realms_api_probe.py` script provides testing for all documented Realms API endpoints. It validates responses against the provided JSON schema and generates reports.
 
 ## Installation
 
@@ -10,11 +10,11 @@ bash # Install dependencies uv pip install -r requirements.txt # Ensure you have
 ```
  ## Usage ### Basic Usage
 ```
-bash # Run all tests with default parameters python test_realms_api.py # Run with custom schema file python test_realms_api.py --schema /path/to/realm_schema.json # Quick test mode (fewer test cases) python test_realms_api.py --quick
+bash # Run all tests with default parameters python realms_api_probe.py # Run with custom schema file python realms_api_probe.py --schema /path/to/realm_schema.json # Quick test mode (fewer test cases) python realms_api_probe.py --quick
 ```
  ### Options
 ```bash
- # Custom search terms python test_realms_api.py --search-terms "Forest" "Ocean" "Park" # Custom realm IDs to test python test_realms_api.py --realm-ids 2188 6472 8155 # Custom timeout python test_realms_api.py --timeout 60 # Combined options python test_realms_api.py --quick --search-terms "Avana" --realm-ids 2188
+ # Custom search terms python realms_api_probe.py --search-terms "Forest" "Ocean" "Park" # Custom realm IDs to test python realms_api_probe.py --realm-ids 2188 6472 8155 # Custom timeout python realms_api_probe.py --timeout 60 # Combined options python realms_api_probe.py --quick --search-terms "Avana" --realm-ids 2188
 ```
  ## What Gets Tested ### 1. Search Realms by Name - **Endpoint**: `GET https://api.guardiansofearth.io/realms` - **Tests**: Multiple search terms with various parameters - **Validates**: Response structure, required fields, data types ### 2. Get All Realms - **Endpoint**: `GET https://portal.biosmart.life/api/v1/contest/109/regions.json` - **Tests**: Pagination, sorting by ID and bioscore - **Validates**: Schema compliance, data consistency ### 3. Get Realm by ID - **Endpoint**: `GET https://portal.biosmart.life/api/v1/region/{id}` - **Tests**: Multiple realm IDs (extracted from previous tests) - **Validates**: schema compliance, ID matching ### 4. Error Cases - **Tests**: Invalid IDs, malformed parameters, edge cases - **Validates**: Proper error handling and status codes ## Output The script generates: 1. **Console Output**: Real-time progress and summary 2. **Log File**: `realms_api_test_YYYYMMDD_HHMMSS.log` 3. **Results File**: `realms_api_test_results_YYYYMMDD_HHMMSS.json` ### Example Output
 ```
@@ -30,6 +30,6 @@ bash # Ensure schema file exists ls realm_schema.json
 ```
  2. **Network timeouts**
 ```
-bash # Increase timeout python test_realms_api.py --timeout 60
+bash # Increase timeout python realms_api_probe.py --timeout 60
 ```
  3. **API rate limiting** - The script includes delays between requests - Reduce test scope with `--quick` option 4. **Authentication errors** - Currently no authentication is documented - If needed, modify the script to add API keys/tokens ### What You Need to Know To use this script effectively, you may need: 1. **API Keys/Authentication**: Not documented but may be required 2. **Rate Limits**: Unknown - script includes basic rate limiting 3. **Base URL Changes**: URLs are hardcoded from documentation 4. **Additional Endpoints**: Script only tests documented endpoints ## Next Steps If the API requires authentication or has undocumented endpoints, you'll need to provide: - API keys or authentication tokens - Additional endpoint URLs - Rate limiting information - Error response format documentation

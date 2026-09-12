@@ -11,7 +11,9 @@ This module provides comprehensive digital security measures including:
 - API security and secure communications
 """
 
+import importlib.resources
 import logging
+import os
 import re
 import threading
 import time
@@ -287,25 +289,41 @@ class DigitalSecurityManager:
         live threat-intelligence feeds. Provide ``threat_indicators_file`` in
         the manager config to point at your own indicator file with the shape
         ``{"blocked_ips": [...], "threat_indicators": [...], "trusted_ips": [...]}``.
-        """
-        indicator_file = self.config.get("threat_indicators_file")
-        if not indicator_file:
-            indicator_file = (
-                Path(__file__).resolve().parent.parent
-                / "config"
-                / "threat_indicators.yaml"
-            )
 
-        path = Path(indicator_file)
-        if path.exists():
-            with open(path, "r") as f:
-                indicators = yaml.safe_load(f) or {}
+        Resolution order:
+        1. ``threat_indicators_file`` config key
+        2. ``GEO_INFER_SEC_THREAT_INDICATORS`` environment variable
+        3. packaged ``config/threat_indicators.yaml`` resource
+        """
+        indicator_file = self.config.get("threat_indicators_file") or os.environ.get(
+            "GEO_INFER_SEC_THREAT_INDICATORS"
+        )
+
+        if indicator_file:
+            path = Path(indicator_file)
+            if path.exists():
+                with open(path, "r") as f:
+                    indicators = yaml.safe_load(f) or {}
+            else:
+                self.logger.warning(
+                    "Threat indicator file not found: %s; starting with empty sets",
+                    path,
+                )
+                indicators = {}
         else:
-            self.logger.warning(
-                "Threat indicator file not found: %s; starting with empty sets",
-                path,
+            packaged = importlib.resources.files("geo_infer_sec").joinpath(
+                "config", "threat_indicators.yaml"
             )
-            indicators = {}
+            try:
+                with importlib.resources.as_file(packaged) as packaged_path:
+                    with open(packaged_path, "r") as f:
+                        indicators = yaml.safe_load(f) or {}
+            except FileNotFoundError:
+                self.logger.warning(
+                    "Packaged threat indicator resource not found: %s; starting with empty sets",
+                    packaged,
+                )
+                indicators = {}
 
         self.blocked_ips.update(indicators.get("blocked_ips", []))
         self.threat_indicators.update(indicators.get("threat_indicators", []))

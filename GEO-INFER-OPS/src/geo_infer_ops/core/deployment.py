@@ -2,6 +2,9 @@
 Deployment management for GEO-INFER-OPS.
 """
 
+import importlib.resources
+import os
+
 import subprocess
 from pathlib import Path
 from typing import Any, Optional, Dict, List
@@ -43,6 +46,22 @@ class DeploymentManager:
                 config.load_kube_config()
             except config.ConfigException:
                 logger.warning("kubernetes_config_unavailable")
+
+    @staticmethod
+    def _default_manifest_dir() -> str:
+        """Resolve the default Kubernetes manifest directory.
+
+        Order of precedence:
+        1. Environment variable GEO_INFER_OPS_KUBE_MANIFESTS
+        2. Manifests packaged inside geo_infer_ops
+        """
+        if env_dir := os.environ.get("GEO_INFER_OPS_KUBE_MANIFESTS"):
+            return env_dir
+        resources = importlib.resources.files("geo_infer_ops").joinpath(
+            "deployment", "kubernetes"
+        )
+        with importlib.resources.as_file(resources) as path:
+            return str(path)
 
     def build_docker_image(self, tag: Optional[str] = None) -> bool:
         """
@@ -93,7 +112,9 @@ class DeploymentManager:
         Deploy to Kubernetes using manifests.
 
         Args:
-            manifest_path: Path to manifest files (default: deployment/kubernetes)
+            manifest_path: Path to manifest files (default: packaged
+                deployment/kubernetes manifests, overridable via
+                GEO_INFER_OPS_KUBE_MANIFESTS)
 
         Returns:
             bool: True if deployment successful
@@ -105,11 +126,7 @@ class DeploymentManager:
                 return True
 
             if manifest_path is None:
-                manifest_path = str(
-                    Path(__file__).parent.parent.parent.parent
-                    / "deployment"
-                    / "kubernetes"
-                )
+                manifest_path = str(self._default_manifest_dir())
 
             # Load and apply manifests
             manifest_files = list(Path(manifest_path).glob("*.yml"))

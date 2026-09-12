@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `cascadia/`
 - `del_norte_county/`
 - `__init__.py`
 

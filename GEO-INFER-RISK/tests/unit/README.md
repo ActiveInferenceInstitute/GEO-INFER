@@ -23,6 +23,7 @@ Unit workspace within `GEO-INFER-RISK`.
 - `test_risk_models.py`
 - `test_rng.py`
 - `test_validation.py`
+- `test_validation_packaged_config.py`
 - `test_vulnerability_model.py`
 - `test_wheel_safety.py`
 

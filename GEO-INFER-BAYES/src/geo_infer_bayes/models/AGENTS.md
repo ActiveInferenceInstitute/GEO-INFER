@@ -28,6 +28,7 @@
 - `bayesian_timeseries.py`
 - `dirichlet_process.py`
 - `dynamic_spatial.py`
+- `gaussian_process.py`
 - `hierarchical.py`
 - `multilevel.py`
 - `spatial_causal.py`

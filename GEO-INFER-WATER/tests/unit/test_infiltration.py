@@ -192,3 +192,46 @@ class TestGreenAmptValidation:
             modeler.green_ampt_infiltration(np.array([1.0, np.nan]))
         with pytest.raises(ValueError, match="finite"):
             modeler.green_ampt_infiltration(np.array([1.0, np.inf]))
+
+    def test_cross_model_green_ampt_consistency(self, modeler):
+        # The raster variant (HydrologicalModeler, implicit Newton ponding
+        # solver) and this point-scale variant must stay numerically
+        # consistent: they implement the same physics, differing only in
+        # the documented ponding approximation (start-of-step capacity
+        # here vs mid-step implicit resolution there). Divergence is
+        # bounded to ~1% on cumulative infiltration and ~5% per step;
+        # both partitions stay mass exact. This pins GS-163: changing one
+        # implementation's numerics without the other fails here.
+        from geo_infer_water import HydrologicalModeler
+
+        rain = np.array([60.0, 5.0, 40.0, 80.0, 80.0, 3.0, 200.0, 0.0, 30.0])
+        point = modeler.green_ampt_infiltration(
+            rain,
+            hydraulic_conductivity_mm_hr=10.0,
+            suction_head_mm=100.0,
+            saturated_water_content=0.45,
+            initial_water_content=0.15,
+            time_step_hr=1.0,
+        )
+        raster = HydrologicalModeler().green_ampt_infiltration(
+            xr.DataArray(rain, dims="time"),
+            ks=10.0,
+            suction_head=100.0,
+            delta_theta=0.30,
+            dt=1.0,
+        )
+        np.testing.assert_allclose(
+            point["infiltration_mm"], raster["infiltration"].values, rtol=0.05
+        )
+        np.testing.assert_allclose(
+            point["cumulative_infiltration_mm"][-1],
+            float(raster["cumulative_infiltration"].values[-1]),
+            rtol=0.02,
+        )
+        np.testing.assert_allclose(
+            point["infiltration_mm"] + point["runoff_mm"], rain, atol=1e-9
+        )
+        np.testing.assert_allclose(
+            raster["runoff"].values + raster["infiltration"].values, rain,
+            atol=1e-9,
+        )

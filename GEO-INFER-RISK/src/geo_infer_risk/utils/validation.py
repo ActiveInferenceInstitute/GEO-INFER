@@ -8,8 +8,10 @@ data inputs, and model parameters using JSON Schema validation and custom valida
 import json
 import os
 import logging
-from typing import Dict, Any, Optional, List, Callable, cast
+from typing import Dict, Any, Optional, List, Callable, Union, cast
 from pathlib import Path
+from importlib.resources import as_file, files as resource_files
+
 import jsonschema
 import pandas as pd
 from dataclasses import dataclass
@@ -41,16 +43,26 @@ class ConfigurationValidator:
         self.schema = self._load_schema()
         self.custom_validators = self._initialize_custom_validators()
 
-    def _get_default_schema_path(self) -> str:
-        """Get default schema path."""
-        module_root = Path(__file__).resolve().parents[3]
-        return str(module_root / "config" / "schema.json")
+    def _get_default_schema_path(self) -> Union[str, Path]:
+        """Get default schema path (packaged resource or explicit override)."""
+        override = os.environ.get("GEO_INFER_RISK_SCHEMA_PATH")
+        if override:
+            return override
+        return cast(
+            Path, resource_files("geo_infer_risk").joinpath("config/schema.json")
+        )
 
     def _load_schema(self) -> Dict[str, Any]:
         """Load JSON schema for validation."""
+        schema_source = (
+            Path(self.schema_path)
+            if isinstance(self.schema_path, str)
+            else self.schema_path
+        )
         try:
-            with open(self.schema_path, "r") as f:
-                return cast(Dict[str, Any], json.load(f))
+            with as_file(schema_source) as path:
+                with open(path, "r") as f:
+                    return cast(Dict[str, Any], json.load(f))
         except FileNotFoundError:
             logger.warning(
                 f"Schema file not found at {self.schema_path}. Using basic validation."

@@ -29,7 +29,7 @@ def sample_coordinates() -> List[Tuple[float, float]]:
 def sample_geodataframe() -> gpd.GeoDataFrame:
     """Standard GeoDataFrame with EPSG:4326 for spatial tests."""
     return gpd.GeoDataFrame(
-        {"id": range(5), "value": np.random.uniform(0, 100, 5)},
+        {"id": range(5), "value": np.random.default_rng(0).uniform(0, 100, 5)},
         geometry=[Point(-122.33 + i * 0.01, 47.61 + i * 0.01) for i in range(5)],
         crs="EPSG:4326",
     )

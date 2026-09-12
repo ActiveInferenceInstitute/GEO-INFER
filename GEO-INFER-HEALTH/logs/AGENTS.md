@@ -21,7 +21,7 @@
 
 ## Local Contents
 
-- `health.log`
+- No direct tracked child entries.
 
 ## Validation
 

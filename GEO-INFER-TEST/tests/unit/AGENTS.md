@@ -23,6 +23,7 @@
 
 - `test_build_package_wheels.py`
 - `test_check_coverage_floor_gate.py`
+- `test_ci_workflow_contracts.py`
 - `test_crescent_city_bundled_seed_uniqueness.py`
 - `test_crescent_city_civic_intel_demo.py`
 - `test_crescent_city_geo_intel_contract_sync.py`

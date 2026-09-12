@@ -9,7 +9,7 @@ from geo_infer_intra.utils.config import (
     merge_configs,
     validate_config,
 )
-from geo_infer_intra.utils.visual_preview import (
+from geo_infer_intra.core.documentation.visual_preview import (
     MODULE_PROFILES,
     SpatialPreviewArtifacts,
     generate_all_module_previews,

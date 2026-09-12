@@ -22,7 +22,7 @@
 ## Local Contents
 
 - `outputs/`
-- `test_realms_api.py`
+- `realms_api_probe.py`
 - `API_TESTING_GUIDE.md`
 - `UPDATES_SUMMARY.md`
 - `realm_schema.json`

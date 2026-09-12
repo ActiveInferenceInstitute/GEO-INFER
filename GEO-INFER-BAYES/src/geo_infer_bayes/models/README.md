@@ -11,6 +11,7 @@ Models workspace within `GEO-INFER-BAYES`.
 - `bayesian_timeseries.py`
 - `dirichlet_process.py`
 - `dynamic_spatial.py`
+- `gaussian_process.py`
 - `hierarchical.py`
 - `multilevel.py`
 - `spatial_causal.py`
@@ -36,10 +37,10 @@ Models workspace within `GEO-INFER-BAYES`.
 - `bayesian_timeseries.py:BayesianTimeSeriesModel` (class)
 - `dirichlet_process.py:DirichletProcessMixture` (class)
 - `dynamic_spatial.py:DynamicSpatialModel` (class)
+- `gaussian_process.py:SpatialCovariance` (class)
+- `gaussian_process.py:GaussianProcess` (class)
 - `hierarchical.py:HierarchicalBayesianModel` (class)
 - `multilevel.py:MultilevelModel` (class)
-- `spatial_causal.py:SpatialCausalModel` (class)
-- `spatial_clustering.py:SpatialClusteringModel` (class)
 
 ## Module Metadata
 

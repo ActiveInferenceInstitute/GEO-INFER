@@ -122,14 +122,19 @@ class TemperatureTrendAnalyzer:
                 "n_observations": n,
             }
 
+        # S = sum_{i<j} sgn(x_j - x_i), accumulated in row blocks so the
+        # difference matrix never materializes in full
+        # (O(n^2) work, O(chunk*n) memory, all in numpy instead of Python).
         s = 0
-        for i in range(n - 1):
-            for j in range(i + 1, n):
-                diff = x[j] - x[i]
-                if diff > 0:
-                    s += 1
-                elif diff < 0:
-                    s -= 1
+        cols = np.arange(n)
+        chunk = max(1, int(2**23 // max(n, 1)))  # ~64MB of float64 per block
+        for start in range(0, n - 1, chunk):
+            b = min(chunk, n - 1 - start)
+            i_blk = cols[start:start + b]
+            d = x[None, :] - x[i_blk, None]  # d[a, j] = x_j - x_i
+            if start + b < n:
+                s += int(np.sign(d[:, start + b:]).sum())  # all j >= start+b satisfy j > i
+            s += int(np.triu(np.sign(d[:, start:start + b]), k=1).sum())  # start <= i < j < start+b
 
         unique, counts = np.unique(x, return_counts=True)
         tied_groups = counts[counts > 1]
@@ -196,26 +201,46 @@ class TemperatureTrendAnalyzer:
                 "n_slopes": 0,
             }
 
-        slope_list = []
-        for i in range(n):
-            for j in range(i + 1, n):
-                dt = j - i
-                if dt > 0:
-                    slope_list.append((x[j] - x[i]) / dt)
-
-        slopes = np.array(slope_list)
-        median_slope = float(np.median(slopes))
+        # Pairwise slopes slope_ij = (x_j - x_i) / (j - i) for all j > i,
+        # built in row blocks to bound peak memory; the median and CI bounds
+        # come from a single O(n_slopes) introselect instead of a full sort.
+        cols = np.arange(n)
+        chunk = max(1, int(2**23 // max(n, 1)))  # ~64MB of float64 per block
+        slopes = np.empty(n * (n - 1) // 2)
+        off = 0
+        for start in range(0, n - 1, chunk):
+            b = min(chunk, n - 1 - start)
+            i_blk = cols[start:start + b]
+            if start + b < n:
+                jt = cols[start + b:]
+                tail = (x[None, start + b:] - x[i_blk, None]) / (jt[None, :] - i_blk[:, None])
+                m = tail.size
+                slopes[off:off + m] = tail.ravel()
+                off += m
+            jc = cols[start:start + b]
+            den = jc[None, :] - i_blk[:, None]
+            if den.shape[0] == den.shape[1]:
+                np.fill_diagonal(den, 1)  # masked by triu below; avoids 0-division
+            inb = (x[None, start:start + b] - x[i_blk, None]) / den
+            tri = inb[np.triu(np.ones((b, b), dtype=bool), k=1)]
+            slopes[off:off + len(tri)] = tri
+            off += len(tri)
 
         n_slopes = len(slopes)
         z_95 = 1.96
         c_alpha = z_95 * np.sqrt(n * (n - 1) * (2 * n + 5) / 18.0)
         m1 = int((n_slopes - c_alpha) / 2)
         m2 = int((n_slopes + c_alpha) / 2)
-
-        sorted_slopes = np.sort(slopes)
-        lower_ci = float(sorted_slopes[max(0, m1)])
-        upper_ci = float(sorted_slopes[min(n_slopes - 1, m2)])
-
+        k_mid = (n_slopes - 1) // 2  # lower middle rank
+        i1, im, i2 = max(0, m1), k_mid, min(n_slopes - 1, m2)
+        kths = [i1, im, min(n_slopes - 1, im + 1), i2]
+        ordered = np.partition(slopes, kths)[kths]
+        if n_slopes % 2 == 1:
+            median_slope = float(ordered[1])
+        else:
+            median_slope = float((ordered[1] + ordered[2]) / 2.0)  # np.median semantics
+        lower_ci = float(ordered[0])
+        upper_ci = float(ordered[3])
         return {
             "median_slope": median_slope,
             "lower_ci": lower_ci,

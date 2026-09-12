@@ -27,7 +27,6 @@
 - `unit/`
 - `utils/`
 - `conftest.py`
-- `run_tests.py`
 
 ## Validation
 

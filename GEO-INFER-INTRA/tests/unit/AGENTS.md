@@ -23,9 +23,11 @@
 
 - `test_config.py`
 - `test_geospatial_utils.py`
+- `test_intra_packaged_config.py`
 - `test_module_utils.py`
 - `test_time_series_utils.py`
 - `test_visual_preview.py`
+- `test_visual_preview_import_surface.py`
 
 ## Validation
 

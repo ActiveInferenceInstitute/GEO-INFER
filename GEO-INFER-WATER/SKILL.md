@@ -70,6 +70,15 @@ wqi = assessor.calculate_wqi(sample)
 - `HydrologicalModeler.calculate_water_balance` delegates to `WaterBalanceModeler.water_balance_closure` (single water-balance owner).
 - `assess_flood_risk` is an equal-weight screening heuristic, not a calibrated flood model.
 - `optimize_water_allocation` splits scarce supply by `demand * priority`, capped at each demand.
+- Green-Ampt has two owners with deliberately different numerics:
+  `HydrologicalModeler.green_ampt_infiltration` is the spatial/raster
+  variant (xarray in/out, implicit Newton ponding solver), while
+  `InfiltrationModeler.green_ampt_infiltration` is the point-scale
+  variant (numpy dict out, explicit supply-limited stepping). They are
+  pinned to stay numerically consistent (start-of-step capacity vs
+  mid-step implicit resolution, ~1% cumulative divergence) by
+  `tests/unit/test_infiltration.py::test_cross_model_green_ampt_consistency`
+  — do not change one without running the other's suite.
 
 ### Integrations
 

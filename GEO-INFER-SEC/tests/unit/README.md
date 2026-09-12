@@ -13,6 +13,7 @@ Unit workspace within `GEO-INFER-SEC`.
 - `test_cli_exit_codes.py`
 - `test_cli_handlers.py`
 - `test_digital_indicators.py`
+- `test_digital_packaged_config.py`
 - `test_encryption.py`
 - `test_geospatial_utils.py`
 - `test_input_validation.py`
