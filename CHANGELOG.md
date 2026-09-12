@@ -49,11 +49,14 @@ at every wave boundary.
 
 ### Verification
 
-Every wave's full battery went green at the release tag; per-push CI was
-green on waves 1-3, the wave-4 push surfaced the source-language-debt gate
-(fixed in the wave-5 push), and the release tag's always-verify wheel gate
-then caught two real cross-platform defects (GIT identity handling, OPS
-clean-install import) that were fixed via PRs #30/#31 before publication.
+Full-battery CI went green at the release tag; per-push coverage was not
+uniform: waves 1-3 green per push, wave 4 red on the source-language-debt
+gate (fixed before wave 5), wave 5's per-push run unconfirmed, and wave 6
+(PR #28) merged under paths-filtered interchange-only checks — every wave
+was subsequently validated by the full 14-job battery at the tag, whose
+always-verify wheel gate caught two real cross-platform defects (GIT
+identity handling, OPS clean-install import) fixed via PRs #30/#31 before
+publication.
 Strict gates at tag: `validate_repo_contracts --strict-source-language`
 (45 modules, 0 errors), `validate_packaging --strict` (45/0/0 including
 the new import-parity and classifier gates), `validate_test_contracts
