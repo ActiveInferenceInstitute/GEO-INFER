@@ -307,6 +307,12 @@ class VerificationRecord:
         )
 
 
+VERIFICATION_TIMEOUT_SECONDS = 600
+
+
+FULL_VALIDATION_TIMEOUT_SECONDS = 3600
+
+
 VERIFICATION_COMMANDS: tuple[tuple[str, str], ...] = (
     (
         "compile",
@@ -1288,22 +1294,58 @@ def resolve_verification(
 def run_verification(
     root: Path, *, full_validation: bool = False
 ) -> tuple[VerificationResult, ...]:
-    """Run and record the research verification commands."""
+    """Run and record the research verification commands.
+
+    Every command gets the same wall-clock envelope as the unified test
+    runners' own ``--timeout``: an unbounded ``subprocess.run`` is how one
+    hung validator stalls the whole CI job (the workflow-level
+    ``timeout-minutes`` guard kills the job but publishes nothing).  A
+    command that exceeds the envelope is recorded as ``status="timeout"``
+    with the elapsed duration rather than aborting the remaining groups, so
+    the record still shows what ran and the publication gate treats the
+    timed-out group exactly like a failed one.
+    """
     commands = (
         *VERIFICATION_COMMANDS,
         *(FULL_VALIDATION_COMMANDS if full_validation else ()),
     )
     results: list[VerificationResult] = []
     for name, command in commands:
-        started = datetime.now(tz=timezone.utc)
-        completed = subprocess.run(
-            command,
-            cwd=root,
-            shell=True,
-            capture_output=True,
-            text=True,
-            check=False,
+        # The bare validators get the same 600s envelope as the unified test
+        # runners' own per-command timeout.  The full-validation runner
+        # groups aggregate a whole category of per-module commands, so their
+        # outer envelope has to exceed the runner's own aggregate budget or
+        # it would cut off healthy runs; the CI job's own wall budget is the
+        # backstop above it.
+        timeout = (
+            FULL_VALIDATION_TIMEOUT_SECONDS
+            if name in FULL_VALIDATION_GROUPS
+            else VERIFICATION_TIMEOUT_SECONDS
         )
+        started = datetime.now(tz=timezone.utc)
+        try:
+            completed = subprocess.run(
+                command,
+                cwd=root,
+                shell=True,
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=timeout,
+            )
+        except subprocess.TimeoutExpired:
+            elapsed = (datetime.now(tz=timezone.utc) - started).total_seconds()
+            results.append(
+                VerificationResult(
+                    name=name,
+                    command=command,
+                    status="timeout",
+                    return_code=None,
+                    duration_seconds=round(elapsed, 3),
+                    output_tail=f"timed out after {timeout}s and was terminated",
+                )
+            )
+            continue
         elapsed = (datetime.now(tz=timezone.utc) - started).total_seconds()
         combined = f"{completed.stdout}\n{completed.stderr}".strip()
         results.append(
@@ -1399,7 +1441,7 @@ def _verification_summary(
     """
     defined = defined_command_groups(full_validation=full_validation)
     passed = sum(result.status == "passed" for result in results)
-    failed = sum(result.status == "failed" for result in results)
+    failed = sum(result.status in ("failed", "timeout") for result in results)
     recorded = {result.name: result for result in results}
     unrun = sum(
         1
@@ -1663,6 +1705,11 @@ def refresh_config_metadata(
     function is that script for GEO-INFER: the values stay measured rather than
     hand-entered, and the file stays verbatim-copyable.
 
+    The scan is section-aware: each field's dotted name names its top-level
+    section, and a two-space-prefixed key only counts while the scanner is
+    inside that section, so a same-prefixed key under another section can
+    never absorb the write.
+
     Args:
         root: Repository root holding ``manuscript/config.yaml``.
         variables: Resolved values keyed by the token each field is owned by.
@@ -1680,8 +1727,13 @@ def refresh_config_metadata(
         if key not in variables:
             raise KeyError(f"config metadata variable is not produced: {key}")
         value = variables[key]
+        section = field.split(".")[0]
+        in_section = False
         for index, line in enumerate(lines):
-            if not line.startswith(prefix):
+            if line and not line[0].isspace():
+                in_section = line.startswith(f"{section}:")
+                continue
+            if not in_section or not line.startswith(prefix):
                 continue
             replacement = f'{prefix}"{value}"  # generator-owned ({key})\n'
             if lines[index] != replacement:
@@ -1689,7 +1741,10 @@ def refresh_config_metadata(
                 updated.append(field)
             break
         else:
-            raise ValueError(f"config.yaml has no line starting with {prefix!r}")
+            raise ValueError(
+                f"config.yaml has no {field} key in its {section} section "
+                f"(expected a line starting with {prefix!r})"
+            )
     if updated and not dry_run:
         config.write_text("".join(lines), encoding="utf-8")
     return tuple(updated)
@@ -1720,6 +1775,13 @@ def write_resolved_manuscript(
         )
         if missing:
             unresolved[source.name] = missing
+        # Resolved manuscripts live one directory shallower than the sources
+        # (output/manuscript/ vs manuscript/), so authored figure references
+        # written against the source layout are rewritten for the output
+        # layout. The literal rewrite assumes every figure reference spells
+        # the path exactly "../output/figures/" — CI pins that assumption in
+        # tests/test_manuscript_paths.py::TestFigurePathLiterals, which fails
+        # the build if any manuscript file introduces another spelling.
         resolved = resolved.replace("../output/figures/", "../figures/")
         destination = output_dir / source.name
         destination.write_text(resolved, encoding="utf-8")
@@ -1763,17 +1825,43 @@ _BIBLIOGRAPHY_POLICY: tuple[tuple[str, str, bool], ...] = (
 
 
 def bibliography_policy(root: Path) -> dict[str, bool]:
-    """Read the bibliography gate settings from ``manuscript/config.yaml``."""
+    """Read the bibliography gate settings from ``manuscript/config.yaml``.
+
+    The read is section-aware: a key only counts while the scanner is inside
+    the top-level ``bibliography:`` block, so a same-named key under another
+    section (or the block itself reindented so the two-space prefix no longer
+    matches) can never silently steer the gates.  A prefix that matches
+    nothing raises instead of falling back to defaults — ``fail_on_unused``
+    defaults to ``False``, so a miss would quietly disable the
+    orphaned-citation gate exactly when the config was edited in a way the
+    author believed had enabled it.
+    """
     config = root / "manuscript" / "config.yaml"
     text = config.read_text(encoding="utf-8") if config.is_file() else ""
     lines = text.splitlines()
     policy: dict[str, bool] = {}
-    for prefix, name, default in _BIBLIOGRAPHY_POLICY:
-        policy[name] = default
-        for line in lines:
+    matched: dict[str, bool] = {}
+    in_bibliography = False
+    for line in lines:
+        stripped = line.strip()
+        if line and not line[0].isspace():
+            in_bibliography = stripped == "bibliography:"
+            continue
+        if not in_bibliography:
+            continue
+        for prefix, name, default in _BIBLIOGRAPHY_POLICY:
             if line.startswith(prefix):
                 policy[name] = line[len(prefix) :].strip().lower() == "true"
+                matched[name] = True
                 break
+    for prefix, name, default in _BIBLIOGRAPHY_POLICY:
+        if name not in matched:
+            raise ValueError(
+                f"config.yaml has no {name} key under the bibliography block "
+                f"(expected a line starting with {prefix!r}); refusing to "
+                "fall back to the default silently"
+            )
+        policy.setdefault(name, default)
     return policy
 
 

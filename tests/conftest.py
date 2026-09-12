@@ -178,7 +178,11 @@ def generatable_checkout(generator: ModuleType, tmp_path: Path) -> Path:
         "publication:\n"
         '  year: "1970"\n'
         "metadata:\n"
-        '  license: "unset"\n',
+        '  license: "unset"\n'
+        "bibliography:\n"
+        '  references_path: "manuscript/references.bib"\n'
+        "  fail_on_missing: true\n"
+        "  fail_on_unused: true\n",
         encoding="utf-8",
     )
     (manuscript / "00_abstract.md").write_text(
