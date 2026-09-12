@@ -5,6 +5,57 @@ All notable changes to the GEO-INFER framework will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-09-11 — repo-wide quality campaign (189 items)
+
+Shipped as the SCOPE-2026-09-11 campaign ([spec](SCOPE-2026-09-11.md),
+shipped at `f1b5b376`): a 14-lane scoping swarm over all 45 modules produced
+189 bounded items (48 Medium / 141 Minor / 0 Major), executed in six
+reviewed waves ([PR #28](https://github.com/ActiveInferenceInstitute/GEO-INFER/pull/28)
+and the wave commits it merges) with per-fix regression tests and CI green
+at every wave boundary.
+
+### Fixed
+
+- **Probe-confirmed numeric bugs (wave 1)**: MARINE sea-level projections
+  inflated ~45x (datetime year arithmetic); ENERGY demand forecast per-step
+  trend applied per year; TRANSPORT reverse edges lacked `travel_time`
+  (reverse routing ~free); ECON Okun employment-impact sign inversion;
+  METAGOV governance ID collision after delete; AGENT `start_agent`
+  fire-and-forget task retention.
+- **Silent-fabrication family (wave 2, 82 items)**: fabricated fallbacks,
+  sentinel error values, ignored contracts, and silent no-ops replaced with
+  correct math or explicit errors across 36 modules (e.g. SPACE Moran's I
+  S2 term, DATA DuckDB CRS resolution, DATA retry recursion cap, MATH
+  polygon centroid, COMMS websocket wiring, IOT latency instrumentation).
+- **Packaging coherence (wave 3, 20 items)**: classifier/license/keyword
+  normalization across 42 pyprojects, dependency-floor alignment, 9
+  undeclared imports declared, SPACE extras rebuilt, BIO subpackage
+  `__init__.py` wheel drop fixed, single integration re-lock.
+- **Test gaps (wave 4, 21 items)**: behavior-defining surfaces brought
+  under the canonical runner (INSURANCE 131, SEC 72, GIT 79, COMMS 104+
+  new tests); cascadia + demo lanes wired into the unified runner; 17
+  conftest `sys.path` hacks removed; zero-skip contract enforced.
+- **Docs & API honesty (wave 5, 29 items)**: new `validate_doc_imports.py`
+  import-truth gate wired into `validate_documentation --strict` (195 pages
+  verified, 62 legacy pages bannered); every SKILL.md pytest directive
+  redirected to the canonical runner; phantom SPACE API claims replaced
+  with real backend methods.
+- **CI gates & structure (wave 6, 31 items)**: deduplicated validate job,
+  python×category test matrix, release CI-success gate + always-verify tag
+  builds, 45-wheel build-smoke, actionlint job, wheel-resource migrations
+  (GS-023, 10 modules), manuscript verification timeouts + section-aware
+  parsing, ANT patterns package split, TIME cusum O(n), CLIMATE
+  Mann-Kendall/Sen vectorization, dead-code deletions.
+
+### Verification
+
+Every wave pushed with CI green; strict gates: `validate_repo_contracts
+--strict-source-language` (45 modules, 0 errors), `validate_packaging
+--strict` (45/0/0 incl. the new import-parity + classifier gates),
+`validate_test_contracts --strict`, `validate_model_contracts --strict
+--seed 42`, `validate_documentation --strict` (76 pages),
+`validate_skills --check-xrefs --warnings-fatal` (46/46).
+
 ## [0.2.0] - 2026-09-10
 
 ### Deep horizon 2026-09-08 - Green-Ampt infiltration (WATER-01)
