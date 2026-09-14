@@ -77,6 +77,26 @@ sparse/multiresolution grids, Step 7 integration and legacy ACT timing alignment
 
 GNN topic publication verified at `8005e37c668e91b85f6d54b1a989983098ee99a8`.
 
+## GNN pair-pin bump procedure
+
+The paired interchange pins the companion GNN revision in
+`.github/gnn-pair.json` (`revision`); `.github/workflows/gnn-interchange.yml`
+checks out GEO at the PR head SHA and GNN at that pin in two locked
+environments (Python 3.11 and 3.12). GNN `main` usually runs ahead of the pin,
+so bumping is a deliberate, reviewed companion-revision decision, never
+automatic:
+
+1. Diff GNN from the current pin to the target revision
+   (`git diff <pin>..<target>` in the GNN checkout) and review the change.
+2. Confirm contract-version compatibility: the consumer boundary
+   `geo_infer_act.core.gnn_contract` (and its Gaussian and factored siblings)
+   must still accept the `schema_version` values the target GNN exporters emit
+   (`gnn-geo-infer/1`, `gnn-geo-infer/2`, `gnn-geo-infer/factored/1`).
+3. Open a PR that updates **only** `.github/gnn-pair.json` to the target
+   revision; never mix a pin bump with consumer-contract code changes.
+4. Let the paired interchange CI validate the new pair on the PR (the workflow
+   triggers on the manifest path) and merge once it is green.
+
 ## Publication receipt
 
 - GEO implementation: `e028aa9060e05f765762224499f5e2c714cf25a3`, pushed to `codex/gnn-space-time` with remote SHA parity verified.

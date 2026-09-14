@@ -11,6 +11,8 @@ New to this repo? In order:
 3. **Where to change what**: module behavior in `GEO-INFER-*/src/` (owning package); cross-module docs in `GEO-INFER-INTRA/docs/`; tests/validation in `GEO-INFER-TEST/`.
 4. **Health in one command**: `uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check` (generated-signpost drift) plus the validators under Standard Commands.
 5. **Backlog with acceptance lines**: [TODO.md](TODO.md).
+6. **GNN companion pin**: to bump the paired-interchange GNN revision, follow
+   the [pair-pin bump procedure](GEO-INFER-TEST/docs/gnn_space_time_2026_09.md#gnn-pair-pin-bump-procedure).
 
 ## Repository Scope
 
