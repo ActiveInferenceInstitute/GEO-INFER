@@ -229,7 +229,7 @@ async def optimize_deliveries(
 
         # Convert route objects to dictionaries
         return [route.model_dump() for route in routes]
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -249,7 +249,7 @@ async def create_schedule(
             max_deliveries_per_day=request.max_deliveries_per_day,
         )
         return result
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -265,7 +265,7 @@ async def get_daily_schedule(
 
         # Convert route objects to dictionaries
         return [route.model_dump() for route in routes]
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -279,7 +279,7 @@ async def get_vehicle_schedule(
 
         # Convert route objects to dictionaries
         return [route.model_dump() for route in routes]
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -296,7 +296,7 @@ async def reschedule_delivery(
             new_date=request.new_date,
         )
         return result
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -323,7 +323,7 @@ async def create_service_area(
             "max_distance": request.max_distance,
             "area": geo_json,
         }
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -336,6 +336,7 @@ async def analyze_coverage(
     try:
         # Convert service area GeoJSON to Shapely polygons and test
         # which demand points fall inside each area
+        from shapely.errors import ShapelyError
         from shapely.geometry import shape, Point
 
         depot_coverage: Dict = {}
@@ -344,9 +345,10 @@ async def analyze_coverage(
         for depot_id, geojson in request.service_areas.items():
             try:
                 poly = shape(geojson)
-            except Exception:
-                depot_coverage[depot_id] = {"covered": 0, "points": []}
-                continue
+            except (ValueError, TypeError, AttributeError, ShapelyError) as e:
+                raise ValueError(
+                    f"Invalid service-area geometry for depot {depot_id}: {e}"
+                ) from e
 
             dep_covered: List[str] = []
             for dp in request.demand_points:
@@ -371,5 +373,5 @@ async def analyze_coverage(
             "coverage_ratio": covered / total if total > 0 else 0.0,
             "depot_coverage": depot_coverage,
         }
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

@@ -215,7 +215,7 @@ async def create_network(
     try:
         model.load_network(request.network)
         return {"status": "success", "message": f"Network {request.network.id} created"}
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -232,7 +232,7 @@ async def optimize_flow(
             objective=request.objective,
         )
         return result
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -248,7 +248,7 @@ async def analyze_disruption(
             disrupted_edges=request.disrupted_edges,
         )
         return result
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -259,7 +259,7 @@ async def get_critical_nodes(
     """Identify critical nodes in the supply chain network."""
     try:
         return analyzer.identify_critical_nodes()
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -270,7 +270,7 @@ async def get_improvement_suggestions(
     """Get improvement suggestions for supply chain resilience."""
     try:
         return analyzer.suggest_improvements()
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -288,7 +288,7 @@ async def optimize_facility_locations(
             max_distance=request.max_distance,
         )
         return result
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -305,5 +305,5 @@ async def optimize_network(
             constraints=request.constraints,
         )
         return result
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

@@ -167,7 +167,7 @@ async def optimize_route(
         )
 
         return route
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -183,7 +183,7 @@ async def register_vehicle(
             "status": "success",
             "message": f"Vehicle {registration.vehicle.id} registered",
         }
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -205,7 +205,7 @@ async def solve_vrp(
         )
 
         return result
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -216,5 +216,5 @@ async def get_vehicles(
     """Get all registered vehicles."""
     try:
         return list(fleet_manager.vehicles.values())
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

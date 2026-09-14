@@ -70,12 +70,6 @@ The campaign is recorded in CHANGELOG under
 `## [0.2.0] - 2026-09-11 - repo-wide quality campaign`. All spec items are
 delivered; the ledger's open rows below are the survivors.
 
-Additional Minor rows surfaced during release verification (2026-09-12):
-
-| ID | Area / status | Bounded next step | Acceptance evidence / dependencies |
-| --- | --- | --- | --- |
-| **LOG-EXC-01** | LOG / follow-up from GS-223 | The sibling routers `api/routes.py`, `api/supply_chain.py`, `api/delivery.py` still carry the blanket `except Exception -> HTTP 400`; `delivery.py:347` additionally fabricates zero depot coverage on shape-parse failure. Adopt the shared `geo_infer_log.api.errors.ErrorHandlerMiddleware` + `except ValueError` swap; make the fallback raise or log-and-propagate. | TestClient probe: TypeError from a handler yields 500 INTERNAL_ERROR (no internal text) on all three routers; malformed shape raises instead of fabricating coverage. |
-
 ---
 
 
