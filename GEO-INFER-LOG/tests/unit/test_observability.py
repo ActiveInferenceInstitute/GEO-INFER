@@ -27,7 +27,9 @@ class TestPerformanceMetrics:
         timer_id = metrics.start_timer("load_data")
         duration = metrics.end_timer(timer_id)
 
-        assert duration > 0
+        # Sub-millisecond operations can measure as exactly 0.0 on coarse
+        # monotonic-clock resolutions; the contract is non-negative.
+        assert duration >= 0
         snapshot = metrics.get_all_metrics()
         # The operation must be keyed as "load_data", not truncated to "load".
         assert "load_data" in snapshot["performance_stats"]
