@@ -5,6 +5,21 @@ All notable changes to the GEO-INFER framework will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **LOG-EXC-01** (`0125d397`): LOG API error handling narrowed — the sibling
+  routes / supply-chain / delivery routers now distinguish domain
+  `ValueError`s (client faults, HTTP 400 with the domain message) from
+  unexpected exceptions (server faults, HTTP 500 with a generic non-leaking
+  `INTERNAL_ERROR` body) instead of masking every failure as a 400 that
+  leaked internal exception text; the delivery coverage endpoint fails
+  loudly on malformed service-area geometry instead of fabricating zero
+  coverage (GS-223 transport-router fix extended fleet-wide).
+  `0e6a47d4` reformatted the LOG-EXC-01 test file that landed unformatted
+  (the CI 3.12 format gate caught it).
+
 ## [0.2.0] - 2026-09-11 — repo-wide quality campaign (189 items)
 
 Shipped as the SCOPE-2026-09-11 campaign ([spec](SCOPE-2026-09-11.md),

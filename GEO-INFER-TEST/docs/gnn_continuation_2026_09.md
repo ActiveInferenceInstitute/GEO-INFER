@@ -362,3 +362,64 @@ trigger remains unexplained; no repro exists. Status of the 2026-09-10 closure
 criteria: not closed (no minimal reproducer; these bounded runs are not three
 consecutive full suite combined runs). No test was weakened, skipped, or
 suppressed, and no environment fix is claimed.
+
+## 2026-09-15 induced exclusive-lock probe on the shared embedded proj.db (TEST-GNN-01 follow-up)
+
+Bounded probe executing the minimal case the 2026-09-10 closure criteria names:
+an exclusive lock on the shared embedded `proj.db` held by an external
+connection while a CRS opens. Environment (unchanged from prior probes):
+Python 3.12.11, pyproj 3.7.1, PROJ 9.5.1, SQLite runtime 3.50.4;
+`quick_check` `ok` and `journal_mode=delete` before and after; no PROJ
+processes held `proj.db` file descriptors at probe start (`lsof` count 0).
+
+Method: a Python `sqlite3` connection in a launcher process ran
+`BEGIN EXCLUSIVE` plus a verifying read (a second read-only connection in the
+same window failed with `sqlite3.OperationalError: database is locked`, so the
+lock was demonstrably live). Under that verified lock, fresh
+`pyproj`/`libproj` subprocesses executed: `CRS.from_epsg(4326)` (built-in),
+`CRS.from_epsg(25832)`/`CRS.from_epsg(32633)` (database-bound codes),
+`pyproj.database.get_authorities()`, and a same-process sequence where the
+plain-SQLite read attempt and the PROJ work ran back to back. File access was
+also cross-checked: `chmod 000` on `proj.db` makes `CRS.from_epsg(25832)`
+fail (`CRSError ... no database context specified`), so the database-bound
+CRS path provably reads the file; `lsof` on the PROJ process showed `proj.db`
+open (fd `3r`, read-only) for the context lifetime.
+
+Outcomes, all clean:
+
+| Probe | Result |
+| --- | --- |
+| CRS.from_epsg(4326) under verified exclusive lock | exit 0, correct name |
+| CRS.from_epsg(25832)/32633 under verified exclusive lock | exit 0, correct names |
+| get_authorities() under verified exclusive lock | exit 0, 8 authorities |
+| same-process control: plain sqlite3 ro read, then PROJ CRS | plain read **blocked** (`database is locked`), PROJ CRS **succeeded immediately** |
+| lock released, retry | exit 0; `quick_check` `ok`; `journal_mode` unchanged; no sidecar files |
+
+Two findings beyond the no-reproduction itself:
+
+1. **SQLite-level lock contention cannot be the historical trigger on this
+   build.** In the same interpreter, at the same moment, with the same file,
+   an ordinary SQLite reader was blocked while PROJ's database-bound CRS
+   creation and authority listing succeeded. PROJ's access path to `proj.db`
+   therefore does not acquire (or does not honor) the SQLite locks that
+   serialise ordinary connections — the mechanism by which libproj bypasses
+   them was not identified (no `immutable=1`/`nolock` URI markers present in
+   `libproj.25.9.5.1.dylib`; the exact bypass mechanism is unresolved) — but
+   the operational conclusion is solid: an external exclusive lock on
+   `proj.db` cannot produce a CRS-path failure here, and lock contention
+   surfaces as `database is locked` (SQLITE_BUSY) for ordinary connections,
+   not as the historical error class.
+2. The historical failure text is a SQLite **disk I/O error** (SQLITE_IOERR
+   class), which this probe shows is orthogonal to the locking dimension:
+   the "transient concurrent-access contention on the shared proj.db"
+   hypothesis must be narrowed from "SQLite lock contention" to I/O-level or
+   file-content-level faults (fs errors, disk pressure, truncated/corrupt
+   reads of the shared file), which the SQLITE_BUSY-vs-IOERR distinction and
+   the lock-bypass behaviour both support.
+
+Probed 2026-09-15. Not closed: the exact trigger remains unexplained and no
+reproducer exists; what this probe establishes is a *negative* result on the
+induced-lock minimal case plus a refinement of the causal chain (lock
+contention ruled out at the SQLite layer for PROJ CRS reads on this build;
+I/O-class external interference remains the residual hypothesis class). No
+CRS test was weakened and no environment fix is claimed.
