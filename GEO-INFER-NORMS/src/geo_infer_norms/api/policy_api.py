@@ -401,10 +401,8 @@ class PolicyAPI:
                 "message": "Policy created successfully",
                 "policy_id": policy_id,
             }
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error creating policy: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def list_policies(
         self,
@@ -445,10 +443,8 @@ class PolicyAPI:
                 policies = [p for p in policies if tag in (p.tags or [])]
 
             return [self._policy_to_dict(p) for p in policies]
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error listing policies: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def get_policy(
         self, policy_id: str = Path(..., description="ID of the policy")
@@ -471,12 +467,8 @@ class PolicyAPI:
                 )
 
             return self._policy_to_dict(policy)
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error getting policy: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     # Policy implementation endpoints
 
@@ -529,13 +521,8 @@ class PolicyAPI:
                 "message": "Policy implementation created successfully",
                 "implementation_id": implementation_id,
             }
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Error creating policy implementation: {str(e)}",
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def list_policy_implementations(
         self,
@@ -566,11 +553,8 @@ class PolicyAPI:
                 ]
 
             return [self._policy_implementation_to_dict(i) for i in implementations]
-        except Exception as e:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Error listing policy implementations: {str(e)}",
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def get_policy_implementation(
         self,
@@ -597,12 +581,8 @@ class PolicyAPI:
                 )
 
             return self._policy_implementation_to_dict(implementation)
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error getting policy implementation: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def get_implementations_by_policy(
         self, policy_id: str = Path(..., description="ID of the policy")
@@ -628,13 +608,8 @@ class PolicyAPI:
             ]
 
             return [self._policy_implementation_to_dict(i) for i in implementations]
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Error getting implementations by policy: {str(e)}",
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     # Impact assessment endpoints
 
@@ -711,12 +686,8 @@ class PolicyAPI:
                 "message": "Policy impact assessment completed",
                 "assessment": assessment_result,
             }
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error assessing policy impact: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def get_impact_assessment_history(
         self, policy_id: str = Path(..., description="ID of the policy")
@@ -767,13 +738,8 @@ class PolicyAPI:
             ]
 
             return assessments
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Error getting impact assessment history: {str(e)}",
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     # Regulatory comparison endpoints
 
@@ -862,12 +828,8 @@ class PolicyAPI:
                 "jurisdiction_id": comparison_request.jurisdiction_id,
                 "timestamp": datetime.datetime.now().isoformat(),
             }
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error comparing regulations: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     # Export endpoints
 
@@ -945,7 +907,5 @@ class PolicyAPI:
                 "feature_count": len(geojson["features"]),
                 "geojson": geojson,
             }
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error exporting to GeoJSON: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))

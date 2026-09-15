@@ -6,6 +6,7 @@ Api workspace within `GEO-INFER-NORMS`.
 
 - `__init__.py`
 - `compliance_api.py`
+- `errors.py`
 - `legal_api.py`
 - `normative_api.py`
 - `policy_api.py`
@@ -19,6 +20,8 @@ Api workspace within `GEO-INFER-NORMS`.
 - `compliance_api.py:GeoPoint` (class)
 - `compliance_api.py:ReportParams` (class)
 - `compliance_api.py:ComplianceAPI` (class)
+- `errors.py:ErrorHandlerMiddleware` (class)
+- `errors.py:register_error_handlers` (function)
 - `legal_api.py:GeometryModel` (class)
 - `legal_api.py:JurisdictionCreate` (class)
 - `legal_api.py:RegulationCreate` (class)
@@ -31,8 +34,6 @@ Api workspace within `GEO-INFER-NORMS`.
 - `normative_api.py:NormativeInferenceRequest` (class)
 - `normative_api.py:NormPolicyImpactRequest` (class)
 - `normative_api.py:PointLocation` (class)
-- `normative_api.py:NormativeAPI` (class)
-- `policy_api.py:GeometryModel` (class)
 
 ## Module Metadata
 

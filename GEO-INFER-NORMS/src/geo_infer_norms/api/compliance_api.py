@@ -251,10 +251,8 @@ class ComplianceAPI:
                 "message": "Compliance status added successfully",
                 "status_id": status.id,
             }
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error adding compliance status: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def get_entity_compliance(
         self,
@@ -278,10 +276,8 @@ class ComplianceAPI:
                 entity_id=entity_id, as_of_date=as_of_date
             )
             return compliance_info
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error getting entity compliance: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def get_regulation_compliance(
         self,
@@ -305,10 +301,8 @@ class ComplianceAPI:
                 regulation_id=regulation_id, as_of_date=as_of_date
             )
             return compliance_info
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error getting regulation compliance: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     # Metric endpoints
 
@@ -348,10 +342,8 @@ class ComplianceAPI:
                 "message": "Compliance metric added successfully",
                 "metric_id": metric.id,
             }
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error adding compliance metric: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def list_compliance_metrics(
         self,
@@ -390,10 +382,8 @@ class ComplianceAPI:
                 }
                 for m in metrics
             ]
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error listing compliance metrics: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     # Evaluation endpoints
 
@@ -452,10 +442,8 @@ class ComplianceAPI:
                 "notes": status.notes,
                 "metric_results": status.metric_results,
             }
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error evaluating compliance: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def evaluate_compliance_at_location(
         self,
@@ -530,10 +518,8 @@ class ComplianceAPI:
             summary = report.generate_summary_report(as_of_date=params.as_of_date)
 
             return summary
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error generating summary report: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def generate_entity_report(
         self,
@@ -565,10 +551,8 @@ class ComplianceAPI:
             )
 
             return entity_report
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error generating entity report: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def generate_regulation_report(
         self,
@@ -600,10 +584,8 @@ class ComplianceAPI:
             )
 
             return regulation_report
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error generating regulation report: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def export_report(
         self,
@@ -676,10 +658,8 @@ class ComplianceAPI:
                     "format": "json",
                     "data": data,
                 }
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error exporting report: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     # GeoJSON endpoints
 
@@ -737,7 +717,5 @@ class ComplianceAPI:
                 "feature_count": len(geojson["features"]),
                 "geojson": geojson,
             }
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error exporting to GeoJSON: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))

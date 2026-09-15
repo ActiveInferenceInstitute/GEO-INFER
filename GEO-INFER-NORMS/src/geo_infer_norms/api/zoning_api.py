@@ -413,10 +413,8 @@ class ZoningAPI:
                 "message": "Zoning code created successfully",
                 "code": zoning_code.code,
             }
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error creating zoning code: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def list_zoning_codes(
         self, category: Optional[str] = Query(None, description="Filter by category")
@@ -437,10 +435,8 @@ class ZoningAPI:
                 codes = [c for c in codes if c.category == category]
 
             return [self._zoning_code_to_dict(c) for c in codes]
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error listing zoning codes: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def get_zoning_code(
         self, code_id: str = Path(..., description="Zoning code identifier")
@@ -463,12 +459,8 @@ class ZoningAPI:
                 )
 
             return self._zoning_code_to_dict(code)
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error getting zoning code: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     # Zoning district endpoints
 
@@ -507,10 +499,8 @@ class ZoningAPI:
                 "message": "Zoning district created successfully",
                 "district_id": district.id,
             }
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error creating zoning district: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def list_zoning_districts(
         self,
@@ -564,10 +554,8 @@ class ZoningAPI:
                 result.append(district_dict)
 
             return result
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error listing zoning districts: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def get_zoning_district(
         self, district_id: str = Path(..., description="ID of the zoning district")
@@ -591,12 +579,8 @@ class ZoningAPI:
                 )
 
             return self._zoning_district_to_dict(district)
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error getting zoning district: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     # Land use type endpoints
 
@@ -630,10 +614,8 @@ class ZoningAPI:
                 "message": "Land use type created successfully",
                 "land_use_type_id": land_use_type.id,
             }
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error creating land use type: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def list_land_use_types(
         self, category: Optional[str] = Query(None, description="Filter by category")
@@ -656,10 +638,8 @@ class ZoningAPI:
                 ]
 
             return [self._land_use_type_to_dict(lt) for lt in land_use_types]
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error listing land use types: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     # Analysis endpoints
 
@@ -674,10 +654,8 @@ class ZoningAPI:
             results = self.zoning_analyzer.analyze_zoning_boundaries()
 
             return results
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error analyzing zoning boundaries: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def evaluate_zoning_change(
         self, change_request: ZoningChangeRequest
@@ -697,10 +675,8 @@ class ZoningAPI:
             )
 
             return results
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error evaluating zoning change: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def get_districts_at_point(
         self, point: PointLocation
@@ -722,10 +698,8 @@ class ZoningAPI:
             districts = self.zoning_analyzer.get_zoning_at_point(shapely_point)
 
             return [self._zoning_district_to_dict(d) for d in districts]
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error getting districts at point: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     # Land use classification endpoints
 
@@ -761,10 +735,8 @@ class ZoningAPI:
                 "feature_count": len(result_geojson["features"]),
                 "geojson": result_geojson,
             }
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error classifying land use: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     # Compatibility endpoints
 
@@ -787,10 +759,8 @@ class ZoningAPI:
             compatibility = self.zoning_analyzer.calculate_compatibility(code1, code2)
 
             return compatibility
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error calculating compatibility: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     # Export endpoints
 
@@ -857,7 +827,5 @@ class ZoningAPI:
                 "feature_count": len(geojson["features"]),
                 "geojson": geojson,
             }
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error exporting to GeoJSON: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))

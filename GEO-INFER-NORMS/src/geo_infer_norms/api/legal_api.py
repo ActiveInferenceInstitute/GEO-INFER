@@ -348,10 +348,8 @@ class LegalAPI:
                 "message": "Jurisdiction created successfully",
                 "jurisdiction_id": jurisdiction.id,
             }
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error creating jurisdiction: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def list_jurisdictions(
         self,
@@ -396,10 +394,8 @@ class LegalAPI:
                 result.append(jurisdiction_dict)
 
             return result
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error listing jurisdictions: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def get_jurisdiction(
         self, jurisdiction_id: str = Path(..., description="ID of the jurisdiction")
@@ -423,12 +419,8 @@ class LegalAPI:
                 )
 
             return self._jurisdiction_to_dict(jurisdiction)
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error getting jurisdiction: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def find_jurisdictions_by_name(
         self,
@@ -453,10 +445,8 @@ class LegalAPI:
             )
 
             return [self._jurisdiction_to_dict(j) for j in jurisdictions]
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error finding jurisdictions by name: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def get_jurisdiction_hierarchy(
         self, jurisdiction_id: str = Path(..., description="ID of the jurisdiction")
@@ -482,13 +472,8 @@ class LegalAPI:
                 )
 
             return [self._jurisdiction_to_dict(j) for j in hierarchy]
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Error getting jurisdiction hierarchy: {str(e)}",
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     # Regulation endpoints
 
@@ -530,10 +515,8 @@ class LegalAPI:
                 "message": "Regulation created successfully",
                 "regulation_id": regulation.id,
             }
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error creating regulation: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def list_regulations(
         self,
@@ -562,10 +545,8 @@ class LegalAPI:
                 regulations = [r for r in regulations if tag in (r.tags or [])]
 
             return [self._regulation_to_dict(r) for r in regulations]
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error listing regulations: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def get_regulation(
         self, regulation_id: str = Path(..., description="ID of the regulation")
@@ -589,12 +570,8 @@ class LegalAPI:
                 )
 
             return self._regulation_to_dict(regulation)
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error getting regulation: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def get_regulations_by_jurisdiction(
         self, jurisdiction_id: str = Path(..., description="ID of the jurisdiction")
@@ -614,11 +591,8 @@ class LegalAPI:
             )
 
             return [self._regulation_to_dict(r) for r in regulations]
-        except Exception as e:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Error getting regulations by jurisdiction: {str(e)}",
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     # Regulatory framework endpoints
 
@@ -653,10 +627,8 @@ class LegalAPI:
                 "framework_id": framework.id,
                 "framework": self._framework_to_dict(framework),
             }
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error creating regulatory framework: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def list_regulatory_frameworks(
         self, sector: Optional[str] = Query(None, description="Filter by sector")
@@ -707,11 +679,8 @@ class LegalAPI:
             )
 
             return [self._jurisdiction_to_dict(j) for j in jurisdictions]
-        except Exception as e:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Error getting jurisdictions by point: {str(e)}",
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def get_regulations_by_point(
         self, point: PointLocation
@@ -733,10 +702,8 @@ class LegalAPI:
             regulations = self.legal_framework.get_regulations_by_point(shapely_point)
 
             return [self._regulation_to_dict(r) for r in regulations]
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error getting regulations by point: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def export_to_geojson(
         self,
@@ -773,7 +740,5 @@ class LegalAPI:
                 "feature_count": len(geojson["features"]),
                 "geojson": geojson,
             }
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error exporting to GeoJSON: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))

@@ -210,8 +210,8 @@ def test_export_report_invalid_type(client):
         "/reports/export",
         json={"report_type": "bogus", "params": {}},
     )
-    assert response.status_code == 500
-    assert "Error exporting report" in response.json()["detail"]
+    assert response.status_code == 400
+    assert "Invalid report type" in response.json()["detail"]
 
 
 def test_geo_export(client):

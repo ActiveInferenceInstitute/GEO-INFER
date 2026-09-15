@@ -23,6 +23,7 @@
 
 - `test_acceptance_norms.py`
 - `test_api_compliance.py`
+- `test_api_error_handling.py`
 - `test_api_legal.py`
 - `test_api_normative.py`
 - `test_api_policy.py`

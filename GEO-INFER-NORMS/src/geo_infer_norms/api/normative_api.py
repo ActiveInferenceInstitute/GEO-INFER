@@ -368,10 +368,8 @@ class NormativeAPI:
                 "message": "Social norm created successfully",
                 "norm_id": norm_id,
             }
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error creating social norm: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def list_social_norms(
         self,
@@ -412,10 +410,8 @@ class NormativeAPI:
                 norms = [n for n in norms if n["strength"] >= min_strength]
 
             return [self._social_norm_to_dict(n) for n in norms]
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error listing social norms: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def get_social_norm(
         self, norm_id: str = Path(..., description="ID of the social norm")
@@ -438,12 +434,8 @@ class NormativeAPI:
                 )
 
             return self._social_norm_to_dict(norm)
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error getting social norm: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     # Norm diffusion endpoints
 
@@ -524,12 +516,8 @@ class NormativeAPI:
                 "final_adoption_rate": summary.get("adoption_rate", 0.0),
                 "adoption_summary": summary,
             }
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error simulating norm diffusion: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def get_diffusion_factors(
         self, norm_id: str = Path(..., description="ID of the social norm")
@@ -569,12 +557,8 @@ class NormativeAPI:
                     else 0
                 ),
             }
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error getting diffusion factors: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     # Normative inference endpoints
 
@@ -671,13 +655,8 @@ class NormativeAPI:
                 "inferred_norms": inferred_norms,
                 "inference_id": f"infer-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
             }
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Error performing normative inference: {str(e)}",
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     async def analyze_spatial_patterns(
         self, inference_request: NormativeInferenceRequest
@@ -718,10 +697,8 @@ class NormativeAPI:
                 "observation_count": len(locations),
                 "analysis_id": f"spatial-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
             }
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error analyzing spatial patterns: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     # Policy impact endpoints
 
@@ -826,12 +803,8 @@ class NormativeAPI:
                     "combined_effect": combined_effect,
                 },
             }
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error assessing policy impact: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     # Spatial query endpoints
 
@@ -853,10 +826,8 @@ class NormativeAPI:
                 and norm["spatial_geometry"].contains(Point(point.lon, point.lat))
             ]
             return [self._social_norm_to_dict(n) for n in norms]
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error getting norms at point: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
     # Export endpoints
 
@@ -916,7 +887,5 @@ class NormativeAPI:
                 "feature_count": len(features),
                 "geojson": geojson,
             }
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error exporting to GeoJSON: {str(e)}"
-            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))

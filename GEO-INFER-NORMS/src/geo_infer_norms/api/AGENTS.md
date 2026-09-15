@@ -23,6 +23,7 @@
 
 - `__init__.py`
 - `compliance_api.py`
+- `errors.py`
 - `legal_api.py`
 - `normative_api.py`
 - `policy_api.py`
