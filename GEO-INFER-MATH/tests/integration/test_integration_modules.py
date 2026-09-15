@@ -334,8 +334,10 @@ class TestMCMCHelpers:
         def log_posterior(x):
             return -0.5 * np.sum((x - 3.0) ** 2)
 
-                np.random.seed(0)  # determinism pin: the 200-sample chain is too short for an unseeded tolerance bound
-result = mcmc.mcmc_sample(log_posterior, np.array([0.0]))
+        # Determinism pin: the 200-sample chain is too short for an
+        # unseeded tolerance bound (CI 3.12 drew a 1.177-off mean).
+        np.random.seed(0)
+        result = mcmc.mcmc_sample(log_posterior, np.array([0.0]))
         assert result["samples"].shape[0] == 200
         assert 0 < result["acceptance_rate"] < 1
         assert abs(np.mean(result["samples"]) - 3.0) < 1.0
