@@ -26,6 +26,7 @@ Docs workspace within `GEO-INFER-GIT`.
 - `jsonschema>=4.17.0`
 - `GitPython>=3.1.0`
 - `fastapi>=0.104.0`
+- `starlette>=0.27.0`
 - `uvicorn[standard]>=0.24.0`
 - `pydantic>=2.5.0`
 - `tqdm>=4.65.0`

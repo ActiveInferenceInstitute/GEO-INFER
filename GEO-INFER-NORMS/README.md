@@ -28,6 +28,7 @@ Social-technical compliance modeling with deterministic and probabilistic analys
 ## Dependencies
 
 - `fastapi>=0.95.0,<1`
+- `starlette>=0.27.0`
 - `geopandas>=0.13.0,<2`
 - `matplotlib>=3.7.0,<4`
 - `networkx>=2.6.0,<4`

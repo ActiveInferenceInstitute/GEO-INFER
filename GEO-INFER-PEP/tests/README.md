@@ -25,6 +25,7 @@ Tests workspace within `GEO-INFER-PEP`.
 ## Dependencies
 
 - `fastapi>=0.100.0`
+- `starlette>=0.27.0`
 - `uvicorn[standard]>=0.23.2`
 - `pydantic>=2.0`
 - `pandas>=2.0`
