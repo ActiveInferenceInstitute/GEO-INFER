@@ -5,6 +5,7 @@ from typing import Dict, Any
 from .crm_endpoints import router as crm_router
 from .hr_endpoints import router as hr_router
 from .talent_endpoints import router as talent_router
+from .errors import ErrorHandlerMiddleware, register_error_handlers
 
 # Create the main API router
 api_router = APIRouter(prefix="/pep")
@@ -198,4 +199,4 @@ async def validate_candidate_data(candidate_data: Dict[str, Any]) -> Dict[str, A
         return {"is_valid": False, "errors": [str(e)], "error_count": 1}
 
 
-__all__ = ["api_router"]
+__all__ = ["api_router", "ErrorHandlerMiddleware", "register_error_handlers"]

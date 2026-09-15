@@ -23,6 +23,7 @@
 
 - `__init__.py`
 - `crm_endpoints.py`
+- `errors.py`
 - `hr_endpoints.py`
 - `talent_endpoints.py`
 

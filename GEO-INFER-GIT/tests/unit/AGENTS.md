@@ -37,6 +37,7 @@
 - `test_repo_cloner.py`
 - `test_repo_manager.py`
 - `test_rest_api.py`
+- `test_rest_api_error_handling.py`
 - `test_validation.py`
 
 ## Validation

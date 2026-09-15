@@ -74,12 +74,8 @@ async def upload_crm_csv(
             status_code=500,
             detail="Temporary CSV file not found after upload. This should not happen.",
         )
-    except Exception as e:
-        # Log the full error for debugging on the server
-        logger.error(f"Error during CSV processing: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, detail=f"An error occurred processing the CSV file: {e}"
-        )
+    # Non-domain failures escape to the shared error middleware, which returns
+    # a generic 500 without leaking internal exception details.
     finally:
         # Clean up the temporary file
         if temp_file_path.exists():

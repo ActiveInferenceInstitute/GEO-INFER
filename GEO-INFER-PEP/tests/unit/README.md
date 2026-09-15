@@ -4,6 +4,7 @@ Unit workspace within `GEO-INFER-PEP`.
 
 ## Contents
 
+- `test_api_error_handling.py`
 - `test_crm.py`
 - `test_crm_models.py`
 - `test_crm_talent_endpoints.py`

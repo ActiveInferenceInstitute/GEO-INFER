@@ -22,6 +22,7 @@ from ..core.repo_manager import RepoManager
 from ..core.github_api import GitHubAPI
 from ..utils.config_loader import ConfigLoader
 from ..utils.logging_utils import setup_logging
+from .errors import register_error_handlers
 
 # Create FastAPI app
 app = FastAPI(
@@ -40,6 +41,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+register_error_handlers(app)
 
 # Global instances
 repo_manager: Optional[RepoManager] = None
@@ -281,10 +284,6 @@ async def list_repositories(
 
     except HTTPException:
         raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error listing repositories: {str(e)}"
-        )
 
 
 @app.post("/repositories", response_model=RepositoryResponse, tags=["repositories"])
@@ -335,10 +334,6 @@ async def add_repository(
 
     except HTTPException:
         raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error adding repository: {str(e)}"
-        )
 
 
 @app.get(
@@ -358,10 +353,6 @@ async def get_repository(
 
     except HTTPException:
         raise
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error getting repository: {str(e)}"
-        )
 
 
 @app.post(
@@ -394,8 +385,6 @@ async def clone_repository(
 
     except HTTPException:
         raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error starting clone: {str(e)}")
 
 
 @app.post(
@@ -428,8 +417,6 @@ async def sync_repository(
 
     except HTTPException:
         raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error starting sync: {str(e)}")
 
 
 @app.get(
@@ -462,10 +449,10 @@ async def list_branches(
                 ]
         return {"branches": branches, "total": len(branches)}
 
+    except HTTPException:
+        raise
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error listing branches: {str(e)}")
 
 
 @app.post(
@@ -491,8 +478,6 @@ async def create_branch(
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except HTTPException:
         raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error creating branch: {str(e)}")
 
 
 @app.post(
@@ -527,35 +512,23 @@ async def merge_branch(
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except RuntimeError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error merging branch: {str(e)}")
 
 
 @app.get("/system/status", response_model=SystemStatusResponse, tags=["system"])
 async def get_system_status() -> SystemStatusResponse:
     """Get comprehensive system status."""
-    try:
-        import git
+    import git
 
-        records: Dict[str, Any] = (
-            repo_manager.check_repo_status() if repo_manager else {}
-        )
-        active_repositories = sum(
-            1 for value in records.values() if "error" not in value
-        )
-        return SystemStatusResponse(
-            version="1.0.0",
-            uptime=0,
-            repository_count=active_repositories,
-            active_workflows=0,
-            storage_usage={"tracked_records": len(repository_records)},
-            git_version=git.__version__,
-        )
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error getting system status: {str(e)}"
-        )
+    records: Dict[str, Any] = repo_manager.check_repo_status() if repo_manager else {}
+    active_repositories = sum(1 for value in records.values() if "error" not in value)
+    return SystemStatusResponse(
+        version="1.0.0",
+        uptime=0,
+        repository_count=active_repositories,
+        active_workflows=0,
+        storage_usage={"tracked_records": len(repository_records)},
+        git_version=git.__version__,
+    )
 
 
 # Background task functions

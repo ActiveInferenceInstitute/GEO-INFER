@@ -68,15 +68,14 @@ async def upload_hr_csv(
             status_code=503, detail=f"Failed to connect to HR data source: {e}"
         )
     except FileNotFoundError:
-        # This might occur if the temp_file_path is not handled correctly or CSVHRImporter fails before connect
+        # This might occur if the temp_file_path is not handled correctly or
+        # CSVHRImporter fails before connect.
         raise HTTPException(
-            status_code=500, detail=f"HR CSV file not found. Path: {temp_file_path}"
+            status_code=500,
+            detail="Temporary CSV file not found after upload. This should not happen.",
         )
-    except Exception as e:
-        logger.error(f"Error during HR CSV processing: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, detail=f"An error occurred processing the HR CSV file: {e}"
-        )
+    # Non-domain failures escape to the shared error middleware, which returns
+    # a generic 500 without leaking internal exception details.
     finally:
         if temp_file_path.exists():
             temp_file_path.unlink()

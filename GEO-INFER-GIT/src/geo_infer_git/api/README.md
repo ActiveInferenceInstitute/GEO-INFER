@@ -5,10 +5,13 @@ Api workspace within `GEO-INFER-GIT`.
 ## Contents
 
 - `__init__.py`
+- `errors.py`
 - `rest_api.py`
 
 ## Public Interface
 
+- `errors.py:ErrorHandlerMiddleware` (class)
+- `errors.py:register_error_handlers` (function)
 - `rest_api.py:RepositoryRequest` (class)
 - `rest_api.py:RepositoryResponse` (class)
 - `rest_api.py:CloneRequest` (class)
@@ -27,8 +30,6 @@ Api workspace within `GEO-INFER-GIT`.
 - `rest_api.py:health_check` (function)
 - `rest_api.py:list_repositories` (function)
 - `rest_api.py:add_repository` (function)
-- `rest_api.py:get_repository` (function)
-- `rest_api.py:clone_repository` (function)
 
 ## Module Metadata
 

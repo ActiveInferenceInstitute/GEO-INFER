@@ -43,10 +43,11 @@ async def upload_candidates_csv(file: UploadFile = File(...)) -> Dict[str, Any]:
         return {
             "message": f"Imported {len(store.candidates)} candidates from {file.filename}"
         }
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error processing candidate CSV: {e}"
-        )
+    except (FileNotFoundError, ValueError) as exc:
+        # Domain failure modes of the CSV import path (CSVTalentImporter.connect
+        # and CandidateStatus parsing): client faults -> 400 with the domain
+        # message. Anything else escapes to the shared error middleware.
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     finally:
         if temp_file_path.exists():
             temp_file_path.unlink()
