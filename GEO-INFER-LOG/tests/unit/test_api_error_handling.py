@@ -145,7 +145,12 @@ _FLOW_PAYLOAD: Dict[str, Any] = {
         {"id": "dp-001", "location": [8.6821, 50.1109], "demand": 200, "priority": 1},
     ],
     "supply_points": [
-        {"id": "sp-001", "location": [18.0686, 59.3293], "supply": 500, "reliability": 0.95},
+        {
+            "id": "sp-001",
+            "location": [18.0686, 59.3293],
+            "supply": 500,
+            "reliability": 0.95,
+        },
     ],
     "objective": "cost",
 }
