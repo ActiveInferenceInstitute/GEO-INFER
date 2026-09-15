@@ -22,8 +22,11 @@ Examples:
 
 from .rest_api import DataAPI
 from .service import DataService
+from .errors import ErrorHandlerMiddleware, register_error_handlers
 
 __all__ = [
     "DataAPI",
     "DataService",
+    "ErrorHandlerMiddleware",
+    "register_error_handlers",
 ]

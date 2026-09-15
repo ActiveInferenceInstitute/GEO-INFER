@@ -5,11 +5,14 @@ Api workspace within `GEO-INFER-DATA`.
 ## Contents
 
 - `__init__.py`
+- `errors.py`
 - `rest_api.py`
 - `service.py`
 
 ## Public Interface
 
+- `errors.py:ErrorHandlerMiddleware` (class)
+- `errors.py:register_error_handlers` (function)
 - `rest_api.py:DataAPI` (class)
 - `service.py:DataService` (class)
 

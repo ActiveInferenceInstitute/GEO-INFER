@@ -26,6 +26,7 @@ from ..core.storage import AdaptiveDataStorage
 from ..core.validation import DataQualityManager
 from ..core.pipeline import IntelligentETLPipeline
 from .service import DataService
+from .errors import register_error_handlers
 
 
 logger = logging.getLogger(__name__)
@@ -95,6 +96,10 @@ class DataAPI:
                 allow_methods=["*"],
                 allow_headers=["*"],
             )
+
+        # Non-domain exceptions escaping handlers become generic 500s
+        # (LOG-EXC-01 pattern); domain errors map to 4xx in the handlers.
+        register_error_handlers(self.app)
 
         self._setup_routes()
 
@@ -219,8 +224,8 @@ class DataAPI:
             try:
                 result = await self.ingestion_service.ingest_multi_source(**request)
                 return result
-            except Exception as e:
-                raise HTTPException(status_code=400, detail=str(e))
+            except (ValueError, ConnectionError) as e:
+                raise HTTPException(status_code=400, detail=str(e)) from e
 
         @self.app.post("/data/etl/execute")
         async def execute_etl(request: Dict[str, Any]) -> Any:
@@ -232,8 +237,8 @@ class DataAPI:
                     transformation_rules=request.get("transformations"),
                 )
                 return result
-            except Exception as e:
-                raise HTTPException(status_code=400, detail=str(e))
+            except ValueError as e:
+                raise HTTPException(status_code=400, detail=str(e)) from e
 
         @self.app.post("/quality/validate/{dataset_id}")
         async def validate_dataset_quality(
@@ -244,8 +249,13 @@ class DataAPI:
             try:
                 report = await self.quality_service.validate_dataset(dataset_id)
                 return report
-            except Exception as e:
-                raise HTTPException(status_code=400, detail=str(e))
+            except KeyError as e:
+                raise HTTPException(
+                    status_code=404,
+                    detail="Dataset not registered for validation",
+                ) from e
+            except ValueError as e:
+                raise HTTPException(status_code=400, detail=str(e)) from e
 
         @self.app.get("/search")
         async def search_datasets(

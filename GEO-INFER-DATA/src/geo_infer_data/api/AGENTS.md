@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `__init__.py`
+- `errors.py`
 - `rest_api.py`
 - `service.py`
 

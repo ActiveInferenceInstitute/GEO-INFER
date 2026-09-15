@@ -19,6 +19,7 @@ Unit workspace within `GEO-INFER-DATA`.
 - `test_ingestion.py`
 - `test_performance.py`
 - `test_pipeline.py`
+- `test_rest_api_error_handling.py`
 - `test_schemas.py`
 - `test_storage.py`
 - `test_stream_connectors.py`
