@@ -423,3 +423,98 @@ induced-lock minimal case plus a refinement of the causal chain (lock
 contention ruled out at the SQLite layer for PROJ CRS reads on this build;
 I/O-class external interference remains the residual hypothesis class). No
 CRS test was weakened and no environment fix is claimed.
+
+## 2026-09-15 I/O-class fault matrix on a copy of the shared embedded proj.db (TEST-GNN-01 follow-up)
+
+Next bounded probe in the class the exclusive-lock probe narrowed to:
+file-content and permission faults, applied to a *copy* of the embedded
+`proj.db`, never to the shared file itself. The embedded database pyproj
+actually opens is
+`.venv/lib/python3.12/site-packages/pyproj/proj_dir/share/proj/proj.db`
+(9,273,344 bytes, 2,264 4-KiB pages, MD5 `c6e1ebc929ac74ab543fed2b5933cf6d`).
+
+It was copied to `/tmp` and every fault was applied to a copy; probe scripts
+and artifacts live only in `/tmp/gs15_05/` (`probe.py`, `final_run.json`).
+No repo file and no shared `proj.db` byte was mutated.
+
+Binding, recorded because two standard redirections failed before the working
+one was found: setting `PROJ_DATA`/`PROJ_LIB` env vars for the child did not
+redirect pyproj (the internal `proj_dir` has precedence in pyproj 3.7.1's data
+dir resolution), and `pyproj.datadir.set_data_dir()` after import did not
+re-point libproj's database path (a zero-byte scenario still returned 8
+authorities — the tell that PROJ was still reading the embedded original). The
+working binding relocates the entire pyproj package to `/tmp` and swaps the
+faulted `proj.db` into the relocated package's `proj_dir/share/proj`; each
+child then asserts its opened `proj.db` MD5 equals the faulted scenario's MD5
+(`db_md5_matches_scenario=true` on all six scenarios), and a behavioral
+sentinel requires the zero-byte scenario to fail at the PROJ layer. All
+versions recorded as observed on the probe interpreter (same as the two prior
+sections): Python 3.12.11, pyproj 3.7.1, PROJ 9.5.1, SQLite runtime 3.50.4.
+
+Method: the fault matrix, each scenario in a fresh subprocess reading its own
+faulted copy — F0 intact baseline with checksummed re-read; F1a truncated to
+1 page (4,096 bytes); F1b truncated to half; F2 two middle pages (1,128–1,129)
+overwritten with deterministic garbage; F3 zero-byte; F4 read-only mode
+(`chmod 444`, intact content). Per scenario: plain-SQLite `quick_check` (layer
+classification), `CRS.from_epsg(4326)`, `CRS.from_epsg(25832)`,
+`CRS.from_epsg(32633)`, and `get_authorities()`. Contrast: a 400-iteration
+clean-read baseline (800 CRS reads, half of them database-bound `25832`) on
+the intact copy.
+
+Outcomes:
+
+| Scenario | SQLite layer (`quick_check`) | PROJ layer (CRS reads + authorities) |
+| --- | --- | --- |
+| F0 intact baseline | `ok` | all OK; 8 authorities |
+| F1a truncated to 1 page | `database disk image is malformed` (CORRUPT class) | clean `CRSError: Invalid projection: EPSG:... (Internal Proj Error: proj_create: no database context specified)`; 0 authorities |
+| F1b truncated to half | same CORRUPT | same clean CRSError; 0 authorities |
+| F2 two corrupted middle pages | CORRUPT | **all reads OK, 8 authorities — silent success** |
+| F3 zero-byte | `ok` (valid empty schema) | clean CRSError `no database context specified`; 0 authorities |
+| F4 read-only intact | `ok` | all OK; 8 authorities |
+| 400-iteration clean baseline | `ok`; MD5 unchanged; no sidecar | 800/800 reads OK |
+
+Three findings:
+
+1. **No fault class in the matrix reproduced an SQLITE_IOERR-class failure.**
+   Static file-content damage surfaces as SQLITE_CORRUPT ("database disk image
+   is malformed") with a clean, deterministic CRSError at the PROJ layer —
+   never the historical "disk I/O error" text. Combined with the exclusive-
+   lock probe, the historical failure is now excluded from both fault classes
+   tested: it is neither SQLite lock contention nor static content damage.
+2. **F2's silent success is the sharpest single result.** With two middle
+   pages corrupted, plain SQLite reported a malformed image while every PROJ
+   CRS read and authority listing succeeded — PROJ's targeted queries never
+   touched the damaged pages. Two consequences: file-content corruption can
+   be invisible to CRS reads (CRS tests passing does not certify `proj.db`
+   content integrity), and a *green* CRS run is compatible with a partially
+   corrupt shared database, which widens what the historical environment may
+   have been tolerating.
+3. **Reads are non-mutating.** Across all scenarios, including 800 clean
+   reads, the MD5 before and after was identical and `quick_check` stayed
+   `ok` — CRS reads neither heal nor worsen the file they read.
+
+What this means for TEST-GNN-01, by the row's own standard ("establish the
+historical cause, not just current success"): the I/O-class hypothesis is
+**narrowed but not reproduced**. Static content faults cannot produce the
+historical error class on this build; the remaining live sub-hypothesis is an
+OS-level read fault on a structurally intact file (an actual `read()` failure
+or short read at the moment of the historical run — disk pressure or
+filesystem fault class), which is not retroactively recreatable. Not closed:
+no reproducer of the historical error exists; what this probe adds is the
+IOERR-versus-CORRUPT discrimination and the silent-success-on-corruption
+finding. No CRS test was weakened, skipped, or suppressed, and no environment
+fix is claimed.
+
+Co-tenant activity, recorded as observed evidence (same convention as the
+2026-09-11 section): this lane's only write was this receipt file, verified by
+`git diff --stat -- GEO-INFER-TEST/docs/gnn_continuation_2026_09.md` = one
+file, +81 lines. During the probe window the worktree concurrently
+accumulated 863 modified files in total, 862 of them outside this lane — a
+bulk one-line pattern (GitNexus index-counter bumps in `CLAUDE.md`, module
+README version bumps `0.2.0`→`0.2.1`, including 13 paths under
+`GEO-INFER-TEST/`), none touching `proj.db` or this probe's scope. The
+working-tree acceptance clause "only this file modified" is therefore
+unmeetable through external churn and is reported as observed, not sanitized;
+the same external tree-churn class documented on 2026-09-11 was again
+occurring live during clean CRS runs (this probe's baseline: 800/800 reads
+OK, checksums stable).
