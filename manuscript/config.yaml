@@ -32,6 +32,9 @@ keywords:
   - "ecological modeling"
 
 metadata:
+  documentclass: "extarticle"
+  fontsize: "9pt"
+  geometry: "margin=2cm"
   license: "CC BY-NC-SA 4.0"  # generator-owned (PROJECT_LICENSE)
   language: "en"
 
