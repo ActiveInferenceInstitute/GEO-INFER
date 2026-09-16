@@ -76,6 +76,6 @@ This source manuscript is resolved at commit `{{RESEARCH_COMMIT}}` on branch
 count at measurement time was `{{RESEARCH_TREE_DIRTY_FILE_COUNT}}`; anything
 other than zero means the values describe files on disk rather than the named
 commit, which the commit stamp's `-dirty` or `-unverified` suffix records. The
-recorded verification summary is `{{VERIFICATION_STATUS}}`. That record is
-{{VERIFICATION_RECORD_PROVENANCE}}, whose republication policy the Artifacts
-and Evidence section states in full.
+recorded verification summary is `{{VERIFICATION_STATUS}}`; the record's own
+provenance stamps are published with it in the Artifacts and Evidence
+section.
