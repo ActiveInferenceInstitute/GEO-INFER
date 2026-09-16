@@ -46,9 +46,12 @@ bespoke encoder.
 
 For a categorical model with belief $q(s)$, prior preferences $p(s)$, and a
 coerced observation likelihood $\hat{p}(o \mid s)$, `FreeEnergyCalculator`
-computes the variational free energy as complexity minus accuracy,
+computes the variational free energy as complexity minus accuracy in
+\eqref{eq:free_energy},
 
-$$F = \sum_{s} q(s)\,\bigl[\log q(s) - \log p(s)\bigr] \;-\; \sum_{s} q(s)\,\log \hat{p}(o \mid s),$$
+\begin{equation}\label{eq:free_energy}
+F = \sum_{s} q(s)\,\bigl[\log q(s) - \log p(s)\bigr] \;-\; \sum_{s} q(s)\,\log \hat{p}(o \mid s),
+\end{equation}
 
 and reports the belief entropy $-\sum_s q(s) \log q(s)$ alongside it. Terms
 are computed with a small additive constant inside each logarithm for
@@ -60,12 +63,14 @@ a policy-conditioned predictive distribution $\tilde{q}$, an expected
 posterior $\tilde{q}^{+}$ where the policy supplies one, a temporal discount
 $\gamma$, and an exploration weight $\beta$,
 
-$$G(\pi) = \gamma \Bigl(-\sum_{s} \tilde{q}(s) \log p(s)\Bigr) \;-\; \beta\, D_{\mathrm{KL}}\bigl(\tilde{q}^{+} \,\|\, \tilde{q}\bigr) \;+\; \text{risk} \;+\; \text{ambiguity},$$
+\begin{equation}\label{eq:expected_free_energy}
+G(\pi) = \gamma \Bigl(-\sum_{s} \tilde{q}(s) \log p(s)\Bigr) \;-\; \beta\, D_{\mathrm{KL}}\bigl(\tilde{q}^{+} \,\|\, \tilde{q}\bigr) \;+\; \text{risk} \;+\; \text{ambiguity},
+\end{equation}
 
 where the risk term is a declared risk preference scaled by the variance of
 the predictive distribution and the ambiguity term is supplied by the policy.
 When no expected posterior is supplied, the epistemic term falls back to the
-predictive entropy. Every term in this expression is returned as a named field
+predictive entropy. Every term in \eqref{eq:expected_free_energy} is returned as a named field
 of `FreeEnergyBreakdown`, so a reported $G$ can be decomposed by its consumer
 rather than taken on trust.
 

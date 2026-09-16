@@ -12,11 +12,12 @@ none is introduced only for exposition.
   distribution when a caller supplies none.
 - $\hat{p}(o \mid s)$ — the coerced observation likelihood used in the accuracy
   term.
-- $F$ — variational free energy for a single inference calculation, returned
-  with its `accuracy`, `complexity`, and `entropy` components.
+- $F$ — variational free energy for a single inference calculation
+  (\eqref{eq:free_energy}), returned with its `accuracy`, `complexity`, and
+  `entropy` components.
 - $\pi$ — a candidate policy, evaluated and returned as a `PolicyEvaluation`.
-- $G(\pi)$ — expected free energy of a policy, returned with its pragmatic,
-  epistemic, risk, and ambiguity components.
+- $G(\pi)$ — expected free energy of a policy (\eqref{eq:expected_free_energy}),
+  returned with its pragmatic, epistemic, risk, and ambiguity components.
 - $\tilde{q}$, $\tilde{q}^{+}$ — the policy-conditioned predictive
   distribution and, where the policy supplies one, the expected posterior.
 - $D_{\mathrm{KL}}(\cdot \,\|\, \cdot)$ — Kullback-Leibler divergence, the
