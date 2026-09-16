@@ -15,7 +15,7 @@ Integration workspace within `GEO-INFER-API`.
 
 - Module: `GEO-INFER-API`
 - Package: `geo_infer_api`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-API`
 - Tests: `uv run python -m pytest GEO-INFER-API/tests/integration`
 

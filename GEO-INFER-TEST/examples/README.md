@@ -16,7 +16,7 @@ Examples workspace within `GEO-INFER-TEST`.
 
 - Module: `GEO-INFER-TEST`
 - Package: `geo_infer_test`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-TEST`
 - Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module TEST`
 

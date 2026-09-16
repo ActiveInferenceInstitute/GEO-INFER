@@ -15,7 +15,7 @@ Integration workspace within `GEO-INFER-BIO`.
 
 - Module: `GEO-INFER-BIO`
 - Package: `geo_infer_bio`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-BIO`
 - Tests: `uv run python -m pytest GEO-INFER-BIO/tests/integration`
 

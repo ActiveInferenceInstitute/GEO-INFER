@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-examples"
-version = "0.2.0"
+version = "0.2.1"
 description = "Comprehensive collection of working examples and tutorials demonstrating cross-module integration patterns and real-world applications"
 readme = "README.md"
 license = "CC-BY-NC-SA-4.0"

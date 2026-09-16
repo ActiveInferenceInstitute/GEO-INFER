@@ -1,6 +1,6 @@
 [project]
 name = "geo-infer-framework"
-version = "0.2.0"
+version = "0.2.1"
 description = "Comprehensive geospatial inference framework for ecological, civic, and commercial applications"
 authors = [
     {name = "docxology", email = "docxology@users.noreply.github.com"}

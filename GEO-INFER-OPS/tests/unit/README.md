@@ -18,7 +18,7 @@ Unit workspace within `GEO-INFER-OPS`.
 
 - Module: `GEO-INFER-OPS`
 - Package: `geo_infer_ops`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-OPS`
 - Tests: `uv run python -m pytest GEO-INFER-OPS/tests/unit`
 

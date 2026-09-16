@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-act"
-version = "0.2.0"
+version = "0.2.1"
 description = "Advanced Active Inference framework implementing Free Energy Principle for geospatial decision-making, perception, and learning"
 readme = "README.md"
 license = "CC-BY-NC-SA-4.0"

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-log"
-version = "0.2.0"
+version = "0.2.1"
 description = "Geospatial intelligence for logistics optimization, supply chain management, route optimization, and transportation planning"
 readme = "README.md"
 license = "CC-BY-NC-SA-4.0"

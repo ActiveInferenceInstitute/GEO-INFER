@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-sim"
-version = "0.2.0"
+version = "0.2.1"
 description = "Advanced simulation environments for geospatial hypothesis testing, policy evaluation, and scenario analysis using agent-based modeling and system dynamics"
 readme = "README.md"
 license = "CC-BY-NC-SA-4.0"

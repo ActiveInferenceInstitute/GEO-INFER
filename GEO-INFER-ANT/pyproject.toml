@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-ant"
-version = "0.2.0"
+version = "0.2.1"
 description = "Comprehensive swarm intelligence and complex adaptive systems modeling using Active Inference principles for emergent collective behavior in geospatial contexts"
 readme = "README.md"
 license = "CC-BY-NC-SA-4.0"

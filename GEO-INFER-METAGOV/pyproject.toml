@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-metagov"
-version = "0.2.0"
+version = "0.2.1"
 description = "Advanced meta-governance frameworks, organizational governance methods, and multilevel governance coordination for geospatial systems"
 readme = "README.md"
 license = "CC-BY-NC-SA-4.0"

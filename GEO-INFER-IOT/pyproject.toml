@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-iot"
-version = "0.2.0"
+version = "0.2.1"
 description = "IoT sensor networks, real-time geospatial data streams, and sensor data fusion for environmental monitoring"
 readme = "README.md"
 license = "CC-BY-NC-SA-4.0"

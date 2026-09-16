@@ -28,7 +28,7 @@ Core workspace within `GEO-INFER-NORMS`.
 
 - Module: `GEO-INFER-NORMS`
 - Package: `geo_infer_norms`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-NORMS`
 - Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module NORMS`
 

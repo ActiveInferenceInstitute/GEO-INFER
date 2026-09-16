@@ -25,7 +25,7 @@ Unit workspace within `GEO-INFER-HEALTH`.
 
 - Module: `GEO-INFER-HEALTH`
 - Package: `geo_infer_health`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-HEALTH`
 - Tests: `uv run python -m pytest GEO-INFER-HEALTH/tests/unit`
 

@@ -31,7 +31,7 @@ Unit workspace within `GEO-INFER-GIT`.
 
 - Module: `GEO-INFER-GIT`
 - Package: `geo_infer_git`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-GIT`
 - Tests: `uv run python -m pytest GEO-INFER-GIT/tests/unit`
 

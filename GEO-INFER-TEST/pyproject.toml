@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-test"
-version = "0.2.0"
+version = "0.2.1"
 description = "Unified testing framework for quality assurance across all GEO-INFER modules with automated testing, performance benchmarks, and integration validation"
 readme = "README.md"
 license = "CC-BY-NC-SA-4.0"

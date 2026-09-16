@@ -16,7 +16,7 @@ Integration workspace within `GEO-INFER-SPACE`.
 
 - Module: `GEO-INFER-SPACE`
 - Package: `geo_infer_space`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-SPACE`
 - Tests: `uv run python -m pytest GEO-INFER-SPACE/tests/integration`
 

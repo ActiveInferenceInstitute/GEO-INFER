@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-space"
-version = "0.2.0"
+version = "0.2.1"
 description = "H3 v4 spatial indexing and comprehensive geospatial analysis framework with advanced spatial methods and coordinate transformations"
 readme = "README.md"
 license = "CC-BY-NC-SA-4.0"

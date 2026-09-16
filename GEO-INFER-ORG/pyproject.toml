@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-org"
-version = "0.2.0"
+version = "0.2.1"
 description = "Organizational structures, governance frameworks, and community processes for geospatial initiatives"
 readme = "README.md"
 license = "CC-BY-NC-SA-4.0"

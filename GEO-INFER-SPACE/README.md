@@ -25,7 +25,7 @@ H3 v4 spatial indexing and comprehensive geospatial analysis framework with adva
 
 - Module: `GEO-INFER-SPACE`
 - Package: `geo_infer_space`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-SPACE`
 - Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE`
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-energy"
-version = "0.2.0"
+version = "0.2.1"
 description = "Energy systems analysis, renewable energy optimization, and grid management"
 readme = "README.md"
 license = "CC-BY-NC-SA-4.0"

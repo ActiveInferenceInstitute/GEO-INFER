@@ -21,7 +21,7 @@ Marine and oceanographic analysis, coastal management, and marine ecosystem moni
 
 - Module: `GEO-INFER-MARINE`
 - Package: `geo_infer_marine`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-MARINE`
 - Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module MARINE`
 

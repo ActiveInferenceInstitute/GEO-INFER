@@ -15,7 +15,7 @@ Docs workspace within `GEO-INFER-APP`.
 
 - Module: `GEO-INFER-APP`
 - Package: `geo_infer_app`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-APP`
 - Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module APP`
 

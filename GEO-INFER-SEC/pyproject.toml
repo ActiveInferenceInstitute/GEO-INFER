@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-sec"
-version = "0.2.0"
+version = "0.2.1"
 description = "Comprehensive security and privacy framework for geospatial information systems with encryption, access control, and compliance"
 readme = "README.md"
 license = "CC-BY-NC-SA-4.0"

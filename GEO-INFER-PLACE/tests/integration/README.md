@@ -18,7 +18,7 @@ Integration workspace within `GEO-INFER-PLACE`.
 
 - Module: `GEO-INFER-PLACE`
 - Package: `geo_infer_place`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-PLACE`
 - Tests: `uv run python -m pytest GEO-INFER-PLACE/tests/integration`
 

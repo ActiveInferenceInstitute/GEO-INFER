@@ -22,7 +22,7 @@ Statistical parametric mapping methodology adapted for geospatial analysis to id
 
 - Module: `GEO-INFER-SPM`
 - Package: `geo_infer_spm`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-SPM`
 - Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module SPM`
 

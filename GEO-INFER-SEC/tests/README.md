@@ -22,7 +22,7 @@ Tests workspace within `GEO-INFER-SEC`.
 
 - Module: `GEO-INFER-SEC`
 - Package: `geo_infer_sec`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-SEC`
 - Tests: `uv run python -m pytest GEO-INFER-SEC/tests`
 

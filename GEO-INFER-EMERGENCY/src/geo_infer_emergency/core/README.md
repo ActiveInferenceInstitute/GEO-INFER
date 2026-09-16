@@ -39,7 +39,7 @@ Core workspace within `GEO-INFER-EMERGENCY`.
 
 - Module: `GEO-INFER-EMERGENCY`
 - Package: `geo_infer_emergency`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-EMERGENCY`
 - Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module EMERGENCY`
 

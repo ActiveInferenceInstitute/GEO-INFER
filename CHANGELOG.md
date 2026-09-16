@@ -5,7 +5,16 @@ All notable changes to the GEO-INFER framework will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.1] - 2026-09-15 — fleet-wide error-handling hardening
+
+Patch release over the 18 commits since
+[0.2.0](https://github.com/ActiveInferenceInstitute/GEO-INFER/releases/tag/v0.2.0):
+the LOG-EXC-01 error-handling pattern (domain `ValueError` → HTTP 400,
+unexpected exception → generic non-leaking 500) extended fleet-wide with an
+`ErrorHandlerMiddleware` in the DATA, NORMS, GIT and PEP API surfaces, the
+matching `starlette` dependency declarations, LOG endpoint contract tests,
+two statistical test-flake repairs, and docs/ledger housekeeping (2026-09-15
+scope pass, CODE-01 index refresh, GNN pair-pin procedure).
 
 ### Fixed
 
@@ -19,6 +28,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   coverage (GS-223 transport-router fix extended fleet-wide).
   `0e6a47d4` reformatted the LOG-EXC-01 test file that landed unformatted
   (the CI 3.12 format gate caught it).
+- **ErrorHandlerMiddleware fleet-wide** (`3f67344b`, `2cbb6782`,
+  `aff9776e`): DATA, NORMS, GIT and PEP eliminated detail-leak 500s across
+  their API surfaces — blanket `except Exception`→400 handlers narrowed to
+  domain-value mapping (NORMS: 59 detail-leak sites with a `ValueError`→400
+  domain mapping), and an `ErrorHandlerMiddleware` installed per module on
+  the LOG-EXC-01 pattern so unexpected server faults return the generic
+  non-leaking body.
+
+### Packaging
+
+- **starlette declared** (`1037bc7b`): the new `ErrorHandlerMiddleware`
+  modules import `starlette.middleware.base` (`BaseHTTPMiddleware`), now
+  declared in the DATA, GIT, NORMS and PEP pyprojects and
+  `requirements.txt`, matching LOG's existing declaration; the generated
+  README/AGENTS artifacts were regenerated after the dependency inputs
+  changed (`8f4b8d66`).
+
+### Tests
+
+- LOG endpoint contract tests for 14 previously-untested endpoints
+  (`ef3db992`).
+- Two statistical-flake repairs (`8d3cb5e2`, `f5e5baf1`): the
+  observability timer asserts non-negative instead of a positive lower
+  bound (sub-ms ops measure 0.0 on coarse clocks), and the MCMC
+  metropolis-hastings test pins `np.random.seed(0)` so its 200-sample mean
+  tolerance is deterministic.
 
 ## [0.2.0] - 2026-09-11 — repo-wide quality campaign (189 items)
 
@@ -794,4 +829,5 @@ pass at that SHA.
 ---
 
 [0.2.0]: https://github.com/ActiveInferenceInstitute/GEO-INFER/compare/v0.1.0...v0.2.0
+[0.2.1]: https://github.com/ActiveInferenceInstitute/GEO-INFER/compare/v0.2.0...v0.2.1
 [0.1.0]: https://github.com/ActiveInferenceInstitute/GEO-INFER/releases/tag/v0.1.0

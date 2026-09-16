@@ -15,7 +15,7 @@ Integration workspace within `GEO-INFER-NORMS`.
 
 - Module: `GEO-INFER-NORMS`
 - Package: `geo_infer_norms`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-NORMS`
 - Tests: `uv run python -m pytest GEO-INFER-NORMS/tests/integration`
 

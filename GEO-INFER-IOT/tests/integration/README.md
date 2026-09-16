@@ -14,7 +14,7 @@ Integration workspace within `GEO-INFER-IOT`.
 
 - Module: `GEO-INFER-IOT`
 - Package: `geo_infer_iot`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-IOT`
 - Tests: `uv run python -m pytest GEO-INFER-IOT/tests/integration`
 

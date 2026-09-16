@@ -20,7 +20,7 @@ Unit workspace within `GEO-INFER-INTRA`.
 
 - Module: `GEO-INFER-INTRA`
 - Package: `geo_infer_intra`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-INTRA`
 - Tests: `uv run python -m pytest GEO-INFER-INTRA/tests/unit`
 

@@ -28,7 +28,7 @@ Unit workspace within `GEO-INFER-LOG`.
 
 - Module: `GEO-INFER-LOG`
 - Package: `geo_infer_log`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-LOG`
 - Tests: `uv run python -m pytest GEO-INFER-LOG/tests/unit`
 

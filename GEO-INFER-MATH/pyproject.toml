@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-math"
-version = "0.2.0"
+version = "0.2.1"
 description = "Core mathematical and statistical engine providing geometric operations, spatial statistics, and numerical methods for geospatial analysis"
 readme = "README.md"
 license = "CC-BY-NC-SA-4.0"

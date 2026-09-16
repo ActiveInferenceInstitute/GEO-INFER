@@ -31,7 +31,7 @@ Tests workspace within `GEO-INFER-TIME`.
 
 - Module: `GEO-INFER-TIME`
 - Package: `geo_infer_time`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-TIME`
 - Tests: `uv run python -m pytest GEO-INFER-TIME/tests`
 

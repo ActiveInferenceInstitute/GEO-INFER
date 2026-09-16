@@ -15,7 +15,7 @@ Utils workspace within `GEO-INFER-AI`.
 
 - Module: `GEO-INFER-AI`
 - Package: `geo_infer_ai`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-AI`
 - Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module AI`
 

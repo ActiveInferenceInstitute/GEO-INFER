@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-bio"
-version = "0.2.0"
+version = "0.2.1"
 description = "Bioinformatics and biological data analysis with geospatial context for spatial omics, landscape genetics, phylogeography, and microbial ecology"
 readme = "README.md"
 license = "CC-BY-NC-SA-4.0"

@@ -29,7 +29,7 @@ Unit workspace within `GEO-INFER-COMMS`.
 
 - Module: `GEO-INFER-COMMS`
 - Package: `geo_infer_comms`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-COMMS`
 - Tests: `uv run python -m pytest GEO-INFER-COMMS/tests/unit`
 

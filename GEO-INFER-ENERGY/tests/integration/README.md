@@ -15,7 +15,7 @@ Integration workspace within `GEO-INFER-ENERGY`.
 
 - Module: `GEO-INFER-ENERGY`
 - Package: `geo_infer_energy`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-ENERGY`
 - Tests: `uv run python -m pytest GEO-INFER-ENERGY/tests/integration`
 

@@ -39,7 +39,7 @@ Advanced Active Inference framework implementing Free Energy Principle for geosp
 
 - Module: `GEO-INFER-ACT`
 - Package: `geo_infer_act`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-ACT`
 - Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ACT`
 

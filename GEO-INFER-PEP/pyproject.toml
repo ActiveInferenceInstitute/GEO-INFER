@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-pep"
-version = "0.2.0"
+version = "0.2.1"
 description = "Comprehensive people operations management including HR, CRM, talent acquisition, performance tracking, and community engagement"
 readme = "README.md"
 license = "CC-BY-NC-SA-4.0"

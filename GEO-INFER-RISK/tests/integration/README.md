@@ -14,7 +14,7 @@ Integration workspace within `GEO-INFER-RISK`.
 
 - Module: `GEO-INFER-RISK`
 - Package: `geo_infer_risk`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-RISK`
 - Tests: `uv run python -m pytest GEO-INFER-RISK/tests/integration`
 

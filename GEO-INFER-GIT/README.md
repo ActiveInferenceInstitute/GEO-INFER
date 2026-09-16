@@ -24,7 +24,7 @@ Version control and repository management tools specifically designed for geospa
 
 - Module: `GEO-INFER-GIT`
 - Package: `geo_infer_git`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-GIT`
 - Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module GIT`
 

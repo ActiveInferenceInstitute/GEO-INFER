@@ -14,7 +14,7 @@ Integration workspace within `GEO-INFER-ECON`.
 
 - Module: `GEO-INFER-ECON`
 - Package: `geo_infer_econ`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-ECON`
 - Tests: `uv run python -m pytest GEO-INFER-ECON/tests/integration`
 

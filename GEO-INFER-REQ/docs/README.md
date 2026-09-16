@@ -14,7 +14,7 @@ Docs workspace within `GEO-INFER-REQ`.
 
 - Module: `GEO-INFER-REQ`
 - Package: `geo_infer_req`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-REQ`
 - Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module REQ`
 

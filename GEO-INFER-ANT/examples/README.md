@@ -22,7 +22,7 @@ Examples workspace within `GEO-INFER-ANT`.
 
 - Module: `GEO-INFER-ANT`
 - Package: `geo_infer_ant`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-ANT`
 - Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ANT`
 

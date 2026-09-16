@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-health"
-version = "0.2.0"
+version = "0.2.1"
 description = "Epidemiology, healthcare accessibility analysis, disease surveillance, and spatial health risk assessment"
 readme = "README.md"
 license = "CC-BY-NC-SA-4.0"

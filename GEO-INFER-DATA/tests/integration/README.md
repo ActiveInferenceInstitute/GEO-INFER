@@ -15,7 +15,7 @@ Integration workspace within `GEO-INFER-DATA`.
 
 - Module: `GEO-INFER-DATA`
 - Package: `geo_infer_data`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-DATA`
 - Tests: `uv run python -m pytest GEO-INFER-DATA/tests/integration`
 

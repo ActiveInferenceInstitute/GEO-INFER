@@ -27,7 +27,7 @@ Comprehensive collection of working examples and tutorials demonstrating cross-m
 
 - Module: `GEO-INFER-EXAMPLES`
 - Package: `geo_infer_examples`
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Install: `uv pip install -e ./GEO-INFER-EXAMPLES`
 - Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module EXAMPLES`
 
