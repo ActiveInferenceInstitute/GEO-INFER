@@ -1335,6 +1335,10 @@ def generate_figures(
     source_counts = [item.source_files for item in module_rows]
     test_counts = [item.test_files for item in module_rows]
 
+    spine_labels = {
+        module.name.removeprefix("GEO-INFER-") for module in inventory.focused_modules
+    }
+
     fig = _draw_graphical_abstract(plt, inventory, verification)
     digests[specs[0].filename] = _save_figure(
         fig, output_dir / specs[0].filename, specs[0].caption, inventory.source_hash
@@ -1345,9 +1349,11 @@ def generate_figures(
             "axes.spines.top": False,
             "axes.spines.right": False,
             "axes.grid": True,
-            "grid.alpha": 0.25,
+            "grid.alpha": 0.28,
+            "grid.linewidth": 0.5,
             "font.size": 8,
             "axes.titleweight": "bold",
+            "axes.edgecolor": "#666666",
         }
     ):
         # One column of 45 module rows cannot be both legible and short: at a
@@ -1368,31 +1374,40 @@ def generate_figures(
         # directly comparable with a bar in the left one.
         count_limit = max((*source_counts, *test_counts, 1)) * 1.08
         bar_height = 0.38
-        for axis, (start, stop) in zip(axes, panels):
+        for index, (axis, (start, stop)) in enumerate(zip(axes, panels)):
             panel_labels = labels[start:stop]
             y = list(range(len(panel_labels)))
             axis.barh(
                 [position - bar_height / 2 for position in y],
                 source_counts[start:stop],
                 bar_height,
-                color="#2f6f9f",
-                alpha=0.9,
+                color=SOURCE_COLOR,
+                alpha=0.92,
                 label="Source files",
             )
             axis.barh(
                 [position + bar_height / 2 for position in y],
                 test_counts[start:stop],
                 bar_height,
-                color="#d17a2f",
-                alpha=0.9,
+                color=TEST_COLOR,
+                alpha=0.92,
                 label="Test files",
             )
             axis.set_yticks(y, panel_labels)
+            for tick in axis.get_yticklabels():
+                if tick.get_text() in spine_labels:
+                    tick.set_fontweight("bold")
+                    tick.set_color(SPINE_COLOR)
             axis.set_ylim(len(panel_labels) - 0.5, -0.5)
             axis.set_xlim(0, count_limit)
-            axis.set_xlabel("Files")
+            axis.tick_params(axis="y", labelsize=8)
+            axis.tick_params(axis="x", labelsize=7.5)
+            axis.set_title(
+                f"Modules {start + 1}–{stop} of {len(labels)}", fontsize=8.5
+            )
+            axis.set_xlabel("Tracked Python files")
             axis.set_axisbelow(True)
-        axes[0].legend(frameon=False, loc="lower right", fontsize=7)
+        axes[0].legend(frameon=False, loc="lower right", fontsize=7.5)
         fig.suptitle(
             "GEO-INFER module evidence inventory", fontsize=11, fontweight="bold"
         )
@@ -1406,29 +1421,28 @@ def generate_figures(
         focus_labels = [item.name.removeprefix("GEO-INFER-") for item in focus]
         focus_source = [item.source_files for item in focus]
         focus_tests = [item.test_files for item in focus]
-        fig, ax = plt.subplots(figsize=(5.8, 3.6))
+        fig, ax = plt.subplots(figsize=(TEXT_BLOCK_WIDTH_IN, 3.3))
         positions = list(range(len(focus_labels)))
-        width = 0.36
-        ax.bar(
-            [position - width / 2 for position in positions],
-            focus_source,
-            width,
-            label="Source files",
-            color="#2f6f9f",
-        )
-        ax.bar(
-            [position + width / 2 for position in positions],
-            focus_tests,
-            width,
-            label="Test files",
-            color="#d17a2f",
-        )
-        ax.set_title(
-            "Active Inference, Bayesian, and RISK evidence surfaces", fontweight="bold"
-        )
-        ax.set_ylabel("Files")
-        ax.set_xticks(positions, focus_labels)
-        ax.legend(frameon=False)
+        bar_width = 0.36
+        top = max((*focus_source, *focus_tests, 1))
+        for offset, counts, colour, name in (
+            (-bar_width / 2, focus_source, SOURCE_COLOR, "Source files"),
+            (bar_width / 2, focus_tests, TEST_COLOR, "Test files"),
+        ):
+            bars = ax.bar(
+                [position + offset for position in positions],
+                counts,
+                bar_width,
+                label=name,
+                color=colour,
+                alpha=0.92,
+            )
+            ax.bar_label(bars, fmt="%d", fontsize=8.5, padding=2, color="#222222")
+        ax.set_title("Research-spine evidence surfaces", fontsize=10.5)
+        ax.set_ylabel("Tracked Python files", fontsize=8.5)
+        ax.set_xticks(positions, focus_labels, fontsize=9)
+        ax.set_ylim(0, top * 1.25)
+        ax.legend(frameon=False, loc="upper center", ncols=2, fontsize=8)
         ax.set_axisbelow(True)
         fig.tight_layout()
         digests[specs[2].filename] = _save_figure(
@@ -1440,25 +1454,28 @@ def generate_figures(
         category_counts = [
             inventory.test_files_by_category[category] for category in categories
         ]
-        evidence_labels = ("Modules", "Documentation\npages", "Validator\nPython files")
+        evidence_labels = ("Modules", "Documentation\npages", "Validator\nfiles")
         evidence_counts = (
             inventory.module_count,
             inventory.documentation_pages,
             inventory.validator_files,
         )
-        fig, axes = plt.subplots(1, 2, figsize=(5.8, 3.6))
-        axes[0].bar(categories, category_counts, color="#5b8e7d")
-        axes[0].set_title("Test-file categories", fontweight="bold")
-        axes[0].set_ylabel("Files")
-        axes[0].tick_params(axis="x", rotation=25)
-        axes[1].bar(evidence_labels, evidence_counts, color="#6f5b9e")
-        axes[1].set_title("Repository evidence surfaces", fontweight="bold")
-        axes[1].set_ylabel("Count")
-        axes[1].tick_params(axis="x", rotation=20)
-        for axis in axes:
+        fig, axes = plt.subplots(1, 2, figsize=(TEXT_BLOCK_WIDTH_IN, 3.3))
+        for axis, names, counts, colour, label in (
+            (axes[0], categories, category_counts, CATEGORY_COLOR, "Files"),
+            (axes[1], evidence_labels, evidence_counts, SURFACE_COLOR, "Count"),
+        ):
+            bars = axis.bar(names, counts, color=colour, alpha=0.92, width=0.62)
+            axis.bar_label(bars, fmt="%d", fontsize=8, padding=2, color="#222222")
+            axis.set_ylim(0, max((*counts, 1)) * 1.22)
+            axis.set_ylabel(label, fontsize=8.5)
+            axis.tick_params(axis="x", labelsize=7.5)
+            axis.tick_params(axis="y", labelsize=7.5)
             axis.set_axisbelow(True)
+        axes[0].set_title("Test files by directory category", fontsize=9)
+        axes[1].set_title("Repository evidence surfaces", fontsize=9)
         fig.suptitle(
-            "Validation and documentation evidence", fontsize=11, fontweight="bold"
+            "Validation and documentation evidence", fontsize=10.5, fontweight="bold"
         )
         fig.tight_layout()
         digests[specs[3].filename] = _save_figure(
