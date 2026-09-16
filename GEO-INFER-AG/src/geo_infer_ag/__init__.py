@@ -6,7 +6,7 @@ applications within the GEO-INFER framework, supporting precision farming,
 crop management, yield prediction, and sustainable agricultural practices.
 """
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 from geo_infer_ag.core import (
     AgriculturalAnalysis,

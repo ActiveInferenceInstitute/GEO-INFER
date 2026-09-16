@@ -7,7 +7,7 @@ with external geospatial tools and libraries through a unified, backend-agnostic
 
 from typing import Any
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 # Import the generic spatial interfaces
 from .core.spatial_indexing import (

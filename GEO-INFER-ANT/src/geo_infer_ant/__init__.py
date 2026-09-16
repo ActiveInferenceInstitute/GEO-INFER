@@ -52,7 +52,7 @@ import yaml
 logger = logging.getLogger(__name__)
 
 # Version information
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __author__ = "GEO-INFER Development Team"
 __description__ = (
     "Swarm Intelligence and Complex Adaptive Systems for Geospatial Analysis"

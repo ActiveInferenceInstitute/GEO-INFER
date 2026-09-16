@@ -49,7 +49,7 @@ from .testing import (
     assert_visualization_manifest,
 )
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 __all__ = [
     "GeoInferTestRunner",

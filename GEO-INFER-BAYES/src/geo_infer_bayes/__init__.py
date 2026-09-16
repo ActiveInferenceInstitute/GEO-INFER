@@ -8,7 +8,7 @@ uncertainty quantification, and Bayesian computational methods for geospatial
 applications.
 """
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __author__ = "GEO-INFER Team"
 __email__ = "geo-infer@activeinference.institute"
 

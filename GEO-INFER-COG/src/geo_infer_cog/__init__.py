@@ -22,7 +22,7 @@ Integration Points:
 - GEO-INFER-AI: Human-like spatial intelligence frameworks
 """
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __author__ = "GEO-INFER-COG Team"
 
 # Core cognitive processing components

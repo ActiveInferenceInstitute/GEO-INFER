@@ -50,7 +50,7 @@ from geo_infer_iot.utils.interpolation import SpatialInterpolation
 from geo_infer_iot.utils.visualization import IoTVisualization
 
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 __all__ = [
     # Core functionality (available)

@@ -5,7 +5,7 @@ This module provides the core infrastructure for the GEO-INFER framework, ensuri
 reliable, scalable, and maintainable operations across all components.
 """
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 from geo_infer_ops.core.monitoring import setup_monitoring
 from geo_infer_ops.core.config import load_config, get_config

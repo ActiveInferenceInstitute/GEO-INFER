@@ -13,7 +13,7 @@ The module integrates with the broader GEO-INFER framework and implements
 Active Inference principles for intelligent health analytics.
 """
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __author__ = "GEO-INFER Development Team"
 __email__ = "geo-infer@activeinference.institute"
 
