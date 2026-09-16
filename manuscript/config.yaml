@@ -3,6 +3,12 @@
 paper:
   title: "GEO-INFER: Geospatial Inference Framework"
   subtitle: "An evidence-backed manuscript for a modular spatial inference monorepo"
+  # The template's title-page cover slot points at the generated graphical
+  # abstract, so the cover page and the Abstract section carry one artifact.
+  # The alt text is a literal: a config token would reach the cover verbatim.
+  cover:
+    image: "output/figures/graphical_abstract.png"
+    alt: "Graphical abstract: modules grouped into themes composing into geospatial and inference models, verified by an evidence loop into executable claims."
   version: "0.2.1"  # generator-owned (PROJECT_VERSION)
   date: "2026-09-16T09:39:02-07:00"  # generator-owned (MANUSCRIPT_SOURCE_DATE)
 

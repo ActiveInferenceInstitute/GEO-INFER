@@ -116,12 +116,15 @@ never licenses deleting a record it does not replace.
 
 The registry declares `{{FIGURE_COUNT}}` publication figures:
 
-- [@fig:module_inventory] measures implementation and test surfaces across all
-  modules.
+- [@fig:graphical_abstract] summarises the composition contract end to end,
+  from the themed module set through the verification loop to executable
+  claims, and is configured as the publication cover image.
+- [@fig:module_inventory] measures implementation and test surfaces across
+  all modules.
 - [@fig:research_spine] isolates the Active Inference, Bayesian, and RISK
   modules named by the research agenda.
-- [@fig:validation_surface] compares discovered test categories with repository
-  documentation and validator surfaces.
+- [@fig:validation_surface] compares discovered test categories with
+  repository documentation and validator surfaces.
 
 ## Claim Discipline
 

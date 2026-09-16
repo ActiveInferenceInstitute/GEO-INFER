@@ -134,7 +134,10 @@ TEXT_BLOCK_HEIGHT_IN = 7.70
 # ``height=<fraction>\textheight`` bound on every \includegraphics.
 FIGURE_HEIGHT_FRACTION = 0.9
 MAX_FIGURE_HEIGHT_IN = TEXT_BLOCK_HEIGHT_IN * FIGURE_HEIGHT_FRACTION
-FIGURE_DPI = 220
+# PNG raster density. Figures are drawn at the printed size, so this is also
+# the printed raster density at print scale 1.0 — comfortably above the
+# ~264 DPI floor for a 5.95in-wide figure that must survive close inspection.
+FIGURE_DPI = 300
 # Inches of vertical space per module row in the inventory figure.  A row now
 # carries both bars for one module, so at 8pt type this is about 12pt of
 # leading per label.
@@ -149,6 +152,18 @@ INVENTORY_FIGURE_CHROME_IN = 1.0
 FLOAT_PAGE_FRACTION = 0.85
 # Inches a three-line figure caption occupies under the float at 10pt/12pt.
 FIGURE_CAPTION_HEIGHT_IN = 0.55
+
+# Shared figure palette. The source-versus-test encoding reuses the same two
+# hues in every figure, test categories and repository surfaces get one hue
+# each, and the graphical abstract reuses the same accents, so a colour
+# learned in one figure carries to every other one. Status colours are
+# reserved for recorded verification outcomes.
+SOURCE_COLOR = "#2f6f9f"
+TEST_COLOR = "#d17a2f"
+CATEGORY_COLOR = "#5b8e7d"
+SURFACE_COLOR = "#6f5b9e"
+SPINE_COLOR = "#1b3a5b"
+STATUS_COLORS = {"passed": "#2e7d32", "failed": "#b3261e", "not-run": "#8a8a8a"}
 
 
 @dataclass(frozen=True)
@@ -746,6 +761,58 @@ def _alt_validation_surface(inventory: RepositoryInventory) -> str:
     )
 
 
+def _caption_graphical_abstract(
+    inventory: RepositoryInventory, verification: VerificationRecord | None
+) -> str:
+    """The cover figure's caption, with the record's summary when one is held."""
+    if verification is not None and verification.results:
+        summary = _verification_summary(
+            verification.results,
+            full_validation=verification.full_validation_requested,
+        )[0]
+        tier = (
+            "full-validation"
+            if verification.full_validation_requested
+            else "default"
+        )
+        outcome = (
+            f"the recorded verification summary is {summary} at the {tier} tier"
+        )
+    else:
+        outcome = "this view records no verification summary"
+    return (
+        f"Graphical abstract of the GEO-INFER composition contract at commit "
+        f"{inventory.commit}. Reading panel one to panel four: the "
+        f"{inventory.module_count} src/-bearing modules are grouped into "
+        f"{len(MODULE_THEMES)} declared themes; those themes compose into the spatial "
+        "substrate, the probabilistic machinery, and the domain engines named in the "
+        "second panel; the third panel shows the evidence loop, which measures the "
+        "checkout, draws the publication figures, and runs the seven default-tier "
+        "verification command groups, each drawn with its recorded outcome; the fourth "
+        f"panel states what the loop establishes. Counts are measured from the tracked "
+        f"checkout at source hash {inventory.source_hash}, and {outcome}. The figure is "
+        "a map of the evidence pipeline, not a proof of model quality: every arrow "
+        "marks a declared data path, and each claim in the last panel is only as good "
+        "as the recorded command outcome behind it."
+    )
+
+
+
+
+def _alt_graphical_abstract(
+    inventory: RepositoryInventory, verification: VerificationRecord | None
+) -> str:
+    return (
+        "Four-panel flow, read left to right and top to bottom: modules grouped into "
+        "declared themes with their module short names; the geospatial and "
+        "probabilistic models those themes compose into; the evidence and "
+        "verification loop with the recorded outcome of each command group; and the "
+        "verified claims the loop establishes. A footer records the commit, source "
+        "hash, and version the figure was generated from."
+    )
+
+
+
 def _import_matplotlib() -> tuple[Any, Any]:
     os.environ.setdefault("MPLBACKEND", "Agg")
     import matplotlib
@@ -827,12 +894,417 @@ def _assert_leaves_room_for_text(height_in: float, filename: str) -> None:
         )
 
 
+def _record_statuses(
+    verification: VerificationRecord | None,
+) -> dict[str, str]:
+    """Map each default-tier command group to its recorded outcome.
+
+    A group the record does not mention reads as ``not-run`` rather than as
+    passed, so an abstract drawn from a stale record cannot show a pass the
+    record does not hold.
+    """
+    recorded = (
+        {result.name: result.status for result in verification.results}
+        if verification is not None
+        else {}
+    )
+    return {
+        name: recorded.get(name, "not-run")
+        for name, _command in VERIFICATION_COMMANDS
+    }
+
+
+def _wrap(text: str, width_chars: int) -> str:
+    """Greedy word wrap for figure panel text."""
+    lines: list[str] = []
+    for word in text.split():
+        if not lines or len(lines[-1]) + 1 + len(word) > width_chars:
+            lines.append(word)
+        else:
+            lines[-1] = f"{lines[-1]} {word}"
+    return "\n".join(lines)
+
+
+def _draw_graphical_abstract(
+    plt: Any, inventory: RepositoryInventory, verification: VerificationRecord | None
+) -> Any:
+    """Draw the four-panel graphical abstract at the printed text-block width.
+
+    Panel content is declared, not inferred: themes come from
+    ``MODULE_THEMES`` with the spotlight modules named by
+    ``GRAPHICAL_ABSTRACT_SPOTLIGHT``, the model families restate the Methods
+    section, and the outcome dots come from the verification record when one
+    is supplied (tests draw the figure without a record and get neutral
+    dots).  The smallest type on the canvas is 7pt, headers are 8.4pt or
+    larger, and every colour is one of the shared palette constants.
+    """
+    from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
+
+    dark = "#1a1a1a"
+    soft = "#444444"
+    width = TEXT_BLOCK_WIDTH_IN
+    margin, gutter = 0.12, 0.22
+    panel_w = (width - 2 * margin - gutter) / 2
+    row_height, row_gap = 1.70, 0.24
+    height = 0.30 + 0.10 + row_height + row_gap + row_height + 0.14 + 0.28
+    fig = plt.figure(figsize=(width, height))
+    fig.set_facecolor("#fbfcfd")
+    # The axes is the content extent, not the whole canvas: _save_figure
+    # typesets the tight-cropped PNG, and a full-canvas axes would drag the
+    # crop out to figsize + the 0.1in savefig pad on every side, past the
+    # printable box.  Data inches map 1:1 onto figure inches inside this
+    # viewport, so the panel geometry below is authored in printed inches.
+    content_x0, content_y0 = 0.12, 0.17
+    content_x1, content_y1 = width - 0.12, height - 0.05
+    ax = fig.add_axes(
+        (
+            content_x0 / width,
+            content_y0 / height,
+            (content_x1 - content_x0) / width,
+            (content_y1 - content_y0) / height,
+        )
+    )
+    ax.set_xlim(content_x0, content_x1)
+    ax.set_ylim(content_y0, content_y1)
+    ax.axis("off")
+
+    def panel(x0: float, y0: float, number: str, title: str, accent: str) -> tuple:
+        """Draw one rounded panel; return the origin of its content area."""
+        box_h = 0.34
+        ax.add_patch(
+            FancyBboxPatch(
+                (x0, y0),
+                panel_w,
+                row_height,
+                boxstyle="round,pad=0.015,rounding_size=0.05",
+                facecolor="white",
+                edgecolor=accent,
+                linewidth=1.3,
+                zorder=0,
+            )
+        )
+        ax.text(
+            x0 + 0.09,
+            y0 + row_height - 0.16,
+            f"{number} · {title}",
+            fontsize=8.4,
+            fontweight="bold",
+            color=accent,
+            va="top",
+            ha="left",
+            zorder=3,
+        )
+        ax.plot(
+            [x0 + 0.07, x0 + panel_w - 0.07],
+            [y0 + row_height - box_h, y0 + row_height - box_h],
+            color=accent,
+            linewidth=0.7,
+            alpha=0.45,
+            zorder=1,
+        )
+        return x0 + 0.09, y0 + row_height - box_h - 0.06
+
+    def arrow(pos_a: tuple, pos_b: tuple) -> None:
+        ax.add_patch(
+            FancyArrowPatch(
+                pos_a,
+                pos_b,
+                arrowstyle="-|>",
+                mutation_scale=11,
+                linewidth=1.2,
+                color="#555555",
+                zorder=4,
+            )
+        )
+
+    row1_y = 0.42 + row_height + row_gap
+    row2_y = 0.42
+    left_x, right_x = margin, margin + panel_w + gutter
+    mid1, mid2 = row1_y + row_height / 2, row2_y + row_height / 2
+
+    ax.text(
+        width / 2,
+        height - 0.30,
+        f"GEO-INFER: from {inventory.module_count} modules to verified claims",
+        fontsize=12.5,
+        fontweight="bold",
+        color="#111111",
+        ha="center",
+        va="baseline",
+    )
+
+    # Panel 1: the measured module set, grouped by declared theme.
+    px, py = panel(
+        left_x,
+        row1_y,
+        "1",
+        f"{inventory.module_count} modules in {len(MODULE_THEMES)} themes",
+        SOURCE_COLOR,
+    )
+    subcol_w = (panel_w - 0.27) / 2
+    columns = (px, px + subcol_w + 0.09)
+    cursors = {columns[0]: py, columns[1]: py}
+    for index, (theme, members) in enumerate(MODULE_THEMES):
+        suffixes = {name.removeprefix("GEO-INFER-") for name in members}
+        spotlight = GRAPHICAL_ABSTRACT_SPOTLIGHT[theme]
+        missing = [name for name in spotlight if name not in suffixes]
+        if missing:
+            raise ValueError(
+                f"graphical abstract spotlights modules absent from the {theme} "
+                f"theme: {', '.join(missing)}"
+            )
+        rest = len(members) - len(spotlight)
+        names = ", ".join(spotlight) + (f" +{rest} more" if rest else "")
+        column = columns[index // 3]
+        cursor = cursors[column]
+        ax.text(
+            column,
+            cursor,
+            GRAPHICAL_ABSTRACT_THEME_SHORT[theme],
+            fontsize=7.4,
+            fontweight="bold",
+            color=dark,
+            va="top",
+            ha="left",
+            zorder=3,
+        )
+        wrapped = _wrap(names, 22)
+        ax.text(
+            column,
+            cursor - 0.145,
+            wrapped,
+            fontsize=7.0,
+            color="#555555",
+            va="top",
+            ha="left",
+            linespacing=1.15,
+            zorder=3,
+        )
+        cursors[column] = (
+            cursor - 0.145 - (wrapped.count("\n") + 1) * 0.098 - 0.055
+        )
+
+    # Panel 2: the model families those themes compose into.
+    px, py = panel(right_x, row1_y, "2", "Geospatial & inference models", CATEGORY_COLOR)
+    for title, body in (
+        (
+            "Spatial substrate",
+            "H3 indexing and nested hexagons (SPACE), place-scoped analysis "
+            "(PLACE), validated UTC schedules (TIME)",
+        ),
+        (
+            "Probabilistic machinery",
+            "Free energy (ACT), samplers with diagnostics (BAYES), mapping "
+            "(SPM), numerical primitives (MATH)",
+        ),
+        (
+            "Domain engines",
+            "Extreme-value risk bounds (RISK), insurance underwriting "
+            "(INSURANCE)",
+        ),
+    ):
+        ax.text(
+            px, py, title, fontsize=7.6, fontweight="bold", color=dark, va="top", zorder=3
+        )
+        body_wrapped = _wrap(body, 46)
+        ax.text(
+            px,
+            py - 0.135,
+            body_wrapped,
+            fontsize=7.0,
+            color=soft,
+            va="top",
+            linespacing=1.18,
+            zorder=3,
+        )
+        py -= 0.135 + (body_wrapped.count("\n") + 1) * 0.098 + 0.05
+
+    # Panel 3: the evidence and verification loop, with recorded outcomes.
+    px, py = panel(left_x, row2_y, "3", "Evidence & verification loop", TEST_COLOR)
+    ax.text(
+        px,
+        py,
+        "each build: measure → draw → run → publish",
+        fontsize=7.4,
+        style="italic",
+        color=soft,
+        va="top",
+        zorder=3,
+    )
+    statuses = _record_statuses(verification)
+    first_row_y = py - 0.155
+    cursor = first_row_y
+    for name, status in statuses.items():
+        ax.add_patch(
+            plt.Circle(
+                (px + 0.055, cursor - 0.045),
+                0.026,
+                color=STATUS_COLORS.get(status, STATUS_COLORS["not-run"]),
+                zorder=3,
+            )
+        )
+        label = name if status == "passed" else f"{name} ({status.replace('-', ' ')})"
+        ax.text(
+            px + 0.10,
+            cursor - 0.045,
+            label,
+            fontsize=7.0,
+            color=dark,
+            va="center",
+            ha="left",
+            zorder=3,
+        )
+        cursor -= 0.112
+    ax.add_patch(
+        FancyArrowPatch(
+            (px + 2.05, cursor + 0.067),
+            (px + 2.05, first_row_y - 0.045),
+            connectionstyle="arc3,rad=-0.42",
+            arrowstyle="-|>",
+            mutation_scale=8,
+            linestyle=(0, (3, 2)),
+            linewidth=0.9,
+            color="#777777",
+            zorder=2,
+        )
+    )
+    ax.text(
+        px,
+        cursor + 0.02,
+        "record reused while it names this tree",
+        fontsize=6.9,
+        color="#777777",
+        va="top",
+        zorder=3,
+    )
+
+    # Panel 4: what the loop establishes.
+    px, py = panel(right_x, row2_y, "4", "Verified claims", SURFACE_COLOR)
+    failed = any(status not in ("passed", "not-run") for status in statuses.values())
+    complete = statuses and all(status == "passed" for status in statuses.values())
+    if complete:
+        stat, stat_color = (
+            f"{sum(status == 'passed' for status in statuses.values())} / "
+            f"{len(statuses)} command groups passed",
+            STATUS_COLORS["passed"],
+        )
+    elif failed:
+        stat, stat_color = (
+            "a recorded group failed",
+            STATUS_COLORS["failed"],
+        )
+    else:
+        stat, stat_color = "outcomes published per group", "#555555"
+    ax.text(
+        px, py, stat, fontsize=11, fontweight="bold", color=stat_color, va="top", zorder=3
+    )
+    cursor = py - 0.26
+    for bullet in (
+        "Counts are cross-checked to partition their totals before publication",
+        "Figures and captions ship with SHA-256 provenance in the registry",
+        "A publication build refuses an empty or failing record",
+    ):
+        wrapped = _wrap(bullet, 44)
+        ax.text(
+            px,
+            cursor,
+            wrapped,
+            fontsize=7.2,
+            color=soft,
+            va="top",
+            linespacing=1.2,
+            zorder=3,
+        )
+        cursor -= (wrapped.count("\n") + 1) * 0.098 + 0.045
+    ax.text(
+        px,
+        cursor - 0.02,
+        _wrap(
+            "Correctness, reproducibility, and documentation claims become "
+            "executable.",
+            44,
+        ),
+        fontsize=7.6,
+        style="italic",
+        color=dark,
+        va="top",
+        linespacing=1.2,
+        zorder=3,
+    )
+
+    # Flow arrows: 1 to 2, an elbow 2 to 3, and 3 to 4.
+    arrow((left_x + panel_w + 0.005, mid1), (right_x - 0.005, mid1))
+    elbow_y = row2_y + row_height + row_gap / 2
+    ax.plot(
+        [right_x + panel_w / 2, right_x + panel_w / 2],
+        [row1_y, elbow_y],
+        color="#555555",
+        linewidth=1.2,
+        zorder=4,
+        solid_capstyle="round",
+    )
+    ax.plot(
+        [right_x + panel_w / 2, left_x + panel_w / 2],
+        [elbow_y, elbow_y],
+        color="#555555",
+        linewidth=1.2,
+        zorder=4,
+    )
+    arrow((left_x + panel_w / 2, elbow_y), (left_x + panel_w / 2, row2_y + row_height + 0.01))
+    arrow((left_x + panel_w + 0.005, mid2), (right_x - 0.005, mid2))
+
+    ax.text(
+        width / 2,
+        0.24,
+        f"Measured from the checkout at commit {inventory.commit} · "
+        f"source hash {inventory.source_hash[:12]} · v{inventory.project_version}",
+        fontsize=7.2,
+        color="#666666",
+        ha="center",
+    )
+    return fig
+
+
+GRAPHICAL_ABSTRACT_SPOTLIGHT: dict[str, tuple[str, ...]] = {
+    "Spatial and place-based": ("SPACE", "TIME", "MARINE"),
+    "Bayesian and active inference": ("BAYES", "ACT", "MATH"),
+    "Agents and AI orchestration": ("AGENT", "OPS", "COMMS"),
+    "Governance, risk and domain": ("INSURANCE", "RISK", "SEC"),
+    "Data, API and applications": ("API", "DATA", "IOT"),
+    "Infrastructure and validation": ("TEST", "INTRA", "EXAMPLES"),
+}
+
+GRAPHICAL_ABSTRACT_THEME_SHORT: dict[str, str] = {
+    "Spatial and place-based": "Spatial & place",
+    "Bayesian and active inference": "Bayes & active",
+    "Agents and AI orchestration": "Agents & AI",
+    "Governance, risk and domain": "Governance & risk",
+    "Data, API and applications": "Data & apps",
+    "Infrastructure and validation": "Infra & validation",
+}
+
+
 def generate_figures(
-    inventory: RepositoryInventory, output_dir: Path
+    inventory: RepositoryInventory,
+    output_dir: Path,
+    verification: VerificationRecord | None = None,
 ) -> tuple[FigureSpec, ...]:
-    """Generate publication figures from the measured inventory."""
+    """Generate publication figures from the measured inventory.
+
+    ``verification`` is the record this build publishes, when it holds one;
+    the graphical abstract draws each command group's recorded outcome from
+    it.  Callers without a record (the figure regression suite) get neutral
+    outcome dots.
+    """
     _matplotlib, plt = _import_matplotlib()
     specs = (
+        FigureSpec(
+            "fig:graphical_abstract",
+            "graphical_abstract.png",
+            _caption_graphical_abstract(inventory, verification),
+            "manuscript.generate_research_artifacts.generate_figures",
+            _alt_graphical_abstract(inventory, verification),
+        ),
         FigureSpec(
             "fig:module_inventory",
             "module_inventory.png",
@@ -863,6 +1335,11 @@ def generate_figures(
     source_counts = [item.source_files for item in module_rows]
     test_counts = [item.test_files for item in module_rows]
 
+    fig = _draw_graphical_abstract(plt, inventory, verification)
+    digests[specs[0].filename] = _save_figure(
+        fig, output_dir / specs[0].filename, specs[0].caption, inventory.source_hash
+    )
+    plt.close(fig)
     with plt.rc_context(
         {
             "axes.spines.top": False,
@@ -920,8 +1397,8 @@ def generate_figures(
             "GEO-INFER module evidence inventory", fontsize=11, fontweight="bold"
         )
         fig.tight_layout()
-        digests[specs[0].filename] = _save_figure(
-            fig, output_dir / specs[0].filename, specs[0].caption, inventory.source_hash
+        digests[specs[1].filename] = _save_figure(
+            fig, output_dir / specs[1].filename, specs[1].caption, inventory.source_hash
         )
         plt.close(fig)
 
@@ -954,8 +1431,8 @@ def generate_figures(
         ax.legend(frameon=False)
         ax.set_axisbelow(True)
         fig.tight_layout()
-        digests[specs[1].filename] = _save_figure(
-            fig, output_dir / specs[1].filename, specs[1].caption, inventory.source_hash
+        digests[specs[2].filename] = _save_figure(
+            fig, output_dir / specs[2].filename, specs[2].caption, inventory.source_hash
         )
         plt.close(fig)
 
@@ -984,8 +1461,8 @@ def generate_figures(
             "Validation and documentation evidence", fontsize=11, fontweight="bold"
         )
         fig.tight_layout()
-        digests[specs[2].filename] = _save_figure(
-            fig, output_dir / specs[2].filename, specs[2].caption, inventory.source_hash
+        digests[specs[3].filename] = _save_figure(
+            fig, output_dir / specs[3].filename, specs[3].caption, inventory.source_hash
         )
         plt.close(fig)
     return tuple(replace(spec, sha256=digests[spec.filename]) for spec in specs)
@@ -1966,8 +2443,9 @@ def generate(
     data_dir = output / "data"
     figures_dir = output / "figures"
     _write_json(data_dir / "research_inventory.json", inventory.to_dict())
-    specs = generate_figures(inventory, figures_dir)
-    write_figure_registry(figures_dir / "figure_registry.json", specs, inventory)
+    # The record is resolved before the figures are drawn so the graphical
+    # abstract can carry each command group's recorded outcome; nothing in the
+    # record depends on figure bytes, so the order swap is safe.
     record = resolve_verification(
         root,
         inventory,
@@ -1977,6 +2455,8 @@ def generate(
     )
     verification = record.results
     _write_json(_verification_record_path(root), _verification_payload(record))
+    specs = generate_figures(inventory, figures_dir, verification=record)
+    write_figure_registry(figures_dir / "figure_registry.json", specs, inventory)
     variables = build_variables(inventory, specs, record)
     _write_json(data_dir / "manuscript_variables.json", variables)
     stale_config = refresh_config_metadata(root, variables, dry_run=True)

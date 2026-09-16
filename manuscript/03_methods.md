@@ -174,6 +174,13 @@ drawn at the printed size of the template's text block, so the type in a
 figure is set at the point size it is authored at rather than being scaled
 down by the renderer.
 
+The first figure, the graphical abstract, is additionally wired into the
+title page: `config.yaml` points the renderer's cover slot at the same
+generated PNG, so the cover page and the Abstract section carry one artifact
+whose panel content and caption come from the declared themes, the Methods
+section, and the published verification record rather than from hand-drawn
+artwork.
+
 ![{{MODULE_INVENTORY_CAPTION}}](../output/figures/module_inventory.png){#fig:module_inventory width=100%}
 
 ![{{RESEARCH_SPINE_CAPTION}}](../output/figures/research_spine.png){#fig:research_spine width=100%}

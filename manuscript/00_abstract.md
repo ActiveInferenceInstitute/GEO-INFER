@@ -1,4 +1,5 @@
 # Abstract {#sec:abstract}
+![{{GRAPHICAL_ABSTRACT_CAPTION}}](../output/figures/graphical_abstract.png){#fig:graphical_abstract width=100%}
 
 GEO-INFER is a modular geospatial inference framework spanning spatial
 analysis, active inference, Bayesian methods, domain modeling, agent
@@ -7,7 +8,10 @@ tracked checkout at commit `{{RESEARCH_COMMIT}}`: the repository contains
 `{{MODULE_COUNT}}` modules that ship a `src/` package, grouped into
 `{{MODULE_THEME_COUNT}}` themes, with `{{SOURCE_FILE_COUNT}}` Python source
 files and `{{TEST_FILE_COUNT}}` Python test files across its measured
-evidence surfaces.
+evidence surfaces. [@fig:graphical_abstract] summarises the resulting
+pipeline end to end: the themed module set, the geospatial and probabilistic
+models it composes into, the evidence loop that verifies it, and the claims
+that verification underwrites.
 
 The research contribution is an auditable composition contract. Domain
 modules own their implementations, cross-module workflows expose shared
