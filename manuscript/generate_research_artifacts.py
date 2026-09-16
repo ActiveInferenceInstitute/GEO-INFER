@@ -134,10 +134,12 @@ TEXT_BLOCK_HEIGHT_IN = 7.70
 # ``height=<fraction>\textheight`` bound on every \includegraphics.
 FIGURE_HEIGHT_FRACTION = 0.9
 MAX_FIGURE_HEIGHT_IN = TEXT_BLOCK_HEIGHT_IN * FIGURE_HEIGHT_FRACTION
-# PNG raster density. Figures are drawn at the printed size, so this is also
-# the printed raster density at print scale 1.0 — comfortably above the
-# ~264 DPI floor for a 5.95in-wide figure that must survive close inspection.
-FIGURE_DPI = 300
+# PNG raster density. Figures are drawn at the repo render's printed size
+# (430pt text block), so 340 DPI is that lane's printed raster density at
+# print scale 1.0; the template lane (margin=2cm, 500.5pt text block) upscales
+# every figure by 500.484/430.005 = 1.164x, which lands its effective density
+# at ~292 DPI — both lanes clear the ~264 DPI floor for close inspection.
+FIGURE_DPI = 340
 # Inches of vertical space per module row in the inventory figure.  A row now
 # carries both bars for one module, so at 8pt type this is about 12pt of
 # leading per label.
