@@ -78,6 +78,5 @@ uncommitted working-tree entries when these values were measured was
 measurements describe files on disk rather than the named commit, and the
 commit stamp above carries a `-dirty` or `-unverified` suffix to say so. The
 recorded verification summary is `{{VERIFICATION_STATUS}}`. That record is
-{{VERIFICATION_RECORD_PROVENANCE}}: a build that runs no verification command
-republishes the stored record rather than emptying it, so the tree the
-evidence names is stated here and need not be the commit above.
+{{VERIFICATION_RECORD_PROVENANCE}}; the republication policy it summarises is
+stated in full in the Artifacts and Evidence section.

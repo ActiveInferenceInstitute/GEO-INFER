@@ -37,6 +37,13 @@ PDF = Path("output/pdf/GEO-INFER_combined.pdf")
 # figure page holds 32 (a figure plus a short closing subsection), and an
 # ordinary text page holds 250-350.  The floor sits in that gap.
 MINIMUM_NON_CAPTION_WORDS = 15
+# A float page is the defect when the page carries a figure, a short caption,
+# and nothing else.  A full-page figure whose caption itself carries the
+# section's argument — the graphical abstract, set as a deliberate full-page
+# figure — is not that defect: its caption is the page's content.  The floor
+# sits above the longest caption the short-caption defect class shipped (the
+# 60-word inventory caption of the original float-page defect).
+SUBSTANTIVE_CAPTION_WORDS = 80
 
 
 def _words(text: str) -> list[str]:
@@ -117,10 +124,15 @@ class TestFloatPlacement:
             # caption's words are removed once each.
             best = min(captions, key=lambda caption: len(_remaining(words, caption)))
             remaining = _remaining(words, best)
-            assert len(remaining) >= MINIMUM_NON_CAPTION_WORDS, (
-                f"page {page} carries a figure, its caption, and "
-                f"{len(remaining)} other words ({remaining}): it is a float page"
-            )
+            if (
+                len(remaining) < MINIMUM_NON_CAPTION_WORDS
+                and len(best) < SUBSTANTIVE_CAPTION_WORDS
+            ):
+                assert False, (
+                    f"page {page} carries a figure, its caption, and "
+                    f"{len(remaining)} other words ({remaining}): it is a float "
+                    "page with a caption too short to be the page's content"
+                )
 
 
 class TestTextBlock:
