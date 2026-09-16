@@ -30,10 +30,15 @@ twice, so a module cannot silently disappear from this table.
 
 {{MODULE_TABLE}}
 
-: Measured module inventory at commit `{{RESEARCH_COMMIT}}`, grouped by
-declared theme. Source and test files are counted per module by the same
-inventory pass that produces every other quantity in this manuscript; the
-counts describe implementation and evidence surfaces, not correctness.
+: The measured module inventory at commit `{{RESEARCH_COMMIT}}`, grouped by the
+declared themes the generator enforces. Each row names one module, the
+installable package directory it ships under `src/`, and its counted Python
+source and test files; the counts are measured by the same inventory pass that
+produces every other quantity in this manuscript, and the build refuses to
+render if any measured module is unthemed, absent, or declared twice. Read the
+table as a map of where implementation and verification surface live — the
+largest module is `GEO-INFER-SPACE`, and several modules carry more test files
+than source files — not as a statement about correctness or maturity.
 {#tbl:module_inventory}
 
 The themes divide the framework by the kind of claim each module is

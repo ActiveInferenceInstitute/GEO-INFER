@@ -16,10 +16,16 @@ evidence bundle. The current source fingerprint is
 | `output/data/` | Generated inventory, variables, verification, and manifest records. |
 | `output/figures` | Generated figures and their caption and provenance registry. |
 
-: Tracked source surfaces measured by the evidence bundle. The first four rows
-are measured populations; the two file-level rows are pinned authored sources
-that the Composition Contract reproduces, so a rename in the checkout is
-visible here. {#tbl:source_surface}
+: Tracked source surfaces measured by the evidence bundle at source hash
+`{{RESEARCH_SOURCE_HASH}}`. The first four rows are measured populations —
+the Python implementation and test trees, the unified test framework in
+`GEO-INFER-TEST`, and the cross-module documentation under
+`GEO-INFER-INTRA/docs/` — while the remaining rows are pinned authored
+sources: the inference-contract document and the typed result module the
+Composition Contract reproduces, the packaging files that carry version and
+environment provenance, and the directories the generator writes to. A rename
+in the checkout therefore surfaces here instead of passing silently.
+{#tbl:source_surface}
 
 ## Authored and Generated Boundary
 
@@ -37,9 +43,13 @@ writes what, which is the invariant the Reproducibility contract depends on.
 | `output/pdf/`, `output/web/` | Renderer | no |
 
 : Authored versus generated files. Every tracked file under `manuscript/` is
-authored except the four fields in `config.yaml` that the renderer forces the
-generator to resolve in place; everything under `output/` is disposable and is
-rebuilt from the checkout. {#tbl:authored_generated}
+authored except the four generator-owned fields marked in place inside
+`manuscript/config.yaml` — the project version, the title-page date, the
+publication year, and the licence — and everything under `output/` is
+disposable, rebuilt from the checkout by the generator and the renderer on
+each build. Read the table as the write-ownership contract the Reproducibility
+section depends on: every value in this manuscript is either hand-reviewable
+at a tracked path or regenerated from a measured one. {#tbl:authored_generated}
 
 ## Reproducing This Build
 

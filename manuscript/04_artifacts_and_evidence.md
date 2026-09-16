@@ -10,9 +10,14 @@
 | `figure_registry.json` under `output/figures` | Figure labels, dynamic captions, generator paths, and a SHA-256 digest of each written image. |
 | `output/manuscript/` | Resolved publication copies consumed by a renderer. |
 
-: Evidence inventory of generated artifacts. Every row is written by
-`manuscript/generate_research_artifacts.py` in the same pass and describes the
-same build; none of them is authored by hand. {#tbl:evidence_inventory}
+: Evidence inventory of the generated artifacts. Each row names one artifact
+`manuscript/generate_research_artifacts.py` writes in the same pass that
+produced this manuscript's figures and variables, together with the role it
+plays: the inventory and the variable map record what was measured, the
+verification record what was executed, the figure registry what was drawn and
+how each image is digested, and `output/manuscript/` is what the renderer
+consumes. None of the rows is authored by hand, so a stale or missing row is
+a build defect rather than a documentation gap. {#tbl:evidence_inventory}
 
 ## Current Measured Surface
 
@@ -87,10 +92,16 @@ invoked without it publishes whatever the record holds, including failures.
 
 {{VERIFICATION_TABLE}}
 
-: Per-group verification record for this build. Every command group the
-record's tier defines has a row: `Exit` is the process return code and
-`Seconds` the wall duration observed, and a group that did not run is printed
-as `not run` rather than omitted. {#tbl:verification_record}
+: Per-group verification record for this build, measured at the
+`{{VERIFICATION_RECORD_TIER}}` tier against commit
+`{{VERIFICATION_RECORD_COMMIT}}` at source hash
+`{{VERIFICATION_RECORD_SOURCE_HASH}}`. Every command group that tier defines
+has one row: `Exit` is the process return code, `Seconds` the wall duration
+observed, and `Status` is one of the three published states `passed`,
+`failed`, and `not run` — a group that did not run is printed, never
+omitted. Read the table as the command-level evidence behind
+`{{VERIFICATION_STATUS}}`: a failed group is published with its return code
+instead of being summarised away. {#tbl:verification_record}
 
 [@tbl:verification_record] is the command-level evidence behind the summary
 above. A failed group is published with its return code instead of being

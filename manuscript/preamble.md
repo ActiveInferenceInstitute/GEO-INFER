@@ -22,8 +22,8 @@ needs additional math, table, or figure support.
 
 LaTeX's defaults reserve a whole page for any float taller than
 `\topfraction` (0.7) of the text block, and let a float claim a page of its
-own once it fills `\floatpagefraction` (0.5) of one. All three evidence
-figures therefore landed on pages carrying a single caption and roughly 300
+own once it fills `\floatpagefraction` (0.5) of one. Every evidence figure
+therefore landed on pages carrying a single caption and roughly 300
 characters of text against 1,800-2,000 on an ordinary page. Raising
 `\topfraction` lets a tall float sit at the top of a text page; raising
 `\floatpagefraction` means LaTeX opens a float page only for a float that

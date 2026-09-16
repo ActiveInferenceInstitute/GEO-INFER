@@ -695,25 +695,44 @@ def _format_count(value: int) -> str:
     return f"{value:,}"
 
 
+def _spine_names(inventory: RepositoryInventory) -> str:
+    """Comma-joined short names of the research-focus modules."""
+    return ", ".join(
+        module.name.removeprefix("GEO-INFER-") for module in inventory.focused_modules
+    )
+
+
 def _caption_module_inventory(inventory: RepositoryInventory) -> str:
     return (
-        f"Repository-derived inventory of {inventory.module_count} src/-bearing GEO-INFER modules at "
-        f"commit {inventory.commit}. Each row pairs one module's Python source-file and test-file "
-        "counts; modules are ordered by source-file count and split across two panels that share a "
-        "single count axis, the larger half on the left. Values are measured from the checkout "
-        "rather than entered manually."
+        f"Repository-derived inventory of the {inventory.module_count} src/-bearing "
+        f"GEO-INFER modules at commit {inventory.commit}. Each row is one module: the "
+        "blue bar counts its tracked Python source files and the orange bar its tracked "
+        "Python test files, both read against the shared Files axis at the foot of each "
+        "panel. Modules are ordered by source-file count, largest first, and the rows "
+        "continue from the left panel into the right one, so bar length is comparable "
+        "across both panels; row labels drawn in the dark accent colour mark the "
+        f"{_spine_names(inventory)} research-spine modules. Counts are measured from "
+        f"the tracked checkout at source hash {inventory.source_hash}, not entered by "
+        "hand. They describe implementation and evidence surfaces, not correctness: "
+        "what the spread shows is where the repository concentrates its code, and that "
+        "several modules carry more test files than source files, so the verification "
+        "surface does not scale with implementation size."
     )
 
 
 def _caption_research_spine(inventory: RepositoryInventory) -> str:
-    focus = ", ".join(
-        module.name.removeprefix("GEO-INFER-") for module in inventory.focused_modules
-    )
+    focus = _spine_names(inventory)
     return (
-        f"Implementation and verification surfaces for the {focus} research spine. "
-        "Each group reports the tracked Python source-file count and test-file count for the "
-        "corresponding module, exposing where the repository concentrates active-inference, "
-        "Bayesian, and risk-analysis evidence."
+        f"Implementation and verification surfaces for the {focus} research spine at "
+        f"commit {inventory.commit}. Each group is one module: the blue bar counts its "
+        "tracked Python source files and the orange bar its tracked Python test files, "
+        "both read against the shared Files axis, and the number above each bar states "
+        "the count directly, so no axis tracing is needed. Measured from the tracked "
+        f"checkout at source hash {inventory.source_hash} by the same inventory pass "
+        "that produces every other quantity in this manuscript. The spine is "
+        "deliberately small, and each module's test surface is on the order of its "
+        "source surface, which is what makes the free-energy, sampler, and risk-bound "
+        "obligations quoted in the Methods section reviewable in a single sitting."
     )
 
 
@@ -722,42 +741,19 @@ def _caption_validation_surface(inventory: RepositoryInventory) -> str:
         ", ".join(inventory.test_files_by_category) or "the discovered test suite"
     )
     return (
-        f"Repository validation surface at commit {inventory.commit}. The left panel counts test "
-        f"files by discovered category ({categories}); the right panel reports the measured module, "
-        "documentation, and validator surfaces. These counts describe available evidence surfaces, "
-        "not claims that a test command passed."
-    )
-
-
-def _alt_module_inventory(inventory: RepositoryInventory) -> str:
-    return (
-        f"Horizontal grouped bar chart with one row per module for "
-        f"{inventory.module_count} modules, sorted with the largest source-file "
-        "count at the top of the left panel and continuing into the right "
-        "panel. Each row carries two bars, Python source files and test files, "
-        "and both panels share one count axis."
-    )
-
-
-def _alt_research_spine(inventory: RepositoryInventory) -> str:
-    focus = ", ".join(
-        module.name.removeprefix("GEO-INFER-") for module in inventory.focused_modules
-    )
-    return (
-        f"Grouped bar chart with one group per module for {focus}. Each group "
-        "pairs a source-file bar with a test-file bar on a shared count axis, so "
-        "implementation and verification height can be compared per module."
-    )
-
-
-def _alt_validation_surface(inventory: RepositoryInventory) -> str:
-    categories = (
-        ", ".join(inventory.test_files_by_category) or "the discovered test suite"
-    )
-    return (
-        "Two-panel figure. The left panel is a bar chart of test-file counts per "
-        f"discovered category ({categories}). The right panel is a bar chart of "
-        "the measured module, documentation, and validator surface counts."
+        f"Repository validation surface at commit {inventory.commit}. The left panel "
+        f"counts the {inventory.test_files:,} tracked Python test files by the directory "
+        f"category they live in ({categories}); those categories are mutually exclusive, "
+        "and the build refuses to publish if they do not sum to the total. The right "
+        "panel reports three measured evidence surfaces: the "
+        f"{inventory.module_count} src/-bearing modules, the "
+        f"{inventory.documentation_pages} cross-module documentation pages under "
+        f"GEO-INFER-INTRA/docs/, and the {inventory.validator_files} validator entry "
+        "points in GEO-INFER-TEST. Numbers above each bar state the counts directly. "
+        f"Measured from the tracked checkout at source hash {inventory.source_hash}. "
+        "These bars describe the evidence surfaces that exist, not claims that any of "
+        "them passed; executed-command outcomes are published separately in the "
+        "per-group verification record."
     )
 
 
@@ -797,6 +793,37 @@ def _caption_graphical_abstract(
     )
 
 
+def _alt_module_inventory(inventory: RepositoryInventory) -> str:
+    return (
+        f"Horizontal grouped bar chart with one row per module for "
+        f"{inventory.module_count} modules, ordered by source-file count with the "
+        "largest at the top of the left panel and continuing into the right panel. "
+        "Each row carries a blue source-file bar and an orange test-file bar, both "
+        "panels share one count axis, and the research-spine module labels are drawn "
+        "in the accent colour."
+    )
+
+
+def _alt_research_spine(inventory: RepositoryInventory) -> str:
+    focus = _spine_names(inventory)
+    return (
+        f"Grouped bar chart with one group per module for {focus}. Each group pairs a "
+        "blue source-file bar with an orange test-file bar on a shared count axis, and "
+        "each bar carries its count printed above it, so implementation and "
+        "verification size can be compared per module without tracing to the axis."
+    )
+
+
+def _alt_validation_surface(inventory: RepositoryInventory) -> str:
+    categories = (
+        ", ".join(inventory.test_files_by_category) or "the discovered test suite"
+    )
+    return (
+        "Two-panel bar chart, every bar carrying its count printed above it. The left "
+        f"panel counts test files per discovered category ({categories}); the right "
+        "panel reports the measured module, documentation-page, and validator-file "
+        "surface counts."
+    )
 
 
 def _alt_graphical_abstract(
@@ -810,7 +837,6 @@ def _alt_graphical_abstract(
         "verified claims the loop establishes. A footer records the commit, source "
         "hash, and version the figure was generated from."
     )
-
 
 
 def _import_matplotlib() -> tuple[Any, Any]:
