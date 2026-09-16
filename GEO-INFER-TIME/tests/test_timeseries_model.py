@@ -22,7 +22,7 @@ def daily_series() -> TimeSeries:
 
 
 def test_package_version_matches_distribution_metadata() -> None:
-    assert geo_infer_time.__version__ == version("geo-infer-time") == "0.2.0"
+    assert geo_infer_time.__version__ == version("geo-infer-time") == "0.2.1"
 
 
 def test_constructor_normalizes_supported_inputs_and_copies_metadata() -> None:
