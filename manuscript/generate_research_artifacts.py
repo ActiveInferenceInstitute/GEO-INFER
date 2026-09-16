@@ -769,13 +769,9 @@ def _caption_graphical_abstract(
             full_validation=verification.full_validation_requested,
         )[0]
         tier = (
-            "full-validation"
-            if verification.full_validation_requested
-            else "default"
+            "full-validation" if verification.full_validation_requested else "default"
         )
-        outcome = (
-            f"the recorded verification summary is {summary} at the {tier} tier"
-        )
+        outcome = f"the recorded verification summary is {summary} at the {tier} tier"
     else:
         outcome = "this view records no verification summary"
     return (
@@ -937,8 +933,7 @@ def _record_statuses(
         else {}
     )
     return {
-        name: recorded.get(name, "not-run")
-        for name, _command in VERIFICATION_COMMANDS
+        name: recorded.get(name, "not-run") for name, _command in VERIFICATION_COMMANDS
     }
 
 
@@ -1108,12 +1103,12 @@ def _draw_graphical_abstract(
             linespacing=1.15,
             zorder=3,
         )
-        cursors[column] = (
-            cursor - 0.145 - (wrapped.count("\n") + 1) * 0.098 - 0.055
-        )
+        cursors[column] = cursor - 0.145 - (wrapped.count("\n") + 1) * 0.098 - 0.055
 
     # Panel 2: the model families those themes compose into.
-    px, py = panel(right_x, row1_y, "2", "Geospatial & inference models", CATEGORY_COLOR)
+    px, py = panel(
+        right_x, row1_y, "2", "Geospatial & inference models", CATEGORY_COLOR
+    )
     for title, body in (
         (
             "Spatial substrate",
@@ -1127,12 +1122,18 @@ def _draw_graphical_abstract(
         ),
         (
             "Domain engines",
-            "Extreme-value risk bounds (RISK), insurance underwriting "
-            "(INSURANCE)",
+            "Extreme-value risk bounds (RISK), insurance underwriting (INSURANCE)",
         ),
     ):
         ax.text(
-            px, py, title, fontsize=7.6, fontweight="bold", color=dark, va="top", zorder=3
+            px,
+            py,
+            title,
+            fontsize=7.6,
+            fontweight="bold",
+            color=dark,
+            va="top",
+            zorder=3,
         )
         body_wrapped = _wrap(body, 46)
         ax.text(
@@ -1224,7 +1225,14 @@ def _draw_graphical_abstract(
     else:
         stat, stat_color = "outcomes published per group", "#555555"
     ax.text(
-        px, py, stat, fontsize=11, fontweight="bold", color=stat_color, va="top", zorder=3
+        px,
+        py,
+        stat,
+        fontsize=11,
+        fontweight="bold",
+        color=stat_color,
+        va="top",
+        zorder=3,
     )
     cursor = py - 0.26
     for bullet in (
@@ -1248,8 +1256,7 @@ def _draw_graphical_abstract(
         px,
         cursor - 0.02,
         _wrap(
-            "Correctness, reproducibility, and documentation claims become "
-            "executable.",
+            "Correctness, reproducibility, and documentation claims become executable.",
             44,
         ),
         fontsize=7.6,
@@ -1278,7 +1285,10 @@ def _draw_graphical_abstract(
         linewidth=1.2,
         zorder=4,
     )
-    arrow((left_x + panel_w / 2, elbow_y), (left_x + panel_w / 2, row2_y + row_height + 0.01))
+    arrow(
+        (left_x + panel_w / 2, elbow_y),
+        (left_x + panel_w / 2, row2_y + row_height + 0.01),
+    )
     arrow((left_x + panel_w + 0.005, mid2), (right_x - 0.005, mid2))
 
     ax.text(
@@ -1430,9 +1440,7 @@ def generate_figures(
             axis.set_xlim(0, count_limit)
             axis.tick_params(axis="y", labelsize=8)
             axis.tick_params(axis="x", labelsize=7.5)
-            axis.set_title(
-                f"Modules {start + 1}–{stop} of {len(labels)}", fontsize=8.5
-            )
+            axis.set_title(f"Modules {start + 1}–{stop} of {len(labels)}", fontsize=8.5)
             axis.set_xlabel("Tracked Python files")
             axis.set_axisbelow(True)
         axes[0].legend(frameon=False, loc="lower right", fontsize=7.5)
