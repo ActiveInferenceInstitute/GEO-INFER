@@ -71,12 +71,11 @@ shipping.
 ## Recorded Build
 
 This source manuscript is resolved at commit `{{RESEARCH_COMMIT}}` on branch
-`{{RESEARCH_BRANCH}}`, with commit date {{RESEARCH_COMMIT_DATE}}, source hash
-`{{RESEARCH_SOURCE_HASH}}`, and Python `{{PYTHON_VERSION}}`. The count of
-uncommitted working-tree entries when these values were measured was
-`{{RESEARCH_TREE_DIRTY_FILE_COUNT}}`; anything other than zero means the
-measurements describe files on disk rather than the named commit, and the
-commit stamp above carries a `-dirty` or `-unverified` suffix to say so. The
+`{{RESEARCH_BRANCH}}`, commit date {{RESEARCH_COMMIT_DATE}}, source hash
+`{{RESEARCH_SOURCE_HASH}}`, Python `{{PYTHON_VERSION}}`. The uncommitted-entry
+count at measurement time was `{{RESEARCH_TREE_DIRTY_FILE_COUNT}}`; anything
+other than zero means the values describe files on disk rather than the named
+commit, which the commit stamp's `-dirty` or `-unverified` suffix records. The
 recorded verification summary is `{{VERIFICATION_STATUS}}`. That record is
-{{VERIFICATION_RECORD_PROVENANCE}}; the republication policy it summarises is
-stated in full in the Artifacts and Evidence section.
+{{VERIFICATION_RECORD_PROVENANCE}}, whose republication policy the Artifacts
+and Evidence section states in full.
