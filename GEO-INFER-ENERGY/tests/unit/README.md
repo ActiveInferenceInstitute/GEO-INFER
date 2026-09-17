@@ -22,7 +22,7 @@ Unit workspace within `GEO-INFER-ENERGY`.
 
 - Module: `GEO-INFER-ENERGY`
 - Package: `geo_infer_energy`
-- Version: `0.2.1`
+- Version: `0.3.0`
 - Install: `uv pip install -e ./GEO-INFER-ENERGY`
 - Tests: `uv run python -m pytest GEO-INFER-ENERGY/tests/unit`
 

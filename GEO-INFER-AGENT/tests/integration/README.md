@@ -15,7 +15,7 @@ Integration workspace within `GEO-INFER-AGENT`.
 
 - Module: `GEO-INFER-AGENT`
 - Package: `geo_infer_agent`
-- Version: `0.2.1`
+- Version: `0.3.0`
 - Install: `uv pip install -e ./GEO-INFER-AGENT`
 - Tests: `uv run python -m pytest GEO-INFER-AGENT/tests/integration`
 

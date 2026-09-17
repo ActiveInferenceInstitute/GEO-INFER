@@ -31,7 +31,7 @@ Operations workspace within `GEO-INFER-SPACE`.
 
 - Module: `GEO-INFER-SPACE`
 - Package: `geo_infer_space`
-- Version: `0.2.1`
+- Version: `0.3.0`
 - Install: `uv pip install -e ./GEO-INFER-SPACE`
 - Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE`
 

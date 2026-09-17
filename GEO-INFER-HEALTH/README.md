@@ -25,7 +25,7 @@ Epidemiology, healthcare accessibility analysis, disease surveillance, and spati
 
 - Module: `GEO-INFER-HEALTH`
 - Package: `geo_infer_health`
-- Version: `0.2.1`
+- Version: `0.3.0`
 - Install: `uv pip install -e ./GEO-INFER-HEALTH`
 - Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module HEALTH`
 

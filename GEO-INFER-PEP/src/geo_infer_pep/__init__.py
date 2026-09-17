@@ -41,7 +41,7 @@ from .methods import (
 )
 from .api import api_router, crm_router, hr_router, talent_router
 
-__version__ = "0.2.1"
+__version__ = "0.3.0"
 
 __all__ = [
     # Models

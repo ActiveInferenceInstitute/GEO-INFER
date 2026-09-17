@@ -14,7 +14,7 @@ from geo_infer_app.models.agent_visualization import AgentVisualization
 from geo_infer_app.models.agent_configuration import AgentConfiguration
 from geo_infer_app.api.agent_api import AgentAPIClient, AgentManager
 
-__version__ = "0.2.1"
+__version__ = "0.3.0"
 
 __all__ = [
     "AgentInterface",

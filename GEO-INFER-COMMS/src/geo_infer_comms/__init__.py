@@ -427,7 +427,7 @@ def setup_emergency_monitoring(
 
 
 # Version and metadata
-__version__ = "0.2.1"
+__version__ = "0.3.0"
 __author__ = "GEO-INFER Framework"
 __description__ = "Geospatial Communications Infrastructure for distributed systems"
 

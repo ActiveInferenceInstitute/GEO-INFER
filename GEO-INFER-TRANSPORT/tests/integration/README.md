@@ -15,7 +15,7 @@ Integration workspace within `GEO-INFER-TRANSPORT`.
 
 - Module: `GEO-INFER-TRANSPORT`
 - Package: `geo_infer_transport`
-- Version: `0.2.1`
+- Version: `0.3.0`
 - Install: `uv pip install -e ./GEO-INFER-TRANSPORT`
 - Tests: `uv run python -m pytest GEO-INFER-TRANSPORT/tests/integration`
 

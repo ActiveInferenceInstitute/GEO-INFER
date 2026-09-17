@@ -21,7 +21,7 @@ Unit workspace within `GEO-INFER-ART`.
 
 - Module: `GEO-INFER-ART`
 - Package: `geo_infer_art`
-- Version: `0.2.1`
+- Version: `0.3.0`
 - Install: `uv pip install -e ./GEO-INFER-ART`
 - Tests: `uv run python -m pytest GEO-INFER-ART/tests/unit`
 

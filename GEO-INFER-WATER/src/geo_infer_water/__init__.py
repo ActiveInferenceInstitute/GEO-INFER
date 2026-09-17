@@ -1,6 +1,6 @@
 """GEO-INFER-WATER: Water Resources Management Module."""
 
-__version__ = "0.2.1"
+__version__ = "0.3.0"
 __author__ = "GEO-INFER Development Team"
 
 from .core.hydrology import HydrologicalModeler

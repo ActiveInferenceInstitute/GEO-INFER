@@ -17,7 +17,7 @@ Integration workspace within `GEO-INFER-METAGOV`.
 
 - Module: `GEO-INFER-METAGOV`
 - Package: `geo_infer_metagov`
-- Version: `0.2.1`
+- Version: `0.3.0`
 - Install: `uv pip install -e ./GEO-INFER-METAGOV`
 - Tests: `uv run python -m pytest GEO-INFER-METAGOV/tests/integration`
 

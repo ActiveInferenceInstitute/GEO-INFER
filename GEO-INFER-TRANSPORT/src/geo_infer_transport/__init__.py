@@ -13,7 +13,7 @@ Key Features:
 - Transit network optimization
 """
 
-__version__ = "0.2.1"
+__version__ = "0.3.0"
 __author__ = "GEO-INFER Development Team"
 
 from .core.network import TransportNetwork

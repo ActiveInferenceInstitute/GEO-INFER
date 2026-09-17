@@ -14,7 +14,7 @@ Integration workspace within `GEO-INFER-AI`.
 
 - Module: `GEO-INFER-AI`
 - Package: `geo_infer_ai`
-- Version: `0.2.1`
+- Version: `0.3.0`
 - Install: `uv pip install -e ./GEO-INFER-AI`
 - Tests: `uv run python -m pytest GEO-INFER-AI/tests/integration`
 

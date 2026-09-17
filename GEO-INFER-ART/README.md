@@ -21,7 +21,7 @@ Transform geospatial data into compelling artistic expressions through aesthetic
 
 - Module: `GEO-INFER-ART`
 - Package: `geo_infer_art`
-- Version: `0.2.1`
+- Version: `0.3.0`
 - Install: `uv pip install -e ./GEO-INFER-ART`
 - Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module ART`
 

@@ -30,7 +30,7 @@ from typing import Dict as Dict, List as List, Optional as Optional, Any as Any
 import logging
 
 # Version information
-__version__ = "0.2.1"
+__version__ = "0.3.0"
 __author__ = "GEO-INFER Development Team"
 __email__ = "geo-infer@activeinference.institute"
 

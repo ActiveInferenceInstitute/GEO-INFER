@@ -43,7 +43,7 @@ Unit workspace within `GEO-INFER-TEST`.
 
 - Module: `GEO-INFER-TEST`
 - Package: `geo_infer_test`
-- Version: `0.2.1`
+- Version: `0.3.0`
 - Install: `uv pip install -e ./GEO-INFER-TEST`
 - Tests: `uv run python -m pytest GEO-INFER-TEST/tests/unit`
 

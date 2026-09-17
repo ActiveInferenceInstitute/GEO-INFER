@@ -5,10 +5,27 @@ All notable changes to the GEO-INFER framework will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.0] - 2026-09-17 — manuscript catalog wave + token auto-injection
 
-### Added
+> **Manuscript catalog.** The research manuscript became a deterministic,
+> 50-page per-module catalog: one `GEO-INFER-*` section per module (45
+> sections) with framework figures and auto-injected count tokens so no
+> hard-coded numbers can drift. Alongside it: the README/AGENTS inventories
+> were regenerated from the current module tree.
 
+### Added (2026-09-16/17 — per-module manuscript wave + GEO_* tokens)
+
+- **Per-module manuscript catalog** (50 pages): the manuscript was expanded
+  into 45 `GEO-INFER-*` module sections, each a deterministic summary of the
+  module's purpose, package layout, and testing route, with three new
+  deterministic figures (module theme map, framework data flow, verification
+  landscape) and margins tightened 2 cm -> 1.5 cm for the denser layout.
+- **Auto-injected manuscript tokens**: `GEO_MODULE_COUNT`, `GEO_MODULE_TABLE`
+  and `GEO_TEST_COUNT` are generated from the live module tree at render time
+  (via the template `_render_pdf_override` hook), replacing hand-written
+  counts so future module additions cannot drift the manuscript.
+- **README/AGENTS inventory regeneration**: the generated README and AGENTS
+  inventories were refreshed from the current module tree.
 - **Failure surfacing in the TEST harness verdicts**: the coverage-floor
   gate's FAILED-SUITE verdict now names the failing tests recorded in the
   measurement's JUnit report (capped at 20 names with a `... and N more`
@@ -842,9 +859,11 @@ pass at that SHA.
 |---------|------|-------------|
 | 0.2.0 | 2026-02-25 | Second beta release |
 | 0.1.0 | 2026-01-26 | Initial release |
+| 0.3.0 | 2026-09-17 | Per-module manuscript catalog wave |
 
 ---
 
 [0.2.0]: https://github.com/ActiveInferenceInstitute/GEO-INFER/compare/v0.1.0...v0.2.0
 [0.2.1]: https://github.com/ActiveInferenceInstitute/GEO-INFER/compare/v0.2.0...v0.2.1
+[0.3.0]: https://github.com/ActiveInferenceInstitute/GEO-INFER/compare/v0.2.1...v0.3.0
 [0.1.0]: https://github.com/ActiveInferenceInstitute/GEO-INFER/releases/tag/v0.1.0

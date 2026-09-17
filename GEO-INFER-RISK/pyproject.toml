@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-risk"
-version = "0.2.1"
+version = "0.3.0"
 description = "Advanced risk analysis and catastrophe modeling framework for geospatial applications including insurance, hazard assessment, and resilience planning"
 readme = "README.md"
 license = "CC-BY-NC-SA-4.0"

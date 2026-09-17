@@ -5,7 +5,7 @@ This module provides comprehensive temporal analysis, time series processing,
 forecasting, and spatio-temporal data fusion for dynamic geospatial applications.
 """
 
-__version__ = "0.2.1"
+__version__ = "0.3.0"
 __author__ = "GEO-INFER Development Team"
 
 from geo_infer_time.core.analysis import TemporalAnalyzer

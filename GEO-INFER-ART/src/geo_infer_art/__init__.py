@@ -5,7 +5,7 @@ This module enables the transformation of geospatial data into artistic
 expressions, visualizations, and generative art systems.
 """
 
-__version__ = "0.2.1"
+__version__ = "0.3.0"
 
 # Core components
 from geo_infer_art.core.visualization import GeoArt, MapStyle

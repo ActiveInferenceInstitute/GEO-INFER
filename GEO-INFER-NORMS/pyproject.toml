@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-norms"
-version = "0.2.1"
+version = "0.3.0"
 description = "Social-technical compliance modeling with deterministic and probabilistic analysis of norms, regulations, and spatial governance"
 readme = "README.md"
 license = "CC-BY-NC-SA-4.0"

@@ -14,7 +14,7 @@ Src workspace within `GEO-INFER-CIV`.
 
 - Module: `GEO-INFER-CIV`
 - Package: `geo_infer_civ`
-- Version: `0.2.1`
+- Version: `0.3.0`
 - Install: `uv pip install -e ./GEO-INFER-CIV`
 - Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module CIV`
 

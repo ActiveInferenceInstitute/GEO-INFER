@@ -23,7 +23,7 @@ Unit workspace within `GEO-INFER-PEP`.
 
 - Module: `GEO-INFER-PEP`
 - Package: `geo_infer_pep`
-- Version: `0.2.1`
+- Version: `0.3.0`
 - Install: `uv pip install -e ./GEO-INFER-PEP`
 - Tests: `uv run python -m pytest GEO-INFER-PEP/tests/unit`
 

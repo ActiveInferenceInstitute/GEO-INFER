@@ -16,7 +16,7 @@ Integration workspace within `GEO-INFER-SPM`.
 
 - Module: `GEO-INFER-SPM`
 - Package: `geo_infer_spm`
-- Version: `0.2.1`
+- Version: `0.3.0`
 - Install: `uv pip install -e ./GEO-INFER-SPM`
 - Tests: `uv run python -m pytest GEO-INFER-SPM/tests/integration`
 

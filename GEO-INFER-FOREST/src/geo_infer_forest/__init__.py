@@ -1,6 +1,6 @@
 """GEO-INFER-FOREST: Forest Management and Analysis Module."""
 
-__version__ = "0.2.1"
+__version__ = "0.3.0"
 __author__ = "GEO-INFER Development Team"
 
 from .core.forest_inventory import ForestInventory

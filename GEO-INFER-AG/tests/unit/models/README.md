@@ -18,7 +18,7 @@ Models workspace within `GEO-INFER-AG`.
 
 - Module: `GEO-INFER-AG`
 - Package: `geo_infer_ag`
-- Version: `0.2.1`
+- Version: `0.3.0`
 - Install: `uv pip install -e ./GEO-INFER-AG`
 - Tests: `uv run python -m pytest GEO-INFER-AG/tests/unit/models`
 

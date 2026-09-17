@@ -34,7 +34,7 @@ Core workspace within `GEO-INFER-CLIMATE`.
 
 - Module: `GEO-INFER-CLIMATE`
 - Package: `geo_infer_climate`
-- Version: `0.2.1`
+- Version: `0.3.0`
 - Install: `uv pip install -e ./GEO-INFER-CLIMATE`
 - Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module CLIMATE`
 

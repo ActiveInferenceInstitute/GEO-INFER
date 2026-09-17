@@ -270,6 +270,6 @@ if _integration_available:
 __all__.extend(["GPUAccelerator", "is_gpu_available", "get_gpu_info"])
 
 # Version information
-__version__ = "0.2.1"
+__version__ = "0.3.0"
 __author__ = "GEO-INFER Development Team"
 __email__ = "geo-infer@activeinference.institute"

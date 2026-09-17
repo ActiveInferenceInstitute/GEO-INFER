@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-agent"
-version = "0.2.1"
+version = "0.3.0"
 description = "Intelligent autonomous agents for geospatial decision-making, perception, and action with Active Inference, BDI, and reinforcement learning architectures"
 readme = "README.md"
 license = "CC-BY-NC-SA-4.0"

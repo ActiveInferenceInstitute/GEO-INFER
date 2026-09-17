@@ -21,7 +21,7 @@ Unit workspace within `GEO-INFER-MARINE`.
 
 - Module: `GEO-INFER-MARINE`
 - Package: `geo_infer_marine`
-- Version: `0.2.1`
+- Version: `0.3.0`
 - Install: `uv pip install -e ./GEO-INFER-MARINE`
 - Tests: `uv run python -m pytest GEO-INFER-MARINE/tests/unit`
 

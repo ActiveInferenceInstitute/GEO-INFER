@@ -1,0 +1,19 @@
+# CITATION file for the GEO-INFER framework (https://github.com/ActiveInferenceInstitute/GEO-INFER)
+cff-version: 1.2.0
+title: "GEO-INFER: a comprehensive geospatial inference framework for ecological, civic, and commercial applications"
+message: "If you use GEO-INFER, please cite it using this metadata."
+type: software
+authors:
+  - name: Active Inference Institute
+    website: https://activeinference.org
+version: 0.3.0
+date-released: "2026-09-17"
+license: CC-BY-NC-SA-4.0
+repository-code: "https://github.com/ActiveInferenceInstitute/GEO-INFER"
+abstract: "GEO-INFER is a comprehensive geospatial inference framework organized as a fleet of 45 domain modules (GEO-INFER-*) applying active-inference principles to geospatial analysis across ecological, civic, and commercial domains."
+doi: ""
+keywords:
+  - geospatial
+  - active inference
+  - free energy principle
+  - geographic information systems

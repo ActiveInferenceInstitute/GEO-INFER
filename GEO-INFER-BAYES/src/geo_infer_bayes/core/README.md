@@ -42,7 +42,7 @@ Core workspace within `GEO-INFER-BAYES`.
 
 - Module: `GEO-INFER-BAYES`
 - Package: `geo_infer_bayes`
-- Version: `0.2.1`
+- Version: `0.3.0`
 - Install: `uv pip install -e ./GEO-INFER-BAYES`
 - Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module BAYES`
 

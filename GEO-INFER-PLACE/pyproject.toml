@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-place"
-version = "0.2.1"
+version = "0.3.0"
 description = "Comprehensive place-based analysis framework providing deep insights into specific geographic locations and regional systems"
 readme = "README.md"
 license = "CC-BY-NC-SA-4.0"

@@ -23,7 +23,7 @@ Unit workspace within `GEO-INFER-API`.
 
 - Module: `GEO-INFER-API`
 - Package: `geo_infer_api`
-- Version: `0.2.1`
+- Version: `0.3.0`
 - Install: `uv pip install -e ./GEO-INFER-API`
 - Tests: `uv run python -m pytest GEO-INFER-API/tests/unit`
 

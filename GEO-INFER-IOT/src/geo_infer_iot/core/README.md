@@ -38,7 +38,7 @@ Core workspace within `GEO-INFER-IOT`.
 
 - Module: `GEO-INFER-IOT`
 - Package: `geo_infer_iot`
-- Version: `0.2.1`
+- Version: `0.3.0`
 - Install: `uv pip install -e ./GEO-INFER-IOT`
 - Tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --module IOT`
 

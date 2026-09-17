@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-ai"
-version = "0.2.1"
+version = "0.3.0"
 description = "Advanced machine learning and artificial intelligence capabilities specifically designed for geospatial analysis and decision-making"
 readme = "README.md"
 license = "CC-BY-NC-SA-4.0"
