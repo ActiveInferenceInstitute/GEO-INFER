@@ -107,6 +107,18 @@ instead of being summarised away. {#tbl:verification_record}
 above. A failed group is published with its return code instead of being
 summarised away, which is what makes `passed`, `failed`, and `not run` three
 distinct published states rather than two.
+The same discipline now runs one level deeper, inside the harnesses that
+produce the recorded command groups. A coverage-floor measurement whose suite
+fails mid-measurement records the failing testcases named in its JUnit
+report, and the gate's FAILED-SUITE verdict prints those names — bounded at
+twenty, with a stated overflow count — instead of reducing a failed suite to
+its return code. The unified test runner carries the same rule into its
+final summary: `--show-failures` prints each failed suite's failing test
+names, JUnit-backed suites exactly and validators or timed-out commands as a
+bounded output tail, and the machine-readable summary records the names
+whether or not the flag is passed. The verdict a human reads and the summary
+a tool parses therefore publish the same failure evidence, and a one-line
+summary can no longer be the place where the failing tests disappear.
 
 The commands are minutes long and a render hydrates on a bounded timeout, so
 the record is stamped with the source hash, commit, and tier it describes and
