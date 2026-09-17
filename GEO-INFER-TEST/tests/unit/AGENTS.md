@@ -30,6 +30,7 @@
 - `test_data_domains.py`
 - `test_log_integration.py`
 - `test_manuscript_research.py`
+- `test_measure_module_coverage.py`
 - `test_module_health.py`
 - `test_parametric_load_benchmarks.py`
 - `test_performance_monitor.py`
