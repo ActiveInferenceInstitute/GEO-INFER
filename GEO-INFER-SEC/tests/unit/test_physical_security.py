@@ -126,7 +126,7 @@ class TestAccessControl:
         result = manager.verify_access_permission("user-1", "dev-1", 3)
         assert result == (True, "Access granted")
 
-    def test_full_day_access_hours_never_block(self, manager):
+    def test_full_day_access_hours_never_block(self, manager, monkeypatch):
         zone = make_zone(
             "hours-zone",
             0,
@@ -136,7 +136,20 @@ class TestAccessControl:
         manager.add_security_zone(zone)
         device = make_access_device(Point(5.0, 50.0))
         manager.add_access_device(device)
-        # Runs at whatever wall-clock time pytest executes it: always inside.
+        # A %H:%M end of "23:59" parses to 23:59:00, so the last minute of the
+        # day falls outside every expressible window — a wall-clock run at
+        # 23:59:xx UTC blocked access and failed this test once daily. Pin the
+        # clock the check reads instead of racing wall time.
+        frozen = datetime(2026, 9, 16, 12, 0, 0)
+
+        class _FrozenDatetime(datetime):
+            @classmethod
+            def now(cls):
+                return frozen
+
+        monkeypatch.setattr(
+            "geo_infer_sec.core.physical_security.datetime", _FrozenDatetime
+        )
         result = manager.verify_access_permission("user-1", "dev-1", 0)
         assert result == (True, "Access granted")
 
