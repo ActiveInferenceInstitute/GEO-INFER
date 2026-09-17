@@ -29,7 +29,6 @@ import json
 import os
 import pickle
 import stat
-import sys
 from pathlib import Path
 from typing import Any, Dict, List
 
