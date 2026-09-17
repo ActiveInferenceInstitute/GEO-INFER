@@ -24,6 +24,7 @@ import base64
 import gzip
 import hashlib
 import hmac
+import importlib
 import json
 import os
 import pickle
@@ -1259,7 +1260,9 @@ class TestSerializationSurfaceAudit:
         already been verified; the allowlist records the reviewed call forms so
         a newly introduced bare ``pickle.load(file)`` fails this test.
         """
-        source = Path(sys.modules[module_name].__file__).read_text(encoding="utf-8")
+        source = Path(importlib.import_module(module_name).__file__).read_text(
+            encoding="utf-8"
+        )
         found = {
             call
             for call in (
@@ -1278,7 +1281,9 @@ class TestSerializationSurfaceAudit:
 
     def test_hardened_modules_import_the_trust_boundary(self):
         for module_name, _ in self.HARDENED_SOURCES:
-            source = Path(sys.modules[module_name].__file__).read_text(encoding="utf-8")
+            source = Path(importlib.import_module(module_name).__file__).read_text(
+                encoding="utf-8"
+            )
             assert "secure_serialization" in source, module_name
 
     @pytest.mark.parametrize("module", MODULES, ids=MODULE_IDS)
