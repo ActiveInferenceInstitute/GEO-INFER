@@ -4,6 +4,7 @@ Manuscript workspace within GEO-INFER.
 
 ## Contents
 
+- `sections/`
 - `generate_research_artifacts.py`
 - `00_abstract.md`
 - `01_introduction.md`
@@ -15,6 +16,7 @@ Manuscript workspace within GEO-INFER.
 - `98_symbols_glossary.md`
 - `99_references.md`
 - `S01_source_surface.md`
+- `S02_module_catalog.md`
 - `SYNTAX.md`
 - `config.yaml`
 - `preamble.md`
