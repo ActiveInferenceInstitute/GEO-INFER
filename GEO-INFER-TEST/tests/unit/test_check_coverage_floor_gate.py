@@ -119,3 +119,69 @@ def test_clean_suite_measurement_passes_gate(monkeypatch, capsys):
 
     assert module.main(["--base", "HEAD", "--head", "HEAD", "--modules", name]) == 0
     assert "FAILED-SUITE" not in capsys.readouterr().out
+
+
+def test_failed_suite_verdict_prints_failing_test_names(monkeypatch, capsys):
+    """A FAILED-SUITE verdict names the failing tests from the JUnit report
+    instead of hiding the per-test detail behind a one-line summary."""
+    module = _load_module()
+    name = _baseline_module()
+
+    def fake_measure(target):
+        return {
+            "module": target,
+            "status": "measured",
+            "coverage_percent": 100.0,
+            "pytest_rc": 1,
+            "failing_tests": [
+                "tests.unit.test_sample::test_bad",
+                "tests.unit.test_sample::test_broken",
+            ],
+            "seconds": 0.1,
+        }
+
+    monkeypatch.setattr(module, "measure_module", fake_measure)
+
+    try:
+        module.main(["--base", "HEAD", "--head", "HEAD", "--modules", name])
+    except SystemExit as exc:
+        assert exc.code == 1
+    else:
+        raise AssertionError("gate must fail when the measured suite had failures")
+
+    captured = capsys.readouterr()
+    assert "FAILED tests.unit.test_sample::test_bad" in captured.out
+    assert "FAILED tests.unit.test_sample::test_broken" in captured.out
+    assert "pytest rc=1 (2 failing tests)" in captured.err
+
+
+def test_failed_suite_verdict_truncates_long_failure_lists(monkeypatch, capsys):
+    """Failure lists longer than 20 names are bounded in the verdict."""
+    module = _load_module()
+    name = _baseline_module()
+
+    def fake_measure(target):
+        return {
+            "module": target,
+            "status": "measured",
+            "coverage_percent": 100.0,
+            "pytest_rc": 1,
+            "failing_tests": [
+                f"tests.unit.test_sample::test_bad_{index}" for index in range(25)
+            ],
+            "seconds": 0.1,
+        }
+
+    monkeypatch.setattr(module, "measure_module", fake_measure)
+
+    try:
+        module.main(["--base", "HEAD", "--head", "HEAD", "--modules", name])
+    except SystemExit as exc:
+        assert exc.code == 1
+    else:
+        raise AssertionError("gate must fail when the measured suite had failures")
+
+    out = capsys.readouterr().out
+    printed = [line for line in out.splitlines() if line.startswith("  FAILED ")]
+    assert len(printed) == 20
+    assert "... and 5 more failing tests" in out

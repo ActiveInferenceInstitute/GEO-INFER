@@ -13,7 +13,9 @@ Usage::
 
 ``--modules`` forces a module set regardless of the diff (used for local
 verification).  With no changed modules the gate passes immediately.
-Failures are reported per module and the exit code is 1.
+Failures are reported per module and the exit code is 1.  A FAILED-SUITE
+verdict names the failing tests recorded in the measurement's JUnit report
+so the CI log no longer hides the per-test detail behind a one-line summary.
 """
 
 from __future__ import annotations
@@ -121,9 +123,15 @@ def main(argv: list[str] | None = None) -> int:
             # failed mid-measurement; the number is coverage of whatever ran
             # before the failure and must never read as a passing floor.
             print(f"{module}: measured {measured}% vs floor {floor}% -> FAILED-SUITE")
+            failing = result.get("failing_tests", [])
+            for name in failing[:20]:
+                print(f"  FAILED {name}")
+            if len(failing) > 20:
+                print(f"  ... and {len(failing) - 20} more failing tests")
             violations.append(
-                f"{module}: measurement ran with pytest rc={pytest_rc}; "
-                "failing tests make the measured floor unreliable"
+                f"{module}: measurement ran with pytest rc={pytest_rc}"
+                + (f" ({len(failing)} failing tests)" if failing else "")
+                + "; failing tests make the measured floor unreliable"
             )
             continue
         verdict = "ok" if measured >= floor else "VIOLATION"

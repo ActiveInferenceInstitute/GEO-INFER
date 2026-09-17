@@ -5,6 +5,23 @@ All notable changes to the GEO-INFER framework will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Failure surfacing in the TEST harness verdicts**: the coverage-floor
+  gate's FAILED-SUITE verdict now names the failing tests recorded in the
+  measurement's JUnit report (capped at 20 names with a `... and N more`
+  line) instead of hiding the per-test detail behind a one-line summary —
+  `measure_module_coverage.py` captures a JUnit report per measurement and
+  carries `failing_tests` in its result JSON. The unified test runner gains
+  `--show-failures`, which prints each failed suite's failing test names in
+  the final verdict (JUnit-backed suites contribute exact testcase names;
+  validators and timeouts fall back to a bounded output tail), and
+  `summary.json` records per-result `failures` regardless of the flag.
+  (`GEO-INFER-TEST/run_unified_tests.py`, `GEO-INFER-TEST/check_coverage_floor.py`,
+  `GEO-INFER-TEST/measure_module_coverage.py`.)
+
 ## [0.2.1] - 2026-09-15 — fleet-wide error-handling hardening
 
 Patch release over the 18 commits since

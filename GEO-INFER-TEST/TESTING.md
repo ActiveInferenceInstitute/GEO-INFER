@@ -48,4 +48,7 @@ Model checks require finite outputs, declared shapes and dtypes, normalized prob
 - Warning or collection failure: run the affected module with `uv run pytest -c pyproject.toml -W error -vv path/to/test.py`.
 - Model failure: run `uv run python GEO-INFER-TEST/validate_model_contracts.py --strict --seed 42`.
 - Artifact failure: run `uv run python GEO-INFER-TEST/run_model_audit.py --seed 42 --reproducible` and inspect the manifest sidecars.
-- Category failure: inspect the corresponding JUnit XML and `summary.json` under `.geo-infer-test-results/`.
+- Category failure: re-run with `--show-failures` to print each failed
+  suite's failing test names in the final summary verdict (summary.json
+  records them regardless), and inspect the corresponding JUnit XML and
+  `summary.json` under `.geo-infer-test-results/`.

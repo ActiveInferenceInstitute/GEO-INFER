@@ -22,6 +22,10 @@ Output: one JSON object per module on stdout
 (``{"module": ..., "coverage_percent": ..., "seconds": ..., "status": ...}``).
 A module whose suite crashes is reported with ``status: "error"`` and no
 coverage number; it is never silently skipped.
+When pytest exits non-zero, the result also carries ``failing_tests``: the
+``classname::name`` values recorded in the run's JUnit report, so gate
+verdicts can name the failing tests instead of hiding them behind a single
+``FAILED-SUITE`` line.
 """
 
 from __future__ import annotations
@@ -33,6 +37,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
@@ -57,7 +62,9 @@ def measure_module(module: str) -> dict:
     if package is None:
         return {"module": module, "status": "error", "reason": "no src package"}
     with tempfile.TemporaryDirectory(prefix=f"cov-{module}-") as data_dir:
-        report_path = Path(data_dir) / "report.json"
+        data_path = Path(data_dir)
+        report_path = data_path / "report.json"
+        junit_path = data_path / "junit.xml"
         started = time.monotonic()
         completed = subprocess.run(
             [
@@ -90,6 +97,7 @@ def measure_module(module: str) -> dict:
                 .as_posix(),
                 f"--cov={package}",
                 "--cov-report=json:" + str(report_path),
+                f"--junitxml={junit_path}",
             ],
             cwd=REPO_ROOT,
             capture_output=True,
@@ -114,6 +122,7 @@ def measure_module(module: str) -> dict:
                 ),
                 "pytest_tail": completed.stdout[-500:],
                 "pytest_err_tail": completed.stderr[-500:],
+                **_failing_tests_field(junit_path),
                 "seconds": seconds,
             }
         if not report_path.is_file() or report_path.stat().st_size == 0:
@@ -124,6 +133,7 @@ def measure_module(module: str) -> dict:
                 "pytest_rc": completed.returncode,
                 "pytest_tail": completed.stdout[-500:],
                 "pytest_err_tail": completed.stderr[-500:],
+                **_failing_tests_field(junit_path),
                 "seconds": seconds,
             }
         payload = json.loads(report_path.read_text(encoding="utf-8"))
@@ -132,8 +142,45 @@ def measure_module(module: str) -> dict:
             "status": "measured",
             "coverage_percent": round(payload["totals"]["percent_covered"], 1),
             "pytest_rc": completed.returncode,
+            **_failing_tests_field(junit_path),
             "seconds": seconds,
         }
+
+
+def junit_failure_names(path: Path) -> list[str]:
+    """Return ``classname::name`` for failing/erroring testcases in a JUnit report.
+
+    Missing, empty, or malformed reports yield an empty list: failure-name
+    extraction is best-effort enrichment and must never break the measurement
+    contract. This mirrors the skip-rejection parsing in run_unified_tests.py
+    (``junit_contract_errors``) and reports the same identifier shape.
+    """
+    if not path.is_file():
+        return []
+    try:
+        root = ET.parse(path).getroot()
+    except ET.ParseError:
+        return []
+    names: list[str] = []
+    for testcase in root.iter("testcase"):
+        if testcase.find("failure") is None and testcase.find("error") is None:
+            continue
+        name = "::".join(
+            part
+            for part in (
+                testcase.attrib.get("classname", ""),
+                testcase.attrib.get("name", ""),
+            )
+            if part
+        )
+        names.append(name)
+    return names
+
+
+def _failing_tests_field(junit_path: Path) -> dict[str, list[str]]:
+    """Return the ``failing_tests`` result field, omitted when empty."""
+    failing = junit_failure_names(junit_path)
+    return {"failing_tests": failing} if failing else {}
 
 
 def main(argv: list[str] | None = None) -> int:

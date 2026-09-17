@@ -7,6 +7,8 @@ The runner intentionally mirrors the commands documented in the root README:
 * ``--category unit|integration|performance|coverage`` runs a focused suite.
 * ``--h3-migration`` runs the H3/Active Inference and ACT script-orchestration
   contract validators.
+* ``--show-failures`` prints the failing test names of every failed suite in
+  the final summary verdict; summary.json records the names either way.
 
 With no arguments, the runner executes the same broad module sweep that older
 versions performed.
@@ -160,6 +162,65 @@ def junit_contract_errors(path: Path | None) -> list[str]:
             reason = skipped.attrib.get("message", "") or (skipped.text or "")
             errors.append(f"forbidden skipped/xfail testcase {name}: {reason}")
     return errors
+
+
+def junit_failure_names(path: Path | None) -> list[str]:
+    """Return failing/erroring testcase names from a JUnit report.
+
+    Missing or malformed reports yield an empty list: failure-name
+    extraction is best-effort enrichment for the summary verdict and must
+    never raise where the run itself already recorded the failure. The
+    identifier shape mirrors ``junit_contract_errors``' testcase names.
+    """
+    if path is None or not path.exists():
+        return []
+    try:
+        root = ET.parse(path).getroot()
+    except ET.ParseError:
+        return []
+    names: list[str] = []
+    for testcase in root.iter("testcase"):
+        if testcase.find("failure") is None and testcase.find("error") is None:
+            continue
+        name = "::".join(
+            part
+            for part in (
+                testcase.attrib.get("classname", ""),
+                testcase.attrib.get("name", ""),
+            )
+            if part
+        )
+        names.append(name)
+    return names
+
+
+def result_failure_names(result: CommandResult) -> list[str]:
+    """Return failing testcase names recorded by a command's JUnit report."""
+    return junit_failure_names(junit_path(result.command))
+
+
+def print_failure_details(report: SuiteReport) -> None:
+    """Print failing test names per failed suite for ``--show-failures`` verdicts.
+
+    JUnit-backed pytest commands contribute exact testcase names; commands
+    without a JUnit report (validators, timeouts, pre-pytest failures) fall
+    back to a bounded tail of their captured output so the verdict stays
+    self-sufficient without opening the per-suite logs.
+    """
+    print("\n== Failing tests")
+    for result in report.results:
+        if result.success:
+            continue
+        print(f"-- {result.name}")
+        names = result_failure_names(result)
+        if names:
+            for name in names:
+                print(f"  FAILED {name}")
+            continue
+        tail = _text_tail(result.stderr or result.stdout, limit=1200).strip()
+        if tail:
+            for line in tail.splitlines()[-12:]:
+                print(f"  {line}")
 
 
 def run_command(
@@ -549,7 +610,7 @@ def category_budget_lines(report: SuiteReport) -> list[str]:
     return lines
 
 
-def write_summary(report: SuiteReport) -> None:
+def write_summary(report: SuiteReport, show_failures: bool = False) -> None:
     ensure_results_dir()
     summary = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -560,6 +621,7 @@ def write_summary(report: SuiteReport) -> None:
                 "success": result.success,
                 "duration": round(result.duration, 3),
                 "command": result.command,
+                "failures": result_failure_names(result),
                 "stdout_tail": _text_tail(result.stdout),
                 "stderr_tail": _text_tail(result.stderr),
             }
@@ -575,6 +637,8 @@ def write_summary(report: SuiteReport) -> None:
     passed = sum(1 for result in report.results if result.success)
     print("\n== Summary")
     print(f"Passed: {passed}/{total}")
+    if show_failures and not report.success:
+        print_failure_details(report)
     budget_lines = category_budget_lines(report)
     if budget_lines:
         print("\n== Per-category timeout budget")
@@ -607,6 +671,14 @@ def parse_args() -> argparse.Namespace:
         "--fail-fast",
         action="store_true",
         help="Stop after the first module failure and exit non-zero immediately.",
+    )
+    parser.add_argument(
+        "--show-failures",
+        action="store_true",
+        help=(
+            "Print the failing test names of each failed suite in the final "
+            "summary; summary.json records the names either way."
+        ),
     )
     parser.add_argument(
         "--list-modules",
@@ -649,7 +721,7 @@ def main() -> int:
     else:
         report = run_all_modules(timeout=args.timeout, fail_fast=args.fail_fast)
 
-    write_summary(report)
+    write_summary(report, show_failures=args.show_failures)
     return 0 if report.success else 1
 
 

@@ -355,3 +355,126 @@ def test_default_behavior_runs_all_modules_despite_failure(tmp_path, monkeypatch
     assert len(captured) == 2
     assert captured[0] == "A unit tests"
     assert captured[1] == "B unit tests"
+
+
+JUNIT_WITH_FAILURES = """<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite name="pytest" errors="1" failures="1" skipped="0" tests="3">
+    <testcase classname="tests.unit.test_sample" name="test_ok" file="tests/unit/test_sample.py" line="1" />
+    <testcase classname="tests.unit.test_sample" name="test_bad[param]" file="tests/unit/test_sample.py" line="5">
+      <failure message="assert 1 == 2">traceback</failure>
+    </testcase>
+    <testcase classname="tests.unit.test_sample" name="test_broken" file="tests/unit/test_sample.py" line="9">
+      <error message="boom">traceback</error>
+    </testcase>
+  </testsuite>
+</testsuites>
+"""
+
+EXPECTED_FAILURES = [
+    "tests.unit.test_sample::test_bad[param]",
+    "tests.unit.test_sample::test_broken",
+]
+
+
+def make_failed_result(runner, tmp_path, *, with_junit: bool = True):
+    junit_path = tmp_path / "results" / "SEC_results.xml"
+    junit_path.parent.mkdir(parents=True, exist_ok=True)
+    junit_path.write_text(JUNIT_WITH_FAILURES, encoding="utf-8")
+    command = [sys.executable, "-m", "pytest"]
+    if with_junit:
+        command.append(f"--junitxml={junit_path}")
+    return runner.CommandResult(
+        name="SEC tests",
+        success=False,
+        duration=1.0,
+        command=command,
+        stderr="1 failed, 2 passed in 0.5s",
+    )
+
+
+def test_junit_failure_names_extracts_failures_and_errors(tmp_path):
+    runner = load_runner_module()
+    junit = tmp_path / "junit.xml"
+    junit.write_text(JUNIT_WITH_FAILURES, encoding="utf-8")
+
+    assert runner.junit_failure_names(junit) == EXPECTED_FAILURES
+
+
+def test_junit_failure_names_tolerates_missing_and_malformed(tmp_path):
+    runner = load_runner_module()
+    assert runner.junit_failure_names(None) == []
+    assert runner.junit_failure_names(tmp_path / "absent.xml") == []
+
+    malformed = tmp_path / "junit.xml"
+    malformed.write_text("<testsuites><oops>", encoding="utf-8")
+    assert runner.junit_failure_names(malformed) == []
+
+
+def test_parse_args_show_failures_defaults_off(monkeypatch):
+    runner = load_runner_module()
+    monkeypatch.setattr("sys.argv", ["run_unified_tests.py"])
+    assert runner.parse_args().show_failures is False
+
+
+def test_parse_args_show_failures_flag_enables_detail(monkeypatch):
+    runner = load_runner_module()
+    monkeypatch.setattr("sys.argv", ["run_unified_tests.py", "--show-failures"])
+    assert runner.parse_args().show_failures is True
+
+
+def test_write_summary_show_failures_prints_junit_failure_names(
+    tmp_path, monkeypatch, capsys
+):
+    runner = load_runner_module()
+    results_dir = tmp_path / "results"
+    results_dir.mkdir()
+    monkeypatch.setattr(runner, "RESULTS_DIR", results_dir)
+    report = runner.SuiteReport()
+    report.add(make_failed_result(runner, tmp_path))
+
+    runner.write_summary(report, show_failures=True)
+
+    out = capsys.readouterr().out
+    assert "== Failing tests" in out
+    assert "-- SEC tests" in out
+    assert "FAILED tests.unit.test_sample::test_bad[param]" in out
+    summary = json.loads((results_dir / "summary.json").read_text())
+    assert summary["results"][0]["failures"] == EXPECTED_FAILURES
+
+
+def test_write_summary_without_show_failures_keeps_verdict_compact(
+    tmp_path, monkeypatch, capsys
+):
+    runner = load_runner_module()
+    results_dir = tmp_path / "results"
+    results_dir.mkdir()
+    monkeypatch.setattr(runner, "RESULTS_DIR", results_dir)
+    report = runner.SuiteReport()
+    report.add(make_failed_result(runner, tmp_path))
+
+    runner.write_summary(report)
+
+    out = capsys.readouterr().out
+    assert "== Failing tests" not in out
+    assert "FAILED tests.unit.test_sample" not in out
+    summary = json.loads((results_dir / "summary.json").read_text())
+    assert summary["results"][0]["failures"] == EXPECTED_FAILURES
+
+
+def test_write_summary_show_failures_falls_back_to_output_tail(
+    tmp_path, monkeypatch, capsys
+):
+    runner = load_runner_module()
+    results_dir = tmp_path / "results"
+    results_dir.mkdir()
+    monkeypatch.setattr(runner, "RESULTS_DIR", results_dir)
+    report = runner.SuiteReport()
+    report.add(make_failed_result(runner, tmp_path, with_junit=False))
+
+    runner.write_summary(report, show_failures=True)
+
+    out = capsys.readouterr().out
+    assert "== Failing tests" in out
+    assert "-- SEC tests" in out
+    assert "1 failed, 2 passed in 0.5s" in out
