@@ -435,7 +435,7 @@ def test_import_smoke_timeout_stops_descendants(tmp_path, monkeypatch):
     finished = tmp_path / "child-finished"
     child = (
         f"import pathlib,time; pathlib.Path({str(started)!r}).touch(); "
-        f"time.sleep(1.2); pathlib.Path({str(finished)!r}).touch()"
+        f"time.sleep(3.0); pathlib.Path({str(finished)!r}).touch()"
     )
     (package / "__init__.py").write_text(
         "import subprocess,sys,time\n"
@@ -448,7 +448,9 @@ def test_import_smoke_timeout_stops_descendants(tmp_path, monkeypatch):
     assert len(report.warnings) == 1
     assert "timed out" in report.warnings[0]
     assert started.is_file()
-    time.sleep(1.3)
+    # Wide margin: on a loaded runner the kill can land late after the 0.5s
+    # timeout — the child must outlive any plausible kill delay.
+    time.sleep(3.1)
     assert not finished.exists()
 
 
