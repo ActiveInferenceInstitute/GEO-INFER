@@ -20,10 +20,13 @@ Fail-closed contract: every external tool must be present, every published
 section must exist exactly once and in the documented order, LaTeX errors
 (``! `` lines) and ``Missing character`` reports in the final pass log fail
 the render, and a missing PDF fails the render.  Box warnings stay advisory:
-the layout tests own them.  The text block is pinned to the measured
-template geometry (``\\textwidth`` 430.00462pt, ``\\textheight``
-556.47656pt, symmetric letterpaper margins), which is what the layout
-floors in ``tests/test_manuscript_pdf_layout.py`` were calibrated against.
+the layout tests own them.  The text block is set by the geometry package
+with ``margin=1.5cm`` on letterpaper (textwidth about 528.93673pt, textheight
+about 709.61173pt), matching ``metadata.geometry`` in
+``manuscript/config.yaml``; the layout floors in
+``tests/test_manuscript_pdf_layout.py`` were calibrated against the
+previous 430.00462pt x 556.47656pt block and must be re-checked against
+the first render at the new margins.
 
 The generator is invoked with ``--allow-dirty``, matching the documented
 render-shim behavior for non-publication builds: a dirty tree is stamped
@@ -60,6 +63,7 @@ SECTION_ORDER: tuple[str, ...] = (
     "05_reproducibility.md",
     "06_limitations_and_next_steps.md",
     "S01_source_surface.md",
+    "S02_module_catalog.md",
     "98_symbols_glossary.md",
     "99_references.md",
 )
@@ -68,6 +72,16 @@ RESOLVED_SUPPORT_FILES: tuple[str, ...] = (
     "preamble.md",
     "references.bib",
 )
+
+# The supplemental module catalog: ``S02_module_catalog.md`` is the authored
+# introduction and index; the per-module entries are concatenated after it
+# from ``manuscript/sections/*.md`` in alphabetical stem order at combine
+# time. Catalog files are tracked prose without tokens, labels, or figures,
+# so they render from the source tree directly and the generator's resolved
+# surface stays top-level. A missing or empty sections directory fails the
+# render rather than publishing a catalog with silently dropped modules.
+MODULE_CATALOG_ENTRY = "S02_module_catalog.md"
+MODULE_SECTIONS_DIR = REPO_ROOT / "manuscript" / "sections"
 
 # The renderer rewrites the ``output/figures/`` prefix to ``../figures/``
 # inside Pandoc image targets only; ``tests/test_manuscript_paths.py`` holds
@@ -80,9 +94,12 @@ FIGURE_REWRITE = "../figures/"
 # whole document in the preamble is fenced ```tex on purpose to stay out.
 LATEX_BLOCK = re.compile(r"^```latex\s*\n(.*?)^```\s*$", re.MULTILINE | re.DOTALL)
 
-# The measured template text block (the shipped build's render log; the
-# generator's TEXT_BLOCK_* constants derive from the same numbers).
-GEOMETRY = "\\geometry{letterpaper, textwidth=430.00462pt, textheight=556.47656pt}\n"
+# Page geometry: letterpaper with 1.5cm margins, matching
+# metadata.geometry in manuscript/config.yaml. On letterpaper this is a
+# text block of about 528.93673pt x 709.61173pt (7.319in x 9.817in); the
+# generator's TEXT_BLOCK_* constants describe the same block and size and
+# bound every figure against it.
+GEOMETRY = "\\geometry{letterpaper, margin=1.5cm}\n"
 WRAP_SETUP = "\\usepackage{fvextra}\n\\fvset{breaklines}\n"
 FLOW_PENALTIES = (
     "\\widowpenalties 3 10000 10000 10000\n"
@@ -166,6 +183,8 @@ def _combine_sections() -> Path:
     parts: list[str] = []
     for index, name in enumerate(SECTION_ORDER):
         text = (RESOLVED_DIR / name).read_text(encoding="utf-8")
+        if name == MODULE_CATALOG_ENTRY:
+            text = text.rstrip("\n") + "\n\n" + _module_catalog_sections()
         parts.append(text.rstrip("\n"))
         if index < len(SECTION_ORDER) - 1:
             parts.append("\\newpage")
@@ -175,6 +194,29 @@ def _combine_sections() -> Path:
     destination = PDF_DIR / "_combined_manuscript.md"
     destination.write_text(combined, encoding="utf-8")
     return destination
+
+
+def _module_catalog_sections() -> str:
+    """Read the per-module catalog entries in alphabetical stem order.
+
+    The entries are tracked prose, combined from the source tree rather
+    than from ``output/manuscript/``: they carry no tokens, so resolving
+    them through the generator would be a no-op pass, and the resolved
+    surface stays the generator's top-level publication set. An empty or
+    missing directory raises: the catalog is a published section, and a
+    render that dropped its entries silently would misrepresent the
+    module set.
+    """
+    if not MODULE_SECTIONS_DIR.is_dir():
+        raise RenderError(
+            f"module sections directory is missing: {MODULE_SECTIONS_DIR}"
+        )
+    files = sorted(MODULE_SECTIONS_DIR.glob("*.md"))
+    if not files:
+        raise RenderError(
+            f"module sections directory holds no .md files: {MODULE_SECTIONS_DIR}"
+        )
+    return "\n\n".join(path.read_text(encoding="utf-8").strip() for path in files)
 
 
 def _preamble_header() -> Path:

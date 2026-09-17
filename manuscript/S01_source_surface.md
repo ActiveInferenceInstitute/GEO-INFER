@@ -43,13 +43,12 @@ writes what, which is the invariant the Reproducibility contract depends on.
 | `output/pdf/`, `output/web/` | Renderer | no |
 
 : Authored versus generated files. Every tracked file under `manuscript/` is
-authored except the four generator-owned fields marked in place inside
-`manuscript/config.yaml` — the project version, the title-page date, the
-publication year, and the licence — and everything under `output/` is
-disposable, rebuilt from the checkout by the generator and the renderer on
-each build. Read the table as the write-ownership contract the Reproducibility
-section depends on: every value in this manuscript is either hand-reviewable
-at a tracked path or regenerated from a measured one. {#tbl:authored_generated}
+authored except four generator-owned fields marked in place in
+`manuscript/config.yaml` (project version, title-page date, publication year,
+licence); everything under `output/` is disposable, rebuilt each build. Read
+the table as the write-ownership contract behind Reproducibility: every value
+is hand-reviewable at a tracked path or regenerated from a measured one.
+{#tbl:authored_generated}
 
 ## Reproducing This Build
 
@@ -88,6 +87,5 @@ BibTeX entry rather than to a repository-derived count:
   [@coles_extremes_2001].
 - The H3 hierarchical spatial index [@h3_docs].
 
-The generator fails the build on a citation with no entry, and names any entry
-that no section cites, so this list and `references.bib` cannot drift apart
-silently.
+The generator fails the build on an unresolved citation, names any entry no
+section cites, and so pins this list to `references.bib` against silent drift.

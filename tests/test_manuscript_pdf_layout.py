@@ -137,12 +137,15 @@ class TestFloatPlacement:
 
 class TestTextBlock:
     def test_no_word_is_set_past_the_right_margin(self, rendered_pdf: Path) -> None:
-        # The text block's right edge, read from the render log: \oddsidemargin
-        # 19.875pt + 1in + \textwidth 430.005pt.  A word box beyond it is text
-        # in the margin — an unbreakable verbatim line or an unbreakable
-        # monospace span in a narrow column.  One point of tolerance covers
-        # glyph bounding boxes that overhang their advance width.
-        right_edge = 19.875 + 72.0 + 430.005 + 1.0
+        # The text block's right edge, for the landed margin=1.5cm geometry:
+        # \oddsidemargin -29.59087pt + 1in + \textwidth 528.93673pt (letterpaper
+        # at 1.5cm margins; the same numbers the render script's header records).
+        # A word box beyond it is text in the margin — an unbreakable verbatim
+        # line or an unbreakable monospace span in a narrow column.  One point
+        # of tolerance covers glyph bounding boxes that overhang their advance
+        # width; re-verify both constants against the first render log taken at
+        # the new margins (output/pdf/_combined_manuscript.log).
+        right_edge = -29.59087 + 72.0 + 528.93673 + 1.0
         completed = subprocess.run(
             [_tool("pdftotext"), "-bbox", str(rendered_pdf), "-"],
             capture_output=True,

@@ -1,0 +1,9 @@
+## GEO-INFER-SPACE — Spatial Indexing and Analysis
+
+GEO-INFER-SPACE provides H3 v4 spatial indexing and a comprehensive geospatial analysis framework with advanced spatial methods and coordinate transformations (per its `README.md`). It is the monorepo's spatial keystone: at approximately 38,915 lines of Python its package `geo_infer_space` spans `core/`, `analytics/`, `api/`, `backends/`, and `config/`, and the module root adds `reports/`, `output/`, and `test_output/` artifacts.
+
+The public interface, verified from `__init__.py`, exports twelve symbols. Backend architecture: `get_backend_dispatcher` and `configure_backends` with `UnsupportedSpatialOperationError` route operations across interchangeable computational backends. Interfaces: `SpatialIndexingInterface`, `GeometricOperationsInterface`, and `SpatialAnalyticsInterface` define the contracts modules code against. H3 v4 primitives: `latlng_to_cell`, `cell_to_latlng`, and `polygon_to_cells` anchor the indexing vocabulary. High-level services: `PlaceAnalyzer`, `SpatialUtils`, and `GISManager` compose the primitives into application-facing analysis.
+
+The test census counts 45 test files with 90 test classes and 611 test functions — the largest test suite in the repository — consistent with its role as the substrate every other spatial module calls into; indexing correctness failures would propagate everywhere.
+
+Under the root README's Module Themes, SPACE leads Spatial & Place-based together with PLACE, TIME, MARINE, WATER, TRANSPORT, and others. Its role is the shared spatial vocabulary: H3 cell addressing and backend-dispatched geometry give PLACE's regional analyses, TIME's spatio-temporal fusion, and MARINE's ocean analytics a common, heavily tested indexing layer, which is why its interface contracts anchor the framework's composability claims.

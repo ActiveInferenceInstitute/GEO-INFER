@@ -39,9 +39,11 @@ FOCUS_MODULES = ("GEO-INFER-ACT", "GEO-INFER-BAYES", "GEO-INFER-RISK")
 # Editorial grouping of the module set, mirroring the "Module Themes" table in
 # README.md. This is a classification, not a measurement: the counts beside
 # each module are read from the checkout, but which theme a module belongs to
-# is a judgement and has to be declared somewhere. ``_module_table`` refuses to
-# render unless every measured module appears in exactly one theme, so adding a
-# module without theming it fails the build instead of dropping it silently.
+# is a judgement and has to be declared somewhere. ``_theme_assignments``, the
+# single validation authority behind both module tables (``_module_table`` and
+# ``_module_purpose_table``), refuses to render unless every measured module
+# appears in exactly one theme, so adding a module without theming it fails
+# the build instead of dropping it silently.
 MODULE_THEMES: tuple[tuple[str, tuple[str, ...]], ...] = (
     (
         "Spatial and place-based",
@@ -120,25 +122,29 @@ MODULE_THEMES: tuple[tuple[str, tuple[str, ...]], ...] = (
     ),
 )
 
-# Printable geometry of the template's LaTeX text block, in inches, read from
-# output/pdf/_combined_manuscript.log (textwidth 430.00462pt, textheight
-# 556.47656pt).  Every figure is typeset inside this box, so a figure drawn
-# larger than it is scaled DOWN and its type shrinks with it: a 13in canvas
-# lettered at 8.5pt printed at 3.1pt, roughly half the ~6pt floor for legible
-# print.  Drawing at the printed size keeps the scale near 1.0 and the type at
-# its authored point size.
-TEXT_BLOCK_WIDTH_IN = 5.95
-TEXT_BLOCK_HEIGHT_IN = 7.70
+# Printable geometry of the template's LaTeX text block, in inches.  Pinned
+# to the margin=1.5cm geometry of ``scripts/render_manuscript_pdf.py``
+# (textwidth 528.93pt / 72.27 = 7.32in, textheight 709.60pt / 72.27 =
+# 9.82in); the authoritative re-check is the same values printed in
+# output/pdf/_combined_manuscript.log at the next render.  Every figure is
+# typeset inside this box, so a figure drawn larger than it is scaled DOWN
+# and its type shrinks with it: a 13in canvas lettered at 8.5pt printed at
+# 3.1pt, roughly half the ~6pt floor for legible print.  Drawing at the
+# printed size keeps the scale near 1.0 and the type at its authored point
+# size.
+TEXT_BLOCK_WIDTH_IN = 7.32
+TEXT_BLOCK_HEIGHT_IN = 9.82
 # Must stay in lock-step with ``rendering.figure_height_fraction`` in
 # manuscript/config.yaml, which is what the renderer writes into the
 # ``height=<fraction>\textheight`` bound on every \includegraphics.
 FIGURE_HEIGHT_FRACTION = 0.9
 MAX_FIGURE_HEIGHT_IN = TEXT_BLOCK_HEIGHT_IN * FIGURE_HEIGHT_FRACTION
 # PNG raster density. Figures are drawn at the repo render's printed size
-# (430pt text block), so 340 DPI is that lane's printed raster density at
-# print scale 1.0; the template lane (margin=2cm, 500.5pt text block) upscales
-# every figure by 500.484/430.005 = 1.164x, which lands its effective density
-# at ~292 DPI — both lanes clear the ~264 DPI floor for close inspection.
+# (528.93pt text block), so 340 DPI is that lane's printed raster density at
+# print scale 1.0; the template lane (margin=2cm, 500.484pt text block)
+# downscales every figure by 500.484/528.93 = 0.946x, which lands its
+# effective density at ~360 DPI — both lanes clear the ~264 DPI floor for
+# close inspection.
 FIGURE_DPI = 340
 # Inches of vertical space per module row in the inventory figure.  A row now
 # carries both bars for one module, so at 8pt type this is about 12pt of
@@ -170,7 +176,12 @@ STATUS_COLORS = {"passed": "#2e7d32", "failed": "#b3261e", "not-run": "#8a8a8a"}
 
 @dataclass(frozen=True)
 class ModuleMetrics:
-    """Measured implementation and test surfaces for one module."""
+    """Measured implementation and test surfaces for one module.
+
+    ``purpose`` is the module's one-line self-description, taken from
+    README.md (else AGENTS.md) by :func:`_module_purpose`; ``unavailable``
+    marks a module that ships neither file with an opening prose paragraph.
+    """
 
     name: str
     package: str
@@ -178,6 +189,7 @@ class ModuleMetrics:
     source_lines: int
     test_files: int
     tests_by_category: dict[str, int]
+    purpose: str
 
 
 @dataclass(frozen=True)
@@ -212,6 +224,7 @@ class RepositoryInventory:
     dirty_file_count: int
     source_hash: str
     modules: tuple[ModuleMetrics, ...]
+    module_directory_count: int
     test_files_by_category: dict[str, int]
     h3_test_files: int
     documentation_pages: int
@@ -247,6 +260,7 @@ class RepositoryInventory:
             "dirty_file_count": self.dirty_file_count,
             "source_hash": self.source_hash,
             "modules": [asdict(module) for module in self.modules],
+            "module_directory_count": self.module_directory_count,
             "test_files_by_category": dict(self.test_files_by_category),
             "h3_test_files": self.h3_test_files,
             "documentation_pages": self.documentation_pages,
@@ -511,6 +525,44 @@ def _module_package(module_path: Path) -> str:
     return packages[0] if packages else "unavailable"
 
 
+def _first_paragraph(path: Path) -> str | None:
+    """Return a file's first non-heading prose paragraph, or ``None``.
+
+    The rule is deliberately mechanical, so the value is a deterministic
+    function of the file's bytes: skip blank and ATX heading lines, then join
+    the run of consecutive non-blank, non-heading lines that follows.  In
+    every module README that run is the one-sentence description under the
+    title; in AGENTS.md it is the opening summary.
+    """
+    if not path.is_file():
+        return None
+    paragraph: list[str] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            if paragraph:
+                break
+            continue
+        paragraph.append(stripped)
+    return " ".join(paragraph) if paragraph else None
+
+
+def _module_purpose(module_path: Path) -> str:
+    """Return the module's one-line purpose, deterministically.
+
+    README.md's first paragraph is the purpose; AGENTS.md is the fallback;
+    ``unavailable`` marks a module that ships neither with opening prose,
+    mirroring :func:`_module_package`.  Pipes are escaped so the sentence
+    survives the Markdown pipe tables it is rendered into.  Same bytes in,
+    same sentence out — no wall-clock input anywhere.
+    """
+    for name in ("README.md", "AGENTS.md"):
+        paragraph = _first_paragraph(module_path / name)
+        if paragraph is not None:
+            return paragraph.replace("|", "\\|")
+    return "unavailable"
+
+
 def _module_paths(root: Path) -> tuple[Path, ...]:
     return tuple(
         sorted(
@@ -576,6 +628,14 @@ def collect_inventory(
             generator's own outputs are never mistaken for un-stamped source.
             ``None`` measures it here.
     """
+    module_directories = tuple(
+        path for path in root.glob("GEO-INFER-*") if path.is_dir()
+    )
+    # The directory census is a different population from ``_module_paths``:
+    # it counts every GEO-INFER-* directory at the root, whether or not it
+    # ships a src/ package.  Today the two coincide; the distinction is kept
+    # explicit so a source-less module can appear without falsifying the
+    # src/-bearing counts.
     modules: list[ModuleMetrics] = []
     all_tests = _test_files(root)
     category_counts: dict[str, int] = {}
@@ -598,6 +658,7 @@ def collect_inventory(
                 source_lines=sum(_nonempty_lines(path) for path in source),
                 test_files=len(tests),
                 tests_by_category=dict(sorted(by_category.items())),
+                purpose=_module_purpose(module_path),
             )
         )
 
@@ -636,6 +697,7 @@ def collect_inventory(
         dirty_file_count=dirty_files,
         source_hash=_source_hash(root),
         modules=tuple(modules),
+        module_directory_count=len(module_directories),
         test_files_by_category=dict(sorted(category_counts.items())),
         h3_test_files=_h3_test_files(all_tests),
         documentation_pages=documentation_pages,
@@ -648,25 +710,38 @@ def collect_inventory(
     )
 
 
-def _module_table(inventory: RepositoryInventory) -> str:
-    """Render every measured module as a themed Markdown table.
+def _theme_assignments(measured_names: Iterable[str]) -> dict[str, str]:
+    """Map every measured module to its declared theme, fail-closed.
 
-    Raises:
-        ValueError: when a measured module has no theme, or a declared theme
-            names a module that is not in the checkout.  Either way the table
-            would silently misrepresent the module set.
+    The single validation authority behind both module tables.  Raises the
+    same three incoherences ``_module_table`` has always refused: a module
+    declared in more than one theme, a measured module with no declared
+    theme, and a theme naming a module absent from the checkout.  Either way
+    the table would silently misrepresent the module set.
     """
-    measured = {module.name: module for module in inventory.modules}
+    measured = set(measured_names)
     declared = [name for _theme, names in MODULE_THEMES for name in names]
     duplicates = sorted({name for name in declared if declared.count(name) > 1})
     if duplicates:
         raise ValueError(f"modules declared in more than one theme: {duplicates}")
-    unthemed = sorted(set(measured) - set(declared))
+    unthemed = sorted(measured - set(declared))
     if unthemed:
         raise ValueError(f"measured modules with no declared theme: {unthemed}")
-    missing = sorted(set(declared) - set(measured))
+    missing = sorted(set(declared) - measured)
     if missing:
         raise ValueError(f"themed modules absent from the checkout: {missing}")
+    return {name: theme for theme, names in MODULE_THEMES for name in names}
+
+
+def _module_table(inventory: RepositoryInventory) -> str:
+    """Render every measured module as a themed Markdown table.
+
+    Raises:
+        ValueError: when the declared themes and the measured module set
+            disagree, through :func:`_theme_assignments`.
+    """
+    _theme_assignments(module.name for module in inventory.modules)
+    measured = {module.name: module for module in inventory.modules}
     # Pandoc derives each column's relative width from the dash count in the
     # separator row.  Equal dashes gave the Module column less width than
     # ``GEO-INFER-INSURANCE`` needs, and the template's breakable-monospace
@@ -690,6 +765,44 @@ def _module_table(inventory: RepositoryInventory) -> str:
                 f"| {label} | `{module.name}` | `{module.package}` | "
                 f"{module.source_files} | {module.test_files} |"
             )
+    return "\n".join(rows)
+
+
+def _module_purpose_table(inventory: RepositoryInventory) -> str:
+    """Render every measured module with its theme, purpose, and census.
+
+    One self-contained row per module — theme and purpose repeat on every
+    row, so any row can be quoted on its own (the per-module manuscript
+    sections slice this table).  The theme comes from the declared
+    :data:`MODULE_THEMES` mapping — reusing it keeps one taxonomy in the
+    build, and :func:`_theme_assignments` fails the build when the declared
+    set and the measured module set disagree.  The purpose is the module's
+    README.md (else AGENTS.md) opening paragraph, extracted by the
+    deterministic rule in :func:`_first_paragraph`.  LOC is the measured
+    non-empty ``src/`` line census and Tests the module's test-file census,
+    the same measurements the inventory figure bars.  Rows are alphabetical
+    by module name and nothing reads the clock, so two runs on one tree are
+    byte-identical.
+
+    Raises:
+        ValueError: when the declared themes and the measured module set
+            disagree, through :func:`_theme_assignments`.
+    """
+    theme_by_module = _theme_assignments(module.name for module in inventory.modules)
+    # Dash counts set the columns' relative pandoc width, sized from the
+    # longest value each column holds: a backticked GEO-INFER-INSURANCE, the
+    # longest declared theme label, and the widest share for prose.
+    rows = [
+        "| Module | Theme | Purpose | LOC | Tests |",
+        "| "
+        + " | ".join(("-" * 21, "-" * 27, "-" * 44, "-" * 7 + ":", "-" * 7 + ":"))
+        + " |",
+    ]
+    for module in inventory.modules:
+        rows.append(
+            f"| `{module.name}` | {theme_by_module[module.name]} | "
+            f"{module.purpose} | {module.source_lines} | {module.test_files} |"
+        )
     return "\n".join(rows)
 
 
@@ -2084,6 +2197,16 @@ def build_variables(
             f"test-file distribution sums to {categorised} against a total of "
             f"{inventory.test_files}"
         )
+    if inventory.module_directory_count != len(inventory.modules):
+        raise ValueError(
+            "GEO_MODULE_COUNT counts every GEO-INFER-* directory at the "
+            f"repository root ({inventory.module_directory_count}) but "
+            "GEO_MODULE_TABLE renders only the "
+            f"{len(inventory.modules)} src/-bearing modules the census "
+            "measures, so the published count and its published table would "
+            "disagree. Give the extra directory a src/ package (or remove "
+            "it) so the two populations coincide"
+        )
     variables: dict[str, str] = {
         "PROJECT_VERSION": inventory.project_version,
         "PROJECT_LICENSE": inventory.project_license,
@@ -2092,6 +2215,18 @@ def build_variables(
         "MODULE_TABLE": _module_table(inventory),
         "MODULE_THEME_COUNT": str(len(MODULE_THEMES)),
         "MODULES_WITH_TESTS_COUNT": str(inventory.modules_with_tests),
+        # The GEO_* tokens are the per-module-section surface: the count of
+        # GEO-INFER-* directories at the repository root (whether or not they
+        # ship a src/ package), one self-contained table row per measured
+        # module, and the repository-wide test-file census.  The count and
+        # the table describe one population — the check above fails the
+        # build when a source-less directory would split them.  Each is a
+        # deterministic pure function of the tree at HEAD — alphabetical
+        # order, declared-theme lookup, file-derived purpose, no wall clock —
+        # so two runs on the same tree are byte-identical.
+        "GEO_MODULE_COUNT": str(inventory.module_directory_count),
+        "GEO_MODULE_TABLE": _module_purpose_table(inventory),
+        "GEO_TEST_COUNT": str(inventory.test_files),
         "SOURCE_FILE_COUNT": _format_count(inventory.source_files),
         "SOURCE_LINE_COUNT": _format_count(inventory.source_lines),
         "TEST_FILE_COUNT": _format_count(inventory.test_files),

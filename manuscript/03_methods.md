@@ -170,7 +170,7 @@ generator paths, commit, source hash, and a SHA-256 digest of each written
 image are recorded in the figure registry, `figure_registry.json`, under
 `output/figures`. Each caption is a complete sentence that names the
 population, encoding, provenance, and interpretation boundary. Figures are
-drawn at the printed size of the template's text block, so the type in a
+drawn at the printed size of the render's text block, so the type in a
 figure is set at the point size it is authored at rather than being scaled
 down by the renderer.
 
@@ -186,6 +186,30 @@ artwork.
 ![{{RESEARCH_SPINE_CAPTION}}](../output/figures/research_spine.png){#fig:research_spine width=100%}
 
 ![{{VALIDATION_SURFACE_CAPTION}}](../output/figures/validation_surface.png){#fig:validation_surface width=100%}
+
+## Module Catalog Method
+
+The per-module entries of the Supplemental Module Catalog
+([@sec:module_catalog]) are authored, one file per module under
+`manuscript/sections/`, named by the module's lowercase slug. Each entry is
+verified against three surfaces rather than written from memory: the public
+interface is read from the symbols the package exports in its
+`__init__.py`, the test census is taken from the module's `tests/` tree,
+and the theme role restates the declared grouping the generator enforces.
+Entries are plain prose — one `##` heading naming the module, then
+paragraphs — and carry no tokens, labels, figures, or raw LaTeX, because
+the render combines them from the tracked source after the generator's
+token substitution has run; a quantity that belongs in the catalog belongs
+in its generated index table instead.
+
+The render wiring is deliberate and fail-closed: `S02_module_catalog.md`
+is a published section whose position in the section order is fixed in
+`scripts/render_manuscript_pdf.py`, and the combine step appends every
+`manuscript/sections/*.md` in alphabetical order after it, refusing to
+render if the catalog has no entries. The catalog's authoritative module
+set stays the generator's measured inventory — the index table is generated
+from it — so a prose entry can elaborate a module but cannot add one the
+build does not measure.
 
 ## Evidence Promotion and Verification
 

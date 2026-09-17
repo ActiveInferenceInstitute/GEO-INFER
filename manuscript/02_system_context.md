@@ -65,6 +65,28 @@ Theme membership is a statement about intent, not about size or maturity.
 checkout is `GEO-INFER-SPACE`, and several modules carry more test files than
 source files.
 
+## Theme Map
+
+[@tbl:theme_map] states the declared grouping compactly. Short names omit
+the shared `GEO-INFER-` prefix, exactly as the generator's figures do.
+
+| Theme | Modules | Responsibility |
+|---|---|---|
+| Spatial and place-based | `SPACE`, `PLACE`, `TIME`, `MARINE`, `WATER`, `FOREST`, `CLIMATE`, `ENERGY`, `TRANSPORT`, `EMERGENCY` | Geometry, indexing, time, and the environmental and infrastructural domains layered on them |
+| Bayesian and active inference | `BAYES`, `SIM`, `SPM`, `COG`, `ACT`, `MATH` | The probabilistic machinery: numerical primitives, variational and expected free energy, samplers and diagnostics, cognitive modeling, simulation |
+| Agents and AI orchestration | `AGENT`, `AG`, `AI`, `ANT`, `OPS`, `COMMS` | Autonomous and swarm agents, machine-learning services, operations orchestration, and messaging |
+| Governance, risk and domain | `INSURANCE`, `RISK`, `METAGOV`, `NORMS`, `ECON`, `PEP`, `REQ`, `SEC`, `CIV`, `HEALTH`, `ORG` | Decisions with consequences: hazard and risk, insurance, economics, norms and compliance, security, health, and organizational structure |
+| Data, API and applications | `API`, `APP`, `DATA`, `IOT`, `ART`, `EDU` | Ingest, storage, service interfaces, and the human-facing surfaces |
+| Infrastructure and validation | `INTRA`, `TEST`, `LOG`, `GIT`, `EXAMPLES`, `BIO` | The repository's own evidence: unified tests, cross-module documentation, repository tooling, and worked examples |
+
+: The declared theme map, mirroring the generator's enforced grouping. Which
+theme a module belongs to is an editorial declaration enforced by the build:
+a measured module that is unthemed, absent, or declared twice fails the
+build. The table carries no counts — per-module measured surfaces are in
+[@tbl:module_inventory], and per-module prose entries are in the
+Supplemental Module Catalog ([@sec:module_catalog]).
+{#tbl:theme_map}
+
 ## Spatial Substrate
 
 The framework's spatial substrate is the part every other theme depends on,

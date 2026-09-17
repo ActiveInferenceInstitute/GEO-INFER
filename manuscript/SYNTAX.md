@@ -14,8 +14,29 @@ This manuscript uses the shared template conventions from `docs/guides/manuscrip
 | `05_reproducibility.md` | Reproducibility | `{#sec:reproducibility}` |
 | `06_limitations_and_next_steps.md` | Limitations and Next Steps | `{#sec:limitations_next_steps}` |
 | `S01_source_surface.md` | Supplemental Source Surface | `{#sec:source_surface}` |
+| `S02_module_catalog.md` | Supplemental Module Catalog | `{#sec:module_catalog}` |
 | `98_symbols_glossary.md` | Symbols and Glossary | `{#sec:symbols_glossary}` |
 | `99_references.md` | References | `{#sec:references}` |
+
+## Module Catalog Sections
+
+The per-module entries of the Supplemental Module Catalog live in
+`sections/<lowercase-slug>.md` (one file per module, e.g. `sections/sec.md`
+for GEO-INFER-SEC). They are not published files in the table above: the
+render script concatenates every `manuscript/sections/*.md` in alphabetical
+stem order after `S02_module_catalog.md` when it builds the combined
+document (`MODULE_CATALOG_ENTRY` and `_module_catalog_sections` in
+`scripts/render_manuscript_pdf.py`). A missing or empty `sections/`
+directory fails the render rather than publishing a truncated catalog.
+
+Catalog entry files are plain prose with these constraints:
+
+- The first line is `## GEO-INFER-<SLUG> — <Title>`.
+- No `{{TOKENS}}`: the render combines them from the tracked source without
+  token substitution, so a token would reach the PDF literally. Quantities
+  belong in the generated tables of the main sections.
+- No figures, labels (`{#...}`), raw LaTeX, or HTML: entries are H2 prose
+  under the catalog's single H1.
 
 ## Citations
 

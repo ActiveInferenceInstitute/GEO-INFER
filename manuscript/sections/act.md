@@ -1,0 +1,9 @@
+## GEO-INFER-ACT — Active Inference for Geospatial Decision-Making
+
+**Purpose.** GEO-INFER-ACT is the framework's active inference engine: an implementation of the Free Energy Principle for geospatial decision-making, perception, and learning. It supplies the generative-model machinery that other modules consume when a spatial agent must infer the state of an environment and act under uncertainty. Its README positions it as the canonical home of perception–action loops over space, and the module ships worked verification harnesses (`verify_comprehensive.py`, `verify_pipeline.py`) that audit generative models, free-energy computations, policy selection, inference math, spatial agents, and the API surface.
+
+**Public API.** The package `geo_infer_act` exports the core FEP stack: `ActiveInferenceModel`, `FreeEnergyCalculator`, `GenerativeModel`, `BayesianBeliefUpdate`, `PolicySelector`, `VariationalInference`, `DynamicCausalModel`, `SpatialActiveInferenceAgent`, and `MarkovDecisionProcess`. Spatially structured results are first-class exports: `H3GridInferenceResult`, `NestedH3GridInferenceResult`, `H3BeliefUpdateResult`, `SpatialInferenceTrace`, `PolicyEvaluation`, and `FreeEnergyBreakdown`. A civic-intelligence integration exposes `CrescentCityIntel`, `parse_crescent_city_intel`, `hazard_policy_prior`, `HazardDomain`, and `CivicIntelBounds`, mapping external hazard reports onto categorical priors.
+
+**Verification status.** The `tests/` directory is present with 46 test files — the largest test surface in the A–D band — and the repo-root audit scripts provide end-to-end pipeline checks.
+
+**Theme role.** Inference and learning: ACT is the mathematical heart from which agent modules (e.g., the AGENT and ANT bands) derive their decision-making cores.
