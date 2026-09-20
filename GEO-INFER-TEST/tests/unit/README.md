@@ -22,6 +22,7 @@ Unit workspace within `GEO-INFER-TEST`.
 - `test_runtime_metadata.py`
 - `test_script_validators.py`
 - `test_spatial_functions.py`
+- `test_test_contracts_validator.py`
 - `test_test_discoverer.py`
 - `test_test_orchestrator.py`
 - `test_test_runner.py`
