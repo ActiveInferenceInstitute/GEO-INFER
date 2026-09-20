@@ -1,6 +1,6 @@
 # GEO-INFER Open Task & Backlog Ledger
 
-> Last reviewed: 2026-09-15
+> Last reviewed: 2026-09-19
 > Scope: Multi-package repository (`GEO-INFER`) across workspace packages and 45 domain modules.
 > Centralization Rule: All planned, open, or deferred engineering work across all modules is tracked exclusively in this ledger. Module source code and tests must never carry local task markers (`TODO`, `FIXME`, `XXX`, `HACK`).
 > History note (2026-09-07): the published history was rewritten to re-attribute
@@ -95,3 +95,27 @@ already carried the 2026-09-15 induced-lock probe outcome (SQLite lock
 contention ruled out, hypothesis narrowed to I/O-class faults) and needed no
 edit; TEST-04 re-checked and still blocked on the account-level advisor auth
 decision. No rows were cleared this pass.
+
+## Scope pass (2026-09-19)
+
+Fresh 14-lane read-only scoping swarm against `main @ 07a5fe31` (v0.3.0 tip;
+CI green at tip, run 35268910816): five package-level lenses (CI/gates,
+packaging, docs-truth, test-estate, pipeline/perf/security) + nine module
+batches over all 45 packages. Method, items, tiering and probes live in
+[SCOPE-2026-09-19.md](SCOPE-2026-09-19.md) — 78 items (1 Major, 14 Medium,
+63 Minor); no prior-scope items re-opened; no TODO rows cleared or edited
+this pass (the CI-01/REL-01 row update below lands with the first wave's
+ledger commit).
+
+Headline: **REL-01 residual changed.** v0.3.0 (tag at `07a5fe31`, local +
+remote; CHANGELOG/CITATION.cff/manuscript consistent) published **no
+wheels**: release.yml run 35274969824 concluded failure because its ci-gate
+observed the tag-push CI (run 35274969748, same SHA) fail the
+coverage-floor step — root cause is the tag-event `BASE_SHA` diff-scope
+divergence (spec item CI-02). The v0.3.0 release object carries only the
+manuscript PDF vs v0.2.0's 45 wheel assets, and tag `v0.2.1` has no GitHub
+release object at all. Bounded path: land the CI-02 fix, then a
+user-authorized release.yml `workflow_dispatch` re-run at `07a5fe31` (or a
+dated no-wheel decision). Also recorded this pass: GNN pair-pin drift
+(CI-05 — bump only through the SC-22 paired-custody ritual), test-contract
+validator scan gaps (TST-01..03), and the full 78-item inventory.
