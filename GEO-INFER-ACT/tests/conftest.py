@@ -26,7 +26,7 @@ def sample_coordinates() -> List[Tuple[float, float]]:
 @pytest.fixture(scope="function")
 def sample_geodataframe() -> Any:
     """Standard GeoDataFrame with EPSG:4326 for spatial tests."""
-    gpd = pytest.importorskip("geopandas")
+    import geopandas as gpd
     from shapely.geometry import Point
 
     return gpd.GeoDataFrame(

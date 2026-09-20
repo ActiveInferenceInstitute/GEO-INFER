@@ -31,12 +31,7 @@ class TestSpaceImportSafety:
         """Test H3 spatial model creation (uses h3 directly, not space module)."""
         from geo_infer_act.utils.integration import create_h3_spatial_model
 
-        try:
-            import h3  # noqa: F401
-
-            h3_available = True
-        except ImportError:
-            h3_available = False
+        import h3  # noqa: F401 -- hard root dependency (h3>=4.5.0); plain import
 
         result = create_h3_spatial_model(
             config={},
@@ -54,12 +49,9 @@ class TestSpaceImportSafety:
             },
         )
 
-        if h3_available:
-            assert result["status"] == "success"
-            assert "model_config" in result
-            assert "boundary_cells" in result["model_config"]
-        else:
-            assert result["status"] == "error"
+        assert result["status"] == "success"
+        assert "model_config" in result
+        assert "boundary_cells" in result["model_config"]
 
     def test_h3_spatial_model_enforces_cell_budget(self) -> None:
         """Large fills fail before an unbounded model is constructed."""

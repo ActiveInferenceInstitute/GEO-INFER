@@ -360,6 +360,7 @@ addopts = [
 testpaths = [
     "GEO-INFER-*/tests",
     "tests",
+    "GEO-INFER-PLACE/locations/cascadia/tests",
 ]
 pythonpath = ["GEO-INFER-PLACE/locations/cascadia"]
 python_files = ["test_*.py", "*_test.py"]

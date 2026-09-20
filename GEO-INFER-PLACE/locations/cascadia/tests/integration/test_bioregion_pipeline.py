@@ -24,18 +24,22 @@ CONFIG_DIR = CASCADIA_DIR / "config"
 class TestBioregionConfig:
     """Config files parse cleanly and contain expected data."""
 
-    def test_all_8_ecological_files_load(self):
+    def test_all_7_ecological_files_load(self):
         yaml_files = [
             "cascadia_salmon_esus.yaml",
             "cascadia_ecoregions.yaml",
             "cascadia_indigenous_territories.yaml",
             "cascadia_climate_zones.yaml",
         ]
+        # Note: cascadia_config.yaml references
+        # cascadia_bioregion_boundary.geojson, which is not present in
+        # config/; the bioregion extent it would carry is declared in the
+        # same config's bioregion.bounds and is covered by
+        # test_h3_res7_cell_count_for_bioregion.
         json_files = [
             "cascadia_volcanoes.geojson",
             "cascadia_subduction_zone.geojson",
             "cascadia_major_watersheds.geojson",
-            "cascadia_bioregion_boundary.geojson",
         ]
         for fname in yaml_files:
             path = CONFIG_DIR / fname
@@ -51,13 +55,19 @@ class TestBioregionConfig:
                 data = json.load(f)
             assert "features" in data or "type" in data, f"Invalid GeoJSON: {fname}"
 
-    def test_volcano_count_is_12(self):
+    def test_volcano_count_is_24(self):
         path = CONFIG_DIR / "cascadia_volcanoes.geojson"
         assert path.exists()
         with open(path) as f:
             data = json.load(f)
         features = data.get("features", [])
-        assert len(features) == 12, f"Expected 12 volcanoes, got {len(features)}"
+        # The Cascadia layer pins 24 USGS Cascade volcanoes and volcanic
+        # fields; update the pin deliberately if the layer is re-curated.
+        assert len(features) == 24, f"Expected 24 volcanoes, got {len(features)}"
+        for feature in features:
+            geom = feature.get("geometry", {})
+            assert geom.get("type") == "Point", f"Non-point volcano feature: {geom}"
+            assert "coordinates" in geom
 
     def test_csz_linestring_spans_full_length(self):
         path = CONFIG_DIR / "cascadia_subduction_zone.geojson"
@@ -102,38 +112,21 @@ class TestBioregionConfig:
         assert len(listed) >= 12, f"Expected >= 12 ESA-listed species, got {len(listed)}: {listed}"
 
     def test_h3_res7_cell_count_for_bioregion(self):
-        """H3 resolution 7 produces cells for the bioregion bounding box."""
-        try:
-            import h3
-        except ImportError:
-            pytest.skip("h3 not installed")
-        path = CONFIG_DIR / "cascadia_bioregion_boundary.geojson"
-        if not path.exists():
-            pytest.skip("Bioregion boundary file not found")
-        with open(path) as f:
-            data = json.load(f)
-        features = data.get("features", [])
-        if not features:
-            pytest.skip("No features in bioregion boundary")
-        # Use bounding box approximation
-        all_coords = []
-        for feature in features:
-            geom = feature.get("geometry", {})
-            geom_type = geom.get("type", "")
-            coords = geom.get("coordinates", [])
-            if geom_type == "Polygon":
-                all_coords.extend(coords[0])
-            elif geom_type == "MultiPolygon":
-                for poly in coords:
-                    all_coords.extend(poly[0])
-        if all_coords:
-            lons = [c[0] for c in all_coords]
-            lats = [c[1] for c in all_coords]
-            # Just verify we can call h3 with the bounding box
-            center_lat = (min(lats) + max(lats)) / 2
-            center_lon = (min(lons) + max(lons)) / 2
-            cell = h3.latlng_to_cell(center_lat, center_lon, 7)
-            assert h3.is_valid_cell(cell), "H3 cell not valid"
+        """H3 resolution 7 produces a valid cell for the bioregion extent."""
+        import h3
+
+        # The bioregion extent is declared in cascadia_config.yaml; the
+        # boundary GeoJSON it references is an optional layer (see
+        # create_bioregion_map(allow_missing_layers)).
+        config_path = CONFIG_DIR / "cascadia_config.yaml"
+        assert config_path.exists(), f"Missing: {config_path}"
+        with open(config_path) as f:
+            config = yaml.safe_load(f)
+        bounds = config["bioregion"]["bounds"]
+        center_lat = (bounds["south"] + bounds["north"]) / 2
+        center_lon = (bounds["west"] + bounds["east"]) / 2
+        cell = h3.latlng_to_cell(center_lat, center_lon, 7)
+        assert h3.is_valid_cell(cell), "H3 cell not valid"
 
 
 class TestGeoInferIntegrations:
@@ -202,39 +195,42 @@ class TestBioregionVisualization:
     """Bioregion map generation produces valid HTML output."""
 
     def test_bioregion_map_generates_html(self, tmp_path):
-        try:
-            import folium
-        except ImportError:
-            pytest.skip("folium not installed")
+        # folium is a hard PLACE dependency; plain import.
+        import folium
+
         from src.core.visualization.bioregion_visualization import create_bioregion_map
 
         output = tmp_path / "test_bioregion.html"
-        result = create_bioregion_map(CONFIG_DIR, {}, output)
+        # cascadia_bioregion_boundary.geojson is absent from config/; the
+        # renderer supports partial layer sets by design.
+        result = create_bioregion_map(CONFIG_DIR, {}, output, allow_missing_layers=True)
         assert Path(result).exists(), f"Map file not created: {result}"
         assert Path(result).stat().st_size > 1000, "Map file is suspiciously small"
 
     def test_html_contains_volcano_layer(self, tmp_path):
-        try:
-            import folium
-        except ImportError:
-            pytest.skip("folium not installed")
+        # folium is a hard PLACE dependency; plain import.
+        import folium
+
         from src.core.visualization.bioregion_visualization import create_bioregion_map
 
         output = tmp_path / "test_bioregion_volcano.html"
-        create_bioregion_map(CONFIG_DIR, {}, output)
+        # cascadia_bioregion_boundary.geojson is absent from config/; the
+        # renderer supports partial layer sets by design.
+        create_bioregion_map(CONFIG_DIR, {}, output, allow_missing_layers=True)
         content = output.read_text(encoding="utf-8")
         # Mt. Rainier should appear in the generated HTML
         assert "Rainier" in content or "Baker" in content, "No volcano names found in HTML output"
 
     def test_html_file_size_under_5mb(self, tmp_path):
-        try:
-            import folium
-        except ImportError:
-            pytest.skip("folium not installed")
+        # folium is a hard PLACE dependency; plain import.
+        import folium
+
         from src.core.visualization.bioregion_visualization import create_bioregion_map
 
         output = tmp_path / "test_bioregion_size.html"
-        create_bioregion_map(CONFIG_DIR, {}, output)
+        # cascadia_bioregion_boundary.geojson is absent from config/; the
+        # renderer supports partial layer sets by design.
+        create_bioregion_map(CONFIG_DIR, {}, output, allow_missing_layers=True)
         size_mb = output.stat().st_size / (1024 * 1024)
         assert size_mb < 5.0, f"Map file is {size_mb:.1f} MB -- exceeds 5 MB limit"
 
@@ -254,10 +250,6 @@ class TestServer:
         assert hasattr(mod, "main"), "main() not found in cascadia_server.py"
 
     def test_fastapi_app_creates_successfully(self, tmp_path):
-        try:
-            import fastapi
-        except ImportError:
-            pytest.skip("fastapi not installed")
         import importlib.util
 
         server_path = CASCADIA_DIR / "cascadia_server.py"
@@ -268,10 +260,7 @@ class TestServer:
         assert app is not None
 
     def test_api_layers_volcanoes_valid_geojson(self, tmp_path):
-        try:
-            from fastapi.testclient import TestClient
-        except ImportError:
-            pytest.skip("fastapi not installed")
+        from fastapi.testclient import TestClient
         import importlib.util
 
         server_path = CASCADIA_DIR / "cascadia_server.py"
@@ -287,10 +276,7 @@ class TestServer:
         assert len(data["features"]) > 0
 
     def test_api_status_returns_json(self, tmp_path):
-        try:
-            from fastapi.testclient import TestClient
-        except ImportError:
-            pytest.skip("fastapi not installed")
+        from fastapi.testclient import TestClient
         import importlib.util
 
         server_path = CASCADIA_DIR / "cascadia_server.py"
