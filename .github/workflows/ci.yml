@@ -72,7 +72,15 @@ jobs:
         run: |
           # shellcheck disable=SC2153
           base_sha="$BASE_SHA"
-          if ! [[ "$base_sha" =~ ^[0-9a-f]{40}$ ]] || ! git cat-file -e "$base_sha^{commit}" 2>/dev/null; then
+          # CI-02: a v* tag push carries the zero SHA in event.before (and
+          # no PR base). The zero SHA passes the 40-hex regex but resolves
+          # to no object, so the old fallback silently narrowed the diff to
+          # HEAD^ — a different scope than the same SHA's push-to-main run.
+          # Detect tag events and the zero SHA BEFORE the regex and measure
+          # the full tree via the GS-004 empty-tree base.
+          if [ "$GITHUB_REF_TYPE" = "tag" ] || [[ "$base_sha" =~ ^0{40}$ ]]; then
+            base_sha="$(git hash-object -t tree /dev/null)"
+          elif ! [[ "$base_sha" =~ ^[0-9a-f]{40}$ ]] || ! git cat-file -e "$base_sha^{commit}" 2>/dev/null; then
             base_sha="$(git rev-parse --verify "$HEAD_SHA^" 2>/dev/null || git hash-object -t tree /dev/null)"
           fi
 
@@ -158,7 +166,14 @@ jobs:
           # step: a base that cannot be resolved measures every module rather
           # than degrading to base==head and an unconditional pass.
           base_sha="$BASE_SHA"
-          if ! [[ "$base_sha" =~ ^[0-9a-f]{40}$ ]] || ! git cat-file -e "$base_sha^{commit}" 2>/dev/null; then
+          # CI-02: tag events (and any other zero-base event) carry the
+          # zero SHA in event.before; the HEAD^ fallback would scope the
+          # re-measured module set to only the tagged commit. Detect tag
+          # events and the zero SHA BEFORE the regex and measure every
+          # module via the empty-tree base, matching the code-quality step.
+          if [ "$GITHUB_REF_TYPE" = "tag" ] || [[ "$base_sha" =~ ^0{40}$ ]]; then
+            base_sha="$(git hash-object -t tree /dev/null)"
+          elif ! [[ "$base_sha" =~ ^[0-9a-f]{40}$ ]] || ! git cat-file -e "$base_sha^{commit}" 2>/dev/null; then
             base_sha="$(git rev-parse --verify "$HEAD_SHA^" 2>/dev/null || git hash-object -t tree /dev/null)"
           fi
           uv run --with pytest-cov python GEO-INFER-TEST/check_coverage_floor.py \

@@ -129,3 +129,51 @@ def test_validate_all_runs_on_live_monorepo():
     report = packaging.validate_all()
     # The live monorepo must already conform to the geo-infer-* namespace.
     assert report.errors == []
+
+
+def test_citation_version_matches_fleet_majority(tmp_path):
+    packaging = load_packaging_module()
+    citation = tmp_path / "CITATION.cff"
+    citation.write_text(
+        'cff-version: 1.2.0\nversion: "0.3.0"\ndate-released: "2026-09-17"\n',
+        encoding="utf-8",
+    )
+    report = packaging.ContractReport()
+    packaging.validate_citation_version(
+        [("GEO-INFER-SAMPLE", {"project": {"version": "0.3.0"}})],
+        report,
+        citation_path=citation,
+    )
+    assert report.errors == []
+    assert report.warnings == []
+
+
+def test_citation_version_mismatch_warns_against_fleet_majority(tmp_path):
+    packaging = load_packaging_module()
+    citation = tmp_path / "CITATION.cff"
+    citation.write_text("cff-version: 1.2.0\nversion: 9.9.9\n", encoding="utf-8")
+    report = packaging.ContractReport()
+    packaging.validate_citation_version(
+        [
+            ("GEO-INFER-A", {"project": {"version": "0.3.0"}}),
+            ("GEO-INFER-B", {"project": {"version": "0.3.0"}}),
+            ("GEO-INFER-C", {"project": {"version": "0.2.0"}}),
+        ],
+        report,
+        citation_path=citation,
+    )
+    assert any(
+        "CITATION.cff" in warning and "9.9.9" in warning
+        for warning in report.warnings
+    )
+
+
+def test_citation_version_missing_file_warns(tmp_path):
+    packaging = load_packaging_module()
+    report = packaging.ContractReport()
+    packaging.validate_citation_version(
+        [("GEO-INFER-SAMPLE", {"project": {"version": "0.3.0"}})],
+        report,
+        citation_path=tmp_path / "absent" / "CITATION.cff",
+    )
+    assert any("CITATION.cff" in warning for warning in report.warnings)

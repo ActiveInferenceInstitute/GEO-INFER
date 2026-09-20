@@ -70,6 +70,17 @@ def test_validate_job_runs_gates_once_outside_test_matrix():
         "run_model_audit.py",
         "gitleaks detect",
         "check_coverage_floor.py",
+        # CI-04: the four ruff surfaces (changed-file check, changed-file
+        # format, src runtime hygiene, module-test hygiene).
+        "xargs -0 uv run --with 'ruff>=0.15.6,<0.16' ruff check",
+        "ruff format --check",
+        "--select F821,F823,E721,E722",
+        "--select F401,F841,F811",
+        # CI-04: the validator commands the marker list did not pin.
+        "validate_packaging.py --strict",
+        "validate_logging_hygiene.py",
+        "validate_documentation.py --strict",
+        "rewrite_readme_agents.py --check",
     ):
         assert marker in gate_text, f"missing gate marker: {marker}"
 
@@ -86,6 +97,35 @@ def test_coverage_floor_falls_back_to_empty_tree():
     """GS-004: an unresolvable base must widen the diff, not degrade to no-op."""
     gate_text = _dump(_load("ci.yml")["jobs"]["validate"])
     assert "git hash-object -t tree /dev/null" in gate_text
+
+
+def test_tag_push_diff_gates_resolve_full_tree_not_head_parent():
+    """CI-02: a v* tag push carries a zero event.before and no PR base; both
+    diff-scope gates must branch to the GS-004 empty-tree (full-tree)
+    measurement instead of silently degrading to HEAD^, whose scope covers
+    only the tagged commit."""
+    steps = _load("ci.yml")["jobs"]["validate"]["steps"]
+    gate_scripts = [
+        str(step["run"])
+        for step in steps
+        if isinstance(step, dict) and 'base_sha="$BASE_SHA"' in str(step.get("run", ""))
+    ]
+    assert len(gate_scripts) == 2
+    tag_branch = (
+        'if [ "$GITHUB_REF_TYPE" = "tag" ] || [[ "$base_sha" =~ ^0{40}$ ]]; then'
+    )
+    head_fallback = 'git rev-parse --verify "$HEAD_SHA^"'
+    empty_tree = 'base_sha="$(git hash-object -t tree /dev/null)"'
+    for script in gate_scripts:
+        assert tag_branch in script, "tag/zero-base branch missing"
+        branch_pos = script.index(tag_branch)
+        # Zero-SHA/tag detection precedes both the 40-hex regex that would
+        # otherwise swallow the zero SHA and the HEAD^ fallback.
+        assert branch_pos < script.index("^[0-9a-f]{40}$")
+        assert branch_pos < script.index(head_fallback)
+        branch_body = script[branch_pos : script.index("elif", branch_pos)]
+        assert empty_tree in branch_body
+        assert head_fallback not in branch_body
 
 
 def test_each_category_run_is_immediately_followed_by_its_own_retention():
