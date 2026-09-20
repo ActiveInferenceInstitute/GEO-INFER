@@ -78,7 +78,9 @@ class PerformanceMonitor:
 _global_performance_monitor = PerformanceMonitor()
 
 
-# Register a simple linear 'trend' aggregation for pandas groupby used by tests
+# Register a simple linear 'trend' aggregation for pandas groupby used by tests.
+# LIVE: tests/integration/test_cross_module_workflows.py calls
+# .agg(["mean", "trend"]); removing this injection breaks that suite.
 def _trend_agg(series: pd.Series) -> float:
     try:
         if len(series) < 2:
@@ -105,6 +107,8 @@ except Exception:
     pass
 
 # --- H3 v4 compatibility shims for tests expecting integer indices and closed rings ---
+# LIVE: tests/unit/test_spatial_functions.py asserts isinstance(cell, int)
+# (h3 v4 natively returns hex strings); removing this shim breaks that file.
 try:
     _orig_h3_latlng_to_cell = h3.latlng_to_cell
     _orig_h3_geo_to_cells = h3.geo_to_cells

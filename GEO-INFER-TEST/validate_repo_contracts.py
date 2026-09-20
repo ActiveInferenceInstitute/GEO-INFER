@@ -28,6 +28,7 @@ from _validator_common import (
     ContractReport,
     STDLIB_REQUIREMENT_NAMES,
     discover_module_dirs,
+    expected_package_name,
     internal_requirement_names,
     normalize_dependency_name,
     read_toml,
@@ -110,14 +111,6 @@ def parse_pyproject(module_dir: Path, report: ContractReport) -> dict:
     except tomllib.TOMLDecodeError as exc:
         report.error(f"{module_dir.name}: invalid pyproject.toml: {exc}")
         return {}
-
-
-def expected_package_name(pyproject: dict) -> str | None:
-    project = pyproject.get("project", {})
-    name = project.get("name")
-    if not isinstance(name, str) or not name:
-        return None
-    return name.replace("-", "_")
 
 
 def validate_inventory(module_dirs: list[Path], report: ContractReport) -> None:

@@ -188,8 +188,15 @@ class DependencyChecker:
         if not pyproject.is_file():
             return {"status": "unknown", "reason": "no pyproject.toml"}
 
-        # Simple TOML parser for dependency lines
-        deps = self._extract_dependencies(pyproject)
+        try:
+            deps = self._extract_dependencies(pyproject)
+        except (OSError, tomllib.TOMLDecodeError) as exc:
+            # A corrupted or unreadable pyproject.toml is unknown, never a
+            # success-shaped empty dependency list.
+            return {
+                "status": "unknown",
+                "reason": f"pyproject.toml parse failed: {exc}",
+            }
         missing: List[str] = []
         installed: List[str] = []
 
@@ -211,12 +218,15 @@ class DependencyChecker:
 
     @staticmethod
     def _extract_dependencies(pyproject_path: Path) -> List[str]:
-        """Robust extraction of dependencies using tomllib."""
-        try:
-            with open(pyproject_path, "rb") as f:
-                data = tomllib.load(f)
-        except Exception:
-            return []
+        """Robust extraction of dependencies using tomllib.
+
+        Raises ``OSError`` when the file cannot be read and
+        ``tomllib.TOMLDecodeError`` when it is malformed; callers must
+        surface that as an unknown dependency status instead of a
+        success-shaped empty result.
+        """
+        with open(pyproject_path, "rb") as f:
+            data = tomllib.load(f)
 
         raw_deps = []
         # Standard PEP 621

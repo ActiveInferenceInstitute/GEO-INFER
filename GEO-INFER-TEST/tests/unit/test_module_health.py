@@ -145,6 +145,17 @@ class TestDependencyChecker:
         assert "scipy" in deps
         assert "pytest" in deps
 
+    def test_corrupt_pyproject_reports_unknown_status(self, tmp_path):
+        """A malformed pyproject.toml is unknown, not a success-shaped 'ok'."""
+        (tmp_path / "GEO-INFER-BROKEN").mkdir()
+        (tmp_path / "GEO-INFER-BROKEN" / "pyproject.toml").write_text(
+            "dependencies = [unclosed"
+        )
+        checker = DependencyChecker(base_path=tmp_path)
+        result = checker.check_module_dependencies("BROKEN")
+        assert result["status"] == "unknown"
+        assert "parse failed" in result["reason"]
+
 
 # ---------------------------------------------------------------------------
 # Property-Based Tests (Hypothesis)
