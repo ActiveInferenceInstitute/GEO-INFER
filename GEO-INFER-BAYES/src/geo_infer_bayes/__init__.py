@@ -46,5 +46,7 @@ __all__ = [
     "HazardCategoricalPrior",
     "build_hazard_categorical_prior",
     "build_hazard_prior_table",
+    "CRESCENT_CITY_OBSERVATIONS_SCHEMA",
+    "load_crescent_city_geo_observations",
     "load_crescent_city_intel",
 ]
