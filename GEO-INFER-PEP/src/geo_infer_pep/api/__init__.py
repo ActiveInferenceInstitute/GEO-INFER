@@ -1,7 +1,11 @@
 # API endpoints for GEO-INFER-PEP
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from typing import Dict, Any
 
+from pydantic import ValidationError
+
+from ..models.hr_models import PerformanceReview
+from ..performance_store import performance_review_store
 from .crm_endpoints import router as crm_router
 from .hr_endpoints import router as hr_router
 from .talent_endpoints import router as talent_router
@@ -78,15 +82,31 @@ async def execute_workflow(workflow_id: str) -> Dict[str, Any]:
 @api_router.post("/performance/reviews", response_model=Dict[str, Any])
 async def create_performance_review(review_data: Dict[str, Any]) -> Dict[str, Any]:
     """Create a performance review."""
-    # This would integrate with performance management system
-    return {"message": "Performance review created", "data": review_data}
+    employee_id = review_data.get("employee_id")
+    if not employee_id:
+        raise HTTPException(status_code=400, detail="employee_id is required")
+    try:
+        review = PerformanceReview(**review_data)
+    except ValidationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    performance_review_store.add(employee_id, review)
+    return {
+        "message": "Performance review created",
+        "employee_id": employee_id,
+        "data": review.model_dump(mode="json"),
+    }
 
 
 @api_router.get("/performance/reviews/{employee_id}", response_model=Dict[str, Any])
 async def get_performance_reviews(employee_id: str) -> Dict[str, Any]:
     """Get performance reviews for an employee."""
-    # This would fetch from performance management system
-    return {"employee_id": employee_id, "reviews": []}
+    return {
+        "employee_id": employee_id,
+        "reviews": [
+            review.model_dump(mode="json")
+            for review in performance_review_store.list_for_employee(employee_id)
+        ],
+    }
 
 
 # Learning & Development endpoints
