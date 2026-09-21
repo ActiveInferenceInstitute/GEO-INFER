@@ -280,6 +280,8 @@ def create_bioregion_map(
         integration_results: Optional results from GEO-INFER integration suite.
             When present, adds enriched H3 layers (seismic hazard, ecosystem services,
             forest health) to the map.
+        allow_missing_layers: When True, absent layer files are skipped instead
+            of raising FileNotFoundError for the missing set.
 
     Returns:
         Absolute path of the generated HTML file as a string.
@@ -451,21 +453,34 @@ def create_bioregion_map(
         threat = props.get("threat_level", "Unknown")
         color = _VOLCANO_COLORS.get(threat, "gray")
         name = props.get("name", "Unknown Volcano")
-        elev_m = props.get("elevation_m", "?")
-        last_eruption = props.get("last_major_eruption", "Unknown")
-        lahars = props.get("lahar_risk_drainages", [])
-        lahar_html = (
-            "".join(f"<li>{d}</li>" for d in lahars)
-            if lahars
-            else "<li>None identified</li>"
+        elevation_m = props.get("elevation_m")
+        last_eruption = props.get("last_major_eruption")
+        lahars = [
+            d
+            for d in props.get("lahar_risk_drainages", [])
+            if d != "Not provided by this source"
+        ]
+        rows = [
+            "<small><b>Threat level:</b> "
+            f'<span style="color:{color};font-weight:bold">{threat}</span></small>'
+        ]
+        if elevation_m is not None:
+            rows.append(f"<small><b>Elevation:</b> {elevation_m} m</small>")
+        if last_eruption and last_eruption != "Not provided by this source":
+            rows.append(f"<small><b>Last major eruption:</b> {last_eruption}</small>")
+        if lahars:
+            rows.append(
+                "<small><b>Lahar risk drainages:</b>"
+                '<ul style="margin:2px 0 0 12px">'
+                + "".join(f"<li>{d}</li>" for d in lahars)
+                + "</ul></small>"
+            )
+        popup_html = (
+            '<div style="font-family:sans-serif;min-width:180px">'
+            f"<b>🌋 {name}</b><br>"
+            + "<br>".join(rows)
+            + "</div>"
         )
-        popup_html = f"""<div style="font-family:sans-serif;min-width:180px">
-<b>🌋 {name}</b><br>
-<small><b>Elevation:</b> {elev_m} m</small><br>
-<small><b>Threat level:</b> <span style="color:{color};font-weight:bold">{threat}</span></small><br>
-<small><b>Last major eruption:</b> {last_eruption}</small><br>
-<small><b>Lahar risk drainages:</b><ul style="margin:2px 0 0 12px">{lahar_html}</ul></small>
-</div>"""
         folium.CircleMarker(
             location=[lat, lon],
             radius=8,

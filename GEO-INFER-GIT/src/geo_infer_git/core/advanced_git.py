@@ -593,7 +593,10 @@ class CherryPickManager:
                 their_content=their_content,
             )
 
-        except Exception:
+        except OSError as exc:
+            logger.warning(
+                "Could not read conflict markers from %s: %s", file_path, exc
+            )
             return None
 
 

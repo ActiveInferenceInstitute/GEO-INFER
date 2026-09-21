@@ -50,12 +50,6 @@ try:
 except ImportError:
     _graph_theory_available = False
 
-try:
-    from geo_infer_math.core.integration import *
-
-    _integration_available = True
-except ImportError:
-    _integration_available = False
 
 try:
     from geo_infer_math.core.gpu_acceleration import *
@@ -112,8 +106,6 @@ if _transforms_available:
 if _graph_theory_available:
     __all__.append("graph_theory")
 
-if _integration_available:
-    __all__.append("integration")
 
 if _gpu_acceleration_available:
     __all__.append("gpu_acceleration")

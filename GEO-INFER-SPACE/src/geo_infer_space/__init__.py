@@ -5,7 +5,6 @@ This module provides powerful spatial indexing, analytics, and integration
 with external geospatial tools and libraries through a unified, backend-agnostic API.
 """
 
-from typing import Any
 
 __version__ = "0.3.0"
 
@@ -22,60 +21,16 @@ from .core.analytics import SpatialAnalyticsInterface
 from .core.dispatcher import get_backend_dispatcher, configure_backends
 from .core.interfaces import UnsupportedSpatialOperationError
 
-import logging
-import warnings
 
-logger = logging.getLogger(__name__)
+# RISK-style policy: internal components import only declared hard
+# dependencies, so these imports must succeed; a failure is a real
+# packaging bug and propagates instead of silently nulling the public API.
+from .place_analyzer import PlaceAnalyzer
 
-# Import additional components with error handling
-PlaceAnalyzer: Any
-try:
-    from .place_analyzer import PlaceAnalyzer as _PlaceAnalyzer
-
-    PlaceAnalyzer = _PlaceAnalyzer
-except ImportError as e:
-    warnings.warn(
-        f"geo_infer_space: PlaceAnalyzer unavailable ({e}); related APIs disabled",
-        ImportWarning,
-        stacklevel=2,
-    )
-    logger.warning(
-        f"geo_infer_space: PlaceAnalyzer unavailable ({e}); related APIs disabled"
-    )
-    PlaceAnalyzer = None
-
-SpatialUtils: Any
-try:
-    from .spatial_utils import SpatialUtils as _SpatialUtils
-
-    SpatialUtils = _SpatialUtils
-except ImportError as e:
-    warnings.warn(
-        f"geo_infer_space: SpatialUtils unavailable ({e}); related APIs disabled",
-        ImportWarning,
-        stacklevel=2,
-    )
-    logger.warning(
-        f"geo_infer_space: SpatialUtils unavailable ({e}); related APIs disabled"
-    )
-    SpatialUtils = None
+from .spatial_utils import SpatialUtils
 
 # Import the GIS submodule facade
-GISManager: Any
-try:
-    from .gis import GISManager as _GISManager
-
-    GISManager = _GISManager
-except ImportError as e:
-    warnings.warn(
-        f"geo_infer_space: GISManager unavailable ({e}); related APIs disabled",
-        ImportWarning,
-        stacklevel=2,
-    )
-    logger.warning(
-        f"geo_infer_space: GISManager unavailable ({e}); related APIs disabled"
-    )
-    GISManager = None
+from .gis import GISManager
 
 # Make core functionality easily accessible
 __all__ = [
@@ -90,7 +45,7 @@ __all__ = [
     "latlng_to_cell",
     "cell_to_latlng",
     "polygon_to_cells",
-    # Optional components
+    # Internal components
     "PlaceAnalyzer",
     "SpatialUtils",
     "GISManager",

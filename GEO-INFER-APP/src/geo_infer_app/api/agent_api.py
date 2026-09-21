@@ -515,17 +515,14 @@ class AgentAPIClient:
             ),
         )
 
-        try:
-            os.makedirs(os.path.dirname(config_path), exist_ok=True)
-            with open(config_path, "w") as f:
-                json.dump(
-                    {"agents": self.agents, "counters": self._agent_counters},
-                    f,
-                    indent=2,
-                )
-            logger.info(f"Saved {len(self.agents)} agent configurations")
-        except Exception as e:
-            logger.error(f"Error saving agent configurations: {e}")
+        os.makedirs(os.path.dirname(config_path), exist_ok=True)
+        with open(config_path, "w") as f:
+            json.dump(
+                {"agents": self.agents, "counters": self._agent_counters},
+                f,
+                indent=2,
+            )
+        logger.info(f"Saved {len(self.agents)} agent configurations")
 
 
 class AgentManager:

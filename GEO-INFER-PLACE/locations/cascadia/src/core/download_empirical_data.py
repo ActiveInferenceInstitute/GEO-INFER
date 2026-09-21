@@ -68,7 +68,7 @@ class EmpiricalDataDownloader:
             temp_path = Path(temp_dir)
 
             # Download the file
-            response = requests.get(url, stream=True)
+            response = requests.get(url, timeout=(30, 300), stream=True)
             response.raise_for_status()
 
             zip_path = temp_path / f"{dataset_name}.zip"

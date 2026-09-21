@@ -164,6 +164,26 @@ class TestComplianceTracker:
         assert status.metric_results is not None
         assert "pm25" in status.metric_results[0]["notes"]
 
+    def test_evaluate_compliance_invalid_evaluation_type_is_surfaced(self):
+        """An unknown evaluation_type must surface as an evaluation error note."""
+        reg = _make_regulation("reg-1")
+        entity = _make_entity("ent-1")
+        metric = ComplianceMetric.create(
+            name="Weird Type",
+            description="Metric with an unsupported evaluation_type",
+            regulation_id="reg-1",
+            evaluation_type="composite_unsupported",
+            primary_field="emission_level",
+            threshold_value=50.0,
+            comparison="greater_than",
+        )
+        tracker = ComplianceTracker(name="test", compliance_metrics=[metric])
+        status = tracker.evaluate_compliance(entity, reg, {"emission_level": 30.0})
+        assert status.is_compliant is False
+        assert status.metric_results is not None
+        assert "unknown evaluation_type" in status.metric_results[0]["notes"]
+        assert "Evaluation error" in status.metric_results[0]["notes"]
+
 
 class TestComplianceReport:
     def test_generate_summary_report(self):

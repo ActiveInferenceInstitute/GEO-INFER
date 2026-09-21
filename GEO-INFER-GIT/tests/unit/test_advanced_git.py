@@ -8,6 +8,7 @@ RebaseManager, AdvancedGitOperations).
 All subprocess git work happens inside tmp_path-scoped repositories.
 """
 
+import logging
 import subprocess
 
 import pytest
@@ -304,6 +305,18 @@ class TestAdvancedGitCherryPick:
 
         assert len(operations) == 1
         assert operations[0].status == "applied"
+
+    def test_analyze_conflict_missing_file_returns_none_and_warns(
+        self, clean_repo, caplog
+    ):
+        """An unreadable conflict file is surfaced with a warning, not silence."""
+        manager = CherryPickManager(clean_repo)
+
+        with caplog.at_level(logging.WARNING):
+            conflict = manager._analyze_conflict("missing.txt", "UU")
+
+        assert conflict is None
+        assert "missing.txt" in caplog.text
 
 
 class TestAdvancedGitRebase:

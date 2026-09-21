@@ -334,6 +334,11 @@ class ComplianceTracker:
                         is_compliant = (
                             abs(value - threshold) < 0.001
                         )  # Approximate equality
+                    else:
+                        raise ValueError(
+                            f"Metric '{metric.name}': unknown comparison "
+                            f"'{metric.comparison}' for threshold evaluation"
+                        )
 
                     compliance_level = 1.0 if is_compliant else 0.0
                     notes = f"Value {value} {'meets' if is_compliant else 'does not meet'} threshold {threshold}"
@@ -367,6 +372,11 @@ class ComplianceTracker:
                     )
                     compliance_level = 1.0 if is_compliant else 0.0
                     notes = f"Boolean condition is {'satisfied' if is_compliant else 'not satisfied'}"
+                else:
+                    raise ValueError(
+                        f"Metric '{metric.name}': unknown evaluation_type "
+                        f"'{metric.evaluation_type}'"
+                    )
 
             except Exception as e:
                 logger.error(f"Error evaluating metric {metric.name}: {str(e)}")
