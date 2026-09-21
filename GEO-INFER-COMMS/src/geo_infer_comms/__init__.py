@@ -8,6 +8,7 @@ applications with full geospatial context and real-time capabilities.
 
 from __future__ import annotations
 import logging
+import threading
 from typing import Dict, List, Optional, Any
 from datetime import datetime, timezone
 
@@ -41,6 +42,15 @@ from geo_infer_comms.core.events import (
     EventMetrics,
     EventProcessor,  # noqa: F401
 )
+
+# Collaboration, streaming, and spatial-routing engines (unified interface)
+from geo_infer_comms.core.collaboration import (
+    CollaborationManager,
+    GeospatialCollaborationCoordinator,
+    CollaborationAnalytics,
+)
+from geo_infer_comms.core.streaming import StreamManager
+from geo_infer_comms.core.spatial_routing import AdvancedSpatialRouter
 
 # Data models
 from geo_infer_comms.models.message import (
@@ -171,6 +181,15 @@ class GeospatialCommunicationSystem:
 
         self.event_manager = EventManager(
             max_events=self.config.get("max_events", 10000),
+            enable_persistence=self.config.get("enable_persistence", True),
+            persistence_path=self.config.get("persistence_path"),
+        )
+
+        self.collaboration_manager = CollaborationManager(
+            max_sessions=self.config.get("max_collaboration_sessions", 1000),
+            max_participants_per_session=self.config.get(
+                "max_participants_per_session", 100
+            ),
             enable_persistence=self.config.get("enable_persistence", True),
             persistence_path=self.config.get("persistence_path"),
         )
@@ -329,6 +348,7 @@ class GeospatialCommunicationSystem:
 
 # Global system instance for convenience
 _global_system: Optional[GeospatialCommunicationSystem] = None
+_system_lock = threading.Lock()
 
 
 def get_communication_system(
@@ -338,7 +358,9 @@ def get_communication_system(
     global _global_system
 
     if _global_system is None:
-        _global_system = GeospatialCommunicationSystem(config)
+        with _system_lock:
+            if _global_system is None:
+                _global_system = GeospatialCommunicationSystem(config)
 
     return _global_system
 
@@ -355,7 +377,9 @@ def configure_system(config: Dict[str, Any]) -> None:
     global _global_system
 
     if _global_system is None:
-        _global_system = GeospatialCommunicationSystem(config)
+        with _system_lock:
+            if _global_system is None:
+                _global_system = GeospatialCommunicationSystem(config)
     else:
         # Re-configuration after construction does not rebuild components.
         _global_system.config.update(config)
@@ -452,6 +476,11 @@ __all__ = [
     "EventScheduler",
     "EventFilter",
     "EventMetrics",
+    "CollaborationManager",
+    "GeospatialCollaborationCoordinator",
+    "CollaborationAnalytics",
+    "StreamManager",
+    "AdvancedSpatialRouter",
     # Data models
     "MessageRequest",
     "MessageResponse",

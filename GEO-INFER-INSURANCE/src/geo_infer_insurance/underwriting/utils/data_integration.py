@@ -1,12 +1,14 @@
 """
-Data Integration: External data source integration for underwriting.
+Data Integration: scaffold for external data-source integration.
 
-This module provides data integration capabilities including:
-- External API integration
-- Database connectivity
-- Real-time data feeds
-- Data validation and transformation
-- Cache management
+The built-in default sources (credit_bureau, property_database, weather_data,
+claims_history) point at placeholder endpoints that are not reachable; there
+is no live upstream bundled with this module. ``get_data`` never raises: any
+failure (missing ``requests`` library, unreachable endpoint, unset
+credentials, coding error) is logged and returns ``None``, so callers cannot
+distinguish "no record" from "integration never worked" without checking the
+log. Callers must configure explicit ``ExternalDataSource`` entries with real
+endpoints and credentials for any production use.
 """
 
 import logging
@@ -40,7 +42,11 @@ class ExternalDataSource:
 
 
 class DataIntegrationManager:
-    """Manager for external data source integration."""
+    """Manager for external data-source integration.
+
+    Ships only placeholder default endpoints; see the module docstring for
+    the failure-to-None semantics.
+    """
 
     def __init__(self, data_sources: Optional[List[str]] = None):
         """
@@ -485,7 +491,10 @@ class DataIntegrationManager:
                 # Test connectivity
                 test_data = self.get_data(name, {"test": True})
                 source_status[name] = "operational" if test_data else "error"
-            except Exception:
+            except (KeyError, ValueError, OSError) as e:
+                logger.warning(
+                    "Health check failed for data source %s: %s", name, e
+                )
                 source_status[name] = "error"
 
         health_status["source_status"] = source_status
@@ -528,9 +537,10 @@ def get_credit_score(
 
     try:
         credit_data = data_manager.get_data("credit_bureau", {"ssn": ssn})
-        return credit_data.get("credit_score") if credit_data else None
-    except Exception:
+    except (KeyError, ValueError, OSError) as e:
+        logger.warning("Credit bureau fetch failed: %s", e)
         return None
+    return credit_data.get("credit_score") if credit_data else None
 
 
 def get_property_history(
@@ -553,6 +563,7 @@ def get_property_history(
         property_data = data_manager.get_data(
             "property_database", {"property_id": property_id}
         )
-        return property_data if property_data else None
-    except Exception:
+    except (KeyError, ValueError, OSError) as e:
+        logger.warning("Property database fetch failed: %s", e)
         return None
+    return property_data if property_data else None

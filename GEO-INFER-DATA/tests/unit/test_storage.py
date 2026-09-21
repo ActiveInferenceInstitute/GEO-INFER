@@ -416,3 +416,46 @@ class TestLocalFileBackend:
         # Verify file is gone
         data_file = backend._find_data_file(data_id)
         assert data_file is None
+
+
+class TestDevCredentialBoundary:
+    """GS19-43: dev-credential defaults warn on loopback, fail closed elsewhere."""
+
+    def test_env_unset_loopback_warns(self, caplog, monkeypatch):
+        import logging
+
+        monkeypatch.delenv("GEO_INFER_POSTGRES_PASSWORD", raising=False)
+        monkeypatch.delenv("GEO_INFER_MINIO_ACCESS_KEY", raising=False)
+        monkeypatch.delenv("GEO_INFER_MINIO_SECRET_KEY", raising=False)
+
+        with caplog.at_level(logging.WARNING, logger="geo_infer_data.core.storage"):
+            AdaptiveDataStorage(storage_backends=["postgresql", "minio", "local"])
+
+        messages = [record.getMessage() for record in caplog.records]
+        assert any("GEO_INFER_POSTGRES_PASSWORD" in m for m in messages)
+        assert any("GEO_INFER_MINIO_ACCESS_KEY" in m for m in messages)
+
+    def test_env_set_produces_no_dev_credential_warning(self, caplog, monkeypatch):
+        import logging
+
+        monkeypatch.setenv("GEO_INFER_POSTGRES_PASSWORD", "test-only-password")
+        monkeypatch.setenv("GEO_INFER_MINIO_ACCESS_KEY", "test-only-key")
+        monkeypatch.setenv("GEO_INFER_MINIO_SECRET_KEY", "test-only-secret")
+
+        with caplog.at_level(logging.WARNING, logger="geo_infer_data.core.storage"):
+            AdaptiveDataStorage(storage_backends=["postgresql", "minio", "local"])
+
+        assert not any(
+            "development credential" in record.getMessage()
+            for record in caplog.records
+        )
+
+    def test_non_loopback_host_fails_closed(self, monkeypatch):
+        monkeypatch.delenv("GEO_INFER_POSTGRES_PASSWORD", raising=False)
+        with patch.object(
+            AdaptiveDataStorage,
+            "_is_loopback_host",
+            staticmethod(lambda host: False),
+        ):
+            with pytest.raises(RuntimeError, match="GEO_INFER_POSTGRES_PASSWORD"):
+                AdaptiveDataStorage(storage_backends=["postgresql", "local"])

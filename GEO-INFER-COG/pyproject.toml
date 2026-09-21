@@ -50,6 +50,8 @@ dev = [
     "pytest-asyncio>=0.20.0",
     "black>=21.9.0",
     "mypy>=0.910",
+    "flask>=2.0",
+    "flask-cors>=3.0",
 ]
 docs = [
     "sphinx>=4.2.0",

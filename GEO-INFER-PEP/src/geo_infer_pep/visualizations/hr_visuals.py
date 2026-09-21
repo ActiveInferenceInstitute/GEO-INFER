@@ -11,10 +11,8 @@ from ..hr.transformer import convert_employees_to_dataframe
 
 logger = logging.getLogger(__name__)
 
-# Ensure output directory exists from crm_visuals or define one
-# from .crm_visuals import DEFAULT_OUTPUT_DIR # Option 1: Reuse
-DEFAULT_HR_VISUALS_DIR = Path("visualizations_output/hr")  # Option 2: Specific HR dir
-DEFAULT_HR_VISUALS_DIR.mkdir(parents=True, exist_ok=True)
+# Default HR output directory; created on write by the plot functions below.
+DEFAULT_HR_VISUALS_DIR = Path("visualizations_output/hr")
 
 
 def plot_headcount_by_department(
@@ -51,6 +49,7 @@ def plot_headcount_by_department(
 
     file_path = output_dir / "headcount_by_department.png"
     try:
+        output_dir.mkdir(parents=True, exist_ok=True)
         plt.savefig(file_path)
         logger.info(f"Saved headcount by department plot to: {file_path}")
         plt.close()
@@ -97,6 +96,7 @@ def plot_gender_distribution(
 
     file_path = output_dir / "gender_distribution.png"
     try:
+        output_dir.mkdir(parents=True, exist_ok=True)
         plt.savefig(file_path)
         logger.info(f"Saved gender distribution plot to: {file_path}")
         plt.close()

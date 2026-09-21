@@ -10,7 +10,12 @@ failure; and partial-initialization degradation observable through
 
 import pytest
 
-from geo_infer_cog.api.rest_api import create_cog_api_app
+# GS19-56: flask is an optional (api-extra) dependency; without it this suite
+# must report a skip at collection instead of a hard failure.
+pytest.importorskip("flask")
+pytest.importorskip("flask_cors")
+
+from geo_infer_cog.api.rest_api import create_cog_api_app  # noqa: E402
 
 
 @pytest.fixture()

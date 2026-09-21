@@ -3,8 +3,12 @@ Tests for CacheManager and CacheEntry in geo_infer_data.utils.caching.
 """
 
 import asyncio
+import logging
+import threading
 from datetime import datetime, timedelta, timezone
+from unittest import mock
 
+import pytest
 from geo_infer_data.utils.caching import CacheEntry, CacheManager
 from geo_infer_data.utils.secure_serialization import MAGIC
 
@@ -222,3 +226,41 @@ class TestCacheManager:
             entry.created_at = datetime.now(timezone.utc) - timedelta(seconds=10)
         cache.optimize_cache()
         assert len(cache.cache) == 0
+
+
+# ---------------------------------------------------------------------------
+# Memory accounting (PL-06)
+# ---------------------------------------------------------------------------
+
+
+class TestCacheMemoryAccounting:
+    def _run(self, coro):
+        return asyncio.get_event_loop().run_until_complete(coro)
+
+    def test_stats_expose_estimated_entries_for_unpicklable_data(self):
+        cache = CacheManager(max_size=10)
+        self._run(cache.set("picklable", {"data": 42}))
+        self._run(cache.set("unpicklable", threading.Lock()))
+        stats = cache.get_stats()
+        assert stats["estimated_entries"] == 1
+        assert stats["current_size"] == 2
+
+    def test_unpicklable_entry_logs_warning(self, caplog):
+        cache = CacheManager(max_size=10)
+        self._run(cache.set("unpicklable", threading.Lock()))
+        with caplog.at_level(logging.WARNING, logger="geo_infer_data.utils.caching"):
+            cache.get_stats()
+        assert any(
+            "unpicklable cache entry" in record.getMessage()
+            for record in caplog.records
+        )
+
+    def test_unexpected_pickle_errors_propagate(self):
+        cache = CacheManager(max_size=10)
+        self._run(cache.set("boom", object()))
+        with mock.patch(
+            "geo_infer_data.utils.caching.pickle.dumps",
+            side_effect=RuntimeError("boom"),
+        ):
+            with pytest.raises(RuntimeError):
+                cache.get_stats()

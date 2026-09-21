@@ -369,13 +369,21 @@ class CacheManager:
 
         # Calculate memory usage estimate
         memory_usage = 0
-        for entry in self.cache.values():
+        estimated_entries = 0
+        for key, entry in self.cache.items():
             try:
                 # Size estimation only: this pickles in-memory data and never
                 # deserialises, so it is outside the trust boundary.
                 memory_usage += len(pickle.dumps(entry.data))
-            except Exception:
+            except (TypeError, OSError, pickle.PicklingError) as e:
+                logger.warning(
+                    "Memory accounting: unpicklable cache entry %r (%s); "
+                    "using the 1KB fallback estimate",
+                    key,
+                    type(e).__name__,
+                )
                 memory_usage += 1000  # Estimate 1KB per entry
+                estimated_entries += 1
 
         return {
             "max_size": self.max_size,
@@ -386,6 +394,7 @@ class CacheManager:
             "total_sets": self.access_stats["sets"],
             "total_deletes": self.access_stats["deletes"],
             "estimated_memory_usage_mb": memory_usage / (1024 * 1024),
+            "estimated_entries": estimated_entries,
             "persistence_enabled": self.enable_persistence,
         }
 

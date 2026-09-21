@@ -11,6 +11,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 import numpy as np
+from scipy.stats import norm
 
 logger = logging.getLogger(__name__)
 
@@ -153,6 +154,7 @@ class BayesianSpatialInference:
                 return {"error": "Failed to generate prediction grid"}
 
         except Exception as e:
+            logger.error("Spatial inference failed: %s", e, exc_info=True)
             return {"error": f"Spatial inference failed: {str(e)}"}
 
     def get_posterior_map(
@@ -175,10 +177,16 @@ class BayesianSpatialInference:
         if confidence_intervals is None:
             confidence_intervals = [0.68, 0.95]
 
-        # Calculate confidence intervals
+        # Calculate confidence intervals using the exact normal quantile for
+        # each requested confidence level (the previous two-value hardcode
+        # silently assigned z=1.0 to every CI other than 0.95).
         confidence_bounds = {}
         for ci in confidence_intervals:
-            z_score = 1.96 if ci == 0.95 else 1.0  # Approximate z-scores
+            if not 0.0 < ci < 1.0:
+                raise ValueError(
+                    f"Confidence interval must be in (0, 1), got {ci!r}"
+                )
+            z_score = float(norm.ppf(0.5 + ci / 2.0))
             confidence_bounds[ci] = {
                 "lower": (
                     cache_data["posterior_mean"] - z_score * cache_data["posterior_std"]

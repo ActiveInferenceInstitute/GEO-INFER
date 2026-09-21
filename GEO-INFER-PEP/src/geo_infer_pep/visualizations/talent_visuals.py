@@ -11,8 +11,8 @@ from ..talent.transformer import convert_candidates_to_dataframe
 
 logger = logging.getLogger(__name__)
 
+# Default Talent output directory; created on write by the plot functions below.
 DEFAULT_TALENT_VISUALS_DIR = Path("visualizations_output/talent")
-DEFAULT_TALENT_VISUALS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def plot_candidate_pipeline_by_status(
@@ -48,6 +48,7 @@ def plot_candidate_pipeline_by_status(
 
     file_path = output_dir / "candidate_pipeline_status.png"
     try:
+        output_dir.mkdir(parents=True, exist_ok=True)
         plt.savefig(file_path)
         logger.info(f"Saved candidate pipeline status plot to: {file_path}")
         plt.close()
@@ -79,6 +80,7 @@ def plot_time_to_hire_distribution(
 
     file_path = output_dir / "time_to_hire_distribution.png"
     try:
+        output_dir.mkdir(parents=True, exist_ok=True)
         plt.savefig(file_path)
         logger.info(f"Saved Time to Hire distribution plot to: {file_path}")
         plt.close()

@@ -18,7 +18,7 @@ examples_dir: ../GEO-INFER-EXAMPLES/examples/
 ### Core Capabilities
 
 - **Monitoring**: System health metrics, spatial operation performance
-- **Log aggregation**: Structured log collection and querying
+- **Logging**: Configurable structured logging via ``configure_logging``/``get_logger`` (see ``src/geo_infer_ops/core/logging.py``)
 - **Deployment**: Configuration management for spatial services
 - **Observability**: Prometheus metrics for cross-module operations
 

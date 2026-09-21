@@ -829,10 +829,57 @@ class AdaptiveDataStorage:
             "local": {"type": "local", "base_path": "/tmp/geo_infer_data"},
         }
 
-        return {
+        selected = {
             backend: configs.get(backend, {})
             for backend in self.config.storage_backends
         }
+        self._audit_dev_credentials(selected)
+        return selected
+
+    _DEV_CREDENTIAL_ENV_DEFAULTS = (
+        ("postgresql", "GEO_INFER_POSTGRES_PASSWORD", "password"),
+        ("minio", "GEO_INFER_MINIO_ACCESS_KEY", "minioadmin"),
+        ("minio", "GEO_INFER_MINIO_SECRET_KEY", "minioadmin"),
+    )
+
+    @staticmethod
+    def _is_loopback_host(host: str) -> bool:
+        """True when host is a loopback alias or address/host:port literal."""
+        normalized = (
+            host.rsplit(":", 1)[0] if host.count(":") == 1 else host
+        )
+        if normalized in ("localhost", "127.0.0.1", "::1"):
+            return True
+        return normalized.endswith(".localhost")
+
+    def _audit_dev_credentials(self, configs: Dict[str, Dict[str, Any]]) -> None:
+        """Warn or fail closed when built-in development credentials are in use.
+
+        A missing environment variable means the built-in development default
+        is in effect. Against a loopback host that is acceptable for local
+        development but must be loud; against any non-loopback host it is
+        refused outright (GS19-43).
+        """
+        for backend, env_var, dev_default in self._DEV_CREDENTIAL_ENV_DEFAULTS:
+            config = configs.get(backend)
+            if not config or os.environ.get(env_var):
+                continue
+            host = str(config.get("host") or config.get("endpoint") or "")
+            if not self._is_loopback_host(host):
+                raise RuntimeError(
+                    f"{backend}: {env_var} is unset and host {host!r} is not "
+                    "loopback; refusing to start with the built-in development "
+                    f"credential default ({dev_default!r}). Set {env_var} "
+                    "explicitly to proceed."
+                )
+            logger.warning(
+                "%s: %s is unset; using the built-in development credential "
+                "default against loopback host %r. Set %s before non-local use.",
+                backend,
+                env_var,
+                host,
+                env_var,
+            )
 
     async def store_geospatial_data(
         self,
