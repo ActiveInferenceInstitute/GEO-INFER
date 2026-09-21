@@ -42,7 +42,6 @@ dependencies = [
     "scipy>=1.7.0",
     "geopandas>=0.13.0",
     "shapely>=2.0.0",
-    "geo-infer-bayes>=0.2.0",
 ]
 
 [project.optional-dependencies]

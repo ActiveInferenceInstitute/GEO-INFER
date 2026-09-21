@@ -43,7 +43,7 @@ dependencies = [
     "seaborn>=0.11.0",
     "inferactively-pymdp==1.0.3",
     "h3>=4.5.0,<5",
-    "geo-infer-bayes>=0.2.0",
+    "geo-infer-bayes>=0.3.0",
 ]
 
 [project.optional-dependencies]
@@ -59,15 +59,15 @@ backends = [
     "imageio>=2.9.0",
     "plotly>=5.0.0",
 ]
-space = ["geo-infer-space>=0.2.0"]
-gnn = ["geo-infer-time>=0.2.0"]
+space = ["geo-infer-space>=0.3.0"]
+gnn = ["geo-infer-time>=0.3.0"]
 dev = [
     "pytest>=6.2.0",
     "pytest-cov>=2.12.0",
     "pytest-asyncio>=0.20.0",
     "black>=21.9.0",
     "mypy>=0.910",
-    "geo-infer-ai>=0.2.0",
+    "geo-infer-ai>=0.3.0",
     ]
 docs = [
     "sphinx>=4.2.0",

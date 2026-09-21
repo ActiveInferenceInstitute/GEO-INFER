@@ -9,10 +9,9 @@ services:
       - ./data:/app/data
       - ./output:/app/output
     environment:
-      - PYTHONPATH=/app
       - PYTHONUNBUFFERED=1
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -27,11 +26,10 @@ services:
       - ./data:/app/data
       - ./output:/app/output
     environment:
-      - PYTHONPATH=/app
       - PYTHONUNBUFFERED=1
-    command: ["uvicorn", "src.geo_infer_bio.api.graphql_api:app", "--host", "0.0.0.0", "--port", "8000"]
+    command: ["uv", "run", "uvicorn", "geo_infer_bio.api.graphql_api:app", "--host", "0.0.0.0", "--port", "8000"]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/graphql"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/graphql?query={__typename}')"]
       interval: 30s
       timeout: 10s
       retries: 3
