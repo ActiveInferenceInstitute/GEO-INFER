@@ -57,6 +57,16 @@ integrations = [
     "geo-infer-bayes",
     "geo-infer-data",
 ]
+
+# Optional machine-learning backend for hotspot clustering. The KMeans
+# hotspot analysis in geo_infer_risk.core.catastrophe_models imports
+# sklearn.cluster inside a guarded try/except and degrades gracefully to
+# simple centroid hotspots when scikit-learn is absent; install this
+# extra to enable the clustering path.
+ml = [
+    "scikit-learn>=1.0",
+    "joblib>=1.0",
+]
 dev = [
     "pytest>=6.2.0",
     "pytest-cov>=2.12.0",

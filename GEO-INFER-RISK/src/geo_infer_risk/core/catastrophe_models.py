@@ -685,48 +685,48 @@ class EnhancedCatastropheModel:
 
             # Fit distribution parameters
             try:
-                # Try different distributions
-                distributions = ["exponential", "weibull", "lognormal", "gumbel_r"]
+                # Candidate distributions, fit in name order; "weibull" is
+                # fit with the location fixed at 0.
+                candidate_distributions = {
+                    "exponential": stats.expon,
+                    "weibull": stats.weibull_min,
+                    "lognormal": stats.lognorm,
+                    "gumbel_r": stats.gumbel_r,
+                }
 
                 best_distribution = "exponential"
                 best_aic = float("inf")
+                best_params: Optional[Tuple[float, ...]] = None
 
-                for dist_name in distributions:
+                for dist_name, dist in candidate_distributions.items():
                     try:
-                        if dist_name == "exponential":
-                            params = stats.expon.fit(intensities)
-                            log_likelihood = np.sum(
-                                stats.expon.logpdf(intensities, *params)
-                            )
-                        elif dist_name == "weibull":
-                            params = stats.weibull_min.fit(intensities, floc=0)
-                            log_likelihood = np.sum(
-                                stats.weibull_min.logpdf(intensities, *params)
-                            )
-                        elif dist_name == "lognormal":
-                            params = stats.lognorm.fit(intensities)
-                            log_likelihood = np.sum(
-                                stats.lognorm.logpdf(intensities, *params)
-                            )
-                        elif dist_name == "gumbel_r":
-                            params = stats.gumbel_r.fit(intensities)
-                            log_likelihood = np.sum(
-                                stats.gumbel_r.logpdf(intensities, *params)
-                            )
-
-                        # Calculate AIC
-                        n_params = len(params)
-                        aic = 2 * n_params - 2 * log_likelihood
-
-                        if aic < best_aic:
-                            best_aic = aic
-                            best_distribution = dist_name
-
-                    except Exception:
+                        if dist_name == "weibull":
+                            params = dist.fit(intensities, floc=0)
+                        else:
+                            params = dist.fit(intensities)
+                    except Exception as fit_error:
+                        logger.debug(f"Fit failed for {dist_name}: {fit_error}")
                         continue
 
-                self.model_parameters["intensity_distribution"] = best_distribution
-                self.model_parameters["intensity_distribution_params"] = params
+                    # Calculate AIC
+                    log_likelihood = np.sum(dist.logpdf(intensities, *params))
+                    n_params = len(params)
+                    aic = 2 * n_params - 2 * log_likelihood
+
+                    if aic < best_aic:
+                        best_aic = aic
+                        best_distribution = dist_name
+                        best_params = params
+
+                if best_params is not None:
+                    self.model_parameters["intensity_distribution"] = best_distribution
+                    self.model_parameters["intensity_distribution_params"] = best_params
+                else:
+                    logger.warning(
+                        "All candidate intensity distribution fits failed; "
+                        "storing no distribution parameters"
+                    )
+                    self.model_parameters["intensity_distribution"] = "exponential"
 
             except Exception as e:
                 logger.warning(f"Failed to fit intensity distribution: {e}")
