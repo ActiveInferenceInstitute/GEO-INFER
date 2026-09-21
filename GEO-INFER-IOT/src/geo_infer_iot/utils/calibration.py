@@ -157,6 +157,13 @@ class SensorCalibration:
         if len(sensor_values) < 2:
             return {"slope": 1.0, "offset": 0.0}
 
+        if not HAS_SCIPY:
+            # Degraded mode (no scipy): least-squares fit via numpy only.
+            slope, offset = (
+                float(c) for c in np.polyfit(sensor_values, reference_values, 1)
+            )
+            return {"slope": slope, "offset": offset}
+
         # Linear regression
         slope, offset, r_value, p_value, std_err = stats.linregress(
             sensor_values, reference_values
@@ -268,7 +275,7 @@ class SensorCalibration:
 
             # Determine if drift is significant
             threshold = self.config.get("drift_threshold", 0.05)
-            drift_detected = drift_score > threshold
+            drift_detected = bool(drift_score > threshold)
 
             return {
                 "drift_detected": drift_detected,
