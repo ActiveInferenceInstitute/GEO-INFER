@@ -35,7 +35,7 @@ Comprehensive security and privacy framework for geospatial information systems 
 - `pandas>=1.3.0`
 - `pyjwt>=2.3.0`
 - `pyyaml>=6.0`
-- `shapely>=1.8.0`
+- `shapely>=2.0.0`
 
 
 ## Validation

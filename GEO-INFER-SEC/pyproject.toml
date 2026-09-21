@@ -61,6 +61,16 @@ docs = [
     "myst-parser>=0.15.0",
 ]
 
+# Optional machine-learning backend for cognitive-security analytics. The
+# anomaly detection in geo_infer_sec.core.cognitive_security imports
+# sklearn/joblib inside a guarded try/except (ML_AVAILABLE) and degrades
+# gracefully when scikit-learn is absent; install this extra to enable
+# the ML detection path.
+ml = [
+    "scikit-learn>=1.0",
+    "joblib>=1.0",
+]
+
 [project.urls]
 Homepage = "https://github.com/ActiveInferenceInstitute/GEO-INFER"
 Documentation = "https://geo-infer.readthedocs.io/"

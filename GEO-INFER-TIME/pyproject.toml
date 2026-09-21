@@ -64,8 +64,6 @@ Documentation = "https://geo-infer.readthedocs.io/"
 Repository = "https://github.com/ActiveInferenceInstitute/GEO-INFER"
 "Bug Tracker" = "https://github.com/ActiveInferenceInstitute/GEO-INFER/issues"
 
-[project.scripts]
-
 [tool.setuptools]
 package-dir = {"" = "src"}
 

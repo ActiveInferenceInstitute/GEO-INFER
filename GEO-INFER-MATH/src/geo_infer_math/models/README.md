@@ -38,7 +38,6 @@ Models workspace within `GEO-INFER-MATH`.
 - `numpy>=1.20.0`
 - `scipy>=1.7.0`
 - `pandas>=1.3.0`
-- `psutil>=5.8.0`
 - `scikit-learn>=1.0.0`
 - `sympy>=1.9.0`
 
