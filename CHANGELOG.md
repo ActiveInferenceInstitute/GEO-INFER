@@ -148,7 +148,7 @@ the new import-parity and classifier gates), `validate_test_contracts
 `validate_documentation --strict` (76 pages), `validate_skills
 --check-xrefs --warnings-fatal` (46/46).
 
-## [0.2.0] - 2026-09-10
+### [0.2.0] detail — deep-horizon log 2026-09-08 → 2026-09-10 (pre-tag work folded under the 2026-09-11 campaign entry)
 
 ### Deep horizon 2026-09-08 - Green-Ampt infiltration (WATER-01)
 
