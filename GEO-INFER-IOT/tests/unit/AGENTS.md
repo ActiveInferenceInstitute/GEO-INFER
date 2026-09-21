@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `test_calibration_topology_sensor_api.py`
 - `test_data_ingestion.py`
 - `test_fixwave_regressions.py`
 - `test_ingest_error_and_latency.py`
@@ -31,6 +32,7 @@
 - `test_radiation_monitoring.py`
 - `test_registry.py`
 - `test_sensor_data.py`
+- `test_streaming_forward.py`
 - `test_visualization.py`
 
 ## Validation

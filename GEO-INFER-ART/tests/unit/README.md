@@ -12,6 +12,7 @@ Unit workspace within `GEO-INFER-ART`.
 - `test_place_art.py`
 - `test_procedural_art.py`
 - `test_style_transfer.py`
+- `test_validators.py`
 
 ## Public Interface
 

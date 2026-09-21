@@ -29,6 +29,7 @@
 - `test_hr_models.py`
 - `test_methods.py`
 - `test_pep_engine.py`
+- `test_performance_reviews_api.py`
 - `test_talent.py`
 - `test_talent_models.py`
 
