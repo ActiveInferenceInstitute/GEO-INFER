@@ -8,8 +8,6 @@ network is loaded, the dependent endpoints must fail with a 400 whose body
 names the missing precondition instead of silently computing nothing.
 """
 
-import pickle
-
 import networkx as nx
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -20,14 +18,14 @@ from geo_infer_log.api.transport import (
     router,
 )
 from geo_infer_log.core.transport import TransportationNetworkAnalyzer, TrafficSimulator
-
+from geo_infer_log.core.routing import save_gpickle
 
 def _write_network(tmp_path, nodes=("a", "b", "c")):
     graph = nx.DiGraph()
     graph.add_edge(nodes[0], nodes[1], distance=2.0, free_flow_speed=60)
     graph.add_edge(nodes[1], nodes[2], distance=3.0, free_flow_speed=40)
     path = tmp_path / "network.gpickle"
-    path.write_bytes(pickle.dumps(graph))
+    save_gpickle(str(path), graph)
     return str(path)
 
 

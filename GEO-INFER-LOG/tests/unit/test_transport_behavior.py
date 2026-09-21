@@ -2,12 +2,11 @@
 
 from datetime import datetime
 
-import pickle
-
 import networkx as nx
 import pandas as pd
 import pytest
 
+from geo_infer_log.core.routing import save_gpickle
 from geo_infer_log.core.transport import (
     EmissionsCalculator,
     MultiModalPlanner,
@@ -121,8 +120,7 @@ class TestMultiModalPlanner:
 
     def test_load_network_from_pickle(self, tmp_path) -> None:
         path = tmp_path / "road.pkl"
-        with open(path, "wb") as f:
-            pickle.dump(road_graph(), f)
+        save_gpickle(str(path), road_graph())
         planner = MultiModalPlanner()
         planner.load_network("road", str(path))
         assert set(planner.networks) == {"road"}
@@ -147,8 +145,7 @@ class TestTransportationNetworkAnalyzer:
 
     def test_calculate_network_metrics(self, tmp_path) -> None:
         path = tmp_path / "net.pkl"
-        with open(path, "wb") as f:
-            pickle.dump(road_graph(), f)
+        save_gpickle(str(path), road_graph())
         analyzer = TransportationNetworkAnalyzer()
         analyzer.load_network(str(path))
         metrics = analyzer.calculate_network_metrics()
@@ -159,8 +156,7 @@ class TestTransportationNetworkAnalyzer:
 
     def test_identify_critical_links(self, tmp_path) -> None:
         path = tmp_path / "net.pkl"
-        with open(path, "wb") as f:
-            pickle.dump(road_graph(), f)
+        save_gpickle(str(path), road_graph())
         analyzer = TransportationNetworkAnalyzer()
         analyzer.load_network(str(path))
         links = analyzer.identify_critical_links(top_n=1)
@@ -176,8 +172,7 @@ class TestTransportationNetworkAnalyzer:
         pd.DataFrame(
             {"origin": [1, 2], "destination": [2, 3], "flow": [10, 20]}
         ).to_csv(path, index=False)
-        with open(tmp_path / "net.pkl", "wb") as f:
-            pickle.dump(road_graph(), f)
+        save_gpickle(str(tmp_path / "net.pkl"), road_graph())
         analyzer = TransportationNetworkAnalyzer()
         analyzer.load_network(str(tmp_path / "net.pkl"))
         analyzer.load_flow_data(str(path))
@@ -192,8 +187,7 @@ class TestTransportationNetworkAnalyzer:
             analyzer.analyze_flow()
 
     def test_analyze_flow_falls_back_to_max_flow(self, tmp_path) -> None:
-        with open(tmp_path / "net.pkl", "wb") as f:
-            pickle.dump(road_graph(), f)
+        save_gpickle(str(tmp_path / "net.pkl"), road_graph())
         analyzer = TransportationNetworkAnalyzer()
         analyzer.load_network(str(tmp_path / "net.pkl"))
         analyzer.flow_data = pd.DataFrame({"x": [1]})  # no usable flow columns
@@ -202,8 +196,7 @@ class TestTransportationNetworkAnalyzer:
         assert result["congestion_points"] == []
 
     def test_analyze_flow_flags_congestion(self, tmp_path) -> None:
-        with open(tmp_path / "net.pkl", "wb") as f:
-            pickle.dump(road_graph(), f)
+        save_gpickle(str(tmp_path / "net.pkl"), road_graph())
         analyzer = TransportationNetworkAnalyzer()
         analyzer.load_network(str(tmp_path / "net.pkl"))
         analyzer.network[1][2]["capacity"] = 10.0
