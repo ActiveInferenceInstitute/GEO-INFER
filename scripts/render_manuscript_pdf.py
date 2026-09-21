@@ -271,7 +271,13 @@ def _config_list(config: str, key: str) -> list[str]:
 
 
 def _metadata_file() -> Path:
-    """Write the Pandoc metadata block from the resolved config.yaml."""
+    """Write the Pandoc metadata block from the resolved config.yaml.
+
+    The document class and base font size come from ``metadata.documentclass``
+    and ``metadata.fontsize`` in ``manuscript/config.yaml`` — the same values
+    the template-lane renderer consumes — so the config's declared layout is
+    honored by the PDF lane instead of silently overridden here.
+    """
     config = (RESOLVED_DIR / "config.yaml").read_text(encoding="utf-8")
     title = _config_scalar(config, "title")
     subtitle = _config_scalar(config, "subtitle")
@@ -279,6 +285,8 @@ def _metadata_file() -> Path:
     author = _config_scalar(config, "name")
     affiliation = _config_scalar(config, "affiliation")
     keywords = _config_list(config, "keywords")
+    documentclass = _config_scalar(config, "documentclass")
+    fontsize = _config_scalar(config, "fontsize")
     lines = [
         f"title: {_yaml_string(title)}",
         f"subtitle: {_yaml_string(subtitle)}",
@@ -286,7 +294,8 @@ def _metadata_file() -> Path:
         f"date: {_yaml_string(date)}",
         "lang: en",
         "papersize: letter",
-        "fontsize: 12pt",
+        f"documentclass: {_yaml_string(documentclass)}",
+        f"fontsize: {_yaml_string(fontsize)}",
         "indent: true",
         f"keywords: [{', '.join(_yaml_string(word) for word in keywords)}]",
     ]

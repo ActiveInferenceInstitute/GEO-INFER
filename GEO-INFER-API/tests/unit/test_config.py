@@ -2,12 +2,20 @@
 
 
 class TestSettings:
-    def test_get_settings_returns_object(self):
+    def test_app_version_tracks_distribution(self):
+        """app_version matches the installed distribution, so it survives any release bump."""
+        from importlib.metadata import PackageNotFoundError, version
+
         from geo_infer_api.core.config import get_settings
 
         settings = get_settings()
         assert settings.app_name == "GEO-INFER-API"
-        assert settings.app_version == "0.2.0"
+        try:
+            assert settings.app_version == version("geo-infer-api")
+        except PackageNotFoundError:
+            # Source checkout without an installed distribution: a nonempty
+            # static fallback is the documented behavior.
+            assert settings.app_version
         assert settings.api_prefix == "/api/v1"
 
     def test_cors_origins_default(self):

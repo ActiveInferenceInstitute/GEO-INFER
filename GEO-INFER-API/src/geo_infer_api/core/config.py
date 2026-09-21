@@ -9,6 +9,8 @@ from typing import List, Optional, Union
 
 from pydantic import field_validator
 
+from importlib.metadata import PackageNotFoundError, version as _distribution_version
+
 try:
     from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -17,6 +19,14 @@ except ImportError:
     from pydantic import BaseSettings  # type: ignore[no-redef]
 
     _SETTINGS_CONFIG = None  # type: ignore[assignment]
+
+
+def _installed_version(fallback: str) -> str:
+    """The installed ``geo-infer-api`` distribution version, else ``fallback``."""
+    try:
+        return _distribution_version("geo-infer-api")
+    except PackageNotFoundError:
+        return fallback
 
 
 class Settings(BaseSettings):
@@ -40,7 +50,10 @@ class Settings(BaseSettings):
 
     # Application metadata
     app_name: str = "GEO-INFER-API"
-    app_version: str = "0.2.0"
+    # Derived from the installed distribution so the version surface tracks
+    # releases without a code edit; the literal is only the source-checkout
+    # fallback when the package was never installed.
+    app_version: str = _installed_version("0.3.0")
 
     # API settings
     api_prefix: str = "/api/v1"

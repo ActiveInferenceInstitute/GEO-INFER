@@ -56,7 +56,7 @@ uv run python GEO-INFER-TEST/validate_repo_contracts.py
 uv run python GEO-INFER-TEST/validate_active_inference_contract.py
 ```
 
-Pytest markers: `unit`, `integration`, `system`, `performance`, `geospatial`, `api`, `slow`, `fast`.
+Pytest markers (declared in root `pyproject.toml` `[tool.pytest.ini_options]`, the source of truth): `slow`, `integration`, `unit`, `performance`, `system`, `core`, `geospatial`, `api`, `reporting`, `fast`, `model`, `reproducibility`, `artifact`, `spatial`.
 
 ## Code Quality
 
