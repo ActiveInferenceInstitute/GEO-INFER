@@ -272,12 +272,18 @@ class ActiveInferenceAnalyzer:
         if beliefs_array.dtype == object:
             # Iterate manually and handle potential nested arrays safely
             entropy_values: list[float] = []
-            for b in beliefs_array:
+            for b_idx, b in enumerate(beliefs_array):
                 try:
                     # If b is an array-like object
                     val = np.asarray(b, dtype=float)
                     entropy_values.append(float(-np.sum(val * np.log(val + 1e-8))))
-                except Exception:
+                except (TypeError, ValueError):
+                    logger.warning(
+                        "Belief entropy at index %d could not be computed; "
+                        "appending 0.0 sentinel",
+                        b_idx,
+                        exc_info=True,
+                    )
                     entropy_values.append(0.0)
             entropies = np.array(entropy_values)
         else:
@@ -299,7 +305,7 @@ class ActiveInferenceAnalyzer:
         # Dominant beliefs
         if beliefs_array.dtype == object:
             dominant_values: list[int] = []
-            for b in beliefs_array:
+            for b_idx, b in enumerate(beliefs_array):
                 try:
                     # Attempt to find max index of expected flat array or first factor
                     val = np.asarray(b)
@@ -310,6 +316,12 @@ class ActiveInferenceAnalyzer:
                     else:
                         dominant_values.append(int(np.argmax(val)))
                 except (TypeError, ValueError):
+                    logger.warning(
+                        "Dominant belief at index %d could not be computed; "
+                        "appending 0 sentinel",
+                        b_idx,
+                        exc_info=True,
+                    )
                     dominant_values.append(0)
             dominant_states = np.array(dominant_values)
         else:
@@ -318,11 +330,17 @@ class ActiveInferenceAnalyzer:
 
         if belief_changes.dtype == object:
             norm_values: list[float] = []
-            for c in belief_changes:
+            for c_idx, c in enumerate(belief_changes):
                 try:
                     val = np.asarray(c, dtype=float)
                     norm_values.append(float(np.linalg.norm(val)))
                 except (TypeError, ValueError):
+                    logger.warning(
+                        "Belief-change norm at index %d could not be computed; "
+                        "appending 0.0 sentinel",
+                        c_idx,
+                        exc_info=True,
+                    )
                     norm_values.append(0.0)
             norms = np.array(norm_values)
         else:

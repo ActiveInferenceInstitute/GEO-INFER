@@ -1,5 +1,5 @@
 """
-API client for GEO-INFER-ACT.
+API client for an externally deployed GEO-INFER-ACT model service.
 """
 
 from typing import Any, Dict, cast
@@ -8,7 +8,15 @@ import requests
 
 
 class Client:
-    """REST API client for GEO-INFER-ACT."""
+    """REST client for an **external** ACT ``/models`` service deployment.
+
+    This module ships no HTTP server: no FastAPI app or router exists in
+    GEO-INFER-ACT, and the endpoint map in
+    :mod:`geo_infer_act.api.endpoints` describes the same external surface.
+    Point ``base_url`` at the deployed service (e.g. a separate FastAPI app
+    exposing ``POST /models`` and ``GET /models/{model_id}``); the client
+    speaks HTTP to it and never constructs one locally.
+    """
 
     def __init__(
         self, base_url: str = "http://localhost:8000", timeout: float = 10.0

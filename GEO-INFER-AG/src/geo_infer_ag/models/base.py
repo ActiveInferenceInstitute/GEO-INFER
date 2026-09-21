@@ -5,7 +5,36 @@ Base model class for agricultural analysis and prediction.
 import abc
 import pickle
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Union
+
+from geo_infer_ag.models.secure_serialization import (
+    CONTEXT_MODEL_SAVE,
+    sign_payload,
+    verify_payload,
+)
+
+
+def write_signed_payload(path: Union[str, Path], payload: bytes) -> None:
+    """Write serialized model bytes as an authenticated GISP1 envelope.
+
+    Shared save-side helper for ``AgricultureModel`` and the joblib-backed
+    subclasses; envelopes are signed under the ``ag.model.save`` context
+    (see :mod:`geo_infer_ag.models.secure_serialization`).
+    """
+    output_path = Path(path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("wb") as file_obj:
+        file_obj.write(sign_payload(payload, context=CONTEXT_MODEL_SAVE))
+
+
+def read_verified_payload(path: Union[str, Path]) -> bytes:
+    """Read a model file, verifying its envelope before deserialization.
+
+    Trust boundary: unsigned, truncated, cross-context, or tampered files
+    raise before the bytes reach ``pickle.loads`` or ``joblib.load``.
+    """
+    envelope = Path(path).read_bytes()
+    return verify_payload(envelope, context=CONTEXT_MODEL_SAVE)
 
 
 class AgricultureModel(abc.ABC):
@@ -102,12 +131,11 @@ class AgricultureModel(abc.ABC):
 
         Notes:
             The default implementation serializes the model instance with
-            pickle. Subclasses may override this for framework-specific formats.
+            pickle and wraps it in an authenticated GISP1 envelope, which
+            ``load`` verifies before deserializing. Subclasses may override
+            this for framework-specific formats.
         """
-        output_path = Path(path)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with output_path.open("wb") as file_obj:
-            pickle.dump(self, file_obj)
+        write_signed_payload(path, pickle.dumps(self))
 
     @classmethod
     def load(cls, path: str) -> "AgricultureModel":
@@ -120,12 +148,16 @@ class AgricultureModel(abc.ABC):
         Returns:
             Loaded model instance
 
+        Raises:
+            geo_infer_ag.models.secure_serialization.PayloadSecurityError:
+                If the file is not a valid GISP1 envelope (unsigned,
+                tampered, or signed under a different key/context).
+
         Notes:
-            The default implementation loads a pickle created by ``save``.
+            The default implementation verifies the GISP1 envelope created
+            by ``save`` before unpickling.
         """
-        input_path = Path(path)
-        with input_path.open("rb") as file_obj:
-            model = pickle.load(file_obj)
+        model = pickle.loads(read_verified_payload(path))
         if not isinstance(model, cls):
             raise TypeError(
                 f"Loaded object is {type(model).__name__}, expected {cls.__name__}"

@@ -747,7 +747,11 @@ def assess_complexity(data: np.ndarray) -> Dict[str, float]:
         hist = hist + 1  # Add pseudocount
         probs = hist / np.sum(hist)
         entropy_complexity = entropy(probs) / np.log(len(probs))
-    except Exception:
+    except (ValueError, TypeError):
+        logger.debug(
+            "entropy complexity fallback: entropy(probs) failed",
+            exc_info=True,
+        )
         entropy_complexity = 0.0
 
     # 2. Variation complexity
@@ -759,17 +763,23 @@ def assess_complexity(data: np.ndarray) -> Dict[str, float]:
         try:
             autocorr = np.corrcoef(data[:-1], data[1:])[0, 1]
             autocorr_complexity = 1.0 - abs(autocorr) if not np.isnan(autocorr) else 0.5
-        except Exception:
+        except (ValueError, TypeError):
+            logger.debug(
+                "autocorrelation complexity fallback: corrcoef failed",
+                exc_info=True,
+            )
             autocorr_complexity = 0.5
     else:
         autocorr_complexity = 0.0
-
-    # 4. Trend complexity
     if len(data) > 2:
         try:
             trend_coef = np.polyfit(range(len(data)), data, 1)[0]
             trend_complexity = min(1.0, abs(trend_coef) / (np.std(data) + 1e-8))
-        except Exception:
+        except (ValueError, TypeError):
+            logger.debug(
+                "trend complexity fallback: polyfit failed",
+                exc_info=True,
+            )
             trend_complexity = 0.0
     else:
         trend_complexity = 0.0
@@ -834,9 +844,12 @@ def compute_prediction_accuracy(
         correlation = np.corrcoef(predictions, targets)[0, 1]
         if np.isnan(correlation):
             correlation = 0.0
-    except Exception:
+    except (ValueError, TypeError):
+        logger.debug(
+            "correlation fallback: corrcoef failed",
+            exc_info=True,
+        )
         correlation = 0.0
-
     return {
         "mse": float(mse),
         "mae": float(mae),

@@ -2,13 +2,18 @@
 Soil health modeling and assessment functionality.
 """
 
+import io
 from typing import Dict, List, Optional, Any
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from datetime import datetime
 
-from geo_infer_ag.models.base import AgricultureModel
+from geo_infer_ag.models.base import (
+    AgricultureModel,
+    read_verified_payload,
+    write_signed_payload,
+)
 
 
 class SoilHealthModel(AgricultureModel):
@@ -612,8 +617,10 @@ class SoilHealthModel(AgricultureModel):
         if self.model_type == "machine_learning" and self.fitted:
             model_data["predictors"] = self.predictors
 
-        # Save to disk
-        joblib.dump(model_data, path)
+        # Serialize to bytes and write an authenticated GISP1 envelope
+        buffer = io.BytesIO()
+        joblib.dump(model_data, buffer)
+        write_signed_payload(path, buffer.getvalue())
 
     @classmethod
     def load(cls, path: str) -> "SoilHealthModel":
@@ -628,8 +635,9 @@ class SoilHealthModel(AgricultureModel):
         """
         import joblib
 
-        # Load saved model data
-        model_data = joblib.load(path)
+        # Verify the GISP1 envelope, then load the model data
+        verified = read_verified_payload(path)
+        model_data = joblib.load(io.BytesIO(verified))
 
         # Create a new instance
         model = cls(

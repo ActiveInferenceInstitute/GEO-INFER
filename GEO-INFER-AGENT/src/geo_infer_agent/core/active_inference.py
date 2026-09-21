@@ -660,8 +660,13 @@ class ActiveInferenceAgent:
 
         Args:
             filepath: Path to load from
+
+        Raises:
+            RuntimeError: If the checkpoint is not a plain
+                ``state_dict`` (``weights_only=True`` refuses pickled
+                arbitrary objects to prevent code execution on load).
         """
-        self.model.load_state_dict(torch.load(filepath))
+        self.model.load_state_dict(torch.load(filepath, weights_only=True))
         logger.info(f"Model loaded from {filepath}")
 
     def clear_experience(self) -> None:
