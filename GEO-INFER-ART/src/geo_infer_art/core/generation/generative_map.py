@@ -14,7 +14,6 @@ from matplotlib.figure import Figure
 from PIL import Image
 
 from geo_infer_art.core.aesthetics import ColorPalette
-from geo_infer_art.utils.animation import save_animation_with_fallback
 
 logger = logging.getLogger(__name__)
 
@@ -632,7 +631,7 @@ class GenerativeMap:
         self,
         output_path: str,
         parameter_sweep: str,
-        values: List[float],
+        values: List[Union[float, str]],
         duration: float = 5.0,
         fps: int = 24,
     ) -> str:
@@ -641,50 +640,81 @@ class GenerativeMap:
 
         Args:
             output_path: Path for the output animation file
-            parameter_sweep: Parameter to vary ("abstraction_level", "style", "resolution")
+            parameter_sweep: Parameter to vary ("abstraction_level" or "style")
             values: List of values to sweep through
-            duration: Duration of the animation in seconds
-            fps: Frames per second
+            duration: Target total duration of the animation in seconds,
+                split evenly across the swept values
+            fps: Minimum frame rate; each value is displayed for at least
+                1000/fps milliseconds
 
         Returns:
             Path to the created animation file
 
         Raises:
-            ValueError: If the parameter is not supported for animation
+            ValueError: If the parameter is unsupported, a sweep value or
+                animation setting is invalid
         """
-        import matplotlib.animation as animation
-
         if self.data is None:
             raise ValueError("No data loaded. Load data first.")
 
         if parameter_sweep not in ["abstraction_level", "style"]:
             raise ValueError(f"Unsupported parameter for animation: {parameter_sweep}")
+        if not values:
+            raise ValueError("values must contain at least one entry")
+        if not np.isfinite(duration) or duration <= 0:
+            raise ValueError("duration must be finite and positive")
+        if not isinstance(fps, int) or fps <= 0:
+            raise ValueError("fps must be a positive integer")
 
         # Create frames for each parameter value
         frames: List[Any] = []
         for value in values:
             if parameter_sweep == "abstraction_level":
-                self._generate_contour_art(abstraction_level=value)
+                abstraction = float(value)
+                if not 0.0 <= abstraction <= 1.0:
+                    raise ValueError("Abstraction level must be between 0 and 1.")
+                self._generate_contour_art(abstraction_level=abstraction)
             elif parameter_sweep == "style":
-                # For style animation, we'd need to regenerate with different styles
-                # This is a simplified version
-                self._generate_contour_art(abstraction_level=0.5)
+                style_generators = {
+                    "contour": self._generate_contour_art,
+                    "flow": self._generate_flow_art,
+                    "particles": self._generate_particle_art,
+                    "contour_flow": self._generate_contour_flow_art,
+                }
+                style = str(value)
+                if style not in style_generators:
+                    raise ValueError(
+                        f"Unsupported style for animation: {style}. Supported styles: "
+                        f"{', '.join(style_generators)}"
+                    )
+                abstraction = float(self.metadata.get("abstraction_level", 0.5))
+                style_generators[style](abstraction)
 
-            frames.append(self._figure)
+            frames.append(self.image)
 
-        # Create animation
-        def animate(frame_num: int) -> Any:
-            return frames[frame_num % len(frames)]
-
-        # Calculate number of frames
-        num_frames = int(duration * fps)
-
-        # Create the animation
-        anim = animation.FuncAnimation(
-            frames[0], animate, frames=num_frames, interval=1000 / fps, blit=False
+        # Each generator call already rendered a PIL image into ``self.image``.
+        # Save the frames directly with Pillow: matplotlib's FuncAnimation
+        # re-renders only its bound figure every frame, so swept frames would
+        # all show the first generated figure.
+        if output_path.lower().endswith(".gif"):
+            target = output_path
+        else:
+            target = output_path.rsplit(".", 1)[0] + ".gif"
+            logger.warning(
+                "ffmpeg export unavailable for create_animation; saving GIF at %s",
+                target,
+            )
+        # ``fps`` sets a floor on the per-frame display time; ``duration``
+        # splits the remaining budget evenly across the swept values.
+        frame_ms = max(int(1000 / fps), int(duration * 1000 / len(frames)))
+        frames[0].save(
+            target,
+            save_all=True,
+            append_images=frames[1:],
+            duration=frame_ms,
+            loop=0,
         )
-
-        return save_animation_with_fallback(anim, output_path, fps)
+        return target
 
     def apply_texture(
         self, texture_type: str = "noise", **kwargs: Any

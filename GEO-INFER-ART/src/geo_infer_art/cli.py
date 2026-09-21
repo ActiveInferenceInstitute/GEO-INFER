@@ -3,7 +3,7 @@
 Command-line interface for GEO-INFER-ART.
 """
 
-from typing import Any
+from typing import Any, List, Union
 import argparse
 import os
 import sys
@@ -27,6 +27,18 @@ def ensure_directory(directory: str) -> None:
     """Create output directory if it doesn't exist."""
     if directory and not os.path.exists(directory):
         os.makedirs(directory)
+
+
+def _generative_map_from_geo_art(geo_art: GeoArt) -> GenerativeMap:
+    """Build a GenerativeMap for parameter sweeps from loaded GeoArt data."""
+    if isinstance(geo_art.data, np.ndarray):
+        raster = np.asarray(geo_art.data, dtype=float)
+        if raster.ndim == 3:
+            # Rasterio arrays are band-first (bands, height, width)
+            raster = raster.mean(axis=0)
+        return GenerativeMap(data=raster)
+    bounds = tuple(geo_art.data.total_bounds)
+    return GenerativeMap.from_elevation(region=bounds)
 
 
 def process_geo_art(args: argparse.Namespace) -> int:
@@ -362,14 +374,29 @@ def process_animation(args: argparse.Namespace) -> int:
             return 1
 
         print(f"Creating parameter sweep animation for {args.parameter}")
-        # This would need to be implemented in GeoArt
-        # For now, create a simple style cycle
-        output_path = geo_art.create_animation(
-            output_path=args.output,
-            style_sequence=["default", "watercolor", "minimal"],
-            duration=args.duration,
-            fps=args.fps,
-        )
+
+        try:
+            sweep_values: List[Union[float, str]] = (
+                [float(v) for v in args.values]
+                if args.parameter == "abstraction_level"
+                else [str(v) for v in args.values]
+            )
+        except ValueError:
+            print("Error: --values must be numeric for abstraction_level sweeps")
+            return 1
+
+        gen_map = _generative_map_from_geo_art(geo_art)
+        try:
+            output_path = gen_map.create_animation(
+                output_path=args.output,
+                parameter_sweep=args.parameter,
+                values=sweep_values,
+                duration=args.duration,
+                fps=args.fps,
+            )
+        except ValueError as e:
+            print(f"Error: {e}")
+            return 1
 
     print(f"Animation saved to {output_path}")
     return 0
@@ -783,7 +810,10 @@ def main() -> int:
         "--parameter", help="Parameter for parameter_sweep animation"
     )
     animation_parser.add_argument(
-        "--values", nargs="+", type=float, help="Values for parameter sweep"
+        "--values",
+        nargs="+",
+        help="Values for parameter sweep (numbers for abstraction_level, "
+        "style names for style)",
     )
     animation_parser.add_argument(
         "--duration", type=float, default=5.0, help="Animation duration"

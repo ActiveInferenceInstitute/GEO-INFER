@@ -505,8 +505,8 @@ def parallel_map(
 
     parameter_sets = [{"item": item} for item in items]
 
-    def wrapper(params: Dict) -> Any:
-        return func(params["item"])
+    def wrapper(item: Any) -> Any:
+        return func(item)
 
     return optimizer.parallel_execution(wrapper, parameter_sets, max_workers)
 
