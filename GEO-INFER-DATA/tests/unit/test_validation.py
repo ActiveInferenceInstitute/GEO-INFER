@@ -86,7 +86,7 @@ class TestGeospatialValidator:
     @pytest.mark.asyncio
     async def test_validate_complete_data(self, validator, valid_geodataframe):
         """Test validation of complete, valid data."""
-        result = await validator.validate_data(valid_geodataframe)
+        result = await validator.build_quality_report(valid_geodataframe)
 
         assert result.overall_score >= 0.8
         assert result.status == QualityStatus.PASS
@@ -102,7 +102,7 @@ class TestGeospatialValidator:
             }
         )
 
-        result = await validator.validate_data(incomplete_data)
+        result = await validator.build_quality_report(incomplete_data)
 
         assert result.overall_score < 0.8
         assert result.status in [QualityStatus.WARNING, QualityStatus.FAIL]
@@ -111,7 +111,7 @@ class TestGeospatialValidator:
     @pytest.mark.asyncio
     async def test_validate_invalid_coordinates(self, validator, invalid_geodataframe):
         """Test validation of invalid coordinates."""
-        result = await validator.validate_data(invalid_geodataframe)
+        result = await validator.build_quality_report(invalid_geodataframe)
 
         assert result.overall_score < 0.8
         assert result.status == QualityStatus.FAIL
