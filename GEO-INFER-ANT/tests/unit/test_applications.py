@@ -272,6 +272,64 @@ class TestEnvironmentalMonitoringSwarm:
         assert "spatial_uncertainty" in uncertainty
         assert 0 <= uncertainty["overall_uncertainty"] <= 1
 
+    def test_spatial_uncertainty_matches_pairwise_bruteforce(self):
+        """Vectorized nearest-neighbor uncertainty must equal the legacy loop."""
+        swarm = EnvironmentalMonitoringSwarm()
+
+        rng = np.random.default_rng(7)
+        locations = rng.uniform(0.0, 0.05, size=(60, 2))
+        locations[10] = locations[9]
+
+        result = swarm._calculate_spatial_uncertainty(locations)
+
+        distances = []
+        for i in range(len(locations)):
+            others = np.delete(locations, i, axis=0)
+            distances.append(
+                min(np.linalg.norm(locations[i] - other) for other in others)
+            )
+        bruteforce = float(min(1.0, np.mean(distances) / 0.01))
+
+        assert result == bruteforce
+
+    def test_covered_area_subtracts_pairwise_overlaps_exactly(self):
+        """Overlap subtraction must match the legacy per-pair computation."""
+        bounds = {"min_lat": 0.0, "max_lat": 1.0, "min_lng": 0.0, "max_lng": 1.0}
+        swarm = EnvironmentalMonitoringSwarm(
+            swarm_size=40, spatial_coverage=bounds, sensor_range=0.05, random_seed=3
+        )
+        radius = swarm.sensor_range
+
+        rng = np.random.default_rng(3)
+        positions = rng.uniform(0.05, 0.55, size=(16, 2))
+        positions[5] = positions[4]  # co-located pair
+        positions[12] = positions[11] + np.array([0.01, 0.0])  # near pair
+
+        result = swarm._estimate_covered_area(positions)
+
+        covered_area = len(positions) * np.pi * radius**2
+        for i in range(len(positions)):
+            for j in range(i + 1, len(positions)):
+                distance = np.linalg.norm(positions[i] - positions[j])
+                if distance >= 2.0 * radius:
+                    continue
+                if distance == 0.0:
+                    overlap = np.pi * radius**2
+                else:
+                    ratio = np.clip(distance / (2.0 * radius), -1.0, 1.0)
+                    overlap = (
+                        2.0 * radius**2 * np.arccos(ratio)
+                        - 0.5
+                        * distance
+                        * np.sqrt(
+                            float(max(0.0, float(4.0 * radius**2 - distance**2)))
+                        )
+                    )
+                covered_area -= overlap
+        bruteforce = float(np.clip(covered_area, 0.0, swarm._calculate_total_area()))
+
+        assert result == bruteforce
+
     def test_monitoring_recommendations(self):
         """Test generation of monitoring recommendations."""
         swarm = EnvironmentalMonitoringSwarm()

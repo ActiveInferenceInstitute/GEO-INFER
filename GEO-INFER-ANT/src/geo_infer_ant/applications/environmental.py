@@ -775,20 +775,18 @@ class EnvironmentalMonitoringSwarm:
         # Subtract pairwise overlap for equal-radius sensor footprints. This
         # remains positive for sparse deployments where a raster would miss
         # every small footprint, while accounting for co-located sensors.
-        for first in range(len(inside)):
-            for second in range(first + 1, len(inside)):
-                distance = np.linalg.norm(inside[first] - inside[second])
-                if distance >= 2.0 * radius:
-                    continue
-                if distance == 0.0:
-                    overlap = np.pi * radius**2
-                else:
-                    ratio = np.clip(distance / (2.0 * radius), -1.0, 1.0)
-                    overlap = 2.0 * radius**2 * np.arccos(
-                        ratio
-                    ) - 0.5 * distance * np.sqrt(
-                        float(max(0.0, float(4.0 * radius**2 - distance**2)))
-                    )
+        pair_dists = np.linalg.norm(inside[:, None, :] - inside[None, :, :], axis=-1)
+        first_idx, second_idx = np.triu_indices(inside.shape[0], k=1)
+        distances = pair_dists[first_idx, second_idx]
+        close = distances < 2.0 * radius
+        if close.any():
+            close_dists = distances[close]
+            ratio = np.clip(close_dists / (2.0 * radius), -1.0, 1.0)
+            overlaps = 2.0 * radius**2 * np.arccos(ratio) - 0.5 * close_dists * np.sqrt(
+                np.maximum(0.0, 4.0 * radius**2 - close_dists**2)
+            )
+            overlaps[close_dists == 0.0] = np.pi * radius**2
+            for overlap in overlaps:
                 covered_area -= overlap
         return float(np.clip(covered_area, 0.0, self._calculate_total_area()))
 
@@ -1390,15 +1388,11 @@ class EnvironmentalMonitoringSwarm:
             return 1.0
 
         # Calculate average nearest neighbor distance
-        distances = []
-        for i in range(len(locations)):
-            other_locations = np.delete(locations, i, axis=0)
-            nearest_distance = np.min(
-                [np.linalg.norm(locations[i] - other) for other in other_locations]
-            )
-            distances.append(nearest_distance)
-
-        avg_distance = np.mean(distances)
+        pair_dists = np.linalg.norm(
+            locations[:, None, :] - locations[None, :, :], axis=-1
+        )
+        np.fill_diagonal(pair_dists, np.inf)
+        avg_distance = np.mean(pair_dists.min(axis=1))
 
         # Uncertainty increases with distance (sparser coverage)
         # Normalize to 0-1 scale (assuming 0.01 degrees ≈ 1km)

@@ -137,6 +137,45 @@ class TestSwarmPatternAnalyzer:
         assert "flocking_measures" in flocking_result
         assert "flocking_detected" in flocking_result
 
+    def test_flocking_separation_matches_pairwise_bruteforce(self):
+        """Vectorized separation must equal the legacy per-pair computation."""
+        analyzer = SwarmPatternAnalyzer()
+
+        rng = np.random.default_rng(7)
+        trajectories = rng.normal(0.0, 3.0, size=(12, 5, 2))
+
+        analysis = analyzer.analyze_spatial_patterns(
+            agent_trajectories=trajectories, pattern_types=["flocking"]
+        )
+        measures = analysis["patterns_detected"]["flocking"]["flocking_measures"]
+
+        bruteforce = []
+        for step in range(trajectories.shape[1]):
+            positions = trajectories[:, step, :]
+            min_distances = [
+                min(
+                    np.linalg.norm(positions[i] - positions[j])
+                    for j in range(len(positions))
+                    if j != i
+                )
+                for i in range(len(positions))
+            ]
+            bruteforce.append(np.mean(min_distances))
+
+        assert measures["separation"] == float(np.mean(bruteforce))
+        assert measures["separation"] > 0.0
+
+    def test_flocking_analysis_single_agent_keeps_failure_contract(self):
+        """Single-agent trajectories must keep the legacy failure contract."""
+        analyzer = SwarmPatternAnalyzer()
+
+        analysis = analyzer.analyze_spatial_patterns(
+            agent_trajectories=np.zeros((1, 4, 2)), pattern_types=["flocking"]
+        )
+
+        flocking_result = analysis["patterns_detected"]["flocking"]
+        assert flocking_result.get("status") == "flocking_analysis_failed"
+
     def test_migration_pattern_detection(self):
         """Test migration pattern detection."""
         analyzer = SwarmPatternAnalyzer()
