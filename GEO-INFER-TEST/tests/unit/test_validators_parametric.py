@@ -196,6 +196,21 @@ class TestSpatialParametric:
         assert "spatial_validation" in result
         assert "total_records" in result
 
+    def test_duplicate_coordinate_columns_record_unknown_status(self):
+        """M9-05: a coordinate coercion failure is recorded, not swallowed.
+
+        Duplicated ``latitude`` columns make ``df["latitude"]`` a DataFrame,
+        which ``pd.to_numeric`` rejects with TypeError — exactly the silent
+        ``except ... pass`` path this contract forbids.
+        """
+        df = pd.DataFrame(
+            [[0.0, 5.0, 5.0]], columns=["longitude", "latitude", "latitude"]
+        )
+        result = SpatialValidator().validate(df)
+        coords = result["spatial_validation"]["coordinate_validity"]
+        assert coords["status"] == "unknown"
+        assert "coordinate numeric coercion failed" in coords["reason"]
+
 
 # ---- IoTValidator scenarios ------------------------------------------------
 _IOT_SCENARIOS = []

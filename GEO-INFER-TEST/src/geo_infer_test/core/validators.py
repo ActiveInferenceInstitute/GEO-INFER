@@ -322,8 +322,15 @@ class SpatialValidator(BaseValidator):
         try:
             df["latitude"] = pd.to_numeric(df["latitude"], errors="coerce")
             df["longitude"] = pd.to_numeric(df["longitude"], errors="coerce")
-        except (TypeError, ValueError):
-            pass  # Coercion failed for this dtype; continue with what we have
+        except (TypeError, ValueError) as exc:
+            # M9-05: a coercion failure must be observable, not silently
+            # swallowed back into stale non-numeric columns. Record the
+            # unknown status with its reason and stop before interpreting
+            # uncoerced values (mirrors _analyze_spatial_distribution).
+            return {
+                "status": "unknown",
+                "reason": f"coordinate numeric coercion failed: {exc}",
+            }
 
         lat_valid = (
             (df["latitude"] >= -90) & (df["latitude"] <= 90) & df["latitude"].notna()

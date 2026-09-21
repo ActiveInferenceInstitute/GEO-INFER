@@ -1,0 +1,28 @@
+name: Repo-wide format check
+
+# GS19-03: the PR-diff ruff format gate only measures changed files, so a
+# file that stops being touched can drift out of the formatter's contract
+# indefinitely. This weekly schedule measures the whole tree with the same
+# ruff version constraint as ci.yml; it is advisory by cadence (a red run
+# blocks nothing) but must be remediated before the next merge window.
+
+on:
+  schedule:
+    # Mondays 04:17 UTC — off the hour to avoid runner contention.
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  format-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Repo-wide ruff format check
+        run: uv run --with 'ruff>=0.15.6,<0.16' ruff format --check .

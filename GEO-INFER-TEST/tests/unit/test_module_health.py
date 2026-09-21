@@ -156,6 +156,77 @@ class TestDependencyChecker:
         assert result["status"] == "unknown"
         assert "parse failed" in result["reason"]
 
+    def test_extract_dependencies_strips_extras(self, tmp_path):
+        """GS19-87: extras markers are stripped, not probed as module names."""
+        pyproject = tmp_path / "pyproject.toml"
+        pyproject.write_text(
+            """
+        dependencies = [
+            "coverage[toml]>=7.6",
+            "dask[dataframe]>=2024.2",
+            "uvicorn[standard]>=0.30",
+        ]
+        """
+        )
+
+        deps = DependencyChecker._extract_dependencies(pyproject)
+        assert deps == ["coverage", "dask", "uvicorn"]
+
+    @pytest.mark.parametrize(
+        ("distribution", "import_root"),
+        [
+            ("pyyaml", "yaml"),
+            ("pyjwt", "jwt"),
+            ("scikit-learn", "sklearn"),
+            ("pillow", "PIL"),
+            ("psycopg2-binary", "psycopg2"),
+            ("GitPython", "git"),
+            ("inferactively-pymdp", "pymdp"),
+            ("z3-solver", "z3"),
+            ("python-multipart", "multipart"),
+            ("bayeux-ml", "bayeux"),
+            ("mkdocs-material", "material"),
+            ("pandas", "pandas"),
+        ],
+    )
+    def test_normalize_dep_name_maps_import_roots(self, distribution, import_root):
+        """GS19-87: known distributions probe their real import root."""
+        assert DependencyChecker._normalize_dep_name(distribution) == import_root
+
+    def test_check_module_dependencies_probes_import_roots(
+        self, tmp_path, monkeypatch
+    ):
+        """GS19-87: the full probe path strips extras and maps import roots.
+
+        Pre-fix this module reported status "missing": pyyaml was probed as
+        a "pyyaml" module and coverage[toml] as "coverage_toml".
+        """
+        (tmp_path / "GEO-INFER-SAMPLE").mkdir()
+        (tmp_path / "GEO-INFER-SAMPLE" / "pyproject.toml").write_text(
+            '[project]\n'
+            'name = "sample"\n'
+            'dependencies = ["pyyaml>=6.0", "coverage[toml]>=7.6"]\n'
+        )
+        probed = []
+
+        def fake_import(name):
+            probed.append(name)
+            if name in {"yaml", "coverage"}:
+                return object()
+            raise ImportError(name)
+
+        monkeypatch.setattr(
+            "geo_infer_test.core.module_health.importlib.import_module",
+            fake_import,
+        )
+        result = DependencyChecker(base_path=tmp_path).check_module_dependencies(
+            "SAMPLE"
+        )
+
+        assert result["status"] == "ok"
+        assert result["total"] == 2
+        assert probed == ["yaml", "coverage"]
+
 
 # ---------------------------------------------------------------------------
 # Property-Based Tests (Hypothesis)

@@ -11,7 +11,7 @@ across all ``GEO-INFER-*`` modules:
 - Version uniformity: member pyprojects must agree on ``[project].version``
   (warn on outliers, error under ``--strict``). Known deviations are listed
   in ``KNOWN_VERSION_DEVIATIONS`` and surfaced as diagnostics only — the
-  promotion decision belongs to the release process (TODO REL-01).
+  promotion decision belongs to the release process (ledger row REL-01).
 - Citation version: ``CITATION.cff`` must cite the fleet-majority member
   ``[project].version`` (warn on mismatch, error under ``--strict``), so a
   release cannot publish a citation for a stale version.

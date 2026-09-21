@@ -166,6 +166,28 @@ class SystemValidator:
         return report
 
 
+# GS19-87: distribution names whose importable module root differs from the
+# normalized (lowercase, ``-`` -> ``_``) distribution name. Probing the raw
+# normalized name via importlib produced false "missing" verdicts for every
+# module declaring these dependencies (e.g. "pyyaml" is imported as "yaml").
+# Keys are lowercase distribution names in their post-normalization
+# (dash -> underscore) form; values are importable module roots. The table
+# covers the distributions the fleet actually declares.
+DISTRIBUTION_IMPORT_NAMES = {
+    "bayeux_ml": "bayeux",
+    "gitpython": "git",
+    "inferactively_pymdp": "pymdp",
+    "mkdocs_material": "material",
+    "pillow": "PIL",
+    "psycopg2_binary": "psycopg2",
+    "python_multipart": "multipart",
+    "pyjwt": "jwt",
+    "pyyaml": "yaml",
+    "scikit_learn": "sklearn",
+    "z3_solver": "z3",
+}
+
+
 class DependencyChecker:
     """
     Checks whether the dependencies listed in a module's ``pyproject.toml``
@@ -251,8 +273,10 @@ class DependencyChecker:
         for dep in raw_deps:
             if not isinstance(dep, str):
                 continue
-            # Handle PEP 508 markers (after ;)
-            dep = dep.split(";")[0]
+            # Handle PEP 508 markers (after ;) and extras (``dep[extra]``);
+            # GS19-87: probing "coverage[toml]" as a module always reported
+            # the dependency missing.
+            dep = dep.split(";")[0].split("[")[0]
             # Handle version specifiers
             for sep in (">=", "<=", "==", "~=", "!=", ">", "<"):
                 dep = dep.split(sep)[0]
@@ -264,4 +288,7 @@ class DependencyChecker:
     @staticmethod
     def _normalize_dep_name(dep: str) -> str:
         """Convert a PyPI package name to an importable module name."""
-        return dep.lower().replace("-", "_").replace(" ", "_")
+        normalized = dep.lower().replace("-", "_").replace(" ", "_")
+        # GS19-87: some distributions ship a differently-named import root
+        # ("pyyaml" is imported as "yaml"); consult the fleet's mapping.
+        return DISTRIBUTION_IMPORT_NAMES.get(normalized, normalized)

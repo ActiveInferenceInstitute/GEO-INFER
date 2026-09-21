@@ -86,7 +86,7 @@ jobs:
 
           # Exclude deleted paths: formatters and linters can only inspect
           # files that exist in the checked-out tree.
-          changed_files="$(git diff --name-only --diff-filter=ACMRTUXB "$base_sha" "$HEAD_SHA" -- '*.py')"
+          changed_files="$(git diff --no-renames --name-only --diff-filter=ACMRTUXB "$base_sha" "$HEAD_SHA" -- '*.py')"
           if [ -z "$changed_files" ]; then
             echo "No Python files changed; skipping code quality checks."
             exit 0
@@ -97,10 +97,10 @@ jobs:
           # Keep this gate focused on runtime-invalid constructs. The full
           # source hygiene contract below owns the repository-wide critical
           # rules, while Ruff provides the deterministic formatting gate.
-          git diff --name-only -z --diff-filter=ACMRTUXB "$base_sha" "$HEAD_SHA" -- '*.py' | \
+          git diff --no-renames --name-only -z --diff-filter=ACMRTUXB "$base_sha" "$HEAD_SHA" -- '*.py' | \
             xargs -0 uv run --with 'ruff>=0.15.6,<0.16' ruff check \
               --select F821,F823,E721,E722
-          git diff --name-only -z --diff-filter=ACMRTUXB "$base_sha" "$HEAD_SHA" -- '*.py' | \
+          git diff --no-renames --name-only -z --diff-filter=ACMRTUXB "$base_sha" "$HEAD_SHA" -- '*.py' | \
             xargs -0 uv run --with 'ruff>=0.15.6,<0.16' ruff format --check
 
       - name: Validate repository contracts
@@ -135,8 +135,10 @@ jobs:
           # HYG-04: the module test suites carry no dead imports or unused
           # locals; sanctioned availability probes are preserved as
           # redundant-alias re-exports, which this rule set does not flag.
+          # GS19-03: the root tests/ tree gets the same hygiene surface and
+          # F823 (unused name redefined from an outer scope) joins the set.
           uv run --with 'ruff>=0.15.6,<0.16' ruff check \
-            GEO-INFER-*/tests --select F401,F841,F811
+            GEO-INFER-*/tests tests --select F401,F841,F811,F823
 
       - name: Install pinned gitleaks
         run: |

@@ -7,6 +7,8 @@ depend on, the same way the acceptance probes grep the workflow sources.
 
 from __future__ import annotations
 
+import importlib.util
+import sys
 from pathlib import Path
 
 import yaml
@@ -75,7 +77,7 @@ def test_validate_job_runs_gates_once_outside_test_matrix():
         "xargs -0 uv run --with 'ruff>=0.15.6,<0.16' ruff check",
         "ruff format --check",
         "--select F821,F823,E721,E722",
-        "--select F401,F841,F811",
+        "--select F401,F841,F811,F823",
         # CI-04: the validator commands the marker list did not pin.
         "validate_packaging.py --strict",
         "validate_logging_hygiene.py",
@@ -187,3 +189,76 @@ def test_every_workflow_definition_parses():
         document = yaml.safe_load(workflow.read_text(encoding="utf-8"))
         assert isinstance(document, dict), workflow.name
         assert "jobs" in document, workflow.name
+
+
+def test_pr_triggers_share_one_branch_policy():
+    """GS19-21: PR legs target main/develop across all three CI workflows."""
+    ci_branches = _trigger(_load("ci.yml"))["pull_request"]["branches"]
+    assert ci_branches == ["main", "develop"]
+    for name in ("gnn-interchange.yml", "import-probes.yml"):
+        branches = _trigger(_load(name))["pull_request"]["branches"]
+        assert branches == ci_branches, name
+
+
+def test_release_job_is_timeout_bounded_and_release_queue_is_serialized():
+    """GS19-22: the release job has a ceiling; tag races queue, not race."""
+    release = _load("release.yml")
+    assert release["jobs"]["release"].get("timeout-minutes") == 60
+    concurrency = release["concurrency"]
+    assert concurrency["group"] == "geo-infer-release-${{ github.ref }}"
+    assert concurrency.get("cancel-in-progress", False) is False
+
+
+def test_import_probes_derive_pytest_from_the_workspace_lock():
+    """GS19-23: no floating pytest pin; the version comes from uv.lock."""
+    job = _dump(_load("import-probes.yml")["jobs"]["probes"])
+    assert "steps.locked_tools.outputs.pytest_version" in job
+    assert "pytest==8.4.2" not in job
+
+
+def test_repo_wide_format_check_is_scheduled():
+    """GS19-03: a periodic repo-wide ruff format --check surface exists."""
+    document = _load("format-check.yml")
+    triggers = _trigger(document)
+    assert "schedule" in triggers
+    assert "workflow_dispatch" in triggers
+    assert "ruff format --check" in _dump(document["jobs"])
+
+
+def test_generated_signposts_carry_ci_strict_flags():
+    """GS19-02: rendered README/AGENTS commands mirror the CI invocations.
+
+    The generator's embedded command blocks must not document flags weaker
+    than the CI invocation (GS19-02): --strict-import-smoke and
+    --warnings-fatal belong on the signpost commands exactly as in ci.yml.
+    """
+    spec = importlib.util.spec_from_file_location(
+        "geo_infer_rewrite_readme_agents_for_contracts",
+        REPO_ROOT / "GEO-INFER-TEST" / "rewrite_readme_agents.py",
+    )
+    assert spec is not None and spec.loader is not None
+    rewriter = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = rewriter
+    spec.loader.exec_module(rewriter)
+    modules = {
+        "GEO-INFER-TEST": rewriter.ModuleInfo(
+            name="GEO-INFER-TEST",
+            path=REPO_ROOT / "GEO-INFER-TEST",
+            package="geo_infer_test",
+            description="Unified testing framework",
+            version="0.3.0",
+            dependencies=[],
+            source_files=1,
+            test_files=1,
+        ),
+    }
+
+    readme = rewriter.render_root_readme(modules, 1, 1)
+    agents = rewriter.render_root_agents(modules)
+
+    for rendered in (readme, agents):
+        assert (
+            "validate_repo_contracts.py --strict-source-language"
+            " --strict-import-smoke" in rendered
+        )
+        assert "validate_skills.py --check-xrefs --warnings-fatal" in rendered

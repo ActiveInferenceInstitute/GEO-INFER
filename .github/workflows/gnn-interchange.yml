@@ -6,7 +6,11 @@ on:
   # contract. The bare push:[main] leg is dropped: every merged change already
   # ran the interchange on its PR, and the push leg re-ran the identical job
   # back-to-back under a different concurrency group.
+  # GS19-21: PR legs target main/develop like ci.yml so feature-branch PRs
+  # stay cheap; a feature-branch run is available on demand via
+  # workflow_dispatch (Actions tab or `gh workflow run`).
   pull_request:
+    branches: ["main", "develop"]
     paths:
       - "GEO-INFER-ACT/**"
       - "GEO-INFER-TEST/validate_gnn_interchange.py"

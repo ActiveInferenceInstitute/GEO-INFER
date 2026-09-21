@@ -3,7 +3,11 @@ name: Import probe portability
 on:
   push:
     branches: ["main"]
+  # GS19-21: PR legs target main/develop like ci.yml so feature-branch PRs
+  # stay cheap; a feature-branch run is available on demand via
+  # workflow_dispatch (Actions tab or `gh workflow run`).
   pull_request:
+    branches: ["main", "develop"]
   workflow_dispatch:
 
 permissions:
@@ -32,8 +36,37 @@ jobs:
         with:
           version: "0.10.7"
           cache-dependency-glob: uv.lock
+      - name: Resolve the locked pytest version for the probe tools
+        # GS19-23: the probe tools previously hardcoded pytest==8.4.2 while
+        # the workspace lock carries 8.4.1 — drift by construction. Derive
+        # the pytest version from uv.lock at runtime; `build` is not a
+        # workspace-locked distribution, so it stays a reviewed explicit
+        # pin (GEO-INFER-TEST/docs/pin_review_2026-Q3.md tracks tool pins).
+        id: locked_tools
+        shell: python
+        run: |
+          import os
+          import tomllib
+          from pathlib import Path
+
+          pytest_version = None
+          for pkg in tomllib.loads(
+              Path("uv.lock").read_text(encoding="utf-8")
+          ).get("package", []):
+              if pkg.get("name") == "pytest" and pkg.get("version"):
+                  pytest_version = pkg["version"]
+                  break
+          if not pytest_version:
+              raise SystemExit(
+                  "uv.lock carries no pytest entry; cannot derive the probe pytest version"
+              )
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"pytest_version={pytest_version}\n")
       - name: Install standalone probe test tools
-        run: python -m pip install pytest==8.4.2 build==1.3.0
+        run: >-
+          python -m pip install
+          "pytest==${{ steps.locked_tools.outputs.pytest_version }}"
+          build==1.3.0
       - name: Exercise real source and installed-wheel subprocesses
         # These tooling tests need no geospatial runtime or workspace fixtures.
         # In particular Windows must execute taskkill, not a mocked POSIX path.
