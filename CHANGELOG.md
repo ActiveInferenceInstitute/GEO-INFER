@@ -42,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.1] - 2026-09-15 — fleet-wide error-handling hardening
 
 Patch release over the 18 commits since
-[0.2.0](https://github.com/ActiveInferenceInstitute/GEO-INFER/releases/tag/v0.2.0):
+[0.2.0](https://github.com/ActiveInferenceInstitute/GEO_INFER/releases/tag/v0.2.0):
 the LOG-EXC-01 error-handling pattern (domain `ValueError` → HTTP 400,
 unexpected exception → generic non-leaking 500) extended fleet-wide with an
 `ErrorHandlerMiddleware` in the DATA, NORMS, GIT and PEP API surfaces, the
@@ -863,7 +863,7 @@ pass at that SHA.
 
 ---
 
-[0.2.0]: https://github.com/ActiveInferenceInstitute/GEO-INFER/compare/v0.1.0...v0.2.0
-[0.2.1]: https://github.com/ActiveInferenceInstitute/GEO-INFER/compare/v0.2.0...v0.2.1
-[0.3.0]: https://github.com/ActiveInferenceInstitute/GEO-INFER/compare/v0.2.1...v0.3.0
-[0.1.0]: https://github.com/ActiveInferenceInstitute/GEO-INFER/releases/tag/v0.1.0
+[0.2.0]: https://github.com/ActiveInferenceInstitute/GEO_INFER/compare/v0.1.0...v0.2.0
+[0.2.1]: https://github.com/ActiveInferenceInstitute/GEO_INFER/compare/v0.2.0...v0.2.1
+[0.3.0]: https://github.com/ActiveInferenceInstitute/GEO_INFER/compare/v0.2.1...v0.3.0
+[0.1.0]: https://github.com/ActiveInferenceInstitute/GEO_INFER/releases/tag/v0.1.0

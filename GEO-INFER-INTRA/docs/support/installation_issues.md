@@ -54,8 +54,8 @@ uv --version
 
 ```bash
 # Clone the repository
-git clone https://github.com/ActiveInferenceInstitute/GEO-INFER.git
-cd GEO-INFER
+git clone https://github.com/ActiveInferenceInstitute/GEO_INFER.git
+cd GEO_INFER
 
 # Create a virtual environment
 uv venv .venv
@@ -292,7 +292,7 @@ uv run python -m pytest GEO-INFER-MATH/tests/ -v --tb=short -q
 
 If the above steps do not resolve your issue:
 
-1. Search [GitHub Issues](https://github.com/ActiveInferenceInstitute/GEO-INFER/issues)
+1. Search [GitHub Issues](https://github.com/ActiveInferenceInstitute/GEO_INFER/issues)
 2. Check [Troubleshooting](troubleshooting.md) for runtime errors
 3. File a new issue with your OS, Python version, full error output, and the commands you ran
 

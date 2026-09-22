@@ -20,8 +20,8 @@ For those who want to get up and running quickly:
 1. **Install** — clone and sync the workspace:
 
 ```bash
-git clone https://github.com/ActiveInferenceInstitute/GEO-INFER.git
-cd GEO-INFER
+git clone https://github.com/ActiveInferenceInstitute/GEO_INFER.git
+cd GEO_INFER
 uv sync --all-packages --all-extras
 ```
 

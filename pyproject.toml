@@ -225,10 +225,10 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/ActiveInferenceInstitute/GEO-INFER"
-Documentation = "https://github.com/ActiveInferenceInstitute/GEO-INFER/tree/main/GEO-INFER-INTRA/docs"
-Repository = "https://github.com/ActiveInferenceInstitute/GEO-INFER"
-"Bug Tracker" = "https://github.com/ActiveInferenceInstitute/GEO-INFER/issues"
+Homepage = "https://github.com/ActiveInferenceInstitute/GEO_INFER"
+Documentation = "https://github.com/ActiveInferenceInstitute/GEO_INFER/tree/main/GEO-INFER-INTRA/docs"
+Repository = "https://github.com/ActiveInferenceInstitute/GEO_INFER"
+"Bug Tracker" = "https://github.com/ActiveInferenceInstitute/GEO_INFER/issues"
 Discord = "https://discord.activeinference.institute/"
 
 [project.scripts]

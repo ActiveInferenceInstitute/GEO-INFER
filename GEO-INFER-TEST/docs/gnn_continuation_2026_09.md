@@ -111,18 +111,18 @@ The first Windows probe run established child-process cleanup but exposed two
 test-only Unix assumptions (path separators and line endings); the assertions
 now compare native paths and exact original source bytes.
 
-The [pinned paired run](https://github.com/ActiveInferenceInstitute/GEO-INFER/actions/runs/33938901328)
+The [pinned paired run](https://github.com/ActiveInferenceInstitute/GEO_INFER/actions/runs/33938901328)
 passed on hosted Linux Python 3.11 and 3.12, exporting all four contracts from
 GNN `89f3b5e79` and consuming them at GEO `b0c07568`. Both checkout identities
 and artifact digests are retained in the workflow artifacts.
 
-[Corrected portability CI](https://github.com/ActiveInferenceInstitute/GEO-INFER/actions/runs/33939067638)
+[Corrected portability CI](https://github.com/ActiveInferenceInstitute/GEO_INFER/actions/runs/33939067638)
 passed all 43 cases in each of four jobs at GEO `6630aaf3`: Windows and Linux,
 Python 3.11 and 3.12. Both Windows jobs explicitly passed real source and
 installed-wheel descendant termination tests (Windows CPython 3.11.9 / 3.12.10
 AMD64). This completes TEST-02; native hardware/browser tasks remain separate.
 
-The [nonpublishing wheel workflow](https://github.com/ActiveInferenceInstitute/GEO-INFER/actions/runs/33938902942)
+The [nonpublishing wheel workflow](https://github.com/ActiveInferenceInstitute/GEO_INFER/actions/runs/33938902942)
 built all 44 wheels and passed isolated installations, origin/resource probes and
 completion receipts at `b0c07568`. Subsequent GEO changes at `6630aaf3` affect
 only probe assertions and verification documentation, not packaged source.
@@ -143,12 +143,12 @@ assertion and ten-second blocked import; production deadlines are unchanged.
 ## Main integration baseline and final PR checks
 
 At GEO `cee1b5f08c2acad435b7d8864db4461b3be58c88`,
-[all final hosted categories passed](https://github.com/ActiveInferenceInstitute/GEO-INFER/actions/runs/33941489793):
+[all final hosted categories passed](https://github.com/ActiveInferenceInstitute/GEO_INFER/actions/runs/33941489793):
 7497 unit, 1276 integration and 52 performance tests on each of Python 3.11
 and 3.12, zero failures/errors/skips, plus two H3 validators per interpreter.
 All eight category artifacts were retained (184 XML reports and eight summaries).
-[Both paired jobs](https://github.com/ActiveInferenceInstitute/GEO-INFER/actions/runs/33941489772)
-and [all four portability jobs](https://github.com/ActiveInferenceInstitute/GEO-INFER/actions/runs/33941489777)
+[Both paired jobs](https://github.com/ActiveInferenceInstitute/GEO_INFER/actions/runs/33941489772)
+and [all four portability jobs](https://github.com/ActiveInferenceInstitute/GEO_INFER/actions/runs/33941489777)
 also passed at that revision. These receipts supersede the pending-job status
 in the earlier chronological publication notes.
 
@@ -189,7 +189,7 @@ sources remain unchanged from the earlier complete hosted wheel receipt.
 Windows execution of this regional worker remains a separate PLACE-04 check;
 the existing Windows source/wheel import-probe results cover a different tool.
 
-[GNN main CI](https://github.com/ActiveInferenceInstitute/GeneralizedNotationNotation/actions/runs/33943799538)
+[GNN main CI](https://github.com/ActiveInferenceInstitute/Generalized_Notation_Notation/actions/runs/33943799538)
 passed on the exact merge commit `903b9c3391ce277292fd1f3d5626e5fbd66d354a`,
 including all three Python jobs and security. This is post-merge evidence,
 separate from the earlier green PR runs.
@@ -200,11 +200,11 @@ GEO PR 8 merged at `6f15c1000c258accdc765c6d05be7cd49ac0b285` after all nine che
 passed on `2241e645`. The merge tree is identical to that validated PR head.
 Both Python 3.11 and 3.12 passed 7497 unit, 1300 integration and 52 performance
 tests (8849 each), with zero failures/errors/skips, plus both H3 validators.
-[Hosted category receipts](https://github.com/ActiveInferenceInstitute/GEO-INFER/actions/runs/33944569278)
-and [all 44 isolated wheel receipts](https://github.com/ActiveInferenceInstitute/GEO-INFER/actions/runs/33944647126)
+[Hosted category receipts](https://github.com/ActiveInferenceInstitute/GEO_INFER/actions/runs/33944569278)
+and [all 44 isolated wheel receipts](https://github.com/ActiveInferenceInstitute/GEO_INFER/actions/runs/33944647126)
 cover the final packaged source, including the supervised regional worker.
 
-[The paired run](https://github.com/ActiveInferenceInstitute/GEO-INFER/actions/runs/33944569311)
+[The paired run](https://github.com/ActiveInferenceInstitute/GEO_INFER/actions/runs/33944569311)
 verifies clean GEO `2241e645` against merged GNN `903b9c3391ce277292fd1f3d5626e5fbd66d354a`.
 All four artifact hashes and discrete trace values match exactly across Python
 versions; every numerical trace leaf is finite and agrees within absolute

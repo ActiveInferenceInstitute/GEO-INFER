@@ -241,7 +241,7 @@ Look for these log patterns:
 
 ## When to File a GitHub Issue
 
-File an issue at [github.com/ActiveInferenceInstitute/GEO-INFER/issues](https://github.com/ActiveInferenceInstitute/GEO-INFER/issues) when:
+File an issue at [github.com/ActiveInferenceInstitute/GEO_INFER/issues](https://github.com/ActiveInferenceInstitute/GEO_INFER/issues) when:
 
 - You can reproduce a bug with a minimal example
 - Documentation is incorrect or misleading
