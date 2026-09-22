@@ -43,14 +43,14 @@ jobs:
           import json, os, re
           from pathlib import Path
           pair = json.loads(Path('.github/gnn-pair.json').read_text())
-          assert pair['repository'] == 'ActiveInferenceInstitute/GeneralizedNotationNotation'
+          assert pair['repository'] == 'ActiveInferenceInstitute/Generalized_Notation_Notation'
           assert re.fullmatch('[0-9a-f]{40}', pair['revision'])
           with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
               output.write('revision=' + pair['revision'] + '\n')
           PY
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
-          repository: ActiveInferenceInstitute/GeneralizedNotationNotation
+          repository: ActiveInferenceInstitute/Generalized_Notation_Notation
           ref: ${{ steps.pair.outputs.revision }}
           path: gnn
           persist-credentials: false
