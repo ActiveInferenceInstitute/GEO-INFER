@@ -1,7 +1,7 @@
 --
 - module: GEO-INFER-HEALTH type: Domain-Specific Module category: Health Systems status: Beta maturity: High framework_version: 1.0.0 dependencies:
 - GEO-INFER-DATA - GEO-INFER-SPACE - GEO-INFER-TIME - GEO-INFER-AI optional_dependencies:
-- GEO-INFER-RISK - GEO-INFER-BIO - GEO-INFER-SPM license: CC BY-ND-SA 4.0 maintainer: GEO-INFER Framework Team contact: https://github.com/ActiveInferenceInstitute/GEO-INFER/issues last_updated: 2025-01-19 --
+- GEO-INFER-RISK - GEO-INFER-BIO - GEO-INFER-SPM license: CC BY-ND-SA 4.0 maintainer: GEO-INFER Framework Team contact: https://github.com/ActiveInferenceInstitute/GEO_INFER/issues last_updated: 2025-01-19 --
 -
 
 # GEO-INFER-HEALTH: Geospatial Health Analytics

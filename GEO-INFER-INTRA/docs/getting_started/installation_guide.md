@@ -15,8 +15,8 @@ metadata, the shared lockfile, and module extras stay aligned.
 ## Reproducible workspace setup
 
 ```bash
-git clone https://github.com/ActiveInferenceInstitute/GEO-INFER.git
-cd GEO-INFER
+git clone https://github.com/ActiveInferenceInstitute/GEO_INFER.git
+cd GEO_INFER
 uv sync --all-packages --all-extras
 uv run python -c "import geo_infer_space, geo_infer_act; print('GEO-INFER ready')"
 ```

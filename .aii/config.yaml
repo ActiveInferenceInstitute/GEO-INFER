@@ -2,9 +2,9 @@
 meta:
   updated: '2026-09-07'
 repo:
-  name: GEO-INFER
-  slug: geo-infer
-  full_name: ActiveInferenceInstitute/GEO-INFER
+  name: GEO_INFER
+  slug: geo_infer
+  full_name: ActiveInferenceInstitute/GEO_INFER
   description: GEO-INFER is a 45-module geospatial inference monorepo for spatial
     analysis, active inference, domain modeling, agent workflows, and repository validation.
 institute:
@@ -19,7 +19,7 @@ ecosystem:
   - repo: ActiveInferenceInstitute/Active_Inference_Ontology
     note: Uses Active Inference Ontology terms.
   links:
-    github: https://github.com/ActiveInferenceInstitute/GEO-INFER
+    github: https://github.com/ActiveInferenceInstitute/GEO_INFER
     website: https://www.activeinference.org
 artifacts:
 - path: README.md
