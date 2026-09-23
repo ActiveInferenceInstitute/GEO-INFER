@@ -231,6 +231,7 @@ def run_command(
     cwd: Path = PROJECT_ROOT,
     env_overrides: dict[str, str] | None = None,
     allow_empty: bool = False,
+    _is_retry: bool = False,
 ) -> CommandResult:
     """Run a subprocess and capture a compact result.
 
@@ -292,8 +293,11 @@ def run_command(
         and not junit_errors
         and not junit_path(command).exists()
     )
-    if crash_class:
-        print("CRASH-COMPLETION — one bounded retry for crash-class failure")
+    if crash_class and not _is_retry:
+        print(
+            "CRASH-COMPLETION rc=%d — one bounded retry for crash-class failure"
+            % completed.returncode
+        )
         return run_command(
             command,
             name,
@@ -301,6 +305,7 @@ def run_command(
             cwd=cwd,
             env_overrides=env_overrides,
             allow_empty=allow_empty,
+            _is_retry=True,
         )
     if junit_errors:
         completed.stderr = "\n".join((*filter(None, [completed.stderr]), *junit_errors))
