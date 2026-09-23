@@ -572,13 +572,44 @@ def _strip_timing(result):
 
 def _parity_equal(left, right, tol: float = 1e-6) -> bool:
     """Structural equality with relative tolerance for clock-derived floats."""
+    ok = _parity_equal_inner(left, right, tol)
+    if not ok:
+        def _walk(l, r, path=""):
+            if isinstance(l, dict) and isinstance(r, dict):
+                for k in sorted(set(l) | set(r)):
+                    if k not in l:
+                        print(f"PDIFF MISSING-L {path}.{k}", flush=True)
+                    elif k not in r:
+                        print(f"PDIFF MISSING-R {path}.{k}", flush=True)
+                    else:
+                        _walk(l[k], r[k], f"{path}.{k}")
+            elif isinstance(l, list) and isinstance(r, list):
+                if len(l) != len(r):
+                    print(f"PDIFF LEN {path}: {len(l)} vs {len(r)}", flush=True)
+                for i, (a, b) in enumerate(zip(l, r)):
+                    _walk(a, b, f"{path}[{i}]")
+            else:
+                same = (
+                    abs(l - r) <= tol * max(1.0, abs(l), abs(r))
+                    if isinstance(l, float) and isinstance(r, float)
+                    else l == r
+                )
+                if not same:
+                    print(f"PDIFF {path}: {l!r} vs {r!r}", flush=True)
+
+        _walk(left, right)
+    return ok
+
+
+def _parity_equal_inner(left, right, tol: float = 1e-6) -> bool:
+    """Structural equality with relative tolerance for clock-derived floats."""
     if isinstance(left, dict) and isinstance(right, dict):
         return left.keys() == right.keys() and all(
-            _parity_equal(left[key], right[key], tol) for key in left
+            _parity_equal_inner(left[key], right[key], tol) for key in left
         )
     if isinstance(left, list) and isinstance(right, list):
         return len(left) == len(right) and all(
-            _parity_equal(a, b, tol) for a, b in zip(left, right)
+            _parity_equal_inner(a, b, tol) for a, b in zip(left, right)
         )
     if isinstance(left, float) and isinstance(right, float):
         return abs(left - right) <= tol * max(1.0, abs(left), abs(right))

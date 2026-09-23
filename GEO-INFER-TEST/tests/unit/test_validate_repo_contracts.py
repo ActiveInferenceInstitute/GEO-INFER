@@ -474,7 +474,16 @@ def test_import_smoke_timeout_stops_descendants(tmp_path, monkeypatch):
     contracts.validate_import_smoke([module], report, timeout=0.5)
     assert len(report.warnings) == 1
     assert "timed out" in report.warnings[0]
-    assert started.is_file()
+    # Under a parallel/coverage-traced runner the child's spawn can land
+    # after the parent's 0.5s timeout, so `started` may appear late; poll
+    # for it rather than asserting immediately.
+    started_seen = started.is_file()
+    for _ in range(50):
+        if started_seen:
+            break
+        time.sleep(0.1)
+        started_seen = started.is_file()
+    assert started_seen, "child never started; spawn was slower than the poll window"
     # Wide margin: on a loaded runner the kill can land late after the 0.5s
     # timeout — the child must outlive any plausible kill delay.
     time.sleep(3.1)
