@@ -171,6 +171,12 @@ def main(argv: list[str] | None = None) -> int:
             # failed mid-measurement; the number is coverage of whatever ran
             # before the failure and must never read as a passing floor.
             print(f"{module}: measured {measured}% vs floor {floor}% -> FAILED-SUITE")
+            tail = result.get("pytest_tail", "")
+            if tail:
+                # Surface the measurement's captured stdout tail: failing-test
+                # diagnostics (e.g. parity-diff spies) live there, not in the
+                # JUnit names alone.
+                print(tail)
             failing = result.get("failing_tests", [])
             for name in failing[:20]:
                 print(f"  FAILED {name}")
