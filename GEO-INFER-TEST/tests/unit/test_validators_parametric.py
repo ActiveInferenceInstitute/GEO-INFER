@@ -574,6 +574,7 @@ def _parity_equal(left, right, tol: float = 1e-6) -> bool:
     """Structural equality with relative tolerance for clock-derived floats."""
     ok = _parity_equal_inner(left, right, tol)
     if not ok:
+
         def _walk(l, r, path=""):
             if isinstance(l, dict) and isinstance(r, dict):
                 for k in sorted(set(l) | set(r)):
