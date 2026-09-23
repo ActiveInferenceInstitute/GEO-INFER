@@ -4,7 +4,6 @@ Regression contract: ``load_cognitive_model`` accepts str and Path inputs,
 parses JSON and YAML by suffix, and reports failures as an empty dict.
 """
 
-from pathlib import Path
 
 import pytest
 

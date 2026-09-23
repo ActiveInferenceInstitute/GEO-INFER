@@ -110,7 +110,7 @@ class TestVerificationTable:
             ).read_text(encoding="utf-8")
         )
         assert variables["VERIFICATION_FAIL_COUNT"] == "1"
-        row = next(
+        next(
             line
             for line in variables["VERIFICATION_TABLE"].splitlines()
             if line.startswith(f"| `{name}`")

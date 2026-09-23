@@ -12,7 +12,6 @@ import json
 import sys
 from typing import Any, Dict, List
 
-import pytest
 import jwt
 
 from geo_infer_comms.api.websocket_api import WebSocketConnection

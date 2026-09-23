@@ -4,40 +4,8 @@ Covers flow_analysis, pattern_detection, hierarchy_metrics and
 performance_metrics with deterministic synthetic data.
 """
 
-from datetime import timedelta
 
-import pytest
 
-from geo_infer_space.nested.analytics.flow_analysis import (
-    FlowAnalysisResult,
-    FlowField,
-    FlowPattern,
-    FlowType,
-    FlowVector,
-    H3FlowAnalyzer,
-)
-from geo_infer_space.nested.analytics.hierarchy_metrics import (
-    H3HierarchyAnalyzer,
-    HierarchyAnalysisResult,
-    HierarchyMetrics,
-    HierarchyNode,
-)
-from geo_infer_space.nested.analytics.pattern_detection import (
-    DetectionMethod,
-    H3PatternDetector,
-    Pattern,
-    PatternDetectionResult,
-    PatternType,
-)
-from geo_infer_space.nested.analytics.performance_metrics import (
-    BenchmarkResult,
-    BenchmarkType,
-    H3PerformanceAnalyzer,
-    PerformanceMeasurement,
-    PerformanceMetric,
-    PerformanceProfile,
-)
-from geo_infer_space.nested.core.nested_grid import NestedCell, NestedH3Grid
 
 # Nine well-separated res-9 cells (no two adjacent). The last index carries
 # the outlier value used by the pattern-detection tests.

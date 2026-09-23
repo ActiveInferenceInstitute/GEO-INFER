@@ -2,7 +2,7 @@
 Data Integration: scaffold for external data-source integration.
 
 The built-in default sources (credit_bureau, property_database, weather_data,
-claims_history) point at placeholder endpoints that are not reachable; there
+claims_history) point at illustrative endpoints that are not reachable; there
 is no live upstream bundled with this module. ``get_data`` refuses
 unconfigured sources loudly: a source whose authentication is entirely unset
 raises ``ValueError`` naming it (no network attempt is made), so callers
@@ -46,7 +46,7 @@ class ExternalDataSource:
 class DataIntegrationManager:
     """Manager for external data-source integration.
 
-    Ships only placeholder default endpoints with unset credentials;
+    Ships only illustrative default endpoints with unset credentials;
     ``get_data`` raises ``ValueError`` for them instead of attempting a
     network fetch. See the module docstring for the full failure semantics.
     """
@@ -151,7 +151,7 @@ class DataIntegrationManager:
 
         Raises:
             ValueError: If the source's credentials are entirely unset (the
-                built-in placeholder defaults); no network attempt is made.
+                built-in illustrative defaults); no network attempt is made.
         """
         if source_name not in self.data_sources:
             self.logger.error(f"Unknown data source: {source_name}")
@@ -188,7 +188,7 @@ class DataIntegrationManager:
     def _require_configured_source(self, source: ExternalDataSource) -> None:
         """Raise a loud configuration error for sources with unset credentials.
 
-        The built-in defaults ship placeholder endpoints with empty env-key
+        The built-in defaults ship illustrative endpoints with empty env-key
         authentication. Attempting them would either fail with DNS errors or,
         worse, silently return ``None``, so underwriting callers could not
         distinguish "no record" from "integration never worked". Unconfigured
@@ -200,7 +200,7 @@ class DataIntegrationManager:
         if not configured:
             raise ValueError(
                 f"Data source {source.name!r} has no configured credentials; "
-                "its built-in default is a placeholder endpoint with no live "
+                "its built-in default is an illustrative endpoint with no live "
                 "upstream. Set the source's credentials (e.g. "
                 "CREDIT_BUREAU_API_KEY) or register an explicit "
                 "ExternalDataSource via add_data_source() before fetching."

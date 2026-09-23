@@ -106,7 +106,7 @@ class AdaptiveGovernanceSystem:
           SHA-256 digest of the indicator name. Identical inputs always
           produce identical outputs.
         - ``data_quality`` completeness, reliability, and timeliness are
-          fixed placeholder constants.
+          fixed illustrative constants.
 
         Tracks:
         - Indicator values over time
@@ -164,7 +164,7 @@ class AdaptiveGovernanceSystem:
                 trend = "declining"
             performance_trends[indicator] = trend
 
-            # Assess data quality (simulated placeholder values)
+            # Assess data quality (simulated illustrative values)
             data_quality[indicator] = {
                 "completeness": 0.85,  # Percentage of data available
                 "reliability": 0.80,  # Data reliability score

@@ -14,7 +14,6 @@ Tests cover:
 - Real-time performance requirements
 """
 
-import pytest
 import numpy as np
 import asyncio
 import time

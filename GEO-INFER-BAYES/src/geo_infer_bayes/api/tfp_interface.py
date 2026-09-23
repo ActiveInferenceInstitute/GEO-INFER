@@ -15,7 +15,7 @@ from ..utils.rng import resolve_rng
 logger = logging.getLogger(__name__)
 
 # TensorFlow Probability is not integrated: the NumPy/SciPy backend below is
-# the permanent implementation. These placeholder names exist so callers can
+# the permanent implementation. These module-level names exist so callers can
 # probe ``TFP_AVAILABLE`` without importing TensorFlow.
 tfp = None
 tf = None
