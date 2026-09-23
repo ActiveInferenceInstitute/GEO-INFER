@@ -261,7 +261,7 @@ def scan_task_marker_files(scan_globs: tuple[str, ...]) -> list[str]:
         for lineno, line in enumerate(text.splitlines(), start=1):
             if TASK_MARKER_PATTERN.search(line):
                 hits.append(
-                    f"{source_file.relative_to(REPO_ROOT)}:{lineno}: {line.strip()}"
+                    f"{source_file.relative_to(REPO_ROOT).as_posix()}:{lineno}: {line.strip()}"
                 )
     return hits
 

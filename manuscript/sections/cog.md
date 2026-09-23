@@ -4,6 +4,6 @@
 
 **Public API.** The `geo_infer_cog` package exports a full cognitive stack. Core: `CognitiveProcessingEngine`, `SpatialPerceptionModel`, `SpatialReasoningEngine`, and `SpatialMemoryModel`. Supporting: `SpatialLanguageProcessor` (its own `spatial_language/` subpackage), `HumanCenteredVisualizer` (visualization/), and `SpatialDecisionSupport` (decision/). Models: `CognitiveMap`, `SpatialKnowledgeGraph`, `UserCognitiveProfile`, and `ProfileManager`. Utilities include `validate_spatial_data`, `validate_cognitive_model`, `load_cognitive_profile`, and `save_cognitive_model` — the widest subpackage spread in the A–D band (`core/`, `models/`, `spatial_language/`, `visualization/`, `decision/`, `utils/`, `api/`).
 
-**Verification status.** The `tests/` directory is present with 14 test files spanning the perception, reasoning, memory, and language layers; testing routes through the unified runner (`--module COG`).
+**Verification status.** The `tests/` directory is present with 16 test files spanning the perception, reasoning, memory, and language layers; testing routes through the unified runner (`--module COG`).
 
 **Theme role.** Domain sciences (cognitive science) with an interface vocation: COG connects the inference band's belief machinery to human factors, informing the APP layer's design and the agent band's human-like spatial reasoning.

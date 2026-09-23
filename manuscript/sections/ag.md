@@ -4,6 +4,6 @@
 
 **Public API.** The `geo_infer_ag` package organizes its exports into three documented groups. Core components: `AgriculturalAnalysis` (the main analysis entry point), `FieldBoundaryManager` (field geometry management), `SeasonalAnalysis`, and `SustainabilityAssessment`. Models: `CropYieldModel`, `SoilHealthModel`, `WaterUsageModel`, and `CarbonSequestrationModel` — one model per sustainability axis. API resources: `AgriculturalAPI` with `FieldsResource`, `CropsResource`, and `YieldResource`, exposing agricultural data as service endpoints. The subpackage layout (`core/`, `models/`, `api/`) mirrors this triad.
 
-**Verification status.** A `tests/` directory is present with 11 test files, plus a module-level `run_tests.sh` convenience script declared in the README contents.
+**Verification status.** A `tests/` directory is present with 12 test files, plus a module-level `run_tests.sh` convenience script declared in the README contents.
 
 **Theme role.** Domain sciences: AG is the agriculture vertical, demonstrating how the framework's geospatial core and inference stack specialize into an applied earth-science domain with its own service surface.

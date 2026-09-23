@@ -76,8 +76,6 @@ def test_healthy_run_has_no_failed_stages():
     assert result["degraded"] is False
 
 
-
-
 def test_critical_error_result_is_marked_degraded():
     """The outer critical handler also reports failed_stages + degraded."""
     analyzer = _analyzer()
