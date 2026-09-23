@@ -5,12 +5,17 @@ Unit tests for PerformanceMonitor using standard and property-based testing.
 import json
 import statistics
 from hypothesis import given, strategies as st
+
+import pytest
+
 from geo_infer_test.core.performance_monitor import (
     PerformanceMonitor,
     BenchmarkRunner,
     MetricsCollector,
     PerformanceAnalyzer,
 )
+
+pytestmark = pytest.mark.slow
 
 
 class TestPerformanceMonitor:

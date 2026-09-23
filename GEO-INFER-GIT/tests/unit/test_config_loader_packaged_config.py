@@ -5,6 +5,8 @@ installed ``geo_infer_git`` package — never from repo-relative parent climbs �
 with an explicit ``GEO_INFER_GIT_CONFIG`` env-var override honored when set.
 """
 
+from __future__ import annotations
+
 import importlib.resources
 from pathlib import Path
 
@@ -13,8 +15,11 @@ import pytest
 from geo_infer_git.utils.config_loader import (
     CloneConfig,
     ConfigLoader,
+    TargetRepository,
+    TargetUser,
     load_clone_config,
 )
+from geo_infer_test.testing import assert_packaged_config_loads
 
 
 def test_packaged_default_resolves_from_empty_cwd(
@@ -30,18 +35,50 @@ def test_packaged_default_resolves_from_empty_cwd(
     packaged_config_dir = importlib.resources.files("geo_infer_git") / "config"
     assert loader.config_dir == packaged_config_dir
 
-    # example.yaml and both target lists resolve from the package tree;
-    # truthy content proves the packaged files are really there (a missing
-    # file would silently fall back to [] / default CloneConfig)
+    # Packaged resources must resolve, parse, and expose the sections/lists
+    # the loader consumes — structure only, never literal inventory counts
+    # (list contents change; a missing file would silently fall back to []).
+    assert_packaged_config_loads(
+        "geo_infer_git",
+        "config/example.yaml",
+        required_sections=(
+            "api",
+            "repositories",
+            "repo_lists",
+            "operations",
+            "ci_cd",
+            "hooks",
+            "monitoring",
+            "logging",
+        ),
+    )
+    assert_packaged_config_loads(
+        "geo_infer_git",
+        "config/target_repos.yaml",
+        required_list_sections={"repositories": ("owner", "repo")},
+    )
+    assert_packaged_config_loads(
+        "geo_infer_git",
+        "config/target_users.yaml",
+        required_list_sections={"users": ("username",)},
+    )
+
     example = loader.load_yaml_config("example.yaml")
     assert "api" in example
 
     target_repos = loader.load_target_repos_config()
-    assert len(target_repos) == 20
+    assert target_repos
+    assert all(
+        isinstance(entry, TargetRepository) and entry.owner and entry.repo
+        for entry in target_repos
+    )
 
     target_users = loader.load_target_users_config()
-    assert len(target_users) == 23
-    assert isinstance(target_users, list)
+    assert target_users
+    assert all(
+        isinstance(entry, TargetUser) and entry.username
+        for entry in target_users
+    )
 
     # Convenience constructor follows the same packaged default
     clone_config = load_clone_config()

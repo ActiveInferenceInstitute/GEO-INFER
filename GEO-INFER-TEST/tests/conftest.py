@@ -751,49 +751,9 @@ def temporal_test_data():
     }
 
 
-# Test markers
-def pytest_configure(config):
-    """Configure pytest with custom markers."""
-    config.addinivalue_line(
-        "markers", "unit: Unit tests for individual functions and classes"
-    )
-    config.addinivalue_line(
-        "markers", "integration: Integration tests for cross-module interactions"
-    )
-    config.addinivalue_line("markers", "system: System tests for end-to-end workflows")
-    config.addinivalue_line(
-        "markers", "performance: Performance tests for scalability validation"
-    )
-    config.addinivalue_line("markers", "api: API tests for external interfaces")
-    config.addinivalue_line(
-        "markers", "geospatial: Geospatial-specific tests for spatial functionality"
-    )
-    config.addinivalue_line("markers", "slow: Tests that take a long time to run")
-    config.addinivalue_line("markers", "fast: Tests that run quickly")
-    config.addinivalue_line("markers", "temporal: Temporal data tests")
-    config.addinivalue_line("markers", "ml: Machine learning tests")
-
-
-# Test collection hooks
-def pytest_collection_modifyitems(config, items):
-    """Modify test collection to add markers and ordering."""
-    for item in items:
-        # Add module-specific markers based on test path
-        if "test_space" in item.nodeid:
-            item.add_marker(pytest.mark.geospatial)
-        elif "test_time" in item.nodeid:
-            item.add_marker(pytest.mark.temporal)
-        elif "test_ai" in item.nodeid:
-            item.add_marker(pytest.mark.ml)
-        elif "test_performance" in item.nodeid:
-            item.add_marker(pytest.mark.performance)
-            item.add_marker(pytest.mark.slow)
-        elif "test_api" in item.nodeid:
-            item.add_marker(pytest.mark.api)
-
-        # Add fast marker for quick tests
-        if "test_basic" in item.nodeid or "test_simple" in item.nodeid:
-            item.add_marker(pytest.mark.fast)
+# Marker registration and selection are governed by the root pytest policy
+# (conftest.py at the repository root): markers are declared there and applied
+# from canonical test directories, not inferred from nodeid substrings.
 
 
 # Test reporting

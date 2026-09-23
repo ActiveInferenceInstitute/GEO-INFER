@@ -31,12 +31,14 @@
 - `test_message_models.py`
 - `test_messaging.py`
 - `test_notifications.py`
+- `test_package_exports.py`
 - `test_protocol_handling.py`
 - `test_rest_api.py`
 - `test_spatial_models.py`
 - `test_spatial_routing.py`
 - `test_streaming.py`
 - `test_validation.py`
+- `test_websocket_auth.py`
 
 ## Validation
 

@@ -13,6 +13,7 @@ import sys
 from typing import Any, Dict, List
 
 import pytest
+import jwt
 
 from geo_infer_comms.api.websocket_api import WebSocketConnection
 
@@ -78,10 +79,9 @@ def test_hash_identity_fallback_when_no_secret_configured(monkeypatch):
 
 def test_accepts_valid_jwt_when_secret_configured(monkeypatch):
     """A correctly signed HS256 JWT authenticates with its ``sub`` claim."""
-    pyjwt = pytest.importorskip("jwt")
     secret = "unit-test-secret-0123456789abcdef-0123456789abcdef"
     monkeypatch.setenv("COMMS_JWT_SECRET", secret)
-    token = pyjwt.encode({"sub": "alice"}, secret, algorithm="HS256")
+    token = jwt.encode({"sub": "alice"}, secret, algorithm="HS256")
 
     conn = _connection()
     asyncio.run(conn._handle_authentication({"token": token}))
@@ -92,9 +92,12 @@ def test_accepts_valid_jwt_when_secret_configured(monkeypatch):
 
 def test_rejects_tampered_jwt_when_secret_configured(monkeypatch):
     """A token signed with the wrong secret is rejected."""
-    pyjwt = pytest.importorskip("jwt")
     monkeypatch.setenv("COMMS_JWT_SECRET", "unit-test-secret-0123456789abcdef-0123456789abcdef")
-    token = pyjwt.encode({"sub": "mallory"}, "other-secret-0123456789abcdef-0123456789abcdef", algorithm="HS256")
+    token = jwt.encode(
+        {"sub": "mallory"},
+        "other-secret-0123456789abcdef-0123456789abcdef",
+        algorithm="HS256",
+    )
 
     conn = _connection()
     asyncio.run(conn._handle_authentication({"token": token}))

@@ -21,15 +21,7 @@
 
 ## Local Contents
 
-- `environment_status_20250714_074630.png`
-- `environment_status_20250714_074745.png`
-- `environment_status_20250714_081511.png`
-- `git_timeline_20250714_074630.png`
-- `git_timeline_20250714_074745.png`
-- `git_timeline_20250714_081511.png`
-- `repository_health_20250714_074630.png`
-- `repository_health_20250714_074745.png`
-- `repository_health_20250714_081511.png`
+- No direct tracked child entries.
 
 ## Validation
 

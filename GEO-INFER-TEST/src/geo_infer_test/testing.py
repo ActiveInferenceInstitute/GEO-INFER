@@ -6,6 +6,7 @@ from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass
 import hashlib
 import http.server
+import importlib.resources
 import json
 import sqlite3
 import threading
@@ -14,6 +15,7 @@ from typing import Any
 
 import numpy as np
 import pytest
+import yaml
 
 
 def as_finite_array(value: Any, *, name: str = "value") -> np.ndarray:
@@ -125,6 +127,88 @@ def assert_seed_replay(factory: Any, *, seed: int = 42) -> None:
     first = factory(seed=seed)
     second = factory(seed=seed)
     assert_same_finite_values(first, second, name="seeded_model_output")
+
+
+def assert_packaged_config_loads(
+    package: str,
+    resource: str,
+    *,
+    format: str = "yaml",
+    required_sections: Sequence[str] = (),
+    required_keys: Mapping[str, Sequence[str]] | None = None,
+    required_list_sections: Mapping[str, Sequence[str]] | None = None,
+) -> Any:
+    """Assert a packaged config resource resolves, parses, and has key content.
+
+    Shared GS19-39 regression helper: the packaged config must be locatable
+    via ``importlib.resources`` inside the installed package (never via
+    repo-relative parent climbs), must parse, and must expose the sections
+    the module's runtime expects.
+
+    Args:
+        package: Distribution package name, e.g. ``"geo_infer_space"``.
+        resource: Slash-separated resource path inside the package, e.g.
+            ``"config/base.yaml"`` or ``"health_config.yaml"``.
+        format: ``"yaml"`` or ``"json"`` parser for the resource.
+        required_sections: Top-level keys the parsed config must contain.
+        required_keys: Per-section keys that must exist; maps a section name
+            (or the empty string for top level) to expected key names.
+        required_list_sections: Sections that must be non-empty lists of
+            mappings; maps a section name to the keys each item must carry
+            (structure only — never literal inventory counts).
+
+    Returns:
+        The parsed configuration, so callers can make additional
+        module-specific assertions without re-reading the resource.
+    """
+    resource_parts = tuple(part for part in resource.split("/") if part)
+    packaged = importlib.resources.files(package).joinpath(*resource_parts)
+    assert packaged.is_file(), f"packaged resource missing: {packaged}"
+
+    text = packaged.read_text(encoding="utf-8")
+    if format == "yaml":
+        parsed = yaml.safe_load(text)
+    elif format == "json":
+        parsed = json.loads(text)
+    else:
+        raise ValueError(f"unsupported config format: {format!r}")
+    assert isinstance(parsed, Mapping), (
+        f"packaged config did not parse to a mapping: {packaged}"
+    )
+
+    missing_sections = [s for s in required_sections if s not in parsed]
+    assert not missing_sections, (
+        f"packaged config missing sections {missing_sections}: {packaged}"
+    )
+
+    for section, keys in (required_keys or {}).items():
+        container = parsed if not section else parsed.get(section)
+        assert isinstance(container, Mapping), (
+            f"section {section!r} is not a mapping: {packaged}"
+        )
+        missing_keys = [k for k in keys if k not in container]
+        assert not missing_keys, (
+            f"section {section!r} missing keys {missing_keys}: {packaged}"
+        )
+
+    for section, item_keys in (required_list_sections or {}).items():
+        container = parsed if not section else parsed.get(section)
+        assert isinstance(container, list) and container, (
+            f"section {section!r} must be a non-empty list: {packaged}"
+        )
+        for index, item in enumerate(container):
+            assert isinstance(item, Mapping), (
+                f"section {section!r}[{index}] is not a mapping: {packaged}"
+            )
+            missing_keys = [k for k in item_keys if k not in item]
+            assert not missing_keys, (
+                f"section {section!r}[{index}] missing keys {missing_keys}: "
+                f"{packaged}"
+            )
+
+    return parsed
+
+
 
 
 def assert_visualization_manifest(
@@ -241,4 +325,5 @@ __all__ = [
     "local_http_server",
     "local_service",
     "sqlite_database",
+    "assert_packaged_config_loads",
 ]

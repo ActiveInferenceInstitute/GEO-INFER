@@ -17,6 +17,26 @@ from geo_infer_space.utils.config_loader import (
     CONFIG_DIR_ENV_VAR,
     LocationConfigLoader,
 )
+from geo_infer_test.testing import assert_packaged_config_loads
+
+
+def _packaged_base_config() -> dict:
+    """Assert the packaged base.yaml resolves, parses, and carries its sections."""
+    return assert_packaged_config_loads(
+        "geo_infer_space",
+        "config/base.yaml",
+        required_sections=(
+            "location",
+            "spatial",
+            "temporal",
+            "data_management",
+            "reporting",
+        ),
+        required_keys={
+            "spatial": ("h3_resolution",),
+            "location": ("coordinate_systems",),
+        },
+    )
 
 
 def test_default_config_dir_resolves_to_package_resource(
@@ -30,7 +50,7 @@ def test_default_config_dir_resolves_to_package_resource(
 
     expected = importlib.resources.files("geo_infer_space").joinpath("config")
     assert Path(loader.config_dir) == Path(str(expected))
-    assert (Path(loader.config_dir) / "base.yaml").is_file()
+    _packaged_base_config()
 
 
 def test_default_config_loads_packaged_base_yaml(
@@ -42,14 +62,7 @@ def test_default_config_loads_packaged_base_yaml(
 
     config = LocationConfigLoader().load_location_config("nonexistent_location")
 
-    packaged_base = yaml.safe_load(
-        (
-            importlib.resources.files("geo_infer_space")
-            .joinpath("config")
-            .joinpath("base.yaml")
-            .read_text()
-        )
-    )
+    packaged_base = _packaged_base_config()
     assert config["spatial"] == packaged_base["spatial"]
     assert config["temporal"] == packaged_base["temporal"]
     assert (

@@ -11,6 +11,7 @@ from pathlib import Path
 import pytest
 
 from geo_infer_intra.utils import config
+from geo_infer_test.testing import assert_packaged_config_loads
 
 
 class TestPackagedDefaultConfig:
@@ -31,6 +32,22 @@ class TestPackagedDefaultConfig:
         # Must come from inside the package tree, not a repo-relative config/ dir.
         assert "geo_infer_intra" in Path(resolved).parts
         assert Path(resolved).parent.name == "config"
+        # The packaged resource parses and carries the sections the runtime
+        # consumes (shared GS19-39 helper).
+        assert_packaged_config_loads(
+            "geo_infer_intra",
+            "config/example.yaml",
+            required_sections=(
+                "general",
+                "documentation",
+                "ontology",
+                "knowledge_base",
+                "workflow",
+                "api",
+                "database",
+                "integration",
+            ),
+        )
 
     def test_env_var_override_honored(self, tmp_path, monkeypatch):
         """An explicitly set GEO_INFER_INTRA_CONFIG wins over the packaged default."""

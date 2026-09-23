@@ -47,7 +47,7 @@ Core workspace within `GEO-INFER-TEST`.
 ## Dependencies
 
 - `coverage[toml]>=7.0.0`
-- `geopandas>=0.10.0`
+- `geopandas>=0.13.0`
 - `h3>=4.5.0,<5`
 - `hypothesis>=6.0.0`
 - `matplotlib>=3.5.0`
@@ -58,6 +58,10 @@ Core workspace within `GEO-INFER-TEST`.
 - `pytest-benchmark>=4.0.0`
 - `pytest-cov>=4.0.0`
 - `pytest-html>=3.1.0`
+- `pytest-mock>=3.10.0`
+- `pytest-timeout>=2.1.0`
+- `pytest-xdist>=3.0.0`
+- `pyyaml>=6.0`
 
 
 ## Validation

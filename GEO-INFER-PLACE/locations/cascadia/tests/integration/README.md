@@ -4,9 +4,7 @@ Integration workspace within `GEO-INFER-PLACE`.
 
 ## Contents
 
-- `comprehensive_test.py`
 - `comprehensive_validation.py`
-- `focused_framework_test.py`
 - `focused_framework_validation.py`
 - `run_comprehensive_validation.py`
 - `test_bioregion_pipeline.py`
@@ -36,7 +34,7 @@ Integration workspace within `GEO-INFER-PLACE`.
 ## Dependencies
 
 - `urllib3>=2.0.6`
-- `geopandas>=0.10.0`
+- `geopandas>=0.13.0`
 - `networkx>=2.6.0`
 - `shapely>=2.0.0`
 - `h3>=4.5.0,<5`
