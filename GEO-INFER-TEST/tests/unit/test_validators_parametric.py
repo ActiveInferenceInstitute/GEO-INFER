@@ -563,7 +563,20 @@ def _strip_timing(result):
             key: _strip_timing(value)
             for key, value in result.items()
             if key
-            not in {"validation_timestamp", "total_validation_time", "validation_time"}
+            not in {
+                "validation_timestamp",
+                "total_validation_time",
+                "validation_time",
+                # Recomputed from datetime.now() on every validation call
+                # (validators.py _analyze_temporal_patterns): two calls
+                # straddling a scheduling gap produce ages whose relative
+                # drift exceeds the 1e-6*age tolerance whenever data is
+                # recent. They derive from fixed inputs + the wall clock,
+                # like the timestamp fields above.
+                "newest_measurement_hours_ago",
+                "oldest_measurement_hours_ago",
+                "mean_age_hours",
+            }
         }
     if isinstance(result, list):
         return [_strip_timing(item) for item in result]

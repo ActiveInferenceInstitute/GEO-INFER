@@ -182,6 +182,8 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"  FAILED {name}")
             if len(failing) > 20:
                 print(f"  ... and {len(failing) - 20} more failing tests")
+            for detail in result.get("failing_details", [])[:20]:
+                print(f"  DETAIL {detail['name']}: {detail['text']}")
             violations.append(
                 f"{module}: measurement ran with pytest rc={pytest_rc}"
                 + (f" ({len(failing)} failing tests)" if failing else "")
