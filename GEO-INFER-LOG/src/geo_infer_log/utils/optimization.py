@@ -6,21 +6,43 @@ problems like TSP and VRP.
 """
 
 import numpy as np
-from typing import List, Dict, Tuple, Optional, cast
+from typing import Any, List, Dict, Tuple, Optional, cast
 
-try:
-    from ortools.constraint_solver import routing_enums_pb2
-    from ortools.constraint_solver import pywrapcp
+_ORTOOLS_MODULES: Optional[Tuple[Optional[object], Optional[object]]] = None
+_HAS_ORTOOLS: Optional[bool] = None
 
-    _HAS_ORTOOLS = True
-except ImportError:
-    _HAS_ORTOOLS = False
+
+def _load_ortools() -> Tuple[Optional[object], Optional[object]]:
+    """Import ortools on demand; return (routing_enums_pb2, pywrapcp) or Nones.
+
+    The import is lazy because a module-level ``from ortools...`` segfaults
+    under some C-extension load orders (pyarrow/pandas/shapely-loaded pytest
+    processes, both locally and in CI). The availability probe therefore
+    happens on first use instead of at import time.
+    """
+    global _ORTOOLS_MODULES, _HAS_ORTOOLS
+    if _HAS_ORTOOLS is not None:
+        return _ORTOOLS_MODULES
+    try:
+        from ortools.constraint_solver import (
+            pywrapcp,
+            routing_enums_pb2,
+        )
+
+        _ORTOOLS_MODULES = (routing_enums_pb2, pywrapcp)
+        _HAS_ORTOOLS = True
+    except ImportError:
+        _ORTOOLS_MODULES = (None, None)
+        _HAS_ORTOOLS = False
+    return _ORTOOLS_MODULES
+
 
 from geo_infer_log.utils.geo import haversine_distance
 
 
-def _require_ortools() -> None:
-    """Raise ImportError if ortools is not installed."""
+def _require_ortools() -> Tuple[Any, Any]:
+    """Return the ortools modules or raise ImportError if not installed."""
+    _load_ortools()
     if not _HAS_ORTOOLS:
         raise ImportError(
             "ortools is required for optimization functions. "
@@ -48,7 +70,7 @@ def solve_tsp(
     Returns:
         Dictionary with solution information
     """
-    _require_ortools()
+    routing_enums_pb2, pywrapcp = _require_ortools()
 
     if not points:
         raise ValueError("Points list cannot be empty")
@@ -190,7 +212,7 @@ def solve_vrp(
     Returns:
         Dictionary with solution information
     """
-    _require_ortools()
+    routing_enums_pb2, pywrapcp = _require_ortools()
 
     if not depots:
         raise ValueError("Depots list cannot be empty")
