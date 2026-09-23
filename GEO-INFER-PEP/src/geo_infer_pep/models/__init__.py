@@ -42,6 +42,7 @@ __all__ = [
     "CandidateStatus",
     "Offer",
     "Interview",
+    "InterviewFeedback",
     "InterviewType",
     # Learning & Development Models
     "LearningCourse",

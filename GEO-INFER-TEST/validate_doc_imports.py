@@ -179,9 +179,7 @@ def validate(repo_root: Path) -> tuple[list[str], list[str], int]:
     text_cache: dict[Path, str] = {}
     pages_checked = 0
     pages = sorted(
-        page
-        for doc_root in repo_root.glob(DOC_GLOB)
-        for page in doc_root.rglob("*.md")
+        page for doc_root in repo_root.glob(DOC_GLOB) for page in doc_root.rglob("*.md")
     )
     for page in pages:
         rel = str(page.relative_to(repo_root))

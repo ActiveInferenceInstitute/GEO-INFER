@@ -1352,7 +1352,7 @@ class MultiScaleHierarchicalAnalyzer:
                         child_parent = h3.cell_to_parent(child_cell, parent_resolution)
                         if child_parent == parent_cell:
                             child_cells.append(child_cell)
-                except (ValueError, TypeError) as exc:
+                except (ValueError, TypeError):
                     logger.debug(
                         "Child-cell lookup failed for %s under %s",
                         child_cell,
