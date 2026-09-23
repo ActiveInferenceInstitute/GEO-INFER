@@ -119,3 +119,33 @@ user-authorized release.yml `workflow_dispatch` re-run at `07a5fe31` (or a
 dated no-wheel decision). Also recorded this pass: GNN pair-pin drift
 (CI-05 — bump only through the SC-22 paired-custody ritual), test-contract
 validator scan gaps (TST-01..03), and the full 78-item inventory.
+
+## Wave closeout (2026-09-22)
+
+The CI-01/REL-01 row update promised above, plus the supplement-wave
+disposition, recorded at branch `wave/scope-2026-09-19` after reconciling
+`origin/main` (merge `7f0dcdf7`).
+
+- **REL-01/CI-01 (release)**: the durable half is landed — GS19-01's
+  version-only hunk filter plus one bounded FAILED-SUITE retry in
+  `GEO-INFER-TEST/check_coverage_floor.py` (commit `9267f33d`), and CI-02's
+  tag-event diff-scope fix (commit `74c17323`). The recovery half remains
+  open and owner-gated: v0.3.0 still ships zero wheels (run 35274969824,
+  failure, no re-attempt); unblocking requires an authorized re-run of the
+  failed validate job then release.yml's ci-gate, now complicated by the
+  org migration (below). Row stays open on that external action.
+- **Org migration completed in-tree**: the repository is
+  `ActiveInferenceInstitute/GEO_INFER` (GitHub PR #34, merge `c3c8854a`);
+  this branch swept the residual old-slug references (commit `771e1a42`),
+  repointed the paired GNN interchange to
+  `Generalized_Notation_Notation` @ `4b50307cb` through the merge, and the
+  local remote now points at the underscore slug.
+- **SCOPE-2026-09-19 supplement executed**: all 88 GS19 items are landed or
+  verifiably already satisfied — the final residue lane (13 minor items +
+  TST-08/M4-06) and the closeout wave (GS19-15/16/17/18/19/20/65/67/71/88
+  plus the previously-missing halves of 38/51/63/84) landed in commits
+  `3a1a135c`..`8f3e0154` on this branch. Wave P (GS19-04/05/28/29/34/36/39/74
+  + the scheduled slow lane) lands with the branch's push.
+- **Still open, external-blocked**: SPACE-01 (hardware), PLACE-V14
+  (licensed data), PLACE-04 (Windows runtime), TEST-04 (advisor auth);
+  TEST-GNN-01 remains Medium with its recorded investigation.
