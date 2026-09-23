@@ -1,8 +1,11 @@
 """Failure-semantics tests for underwriting data integration fetches (PL-03).
 
-Contract: expected transport/config failures (OSError/KeyError/ValueError)
-log a warning and return None so an outage is visible in logs; unexpected
-errors propagate instead of masquerading as "no record".
+Contract: unconfigured placeholder sources (built-in defaults with entirely
+unset credentials) raise ValueError naming the source and never attempt
+network egress; for configured sources, expected transport/config failures
+(OSError/KeyError/ValueError) log a warning and return None so an outage is
+visible in logs; unexpected errors propagate instead of masquerading as
+"no record".
 """
 
 import logging
@@ -78,3 +81,66 @@ def test_no_record_returns_none_without_fetch_warning(caplog):
         "Credit bureau fetch failed" in record.getMessage()
         for record in caplog.records
     )
+
+
+PLACEHOLDER_SOURCE_NAMES = (
+    "credit_bureau",
+    "property_database",
+    "weather_data",
+    "claims_history",
+)
+_PLACEHOLDER_ENV_KEYS = (
+    "CREDIT_BUREAU_API_KEY",
+    "PROPERTY_DB_API_KEY",
+    "WEATHER_API_KEY",
+    "CLAIMS_DB_USER",
+    "CLAIMS_DB_PASSWORD",
+)
+
+
+def _forbid_requests_get(monkeypatch):
+    """Make any requests.get call explode; a no-op when requests is absent."""
+    try:
+        import requests
+    except ImportError:
+        return
+
+    def _explode(*args, **kwargs):
+        raise AssertionError("network egress attempted for unconfigured source")
+
+    monkeypatch.setattr(requests, "get", _explode)
+
+
+def test_placeholder_source_get_data_raises_loudly(monkeypatch):
+    """get_data('credit_bureau', ...) never returns bare None: it raises."""
+    for var in _PLACEHOLDER_ENV_KEYS:
+        monkeypatch.delenv(var, raising=False)
+    _forbid_requests_get(monkeypatch)
+    manager = DataIntegrationManager()
+    with pytest.raises(ValueError, match="credit_bureau"):
+        manager.get_data("credit_bureau", {"ssn": "123-45-6789"})
+
+
+def test_all_placeholder_defaults_raise_without_egress(monkeypatch):
+    for var in _PLACEHOLDER_ENV_KEYS:
+        monkeypatch.delenv(var, raising=False)
+    _forbid_requests_get(monkeypatch)
+    manager = DataIntegrationManager()
+    for name in PLACEHOLDER_SOURCE_NAMES:
+        with pytest.raises(ValueError, match=name):
+            manager.get_data(name, {"test": True})
+
+
+def test_configured_source_is_fetched_and_cached(monkeypatch):
+    """A source with configured credentials skips the placeholder refusal."""
+    monkeypatch.setenv("CREDIT_BUREAU_API_KEY", "test-key")
+    manager = DataIntegrationManager(data_sources=["credit_bureau"])
+    calls = []
+
+    def fake_fetch(source, query_parameters=None):
+        calls.append(source.name)
+        return {"credit_score": 700}
+
+    monkeypatch.setattr(manager, "_fetch_data_from_source", fake_fetch)
+    assert manager.get_data("credit_bureau", {"ssn": "x"}) == {"credit_score": 700}
+    assert calls == ["credit_bureau"]

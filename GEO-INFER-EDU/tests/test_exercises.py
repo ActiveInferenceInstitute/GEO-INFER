@@ -117,7 +117,7 @@ class TestExerciseGenerator:
         starter_code = exercises[0].starter_code
         assert "def analyze_" in starter_code
         assert "ready_for_extension" in starter_code
-        assert "SpatialAnalyzer" in starter_code
+        assert "spatial_analysis_lib" not in starter_code
 
     def test_coding_exercise_test_cases(self, generator):
         """Test that test cases are properly generated."""

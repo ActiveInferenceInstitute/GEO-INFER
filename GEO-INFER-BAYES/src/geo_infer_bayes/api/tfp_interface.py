@@ -1,8 +1,9 @@
 """
-Interface to TensorFlow Probability for Bayesian computation.
+Deterministic NumPy/SciPy Gaussian-process interface for Bayesian computation.
 
-Falls back to a pure-NumPy/SciPy GP implementation when TFP is not
-installed, so the module always provides usable posterior sampling.
+TensorFlow Probability is not wired in: ``tfp`` below is hard-wired to
+``None`` and the class always runs the pure-NumPy/SciPy GP backend, so the
+module provides usable posterior sampling without TensorFlow installed.
 """
 
 import logging
@@ -13,9 +14,9 @@ from ..utils.rng import resolve_rng
 
 logger = logging.getLogger(__name__)
 
-# TensorFlow Probability emits a distutils deprecation warning during import
-# with the supported TensorFlow versions. Use the deterministic NumPy/SciPy
-# implementation until the TFP integration is migrated.
+# TensorFlow Probability is not integrated: the NumPy/SciPy backend below is
+# the permanent implementation. These placeholder names exist so callers can
+# probe ``TFP_AVAILABLE`` without importing TensorFlow.
 tfp = None
 tf = None
 TFP_AVAILABLE = False
@@ -34,11 +35,12 @@ def _squared_exponential_kernel(
 
 class TFPInterface:
     """
-    Interface to TensorFlow Probability for Bayesian computation.
+    Deterministic NumPy/SciPy GP interface for Bayesian computation.
 
-    When TFP is available the class delegates to TFP's MCMC samplers.
-    Otherwise it provides a pure-NumPy GP posterior with Cholesky-based
-    sampling so `create_spatial_gp_model` and `sample` always work.
+    Despite the historical name, this class never delegates to TFP: the
+    module hard-wires ``tfp = None`` and all sampling runs on the
+    pure-NumPy/SciPy GP backend (Cholesky-based posterior sampling), so
+    `create_spatial_gp_model` and `sample` always work without TensorFlow.
     """
 
     def __init__(self, model_config: Optional[Dict[str, Any]] = None):
@@ -122,9 +124,9 @@ class TFPInterface:
         """
         Sample hyper-parameter posteriors.
 
-        If TFP is available, delegates to TFP MCMC.  Otherwise
-        runs a lightweight slice-sampling loop around the GP
-        log-marginal-likelihood using SciPy.
+        Runs a lightweight slice-sampling loop around the GP
+        log-marginal-likelihood using SciPy. The historical TFP-delegation
+        path does not exist; the NumPy/SciPy backend is permanent.
 
         Parameters
         ----------

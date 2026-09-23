@@ -293,9 +293,6 @@ You are tasked with analyzing spatial patterns using {concept_display}.
 Complete the functions below to implement {concept.replace("_", " ")} analysis.
 """
 
-from spatial_analysis_lib import SpatialAnalyzer  # replace with your spatial analysis library
-
-
 def analyze_{concept_snake}(data, parameters=None):
     """
     Analyze spatial data using {concept.replace("_", " ")} techniques.
@@ -307,8 +304,6 @@ def analyze_{concept_snake}(data, parameters=None):
     Returns:
         Analysis results
     """
-    analyzer = SpatialAnalyzer()
-
     if data is None:
         return {{
             "concept": "{concept}",
@@ -321,7 +316,6 @@ def analyze_{concept_snake}(data, parameters=None):
         "status": "ready_for_extension",
         "input_type": type(data).__name__,
         "parameters": parameters or {{}},
-        "analyzer": analyzer.__class__.__name__,
     }}
     
     return results

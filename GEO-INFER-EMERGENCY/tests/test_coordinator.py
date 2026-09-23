@@ -90,6 +90,30 @@ class TestEmergencyCoordinator:
         assert result["status"] == "established"
         assert result["command_structure"]["incident_commander"] == "Chief Smith"
 
+    def test_establish_command_rejects_unknown_incident_type(self, coordinator):
+        """Unknown incident_type raises descriptively instead of coercing to OTHER."""
+        before = len(coordinator.get_active_incidents())
+        with pytest.raises(ValueError, match="unknown incident_type"):
+            coordinator.establish_command(
+                incident_type="wildfre",
+                location={"lat": 34.0, "lon": -118.0},
+                scale="type_2",
+                command_structure={"incident_commander": "Chief Doe"},
+            )
+        assert len(coordinator.get_active_incidents()) == before
+
+    def test_establish_command_rejects_unknown_scale(self, coordinator):
+        """Unknown scale raises descriptively instead of coercing to TYPE_3."""
+        before = len(coordinator.get_active_incidents())
+        with pytest.raises(ValueError, match="unknown scale"):
+            coordinator.establish_command(
+                incident_type="flood",
+                location={"lat": 34.0, "lon": -118.0},
+                scale="type9",
+                command_structure={"incident_commander": "Chief Doe"},
+            )
+        assert len(coordinator.get_active_incidents()) == before
+
     def test_request_mutual_aid(self, coordinator):
         """Test mutual aid request."""
         result = coordinator.request_mutual_aid(

@@ -11,16 +11,8 @@ Utils workspace within `GEO-INFER-ART`.
 ## Public Interface
 
 - `animation.py:save_animation_with_fallback` (function)
-- `validators.py:validate_file_path` (function)
-- `validators.py:validate_geospatial_data` (function)
-- `validators.py:validate_coordinates` (function)
-- `validators.py:validate_bbox` (function)
-- `validators.py:validate_color` (function)
-- `validators.py:validate_style_name` (function)
-- `validators.py:validate_numeric_range` (function)
-- `validators.py:validate_image_array` (function)
-- `validators.py:validate_resolution` (function)
-- `validators.py:validate_file_format` (function)
+- `validators.py:validate_file_path` (function) — called by `geo_infer_art.core.visualization.geo_art` in `GeoArt.load_geojson` and `GeoArt.load_raster`; tested in `tests/unit/test_validators.py`
+- `validators.py:validate_geospatial_data` (function) — called by `geo_infer_art.core.visualization.geo_art` in `GeoArt.apply_style`; tested in `tests/unit/test_validators.py`
 
 ## Module Metadata
 

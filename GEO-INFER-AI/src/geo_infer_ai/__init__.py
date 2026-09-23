@@ -5,11 +5,12 @@ This module provides comprehensive AI and machine learning capabilities for geos
 data processing, pattern recognition, and predictive modeling.
 
 Key Features:
-- Computer vision for satellite and aerial imagery
+- Image classification for satellite and aerial imagery (Random Forest /
+  MLP scikit-learn models on extracted features; no CNN, object detection,
+  or segmentation)
 - Predictive ML models for geospatial forecasting
 - MLOps integration with MLflow
 - Geospatial data preprocessing and feature engineering
-- Model repository and pre-trained models
 - Explainable AI (XAI) techniques
 """
 

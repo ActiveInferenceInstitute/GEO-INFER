@@ -11,7 +11,8 @@ This module provides enterprise-grade underwriting capabilities including:
 - Portfolio management and optimization
 - Underwriting guidelines and compliance
 - Real-time underwriting decisions
-- Integration with external data sources and APIs
+- Scaffold for external data-source integration (no live upstream: the
+  built-in default endpoints are placeholders, fetches fail closed to None)
 """
 
 __version__ = "0.3.0"

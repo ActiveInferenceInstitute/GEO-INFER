@@ -3,12 +3,14 @@ Data Integration: scaffold for external data-source integration.
 
 The built-in default sources (credit_bureau, property_database, weather_data,
 claims_history) point at placeholder endpoints that are not reachable; there
-is no live upstream bundled with this module. ``get_data`` never raises: any
-failure (missing ``requests`` library, unreachable endpoint, unset
-credentials, coding error) is logged and returns ``None``, so callers cannot
-distinguish "no record" from "integration never worked" without checking the
-log. Callers must configure explicit ``ExternalDataSource`` entries with real
-endpoints and credentials for any production use.
+is no live upstream bundled with this module. ``get_data`` refuses
+unconfigured sources loudly: a source whose authentication is entirely unset
+raises ``ValueError`` naming it (no network attempt is made), so callers
+cannot mistake "integration never worked" for "no record". For configured
+sources, expected transport failures (missing ``requests`` library,
+unreachable endpoint) are logged and return ``None``. Configure credentials
+(e.g. ``CREDIT_BUREAU_API_KEY``) or register explicit ``ExternalDataSource``
+entries with real endpoints via ``add_data_source`` for any production use.
 """
 
 import logging
@@ -44,8 +46,9 @@ class ExternalDataSource:
 class DataIntegrationManager:
     """Manager for external data-source integration.
 
-    Ships only placeholder default endpoints; see the module docstring for
-    the failure-to-None semantics.
+    Ships only placeholder default endpoints with unset credentials;
+    ``get_data`` raises ``ValueError`` for them instead of attempting a
+    network fetch. See the module docstring for the full failure semantics.
     """
 
     def __init__(self, data_sources: Optional[List[str]] = None):
@@ -144,13 +147,18 @@ class DataIntegrationManager:
             query_parameters: Query parameters for the request
 
         Returns:
-            Retrieved data or None if failed
+            Retrieved data, or None if a configured source's fetch failed
+
+        Raises:
+            ValueError: If the source's credentials are entirely unset (the
+                built-in placeholder defaults); no network attempt is made.
         """
         if source_name not in self.data_sources:
             self.logger.error(f"Unknown data source: {source_name}")
             return None
 
         source = self.data_sources[source_name]
+        self._require_configured_source(source)
         cache_key = self._generate_cache_key(source, query_parameters)
 
         # Check cache
@@ -176,6 +184,27 @@ class DataIntegrationManager:
         except Exception as e:
             self.logger.error(f"Failed to fetch data from {source_name}: {e}")
             return None
+
+    def _require_configured_source(self, source: ExternalDataSource) -> None:
+        """Raise a loud configuration error for sources with unset credentials.
+
+        The built-in defaults ship placeholder endpoints with empty env-key
+        authentication. Attempting them would either fail with DNS errors or,
+        worse, silently return ``None``, so underwriting callers could not
+        distinguish "no record" from "integration never worked". Unconfigured
+        sources are refused before any network attempt instead.
+        """
+        configured = any(
+            str(value).strip() for value in source.authentication.values()
+        )
+        if not configured:
+            raise ValueError(
+                f"Data source {source.name!r} has no configured credentials; "
+                "its built-in default is a placeholder endpoint with no live "
+                "upstream. Set the source's credentials (e.g. "
+                "CREDIT_BUREAU_API_KEY) or register an explicit "
+                "ExternalDataSource via add_data_source() before fetching."
+            )
 
     def _generate_cache_key(
         self,
