@@ -22,16 +22,13 @@ from datetime import datetime
 import json
 
 # Import modules to test
-try:
-    from geo_infer_ant.applications.environmental import (
-        EnvironmentalMonitoringSwarm,
-        MonitoringObjective,  # noqa: F401
-        SensorReading,
-    )
-    from geo_infer_ant.core.stigmergy import PheromoneSystem
-    from geo_infer_ant.core.digital_stigmergy import DigitalStigmergy
-except ImportError:
-    pytest.fail("Application modules not available")
+from geo_infer_ant.applications.environmental import (
+    EnvironmentalMonitoringSwarm,
+    MonitoringObjective,  # noqa: F401
+    SensorReading,
+)
+from geo_infer_ant.core.stigmergy import PheromoneSystem
+from geo_infer_ant.core.digital_stigmergy import DigitalStigmergy
 
 
 class TestEnvironmentalMonitoringSwarm:

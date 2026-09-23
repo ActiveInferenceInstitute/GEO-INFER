@@ -6,8 +6,7 @@ Validates caching behaviour: write/read, TTL expiry,
 key generation, cache stats, and clear_cache.
 """
 
-import time
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import pytest
 
@@ -35,12 +34,23 @@ class TestCacheLifecycle:
         result = wrapper._read_cache("nonexistent_key")
         assert result is None
 
-    def test_ttl_expiry(self, wrapper):
-        """After TTL expires the cache should return None."""
+    def test_ttl_expiry(self, wrapper, monkeypatch):
+        """After TTL expires the cache should return None (frozen clock)."""
         key = wrapper._cache_key("ttl_test")
         wrapper._write_cache(key, {"value": 42})
 
-        time.sleep(3)  # TTL is 2 seconds
+        # Freeze the module clock 3 s past the write (TTL is 2 s) instead of
+        # sleeping real wall-clock time (estate idiom: SEC frozen-datetime).
+        frozen_now = datetime.now() + timedelta(seconds=3)
+
+        class _FrozenDatetime(datetime):
+            @classmethod
+            def now(cls):
+                return frozen_now
+
+        monkeypatch.setattr(
+            "geo_infer_place.utils.caching.datetime", _FrozenDatetime
+        )
 
         result = wrapper._read_cache(key)
         assert result is None

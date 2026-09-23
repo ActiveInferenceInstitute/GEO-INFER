@@ -20,14 +20,10 @@ import asyncio
 import os
 
 # Import modules to test
-try:
-    from geo_infer_ant.core.agent_base import SwarmAgent, SensoryInput, ActionDecision
-    from geo_infer_ant.core.population import AgentPopulation, EnvironmentalState
-    from geo_infer_ant.core.stigmergy import PheromoneSystem
-    from geo_infer_ant.core.digital_stigmergy import DigitalStigmergy
-except ImportError:
-    # Fallback for testing without full implementation
-    pytest.fail("Core modules not fully implemented")
+from geo_infer_ant.core.agent_base import SwarmAgent, SensoryInput, ActionDecision
+from geo_infer_ant.core.population import AgentPopulation, EnvironmentalState
+from geo_infer_ant.core.stigmergy import PheromoneSystem
+from geo_infer_ant.core.digital_stigmergy import DigitalStigmergy
 
 
 class TestSwarmAgent:

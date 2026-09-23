@@ -470,6 +470,7 @@ class TestFreeEnergyCalculator(unittest.TestCase):
         self.assertIsInstance(fe, float)
 
 
+@pytest.mark.slow
 class TestGenerativeModel(unittest.TestCase):
     """Tests for GenerativeModel class."""
 

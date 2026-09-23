@@ -4,7 +4,8 @@
 The runner intentionally mirrors the commands documented in the root README:
 
 * ``--module NAME`` runs one module's tests.
-* ``--category unit|integration|performance|coverage`` runs a focused suite.
+* ``--category unit|slow|integration|performance|coverage`` runs a focused
+  suite.
 * ``--h3-migration`` runs the H3/Active Inference and ACT script-orchestration
   contract validators.
 * ``--show-failures`` prints the failing test names of every failed suite in
@@ -344,15 +345,18 @@ def category_test_paths(module: Module, category: str) -> list[Path]:
     canonical unit directory so the category cannot silently omit behavior
     tests, together with any nested test trees registered in
     ``EXTRA_TEST_PATHS``. Integration, system, and performance remain bounded
-    by their named directories.
+    by their named directories. The ``slow`` category shares the unit path
+    set; the marker filter applied by :func:`run_module_category_tests`
+    selects the slow-marked complement.
     """
-    category_path = module.test_path / category
+    path_category = "unit" if category == "slow" else category
+    category_path = module.test_path / path_category
     paths = test_file_paths(category_path)
-    if category != "unit":
+    if path_category != "unit":
         return paths
     paths.extend(test_file_paths(module.test_path, recursive=False))
     paths.extend(test_file_paths(module.test_path / "tools"))
-    for extra_path in EXTRA_TEST_PATHS.get(module.name, {}).get(category, ()):
+    for extra_path in EXTRA_TEST_PATHS.get(module.name, {}).get(path_category, ()):
         paths.extend(test_file_paths(extra_path))
     return sorted(set(paths))
 
@@ -397,8 +401,13 @@ def run_module_category_tests(
         if not paths:
             continue
         discovered = True
+        marker_filter = {
+            "unit": ["-m", "not slow"],
+            "slow": ["-m", "slow"],
+        }.get(category, [])
         command = [
             *pytest_base_args(),
+            *marker_filter,
             *map(str, paths),
             f"--junitxml={RESULTS_DIR / f'{module.name}_{category}_results.xml'}",
         ]
@@ -424,6 +433,11 @@ def run_module_category_tests(
 
 def run_unit_tests(timeout: int, fail_fast: bool = False) -> SuiteReport:
     return run_module_category_tests("unit", timeout=timeout, fail_fast=fail_fast)
+
+
+def run_slow_tests(timeout: int, fail_fast: bool = False) -> SuiteReport:
+    """Run each module's ``slow``-marked tests (the unit lane's complement)."""
+    return run_module_category_tests("slow", timeout=timeout, fail_fast=fail_fast)
 
 
 def run_integration_tests(timeout: int, fail_fast: bool = False) -> SuiteReport:
@@ -654,6 +668,7 @@ def parse_args() -> argparse.Namespace:
         "--category",
         choices=[
             "unit",
+            "slow",
             "integration",
             "system",
             "performance",
@@ -710,6 +725,8 @@ def main() -> int:
         report = run_h3_contracts(timeout=args.timeout)
     elif args.category == "unit":
         report = run_unit_tests(timeout=args.timeout, fail_fast=args.fail_fast)
+    elif args.category == "slow":
+        report = run_slow_tests(timeout=args.timeout, fail_fast=args.fail_fast)
     elif args.category == "integration":
         report = run_integration_tests(timeout=args.timeout, fail_fast=args.fail_fast)
     elif args.category == "system":

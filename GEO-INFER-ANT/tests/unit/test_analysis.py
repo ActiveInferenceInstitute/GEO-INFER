@@ -23,15 +23,12 @@ import asyncio
 from datetime import datetime, timedelta
 
 # Import modules to test
-try:
-    from geo_infer_ant.analysis.patterns import (
-        SwarmPatternAnalyzer,
-        AnalysisConfiguration,  # noqa: F401
-    )  # noqa: F401
-    from geo_infer_ant.core.stigmergy import PheromoneSystem
-    from geo_infer_ant.core.digital_stigmergy import DigitalStigmergy
-except ImportError:
-    pytest.fail("Analysis modules not available")
+from geo_infer_ant.analysis.patterns import (
+    SwarmPatternAnalyzer,
+    AnalysisConfiguration,  # noqa: F401
+)  # noqa: F401
+from geo_infer_ant.core.stigmergy import PheromoneSystem
+from geo_infer_ant.core.digital_stigmergy import DigitalStigmergy
 
 
 class TestSwarmPatternAnalyzer:

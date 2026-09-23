@@ -23,22 +23,19 @@ import json
 import tempfile
 
 # Import modules to test
-try:
-    from geo_infer_ant.core import (
-        SwarmAgent,
-        SensoryInput,
-        AgentPopulation,
-        PheromoneSystem,
-        DigitalStigmergy,
-    )
-    from geo_infer_ant.algorithms import (
-        AntColonyOptimization,
-        ParticleSwarmOptimization,  # noqa: F401
-    )  # noqa: F401
-    from geo_infer_ant.applications import EnvironmentalMonitoringSwarm
-    from geo_infer_ant.analysis import SwarmPatternAnalyzer
-except ImportError:
-    pytest.fail("Core modules not fully implemented")
+from geo_infer_ant.core import (
+    SwarmAgent,
+    SensoryInput,
+    AgentPopulation,
+    PheromoneSystem,
+    DigitalStigmergy,
+)
+from geo_infer_ant.algorithms import (
+    AntColonyOptimization,
+    ParticleSwarmOptimization,  # noqa: F401
+)  # noqa: F401
+from geo_infer_ant.applications import EnvironmentalMonitoringSwarm
+from geo_infer_ant.analysis import SwarmPatternAnalyzer
 
 
 class TestEndToEndSimulation:

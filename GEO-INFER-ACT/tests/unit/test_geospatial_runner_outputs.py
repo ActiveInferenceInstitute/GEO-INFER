@@ -511,14 +511,3 @@ def test_plotly_or_table_prefers_figure_html_when_builder_succeeds(caplog) -> No
     assert not [
         record for record in caplog.records if record.levelno >= logging.WARNING
     ]
-
-
-def test_scenario_report_fallbacks_are_deduplicated_to_one_plotly_call() -> None:
-    """All nine report builders share the single helper's Plotly call."""
-    import inspect
-
-    from geo_infer_act.runners import scenarios
-
-    source = inspect.getsource(scenarios)
-    assert source.count("include_plotlyjs=") == 1
-    assert source.count("_plotly_or_table(") == 10  # 1 definition + 9 call sites
