@@ -1,6 +1,12 @@
-# GEO-INFER-SPM API Schema
-# OpenAPI 3.0 specification for SPM analysis endpoints
-
+# DESIGN SPECIFICATION — NOT IMPLEMENTED
+#
+# This OpenAPI document is a forward-looking design for a REST layer over
+# GEO-INFER-SPM. No HTTP transport ships in GEO-INFER-SPM today:
+# src/geo_infer_spm/api/endpoints.py defines an in-process SPMAPI facade
+# (dict-backed upload/fit/contrast methods, no Flask/FastAPI dependency), so
+# the server URLs and auth schemes below are design targets only — no
+# production or staging deployment exists. Treat this file as a design spec,
+# not a description of running code.
 openapi: 3.0.3
 info:
   title: GEO-INFER-SPM API
@@ -13,6 +19,8 @@ info:
     name: GEO-INFER Framework
     url: https://github.com/geo-infer/geo-infer-spm
 
+# NOTE (design spec): the server URLs and security schemes below are design
+# targets only — no production or staging deployment of this HTTP layer exists.
 servers:
   - url: http://localhost:8000/api/v1
     description: Local development server
@@ -382,5 +390,7 @@ components:
       in: header
       name: X-API-Key
 
+# NOTE (design spec): the server URLs and security schemes below are design
+# targets only — no production or staging deployment of this HTTP layer exists.
 security:
   - ApiKeyAuth: []

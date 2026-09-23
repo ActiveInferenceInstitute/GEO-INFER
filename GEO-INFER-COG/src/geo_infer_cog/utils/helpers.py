@@ -101,20 +101,23 @@ def save_cognitive_profile(
         return False
 
 
-def load_cognitive_model(model_path: str, model_type: str = "auto") -> Dict[str, Any]:
+def load_cognitive_model(
+    model_path: Union[str, Path], model_type: str = "auto"
+) -> Dict[str, Any]:
     """
     Load cognitive model from file.
 
     Args:
-        model_path: Path to model file
+        model_path: Path to model file (str or Path)
         model_type: Type of model ('perception', 'reasoning', 'memory', 'auto')
 
     Returns:
         Loaded model configuration
     """
     try:
-        with open(model_path, "r") as f:
-            if model_path.suffix.lower() in [".yaml", ".yml"]:  # type: ignore[attr-defined]
+        model_path = Path(model_path)
+        with model_path.open("r") as f:
+            if model_path.suffix.lower() in [".yaml", ".yml"]:
                 model_config = yaml.safe_load(f)
             else:
                 model_config = json.load(f)

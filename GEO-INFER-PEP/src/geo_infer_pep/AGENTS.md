@@ -32,6 +32,7 @@
 - `visualizations/`
 - `__init__.py`
 - `methods.py`
+- `performance_store.py`
 
 ## Validation
 

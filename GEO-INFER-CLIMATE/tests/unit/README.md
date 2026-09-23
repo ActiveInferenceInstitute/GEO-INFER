@@ -7,6 +7,7 @@ Unit workspace within `GEO-INFER-CLIMATE`.
 - `test_classification.py`
 - `test_climate_data.py`
 - `test_climate_indices.py`
+- `test_climate_preprocess.py`
 - `test_downscaling.py`
 - `test_extreme_events.py`
 - `test_impact_assessment.py`
@@ -29,7 +30,6 @@ Unit workspace within `GEO-INFER-CLIMATE`.
 ## Dependencies
 
 - `numpy>=1.20.0`
-- `pandas>=1.3.0`
 - `scipy>=1.7.0`
 - `xarray>=0.19.0`
 

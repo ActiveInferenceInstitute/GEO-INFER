@@ -20,12 +20,9 @@ import tempfile
 import os
 
 # Import modules to test
-try:
-    from geo_infer_ant.algorithms.aco import AntColonyOptimization
-    from geo_infer_ant.algorithms.pso import ParticleSwarmOptimization
-    from geo_infer_ant.algorithms.abc import ArtificialBeeColony, FoodSource
-except ImportError:
-    pytest.fail("Algorithm modules not available")
+from geo_infer_ant.algorithms.aco import AntColonyOptimization
+from geo_infer_ant.algorithms.pso import ParticleSwarmOptimization
+from geo_infer_ant.algorithms.abc import ArtificialBeeColony, FoodSource
 
 
 class TestAntColonyOptimization:

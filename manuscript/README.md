@@ -43,7 +43,7 @@ Manuscript workspace within GEO-INFER.
 - `generate_research_artifacts.py:write_resolved_manuscript` (function)
 - `generate_research_artifacts.py:bibliography_policy` (function)
 - `generate_research_artifacts.py:audit_bibliography` (function)
-- `generate_research_artifacts.py:generate` (function)
+- `generate_research_artifacts.py:audit_module_census` (function)
 
 
 ## Validation

@@ -19,6 +19,7 @@ from geo_infer_test.core.validators import (
     BayesianValidator,
     PerformanceValidator,
     QualityController,
+    run_full_system_test,
 )
 
 # ============================================================================
@@ -194,6 +195,21 @@ class TestSpatialParametric:
         result = SpatialValidator().validate(data)
         assert "spatial_validation" in result
         assert "total_records" in result
+
+    def test_duplicate_coordinate_columns_record_unknown_status(self):
+        """M9-05: a coordinate coercion failure is recorded, not swallowed.
+
+        Duplicated ``latitude`` columns make ``df["latitude"]`` a DataFrame,
+        which ``pd.to_numeric`` rejects with TypeError — exactly the silent
+        ``except ... pass`` path this contract forbids.
+        """
+        df = pd.DataFrame(
+            [[0.0, 5.0, 5.0]], columns=["longitude", "latitude", "latitude"]
+        )
+        result = SpatialValidator().validate(df)
+        coords = result["spatial_validation"]["coordinate_validity"]
+        assert coords["status"] == "unknown"
+        assert "coordinate numeric coercion failed" in coords["reason"]
 
 
 # ---- IoTValidator scenarios ------------------------------------------------
@@ -538,6 +554,50 @@ class TestPerformanceParametric:
 
 
 # ---- QualityController scenarios -------------------------------------------
+
+
+def _strip_timing(result):
+    """Remove wall-clock fields so two runs compare by content only."""
+    if isinstance(result, dict):
+        return {
+            key: _strip_timing(value)
+            for key, value in result.items()
+            if key
+            not in {
+                "validation_timestamp",
+                "total_validation_time",
+                "validation_time",
+                # Recomputed from datetime.now() on every validation call
+                # (validators.py _analyze_temporal_patterns): two calls
+                # straddling a scheduling gap produce ages whose relative
+                # drift exceeds the 1e-6*age tolerance whenever data is
+                # recent. They derive from fixed inputs + the wall clock,
+                # like the timestamp fields above.
+                "newest_measurement_hours_ago",
+                "oldest_measurement_hours_ago",
+                "mean_age_hours",
+            }
+        }
+    if isinstance(result, list):
+        return [_strip_timing(item) for item in result]
+    return result
+
+
+def _parity_equal(left, right, tol: float = 1e-6) -> bool:
+    """Structural equality with relative tolerance for clock-derived floats."""
+    if isinstance(left, dict) and isinstance(right, dict):
+        return left.keys() == right.keys() and all(
+            _parity_equal(left[key], right[key], tol) for key in left
+        )
+    if isinstance(left, list) and isinstance(right, list):
+        return len(left) == len(right) and all(
+            _parity_equal(a, b, tol) for a, b in zip(left, right)
+        )
+    if isinstance(left, float) and isinstance(right, float):
+        return abs(left - right) <= tol * max(1.0, abs(left), abs(right))
+    return left == right
+
+
 _QC_SENSOR_DATA = pd.DataFrame(
     [
         {
@@ -603,3 +663,28 @@ class TestQualityControllerParametric:
         rec = qc._get_quality_recommendation(quality)
         assert isinstance(rec, str)
         assert len(rec) > 5
+
+    @pytest.mark.parametrize(
+        ("sensor_data", "inference", "perf"),
+        [
+            (None, None, None),
+            (_QC_SENSOR_DATA, None, None),
+            (None, _QC_INFERENCE, None),
+            (None, None, _QC_PERF),
+            (_QC_SENSOR_DATA, _QC_INFERENCE, _QC_PERF),
+        ],
+    )
+    def test_run_full_system_test_delegate_parity(self, sensor_data, inference, perf):
+        """run_full_system_test must delegate exactly to QualityController."""
+        direct = QualityController().run_comprehensive_validation(
+            sensor_data=sensor_data,
+            inference_results=inference,
+            performance_metrics=perf,
+        )
+        via_export = run_full_system_test(
+            sensor_data=sensor_data,
+            spatial_results=None,
+            inference_results=inference,
+            performance_metrics=perf,
+        )
+        assert _parity_equal(_strip_timing(via_export), _strip_timing(direct))

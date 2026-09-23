@@ -19,7 +19,6 @@ import numpy as np
 import logging
 from typing import Dict, List, Any, Optional, Union, cast
 from datetime import datetime
-from dataclasses import dataclass, field
 from collections import defaultdict
 
 # Integration imports
@@ -34,7 +33,6 @@ except ImportError as e:
     SpatialStatistics = None
 
 logger = logging.getLogger(__name__)
-
 
 
 from ._config import AnalysisConfiguration
@@ -310,17 +308,16 @@ class SwarmPatternAnalyzer:
             separation_scores = []
             for step in range(trajectories.shape[1]):
                 positions = trajectories[:, step, :]
-                min_distances = []
-
-                for i in range(len(positions)):
-                    distances = [
-                        np.linalg.norm(positions[i] - positions[j])
-                        for j in range(len(positions))
-                        if j != i
-                    ]
-                    min_distances.append(min(distances))
-
-                separation_scores.append(np.mean(min_distances))
+                if positions.shape[0] < 2:
+                    # Preserve the legacy degenerate-input failure path: the
+                    # original per-pair loop raised ValueError from min() on
+                    # an empty distance list.
+                    raise ValueError("min() iterable argument is empty")
+                pair_dists = np.linalg.norm(
+                    positions[:, None, :] - positions[None, :, :], axis=-1
+                )
+                np.fill_diagonal(pair_dists, np.inf)
+                separation_scores.append(np.mean(pair_dists.min(axis=1)))
 
             return {
                 "flocking_measures": {

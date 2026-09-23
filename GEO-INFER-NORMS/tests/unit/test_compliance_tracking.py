@@ -164,6 +164,62 @@ class TestComplianceTracker:
         assert status.metric_results is not None
         assert "pm25" in status.metric_results[0]["notes"]
 
+    def test_evaluate_compliance_invalid_evaluation_type_is_surfaced(self):
+        """An unknown evaluation_type must surface as an evaluation error note."""
+        reg = _make_regulation("reg-1")
+        entity = _make_entity("ent-1")
+        metric = ComplianceMetric.create(
+            name="Weird Type",
+            description="Metric with an unsupported evaluation_type",
+            regulation_id="reg-1",
+            evaluation_type="composite_unsupported",
+            primary_field="emission_level",
+            threshold_value=50.0,
+            comparison="greater_than",
+        )
+        tracker = ComplianceTracker(name="test", compliance_metrics=[metric])
+        status = tracker.evaluate_compliance(entity, reg, {"emission_level": 30.0})
+        assert status.is_compliant is False
+        assert status.metric_results is not None
+        assert "unknown evaluation_type" in status.metric_results[0]["notes"]
+        assert "Evaluation error" in status.metric_results[0]["notes"]
+
+    def test_evaluate_compliance_crash_is_error_entry_not_non_compliance(self):
+        """A raising evaluator surfaces as an error entry, never as a verdict."""
+        reg = _make_regulation("reg-1")
+        entity = _make_entity("ent-1")
+        crasher = ComplianceMetric.create(
+            name="pH band",
+            description="pH within acceptable range",
+            regulation_id="reg-1",
+            evaluation_type="range",
+            primary_field="ph_level",
+            range_min=6.0,
+            range_max=8.0,
+        )
+        violator = _make_metric("reg-1", "threshold")
+        tracker = ComplianceTracker(name="test", compliance_metrics=[crasher, violator])
+        # The non-numeric value crashes the range comparison (TypeError) while
+        # the threshold metric genuinely fails (80.0 is not < 50.0).
+        status = tracker.evaluate_compliance(
+            entity, reg, {"ph_level": "not-a-number", "emission_level": 80.0}
+        )
+        assert status.metric_results is not None
+        entries = {e["name"]: e for e in status.metric_results}
+        # The crashed evaluator is an error state, not a compliance verdict.
+        assert entries["pH band"]["is_compliant"] is None
+        assert entries["pH band"]["compliance_level"] is None
+        assert "error" in entries["pH band"]
+        assert "Evaluation error" in entries["pH band"]["notes"]
+        # A genuinely violated norm still yields the non-compliant verdict.
+        assert entries["Test Metric"]["is_compliant"] is False
+        assert entries["Test Metric"]["compliance_level"] == 0.0
+        # The crash contributes no verdict and the status notes flag it.
+        assert status.is_compliant is False
+        assert "failed with errors" in status.notes
+        # The error entry is excluded from the weighted level (no TypeError).
+        assert status.compliance_level == 0.0
+
 
 class TestComplianceReport:
     def test_generate_summary_report(self):

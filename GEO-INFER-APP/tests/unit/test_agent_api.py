@@ -124,6 +124,20 @@ class TestAgentAPIClient:
         assert "running" in callback_data
 
 
+class TestAgentPersistence:
+    @pytest.mark.asyncio
+    async def test_save_agents_surfaces_unwritable_path(self, tmp_path):
+        """A persistence failure in _save_agents propagates, not vanishes."""
+        blocker = tmp_path / "blocker"
+        blocker.write_text("not a directory")
+        client = AgentAPIClient(
+            config={"agents_config_path": str(blocker / "agents.json")}
+        )
+
+        with pytest.raises(OSError):
+            await client._save_agents()
+
+
 class TestAgentManager:
     @pytest.mark.asyncio
     async def test_create_and_start(self, manager):

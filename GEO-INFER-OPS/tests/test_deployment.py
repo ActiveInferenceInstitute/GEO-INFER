@@ -63,7 +63,9 @@ def test_build_docker_image_success(deployment_manager):
         result = deployment_manager.build_docker_image()
         assert result is True
         mock_run.assert_called_once_with(
-            ["docker", "build", "-t", "test-tag", "."], check=True
+            ["docker", "build", "-t", "test-tag", "."],
+            check=True,
+            timeout=1800,
         )
 
 
@@ -82,7 +84,9 @@ def test_push_docker_image_success(deployment_manager):
         result = deployment_manager.push_docker_image()
         assert result is True
         mock_run.assert_called_once_with(
-            ["docker", "push", "test-registry/test-tag"], check=True
+            ["docker", "push", "test-registry/test-tag"],
+            check=True,
+            timeout=900,
         )
 
 

@@ -19,27 +19,56 @@ from geo_infer_log.models.schemas import (
 from geo_infer_log.utils.geo import haversine_distance
 from scipy.spatial import KDTree
 from shapely.geometry import LineString
+from geo_infer_log.core.secure_serialization import (
+    CONTEXT_NETWORK,
+    sign_payload,
+    verify_payload,
+)
 
 logger = logging.getLogger(__name__)
 
 _DEFAULT_SPEED_KMH = 30.0  # Default urban speed for network-free routing
 
 
-def _load_gpickle(path: str) -> nx.Graph:
-    """Load a graph pickled with :func:`pickle.dump`.
+def save_gpickle(path: str, graph: nx.Graph) -> None:
+    """Pickle a graph into an authenticated GISP1 envelope.
 
-    ``nx.read_gpickle`` was removed in networkx 3.0; plain
-    :func:`pickle.load` is the supported replacement and round-trips
-    with ``pickle.dump``.
+    Supported writer counterpart to :func:`_load_gpickle`: the serialized
+    bytes are signed under the ``log.routing.network`` context (see
+    :mod:`geo_infer_log.core.secure_serialization`).
 
     Args:
-        path: Path to the pickled graph file
+        path: Path to write the envelope to
+        graph: The NetworkX graph to persist
+    """
+    envelope = sign_payload(pickle.dumps(graph), context=CONTEXT_NETWORK)
+    with open(path, "wb") as handle:
+        handle.write(envelope)
+
+
+def _load_gpickle(path: str) -> nx.Graph:
+    """Load a graph pickled and enveloped by :func:`save_gpickle`.
+
+    ``nx.read_gpickle`` was removed in networkx 3.0; the authenticated
+    :func:`save_gpickle`/``_load_gpickle`` pair is the supported
+    replacement. The GISP1 envelope is verified before the bytes reach
+    ``pickle.loads`` — unsigned, truncated, tampered, or cross-context
+    network files are refused instead of deserialized.
+
+    Args:
+        path: Path to the enveloped graph file
 
     Returns:
         The unpickled NetworkX graph
+
+    Raises:
+        geo_infer_log.core.secure_serialization.PayloadSecurityError:
+            If the file is not a valid GISP1 envelope.
     """
     with open(path, "rb") as handle:
-        return pickle.load(handle)
+        envelope = handle.read()
+    verified = verify_payload(envelope, context=CONTEXT_NETWORK)
+    return pickle.loads(verified)
 
 
 class RouteOptimizer:
@@ -62,7 +91,7 @@ class RouteOptimizer:
         """Load a transportation network from a file.
 
         Args:
-            network_file: Path to network file (Pickle or GraphML)
+            network_file: Path to network file (GraphML or signed gpickle envelope)
         """
         try:
             if network_file.endswith(".graphml"):

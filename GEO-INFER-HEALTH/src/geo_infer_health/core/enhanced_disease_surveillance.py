@@ -292,12 +292,17 @@ class ActiveInferenceDiseaseAnalyzer(DiseaseHotspotAnalyzer):
                         logger.warning(f"Error filtering by time window: {e}")
                         analysis_reports = self.reports
 
+                # Stage-failure ledger: appended by each guarded stage below
+                # so callers can distinguish degraded output from real values.
+                failed_stages: List[str] = []
+
                 # Extract observations with error handling
                 try:
                     observations = self._extract_observations(analysis_reports)
                 except Exception as e:
                     logger.error(f"Failed to extract observations: {e}")
                     observations = {}
+                    failed_stages.append("extract_observations")
 
                 # Update beliefs using Active Inference
                 if observations:
@@ -305,12 +310,14 @@ class ActiveInferenceDiseaseAnalyzer(DiseaseHotspotAnalyzer):
                         self._update_beliefs(observations)
                     except Exception as e:
                         logger.error(f"Failed to update beliefs: {e}")
+                        failed_stages.append("update_beliefs")
 
                 # Perform analyses with error handling
                 results: Dict[str, Any] = {
                     "belief_states": self.belief_states.copy(),
                     "belief_precisions": self.belief_precisions.copy(),
                     "observations": observations,
+                    "failed_stages": failed_stages,
                 }
 
                 try:
@@ -320,6 +327,7 @@ class ActiveInferenceDiseaseAnalyzer(DiseaseHotspotAnalyzer):
                 except Exception as e:
                     logger.error(f"Traditional hotspot analysis failed: {e}")
                     results["traditional_hotspots"] = []
+                    failed_stages.append("traditional_hotspots")
 
                 try:
                     results["enhanced_hotspots"] = self._enhanced_hotspot_analysis(
@@ -328,6 +336,7 @@ class ActiveInferenceDiseaseAnalyzer(DiseaseHotspotAnalyzer):
                 except Exception as e:
                     logger.error(f"Enhanced hotspot analysis failed: {e}")
                     results["enhanced_hotspots"] = []
+                    failed_stages.append("enhanced_hotspots")
 
                 try:
                     results["predictions"] = self._generate_predictions(
@@ -336,6 +345,7 @@ class ActiveInferenceDiseaseAnalyzer(DiseaseHotspotAnalyzer):
                 except Exception as e:
                     logger.error(f"Prediction generation failed: {e}")
                     results["predictions"] = {"short_term_risk": 0.5, "trend": "error"}
+                    failed_stages.append("predictions")
 
                 try:
                     results["confidence_intervals"] = (
@@ -346,6 +356,7 @@ class ActiveInferenceDiseaseAnalyzer(DiseaseHotspotAnalyzer):
                     results["confidence_intervals"] = {
                         "incidence_rate": {"lower": 0, "upper": 0, "confidence": 0}
                     }
+                    failed_stages.append("confidence_intervals")
 
                 try:
                     results["risk_assessment"] = self._assess_overall_risk(
@@ -354,6 +365,7 @@ class ActiveInferenceDiseaseAnalyzer(DiseaseHotspotAnalyzer):
                 except Exception as e:
                     logger.error(f"Risk assessment failed: {e}")
                     results["risk_assessment"] = {"risk_level": "unknown", "score": 0.5}
+                    failed_stages.append("risk_assessment")
 
                 try:
                     results["recommendations"] = self._generate_recommendations()
@@ -362,6 +374,9 @@ class ActiveInferenceDiseaseAnalyzer(DiseaseHotspotAnalyzer):
                     results["recommendations"] = [
                         "Analysis completed with errors - review logs"
                     ]
+                    failed_stages.append("recommendations")
+
+                results["degraded"] = bool(failed_stages)
 
                 logger.info(
                     f"Active Inference analysis completed for {len(analysis_reports)} reports"
@@ -373,11 +388,17 @@ class ActiveInferenceDiseaseAnalyzer(DiseaseHotspotAnalyzer):
                 # Return minimal results on critical failure
                 return {
                     "error": str(e),
-                    "belief_states": self.belief_states.copy(),
+                    "belief_states": (
+                        self.belief_states.copy()
+                        if isinstance(self.belief_states, dict)
+                        else {}
+                    ),
                     "traditional_hotspots": [],
                     "enhanced_hotspots": [],
                     "predictions": {"short_term_risk": 0.5, "trend": "error"},
                     "recommendations": ["Analysis failed - check system logs"],
+                    "failed_stages": ["analysis"],
+                    "degraded": True,
                 }
 
     def _traditional_hotspot_analysis(self, reports: List[DiseaseReport]) -> List[Dict]:

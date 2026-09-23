@@ -1,1304 +1,827 @@
-openapi: 3.0.3
+# Regenerated from the live application: ``create_app().openapi()`` in
+# ``src/geo_infer_api/app.py`` (scope item GS19-09). Paths, tags, and
+# component schemas are machine-derived from the implemented routes; do
+# not hand-edit them — regenerate instead. The ``info``/``servers`` blocks
+# are the only hand-maintained part.
+openapi: 3.1.0
 info:
   title: GEO-INFER-API
-  description: |
-    Standardized Interfaces for Geospatial Interoperability
+  description: 'Standardized Interfaces for Geospatial Interoperability
 
-    The central nervous system for communication and interoperability within the GEO-INFER framework.
-    Provides unified gateway, OGC-compliant APIs, and standardized access to all framework functionalities.
 
-    **Core Capabilities:**
-    - OGC API Features compliant endpoints for geospatial data
-    - Advanced polygon operations (area, simplification, intersection, buffer)
-    - Real-time geospatial data processing
-    - Integration with all GEO-INFER modules
-    - Comprehensive geospatial analysis tools
-  version: 1.0.0
+    Regenerated from the implemented FastAPI application (``create_app().openapi()``). Health endpoints
+    are mounted at the application root; every other endpoint is mounted under the ``/api/v1`` prefix
+    (see ``src/geo_infer_api/app.py``). The surface comprises a GeoJSON feature collection API, a registered
+    processing-algorithm registry, and polygon geometry operations. There is no authentication and no
+    OGC Processes/jobs surface; those endpoints do not exist in this application.'
+  version: 0.3.0
   contact:
     name: GEO-INFER Development Team
-    url: https://github.com/geo-infer/geo-infer-api
-    email: api-support@geo-infer.org
+    url: https://github.com/ActiveInferenceInstitute/GEO_INFER
   license:
     name: CC BY-NC-SA 4.0
     url: https://creativecommons.org/licenses/by-nc-sa/4.0/
-
 servers:
-  - url: https://api.geo-infer.org/v1
-    description: Production server
-  - url: https://staging-api.geo-infer.org/v1
-    description: Staging server
-  - url: http://localhost:8000/v1
-    description: Local development server
-
-security:
-  - ApiKeyAuth: []
-  - BearerAuth: []
-  - OAuth2: [read, write]
-
+- url: http://localhost:8000
+  description: Local development server
 paths:
   /health:
     get:
-      summary: Health check endpoint
-      description: Returns the health status of the API gateway
-      operationId: getHealth
       tags:
-        - System
+      - Health
+      summary: Health check
+      description: 'Simple health check endpoint.
+
+
+        Returns basic status information about the running API instance.'
+      operationId: health_check_health_get
       responses:
         '200':
-          description: API is healthy
+          description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HealthStatus'
-
-  /collections:
+                additionalProperties: true
+                type: object
+                title: Response Health Check Health Get
+  /health/detailed:
     get:
-      summary: List feature collections (OGC API - Features)
-      description: Returns a list of available feature collections following OGC API Features standard
-      operationId: getCollections
       tags:
-        - OGC Features
+      - Health
+      summary: Detailed health check
+      description: 'Detailed health check with real component status information.
+
+
+        Returns live values for memory usage, uptime, and feature flags.'
+      operationId: detailed_health_check_health_detailed_get
       responses:
         '200':
-          description: List of available collections
+          description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Collections'
-
-  /collections/{collectionId}:
+                additionalProperties: true
+                type: object
+                title: Response Detailed Health Check Health Detailed Get
+  /api/v1/collections:
     get:
-      summary: Get collection metadata
-      description: Returns metadata about a specific feature collection
-      operationId: getCollection
       tags:
-        - OGC Features
+      - GeoJSON
+      summary: List available feature collections
+      description: 'List available feature collections.
+
+
+        Follows the OGC API Features standard for listing collections.'
+      operationId: list_collections_api_v1_collections_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response List Collections Api V1 Collections Get
+  /api/v1/collections/polygons:
+    get:
+      tags:
+      - GeoJSON
+      summary: Get polygon collection metadata
+      description: 'Get metadata about the polygon collection.
+
+
+        Follows the OGC API Features standard for describing a collection.'
+      operationId: get_polygon_collection_api_v1_collections_polygons_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Get Polygon Collection Api V1 Collections Polygons Get
+  /api/v1/collections/polygons/items:
+    get:
+      tags:
+      - GeoJSON
+      summary: List polygon features
+      description: 'List polygon features with optional bounding-box filtering.
+
+
+        Follows the OGC API Features standard for listing items in a collection.'
+      operationId: list_polygon_features_api_v1_collections_polygons_items_get
       parameters:
-        - name: collectionId
-          in: path
-          required: true
-          schema:
-            type: string
-          description: Collection identifier
+      - name: bbox
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Bounding box (minLon,minLat,maxLon,maxLat)
+          title: Bbox
+        description: Bounding box (minLon,minLat,maxLon,maxLat)
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 1000
+          minimum: 1
+          description: Maximum number of features to return
+          default: 10
+          title: Limit
+        description: Maximum number of features to return
       responses:
         '200':
-          description: Collection metadata
+          description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Collection'
-        '404':
-          description: Collection not found
+                $ref: '#/components/schemas/PolygonFeatureCollection'
+        '422':
+          description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
-  /collections/{collectionId}/items:
-    get:
-      summary: Get collection features
-      description: Returns features from a specific collection
-      operationId: getCollectionItems
-      tags:
-        - OGC Features
-      parameters:
-        - name: collectionId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: bbox
-          in: query
-          required: false
-          schema:
-            type: array
-            items:
-              type: number
-            minItems: 4
-            maxItems: 6
-          description: Bounding box filter (minLon,minLat,maxLon,maxLat[,minElev,maxElev])
-        - name: limit
-          in: query
-          required: false
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 10000
-            default: 10
-        - name: offset
-          in: query
-          required: false
-          schema:
-            type: integer
-            minimum: 0
-            default: 0
-      responses:
-        '200':
-          description: Feature collection
-          content:
-            application/geo+json:
-              schema:
-                $ref: '#/components/schemas/FeatureCollection'
+                $ref: '#/components/schemas/HTTPValidationError'
     post:
-      summary: Create new feature
-      description: Creates a new feature in the collection
-      operationId: createFeature
       tags:
-        - OGC Features
-      parameters:
-        - name: collectionId
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/geo+json:
-            schema:
-              $ref: '#/components/schemas/Feature'
-      responses:
-        '201':
-          description: Feature created successfully
-          content:
-            application/geo+json:
-              schema:
-                $ref: '#/components/schemas/Feature'
-        '400':
-          description: Invalid feature data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+      - GeoJSON
+      summary: Create a new polygon feature
+      description: 'Create a new polygon feature.
 
-  /collections/{collectionId}/items/{featureId}:
-    get:
-      summary: Get specific feature
-      description: Returns a specific feature by ID
-      operationId: getFeature
-      tags:
-        - OGC Features
-      parameters:
-        - name: collectionId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: featureId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Feature data
-          content:
-            application/geo+json:
-              schema:
-                $ref: '#/components/schemas/Feature'
-        '404':
-          description: Feature not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    put:
-      summary: Update feature
-      description: Updates an existing feature
-      operationId: updateFeature
-      tags:
-        - OGC Features
-      parameters:
-        - name: collectionId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: featureId
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/geo+json:
-            schema:
-              $ref: '#/components/schemas/Feature'
-      responses:
-        '200':
-          description: Feature updated successfully
-        '404':
-          description: Feature not found
-    delete:
-      summary: Delete feature
-      description: Deletes a specific feature
-      operationId: deleteFeature
-      tags:
-        - OGC Features
-      parameters:
-        - name: collectionId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: featureId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '204':
-          description: Feature deleted successfully
-        '404':
-          description: Feature not found
 
-  /processes:
-    get:
-      summary: List available processes (OGC API - Processes)
-      description: Returns list of available geospatial processing operations
-      operationId: getProcesses
-      tags:
-        - OGC Processes
-      responses:
-        '200':
-          description: List of available processes
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Processes'
+        The in-memory store is capped at ``settings.polygon_store_max_size``
 
-  /processes/{processId}:
-    get:
-      summary: Get process description
-      description: Returns detailed description of a specific process
-      operationId: getProcess
-      tags:
-        - OGC Processes
-      parameters:
-        - name: processId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Process description
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Process'
+        entries; creation beyond the cap is rejected with HTTP 409 rather than
 
-  /processes/{processId}/execution:
-    post:
-      summary: Execute process
-      description: Executes a geospatial processing operation
-      operationId: executeProcess
-      tags:
-        - OGC Processes
-      parameters:
-        - name: processId
-          in: path
-          required: true
-          schema:
-            type: string
+        letting the store grow without bound.'
+      operationId: create_polygon_feature_endpoint_api_v1_collections_polygons_items_post
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ProcessExecution'
+              $ref: '#/components/schemas/PolygonFeature'
       responses:
         '201':
-          description: Process execution started
+          description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StatusInfo'
-        '400':
-          description: Invalid execution parameters
-
-  /jobs/{jobId}:
+                $ref: '#/components/schemas/PolygonFeature'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/collections/polygons/items/{feature_id}:
     get:
-      summary: Get job status
-      description: Returns the status of an asynchronous job
-      operationId: getJobStatus
       tags:
-        - Job Management
+      - GeoJSON
+      summary: Get a specific polygon feature
+      description: Get a specific polygon feature by ID.
+      operationId: get_polygon_feature_api_v1_collections_polygons_items__feature_id__get
       parameters:
-        - name: jobId
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: feature_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: ID of the feature to retrieve
+          title: Feature Id
+        description: ID of the feature to retrieve
       responses:
         '200':
-          description: Job status information
+          description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StatusInfo'
-
-  /jobs/{jobId}/results:
-    get:
-      summary: Get job results
-      description: Returns the results of a completed job
-      operationId: getJobResults
+                $ref: '#/components/schemas/PolygonFeature'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
       tags:
-        - Job Management
+      - GeoJSON
+      summary: Update a polygon feature
+      description: Update an existing polygon feature.
+      operationId: update_polygon_feature_api_v1_collections_polygons_items__feature_id__put
       parameters:
-        - name: jobId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Job results
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JobResults'
-
-  /data/upload:
-    post:
-      summary: Upload geospatial data
-      description: Uploads geospatial data files to the system
-      operationId: uploadData
-      tags:
-        - Data Management
+      - name: feature_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: ID of the feature to update
+          title: Feature Id
+        description: ID of the feature to update
       requestBody:
         required: true
         content:
-          multipart/form-data:
+          application/json:
             schema:
-              type: object
-              properties:
-                file:
-                  type: string
-                  format: binary
-                  description: Geospatial data file
-                metadata:
-                  type: string
-                  description: JSON metadata for the uploaded file
-      responses:
-        '201':
-          description: File uploaded successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UploadResponse'
-
-  /search:
-    get:
-      summary: Search geospatial data
-      description: Search for geospatial data using various criteria
-      operationId: searchData
-      tags:
-        - Search
-      parameters:
-        - name: q
-          in: query
-          required: false
-          schema:
-            type: string
-          description: Text search query
-        - name: bbox
-          in: query
-          required: false
-          schema:
-            type: array
-            items:
-              type: number
-            minItems: 4
-            maxItems: 4
-        - name: datetime
-          in: query
-          required: false
-          schema:
-            type: string
-          description: Temporal filter (RFC 3339)
-        - name: collections
-          in: query
-          required: false
-          schema:
-            type: array
-            items:
-              type: string
+              $ref: '#/components/schemas/PolygonFeature'
       responses:
         '200':
-          description: Search results
+          description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SearchResults'
-
-  /operations/polygon/area:
+                $ref: '#/components/schemas/PolygonFeature'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - GeoJSON
+      summary: Delete a polygon feature
+      description: Delete a polygon feature.
+      operationId: delete_polygon_feature_api_v1_collections_polygons_items__feature_id__delete
+      parameters:
+      - name: feature_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: ID of the feature to delete
+          title: Feature Id
+        description: ID of the feature to delete
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/operations/polygon/area:
     post:
+      tags:
+      - GeoJSON
       summary: Calculate polygon area
-      description: Calculates the approximate area of a polygon in square kilometers.
-      operationId: calculatePolygonArea
-      tags:
-        - Polygon Operations
+      description: 'Calculate the approximate area of a polygon in square kilometers.
+
+
+        Uses a planar shoelace approximation; accurate for small areas.'
+      operationId: calculate_area_api_v1_operations_polygon_area_post
       requestBody:
-        required: true
         content:
-          application/geo+json:
+          application/json:
             schema:
               $ref: '#/components/schemas/PolygonFeature'
+        required: true
       responses:
         '200':
-          description: Area calculation result
+          description: Successful Response
           content:
             application/json:
               schema:
+                additionalProperties: true
                 type: object
-                properties:
-                  area_sq_km:
-                    type: number
-                    description: Area in square kilometers
-                  feature_id:
-                    type: string
-                  method:
-                    type: string
-                    enum: [planar, spherical]
-                    default: planar
-        '400':
-          description: Invalid input data
+                title: Response Calculate Area Api V1 Operations Polygon Area Post
+        '422':
+          description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
-  /operations/polygon/simplify:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/operations/polygon/simplify:
     post:
+      tags:
+      - GeoJSON
       summary: Simplify a polygon
-      description: Simplifies a polygon using the Ramer-Douglas-Peucker algorithm.
-      operationId: simplifyPolygon
-      tags:
-        - Polygon Operations
+      description: 'Simplify a polygon using the Ramer-Douglas-Peucker algorithm.
+
+
+        Higher tolerance values produce simpler polygons.'
+      operationId: simplify_polygon_endpoint_api_v1_operations_polygon_simplify_post
       parameters:
-        - name: tolerance
-          in: query
-          required: false
-          schema:
-            type: number
-            minimum: 0.001
-            maximum: 1.0
-            default: 0.01
-          description: Simplification tolerance (higher values produce simpler polygons)
+      - name: tolerance
+        in: query
+        required: false
+        schema:
+          type: number
+          maximum: 1.0
+          minimum: 0.001
+          description: Simplification tolerance
+          default: 0.01
+          title: Tolerance
+        description: Simplification tolerance
       requestBody:
         required: true
         content:
-          application/geo+json:
+          application/json:
             schema:
               $ref: '#/components/schemas/PolygonFeature'
       responses:
         '200':
-          description: Simplified polygon feature
-          content:
-            application/geo+json:
-              schema:
-                $ref: '#/components/schemas/PolygonFeature'
-        '400':
-          description: Invalid input data
+          description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
-  /operations/polygon/contains:
+                $ref: '#/components/schemas/PolygonFeature'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/operations/polygon/contains:
     post:
-      summary: Check if a point is inside a polygon
-      description: Checks if a point is inside a polygon using the ray casting algorithm.
-      operationId: checkPointInPolygon
       tags:
-        - Polygon Operations
+      - GeoJSON
+      summary: Check if a polygon contains a point
+      description: Check if a polygon contains a point using the ray casting algorithm.
+      operationId: check_polygon_contains_point_api_v1_operations_polygon_contains_post
       parameters:
-        - name: lon
-          in: query
-          required: true
-          schema:
-            type: number
-            minimum: -180
-            maximum: 180
-          description: Longitude of the point (required)
-        - name: lat
-          in: query
-          required: true
-          schema:
-            type: number
-            minimum: -90
-            maximum: 90
-          description: Latitude of the point (required)
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Longitude of the point
+          title: Lon
+        description: Longitude of the point
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Latitude of the point
+          title: Lat
+        description: Latitude of the point
       requestBody:
         required: true
         content:
-          application/geo+json:
+          application/json:
             schema:
               $ref: '#/components/schemas/PolygonFeature'
       responses:
         '200':
-          description: Result indicating if the point is inside
+          description: Successful Response
           content:
             application/json:
               schema:
                 type: object
-                properties:
-                  contains:
-                    type: boolean
-                  feature_id:
-                    type: string
-                  point:
-                    type: array
-                    items:
-                      type: number
-                  method:
-                    type: string
-                    enum: [ray_casting, winding_number]
-                    default: ray_casting
-        '400':
-          description: Invalid input data
+                additionalProperties: true
+                title: Response Check Polygon Contains Point Api V1 Operations Polygon Contains Post
+        '422':
+          description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
-  /operations/polygon/buffer:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/operations/polygon/buffer:
     post:
+      tags:
+      - GeoJSON
       summary: Create a buffer around a polygon
-      description: Creates a buffer zone around a polygon at a specified distance.
-      operationId: createBuffer
-      tags:
-        - Polygon Operations
+      description: 'Create a bounding-box buffer zone around a polygon at a specified distance.
+
+
+        Returns an axis-aligned rectangle expanded by `distance` on each side.'
+      operationId: create_buffer_endpoint_api_v1_operations_polygon_buffer_post
       parameters:
-        - name: distance
-          in: query
-          required: true
-          schema:
-            type: number
-            minimum: 0
-          description: Buffer distance in kilometers
-        - name: unit
-          in: query
-          required: false
-          schema:
-            type: string
-            enum: [meters, kilometers, miles]
-            default: kilometers
+      - name: distance
+        in: query
+        required: true
+        schema:
+          type: number
+          minimum: 0
+          description: Buffer distance in the specified unit
+          title: Distance
+        description: Buffer distance in the specified unit
+      - name: unit
+        in: query
+        required: false
+        schema:
+          type: string
           description: Unit for the buffer distance
-        - name: segments
-          in: query
-          required: false
-          schema:
-            type: integer
-            minimum: 8
-            maximum: 100
-            default: 16
-          description: Number of segments for buffer approximation
+          enum:
+          - meters
+          - kilometers
+          - miles
+          default: kilometers
+          title: Unit
+        description: Unit for the buffer distance
+      - name: segments
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 8
+          description: Segments for buffer approximation
+          default: 16
+          title: Segments
+        description: Segments for buffer approximation
       requestBody:
         required: true
         content:
-          application/geo+json:
+          application/json:
             schema:
               $ref: '#/components/schemas/PolygonFeature'
       responses:
         '200':
-          description: Buffered polygon feature
+          description: Successful Response
           content:
-            application/geo+json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/PolygonFeature'
-        '400':
-          description: Invalid input data
+        '422':
+          description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
-  /operations/polygon/intersection:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/operations/polygon/intersection:
     post:
-      summary: Calculate intersection of multiple polygons
-      description: Calculates the intersection area of multiple polygon features.
-      operationId: calculateIntersection
       tags:
-        - Polygon Operations
+      - GeoJSON
+      summary: Calculate bounding-box intersection of multiple polygons
+      description: 'Calculate the bounding-box intersection of multiple polygon features.
+
+
+        Raises HTTP 422 if the polygons do not overlap.'
+      operationId: calculate_intersection_endpoint_api_v1_operations_polygon_intersection_post
       requestBody:
-        required: true
         content:
-          application/geo+json:
+          application/json:
             schema:
-              type: object
-              properties:
-                polygons:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/PolygonFeature'
-                  minItems: 2
-                  description: Array of polygon features to intersect
+              $ref: '#/components/schemas/MultiPolygonRequest'
+        required: true
       responses:
         '200':
-          description: Intersection result
+          description: Successful Response
           content:
-            application/geo+json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/PolygonFeature'
-        '400':
-          description: Invalid input data
+        '422':
+          description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
-  /operations/polygon/union:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/operations/polygon/union:
     post:
-      summary: Calculate union of multiple polygons
-      description: Calculates the union area of multiple polygon features.
-      operationId: calculateUnion
       tags:
-        - Polygon Operations
+      - GeoJSON
+      summary: Calculate bounding-box union of multiple polygons
+      description: Calculate the bounding-box union of multiple polygon features.
+      operationId: calculate_union_endpoint_api_v1_operations_polygon_union_post
       requestBody:
-        required: true
         content:
-          application/geo+json:
+          application/json:
             schema:
-              type: object
-              properties:
-                polygons:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/PolygonFeature'
-                  minItems: 2
-                  description: Array of polygon features to union
+              $ref: '#/components/schemas/MultiPolygonRequest'
+        required: true
       responses:
         '200':
-          description: Union result
+          description: Successful Response
           content:
-            application/geo+json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/PolygonFeature'
-        '400':
-          description: Invalid input data
+        '422':
+          description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
-  /operations/polygon/distance:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/operations/polygon/distance:
     post:
-      summary: Calculate distance between polygons
-      description: Calculates the minimum distance between two polygon features.
-      operationId: calculateDistance
       tags:
-        - Polygon Operations
+      - GeoJSON
+      summary: Calculate centroid distance between two polygons
+      description: Calculate the centroid-to-centroid distance between two polygon features.
+      operationId: calculate_distance_endpoint_api_v1_operations_polygon_distance_post
       requestBody:
-        required: true
         content:
-          application/geo+json:
+          application/json:
             schema:
-              type: object
-              properties:
-                polygon1:
-                  $ref: '#/components/schemas/PolygonFeature'
-                polygon2:
-                  $ref: '#/components/schemas/PolygonFeature'
-              required:
-                - polygon1
-                - polygon2
+              $ref: '#/components/schemas/DistanceRequest'
+        required: true
       responses:
         '200':
-          description: Distance calculation result
+          description: Successful Response
           content:
             application/json:
               schema:
+                additionalProperties: true
                 type: object
-                properties:
-                  distance_km:
-                    type: number
-                    description: Distance in kilometers
-                  unit:
-                    type: string
-                    enum: [kilometers, meters, miles]
-                  method:
-                    type: string
-                    enum: [centroid, edge, vertex]
-        '400':
-          description: Invalid input data
+                title: Response Calculate Distance Endpoint Api V1 Operations Polygon Distance Post
+        '422':
+          description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/algorithms:
+    get:
+      tags:
+      - Algorithms
+      summary: List registered processing algorithms
+      description: List all registered processing algorithms and their parameters.
+      operationId: list_algorithms_api_v1_algorithms_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response List Algorithms Api V1 Algorithms Get
+  /api/v1/algorithms/{algorithm_id}:
+    get:
+      tags:
+      - Algorithms
+      summary: Describe one algorithm
+      description: Return the declaration for a single registered algorithm.
+      operationId: get_algorithm_api_v1_algorithms__algorithm_id__get
+      parameters:
+      - name: algorithm_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Algorithm Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlgorithmOut'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/algorithms/{algorithm_id}/run:
+    post:
+      tags:
+      - Algorithms
+      summary: Run a registered processing algorithm
+      description: Run one registered algorithm against the supplied layers/parameters.
+      operationId: run_algorithm_api_v1_algorithms__algorithm_id__run_post
+      parameters:
+      - name: algorithm_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Algorithm Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlgorithmRunRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlgorithmRunResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
 components:
-  securitySchemes:
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: X-API-Key
-    BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-    OAuth2:
-      type: oauth2
-      flows:
-        authorizationCode:
-          authorizationUrl: https://auth.geo-infer.org/oauth/authorize
-          tokenUrl: https://auth.geo-infer.org/oauth/token
-          scopes:
-            read: Read access to data
-            write: Write access to data
-            admin: Administrative access
-
   schemas:
-    HealthStatus:
-      type: object
-      required:
-        - status
-        - timestamp
-      properties:
-        status:
-          type: string
-          enum: [healthy, degraded, unhealthy]
-        timestamp:
-          type: string
-          format: date-time
-        version:
-          type: string
-        uptime:
-          type: integer
-        dependencies:
-          type: object
-          additionalProperties:
-            type: string
-            enum: [available, unavailable]
-
-    Collections:
-      type: object
-      required:
-        - collections
-      properties:
-        collections:
-          type: array
-          items:
-            $ref: '#/components/schemas/Collection'
-        links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-
-    Collection:
-      type: object
-      required:
-        - id
-        - title
+    AlgorithmOut:
       properties:
         id:
           type: string
-        title:
+          title: Id
+        name:
           type: string
+          title: Name
         description:
           type: string
-        keywords:
-          type: array
+          title: Description
+        parameters:
           items:
-            type: string
-        extent:
-          $ref: '#/components/schemas/Extent'
-        itemType:
-          type: string
-          enum: [feature, record]
-        crs:
+            $ref: '#/components/schemas/AlgorithmParameterOut'
           type: array
-          items:
-            type: string
-        links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-
-    Extent:
-      type: object
-      properties:
-        spatial:
-          type: object
-          properties:
-            bbox:
-              type: array
-              items:
-                type: array
-                items:
-                  type: number
-                minItems: 4
-                maxItems: 6
-            crs:
-              type: string
-              default: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84'
-        temporal:
-          type: object
-          properties:
-            interval:
-              type: array
-              items:
-                type: array
-                items:
-                  type: string
-                  format: date-time
-                  nullable: true
-                minItems: 2
-                maxItems: 2
-            trs:
-              type: string
-              default: 'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian'
-
-    Feature:
+          title: Parameters
       type: object
       required:
-        - type
-        - geometry
-        - properties
-      properties:
-        type:
-          type: string
-          enum: [Feature]
-        id:
-          oneOf:
-            - type: string
-            - type: integer
-        geometry:
-          $ref: '#/components/schemas/Geometry'
-        properties:
-          type: object
-          nullable: true
-        bbox:
-          type: array
-          items:
-            type: number
-          minItems: 4
-          maxItems: 6
-
-    FeatureCollection:
-      type: object
-      required:
-        - type
-        - features
-      properties:
-        type:
-          type: string
-          enum: [FeatureCollection]
-        features:
-          type: array
-          items:
-            $ref: '#/components/schemas/Feature'
-        bbox:
-          type: array
-          items:
-            type: number
-          minItems: 4
-          maxItems: 6
-        links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-        numberMatched:
-          type: integer
-          minimum: 0
-        numberReturned:
-          type: integer
-          minimum: 0
-
-    Geometry:
-      oneOf:
-        - $ref: '#/components/schemas/Point'
-        - $ref: '#/components/schemas/LineString'
-        - $ref: '#/components/schemas/Polygon'
-        - $ref: '#/components/schemas/MultiPoint'
-        - $ref: '#/components/schemas/MultiLineString'
-        - $ref: '#/components/schemas/MultiPolygon'
-        - $ref: '#/components/schemas/GeometryCollection'
-
-    Point:
-      type: object
-      required:
-        - type
-        - coordinates
-      properties:
-        type:
-          type: string
-          enum: [Point]
-        coordinates:
-          type: array
-          items:
-            type: number
-          minItems: 2
-          maxItems: 3
-
-    LineString:
-      type: object
-      required:
-        - type
-        - coordinates
-      properties:
-        type:
-          type: string
-          enum: [LineString]
-        coordinates:
-          type: array
-          items:
-            type: array
-            items:
-              type: number
-            minItems: 2
-            maxItems: 3
-          minItems: 2
-
-    Polygon:
-      type: object
-      required:
-        - type
-        - coordinates
-      properties:
-        type:
-          type: string
-          enum: [Polygon]
-        coordinates:
-          type: array
-          items:
-            type: array
-            items:
-              type: array
-              items:
-                type: number
-              minItems: 2
-              maxItems: 3
-            minItems: 4
-
-    MultiPoint:
-      type: object
-      required:
-        - type
-        - coordinates
-      properties:
-        type:
-          type: string
-          enum: [MultiPoint]
-        coordinates:
-          type: array
-          items:
-            type: array
-            items:
-              type: number
-            minItems: 2
-            maxItems: 3
-
-    MultiLineString:
-      type: object
-      required:
-        - type
-        - coordinates
-      properties:
-        type:
-          type: string
-          enum: [MultiLineString]
-        coordinates:
-          type: array
-          items:
-            type: array
-            items:
-              type: array
-              items:
-                type: number
-              minItems: 2
-              maxItems: 3
-            minItems: 2
-
-    MultiPolygon:
-      type: object
-      required:
-        - type
-        - coordinates
-      properties:
-        type:
-          type: string
-          enum: [MultiPolygon]
-        coordinates:
-          type: array
-          items:
-            type: array
-            items:
-              type: array
-              items:
-                type: array
-                items:
-                  type: number
-                minItems: 2
-                maxItems: 3
-              minItems: 4
-
-    GeometryCollection:
-      type: object
-      required:
-        - type
-        - geometries
-      properties:
-        type:
-          type: string
-          enum: [GeometryCollection]
-        geometries:
-          type: array
-          items:
-            $ref: '#/components/schemas/Geometry'
-
-    Link:
-      type: object
-      required:
-        - href
-        - rel
-      properties:
-        href:
-          type: string
-          format: uri
-        rel:
-          type: string
-        type:
-          type: string
-        title:
-          type: string
-        hreflang:
-          type: string
-        length:
-          type: integer
-
-    Processes:
-      type: object
-      required:
-        - processes
-      properties:
-        processes:
-          type: array
-          items:
-            $ref: '#/components/schemas/ProcessSummary'
-        links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-
-    ProcessSummary:
-      type: object
-      required:
-        - id
-        - title
-        - version
+      - id
+      - name
+      - description
+      title: AlgorithmOut
+      description: A registered processing algorithm, as seen by API clients.
+    AlgorithmParameterOut:
       properties:
         id:
           type: string
-        title:
+          title: Id
+        label:
           type: string
-        description:
-          type: string
-        version:
-          type: string
-        keywords:
-          type: array
-          items:
-            type: string
-        links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-
-    Process:
-      allOf:
-        - $ref: '#/components/schemas/ProcessSummary'
-        - type: object
-          properties:
-            inputs:
-              type: object
-              additionalProperties:
-                $ref: '#/components/schemas/InputDescription'
-            outputs:
-              type: object
-              additionalProperties:
-                $ref: '#/components/schemas/OutputDescription'
-
-    InputDescription:
-      type: object
-      required:
-        - title
-        - schema
-      properties:
-        title:
-          type: string
-        description:
-          type: string
-        keywords:
-          type: array
-          items:
-            type: string
-        minOccurs:
-          type: integer
-          default: 1
-        maxOccurs:
-          oneOf:
-            - type: integer
-            - type: string
-              enum: [unbounded]
-          default: 1
-        schema:
-          type: object
-
-    OutputDescription:
-      type: object
-      required:
-        - title
-        - schema
-      properties:
-        title:
-          type: string
-        description:
-          type: string
-        keywords:
-          type: array
-          items:
-            type: string
-        schema:
-          type: object
-
-    ProcessExecution:
-      type: object
-      required:
-        - inputs
-      properties:
-        inputs:
-          type: object
-        outputs:
-          type: object
-        response:
-          type: string
-          enum: [raw, document]
-          default: raw
-
-    StatusInfo:
-      type: object
-      required:
-        - jobID
-        - status
-        - type
-      properties:
-        jobID:
-          type: string
-        status:
-          type: string
-          enum: [accepted, running, successful, failed, dismissed]
+          title: Label
+        required:
+          type: boolean
+          title: Required
+          default: false
+        default:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Default
         type:
           type: string
-          enum: [process]
-        message:
-          type: string
-        created:
-          type: string
-          format: date-time
-        started:
-          type: string
-          format: date-time
-        finished:
-          type: string
-          format: date-time
-        updated:
-          type: string
-          format: date-time
-        progress:
-          type: integer
-          minimum: 0
-          maximum: 100
-        links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-
-    JobResults:
-      type: object
-      properties:
-        outputs:
-          type: object
-        links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-
-    UploadResponse:
+          title: Type
+          default: auto
       type: object
       required:
-        - id
-        - status
+      - id
+      - label
+      title: AlgorithmParameterOut
+      description: Declared parameter for a registered algorithm.
+    AlgorithmRunRequest:
       properties:
-        id:
-          type: string
-        status:
-          type: string
-          enum: [uploaded, processing, ready, failed]
-        filename:
-          type: string
-        size:
-          type: integer
-        contentType:
-          type: string
-        metadata:
+        layers:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Layers
+        parameters:
+          additionalProperties: true
           type: object
-
-    SearchResults:
+          title: Parameters
+      type: object
+      title: AlgorithmRunRequest
+      description: Request body for running a registered algorithm.
+    AlgorithmRunResponse:
+      properties:
+        algorithm_id:
+          type: string
+          title: Algorithm Id
+        result:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Result
+        logs:
+          items:
+            type: string
+          type: array
+          title: Logs
       type: object
       required:
-        - type
-        - features
+      - algorithm_id
+      title: AlgorithmRunResponse
+      description: Result of running a registered algorithm.
+    DistanceRequest:
       properties:
-        type:
-          type: string
-          enum: [FeatureCollection]
-        features:
-          type: array
-          items:
-            $ref: '#/components/schemas/Feature'
-        links:
-          type: array
-          items:
-            $ref: '#/components/schemas/Link'
-        context:
-          type: object
-          properties:
-            returned:
-              type: integer
-            limit:
-              type: integer
-            matched:
-              type: integer
-
-    Error:
+        polygon1:
+          $ref: '#/components/schemas/PolygonFeature'
+        polygon2:
+          $ref: '#/components/schemas/PolygonFeature'
       type: object
       required:
-        - code
-        - description
+      - polygon1
+      - polygon2
+      title: DistanceRequest
+      description: Request body for polygon distance calculation.
+    HTTPValidationError:
       properties:
-        code:
-          type: string
-        description:
-          type: string
         detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    MultiPolygonRequest:
+      properties:
+        polygons:
+          items:
+            $ref: '#/components/schemas/PolygonFeature'
+          type: array
+          title: Polygons
+      type: object
+      required:
+      - polygons
+      title: MultiPolygonRequest
+      description: Request body containing multiple polygon features for set operations.
+    Polygon:
+      properties:
+        type:
           type: string
-        instance:
-          type: string
-          format: uri
+          const: Polygon
+          title: Type
+          default: Polygon
+        coordinates:
+          items:
+            items:
+              prefixItems:
+              - type: number
+              - type: number
+              type: array
+              maxItems: 2
+              minItems: 2
+            type: array
+          type: array
+          title: Coordinates
+          description: Array of linear rings
+      additionalProperties: false
+      type: object
+      required:
+      - coordinates
+      title: Polygon
+      description: 'GeoJSON Polygon geometry.
 
-tags:
-  - name: System
-    description: System health and status endpoints
-  - name: OGC Features
-    description: OGC API Features compliant endpoints
-  - name: OGC Processes
-    description: OGC API Processes compliant endpoints
-  - name: Job Management
-    description: Asynchronous job management
-  - name: Data Management
-    description: Data upload and management
-  - name: Search
-    description: Data search and discovery 
+
+        The first array of coordinates represents the exterior ring.
+
+        Any subsequent arrays represent interior rings (holes).'
+    PolygonFeature:
+      properties:
+        type:
+          type: string
+          const: Feature
+          title: Type
+          default: Feature
+        geometry:
+          $ref: '#/components/schemas/Polygon'
+        properties:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Properties
+        id:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: 'null'
+          title: Id
+      additionalProperties: false
+      type: object
+      required:
+      - geometry
+      title: PolygonFeature
+      description: A GeoJSON Feature with a Polygon geometry.
+    PolygonFeatureCollection:
+      properties:
+        type:
+          type: string
+          const: FeatureCollection
+          title: Type
+          default: FeatureCollection
+        features:
+          items:
+            $ref: '#/components/schemas/PolygonFeature'
+          type: array
+          title: Features
+      additionalProperties: false
+      type: object
+      required:
+      - features
+      title: PolygonFeatureCollection
+      description: A GeoJSON FeatureCollection containing only Polygon features.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError

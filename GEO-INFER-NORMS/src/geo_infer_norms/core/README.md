@@ -17,6 +17,7 @@ Core workspace within `GEO-INFER-NORMS`.
 - `compliance_tracking.py:ComplianceReport` (class)
 - `legal_frameworks.py:LegalFramework` (class)
 - `legal_frameworks.py:JurisdictionHandler` (class)
+- `normative_inference.py:NormEvaluationError` (class)
 - `normative_inference.py:NormativeInference` (class)
 - `normative_inference.py:SocialNormDiffusion` (class)
 - `policy_impact.py:PolicyImpactAnalyzer` (class)

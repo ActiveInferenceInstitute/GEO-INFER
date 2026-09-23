@@ -12,6 +12,7 @@ Unit workspace within `GEO-INFER-ART`.
 - `test_place_art.py`
 - `test_procedural_art.py`
 - `test_style_transfer.py`
+- `test_validators.py`
 
 ## Public Interface
 
@@ -27,7 +28,7 @@ Unit workspace within `GEO-INFER-ART`.
 
 ## Dependencies
 
-- `geopandas>=0.10.0`
+- `geopandas>=0.13.0`
 - `matplotlib>=3.4.0`
 - `numpy>=1.21.0`
 - `pillow>=8.3.0`

@@ -147,6 +147,19 @@ def configure(**kwargs: Any) -> MathConfig:
     """
     Configure GEO-INFER-MATH settings.
 
+    Keyword arguments accept two forms:
+
+    - Dotted keys ``"<section>.<option>"``:
+      ``configure(**{"theorem_proving.backend": "z3"})``.
+    - Dict-of-sections values:
+      ``configure(**{"theorem_proving": {"backend": "z3"}})``.
+
+    Keys in any other form, or naming an unknown section, raise
+    ``ValueError`` so misconfiguration is surfaced instead of silently
+    landing in the wrong bucket. Declared sections: ``theorem_proving``,
+    ``information_theory``, ``performance``, ``numerical``,
+    ``symbolic_math``.
+
     Args:
         **kwargs: Configuration options
 
@@ -154,13 +167,24 @@ def configure(**kwargs: Any) -> MathConfig:
         Configuration instance
 
     Example:
-        >>> configure(theorem_proving_backend='z3', enable_caching=True)
+        >>> configure(**{"theorem_proving.backend": "z3"})
     """
+    known_sections = _config.to_dict()
     for key, value in kwargs.items():
-        if "_" in key:
-            section, option = key.split("_", 1)
-            _config.set(section, option, value)
-        else:
-            _config.set("general", key, value)
+        if "." not in key:
+            if not isinstance(value, dict):
+                raise ValueError(
+                    f"Invalid configuration key {key!r}: expected "
+                    "'<section>.<option>' dotted form or a dict-of-sections "
+                    "value"
+                )
+            if key not in known_sections:
+                raise ValueError(f"Unknown configuration section: {key!r}")
+            _config.update(key, value)
+            continue
+        section, _, option = key.partition(".")
+        if section not in known_sections:
+            raise ValueError(f"Unknown configuration section: {section!r}")
+        _config.set(section, option, value)
 
     return _config

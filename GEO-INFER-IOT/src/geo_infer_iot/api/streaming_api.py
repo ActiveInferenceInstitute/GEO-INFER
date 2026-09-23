@@ -7,8 +7,9 @@ sensor data streaming and live monitoring capabilities.
 
 import logging
 import asyncio
+import dataclasses
 import json
-from typing import Dict, Optional, Set, Any
+from typing import Any, Dict, List, Optional, Set
 from datetime import datetime
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
@@ -115,13 +116,24 @@ class StreamingAPI:
                     )
                 )
 
-                # Keep connection alive and forward data
+                # Keep connection alive, forwarding measurements ingested
+                # since the last tick to this connection's subscriptions.
+                ingestion = self.ingestion
+                cursor: Optional[int] = None
+                if ingestion is not None:
+                    cursor = len(ingestion.measurements)
+
                 while True:
-                    # In a real implementation, this would listen for new measurements
-                    # and forward them to subscribed clients
-                    await asyncio.sleep(1)
+                    if ingestion is not None and cursor is not None:
+                        for measurement in ingestion.measurements[cursor:]:
+                            await self._forward_to_socket(
+                                websocket, measurement, sensor_ids, h3_indices
+                            )
+                        cursor = len(ingestion.measurements)
 
                     # Example: Send periodic heartbeat
+                    await asyncio.sleep(1)
+
                     await websocket.send_text(
                         json.dumps(
                             {
@@ -241,6 +253,47 @@ class StreamingAPI:
                 subs.discard(websocket)
             for subs in self.spatial_subscriptions.values():
                 subs.discard(websocket)
+
+    @staticmethod
+    def _measurement_payload(measurement: Any) -> Dict:
+        """Convert an ingested measurement to a JSON-serializable dict."""
+        data = dataclasses.asdict(measurement)
+        timestamp = data.get("timestamp")
+        if isinstance(timestamp, datetime):
+            data["timestamp"] = timestamp.isoformat()
+        return data
+
+    async def _forward_to_socket(
+        self,
+        websocket: WebSocket,
+        measurement: Any,
+        sensor_ids: List[str],
+        h3_indices: List[str],
+    ) -> None:
+        """Forward one ingested measurement to a single subscribed socket."""
+        sensor_id = getattr(measurement, "sensor_id", None)
+        h3_index = getattr(measurement, "h3_index", None)
+        if sensor_id in sensor_ids:
+            await websocket.send_text(
+                json.dumps(
+                    {
+                        "type": "sensor_measurement",
+                        "data": self._measurement_payload(measurement),
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                )
+            )
+        if h3_index in h3_indices:
+            await websocket.send_text(
+                json.dumps(
+                    {
+                        "type": "spatial_measurement",
+                        "data": self._measurement_payload(measurement),
+                        "h3_index": h3_index,
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                )
+            )
 
     def get_app(self) -> FastAPI:
         """Get the FastAPI application instance."""

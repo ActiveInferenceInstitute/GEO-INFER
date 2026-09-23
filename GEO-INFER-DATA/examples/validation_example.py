@@ -145,7 +145,7 @@ async def main():
     valid_gdf = create_valid_geodataframe()
 
     # Validate using GeospatialValidator
-    validation_result = await validator.validate_data(valid_gdf)
+    validation_result = await validator.build_quality_report(valid_gdf)
 
     logger.info("Valid Data Validation Results:")
     logger.info(f"  Overall Score: {validation_result.overall_score:.2f}")
@@ -170,7 +170,9 @@ async def main():
         ),
     )
 
-    quality_report = await quality_manager.validator.validate_data(valid_gdf, metadata)
+    quality_report = await quality_manager.validator.build_quality_report(
+        valid_gdf, metadata
+    )
 
     logger.info("Quality Manager Results:")
     logger.info(f"  Overall Score: {quality_report.overall_score:.2f}")
@@ -181,7 +183,7 @@ async def main():
 
     invalid_gdf = create_invalid_geodataframe()
 
-    invalid_result = await validator.validate_data(invalid_gdf)
+    invalid_result = await validator.build_quality_report(invalid_gdf)
 
     logger.info("Invalid Data Validation Results:")
     logger.info(f"  Overall Score: {invalid_result.overall_score:.2f}")
@@ -200,7 +202,7 @@ async def main():
 
     incomplete_df = create_incomplete_dataframe()
 
-    incomplete_result = await validator.validate_data(incomplete_df)
+    incomplete_result = await validator.build_quality_report(incomplete_df)
 
     logger.info("Incomplete Data Validation Results:")
     logger.info(f"  Overall Score: {incomplete_result.overall_score:.2f}")

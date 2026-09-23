@@ -56,7 +56,7 @@ uv run python GEO-INFER-TEST/validate_repo_contracts.py
 uv run python GEO-INFER-TEST/validate_active_inference_contract.py
 ```
 
-Pytest markers: `unit`, `integration`, `system`, `performance`, `geospatial`, `api`, `slow`, `fast`.
+Pytest markers (declared in root `pyproject.toml` `[tool.pytest.ini_options]`, the source of truth): `slow`, `integration`, `unit`, `performance`, `system`, `core`, `geospatial`, `api`, `reporting`, `fast`, `model`, `reproducibility`, `artifact`, `spatial`.
 
 ## Code Quality
 
@@ -168,7 +168,7 @@ These rules are from `.agents/` and apply to all modules:
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **GEO-INFER** (67453 symbols, 97164 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **GEO_INFER** (68334 symbols, 99008 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
@@ -192,10 +192,10 @@ This project is indexed by GitNexus as **GEO-INFER** (67453 symbols, 97164 relat
 
 | Resource | Use for |
 |----------|---------|
-| `gitnexus://repo/GEO-INFER/context` | Codebase overview, check index freshness |
-| `gitnexus://repo/GEO-INFER/clusters` | All functional areas |
-| `gitnexus://repo/GEO-INFER/processes` | All execution flows |
-| `gitnexus://repo/GEO-INFER/process/{name}` | Step-by-step execution trace |
+| `gitnexus://repo/GEO_INFER/context` | Codebase overview, check index freshness |
+| `gitnexus://repo/GEO_INFER/clusters` | All functional areas |
+| `gitnexus://repo/GEO_INFER/processes` | All execution flows |
+| `gitnexus://repo/GEO_INFER/process/{name}` | Step-by-step execution trace |
 
 ## CLI
 

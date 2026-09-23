@@ -22,12 +22,6 @@
 ## Local Contents
 
 - `visualizations/`
-- `enhanced_status_report_20250714_074630.json`
-- `enhanced_status_report_20250714_074746.json`
-- `enhanced_status_report_20250714_081511.json`
-- `status_dashboard_20250714_074630.html`
-- `status_dashboard_20250714_074746.html`
-- `status_dashboard_20250714_081511.html`
 
 ## Validation
 

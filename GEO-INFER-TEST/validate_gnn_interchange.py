@@ -20,12 +20,15 @@ from geo_infer_act.core.gnn_contract import GNNArtifact, run_gnn_inference
 def revision_receipt(root: Path) -> dict:
     """Identify a checkout and expose local modifications in verification receipts."""
     return {
+        # Fresh CI checkouts of the paired repo can make even `git status
+        # --porcelain` exceed 10s on cold caches; 30s bounds the receipt
+        # without masking a genuinely hung checkout.
         "revision": subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], cwd=root, text=True, timeout=10
+            ["git", "rev-parse", "HEAD"], cwd=root, text=True, timeout=30
         ).strip(),
         "dirty": bool(
             subprocess.check_output(
-                ["git", "status", "--porcelain"], cwd=root, text=True, timeout=10
+                ["git", "status", "--porcelain"], cwd=root, text=True, timeout=30
             ).strip()
         ),
     }

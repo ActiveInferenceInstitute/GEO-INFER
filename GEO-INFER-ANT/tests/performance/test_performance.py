@@ -14,7 +14,6 @@ Tests cover:
 - Real-time performance requirements
 """
 
-import pytest
 import numpy as np
 import asyncio
 import time
@@ -22,15 +21,12 @@ import psutil
 import os
 
 # Import modules to test
-try:
-    from geo_infer_ant.core import AgentPopulation, PheromoneSystem
-    from geo_infer_ant.algorithms import (
-        AntColonyOptimization,
-        ParticleSwarmOptimization,
-        ArtificialBeeColony,
-    )
-except ImportError:
-    pytest.fail("Core modules not available")
+from geo_infer_ant.core import AgentPopulation, PheromoneSystem
+from geo_infer_ant.algorithms import (
+    AntColonyOptimization,
+    ParticleSwarmOptimization,
+    ArtificialBeeColony,
+)
 
 
 class TestLargeScalePerformance:

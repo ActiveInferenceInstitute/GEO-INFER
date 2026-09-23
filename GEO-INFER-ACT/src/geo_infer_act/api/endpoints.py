@@ -1,12 +1,18 @@
 """
-API endpoints for GEO-INFER-ACT.
+Endpoint map for an externally deployed GEO-INFER-ACT model service.
 """
 
 from typing import Dict
 
 
 def create_endpoints() -> Dict[str, str]:
-    """Create API endpoint definitions."""
+    """Create the endpoint map for the external ACT ``/models`` service.
+
+    The returned paths describe a deployment **outside** this module —
+    GEO-INFER-ACT ships no HTTP server (see :mod:`geo_infer_act.api.client`);
+    the map exists so client code and the :class:`Client <geo_infer_act.api.client.Client>`
+    reference one shared contract for the external deployment.
+    """
     return {
         "models": "/models",
         "beliefs": "/models/{model_id}/beliefs",

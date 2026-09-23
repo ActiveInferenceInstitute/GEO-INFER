@@ -87,4 +87,4 @@ GEO-INFER-FOREST/
 
 ## Dependencies
 
-Core dependencies are `numpy`, `xarray`, and `scipy` (for statistical tests in change detection). Optional extras: `vector` (`geopandas` + `shapely`) for vector-based stand polygons, `test` for the test suite. Current version: `0.2.0`.
+Core dependencies are `numpy`, `xarray`, and `scipy` (for statistical tests in change detection). Optional extras: `vector` (`geopandas` + `shapely`) for vector-based stand polygons, `test` for the test suite. Current version: `0.3.0`.

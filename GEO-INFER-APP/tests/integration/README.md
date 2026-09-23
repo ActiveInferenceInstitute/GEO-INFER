@@ -4,7 +4,6 @@ Integration workspace within `GEO-INFER-APP`.
 
 ## Contents
 
-- `__init__.py`
 - `test_agent_pipeline.py`
 
 ## Public Interface

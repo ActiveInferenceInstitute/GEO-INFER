@@ -9,28 +9,30 @@ This guide covers microeconomic analysis capabilities in GEO-INFER-ECON, focusin
 ### Central Place Theory
 
 ```python
-from geo_infer_econ import CentralPlaceAnalyzer
+from geo_infer_econ.microeconomics.market_structure import SpatialMarketAnalysis
 
-# Analyze market areas
-analyzer = CentralPlaceAnalyzer()
+# Delineate geographic market hierarchy from price integration
+analyzer = SpatialMarketAnalysis()
 
-hierarchy = analyzer.identify_hierarchy(
-    settlements=cities,
-    services=commercial_data
+hierarchy = analyzer.delineate_geographic_markets(
+    price_data=price_panel,
+    locations=city_ids,
 )
 ```
 
 ### Bid-Rent Model
 
+The package does not implement a bid-rent curve model. For land-value
+market structure, use the spatial market analysis surface:
+
 ```python
-from geo_infer_econ import BidRentModel
+from geo_infer_econ.microeconomics.market_structure import SpatialMarketAnalysis
 
-# Land value analysis
-model = BidRentModel(cbd_location=downtown)
+model = SpatialMarketAnalysis()
 
-values = model.predict(
-    locations=parcels,
-    factors=["distance_cbd", "accessibility"]
+land_markets = model.delineate_geographic_markets(
+    price_data=parcel_price_panel,
+    locations=parcel_ids,
 )
 ```
 
@@ -39,26 +41,22 @@ values = model.predict(
 ### Trade Area Analysis
 
 ```python
-from geo_infer_econ import TradeAreaAnalyzer
+from geo_infer_econ.microeconomics import DemandFunctions
 
-# Define retail trade areas
-trade = TradeAreaAnalyzer()
-
-area = trade.huff_model(
-    stores=retail_locations,
-    attractiveness="square_footage",
-    friction=2.0
-)
+# Cobb-Douglas demand estimation over retail catchments
+demand = DemandFunctions(utility_function="cobb_douglas")
 ```
 
 ### Demand Estimation
 
 ```python
-# Estimate consumer demand
-demand = trade.estimate_demand(
-    population=demographics,
+# Estimate consumer demand (Marshallian, Cobb-Douglas utility)
+import numpy as np
+
+quantities = demand.marshallian_demand_cobb_douglas(
     income=income_data,
-    elasticity=-0.5
+    prices=np.asarray(prices),
+    alpha=np.asarray(preference_shares),
 )
 ```
 
@@ -67,13 +65,16 @@ demand = trade.estimate_demand(
 ### Competition Analysis
 
 ```python
-from geo_infer_econ import CompetitionAnalyzer
+from geo_infer_econ.microeconomics.market_structure import CompetitionAnalysis
 
-comp = CompetitionAnalyzer()
+comp = CompetitionAnalysis()
 
-gaps = comp.find_gaps(
-    existing=competitor_locations,
-    demand=population_centers
+# Price-correlation based market definition
+correlations = comp.calculate_price_correlation_matrix(
+    price_data=competitor_prices,
+)
+gaps = comp.analyze_entry_barriers(
+    industry_data=competitor_profiles,
 )
 ```
 

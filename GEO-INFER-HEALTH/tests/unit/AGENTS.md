@@ -21,6 +21,7 @@
 
 ## Local Contents
 
+- `test_active_inference_failure_flags.py`
 - `test_advanced_geospatial.py`
 - `test_api_routers.py`
 - `test_cli_validation.py`

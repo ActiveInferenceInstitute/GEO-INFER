@@ -8,6 +8,8 @@ environment variable.
 
 from types import SimpleNamespace
 
+from geo_infer_test.testing import assert_packaged_config_loads
+
 
 def _backend_cls():
     from geo_infer_place.core.unified_backend import (
@@ -19,12 +21,21 @@ def _backend_cls():
 
 def test_cascadia_config_resource_lives_in_package_tree() -> None:
     """The packaged resource resolves under the package, not the repo config/ dir."""
-    import importlib.resources
-
-    resource = importlib.resources.files("geo_infer_place").joinpath(
-        "locations/cascadia/config/cascadia_config.yaml"
+    # The packaged resource resolves, parses, and carries the sections the
+    # backend consumes (shared GS19-39 helper).
+    assert_packaged_config_loads(
+        "geo_infer_place",
+        "locations/cascadia/config/cascadia_config.yaml",
+        required_sections=(
+            "analysis",
+            "data",
+            "spatial_analysis",
+            "modules",
+            "bioregion",
+            "visualization",
+        ),
+        required_keys={"analysis": ("h3_resolution",)},
     )
-    assert resource.is_file()
 
 
 def test_cascadia_config_resolves_from_package_with_empty_cwd(

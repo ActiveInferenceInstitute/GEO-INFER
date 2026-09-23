@@ -66,7 +66,7 @@ class GeoInferMortgageDebt:
                     f"Downloading census tract geometries for state FIPS {state_fips} from {url}"
                 )
                 try:
-                    response = requests.get(url)
+                    response = requests.get(url, timeout=(30, 300))
                     response.raise_for_status()
                     with open(zip_path, "wb") as f:
                         f.write(response.content)

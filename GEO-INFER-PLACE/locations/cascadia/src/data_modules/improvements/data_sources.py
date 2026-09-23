@@ -65,7 +65,7 @@ class CascadianImprovementsDataSources:
         if not os.path.exists(zhvi_path):
             logger.info("Downloading Zillow ZHVI data...")
             try:
-                response = requests.get(self.zillow_zhvi_url)
+                response = requests.get(self.zillow_zhvi_url, timeout=(30, 300))
                 response.raise_for_status()
                 with open(zhvi_path, "wb") as f:
                     f.write(response.content)
@@ -93,7 +93,7 @@ class CascadianImprovementsDataSources:
             url = "https://www2.census.gov/geo/tiger/TIGER2023/ZCTA520/tl_2023_us_zcta520.zip"
             zip_path = os.path.join(self.data_dir, "tl_2023_us_zcta520.zip")
             try:
-                response = requests.get(url)
+                response = requests.get(url, timeout=(30, 300))
                 response.raise_for_status()
                 with open(zip_path, "wb") as f:
                     f.write(response.content)

@@ -11,6 +11,8 @@ import importlib.resources
 import shutil
 from pathlib import Path
 
+from geo_infer_test.testing import assert_packaged_config_loads
+
 
 def _dashboard_cls():
     from geo_infer_place.locations.del_norte_county.dashboard import AdvancedDashboard
@@ -32,11 +34,39 @@ def _bounds_harness():
 
 
 def _packaged_analysis_config() -> Path:
+    """Assert the packaged Del Norte analysis config parses and return its path."""
+    assert_packaged_config_loads(
+        "geo_infer_place",
+        "locations/del_norte_county/config/analysis_config.yaml",
+        required_sections=(
+            "location",
+            "analyses",
+            "data_management",
+            "reporting",
+            "integrations",
+        ),
+    )
     return Path(
         str(
             importlib.resources.files(
                 "geo_infer_place.locations.del_norte_county"
             ).joinpath("config/analysis_config.yaml")
+        )
+    )
+
+
+def _packaged_seed_path() -> Path:
+    """Assert the packaged Crescent City intel seed parses and return its path."""
+    assert_packaged_config_loads(
+        "geo_infer_place",
+        "locations/del_norte_county/data/crescent-city-geo-intel.json",
+        format="json",
+    )
+    return Path(
+        str(
+            importlib.resources.files(
+                "geo_infer_place.locations.del_norte_county"
+            ).joinpath("data/crescent-city-geo-intel.json")
         )
     )
 
@@ -57,6 +87,7 @@ def test_location_bounds_resolve_from_package_with_empty_cwd(
         (dummy.county_bounds["north"] + dummy.county_bounds["south"]) / 2.0,
         (dummy.county_bounds["east"] + dummy.county_bounds["west"]) / 2.0,
     ]
+    _packaged_analysis_config()
 
 
 def test_location_bounds_env_override_honored(tmp_path, monkeypatch) -> None:
@@ -95,14 +126,7 @@ def test_crescent_seed_resolves_from_package_with_empty_cwd(
     mapper = CrescentCityIntelMapper(seed_path=None)
 
     assert mapper.loaded is True
-    packaged = Path(
-        str(
-            importlib.resources.files(
-                "geo_infer_place.locations.del_norte_county"
-            ).joinpath("data/crescent-city-geo-intel.json")
-        )
-    )
-    assert mapper.source_path == packaged
+    assert mapper.source_path == _packaged_seed_path()
 
 
 def test_crescent_seed_env_override_honored(tmp_path, monkeypatch) -> None:
@@ -111,13 +135,7 @@ def test_crescent_seed_env_override_honored(tmp_path, monkeypatch) -> None:
         CrescentCityIntelMapper,
     )
 
-    packaged = Path(
-        str(
-            importlib.resources.files(
-                "geo_infer_place.locations.del_norte_county"
-            ).joinpath("data/crescent-city-geo-intel.json")
-        )
-    )
+    packaged = _packaged_seed_path()
     override = tmp_path / "crescent-city-geo-intel-copy.json"
     shutil.copyfile(packaged, override)
     monkeypatch.setenv("CRESCENT_INTEL_GEO_JSON", str(override))

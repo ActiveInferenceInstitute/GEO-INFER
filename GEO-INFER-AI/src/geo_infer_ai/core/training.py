@@ -6,10 +6,17 @@ for geospatial machine learning workflows. Includes data splitting,
 cross-validation, and hyperparameter search capabilities.
 """
 
+import io
 import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
+
+from geo_infer_ai.core.secure_serialization import (
+    CONTEXT_MODEL_SAVE,
+    sign_payload,
+    verify_payload,
+)
 
 import numpy as np
 from sklearn.metrics import (
@@ -601,6 +608,9 @@ class ModelTrainer:
         """
         Save a trained model to disk using joblib (preferred) or pickle.
 
+        The serialized bytes are wrapped in an authenticated GISP1 envelope;
+        ``load_model`` verifies the envelope before deserializing.
+
         Args:
             model: Model to save
             path: Path to save the model
@@ -608,19 +618,24 @@ class ModelTrainer:
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
 
-        # Try joblib first (more efficient for sklearn models)
+        # Serialize to bytes (joblib preferred for sklearn models)
         try:
             import joblib
 
-            joblib.dump(model, path)
+            buffer = io.BytesIO()
+            joblib.dump(model, buffer)
+            payload = buffer.getvalue()
             logger.info(f"Model saved to {path} using joblib")
         except ImportError:
             # Fallback to pickle
             import pickle
 
-            with open(path, "wb") as f:
-                pickle.dump(model, f)
+            payload = pickle.dumps(model)
             logger.info(f"Model saved to {path} using pickle (joblib not available)")
+
+        envelope = sign_payload(payload, context=CONTEXT_MODEL_SAVE)
+        with open(path, "wb") as f:
+            f.write(envelope)
 
     def load_model(self, path: Union[str, Path]) -> Any:
         """
@@ -631,23 +646,32 @@ class ModelTrainer:
 
         Returns:
             Loaded model
+
+        Raises:
+            geo_infer_ai.core.secure_serialization.PayloadSecurityError:
+                If the file is not a valid GISP1 envelope (unsigned,
+                tampered, or signed under a different key/context).
         """
         path = Path(path)
         if not path.exists():
             raise FileNotFoundError(f"Model file not found: {path}")
 
+        # Trust boundary: verify the GISP1 envelope before any deserializer
+        # sees the bytes; the joblib/pickle fallback below operates only on
+        # already-verified bytes.
+        verified = verify_payload(path.read_bytes(), context=CONTEXT_MODEL_SAVE)
+
         # Try joblib first
         try:
             import joblib
 
-            model = joblib.load(path)
+            model = joblib.load(io.BytesIO(verified))
             logger.info(f"Model loaded from {path} using joblib")
             return model
         except (ImportError, ValueError):
             # Fallback to pickle
             import pickle
 
-            with open(path, "rb") as f:
-                model = pickle.load(f)
+            model = pickle.loads(verified)
             logger.info(f"Model loaded from {path} using pickle")
             return model

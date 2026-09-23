@@ -432,11 +432,22 @@ def h3_grid_distance_kernel(
     """
     if h3_module is None:
         h3_module = importlib.import_module("h3")
+    # h3 4.x has no CellIndexError. Tolerant failures arrive in three
+    # families: invalid/mixed-resolution cells (H3ValueError, also a
+    # ValueError), pentagon-spanning navigation (H3GridNavigationError,
+    # RuntimeError family), and failed distance lookups (H3FailedError).
+    # Everything else -- e.g. a broken backend raising AttributeError --
+    # propagates instead of the silent -1 sentinel.
+    tolerant: tuple = (ValueError, KeyError)
+    for family_name in ("H3GridNavigationError", "H3FailedError"):
+        family = getattr(h3_module, family_name, None)
+        if isinstance(family, type) and issubclass(family, BaseException):
+            tolerant = tolerant + (family,)
     out = np.full((len(cells_a), len(cells_b)), -1, dtype=np.int64)
     for i, cell_a in enumerate(cells_a):
         for j, cell_b in enumerate(cells_b):
             try:
                 out[i, j] = int(h3_module.grid_distance(cell_a, cell_b))
-            except Exception:
+            except tolerant:
                 pass
     return out

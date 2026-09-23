@@ -105,3 +105,16 @@ class TestAgentEndpoints:
         assert deleted.json()["success"] is True
 
         assert client.get("/agents/api-agent-cycle").status_code == 404
+
+    def test_cors_preflight_rejects_unknown_origin(self, client: TestClient) -> None:
+        """Attacker origins never get wildcard+credentialed CORS approval."""
+        response = client.options(
+            "/agents",
+            headers={
+                "Origin": "https://attacker.example",
+                "Access-Control-Request-Method": "POST",
+            },
+        )
+        acao = response.headers.get("access-control-allow-origin")
+        acac = response.headers.get("access-control-allow-credentials")
+        assert not (acao == "*" and acac == "true")

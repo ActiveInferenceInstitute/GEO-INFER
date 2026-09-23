@@ -2,12 +2,11 @@
 name: geo-infer-ai
 description: Machine learning pipelines and model selection for geospatial AI. Use when training spatial ML models, building prediction pipelines, performing feature engineering on geographic data, spatial interpolation/kriging, or evaluating spatial model performance.
 prerequisites:
-  required:
-    - geo-infer-act
-    - geo-infer-bayes
   recommended:
     - geo-infer-space
     - geo-infer-data
+    - geo-infer-act
+    - geo-infer-bayes
 difficulty: advanced
 estimated_time: 60min
 examples_dir: ../GEO-INFER-EXAMPLES/examples/

@@ -74,10 +74,3 @@ exclude = ["tests*"]
 
 [tool.setuptools.package-data]
 "*" = ["*.yaml", "*.yml", "*.json", "*.md", "*.txt"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-markers = [
-    "unit: fast, isolated tests",
-    "integration: cross-module tests",
-]

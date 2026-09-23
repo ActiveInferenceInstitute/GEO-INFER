@@ -143,6 +143,10 @@ def measure_module(module: str) -> dict:
             "coverage_percent": round(payload["totals"]["percent_covered"], 1),
             "pytest_rc": completed.returncode,
             **_failing_tests_field(junit_path),
+            # Diagnostics for FAILED-SUITE verdicts: the gate prints the
+            # failing-test names plus their assertion texts (both from the
+            # JUnit report via _failing_tests_field) and the run tail.
+            "pytest_tail": completed.stdout[-2000:],
             "seconds": seconds,
         }
 
@@ -177,10 +181,49 @@ def junit_failure_names(path: Path) -> list[str]:
     return names
 
 
-def _failing_tests_field(junit_path: Path) -> dict[str, list[str]]:
-    """Return the ``failing_tests`` result field, omitted when empty."""
-    failing = junit_failure_names(junit_path)
-    return {"failing_tests": failing} if failing else {}
+def _failing_tests_field(junit_path: Path) -> dict[str, list | list[dict[str, str]]]:
+    """Return failing-test names + assertion texts, omitted when empty."""
+    names = junit_failure_names(junit_path)
+    if not names:
+        return {}
+    return {
+        "failing_tests": names,
+        "failing_details": junit_failure_details(junit_path),
+    }
+
+
+def junit_failure_details(path: Path) -> list[dict[str, str]]:
+    """Return name + message + text for each failing/erroring testcase.
+
+    Best-effort like :func:`junit_failure_names`: missing, empty, or
+    malformed reports yield an empty list and never break the measurement
+    contract. Texts are truncated so a few failures cannot flood the gate
+    log.
+    """
+    if not path.is_file():
+        return []
+    try:
+        root = ET.parse(path).getroot()
+    except ET.ParseError:
+        return []
+    details: list[dict[str, str]] = []
+    for testcase in root.iter("testcase"):
+        node = testcase.find("failure")
+        if node is None:
+            node = testcase.find("error")
+        if node is None:
+            continue
+        name = "::".join(
+            part
+            for part in (
+                testcase.attrib.get("classname", ""),
+                testcase.attrib.get("name", ""),
+            )
+            if part
+        )
+        text = ((node.text or "") + " " + (node.attrib.get("message", "")))[:500]
+        details.append({"name": name, "text": text})
+    return details
 
 
 def main(argv: list[str] | None = None) -> int:

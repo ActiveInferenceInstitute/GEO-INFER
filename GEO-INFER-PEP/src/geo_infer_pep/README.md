@@ -15,6 +15,7 @@ Geo Infer Pep workspace within `GEO-INFER-PEP`.
 - `visualizations/`
 - `__init__.py`
 - `methods.py`
+- `performance_store.py`
 
 ## Public Interface
 
@@ -30,6 +31,7 @@ Geo Infer Pep workspace within `GEO-INFER-PEP`.
 - `methods.py:get_all_candidates` (function)
 - `methods.py:get_all_customers` (function)
 - `methods.py:clear_all_data` (function)
+- `performance_store.py:PerformanceReviewStore` (class)
 
 ## Module Metadata
 

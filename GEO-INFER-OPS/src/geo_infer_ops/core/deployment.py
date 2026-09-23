@@ -76,9 +76,13 @@ class DeploymentManager:
         try:
             image_tag = tag or self.config.deployment.docker.tag
             cmd = ["docker", "build", "-t", image_tag, "."]
-            subprocess.run(cmd, check=True)
+            timeout = self.config.deployment.docker.build_timeout
+            subprocess.run(cmd, check=True, timeout=timeout)
             logger.info("docker_image_built", tag=image_tag)
             return True
+        except subprocess.TimeoutExpired as e:
+            logger.error("docker_build_timeout", timeout=timeout, error=str(e))
+            return False
         except subprocess.CalledProcessError as e:
             logger.error("docker_build_failed", error=str(e))
             return False
@@ -98,9 +102,13 @@ class DeploymentManager:
             tag = self.config.deployment.docker.tag
             image = f"{registry}/{tag}"
             cmd = ["docker", "push", image]
-            subprocess.run(cmd, check=True)
+            timeout = self.config.deployment.docker.push_timeout
+            subprocess.run(cmd, check=True, timeout=timeout)
             logger.info("docker_image_pushed", image=image)
             return True
+        except subprocess.TimeoutExpired as e:
+            logger.error("docker_push_timeout", timeout=timeout, error=str(e))
+            return False
         except subprocess.CalledProcessError as e:
             logger.error("docker_push_failed", error=str(e))
             return False

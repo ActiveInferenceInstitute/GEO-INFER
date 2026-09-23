@@ -334,6 +334,11 @@ class ComplianceTracker:
                         is_compliant = (
                             abs(value - threshold) < 0.001
                         )  # Approximate equality
+                    else:
+                        raise ValueError(
+                            f"Metric '{metric.name}': unknown comparison "
+                            f"'{metric.comparison}' for threshold evaluation"
+                        )
 
                     compliance_level = 1.0 if is_compliant else 0.0
                     notes = f"Value {value} {'meets' if is_compliant else 'does not meet'} threshold {threshold}"
@@ -367,12 +372,28 @@ class ComplianceTracker:
                     )
                     compliance_level = 1.0 if is_compliant else 0.0
                     notes = f"Boolean condition is {'satisfied' if is_compliant else 'not satisfied'}"
+                else:
+                    raise ValueError(
+                        f"Metric '{metric.name}': unknown evaluation_type "
+                        f"'{metric.evaluation_type}'"
+                    )
 
             except Exception as e:
                 logger.error(f"Error evaluating metric {metric.name}: {str(e)}")
-                is_compliant = False
-                compliance_level = 0.0
-                notes = f"Evaluation error: {str(e)}"
+                # An evaluator crash is distinct from a genuine verdict: record
+                # an error entry that can never be read as is_compliant=False.
+                metric_results.append(
+                    {
+                        "metric_id": metric.id,
+                        "name": metric.name,
+                        "is_compliant": None,
+                        "compliance_level": None,
+                        "weight": metric.weight,
+                        "notes": f"Evaluation error: {str(e)}",
+                        "error": str(e),
+                    }
+                )
+                continue
 
             metric_results.append(
                 {
@@ -385,15 +406,21 @@ class ComplianceTracker:
                 }
             )
 
-        # Calculate overall compliance
-        compliant_metrics = [m for m in metric_results if m["is_compliant"]]
-        overall_compliant = len(compliant_metrics) == len(metric_results)
+        # Calculate overall compliance. Error entries (is_compliant None) are
+        # neither compliant nor non-compliant: they are excluded from scoring,
+        # and any evaluation error prevents an overall compliant verdict.
+        evaluated_results = [m for m in metric_results if m["is_compliant"] is not None]
+        error_results = [m for m in metric_results if m["is_compliant"] is None]
+        compliant_metrics = [m for m in evaluated_results if m["is_compliant"]]
+        overall_compliant = not error_results and (
+            len(compliant_metrics) == len(evaluated_results)
+        )
 
-        # Weight the metrics based on their configured weight
-        if metric_results:
-            total_weight = sum(m.get("weight", 1.0) for m in metric_results)
+        # Weight the evaluated metrics based on their configured weight
+        if evaluated_results:
+            total_weight = sum(m.get("weight", 1.0) for m in evaluated_results)
             weighted_sum = sum(
-                m["compliance_level"] * m.get("weight", 1.0) for m in metric_results
+                m["compliance_level"] * m.get("weight", 1.0) for m in evaluated_results
             )
             overall_compliance_level = (
                 weighted_sum / total_weight if total_weight > 0 else 0.0
@@ -408,7 +435,15 @@ class ComplianceTracker:
             is_compliant=overall_compliant,
             compliance_level=overall_compliance_level,
             timestamp=datetime.datetime.now(),
-            notes=f"Evaluated {len(metric_results)} metrics. {len(compliant_metrics)} compliant.",
+            notes=(
+                f"Evaluated {len(evaluated_results)} metrics. "
+                f"{len(compliant_metrics)} compliant."
+                + (
+                    f" {len(error_results)} metric evaluation(s) failed with errors."
+                    if error_results
+                    else ""
+                )
+            ),
             metric_results=metric_results,
         )
 

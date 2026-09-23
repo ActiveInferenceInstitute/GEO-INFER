@@ -12,7 +12,6 @@ import hashlib
 from pathlib import Path
 from types import ModuleType
 
-import matplotlib
 import pytest
 import yaml
 

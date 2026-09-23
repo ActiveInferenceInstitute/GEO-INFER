@@ -86,6 +86,29 @@ class TestTestDiscovererBasic:
                         all_files.extend(files)
         assert len(all_files) >= 1
 
+    def test_general_bucket_lists_only_direct_children(self, repo):
+        """GS19-86: "general" holds only tests/ root files, no double-count."""
+        aaa_tests = repo / "GEO-INFER-AAA" / "tests"
+        integration_dir = aaa_tests / "integration"
+        integration_dir.mkdir()
+        (integration_dir / "test_integration_thing.py").write_text(
+            "def test_integration():\n    assert True\n"
+        )
+        (aaa_tests / "test_root_thing.py").write_text(
+            "def test_root():\n    assert True\n"
+        )
+        (aaa_tests / "conftest.py").write_text("")
+
+        d = _TestDiscoverer(base_path=repo)
+        results = d.discover_all_tests(["AAA"])
+
+        assert results["AAA"]["general"] == ["test_root_thing.py"]
+        assert results["AAA"]["unit"] == ["test_aaa.py"]
+        assert results["AAA"]["integration"] == ["test_integration_thing.py"]
+        stats = d.get_test_statistics()
+        assert stats["tests_by_module"]["AAA"] == 3
+        assert stats["tests_by_type"]["general"] == 1
+
     def test_discover_unknown_module(self, repo):
         d = _TestDiscoverer(base_path=repo)
         results = d.discover_all_tests(["NONEXISTENT"])

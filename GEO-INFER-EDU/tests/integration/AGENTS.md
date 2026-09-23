@@ -21,7 +21,6 @@
 
 ## Local Contents
 
-- `__init__.py`
 - `test_education_workflow.py`
 
 ## Validation

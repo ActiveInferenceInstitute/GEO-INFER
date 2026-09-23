@@ -158,6 +158,31 @@ class TestAdaptiveGovernanceSystem:
             assert "timeliness" in quality
             assert 0 <= quality["completeness"] <= 1.0
 
+    def test_monitor_performance_determinism_pin(self, system):
+        """Two identical calls produce identical dicts (determinism pin).
+
+        Mirrors the GEO-INFER-MATH MCMC determinism-pin precedent: the
+        indicator-hash seeded derivation makes simulated scores
+        reproducible. The wall-clock ``monitoring_timestamp`` is
+        excluded; every other field, including the ``simulated`` flag,
+        is pinned.
+        """
+        results_a = system.monitor_performance(
+            governance_indicators=["effectiveness", "equity", "transparency"],
+            data_sources=["administrative", "stakeholder_feedback"],
+            evaluation_periods="annual",
+        )
+        results_b = system.monitor_performance(
+            governance_indicators=["effectiveness", "equity", "transparency"],
+            data_sources=["administrative", "stakeholder_feedback"],
+            evaluation_periods="annual",
+        )
+
+        assert results_a.pop("monitoring_timestamp") is not None
+        assert results_b.pop("monitoring_timestamp") is not None
+        assert results_a == results_b
+        assert results_a["simulated"] is True
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

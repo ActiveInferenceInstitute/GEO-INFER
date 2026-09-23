@@ -1,0 +1,5 @@
+# Runtime output and cache directories written next to the package by the
+# risk engine. The root .gitignore's /outputs/ rule is root-anchored only,
+# so this module needs its own rules (M5-05).
+outputs/
+cache/

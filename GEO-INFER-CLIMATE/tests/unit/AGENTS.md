@@ -24,6 +24,7 @@
 - `test_classification.py`
 - `test_climate_data.py`
 - `test_climate_indices.py`
+- `test_climate_preprocess.py`
 - `test_downscaling.py`
 - `test_extreme_events.py`
 - `test_impact_assessment.py`

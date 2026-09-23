@@ -21,9 +21,7 @@
 
 ## Local Contents
 
-- `core/`
 - `integration/`
-- `models/`
 - `unit/`
 - `conftest.py`
 

@@ -140,21 +140,28 @@ class TestDiscoverer:
                 if test_files:
                     module_tests[test_type] = test_files
 
-        # Also check for tests directly in the tests directory
-        root_test_files = self._find_test_files(tests_path)
+        # Also check for tests directly in the tests directory.
+        # GS19-86: this pass is deliberately NON-recursive. The typed buckets
+        # above already own every nested file; a recursive scan here
+        # re-listed unit/integration/etc. files under "general" and
+        # double-counted them in get_test_statistics.
+        root_test_files = self._find_test_files(tests_path, recursive=False)
         if root_test_files:
             module_tests["general"] = root_test_files
 
         return module_tests
 
-    def _find_test_files(self, directory: Path) -> List[str]:
-        """Find test files in a directory."""
+    def _find_test_files(self, directory: Path, recursive: bool = True) -> List[str]:
+        """Find test files in a directory, optionally recursive."""
         test_files: List[str] = []
 
         if not directory.exists():
             return test_files
 
-        for file_path in directory.rglob("*.py"):
+        candidates = directory.rglob("*.py") if recursive else directory.iterdir()
+        for file_path in candidates:
+            if not file_path.is_file():
+                continue
             if self._is_test_file(file_path):
                 # Store relative path from the tests directory
                 relative_path = file_path.relative_to(directory)

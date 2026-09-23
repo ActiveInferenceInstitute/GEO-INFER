@@ -27,6 +27,8 @@
 - `test_cognitive_models.py`
 - `test_core.py`
 - `test_decision_support.py`
+- `test_model_io_helpers.py`
+- `test_profiles_helpers.py`
 - `test_rest_api.py`
 - `test_spatial_language.py`
 - `test_spatial_memory.py`

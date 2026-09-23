@@ -33,19 +33,14 @@ Each level has its own state space and dynamics, with information flowing up and
 ### Multi-Scale State Spaces
 
 ```python
-from geo_infer_act import WorldSystemModel
+from geo_infer_act import ClimateModel, EcologicalModel
 
-model = WorldSystemModel(
-    levels={
-        "global": GlobalClimateModel(),
-        "regional": RegionalEconomyModel(),
-        "local": LocalEcosystemModel()
-    },
-    couplings={
-        ("global", "regional"): climate_economy_coupling,
-        ("regional", "local"): economy_ecosystem_coupling
-    }
-)
+# Each subsystem is an active-inference model with its own state space.
+# Compose scales by feeding one model's predictions into the next one's
+# observations (see geo_infer_act.core.belief_updating and
+# geo_infer_act.core.policy_selection).
+climate_model = ClimateModel(random_seed=42)
+ecological_model = EcologicalModel(random_seed=42)
 ```
 
 ## System Components

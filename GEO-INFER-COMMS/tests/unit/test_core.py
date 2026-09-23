@@ -2,7 +2,14 @@
 Unit tests for GEO-INFER-COMMS core functionality.
 """
 
-from geo_infer_comms import __version__, GeospatialCommunicationSystem
+from geo_infer_comms import (
+    __version__,
+    ChannelManager,
+    EventManager,
+    GeospatialCommunicationSystem,
+    MessageBroker,
+    NotificationManager,
+)
 
 
 class TestCommsModule:
@@ -23,10 +30,10 @@ class TestCommsModule:
         """Test GeospatialCommunicationSystem initialization."""
         system = GeospatialCommunicationSystem()
         assert system is not None
-        assert hasattr(system, "message_broker")
-        assert hasattr(system, "notification_manager")
-        assert hasattr(system, "channel_manager")
-        assert hasattr(system, "event_manager")
+        assert isinstance(system.message_broker, MessageBroker)
+        assert isinstance(system.notification_manager, NotificationManager)
+        assert isinstance(system.channel_manager, ChannelManager)
+        assert isinstance(system.event_manager, EventManager)
 
     def test_communication_system_start_stop(self) -> None:
         """Test system start and stop functionality."""

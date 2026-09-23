@@ -85,8 +85,14 @@ class DockerConfig(BaseModel):
     username: Optional[str] = Field(default=None, description="Registry username")
     password: Optional[str] = Field(default=None, description="Registry password")
     timeout: int = Field(default=300, description="Docker operation timeout in seconds")
+    build_timeout: int = Field(
+        default=1800, description="Docker build subprocess timeout in seconds"
+    )
+    push_timeout: int = Field(
+        default=900, description="Docker push subprocess timeout in seconds"
+    )
 
-    @field_validator("timeout")
+    @field_validator("timeout", "build_timeout", "push_timeout")
     @classmethod
     def validate_timeout(cls, v: int) -> int:
         """Validate timeout value."""

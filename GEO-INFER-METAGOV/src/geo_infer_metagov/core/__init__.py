@@ -16,6 +16,7 @@ from geo_infer_metagov.core.performance import (
     PerformanceDimension,
 )
 from geo_infer_metagov.core.scenarios import ScenarioPlanner, Scenario, ScenarioAnalysis
+from geo_infer_metagov.core.advanced_analysis import AdvancedGovernanceAnalyzer
 
 __all__ = [
     "MultiLevelGovernanceFramework",
@@ -32,4 +33,5 @@ __all__ = [
     "ScenarioPlanner",
     "Scenario",
     "ScenarioAnalysis",
+    "AdvancedGovernanceAnalyzer",
 ]

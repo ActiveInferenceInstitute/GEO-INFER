@@ -4,7 +4,7 @@ Unit workspace within `GEO-INFER-EDU`.
 
 ## Contents
 
-- `__init__.py`
+- No direct tracked child entries.
 
 ## Public Interface
 

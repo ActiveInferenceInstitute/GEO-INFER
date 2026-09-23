@@ -43,8 +43,10 @@
 - `test_io_modules.py`
 - `test_ml_integration_tables.py`
 - `test_morans_i_variance_parity.py`
+- `test_nested_analytics.py`
 - `test_nested_comprehensive.py`
 - `test_nested_h3_contract.py`
+- `test_nested_messaging_routing.py`
 - `test_place_analyzer.py`
 - `test_place_analyzer_synthetic.py`
 - `test_raster_expression_security.py`

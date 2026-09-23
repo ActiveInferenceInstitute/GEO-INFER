@@ -4,7 +4,6 @@ Unit workspace within `GEO-INFER-ENERGY`.
 
 ## Contents
 
-- `__init__.py`
 - `test_acceptance_energy.py`
 - `test_carbon_footprint.py`
 - `test_energy_demand.py`

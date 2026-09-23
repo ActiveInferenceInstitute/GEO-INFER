@@ -15,6 +15,32 @@ finding fails the job).
   measures `secret_scan_findings` on demand; the 2026-09-08 baseline was
   29 findings (default rules, 426 commits, 1.22 GB).
 
+## Local replication
+
+CI installs a sha256-pinned linux x64 tarball, so its binary is not what a
+local machine runs; replicate the scan locally with the same committed
+policy and the same gitleaks version before pushing:
+
+```bash
+# macOS (darwin/arm64): Homebrew carries the same 8.30.x release.
+brew install gitleaks
+gitleaks version  # expect 8.30.1, matching the CI pin
+
+# The CI invocation, verbatim, from the repository root (full history):
+gitleaks detect --source . --config .gitleaks.toml --redact --verbose
+```
+
+On darwin/arm64 the Homebrew bottle is the supported install path; a
+`gitleaks_8.30.1_darwin_arm64.tar.gz` release tarball also exists for
+environments without Homebrew (verify its checksum against the GitHub
+release's checksums file before use). Linux x64 users can replay the CI
+pin exactly: download `gitleaks_8.30.1_linux_x64.tar.gz` from the same
+release URL as `ci.yml`, verify the committed sha256
+`551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb`, and
+run the same command. A local scan that reports a non-allowlisted finding
+must be remediated before the push — CI detects the same leak only after
+the secret is already in the remote history.
+
 ## 2026-09-08 audit of the default-rule findings
 
 All 29 findings were audited site-by-site before any allowlist decision.

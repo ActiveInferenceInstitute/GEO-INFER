@@ -15,6 +15,7 @@ from geo_infer_log.core.routing import (
     TravelTimeEstimator,
     MultiObjectiveOptimizer,
     RealTimeTracker,
+    save_gpickle,
 )
 
 
@@ -315,13 +316,10 @@ class TestNetworkLoading:
         return graph
 
     def test_gpickle_round_trip(self, tmp_path):
-        """A graph written with pickle.dump loads via RouteOptimizer."""
-        import pickle
-
+        """A graph written with save_gpickle loads via RouteOptimizer."""
         graph = self._build_network()
         network_file = tmp_path / "network.gpickle"
-        with open(network_file, "wb") as handle:
-            pickle.dump(graph, handle)
+        save_gpickle(str(network_file), graph)
 
         optimizer = RouteOptimizer()
         optimizer.load_network(str(network_file))
@@ -331,12 +329,9 @@ class TestNetworkLoading:
 
     def test_optimize_route_no_path(self, tmp_path):
         """Disconnected components yield a no-path result, not zero distances."""
-        import pickle
-
         graph = self._build_network()
         network_file = tmp_path / "network.gpickle"
-        with open(network_file, "wb") as handle:
-            pickle.dump(graph, handle)
+        save_gpickle(str(network_file), graph)
 
         optimizer = RouteOptimizer()
         optimizer.load_network(str(network_file))
@@ -361,12 +356,9 @@ class TestNetworkLoading:
 
     def test_optimize_route_waypoint_destination_unreachable(self, tmp_path):
         """An unreachable destination yields an error, not a partial route."""
-        import pickle
-
         graph = self._build_network()
         network_file = tmp_path / "network.gpickle"
-        with open(network_file, "wb") as handle:
-            pickle.dump(graph, handle)
+        save_gpickle(str(network_file), graph)
 
         optimizer = RouteOptimizer()
         optimizer.load_network(str(network_file))

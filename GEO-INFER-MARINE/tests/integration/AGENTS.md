@@ -21,7 +21,6 @@
 
 ## Local Contents
 
-- `__init__.py`
 - `test_marine_integration.py`
 
 ## Validation

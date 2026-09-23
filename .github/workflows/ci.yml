@@ -9,6 +9,9 @@ on:
   pull_request:
     branches: ["main", "develop"]
   workflow_dispatch:
+  schedule:
+    # GS19-38: weekly slow-category lane; scheduled runs execute on the default branch.
+    - cron: "0 6 * * 1"
 
 permissions:
   contents: read
@@ -72,13 +75,21 @@ jobs:
         run: |
           # shellcheck disable=SC2153
           base_sha="$BASE_SHA"
-          if ! [[ "$base_sha" =~ ^[0-9a-f]{40}$ ]] || ! git cat-file -e "$base_sha^{commit}" 2>/dev/null; then
+          # CI-02: a v* tag push carries the zero SHA in event.before (and
+          # no PR base). The zero SHA passes the 40-hex regex but resolves
+          # to no object, so the old fallback silently narrowed the diff to
+          # HEAD^ — a different scope than the same SHA's push-to-main run.
+          # Detect tag events and the zero SHA BEFORE the regex and measure
+          # the full tree via the GS-004 empty-tree base.
+          if [ "$GITHUB_REF_TYPE" = "tag" ] || [[ "$base_sha" =~ ^0{40}$ ]]; then
+            base_sha="$(git hash-object -t tree /dev/null)"
+          elif ! [[ "$base_sha" =~ ^[0-9a-f]{40}$ ]] || ! git cat-file -e "$base_sha^{commit}" 2>/dev/null; then
             base_sha="$(git rev-parse --verify "$HEAD_SHA^" 2>/dev/null || git hash-object -t tree /dev/null)"
           fi
 
           # Exclude deleted paths: formatters and linters can only inspect
           # files that exist in the checked-out tree.
-          changed_files="$(git diff --name-only --diff-filter=ACMRTUXB "$base_sha" "$HEAD_SHA" -- '*.py')"
+          changed_files="$(git diff --no-renames --name-only --diff-filter=ACMRTUXB "$base_sha" "$HEAD_SHA" -- '*.py')"
           if [ -z "$changed_files" ]; then
             echo "No Python files changed; skipping code quality checks."
             exit 0
@@ -89,10 +100,10 @@ jobs:
           # Keep this gate focused on runtime-invalid constructs. The full
           # source hygiene contract below owns the repository-wide critical
           # rules, while Ruff provides the deterministic formatting gate.
-          git diff --name-only -z --diff-filter=ACMRTUXB "$base_sha" "$HEAD_SHA" -- '*.py' | \
+          git diff --no-renames --name-only -z --diff-filter=ACMRTUXB "$base_sha" "$HEAD_SHA" -- '*.py' | \
             xargs -0 uv run --with 'ruff>=0.15.6,<0.16' ruff check \
               --select F821,F823,E721,E722
-          git diff --name-only -z --diff-filter=ACMRTUXB "$base_sha" "$HEAD_SHA" -- '*.py' | \
+          git diff --no-renames --name-only -z --diff-filter=ACMRTUXB "$base_sha" "$HEAD_SHA" -- '*.py' | \
             xargs -0 uv run --with 'ruff>=0.15.6,<0.16' ruff format --check
 
       - name: Validate repository contracts
@@ -127,8 +138,10 @@ jobs:
           # HYG-04: the module test suites carry no dead imports or unused
           # locals; sanctioned availability probes are preserved as
           # redundant-alias re-exports, which this rule set does not flag.
+          # GS19-03: the root tests/ tree gets the same hygiene surface and
+          # F823 (unused name redefined from an outer scope) joins the set.
           uv run --with 'ruff>=0.15.6,<0.16' ruff check \
-            GEO-INFER-*/tests --select F401,F841,F811
+            GEO-INFER-*/tests tests --select F401,F841,F811,F823
 
       - name: Install pinned gitleaks
         run: |
@@ -158,7 +171,14 @@ jobs:
           # step: a base that cannot be resolved measures every module rather
           # than degrading to base==head and an unconditional pass.
           base_sha="$BASE_SHA"
-          if ! [[ "$base_sha" =~ ^[0-9a-f]{40}$ ]] || ! git cat-file -e "$base_sha^{commit}" 2>/dev/null; then
+          # CI-02: tag events (and any other zero-base event) carry the
+          # zero SHA in event.before; the HEAD^ fallback would scope the
+          # re-measured module set to only the tagged commit. Detect tag
+          # events and the zero SHA BEFORE the regex and measure every
+          # module via the empty-tree base, matching the code-quality step.
+          if [ "$GITHUB_REF_TYPE" = "tag" ] || [[ "$base_sha" =~ ^0{40}$ ]]; then
+            base_sha="$(git hash-object -t tree /dev/null)"
+          elif ! [[ "$base_sha" =~ ^[0-9a-f]{40}$ ]] || ! git cat-file -e "$base_sha^{commit}" 2>/dev/null; then
             base_sha="$(git rev-parse --verify "$HEAD_SHA^" 2>/dev/null || git hash-object -t tree /dev/null)"
           fi
           uv run --with pytest-cov python GEO-INFER-TEST/check_coverage_floor.py \
@@ -429,3 +449,74 @@ jobs:
           uv run --with pytest python -m pytest tests/ \
             --ignore=tests/test_manuscript_pdf_layout.py \
             --deselect "tests/test_manuscript_paths.py::TestFigurePathLiterals::test_the_combined_document_keeps_the_rewrite_inside_image_targets"
+
+  slow-scheduled:
+    # GS19-38: the unified runner's slow category is too heavy for every
+    # push/PR run; it executes on a weekly schedule with the same setup
+    # chain as the per-category matrix legs, uploading the same JUnit
+    # report artifact shape (single pinned interpreter) for triage.
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    continue-on-error: false
+    env:
+      UV_PYTHON: "3.11"
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.10.7"
+          enable-cache: true
+          cache-suffix: slow-scheduled
+          cache-dependency-glob: |
+            **/pyproject.toml
+            **/uv.lock
+            .python-version
+
+      - name: Install locked dependencies
+        run: |
+          # CuPy requires a CUDA toolchain when no compatible wheel is
+          # available; the hosted CPU runners do not provide one. Keep the
+          # performance extra available to developers while excluding it from
+          # this CPU-only validation environment.
+          # Mayavi is an optional Python <3.12 3-D extra whose source build is
+          # incompatible with the hosted runner's VTK dependency; no CI test
+          # requires that optional backend.
+          # Vaex is an optional Python <3.12 performance extra whose C++
+          # extension does not build against the hosted runner toolchain.
+          uv sync --locked --python "$(command -v python)" --all-packages --all-extras \
+            --no-install-package cupy --no-install-package mayavi \
+            --no-install-package vaex --no-install-package vaex-core
+
+      - name: Run slow tests
+        id: slow_tests
+        run: |
+          # The slow category runs the same unified runner lane as the
+          # matrix jobs (--category slow applies the -m slow marker);
+          # the per-category summary keeps progress visible before the
+          # job timeout trips.
+          uv run python GEO-INFER-TEST/run_unified_tests.py --category slow --timeout 600
+
+      - name: Retain slow test reports
+        if: always() && steps.slow_tests.outcome != 'skipped' && steps.slow_tests.outcome != ''
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: geo-infer-slow-reports-py3.11
+          path: .geo-infer-test-results/
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 14
+
+      - name: Prune uv cache
+        if: always()
+        continue-on-error: true
+        run: uv cache prune --ci

@@ -166,6 +166,28 @@ class SystemValidator:
         return report
 
 
+# GS19-87: distribution names whose importable module root differs from the
+# normalized (lowercase, ``-`` -> ``_``) distribution name. Probing the raw
+# normalized name via importlib produced false "missing" verdicts for every
+# module declaring these dependencies (e.g. "pyyaml" is imported as "yaml").
+# Keys are lowercase distribution names in their post-normalization
+# (dash -> underscore) form; values are importable module roots. The table
+# covers the distributions the fleet actually declares.
+DISTRIBUTION_IMPORT_NAMES = {
+    "bayeux_ml": "bayeux",
+    "gitpython": "git",
+    "inferactively_pymdp": "pymdp",
+    "mkdocs_material": "material",
+    "pillow": "PIL",
+    "psycopg2_binary": "psycopg2",
+    "python_multipart": "multipart",
+    "pyjwt": "jwt",
+    "pyyaml": "yaml",
+    "scikit_learn": "sklearn",
+    "z3_solver": "z3",
+}
+
+
 class DependencyChecker:
     """
     Checks whether the dependencies listed in a module's ``pyproject.toml``
@@ -188,8 +210,15 @@ class DependencyChecker:
         if not pyproject.is_file():
             return {"status": "unknown", "reason": "no pyproject.toml"}
 
-        # Simple TOML parser for dependency lines
-        deps = self._extract_dependencies(pyproject)
+        try:
+            deps = self._extract_dependencies(pyproject)
+        except (OSError, tomllib.TOMLDecodeError) as exc:
+            # A corrupted or unreadable pyproject.toml is unknown, never a
+            # success-shaped empty dependency list.
+            return {
+                "status": "unknown",
+                "reason": f"pyproject.toml parse failed: {exc}",
+            }
         missing: List[str] = []
         installed: List[str] = []
 
@@ -211,12 +240,15 @@ class DependencyChecker:
 
     @staticmethod
     def _extract_dependencies(pyproject_path: Path) -> List[str]:
-        """Robust extraction of dependencies using tomllib."""
-        try:
-            with open(pyproject_path, "rb") as f:
-                data = tomllib.load(f)
-        except Exception:
-            return []
+        """Robust extraction of dependencies using tomllib.
+
+        Raises ``OSError`` when the file cannot be read and
+        ``tomllib.TOMLDecodeError`` when it is malformed; callers must
+        surface that as an unknown dependency status instead of a
+        success-shaped empty result.
+        """
+        with open(pyproject_path, "rb") as f:
+            data = tomllib.load(f)
 
         raw_deps = []
         # Standard PEP 621
@@ -241,8 +273,10 @@ class DependencyChecker:
         for dep in raw_deps:
             if not isinstance(dep, str):
                 continue
-            # Handle PEP 508 markers (after ;)
-            dep = dep.split(";")[0]
+            # Handle PEP 508 markers (after ;) and extras (``dep[extra]``);
+            # GS19-87: probing "coverage[toml]" as a module always reported
+            # the dependency missing.
+            dep = dep.split(";")[0].split("[")[0]
             # Handle version specifiers
             for sep in (">=", "<=", "==", "~=", "!=", ">", "<"):
                 dep = dep.split(sep)[0]
@@ -254,4 +288,7 @@ class DependencyChecker:
     @staticmethod
     def _normalize_dep_name(dep: str) -> str:
         """Convert a PyPI package name to an importable module name."""
-        return dep.lower().replace("-", "_").replace(" ", "_")
+        normalized = dep.lower().replace("-", "_").replace(" ", "_")
+        # GS19-87: some distributions ship a differently-named import root
+        # ("pyyaml" is imported as "yaml"); consult the fleet's mapping.
+        return DISTRIBUTION_IMPORT_NAMES.get(normalized, normalized)

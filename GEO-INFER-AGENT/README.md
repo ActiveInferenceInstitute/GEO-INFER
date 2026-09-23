@@ -37,10 +37,6 @@ Intelligent autonomous agents for geospatial decision-making, perception, and ac
 - `pydantic>=2.5.0`
 - `pandas>=1.3.0`
 - `uvicorn>=0.24.0`
-- `psutil>=5.9.0`
-- `pytest>=7.3.1`
-- `pytest-cov>=4.1.0`
-- `pytest-asyncio>=0.20.0`
 
 
 ## Validation

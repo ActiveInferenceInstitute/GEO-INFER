@@ -22,8 +22,11 @@
 ## Local Contents
 
 - `__init__.py`
+- `conflict_models.py`
 - `crm_models.py`
 - `hr_models.py`
+- `learning_models.py`
+- `survey_models.py`
 - `talent_models.py`
 
 ## Validation

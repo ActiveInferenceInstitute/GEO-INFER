@@ -35,17 +35,17 @@ A single agent with one generative model optimizing for a specific objective.
 ### Implementation
 
 ```python
-from geo_infer_agent import SimpleAgent
+from geo_infer_agent import ActiveInferenceAgent
 
-agent = SimpleAgent(
-    model=pollution_model,
-    objective="minimize_uncertainty"
+agent = ActiveInferenceAgent(
+    agent_id="simple-01",
+    config={"name": "uncertainty_minimizer"},
 )
 
 while not done:
-    obs = environment.observe()
-    agent.perceive(obs)
-    action = agent.act()
+    obs = await agent.perceive()
+    agent.update_beliefs(obs)
+    action = await agent.act({"type": "step"})
     environment.step(action)
 ```
 
@@ -64,18 +64,21 @@ Agent with multiple levels of abstraction, enabling multi-scale reasoning.
 ### Implementation
 
 ```python
-from geo_infer_agent import HierarchicalAgent
+from geo_infer_agent import AgentRegistry
 
-agent = HierarchicalAgent(
-    levels={
-        "strategic": RegionalModel(resolution=4),
-        "tactical": LocalModel(resolution=8),
-        "operational": SiteModel(resolution=12)
-    }
+# No dedicated hierarchical-agent class exists; compose levels by
+# registering one agent per scale and delegating between them.
+registry = AgentRegistry()
+strategic_id = await registry.create_agent(
+    agent_type="active_inference",
+    config={"name": "regional_planner"},
 )
-
-# Top-down planning
-plan = agent.plan_hierarchically(goal=mission_objective)
+operational_id = await registry.create_agent(
+    agent_type="rule_based",
+    config={"name": "site_executor"},
+)
+await registry.start_agent(strategic_id)
+await registry.start_agent(operational_id)
 ```
 
 ## 3. Multi-Agent System
@@ -93,16 +96,28 @@ Multiple coordinated agents working together.
 ### Implementation
 
 ```python
-from geo_infer_agent import MultiAgentSystem
+from geo_infer_agent import AgentRegistry, MessagingService
 
-mas = MultiAgentSystem(
-    agents=[agent1, agent2, agent3],
-    coordination="decentralized",
-    communication="broadcast"
+registry = AgentRegistry()
+messaging = MessagingService()
+
+agent_ids = [
+    await registry.create_agent(
+        agent_type="hybrid",
+        config={"name": f"fleet_agent_{i}"},
+        region=study_area_geojson,
+    )
+    for i in range(3)
+]
+for agent_id in agent_ids:
+    await registry.start_agent(agent_id)
+
+# Coordinate on a shared channel
+await messaging.broadcast_message(
+    from_agent_id=agent_ids[0],
+    content={"objective": "complete_coverage"},
+    channel="coordination",
 )
-
-# Coordinate on shared objective
-mas.run(objective="complete_coverage", region=study_area)
 ```
 
 ## 4. Hybrid Agent
@@ -123,9 +138,8 @@ Combines reactive and deliberative components.
 from geo_infer_agent import HybridAgent
 
 agent = HybridAgent(
-    reactive_layer=ObstacleAvoidance(),
-    deliberative_layer=MissionPlanner(),
-    arbitration="priority"
+    agent_id="hybrid-01",
+    config={"name": "field_agent"},
 )
 ```
 

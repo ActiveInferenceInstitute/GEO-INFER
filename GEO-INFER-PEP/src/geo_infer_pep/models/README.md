@@ -5,12 +5,16 @@ Models workspace within `GEO-INFER-PEP`.
 ## Contents
 
 - `__init__.py`
+- `conflict_models.py`
 - `crm_models.py`
 - `hr_models.py`
+- `learning_models.py`
+- `survey_models.py`
 - `talent_models.py`
 
 ## Public Interface
 
+- `conflict_models.py:ConflictCase` (class)
 - `crm_models.py:InteractionLog` (class)
 - `crm_models.py:Address` (class)
 - `crm_models.py:Customer` (class)
@@ -20,14 +24,16 @@ Models workspace within `GEO-INFER-PEP`.
 - `hr_models.py:JobHistoryEntry` (class)
 - `hr_models.py:PerformanceReview` (class)
 - `hr_models.py:Employee` (class)
+- `learning_models.py:LearningCourse` (class)
+- `learning_models.py:LearningEnrollment` (class)
+- `survey_models.py:Survey` (class)
+- `survey_models.py:SurveyResponse` (class)
 - `talent_models.py:JobRequisitionStatus` (class)
 - `talent_models.py:CandidateStatus` (class)
 - `talent_models.py:InterviewType` (class)
 - `talent_models.py:InterviewFeedback` (class)
 - `talent_models.py:Interview` (class)
 - `talent_models.py:Offer` (class)
-- `talent_models.py:Candidate` (class)
-- `talent_models.py:JobRequisition` (class)
 
 ## Module Metadata
 

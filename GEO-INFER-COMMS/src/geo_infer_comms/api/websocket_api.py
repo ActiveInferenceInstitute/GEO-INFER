@@ -225,35 +225,46 @@ class WebSocketConnection:
 
         When ``COMMS_JWT_SECRET`` is configured and PyJWT is installed, the
         token is validated as an HS256 JWT and invalid tokens are rejected.
-        Without JWT validation configured, the user ID is derived from a
-        deterministic hash of the token (the token itself is not verified).
+        If the secret is configured but PyJWT is unavailable, authentication
+        is rejected outright: falling back to hash-derived identity would let
+        any token string authenticate. Without JWT validation configured, the
+        user ID is derived from a deterministic hash of the token (the token
+        itself is not verified).
         """
         token = data.get("token")
         if not token:
             await self.send_error("Authentication token required")
             return
 
+        import os
+
+        secret = os.environ.get("COMMS_JWT_SECRET", "")
         user_id: Optional[str] = None
 
-        try:
-            import jwt as pyjwt
-            import os
+        if secret:
+            try:
+                import jwt as pyjwt
+            except ImportError as exc:
+                self.logger.error(
+                    "COMMS_JWT_SECRET is configured but PyJWT is unavailable (%s); "
+                    "rejecting authentication instead of falling back to "
+                    "hash-derived identity",
+                    exc,
+                )
+                await self.send_error("Invalid authentication token")
+                return
 
-            secret = os.environ.get("COMMS_JWT_SECRET", "")
-            if secret:
-                try:
-                    payload = pyjwt.decode(token, secret, algorithms=["HS256"])
-                except Exception as e:
-                    self.logger.warning("Rejected invalid JWT token: %s", e)
-                    await self.send_error("Invalid authentication token")
-                    return
-                user_id = payload.get("sub", payload.get("user_id"))
-                if not user_id:
-                    await self.send_error("Invalid authentication token")
-                    return
-                user_id = str(user_id)
-        except ImportError:
-            pass  # PyJWT unavailable; fall back to hash-derived identity
+            try:
+                payload = pyjwt.decode(token, secret, algorithms=["HS256"])
+            except Exception as e:
+                self.logger.warning("Rejected invalid JWT token: %s", e)
+                await self.send_error("Invalid authentication token")
+                return
+            user_id = payload.get("sub", payload.get("user_id"))
+            if not user_id:
+                await self.send_error("Invalid authentication token")
+                return
+            user_id = str(user_id)
 
         if user_id is None:
             import hashlib

@@ -42,7 +42,6 @@ dependencies = [
     "scipy>=1.7.0",
     "geopandas>=0.13.0",
     "shapely>=2.0.0",
-    "geo-infer-bayes>=0.2.0",
 ]
 
 [project.optional-dependencies]
@@ -56,6 +55,16 @@ integrations = [
     "geo-infer-math",
     "geo-infer-bayes",
     "geo-infer-data",
+]
+
+# Optional machine-learning backend for hotspot clustering. The KMeans
+# hotspot analysis in geo_infer_risk.core.catastrophe_models imports
+# sklearn.cluster inside a guarded try/except and degrades gracefully to
+# simple centroid hotspots when scikit-learn is absent; install this
+# extra to enable the clustering path.
+ml = [
+    "scikit-learn>=1.0",
+    "joblib>=1.0",
 ]
 dev = [
     "pytest>=6.2.0",
@@ -83,8 +92,6 @@ Homepage = "https://github.com/ActiveInferenceInstitute/GEO_INFER"
 Documentation = "https://geo-infer.readthedocs.io/"
 Repository = "https://github.com/ActiveInferenceInstitute/GEO_INFER"
 "Bug Tracker" = "https://github.com/ActiveInferenceInstitute/GEO_INFER/issues"
-
-[project.scripts]
 
 [tool.setuptools]
 package-dir = {"" = "src"}

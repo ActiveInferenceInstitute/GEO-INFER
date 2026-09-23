@@ -4,9 +4,7 @@ Tests workspace within `GEO-INFER-PEP`.
 
 ## Contents
 
-- `core/`
 - `integration/`
-- `models/`
 - `unit/`
 - `conftest.py`
 

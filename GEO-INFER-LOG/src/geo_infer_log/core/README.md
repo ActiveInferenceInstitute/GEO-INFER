@@ -7,6 +7,7 @@ Core workspace within `GEO-INFER-LOG`.
 - `__init__.py`
 - `delivery.py`
 - `routing.py`
+- `secure_serialization.py`
 - `supply_chain.py`
 - `transport.py`
 
@@ -15,21 +16,23 @@ Core workspace within `GEO-INFER-LOG`.
 - `delivery.py:LastMileRouter` (class)
 - `delivery.py:DeliveryScheduler` (class)
 - `delivery.py:ServiceAreaAnalyzer` (class)
+- `routing.py:save_gpickle` (function)
 - `routing.py:RouteOptimizer` (class)
 - `routing.py:FleetManager` (class)
 - `routing.py:VehicleRouter` (class)
 - `routing.py:TravelTimeEstimator` (class)
 - `routing.py:MultiObjectiveOptimizer` (class)
 - `routing.py:RealTimeTracker` (class)
-- `supply_chain.py:SupplyChainModel` (class)
-- `supply_chain.py:ResilienceAnalyzer` (class)
-- `supply_chain.py:NetworkOptimizer` (class)
-- `supply_chain.py:FacilityLocator` (class)
-- `supply_chain.py:InventoryManager` (class)
-- `transport.py:MultiModalPlanner` (class)
-- `transport.py:TransportationNetworkAnalyzer` (class)
-- `transport.py:TrafficSimulator` (class)
-- `transport.py:EmissionsCalculator` (class)
+- `secure_serialization.py:PayloadSecurityError` (class)
+- `secure_serialization.py:SigningKeyUnavailableError` (class)
+- `secure_serialization.py:MalformedEnvelopeError` (class)
+- `secure_serialization.py:UnsignedPayloadError` (class)
+- `secure_serialization.py:SignatureMismatchError` (class)
+- `secure_serialization.py:clear_signing_key_cache` (function)
+- `secure_serialization.py:default_key_path` (function)
+- `secure_serialization.py:resolve_signing_key` (function)
+- `secure_serialization.py:derive_context_key` (function)
+- `secure_serialization.py:is_signed_envelope` (function)
 
 ## Module Metadata
 
@@ -41,18 +44,18 @@ Core workspace within `GEO-INFER-LOG`.
 
 ## Dependencies
 
+- `numpy>=1.20.0`
+- `starlette>=0.27.0`
 - `pandas>=1.3.0`
-- `geopandas>=0.10.0`
+- `geopandas>=0.13.0`
 - `networkx>=2.6.0`
 - `pulp>=2.7.0,<3`
-- `shapely>=1.8.0`
+- `shapely>=2.0.0`
 - `pydantic>=2.0.0`
 - `fastapi>=0.100.0`
 - `scipy>=1.9.0`
 - `matplotlib>=3.5.0`
 - `folium>=0.14.0`
-- `starlette>=0.27.0`
-- `numpy>=1.20.0`
 
 
 ## Validation

@@ -25,6 +25,7 @@ from geo_infer_metagov.core.performance import (
     PerformanceDimension,
 )
 from geo_infer_metagov.core.scenarios import ScenarioPlanner, Scenario, ScenarioAnalysis
+from geo_infer_metagov.core.advanced_analysis import AdvancedGovernanceAnalyzer
 
 # Integration modules (optional)
 try:
@@ -60,6 +61,7 @@ __all__ = [
     "ScenarioPlanner",
     "Scenario",
     "ScenarioAnalysis",
+    "AdvancedGovernanceAnalyzer",
 ]
 
 if INTEGRATIONS_AVAILABLE:

@@ -8,30 +8,14 @@ using in-memory sequence data and spatial coordinates.
 import pytest
 import pandas as pd
 
-try:
-    from Bio.Seq import Seq
-    from Bio.SeqRecord import SeqRecord
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
 
-    HAS_BIOPYTHON = True
-except ImportError:
-    HAS_BIOPYTHON = False
+import geopandas as gpd  # noqa: F401
+import matplotlib
 
-try:
-    import matplotlib
-
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt  # noqa: F401
-
-    HAS_MATPLOTLIB = True
-except ImportError:
-    HAS_MATPLOTLIB = False
-
-try:
-    import geopandas as gpd  # noqa: F401
-
-    HAS_GEOPANDAS = True
-except ImportError:
-    HAS_GEOPANDAS = False
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt  # noqa: F401
 
 
 pytestmark = [

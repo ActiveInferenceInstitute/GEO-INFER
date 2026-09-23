@@ -935,7 +935,13 @@ class ModuleOrchestrator:
                         results[step.name] = {"error": str(e), "status": "failed"}
 
     def _check_convergence(self, results: Dict[str, Any], threshold: float) -> bool:
-        """Check if feedback loop has converged by comparing last two iterations."""
+        """Check if feedback loop has converged by comparing last two iterations.
+
+        Fewer than two iterations or no shared numeric leaves mean "not
+        converged yet" (``False``). Numeric leaves that cannot be compared —
+        e.g. integers beyond float range — are malformed data: they are logged
+        and propagated instead of silently reading as "never converged".
+        """
         iterations = sorted(k for k in results.keys() if k.startswith("iteration_"))
         if len(iterations) < 2:
             return False
@@ -968,8 +974,11 @@ class ModuleOrchestrator:
 
             return bool(max_change < threshold)
 
-        except Exception:
-            return False
+        except (OverflowError, RecursionError) as exc:
+            self.logger.error(
+                f"Convergence check failed on malformed iteration data: {exc}"
+            )
+            raise
 
     async def _attempt_recovery(
         self,

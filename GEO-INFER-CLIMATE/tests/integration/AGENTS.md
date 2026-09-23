@@ -21,7 +21,6 @@
 
 ## Local Contents
 
-- `__init__.py`
 - `test_climate_index_workflow.py`
 
 ## Validation

@@ -1,8 +1,11 @@
 """
 Computer vision models for geospatial image classification.
 
-This module provides CNN-based models for satellite and aerial imagery analysis,
-including land cover classification, object detection, and semantic segmentation.
+This module provides scikit-learn-based classifiers (Random Forest and
+multi-layer perceptron) over feature vectors extracted from satellite and
+aerial imagery, such as land cover classification. CNN architectures, object
+detection, and semantic segmentation are not implemented; no pre-trained
+weights are shipped.
 """
 
 import logging

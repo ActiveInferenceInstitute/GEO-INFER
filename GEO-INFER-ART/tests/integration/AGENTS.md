@@ -21,7 +21,6 @@
 
 ## Local Contents
 
-- `__init__.py`
 - `test_art_generation_workflow.py`
 
 ## Validation

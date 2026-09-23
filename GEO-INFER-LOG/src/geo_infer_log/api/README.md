@@ -44,18 +44,18 @@ Api workspace within `GEO-INFER-LOG`.
 
 ## Dependencies
 
+- `numpy>=1.20.0`
+- `starlette>=0.27.0`
 - `pandas>=1.3.0`
-- `geopandas>=0.10.0`
+- `geopandas>=0.13.0`
 - `networkx>=2.6.0`
 - `pulp>=2.7.0,<3`
-- `shapely>=1.8.0`
+- `shapely>=2.0.0`
 - `pydantic>=2.0.0`
 - `fastapi>=0.100.0`
 - `scipy>=1.9.0`
 - `matplotlib>=3.5.0`
 - `folium>=0.14.0`
-- `starlette>=0.27.0`
-- `numpy>=1.20.0`
 
 
 ## Validation

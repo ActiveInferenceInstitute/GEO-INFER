@@ -23,6 +23,12 @@ permissions:
   # commit; without actions:read that call fails closed on the first tag.
   actions: read
 
+# GS19-22: the release publishes fleet wheels; a second tag push or dispatch
+# for the same ref must queue behind the running release, never race it.
+# cancel-in-progress is deliberately omitted (releases are not preemptible).
+concurrency:
+  group: geo-infer-release-${{ github.ref }}
+
 jobs:
   ci-gate:
     # GS-002: a tag can point at any commit; the wheel release must not
@@ -67,6 +73,10 @@ jobs:
     needs: ci-gate
     if: ${{ !cancelled() && (needs.ci-gate.result == 'success' || needs.ci-gate.result == 'skipped') }}
     runs-on: ubuntu-latest
+    # GS19-22: an unbounded release job could hang the whole release pipeline
+    # behind the concurrency queue; the 45-wheel build + verify fits well
+    # inside this ceiling.
+    timeout-minutes: 60
     env:
       UV_PYTHON: "3.11"
 

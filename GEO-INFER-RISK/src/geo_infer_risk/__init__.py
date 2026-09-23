@@ -23,9 +23,13 @@ from geo_infer_risk.civic_intel import (
     parse_crescent_city_hazard,
 )
 
-# Core components. All runtime dependencies are declared in pyproject.toml,
-# so these imports must succeed; a failure is a real packaging bug and
-# propagates instead of silently nulling the public API.
+# Core components. All hard runtime dependencies are declared in
+# pyproject.toml, so these imports must succeed; a failure is a real
+# packaging bug and propagates instead of silently nulling the public API.
+# geo-infer-bayes is deliberately NOT a hard dependency: it ships under the
+# optional "integrations" extra, and its import sites (civic_intel,
+# core/risk_engine) guard it and degrade gracefully when the extra is not
+# installed.
 from geo_infer_risk.core import (
     EnhancedRiskEngine,
     RiskModel,

@@ -80,8 +80,6 @@ GEO-INFER-ENERGY/
       energy_demand.py       # EnergyDemandForecaster
       carbon_footprint.py    # CarbonFootprintAnalyzer
       energy_infrastructure.py # EnergyInfrastructurePlanner
-    api/                     # REST API endpoints
-    utils/                   # Shared utilities
   tests/
     unit/
     integration/
@@ -90,8 +88,8 @@ GEO-INFER-ENERGY/
 
 ## Dependencies
 
-Core dependencies include `numpy`, `xarray`, `pandas`, and `scikit-learn`. All are standard scientific Python packages. Optional dependencies such as `geopandas` and `h3` enable spatial operations when available.
+Core dependencies are `numpy` and `xarray` only. Optional spatial extras such as `geopandas` and `h3` enable spatial operations when available.
 
 ## Version
 
-Current version: `0.1.0`
+Current version: `0.3.0`

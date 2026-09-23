@@ -21,7 +21,7 @@ python from geo_infer_math import TheoremProver, create_prover # Create theorem 
 ```
  ### 5. Configuration
 ```python
- from geo_infer_math.config import configure, get_config # Configure module configure( theorem_proving_backend='z3', enable_caching=True, parallel_processing=True ) # Get configuration config = get_config() timeout = config.get('theorem_proving', 'timeout')
+ from geo_infer_math.config import configure, get_config # Configure module configure(**{"theorem_proving.backend": "z3", "performance.enable_caching": True, "performance.parallel_processing": True}) # Get configuration config = get_config() timeout = config.get('theorem_proving', 'timeout')
 ```
  ### 6. Caching and Performance
 ```

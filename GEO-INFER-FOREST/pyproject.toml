@@ -38,6 +38,12 @@ dependencies = [
 vector = ["geopandas>=0.13.0", "shapely>=2.0.0"]
 test = ["pytest>=7.0", "pytest-timeout>=2.1", "geopandas>=0.13.0", "shapely>=2.0.0", "pandas>=1.3.0"]
 
+[project.urls]
+Homepage = "https://github.com/ActiveInferenceInstitute/GEO_INFER"
+Documentation = "https://geo-infer.readthedocs.io/"
+Repository = "https://github.com/ActiveInferenceInstitute/GEO_INFER"
+"Bug Tracker" = "https://github.com/ActiveInferenceInstitute/GEO_INFER/issues"
+
 [tool.setuptools]
 package-dir = {"" = "src"}
 

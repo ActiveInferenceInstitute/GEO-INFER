@@ -35,6 +35,11 @@ Deployment workspace within `GEO-INFER-IOT`.
 - `paho-mqtt>=1.6.0`
 - `pandas>=1.3.0`
 - `pydantic>=2.0.0`
+- `pyyaml>=6.0`
+- `scikit-learn>=1.0.0`
+- `scipy>=1.7.0`
+- `uvicorn>=0.15.0`
+- `websockets>=10.0`
 
 
 ## Validation

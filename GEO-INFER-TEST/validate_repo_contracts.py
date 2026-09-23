@@ -28,6 +28,7 @@ from _validator_common import (
     ContractReport,
     STDLIB_REQUIREMENT_NAMES,
     discover_module_dirs,
+    expected_package_name,
     internal_requirement_names,
     normalize_dependency_name,
     read_toml,
@@ -57,10 +58,23 @@ ROOT_GENERATED_ARTIFACT_PATHS = (
     "outputs",
     "visualizations_output",
 )
-TASK_MARKER_PATTERN = re.compile(r"\b(TODO|FIXME|XXX|HACK|TBD)\b")
+TASK_MARKER_PATTERN = re.compile(
+    # Matches bare task-marker tokens, with two deliberate allowances so the
+    # module-root script scan below can include the validator scripts
+    # themselves without self-flagging: a token adjacent to a "|" belongs to
+    # this or another validator's own token-alternation definition, and a
+    # token immediately followed by ".md" names the root TODO.md ledger
+    # file rather than planning work.
+    r"(?<![|\w])(TODO|FIXME|XXX|HACK|TBD)\b(?!\||\.md)"
+)
 TASK_MARKER_SCAN_GLOBS = (
     "GEO-INFER-*/src/**/*.py",
     "GEO-INFER-*/tests/**/*.py",
+    # GS19-85: module-root scripts (validate_*.py, run_unified_tests.py,
+    # measure_module_coverage.py, ...) are module surface too; markers there
+    # were invisible to this gate because the scan covered only src/ and
+    # tests/.
+    "GEO-INFER-*/*.py",
 )
 # User-facing example code keeps a softer contract: markers are surfaced as
 # warnings so example authors still see them, without failing CI on demos.
@@ -110,14 +124,6 @@ def parse_pyproject(module_dir: Path, report: ContractReport) -> dict:
     except tomllib.TOMLDecodeError as exc:
         report.error(f"{module_dir.name}: invalid pyproject.toml: {exc}")
         return {}
-
-
-def expected_package_name(pyproject: dict) -> str | None:
-    project = pyproject.get("project", {})
-    name = project.get("name")
-    if not isinstance(name, str) or not name:
-        return None
-    return name.replace("-", "_")
 
 
 def validate_inventory(module_dirs: list[Path], report: ContractReport) -> None:
@@ -255,13 +261,14 @@ def scan_task_marker_files(scan_globs: tuple[str, ...]) -> list[str]:
         for lineno, line in enumerate(text.splitlines(), start=1):
             if TASK_MARKER_PATTERN.search(line):
                 hits.append(
-                    f"{source_file.relative_to(REPO_ROOT)}:{lineno}: {line.strip()}"
+                    f"{source_file.relative_to(REPO_ROOT).as_posix()}:{lineno}: {line.strip()}"
                 )
     return hits
 
 
 def validate_module_task_markers(report: ContractReport) -> None:
-    """Keep actionable planning markers out of source and tests."""
+    """Keep actionable planning markers out of source, tests, and module
+    root scripts."""
     hits = scan_task_marker_files(TASK_MARKER_SCAN_GLOBS)
     if hits:
         report.error(

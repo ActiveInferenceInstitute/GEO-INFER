@@ -32,8 +32,8 @@ Advanced agricultural analysis and precision farming applications using geospati
 
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
-- `geopandas>=0.10.0`
-- `shapely>=1.8.0`
+- `geopandas>=0.13.0`
+- `shapely>=2.0.0`
 - `scikit-learn>=1.0.0`
 - `rasterio>=1.2.0`
 - `pyproj>=3.0.0`
@@ -41,7 +41,6 @@ Advanced agricultural analysis and precision farming applications using geospati
 - `scipy>=1.6.0`
 - `xarray>=0.18.0`
 - `joblib>=1.0.0`
-- `requests>=2.25.0`
 
 
 ## Validation

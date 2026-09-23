@@ -166,6 +166,33 @@ def test_module_task_marker_contract_scans_source_and_tests(tmp_path, monkeypatc
     assert "test_module.py" in errors
 
 
+def test_module_task_marker_contract_scans_module_root_scripts(tmp_path, monkeypatch):
+    """GS19-85: module-root scripts are scanned; ledger references are not.
+
+    A real marker in a module-root script must be caught by the scan, while
+    the token alternation inside a validator's own pattern definition and a
+    reference to the root ``TODO.md`` ledger filename must not trip it.
+    """
+    contracts = load_contracts_module()
+    monkeypatch.setattr(contracts, "REPO_ROOT", tmp_path)
+    module_dir = tmp_path / "GEO-INFER-SAMPLE"
+    module_dir.mkdir()
+    todo = "TO" + "DO"
+    fixme = "FIX" + "ME"
+    (module_dir / "needs_work.py").write_text(f"# {todo}: fix before release\n")
+    (module_dir / "validate_sample.py").write_text(
+        f'PATTERN = re.compile(r"\\b({todo}|{fixme})\\b")\n'
+        f'HELP = "track planned work in root {todo}.md or issues"\n'
+    )
+    report = contracts.ContractReport()
+
+    contracts.validate_module_task_markers(report)
+
+    errors = "\n".join(report.errors)
+    assert "GEO-INFER-SAMPLE/needs_work.py" in errors
+    assert "validate_sample.py" not in errors
+
+
 def test_logging_contract_rejects_library_basic_config(tmp_path, monkeypatch):
     contracts = load_contracts_module()
     monkeypatch.setattr(contracts, "REPO_ROOT", tmp_path)
@@ -447,7 +474,16 @@ def test_import_smoke_timeout_stops_descendants(tmp_path, monkeypatch):
     contracts.validate_import_smoke([module], report, timeout=0.5)
     assert len(report.warnings) == 1
     assert "timed out" in report.warnings[0]
-    assert started.is_file()
+    # Under a parallel/coverage-traced runner the child's spawn can land
+    # after the parent's 0.5s timeout, so `started` may appear late; poll
+    # for it rather than asserting immediately.
+    started_seen = started.is_file()
+    for _ in range(50):
+        if started_seen:
+            break
+        time.sleep(0.1)
+        started_seen = started.is_file()
+    assert started_seen, "child never started; spawn was slower than the poll window"
     # Wide margin: on a loaded runner the kill can land late after the 0.5s
     # timeout — the child must outlive any plausible kill delay.
     time.sleep(3.1)

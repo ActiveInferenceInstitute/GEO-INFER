@@ -12,11 +12,14 @@ This module defines RESTful API endpoints that allow:
 """
 
 import logging
-from typing import Dict, List, Any, Optional
+import os
+from typing import Any, Dict, List, Optional
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+
+from geo_infer_agent import __version__
 from geo_infer_agent.core.agent_registry import AgentRegistry
 
 logger = logging.getLogger("geo_infer_agent.api.endpoints")
@@ -62,14 +65,42 @@ class AgentResponse(BaseModel):
 app = FastAPI(
     title="GEO-INFER-AGENT API",
     description="API for managing autonomous geospatial agents",
-    version="0.1.0",
+    version=__version__,
 )
 
-# Configure CORS
+
+def cors_allow_credentials(origins: List[str]) -> bool:
+    """Decide whether CORS may send credentials.
+
+    Credentialed CORS is only safe for an explicit, finite origin list.
+    A wildcard (``"*"``) combined with ``allow_credentials=True`` would
+    let any origin make credentialed requests, so credentials are
+    enabled only when at least one explicit origin is configured and no
+    wildcard is present.
+    """
+    return bool(origins) and "*" not in origins
+
+
+def cors_origins() -> List[str]:
+    """Parse explicit allowed CORS origins from the environment.
+
+    ``GEO_INFER_AGENT_CORS_ORIGINS`` accepts a comma-separated origin list.
+    With no explicit configuration the list is empty, which disables
+    cross-origin browser requests entirely; same-origin deployments are
+    unaffected. A wildcard is only honored for non-credentialed CORS (see
+    :func:`cors_allow_credentials`).
+    """
+    raw = os.environ.get("GEO_INFER_AGENT_CORS_ORIGINS", "")
+    return [origin.strip() for origin in raw.split(",") if origin.strip()]
+
+
+# Configure CORS from the explicit origin allowlist; credentials are only
+# enabled for a non-wildcard origin list (see cors_allow_credentials).
+_allowed_origins = cors_origins()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Should be restricted in production
-    allow_credentials=True,
+    allow_origins=_allowed_origins,
+    allow_credentials=cors_allow_credentials(_allowed_origins),
     allow_methods=["*"],
     allow_headers=["*"],
 )

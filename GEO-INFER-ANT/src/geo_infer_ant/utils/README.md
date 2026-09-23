@@ -47,7 +47,6 @@ Utils workspace within `GEO-INFER-ANT`.
 - `pyyaml>=6.0`
 - `scikit-learn>=1.1.0`
 - `scipy>=1.7.0`
-- `h3>=4.5.0,<5`
 
 
 ## Validation

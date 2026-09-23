@@ -25,7 +25,6 @@
 - `examples/`
 - `src/`
 - `tests/`
-- `setup.py`
 - `.gitignore`
 - `SKILL.md`
 - `pyproject.toml`

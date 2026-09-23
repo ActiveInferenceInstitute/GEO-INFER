@@ -23,9 +23,6 @@ Examples workspace within `GEO-INFER-EMERGENCY`.
 ## Dependencies
 
 - `networkx>=2.6.0`
-- `numpy>=1.20.0`
-- `geopandas>=0.10.0`
-- `shapely>=1.8.0`
 
 
 ## Validation

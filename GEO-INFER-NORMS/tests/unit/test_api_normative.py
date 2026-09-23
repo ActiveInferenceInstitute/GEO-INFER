@@ -208,6 +208,34 @@ def test_perform_normative_inference_bad_extension(client, tmp_path):
     assert response.status_code == 415
 
 
+def test_perform_normative_inference_compliance_error_maps_to_5xx(tmp_path):
+    """A norm-evaluation fault must map to 5xx, not the ValueError -> 400 path."""
+    from geo_infer_norms.core.normative_inference import NormEvaluationError
+
+    api = NormativeAPI()
+
+    def _boom(entity_id, norm_id):
+        raise NormEvaluationError("condition exploded")
+
+    api.normative_inference.infer_compliance = _boom
+
+    csv_path = tmp_path / "observations.csv"
+    csv_path.write_text("entity_id,recycling,value\nent-1,yes,1\n", encoding="utf-8")
+    app = FastAPI()
+    app.include_router(api.router)
+    client = TestClient(app)
+    response = client.post(
+        "/inference/analyze",
+        json={
+            "data_source": str(csv_path),
+            "inference_type": "behavioral",
+            "parameters": {"behavior": "recycling", "expected_value": "yes"},
+        },
+    )
+    assert response.status_code == 500
+    assert "Norm condition evaluation failed" in response.json()["detail"]
+
+
 def test_perform_normative_inference_missing_value_field(client, tmp_path):
     csv_path = tmp_path / "empty.csv"
     csv_path.write_text("entity_id,other\nent-1,1\n", encoding="utf-8")

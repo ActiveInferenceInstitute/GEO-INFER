@@ -7,12 +7,16 @@ and proof strategy classes.
 
 import sys
 import os
+import types
+
+import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
 from geo_infer_math.core.theorem_proving.prover import (
     ProofResult,
     ProofStatus,
+    TheoremProver,
     create_prover,
 )
 from geo_infer_math.core.theorem_proving.spatial_theorems import (
@@ -81,6 +85,31 @@ class TestTheoremProver:
         prover = create_prover(backend="numpy")
         assert hasattr(prover, "backend")
         assert prover.backend == "numpy"
+
+    def test_explicit_z3_request_without_z3_raises(self, monkeypatch):
+        """An explicit backend="z3" request with z3-solver absent raises
+        a ValueError naming the theorem-proving extra; it never silently
+        swaps to numpy."""
+        monkeypatch.setitem(sys.modules, "z3", None)
+        with pytest.raises(ValueError, match="theorem-proving"):
+            TheoremProver(backend="z3")
+
+    def test_default_backend_selection_still_downgrades(self, monkeypatch):
+        """The default backend selection still silently falls back to
+        numpy when z3-solver is absent (TheoremProver() and the
+        create_prover factory)."""
+        monkeypatch.setitem(sys.modules, "z3", None)
+        for factory in (TheoremProver, create_prover):
+            prover = factory()
+            assert prover.backend == "numpy"
+            assert prover._prover is None
+
+    def test_explicit_z3_request_with_z3_present_selects_z3(self, monkeypatch):
+        """An explicit z3 request with z3-solver importable selects z3."""
+        monkeypatch.setitem(sys.modules, "z3", types.ModuleType("z3"))
+        prover = TheoremProver(backend="z3")
+        assert prover.backend == "z3"
+        assert prover._prover is not None
 
 
 class TestTheoremDatabase:

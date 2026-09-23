@@ -1,3 +1,12 @@
+# DESIGN SPECIFICATION — PARTIAL
+#
+# This OpenAPI document is a forward-looking design for a REST layer over
+# GEO-INFER-OPS. The only live HTTP surface is the FastAPI app in
+# src/geo_infer_ops/app.py, which serves exactly GET /health, GET /version,
+# and a Prometheus /metrics mount — every other path below (and the auth
+# schemes) is a design target only: no production or staging deployment
+# exists. Treat this file as a design spec, not a description of running
+# code outside those three endpoints.
 openapi: 3.0.3
 info:
   title: GEO-INFER-OPS API
@@ -13,12 +22,16 @@ info:
     name: CC BY-NC-SA 4.0
     url: https://creativecommons.org/licenses/by-nc-sa/4.0/
 
+# NOTE (design spec): the server URLs and security schemes below are design
+# targets only — no production or staging deployment of this HTTP layer exists.
 servers:
   - url: https://ops-api.geo-infer.org/v1
     description: Production operations server
   - url: http://localhost:8009/v1
     description: Local development server
 
+# NOTE (design spec): the server URLs and security schemes below are design
+# targets only — no production or staging deployment of this HTTP layer exists.
 security:
   - ApiKeyAuth: []
   - BearerAuth: []

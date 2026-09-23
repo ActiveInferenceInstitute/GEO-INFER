@@ -187,7 +187,10 @@ class SymbolicMath:
                 h = 1e-5
                 x0 = 1.0  # evaluation point
                 return (expr(x0 + h) - expr(x0 - h)) / (2 * h)
-            except Exception:
+            except (TypeError, ArithmeticError):
+                # The callable cannot be numerically evaluated (wrong signature
+                # or math-domain failure); fall through to the descriptor path.
+                # Unexpected backend errors propagate to the caller.
                 pass  # fall through to descriptor
 
         # Case 2: symbol dict → analytic identity / zero rule

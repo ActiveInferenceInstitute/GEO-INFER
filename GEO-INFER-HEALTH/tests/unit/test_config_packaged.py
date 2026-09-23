@@ -10,6 +10,7 @@ remains the first-priority override.
 import pytest
 
 from geo_infer_health.utils.config import get_default_config_path
+from geo_infer_test.testing import assert_packaged_config_loads
 
 
 @pytest.fixture(autouse=True)
@@ -37,6 +38,27 @@ class TestDefaultConfigPathPackaging:
         # Resolved inside the installed package tree, not relative to cwd.
         assert tmp_path not in path.parents
         assert "geo_infer_health" in path.parts
+        # The packaged resource parses and carries the sections the runtime
+        # config loader consumes (shared GS19-39 helper).
+        assert_packaged_config_loads(
+            "geo_infer_health",
+            "health_config.yaml",
+            required_sections=(
+                "module",
+                "api",
+                "database",
+                "logging",
+                "analysis",
+                "data",
+                "performance",
+                "privacy",
+                "integration",
+                "monitoring",
+                "development",
+                "advanced",
+            ),
+            required_keys={"module": ("name", "version"), "api": ("host", "port")},
+        )
 
     def test_env_var_override_is_honored_first(self, tmp_path, monkeypatch):
         """An explicit existing GEO_INFER_HEALTH_CONFIG path takes priority."""

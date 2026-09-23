@@ -2,9 +2,23 @@
 
 from dataclasses import dataclass
 from typing import List, Dict, Any
+import hashlib
 import logging
+import random
 
 logger = logging.getLogger(__name__)
+
+
+def _seeded_noise(indicator: str, span: float = 0.1) -> float:
+    """Deterministic pseudo-random noise for an indicator.
+
+    Seeds an isolated ``random.Random`` from the SHA-256 digest of the
+    indicator name — stable across processes and Python versions —
+    replacing the unseeded ``random`` use that made results
+    non-reproducible.
+    """
+    seed = int(hashlib.sha256(indicator.encode("utf-8")).hexdigest(), 16) % 2**32
+    return random.Random(seed).uniform(-span, span)
 
 
 @dataclass
@@ -82,7 +96,17 @@ class AdaptiveGovernanceSystem:
         evaluation_periods: str,
     ) -> Dict[str, Any]:
         """
-        Monitor governance performance using real performance tracking.
+        Monitor governance performance using simulated indicator data.
+
+        Simulated basis, explicitly: no real data sources are queried.
+        - Performance scores are hardcoded base scores per indicator type,
+          adjusted by data-source coverage (an indicator scores higher when
+          a declared data source name contains the indicator name, capped
+          at two matching sources) and seeded noise derived from the
+          SHA-256 digest of the indicator name. Identical inputs always
+          produce identical outputs.
+        - ``data_quality`` completeness, reliability, and timeliness are
+          fixed illustrative constants.
 
         Tracks:
         - Indicator values over time
@@ -90,10 +114,9 @@ class AdaptiveGovernanceSystem:
         - Data quality and completeness
         - Performance gaps
 
-        Returns comprehensive performance monitoring results.
+        Returns a dict flagged ``"simulated": True`` — suitable for
+        deterministic tests and demos, not for real governance decisions.
         """
-        # In a real implementation, this would query actual data sources
-        # For now, we simulate realistic performance tracking
 
         performance_scores = {}
         performance_trends = {}
@@ -119,10 +142,17 @@ class AdaptiveGovernanceSystem:
                     score = value
                     break
 
-            # Add some variation
-            import random
+            # Data-source coverage feeds scoring: an indicator covered by a
+            # declared source (source name contains the indicator name)
+            # scores higher, capped at two matching sources.
+            source_count = len([s for s in data_sources if indicator in s.lower()])
+            coverage_adjustment = 0.05 * min(source_count, 2)
 
-            score = max(0.0, min(1.0, score + random.uniform(-0.1, 0.1)))
+            # Deterministic seeded variation (replaces unseeded randomness)
+            score = max(
+                0.0,
+                min(1.0, score + coverage_adjustment + _seeded_noise(indicator)),
+            )
             performance_scores[indicator] = score
 
             # Determine trend (improving, stable, declining)
@@ -134,14 +164,12 @@ class AdaptiveGovernanceSystem:
                 trend = "declining"
             performance_trends[indicator] = trend
 
-            # Assess data quality
+            # Assess data quality (simulated illustrative values)
             data_quality[indicator] = {
                 "completeness": 0.85,  # Percentage of data available
                 "reliability": 0.80,  # Data reliability score
                 "timeliness": 0.75,  # How current the data is
-                "source_count": len(
-                    [s for s in data_sources if indicator in s.lower()]
-                ),
+                "source_count": source_count,
             }
 
         # Calculate overall performance
@@ -157,6 +185,7 @@ class AdaptiveGovernanceSystem:
         }
 
         return {
+            "simulated": True,
             "indicators": governance_indicators,
             "data_sources": data_sources,
             "evaluation_periods": evaluation_periods,

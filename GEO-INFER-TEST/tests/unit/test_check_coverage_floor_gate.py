@@ -185,3 +185,111 @@ def test_failed_suite_verdict_truncates_long_failure_lists(monkeypatch, capsys):
     printed = [line for line in out.splitlines() if line.startswith("  FAILED ")]
     assert len(printed) == 20
     assert "... and 5 more failing tests" in out
+
+
+def _fake_git_diff(monkeypatch, name_only_output: str, per_file_output: str):
+    """Patch subprocess.run used by _changed_modules: the name-only diff
+    returns ``name_only_output``; per-file ``-U0`` diffs return
+    ``per_file_output``."""
+
+    def fake_run(cmd, **kwargs):
+        if "-U0" in cmd:
+            return subprocess.CompletedProcess(
+                cmd, 0, stdout=per_file_output, stderr=""
+            )
+        return subprocess.CompletedProcess(cmd, 0, stdout=name_only_output, stderr="")
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+
+def test_version_only_bump_excluded_from_remeasurement(monkeypatch):
+    """GS19-01: a module whose only src change is its __version__ literal is
+    not re-measured by the gate."""
+    module = _load_module()
+    name_only = "GEO-INFER-AGENT/src/geo_infer_agent/__init__.py\n"
+    version_hunk = (
+        "--- a/GEO-INFER-AGENT/src/geo_infer_agent/__init__.py\n"
+        "+++ b/GEO-INFER-AGENT/src/geo_infer_agent/__init__.py\n"
+        '+__version__ = "0.3.0"\n'
+        '-__version__ = "0.2.1"\n'
+    )
+    _fake_git_diff(monkeypatch, name_only, version_hunk)
+    assert module._changed_modules("base", "head") == set()
+
+
+def test_content_change_still_remeasured(monkeypatch):
+    """GS19-01: non-version changes keep the module in the re-measurement set."""
+    module = _load_module()
+    name_only = "GEO-INFER-AGENT/src/geo_infer_agent/__init__.py\n"
+    content_hunk = (
+        "--- a/GEO-INFER-AGENT/src/geo_infer_agent/__init__.py\n"
+        "+++ b/GEO-INFER-AGENT/src/geo_infer_agent/__init__.py\n"
+        "+import os\n"
+        "-import sys\n"
+    )
+    _fake_git_diff(monkeypatch, name_only, content_hunk)
+    assert module._changed_modules("base", "head") == {"GEO-INFER-AGENT"}
+
+
+def test_failed_suite_measurement_retried_once(monkeypatch, capsys):
+    """GS19-01: one bounded retry of a FAILED-SUITE measurement absorbs a
+    transient flake; a clean retry passes the gate."""
+    module = _load_module()
+    name = _baseline_module()
+    calls: list[str] = []
+
+    def fake_measure(target):
+        calls.append(target)
+        if len(calls) == 1:
+            return {
+                "module": target,
+                "status": "measured",
+                "coverage_percent": 100.0,
+                "pytest_rc": 1,
+                "failing_tests": ["tests.unit.test_sample::test_flaky"],
+                "seconds": 0.1,
+            }
+        return {
+            "module": target,
+            "status": "measured",
+            "coverage_percent": 100.0,
+            "pytest_rc": 0,
+            "seconds": 0.1,
+        }
+
+    monkeypatch.setattr(module, "measure_module", fake_measure)
+    assert module.main(["--base", "HEAD", "--head", "HEAD", "--modules", name]) == 0
+    assert len(calls) == 2
+    out = capsys.readouterr().out
+    assert "retrying once" in out
+    assert "FAILED-SUITE" not in out
+
+
+def test_failed_suite_retry_exhausted_fails_gate(monkeypatch, capsys):
+    """GS19-01: a measurement that still fails after the retry fails the gate."""
+    module = _load_module()
+    name = _baseline_module()
+    calls: list[str] = []
+
+    def fake_measure(target):
+        calls.append(target)
+        return {
+            "module": target,
+            "status": "measured",
+            "coverage_percent": 100.0,
+            "pytest_rc": 1,
+            "failing_tests": ["tests.unit.test_sample::test_bad"],
+            "seconds": 0.1,
+        }
+
+    monkeypatch.setattr(module, "measure_module", fake_measure)
+    try:
+        module.main(["--base", "HEAD", "--head", "HEAD", "--modules", name])
+    except SystemExit as exc:
+        assert exc.code == 1
+    else:
+        raise AssertionError("gate must fail when the retry also fails")
+    assert len(calls) == 2
+    captured = capsys.readouterr()
+    assert "FAILED-SUITE" in captured.out
+    assert "pytest rc=1 (1 failing tests)" in captured.err

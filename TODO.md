@@ -1,6 +1,6 @@
 # GEO-INFER Open Task & Backlog Ledger
 
-> Last reviewed: 2026-09-15
+> Last reviewed: 2026-09-19
 > Scope: Multi-package repository (`GEO-INFER`) across workspace packages and 45 domain modules.
 > Centralization Rule: All planned, open, or deferred engineering work across all modules is tracked exclusively in this ledger. Module source code and tests must never carry local task markers (`TODO`, `FIXME`, `XXX`, `HACK`).
 > History note (2026-09-07): the published history was rewritten to re-attribute
@@ -65,7 +65,7 @@ each pushed with CI green (probe-confirmed bug fixes; 82 silent-fabrication
 fixes across 36 modules; packaging coherence with a single integration
 re-lock; 21 test-gap closures; 29 docs/API-honesty fixes including the new
 `validate_doc_imports.py` gate; 31 CI/structural items via
-[PR #28](https://github.com/ActiveInferenceInstitute/GEO-INFER/pull/28)).
+[PR #28](https://github.com/ActiveInferenceInstitute/GEO_INFER/pull/28)).
 The campaign is recorded in CHANGELOG under
 `## [0.2.0] - 2026-09-11 - repo-wide quality campaign`. All spec items are
 delivered; the ledger's open rows below are the survivors.
@@ -95,3 +95,57 @@ already carried the 2026-09-15 induced-lock probe outcome (SQLite lock
 contention ruled out, hypothesis narrowed to I/O-class faults) and needed no
 edit; TEST-04 re-checked and still blocked on the account-level advisor auth
 decision. No rows were cleared this pass.
+
+## Scope pass (2026-09-19)
+
+Fresh 14-lane read-only scoping swarm against `main @ 07a5fe31` (v0.3.0 tip;
+CI green at tip, run 35268910816): five package-level lenses (CI/gates,
+packaging, docs-truth, test-estate, pipeline/perf/security) + nine module
+batches over all 45 packages. Method, items, tiering and probes live in
+[SCOPE-2026-09-19.md](SCOPE-2026-09-19.md) — 78 items (1 Major, 14 Medium,
+63 Minor); no prior-scope items re-opened; no TODO rows cleared or edited
+this pass (the CI-01/REL-01 row update below lands with the first wave's
+ledger commit).
+
+Headline: **REL-01 residual changed.** v0.3.0 (tag at `07a5fe31`, local +
+remote; CHANGELOG/CITATION.cff/manuscript consistent) published **no
+wheels**: release.yml run 35274969824 concluded failure because its ci-gate
+observed the tag-push CI (run 35274969748, same SHA) fail the
+coverage-floor step — root cause is the tag-event `BASE_SHA` diff-scope
+divergence (spec item CI-02). The v0.3.0 release object carries only the
+manuscript PDF vs v0.2.0's 45 wheel assets, and tag `v0.2.1` has no GitHub
+release object at all. Bounded path: land the CI-02 fix, then a
+user-authorized release.yml `workflow_dispatch` re-run at `07a5fe31` (or a
+dated no-wheel decision). Also recorded this pass: GNN pair-pin drift
+(CI-05 — bump only through the SC-22 paired-custody ritual), test-contract
+validator scan gaps (TST-01..03), and the full 78-item inventory.
+
+## Wave closeout (2026-09-22)
+
+The CI-01/REL-01 row update promised above, plus the supplement-wave
+disposition, recorded at branch `wave/scope-2026-09-19` after reconciling
+`origin/main` (merge `7f0dcdf7`).
+
+- **REL-01/CI-01 (release)**: the durable half is landed — GS19-01's
+  version-only hunk filter plus one bounded FAILED-SUITE retry in
+  `GEO-INFER-TEST/check_coverage_floor.py` (commit `9267f33d`), and CI-02's
+  tag-event diff-scope fix (commit `74c17323`). The recovery half remains
+  open and owner-gated: v0.3.0 still ships zero wheels (run 35274969824,
+  failure, no re-attempt); unblocking requires an authorized re-run of the
+  failed validate job then release.yml's ci-gate, now complicated by the
+  org migration (below). Row stays open on that external action.
+- **Org migration completed in-tree**: the repository is
+  `ActiveInferenceInstitute/GEO_INFER` (GitHub PR #34, merge `c3c8854a`);
+  this branch swept the residual old-slug references (commit `771e1a42`),
+  repointed the paired GNN interchange to
+  `Generalized_Notation_Notation` @ `4b50307cb` through the merge, and the
+  local remote now points at the underscore slug.
+- **SCOPE-2026-09-19 supplement executed**: all 88 GS19 items are landed or
+  verifiably already satisfied — the final residue lane (13 minor items +
+  TST-08/M4-06) and the closeout wave (GS19-15/16/17/18/19/20/65/67/71/88
+  plus the previously-missing halves of 38/51/63/84) landed in commits
+  `3a1a135c`..`8f3e0154` on this branch. Wave P (GS19-04/05/28/29/34/36/39/74
+  + the scheduled slow lane) lands with the branch's push.
+- **Still open, external-blocked**: SPACE-01 (hardware), PLACE-V14
+  (licensed data), PLACE-04 (Windows runtime), TEST-04 (advisor auth);
+  TEST-GNN-01 remains Medium with its recorded investigation.

@@ -2,13 +2,18 @@
 Agricultural water usage modeling functionality.
 """
 
+import io
 from typing import Dict, List, Optional, Union, Any
 import numpy as np
 import pandas as pd
 from datetime import datetime
 from sklearn.ensemble import RandomForestRegressor
 
-from geo_infer_ag.models.base import AgricultureModel
+from geo_infer_ag.models.base import (
+    AgricultureModel,
+    read_verified_payload,
+    write_signed_payload,
+)
 
 
 class WaterUsageModel(AgricultureModel):
@@ -716,8 +721,10 @@ class WaterUsageModel(AgricultureModel):
             model_data["predictor"] = self.predictor
             model_data["feature_columns"] = self.feature_columns
 
-        # Save to disk
-        joblib.dump(model_data, path)
+        # Serialize to bytes and write an authenticated GISP1 envelope
+        buffer = io.BytesIO()
+        joblib.dump(model_data, buffer)
+        write_signed_payload(path, buffer.getvalue())
 
     @classmethod
     def load(cls, path: str) -> "WaterUsageModel":
@@ -732,8 +739,9 @@ class WaterUsageModel(AgricultureModel):
         """
         import joblib
 
-        # Load saved model data
-        model_data = joblib.load(path)
+        # Verify the GISP1 envelope, then load the model data
+        verified = read_verified_payload(path)
+        model_data = joblib.load(io.BytesIO(verified))
 
         # Create a new instance
         model = cls(

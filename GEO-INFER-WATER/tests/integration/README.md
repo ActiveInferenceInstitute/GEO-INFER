@@ -4,7 +4,6 @@ Integration workspace within `GEO-INFER-WATER`.
 
 ## Contents
 
-- `__init__.py`
 - `test_water_integration.py`
 
 ## Public Interface

@@ -133,12 +133,26 @@ class ClimateDataProcessor:
         """
         Preprocess climate dataset with common operations.
 
+        Supported operations:
+            - 'standardize_coords': rename latitude/longitude to lat/lon
+            - 'sort_time': sort the dataset along the time dimension
+            - 'detrend': remove linear trends along the time dimension
+            - 'remove_outliers': drop z-score outliers from data variables
+
+        Note: 'resample' and 'regrid' are advertised by earlier documentation
+        but are not implemented; requesting an unsupported operation raises
+        ValueError rather than being silently ignored.
+
         Args:
             dataset: Input dataset
-            operations: List of operations to apply (e.g., 'resample', 'regrid', 'detrend')
+            operations: List of operations to apply (defaults to
+                ['standardize_coords', 'sort_time'])
 
         Returns:
             Preprocessed dataset
+
+        Raises:
+            ValueError: If an unsupported operation name is requested
         """
         operations = operations or ["standardize_coords", "sort_time"]
         processed = dataset.copy()
@@ -153,6 +167,12 @@ class ClimateDataProcessor:
                 processed = self._detrend_data(processed)
             elif op == "remove_outliers":
                 processed = self._remove_outliers(processed)
+            else:
+                raise ValueError(
+                    f"Unsupported preprocessing operation: {op!r}. "
+                    f"Supported operations: standardize_coords, sort_time, "
+                    f"detrend, remove_outliers"
+                )
 
         return processed
 

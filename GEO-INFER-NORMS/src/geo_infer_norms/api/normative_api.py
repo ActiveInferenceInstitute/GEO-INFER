@@ -18,6 +18,7 @@ from shapely.geometry import Point, shape
 from shapely.geometry.base import BaseGeometry
 
 from geo_infer_norms.core.normative_inference import (
+    NormEvaluationError,
     NormativeInference,
     SocialNormDiffusion,
 )
@@ -655,6 +656,11 @@ class NormativeAPI:
                 "inferred_norms": inferred_norms,
                 "inference_id": f"infer-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}",
             }
+        except NormEvaluationError as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Norm condition evaluation failed: {e}",
+            )
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
 

@@ -4,7 +4,8 @@
 The runner intentionally mirrors the commands documented in the root README:
 
 * ``--module NAME`` runs one module's tests.
-* ``--category unit|integration|performance|coverage`` runs a focused suite.
+* ``--category unit|slow|integration|performance|coverage`` runs a focused
+  suite.
 * ``--h3-migration`` runs the H3/Active Inference and ACT script-orchestration
   contract validators.
 * ``--show-failures`` prints the failing test names of every failed suite in
@@ -229,8 +230,18 @@ def run_command(
     timeout: int,
     cwd: Path = PROJECT_ROOT,
     env_overrides: dict[str, str] | None = None,
+    allow_empty: bool = False,
+    _is_retry: bool = False,
 ) -> CommandResult:
-    """Run a subprocess and capture a compact result."""
+    """Run a subprocess and capture a compact result.
+
+    ``allow_empty`` treats pytest's "collected no tests" exit (5) as a
+    pass-with-note — expected for lanes whose marker filter selects nothing
+    in most modules (e.g. the slow category). Crash-class failures (the
+    interpreter killed by a signal, or a missing/empty JUnit report despite a
+    failed run) get one bounded retry, mirroring the coverage-floor gate's
+    GS19-01 semantics: a deterministic failure still fails on the retry.
+    """
     print(f"\n== {name}")
     print("$ " + " ".join(command))
     started = time.time()
@@ -263,7 +274,45 @@ def run_command(
     duration = time.time() - started
     junit_errors = junit_contract_errors(junit_path(command))
     if completed.returncode == PYTEST_NO_TESTS_EXIT_CODE:
+        if allow_empty:
+            print(
+                "PASS in %.2fs (no tests collected — allowed for this lane)" % duration
+            )
+            return CommandResult(
+                name=name,
+                success=True,
+                duration=duration,
+                command=command,
+                stdout=completed.stdout,
+                stderr=completed.stderr,
+                timeout=timeout,
+            )
         junit_errors.append("pytest collected no tests (exit code 5)")
+    crash_class = completed.returncode < 0 or (
+        completed.returncode != 0
+        and not junit_errors
+        and not junit_path(command).exists()
+    )
+    if crash_class and not _is_retry:
+        print(
+            "CRASH-COMPLETION rc=%d — one bounded retry for crash-class failure"
+            % completed.returncode
+        )
+        # A killed interpreter's faulthandler banner (the crash reason and
+        # the faulting import) sits at the HEAD of stderr; the default
+        # failure print below only shows the tail, so surface the head.
+        banner = (completed.stderr or "")[:1500]
+        if banner:
+            print("--- crash stderr head ---\n" + banner)
+        return run_command(
+            command,
+            name,
+            timeout=timeout,
+            cwd=cwd,
+            env_overrides=env_overrides,
+            allow_empty=allow_empty,
+            _is_retry=True,
+        )
     if junit_errors:
         completed.stderr = "\n".join((*filter(None, [completed.stderr]), *junit_errors))
     success = completed.returncode == 0 and not junit_errors
@@ -344,15 +393,18 @@ def category_test_paths(module: Module, category: str) -> list[Path]:
     canonical unit directory so the category cannot silently omit behavior
     tests, together with any nested test trees registered in
     ``EXTRA_TEST_PATHS``. Integration, system, and performance remain bounded
-    by their named directories.
+    by their named directories. The ``slow`` category shares the unit path
+    set; the marker filter applied by :func:`run_module_category_tests`
+    selects the slow-marked complement.
     """
-    category_path = module.test_path / category
+    path_category = "unit" if category == "slow" else category
+    category_path = module.test_path / path_category
     paths = test_file_paths(category_path)
-    if category != "unit":
+    if path_category != "unit":
         return paths
     paths.extend(test_file_paths(module.test_path, recursive=False))
     paths.extend(test_file_paths(module.test_path / "tools"))
-    for extra_path in EXTRA_TEST_PATHS.get(module.name, {}).get(category, ()):
+    for extra_path in EXTRA_TEST_PATHS.get(module.name, {}).get(path_category, ()):
         paths.extend(test_file_paths(extra_path))
     return sorted(set(paths))
 
@@ -397,13 +449,21 @@ def run_module_category_tests(
         if not paths:
             continue
         discovered = True
+        marker_filter = {
+            "unit": ["-m", "not slow"],
+            "slow": ["-m", "slow"],
+        }.get(category, [])
         command = [
             *pytest_base_args(),
+            *marker_filter,
             *map(str, paths),
             f"--junitxml={RESULTS_DIR / f'{module.name}_{category}_results.xml'}",
         ]
         result = run_command(
-            command, f"{module.name} {category} tests", timeout=timeout
+            command,
+            f"{module.name} {category} tests",
+            timeout=timeout,
+            allow_empty=category == "slow",
         )
         report.add(result)
         if fail_fast and not result.success:
@@ -424,6 +484,11 @@ def run_module_category_tests(
 
 def run_unit_tests(timeout: int, fail_fast: bool = False) -> SuiteReport:
     return run_module_category_tests("unit", timeout=timeout, fail_fast=fail_fast)
+
+
+def run_slow_tests(timeout: int, fail_fast: bool = False) -> SuiteReport:
+    """Run each module's ``slow``-marked tests (the unit lane's complement)."""
+    return run_module_category_tests("slow", timeout=timeout, fail_fast=fail_fast)
 
 
 def run_integration_tests(timeout: int, fail_fast: bool = False) -> SuiteReport:
@@ -654,6 +719,7 @@ def parse_args() -> argparse.Namespace:
         "--category",
         choices=[
             "unit",
+            "slow",
             "integration",
             "system",
             "performance",
@@ -710,6 +776,8 @@ def main() -> int:
         report = run_h3_contracts(timeout=args.timeout)
     elif args.category == "unit":
         report = run_unit_tests(timeout=args.timeout, fail_fast=args.fail_fast)
+    elif args.category == "slow":
+        report = run_slow_tests(timeout=args.timeout, fail_fast=args.fail_fast)
     elif args.category == "integration":
         report = run_integration_tests(timeout=args.timeout, fail_fast=args.fail_fast)
     elif args.category == "system":

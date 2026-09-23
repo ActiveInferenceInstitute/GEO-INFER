@@ -8,12 +8,7 @@ distribution, MPA effectiveness, climate impacts, and blue carbon estimation.
 import pytest
 import numpy as np
 
-try:
-    import xarray as xr
-
-    HAS_XARRAY = True
-except ImportError:
-    HAS_XARRAY = False
+import xarray as xr
 
 pytestmark = [
     pytest.mark.integration,

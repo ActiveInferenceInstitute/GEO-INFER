@@ -46,17 +46,16 @@ Core workspace within `GEO-INFER-GIT`.
 
 ## Dependencies
 
-- `requests>=2.28.1`
-- `pyyaml>=6.0`
-- `psutil>=5.9.0`
-- `jsonschema>=4.17.0`
-- `GitPython>=3.1.0`
+- `urllib3>=2.0.6`
 - `fastapi>=0.104.0`
 - `starlette>=0.27.0`
-- `uvicorn[standard]>=0.24.0`
+- `GitPython>=3.1.0`
+- `jsonschema>=4.17.0`
 - `pydantic>=2.5.0`
+- `pyyaml>=6.0`
+- `requests>=2.28.1`
 - `tqdm>=4.65.0`
-- `urllib3>=2.0.6`
+- `uvicorn[standard]>=0.24.0`
 
 
 ## Validation

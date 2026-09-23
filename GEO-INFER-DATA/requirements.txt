@@ -24,7 +24,7 @@ requests>=2.31.0
 rtree>=1.0.0
 shapely>=2.0.0
 sqlalchemy>=2.0.0
-urllib3>=1.26.0
+urllib3>=2.0.6
 uvicorn[standard]>=0.23.0
 #
 # Optional: [project.optional-dependencies] integrations

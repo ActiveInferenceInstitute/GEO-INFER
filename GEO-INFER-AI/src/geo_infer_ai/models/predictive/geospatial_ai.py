@@ -439,7 +439,15 @@ class EnvironmentalActiveInferenceEngine:
                         factors["spatial_correlation"] = corr_mat[0, 1:].mean()
                     else:
                         factors["spatial_correlation"] = 0.0
-                except Exception:
+                except (
+                    ValueError,
+                    TypeError,
+                    FloatingPointError,
+                    RuntimeWarning,
+                ) as exc:
+                    logger.debug(
+                        "spatial_correlation fell back to 0.0: %s", exc, exc_info=True
+                    )
                     factors["spatial_correlation"] = 0.0
             else:
                 factors["spatial_correlation"] = 0.0
@@ -463,7 +471,12 @@ class EnvironmentalActiveInferenceEngine:
                     )
                 else:
                     factors["temporal_autocorrelation"] = 0.0
-            except Exception:
+            except (ValueError, TypeError, FloatingPointError, RuntimeWarning) as exc:
+                logger.debug(
+                    "temporal_autocorrelation fell back to 0.0: %s",
+                    exc,
+                    exc_info=True,
+                )
                 factors["temporal_autocorrelation"] = 0.0
         else:
             factors["temporal_autocorrelation"] = 0.0
@@ -762,7 +775,12 @@ class EnvironmentalActiveInferenceEngine:
                 uncertainty_analysis["spatial_uncertainty_patterns"][
                     "clustered_fraction"
                 ] = np.sum(clustering.labels_ != -1) / len(clustering.labels_)
-            except Exception:
+            except (ValueError, TypeError) as exc:
+                logger.debug(
+                    "Uncertainty clustering fell back to error report: %s",
+                    exc,
+                    exc_info=True,
+                )
                 uncertainty_analysis["spatial_uncertainty_patterns"] = {
                     "error": "Clustering failed"
                 }
@@ -839,7 +857,18 @@ class EnvironmentalActiveInferenceEngine:
                                 + np.log(2 * np.pi * (predicted_std[0] ** 2 + 1e-8))
                             )
 
-                        except Exception:
+                        except (
+                            ValueError,
+                            TypeError,
+                            FloatingPointError,
+                            RuntimeWarning,
+                        ) as exc:
+                            logger.debug(
+                                "GP free-energy prediction failed; using prior-based "
+                                "fallback: %s",
+                                exc,
+                                exc_info=True,
+                            )
                             # Fallback to simple calculation
                             complexity = (
                                 0.5
@@ -1323,7 +1352,13 @@ class MultiScaleHierarchicalAnalyzer:
                         child_parent = h3.cell_to_parent(child_cell, parent_resolution)
                         if child_parent == parent_cell:
                             child_cells.append(child_cell)
-                except Exception:
+                except (ValueError, TypeError):
+                    logger.debug(
+                        "Child-cell lookup failed for %s under %s",
+                        child_cell,
+                        parent_cell,
+                        exc_info=True,
+                    )
                     continue
 
         return child_cells
@@ -1574,13 +1609,12 @@ def analyze_multi_scale_patterns(
             # Pattern diversity
             diversity = 0.0
             if len(beliefs) > 1:
-                pairwise_distances = []
-                belief_list = list(beliefs.values())
-                for i in range(len(belief_list)):
-                    for j in range(i + 1, len(belief_list)):
-                        distance = np.linalg.norm(belief_list[i] - belief_list[j])
-                        pairwise_distances.append(distance)
-                diversity = np.mean(pairwise_distances) if pairwise_distances else 0.0
+                belief_matrix = np.stack(list(beliefs.values()))
+                pair_dists = np.linalg.norm(
+                    belief_matrix[:, None, :] - belief_matrix[None, :, :], axis=-1
+                )
+                first_idx, second_idx = np.triu_indices(belief_matrix.shape[0], k=1)
+                diversity = np.mean(pair_dists[first_idx, second_idx])
 
             analysis["scale_statistics"][level_name] = {
                 "n_cells": n_cells,

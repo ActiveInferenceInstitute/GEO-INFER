@@ -22,6 +22,7 @@
 ## Local Contents
 
 - `test_agricultural_api.py`
+- `test_resources.py`
 
 ## Validation
 

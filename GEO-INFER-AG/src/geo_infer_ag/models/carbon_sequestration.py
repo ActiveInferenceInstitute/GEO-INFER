@@ -2,13 +2,18 @@
 Carbon sequestration modeling for agricultural lands.
 """
 
+import io
 from typing import Dict, List, Optional, Union, Any
 import logging
 import numpy as np
 from datetime import datetime
 from sklearn.ensemble import RandomForestRegressor
 
-from geo_infer_ag.models.base import AgricultureModel
+from geo_infer_ag.models.base import (
+    AgricultureModel,
+    read_verified_payload,
+    write_signed_payload,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -668,8 +673,10 @@ class CarbonSequestrationModel(AgricultureModel):
         if self.model_type == "tier2" and self.fitted and hasattr(self, "predictors"):
             model_data["predictors"] = self.predictors
 
-        # Save to disk
-        joblib.dump(model_data, path)
+        # Serialize to bytes and write an authenticated GISP1 envelope
+        buffer = io.BytesIO()
+        joblib.dump(model_data, buffer)
+        write_signed_payload(path, buffer.getvalue())
 
     @classmethod
     def load(cls, path: str) -> "CarbonSequestrationModel":
@@ -684,8 +691,9 @@ class CarbonSequestrationModel(AgricultureModel):
         """
         import joblib
 
-        # Load saved model data
-        model_data = joblib.load(path)
+        # Verify the GISP1 envelope, then load the model data
+        verified = read_verified_payload(path)
+        model_data = joblib.load(io.BytesIO(verified))
 
         # Create a new instance
         model = cls(

@@ -25,6 +25,7 @@
 - `base.py`
 - `carbon_sequestration.py`
 - `crop_yield.py`
+- `secure_serialization.py`
 - `soil_health.py`
 - `water_usage.py`
 

@@ -112,6 +112,23 @@ def test_evaluate_compliance_missing_field(client):
     )
 
 
+def test_evaluate_compliance_evaluation_error_maps_to_5xx(client):
+    """An evaluation error must surface as 5xx, not fold into ValueError -> 400."""
+    client.post("/metrics", json=_metric_payload(evaluation_type="telepathy"))
+    response = client.post(
+        "/evaluate",
+        json={
+            "entity_id": "ent-9",
+            "regulation_id": "reg-1",
+            "evaluation_data": {"emission_level": 10.0},
+        },
+    )
+    assert response.status_code == 500
+    body = response.json()
+    assert "evaluation" in body["detail"].lower()
+    assert "Emission limit" in body["detail"]
+
+
 def test_evaluate_compliance_at_location(client):
     client.post("/metrics", json=_metric_payload())
     response = client.post(

@@ -11,9 +11,8 @@ from ..crm.transformer import convert_customers_to_dataframe
 
 logger = logging.getLogger(__name__)
 
-# Ensure output directory exists
+# Default output directory; created on write by the plot functions below.
 DEFAULT_OUTPUT_DIR = Path("visualizations_output")
-DEFAULT_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def plot_customer_distribution_by_status(
@@ -42,6 +41,7 @@ def plot_customer_distribution_by_status(
 
     file_path = output_dir / "customer_status_distribution.png"
     try:
+        output_dir.mkdir(parents=True, exist_ok=True)
         plt.savefig(file_path)
         logger.info(f"Saved customer status distribution plot to: {file_path}")
         plt.close()  # Close the plot to free memory
@@ -84,6 +84,7 @@ def plot_customer_distribution_by_source(
 
     file_path = output_dir / "customer_source_distribution.png"
     try:
+        output_dir.mkdir(parents=True, exist_ok=True)
         plt.savefig(file_path)
         logger.info(f"Saved customer source distribution plot to: {file_path}")
         plt.close()

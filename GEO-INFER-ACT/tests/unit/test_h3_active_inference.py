@@ -32,6 +32,7 @@ from h3_active_inference import (
 from geo_infer_act.models.multi_agent import MultiAgentModel
 
 
+@pytest.mark.slow
 class TestH3ActiveInference(unittest.TestCase):
     """Comprehensive test suite for H3 Active Inference example script."""
 

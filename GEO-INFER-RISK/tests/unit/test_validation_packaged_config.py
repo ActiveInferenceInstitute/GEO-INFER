@@ -3,6 +3,7 @@
 import json
 
 from geo_infer_risk.utils.validation import ConfigurationValidator
+from geo_infer_test.testing import assert_packaged_config_loads
 
 
 class TestPackagedSchemaResolution:
@@ -21,15 +22,17 @@ class TestPackagedSchemaResolution:
         assert validator.schema.get("title") == "GEO-INFER-RISK Configuration Schema"
 
     def test_default_schema_resolves_under_package_tree(self, monkeypatch) -> None:
-        """Resolved default must live under src/geo_infer_risk, not module-root config/."""
+        """The packaged schema resolves under the geo_infer_risk package tree."""
         monkeypatch.delenv("GEO_INFER_RISK_SCHEMA_PATH", raising=False)
 
-        from importlib.resources import as_file, files
-
-        resolved = as_file(files("geo_infer_risk").joinpath("config/schema.json"))
-        with resolved as path:
-            assert path.exists()
-            assert "src/geo_infer_risk" in path.as_posix()
+        parsed = assert_packaged_config_loads(
+            "geo_infer_risk",
+            "config/schema.json",
+            format="json",
+            required_sections=("properties",),
+            required_keys={"": ("$schema", "title", "type")},
+        )
+        assert parsed["title"] == "GEO-INFER-RISK Configuration Schema"
 
     def test_env_var_override_is_honored(self, tmp_path, monkeypatch) -> None:
         """GEO_INFER_RISK_SCHEMA_PATH must take precedence when explicitly set."""

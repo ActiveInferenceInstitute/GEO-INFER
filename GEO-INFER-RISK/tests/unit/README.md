@@ -16,6 +16,7 @@ Unit workspace within `GEO-INFER-RISK`.
 - `test_generator_isolation.py`
 - `test_hazard_model.py`
 - `test_insurance_models.py`
+- `test_intensity_distribution_fit.py`
 - `test_package_exports.py`
 - `test_reproducibility.py`
 - `test_risk_engine.py`
@@ -41,14 +42,13 @@ Unit workspace within `GEO-INFER-RISK`.
 
 ## Dependencies
 
+- `jsonschema>=4.17.0`
+- `pyyaml>=6.0`
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
 - `scipy>=1.7.0`
 - `geopandas>=0.13.0`
 - `shapely>=2.0.0`
-- `geo-infer-bayes>=0.2.0`
-- `jsonschema>=4.17.0`
-- `pyyaml>=6.0`
 
 
 ## Validation

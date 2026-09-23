@@ -17,11 +17,27 @@ keywords = [
     "water-resources",
     "water-quality",
 ]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
 dependencies = [
     "numpy>=1.20.0",
     "scipy>=1.7.0",
     "xarray>=0.19.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/ActiveInferenceInstitute/GEO_INFER"
+Documentation = "https://geo-infer.readthedocs.io/"
+Repository = "https://github.com/ActiveInferenceInstitute/GEO_INFER"
+"Bug Tracker" = "https://github.com/ActiveInferenceInstitute/GEO_INFER/issues"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

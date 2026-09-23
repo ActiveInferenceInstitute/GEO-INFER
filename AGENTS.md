@@ -34,10 +34,10 @@ New to this repo? In order:
 ```bash
 uv sync --all-packages --all-extras
 python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
-uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
+uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language --strict-import-smoke
 uv run python GEO-INFER-TEST/validate_logging_hygiene.py
 uv run python GEO-INFER-TEST/validate_documentation.py --strict
-uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
+uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs --warnings-fatal
 uv run python manuscript/generate_research_artifacts.py
 uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 uv run python GEO-INFER-TEST/run_unified_tests.py --category integration
@@ -47,6 +47,7 @@ uv run python GEO-INFER-TEST/validate_test_contracts.py --strict
 uv run python GEO-INFER-TEST/validate_model_contracts.py --strict --seed 42
 uv run python GEO-INFER-TEST/run_model_audit.py --seed 42 --reproducible
 uv run --with 'ruff>=0.15.6,<0.16' ruff check GEO-INFER-*/src --select F821,F823,E721,E722
+gitleaks detect --source . --config .gitleaks.toml --redact --verbose
 uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check
 ```
 

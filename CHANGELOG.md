@@ -39,6 +39,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`GEO-INFER-TEST/run_unified_tests.py`, `GEO-INFER-TEST/check_coverage_floor.py`,
   `GEO-INFER-TEST/measure_module_coverage.py`.)
 
+### Tests (2026-09-15/17 — pre-release hardening folded into the tag)
+
+- SEC test-hardening series (pre-rewrite history SHAs `fff0fb59`,
+  `b73de0a7`, `bdf5fb51`; identifiers predate the 2026-09-07 history
+  rewrite and no longer resolve — recorded evidence stands): physical
+  security, access control and audit surfaces gained regression coverage
+  under the strict marker policy.
+- GEO-INFER-TEST import-smoke kill-margin widening (pre-rewrite SHA
+  `fc5dd1ac`).
+
+### Changed
+
+- Manuscript figure polish series landed between the [0.2.1] fold and the
+  v0.3.0 tag (pre-rewrite history SHAs; see the Tests note above).
+
 ## [0.2.1] - 2026-09-15 — fleet-wide error-handling hardening
 
 Patch release over the 18 commits since
@@ -94,7 +109,7 @@ scope pass, CODE-01 index refresh, GNN pair-pin procedure).
 Shipped as the SCOPE-2026-09-11 campaign ([spec](SCOPE-2026-09-11.md),
 shipped at `f1b5b376`): a 14-lane scoping swarm over all 45 modules produced
 189 bounded items (48 Medium / 141 Minor / 0 Major), executed in six
-reviewed waves ([PR #28](https://github.com/ActiveInferenceInstitute/GEO-INFER/pull/28)
+reviewed waves ([PR #28](https://github.com/ActiveInferenceInstitute/GEO_INFER/pull/28)
 and the wave commits it merges) with per-fix regression tests and CI green
 at every wave boundary.
 
@@ -148,7 +163,7 @@ the new import-parity and classifier gates), `validate_test_contracts
 `validate_documentation --strict` (76 pages), `validate_skills
 --check-xrefs --warnings-fatal` (46/46).
 
-## [0.2.0] - 2026-09-10
+### [0.2.0] detail — deep-horizon log 2026-09-08 → 2026-09-10 (pre-tag work folded under the 2026-09-11 campaign entry)
 
 ### Deep horizon 2026-09-08 - Green-Ampt infiltration (WATER-01)
 
@@ -857,9 +872,10 @@ pass at that SHA.
 
 | Version | Date | Description |
 |---------|------|-------------|
-| 0.2.0 | 2026-02-25 | Second beta release |
-| 0.1.0 | 2026-01-26 | Initial release |
 | 0.3.0 | 2026-09-17 | Per-module manuscript catalog wave |
+| 0.2.1 | 2026-09-15 | Fleet-wide error-handling hardening |
+| 0.2.0 | 2026-09-11 | Repo-wide quality campaign (189 items) |
+| 0.1.0 | 2026-01-26 | Initial release |
 
 ---
 

@@ -321,7 +321,7 @@ class TestEndToEndWorkflows:
         completeness_check = await quality_manager.validator.validate_data(
             mock_environmental_data
         )
-        assert completeness_check.overall_score >= 0.0
+        assert completeness_check.score >= 0.0
 
         # Test coordinate validation
         coord_check = quality_manager.validator.validate_coordinates(

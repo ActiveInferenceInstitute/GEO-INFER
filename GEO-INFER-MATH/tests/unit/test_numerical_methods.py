@@ -117,6 +117,10 @@ class TestSpatialOptimizer:
         optimizer = SpatialOptimizer(method="simulated_annealing")
         bounds = [(-10, 10), (-10, 10)]
 
+        # The optimizer consumes the global numpy RNG; pin it so the
+        # annealing trajectory (and the quality bounds below) are
+        # deterministic regardless of test-execution order or xdist worker.
+        np.random.seed(42)
         result = optimizer.minimize(objective, bounds, initial_guess=np.array([5, 5]))
 
         assert result.success

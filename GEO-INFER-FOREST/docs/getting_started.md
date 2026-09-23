@@ -15,7 +15,7 @@ Verify the installation:
 ```python
 import geo_infer_forest
 print(geo_infer_forest.__version__)
-# 0.2.0
+# 0.3.0
 ```
 
 ## Core Concepts

@@ -46,56 +46,30 @@ geo_infer_edu/
     curriculum.py       -- CurriculumDesigner, Curriculum, CurriculumModule
     progress.py         -- ProgressTracker, LearnerProgress, CompetencyRecord
     exercises.py        -- ExerciseGenerator, interactive exercises
-    personalization.py  -- PersonalizedPathBuilder, learning path adaptation
+    personalization.py  -- PersonalizedLearning, adaptive pathways and spaced repetition
     professional.py     -- ProfessionalDevelopment, continuing education
-  models/
-    education_models.py -- Data models for educational entities
-  api/
-    endpoints.py        -- REST API for education analytics
-  utils/
-    standards.py        -- Educational standards mappings
 ```
 
 ## Quick Start
 
 ```python
-from geo_infer_edu.core.curriculum import (
-    CurriculumDesigner,
-    EducationLevel,
-    PedagogicalApproach,
-    LearningObjective,
-)
+from geo_infer_edu.core.curriculum import CurriculumDesigner
 
 designer = CurriculumDesigner(
-    education_standard="geospatial_bok",
-    pedagogical_approach=PedagogicalApproach.PROJECT_BASED,
+    standards=["bok"],
+    pedagogical_approach="project_based",
 )
 
-# Create a learning objective
-objective = LearningObjective(
-    id="obj_001",
-    description="Apply H3 hexagonal indexing to aggregate point data into spatial bins",
-    bloom_level="apply",
-    competency_area="spatial_analysis",
-    assessment_criteria=[
-        "Convert lat/lng points to H3 cells at resolution 8",
-        "Aggregate values within each hexagonal cell",
-        "Visualize the resulting hexagonal heatmap",
-    ],
-    prerequisites=["obj_intro_gis", "obj_coordinate_systems"],
+# Design a complete curriculum for a topic
+curriculum = designer.design(
+    topic="geospatial_analysis",
+    level="undergraduate",
+    duration="8_weeks",
 )
 
-# Generate a curriculum module
-module = designer.create_module(
-    title="Spatial Indexing with H3",
-    description="Learn hexagonal hierarchical spatial indexing for geospatial analysis",
-    objectives=[objective],
-    duration_hours=4.0,
-)
-
-print(f"Module: {module.title}")
-print(f"Duration: {module.duration_hours} hours")
-print(f"Objectives: {len(module.learning_objectives)}")
+print(f"Curriculum: {curriculum.title}")
+print(f"Modules: {len(curriculum.modules)}")
+print(f"Duration: {curriculum.duration_weeks} weeks")
 ```
 
 ## Key Concepts

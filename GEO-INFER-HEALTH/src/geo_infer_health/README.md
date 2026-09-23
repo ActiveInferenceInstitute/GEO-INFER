@@ -40,7 +40,7 @@ Geo Infer Health workspace within `GEO-INFER-HEALTH`.
 - `pydantic-settings>=2.1.0`
 - `pyyaml>=6.0.0`
 - `loguru>=0.7.0`
-- `geopandas>=0.14.0`
+- `geopandas>=0.13.0`
 
 
 ## Validation

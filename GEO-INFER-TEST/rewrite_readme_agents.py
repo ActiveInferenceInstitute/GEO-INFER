@@ -74,6 +74,21 @@ def requirement_lines(module_dir: Path, limit: int = 12) -> list[str]:
     return lines
 
 
+def declared_dependencies(module_dir: Path, limit: int = 12) -> list[str]:
+    """Return the module's declared runtime dependencies.
+
+    ``[project.dependencies]`` in pyproject.toml is canonical. The
+    requirements.txt mirror has drifted fleet-wide (stale floors, test-only
+    entries, extras listed as runtime), so it is only a fallback for modules
+    without a pyproject dependency list.
+    """
+    pyproject = read_pyproject(module_dir)
+    deps = pyproject.get("project", {}).get("dependencies") or []
+    if deps:
+        return [str(dep) for dep in deps]
+    return requirement_lines(module_dir, limit=limit)
+
+
 def discover_modules() -> dict[str, ModuleInfo]:
     modules: dict[str, ModuleInfo] = {}
     for module_dir in discover_module_dirs(REPO_ROOT):
@@ -86,7 +101,7 @@ def discover_modules() -> dict[str, ModuleInfo]:
             package=package,
             description=str(project.get("description", module_dir.name)),
             version=str(project.get("version", "unversioned")),
-            dependencies=requirement_lines(module_dir),
+            dependencies=declared_dependencies(module_dir),
             source_files=len(list((module_dir / "src").glob("**/*.py"))),
             test_files=len(
                 {
@@ -849,7 +864,7 @@ domain modeling, agent workflows, and reproducible repository validation in one
 ```bash
 uv sync --all-packages --all-extras
 python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
-uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
+uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language --strict-import-smoke
 uv run python GEO-INFER-TEST/validate_documentation.py --strict
 uv run python manuscript/generate_research_artifacts.py
 uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
@@ -914,10 +929,11 @@ the exact reproducible exception list.
 
 ## Validation
 
-- Repository contracts: `uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language`
+- Repository contracts: `uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language --strict-import-smoke`
 - Documentation links and current-state claims: `uv run python GEO-INFER-TEST/validate_documentation.py --strict`
 - Syntax gate: `python -m compileall GEO-INFER-*/src GEO-INFER-*/examples`
-- Skill contracts: `uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs`
+- Skill contracts: `uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs --warnings-fatal`
+- Secrets: `gitleaks detect --source . --config .gitleaks.toml --redact --verbose` (local replication: GEO-INFER-TEST/docs/secret_scan_policy.md)
 - Unit tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --category unit`
 - Integration tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --category integration`
 - System tests: `uv run python GEO-INFER-TEST/run_unified_tests.py --category system`
@@ -1010,10 +1026,10 @@ New to this repo? In order:
 ```bash
 uv sync --all-packages --all-extras
 python -m compileall GEO-INFER-*/src GEO-INFER-*/examples
-uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language
+uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language --strict-import-smoke
 uv run python GEO-INFER-TEST/validate_logging_hygiene.py
 uv run python GEO-INFER-TEST/validate_documentation.py --strict
-uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
+uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs --warnings-fatal
 uv run python manuscript/generate_research_artifacts.py
 uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 uv run python GEO-INFER-TEST/run_unified_tests.py --category integration
@@ -1023,6 +1039,7 @@ uv run python GEO-INFER-TEST/validate_test_contracts.py --strict
 uv run python GEO-INFER-TEST/validate_model_contracts.py --strict --seed 42
 uv run python GEO-INFER-TEST/run_model_audit.py --seed 42 --reproducible
 uv run --with 'ruff>=0.15.6,<0.16' ruff check GEO-INFER-*/src --select F821,F823,E721,E722
+gitleaks detect --source . --config .gitleaks.toml --redact --verbose
 uv run python GEO-INFER-TEST/rewrite_readme_agents.py --check
 ```
 

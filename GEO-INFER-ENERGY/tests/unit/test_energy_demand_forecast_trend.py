@@ -5,13 +5,9 @@ actual time coordinate, and non-1D (time, space) raster input must be
 rejected with a clear ValueError instead of crashing in np.polyfit.
 """
 
-import sys
-
 import numpy as np
 import pytest
 import xarray as xr
-
-sys.path.insert(0, "GEO-INFER-ENERGY/src")
 
 from geo_infer_energy.core.energy_demand import EnergyDemandForecaster
 

@@ -2552,6 +2552,62 @@ def audit_bibliography(
     return tuple(sorted(entries - cited)), tuple(sorted(undefined))
 
 
+TEST_FILE_CENSUS_RE = re.compile(r"(\d+)\s+test files", re.IGNORECASE)
+
+
+def audit_module_census(root: Path, inventory: RepositoryInventory) -> None:
+    """Reconcile the catalog sections' stated test-file counts with the tree.
+
+    ``manuscript/sections/*.md`` are tracked prose combined verbatim at render
+    time (``scripts/render_manuscript_pdf.py::_module_catalog_sections``), so
+    unlike the module tables nothing regenerates their numbers: a stated
+    census drifts silently whenever tests are added or removed.  This audit
+    runs at generator time and fails the build on the first disagreement
+    between what a section states and what :func:`collect_inventory` measures
+    for the same module (the section stem names the module: ``water.md``
+    audits ``GEO-INFER-WATER``).
+
+    Scope, stated honestly: the only census quantity the existing inventory
+    machinery measures per module is the ``test_*.py`` file count
+    (``ModuleMetrics.test_files``), so that is the only stated literal gated
+    here.  Test class and function counts, which most sections also state,
+    are not measured by ``collect_inventory`` and stay ungated.  Sections
+    that phrase their census without the literal "<N> test files" — narrative
+    per-directory forms such as "``tests/unit/`` holds 18 files ... plus one
+    integration file" — are treated as not stated and skipped rather than
+    parsed heuristically.
+    """
+    measured = {module.name: module for module in inventory.modules}
+    sections_dir = root / "manuscript" / "sections"
+    if not sections_dir.is_dir():
+        return
+    drift: list[str] = []
+    for section in sorted(sections_dir.glob("*.md")):
+        module = measured.get(f"GEO-INFER-{section.stem.upper()}")
+        if module is None:
+            continue
+        stated = TEST_FILE_CENSUS_RE.findall(section.read_text(encoding="utf-8"))
+        if not stated:
+            continue
+        if len(set(stated)) > 1:
+            drift.append(
+                f"{section.relative_to(root)} states conflicting test-file "
+                f"counts: {', '.join(stated)}"
+            )
+            continue
+        if int(stated[0]) != module.test_files:
+            drift.append(
+                f"{section.relative_to(root)} states {stated[0]} test files "
+                f"for {module.name}, but the measured count is "
+                f"{module.test_files}"
+            )
+    if drift:
+        raise ValueError(
+            "module catalog census drift (stated literals vs measured tree): "
+            + "; ".join(drift)
+        )
+
+
 def generate(
     root: Path,
     *,
@@ -2627,6 +2683,10 @@ def generate(
     # longer exists by the time the run ends.
     refresh_config_metadata(root, config_metadata_values(root))
     inventory = collect_inventory(root, dirty_file_count=dirty_files)
+    # The catalog census audit needs only the inventory, so it runs before
+    # any figure or resolved file is written: a drifted section fails the
+    # build without paying for output it cannot correct.
+    audit_module_census(root, inventory)
     output = root / "output"
     data_dir = output / "data"
     figures_dir = output / "figures"

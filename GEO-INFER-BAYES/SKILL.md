@@ -1,6 +1,6 @@
 ---
 name: geo-infer-bayes
-description: Bayesian inference and probabilistic modeling for geospatial data. Use when building hierarchical models, computing posteriors with PyMC or TFP, performing variational inference, model comparison (LOO/WAIC/DIC), or spatial Gaussian processes.
+description: Bayesian inference and probabilistic modeling for geospatial data. Use when building hierarchical models, computing posteriors with PyMC, performing variational inference, model comparison (LOO/WAIC/DIC), or spatial Gaussian processes.
 prerequisites:
   required:
     - geo-infer-math

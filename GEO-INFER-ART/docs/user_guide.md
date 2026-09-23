@@ -11,18 +11,16 @@ uv pip install -e "./GEO-INFER-ART"
 ### Quick Start
 
 ```python
-from geo_infer_art import CartographicDesigner
+from geo_infer_art import GeoArt
 
 # Load your data
-import geopandas as gpd
-data = gpd.read_file("my_data.geojson")
+geo_art = GeoArt.load_geojson("my_data.geojson")
 
 # Create beautiful map
-designer = CartographicDesigner()
-map_img = designer.create(data, style="watercolor")
+geo_art.apply_style(style="watercolor", title="My Map")
 
 # Save
-map_img.save("my_map.png")
+geo_art.save("my_map.png", dpi=300)
 ```
 
 ## Creating Maps
@@ -30,24 +28,27 @@ map_img.save("my_map.png")
 ### Basic Map
 
 ```python
-from geo_infer_art import CartographicDesigner
+from geo_infer_art import GeoArt
 
-designer = CartographicDesigner()
-map_img = designer.create(
-    data=city_boundaries,
-    style="minimalist",
-    colors="monochrome"
+geo_art = GeoArt.load_geojson("city_boundaries.geojson")
+map_img = geo_art.apply_style(
+    style="minimal",
+    color_palette="monochrome",
+    title="City Boundaries",
 )
 ```
 
 ### Multi-Layer Map
 
 ```python
-designer.add_layer(water_bodies, style="water")
-designer.add_layer(roads, style="roads")
-designer.add_layer(buildings, style="buildings")
-
-map_img = designer.render()
+# GeoArt methods chain; layering is composition, not an add_layer API
+geo_art = (
+    GeoArt.load_geojson("city_boundaries.geojson")
+    .apply_style(style="minimal", title="Base layer")
+    .set_projection("plate_carree")
+    .add_annotations([{"text": "Downtown", "coords": (-74.0, 40.7)}])
+)
+geo_art.save("layered_map.png")
 ```
 
 ## Styling Options
@@ -55,46 +56,42 @@ map_img = designer.render()
 | Style | Best For |
 |-------|----------|
 | `watercolor` | Artistic, decorative |
-| `minimalist` | Clean infographics |
-| `vintage` | Historical feel |
-| `satellite` | Photorealistic |
+| `minimal` | Clean infographics |
+| `blueprint` | Technical linework |
 
 ## 3D Visualization
 
 ```python
-from geo_infer_art import GeoVisualizer
+from geo_infer_art import GeoArt
 
-viz = GeoVisualizer()
-scene = viz.render_3d(
-    dem=elevation,
-    texture=satellite,
-    exaggeration=2.0
-)
-scene.save("3d_terrain.png")
+terrain = GeoArt.load_raster("dem.tif")
+# Returns a GeoArt3D handle; requires mayavi or plotly installed
+scene = terrain.create_3d_visualization()
 ```
 
 ## Creating Animations
 
 ```python
-viz = GeoVisualizer()
-animation = viz.animate(
-    data=temporal_data,
-    fps=30
+geo_art = GeoArt.load_geojson("temporal_data.geojson")
+animation_path = geo_art.create_animation(
+    output_path="timelapse.mp4",
+    style_sequence=["minimal", "watercolor"],
+    duration=5.0,
+    fps=30,
 )
-animation.save("timelapse.mp4")
 ```
 
 ## Generative Art
 
 ```python
-from geo_infer_art import GenerativeArtist
+from geo_infer_art import GenerativeMap
 
-artist = GenerativeArtist()
-artwork = artist.generate(
-    source=street_network,
-    style="abstract_flow"
+artwork = GenerativeMap.from_elevation(
+    region="city_grid",
+    style="flow",
+    abstraction_level=0.7,
 )
-artwork.save("city_art.svg")
+artwork.save("city_art.png")
 ```
 
 ---

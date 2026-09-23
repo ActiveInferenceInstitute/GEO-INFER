@@ -1,4 +1,4 @@
-"""GEO-INFER-INTRA - Knowledge management backbone for the GEO-INFER framework."""
+"""GEO-INFER-INTRA - Reproducible documentation previews and configuration utilities for the GEO-INFER ecosystem."""
 
 from geo_infer_intra.core.documentation.visual_preview import (
     MODULE_PROFILES,

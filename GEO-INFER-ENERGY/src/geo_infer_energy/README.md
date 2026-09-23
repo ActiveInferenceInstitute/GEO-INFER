@@ -4,9 +4,7 @@ Geo Infer Energy workspace within `GEO-INFER-ENERGY`.
 
 ## Contents
 
-- `api/`
 - `core/`
-- `utils/`
 - `__init__.py`
 
 ## Public Interface

@@ -16,7 +16,6 @@ Advanced Active Inference framework implementing Free Energy Principle for geosp
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`
-- `uv.lock`
 
 ## Public Interface
 
@@ -50,11 +49,11 @@ Advanced Active Inference framework implementing Free Energy Principle for geosp
 - `pandas>=1.3.0`
 - `pyyaml>=6.0`
 - `requests>=2.25.0`
+- `scipy>=1.7.0`
 - `seaborn>=0.11.0`
 - `inferactively-pymdp==1.0.3`
 - `h3>=4.5.0,<5`
-- `geo-infer-bayes>=0.2.0`
-- `scipy>=1.7.0`
+- `geo-infer-bayes>=0.3.0`
 
 
 ## Validation

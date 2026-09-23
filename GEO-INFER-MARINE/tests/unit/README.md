@@ -4,6 +4,7 @@ Unit workspace within `GEO-INFER-MARINE`.
 
 ## Contents
 
+- `test_biodiversity.py`
 - `test_coastal_analysis.py`
 - `test_coral_reef.py`
 - `test_marine_ecosystems.py`

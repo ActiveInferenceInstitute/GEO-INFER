@@ -11,7 +11,10 @@ across all ``GEO-INFER-*`` modules:
 - Version uniformity: member pyprojects must agree on ``[project].version``
   (warn on outliers, error under ``--strict``). Known deviations are listed
   in ``KNOWN_VERSION_DEVIATIONS`` and surfaced as diagnostics only — the
-  promotion decision belongs to the release process (TODO REL-01).
+  promotion decision belongs to the release process (ledger row REL-01).
+- Citation version: ``CITATION.cff`` must cite the fleet-majority member
+  ``[project].version`` (warn on mismatch, error under ``--strict``), so a
+  release cannot publish a citation for a stale version.
 - Classifier consistency: modules declaring a ``Development Status``
   classifier must agree on the fleet mode; the root framework distribution's
   status is expected to differ and is surfaced as a diagnostic.
@@ -69,6 +72,9 @@ DISTRIBUTION_PREFIX = "geo-infer-"
 
 # Package-data resource globs expected in [tool.setuptools.package-data].
 PACKAGE_DATA_RESOURCES = ("*.yaml", "*.yml", "*.json", "*.md", "*.txt")
+
+# CI-03: the citation file pinned to the fleet-majority member version.
+CITATION_CFF_PATH = REPO_ROOT / "CITATION.cff"
 
 PROJECT_NAME_PATTERN = re.compile(r"^[a-z][a-z0-9_]*$")
 
@@ -240,6 +246,62 @@ def validate_version_uniformity(
                 f"{module_name}: version {version!r} deviates from the fleet "
                 f"majority {majority_version!r}"
             )
+
+
+_CITATION_VERSION_RE = re.compile(
+    r"""^version:[ \t]*["']?([^"'\s]+)["']?[ \t]*$""", re.MULTILINE
+)
+
+
+def citation_cff_version(citation_path: Path) -> Optional[str]:
+    """Return the top-level ``version`` field of a CITATION.cff, or None."""
+    if not citation_path.is_file():
+        return None
+    match = _CITATION_VERSION_RE.search(
+        citation_path.read_text(encoding="utf-8", errors="ignore")
+    )
+    if match is None:
+        return None
+    return match.group(1)
+
+
+def validate_citation_version(
+    inventories: List[tuple[str, dict]],
+    report: ContractReport,
+    citation_path: Optional[Path] = None,
+) -> None:
+    """CITATION.cff must cite the fleet-majority member version (CI-03).
+
+    Nothing else pins the citable version to the fleet: a stale CITATION
+    version could ship next to wheels carrying another. Semantics match
+    member version uniformity — a mismatch is a warning here and an error
+    under ``--strict`` promotion; a missing file or version field warns so
+    the release gate cannot silently skip the citation contract.
+    """
+    versions = {
+        module_name: version
+        for module_name, pyproject in inventories
+        if isinstance(version := pyproject.get("project", {}).get("version"), str)
+        and version
+    }
+    if not versions:
+        report.diagnostic(
+            "CITATION.cff: no member [project].version declared to pin against"
+        )
+        return
+    majority_version, _ = Counter(versions.values()).most_common(1)[0]
+    path = citation_path if citation_path is not None else CITATION_CFF_PATH
+    cited = citation_cff_version(path)
+    if cited is None:
+        report.warning(
+            f"{path.name}: missing or has no top-level version field to cite the fleet"
+        )
+        return
+    if cited != majority_version:
+        report.warning(
+            f"{path.name}: version {cited!r} deviates from the fleet majority "
+            f"{majority_version!r}"
+        )
 
 
 def validate_classifier_consistency(
@@ -587,6 +649,7 @@ def validate_all(target_dirs: Optional[List[Path]] = None) -> ContractReport:
         validate_import_parity(module_dir, pyproject, report)
         validate_source_traversal(module_dir, report)
     validate_version_uniformity(inventories, report)
+    validate_citation_version(inventories, report)
     validate_classifier_consistency(inventories, report)
     validate_classifier_validity(inventories, report)
     return report

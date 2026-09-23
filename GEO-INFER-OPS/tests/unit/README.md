@@ -4,7 +4,10 @@ Unit workspace within `GEO-INFER-OPS`.
 
 ## Contents
 
+- `test_app.py`
 - `test_cache_envelope.py`
+- `test_deployment_timeouts.py`
+- `test_find_config_file.py`
 - `test_health_checks.py`
 - `test_logging_hygiene.py`
 - `test_orchestrator.py`

@@ -8,7 +8,6 @@ Advanced simulation environments for geospatial hypothesis testing, policy evalu
 - `examples/`
 - `src/`
 - `tests/`
-- `setup.py`
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`

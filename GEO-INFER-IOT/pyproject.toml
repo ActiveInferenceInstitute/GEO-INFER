@@ -62,7 +62,7 @@ dev = [
     "black>=21.9.0",
     "mypy>=0.910",
     # Test-only spatial dependencies (tests/conftest.py)
-    "geopandas>=0.10.0",
+    "geopandas>=0.13.0",
     "shapely>=2.0.0",
 ]
 docs = [

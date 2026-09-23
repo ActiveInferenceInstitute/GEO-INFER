@@ -18,13 +18,10 @@ Tests cover:
 import pytest
 
 # Import modules to test
-try:
-    from geo_infer_ant.analysis.metrics import (
-        SwarmPerformanceMetrics,
-        PerformanceConfiguration,  # noqa: F401
-    )  # noqa: F401
-except ImportError:
-    pytest.fail("Metrics module not available")
+from geo_infer_ant.analysis.metrics import (
+    SwarmPerformanceMetrics,
+    PerformanceConfiguration,  # noqa: F401
+)  # noqa: F401
 
 
 class TestPerformanceMetrics:

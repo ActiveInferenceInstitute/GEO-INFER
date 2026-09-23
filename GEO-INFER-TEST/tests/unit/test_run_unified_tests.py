@@ -215,7 +215,7 @@ def test_performance_category_uses_canonical_directory_only(tmp_path, monkeypatc
 
     captured = []
 
-    def fake_run(command, name, timeout, cwd=runner.PROJECT_ROOT):
+    def fake_run(command, name, timeout, cwd=runner.PROJECT_ROOT, **kwargs):
         captured.append((name, command, timeout, cwd))
         return runner.CommandResult(
             name=name, success=True, duration=0.0, command=command
@@ -310,7 +310,7 @@ def test_fail_fast_stops_after_first_module_failure(tmp_path, monkeypatch):
     monkeypatch.setattr(runner, "ensure_results_dir", lambda clean=False: None)
     captured = []
 
-    def fake_run(command, name, timeout, cwd=runner.PROJECT_ROOT):
+    def fake_run(command, name, timeout, cwd=runner.PROJECT_ROOT, **kwargs):
         captured.append(name)
         success = not any("GEO-INFER-A" in str(part) for part in command)
         return runner.CommandResult(
@@ -340,7 +340,7 @@ def test_default_behavior_runs_all_modules_despite_failure(tmp_path, monkeypatch
     monkeypatch.setattr(runner, "ensure_results_dir", lambda clean=False: None)
     captured = []
 
-    def fake_run(command, name, timeout, cwd=runner.PROJECT_ROOT):
+    def fake_run(command, name, timeout, cwd=runner.PROJECT_ROOT, **kwargs):
         captured.append(name)
         success = not any("GEO-INFER-A" in str(part) for part in command)
         return runner.CommandResult(

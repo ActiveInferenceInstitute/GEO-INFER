@@ -288,12 +288,20 @@ class EmergencyCoordinator:
         # get_active_incidents() sees command-post incidents.
         try:
             incident_type_enum = IncidentType(incident_type)
-        except ValueError:
-            incident_type_enum = IncidentType.OTHER
+        except ValueError as exc:
+            valid_types = sorted(t.value for t in IncidentType)
+            raise ValueError(
+                f"geo_infer_emergency.core.coordinator: unknown incident_type "
+                f"{incident_type!r}. Valid types: {valid_types}"
+            ) from exc
         try:
             scale_enum = IncidentScale(scale)
-        except ValueError:
-            scale_enum = IncidentScale.TYPE_3
+        except ValueError as exc:
+            valid_scales = sorted(s.value for s in IncidentScale)
+            raise ValueError(
+                f"geo_infer_emergency.core.coordinator: unknown scale "
+                f"{scale!r}. Valid scales: {valid_scales}"
+            ) from exc
         self._active_incidents[incident_id] = Incident(
             incident_id=incident_id,
             incident_type=incident_type_enum,

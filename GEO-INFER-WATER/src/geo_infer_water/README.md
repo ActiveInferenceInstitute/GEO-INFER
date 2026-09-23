@@ -4,9 +4,7 @@ Geo Infer Water workspace within `GEO-INFER-WATER`.
 
 ## Contents
 
-- `api/`
 - `core/`
-- `utils/`
 - `__init__.py`
 
 ## Public Interface

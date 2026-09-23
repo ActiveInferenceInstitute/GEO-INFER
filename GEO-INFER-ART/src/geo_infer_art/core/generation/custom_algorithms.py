@@ -7,7 +7,7 @@ import os
 import inspect
 import json
 from typing import Dict, List, Optional, Callable, Any
-import importlib.util
+import types
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -163,6 +163,7 @@ class CustomAlgorithmFramework:
             algorithms_data[name] = {
                 "metadata": self.algorithm_metadata[name],
                 "source": source,
+                "function_name": getattr(func, "__name__", name),
             }
 
         with open(filepath, "w") as f:
@@ -189,26 +190,35 @@ class CustomAlgorithmFramework:
             metadata = data["metadata"]
             source = data["source"]
 
-            # Try to recreate the function from source
+            # Recreate the function from its saved source
             try:
-                # Create a temporary module to execute the function
-                spec = importlib.util.spec_from_string("temp_module", source)  # type: ignore[attr-defined]
-                temp_module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(temp_module)
+                module = types.ModuleType(f"geo_infer_art_loaded_{name}")
+                exec(compile(source, f"<algorithm:{name}>", "exec"), module.__dict__)
 
-                # Extract the function
-                func_name = metadata["signature"].split("(")[0].split()[-1]
-                if hasattr(temp_module, func_name):
-                    algorithm_function = getattr(temp_module, func_name)
+                function_name = data.get("function_name")
+                if function_name and hasattr(module, function_name):
+                    algorithm_function = getattr(module, function_name)
+                else:
+                    # Legacy saved files carry no function name; fall back to the
+                    # single function defined by the source.
+                    defined = [
+                        v for v in module.__dict__.values() if inspect.isfunction(v)
+                    ]
+                    if len(defined) != 1:
+                        raise ValueError(
+                            "cannot identify the algorithm function in the saved "
+                            "source; it must define exactly one function"
+                        )
+                    algorithm_function = defined[0]
 
-                    # Re-register the algorithm
-                    self.register_algorithm(
-                        name=name,
-                        algorithm_function=algorithm_function,
-                        description=metadata["description"],
-                        parameters=metadata["parameters"],
-                        example_usage=metadata["example_usage"],
-                    )
+                # Re-register the algorithm
+                self.register_algorithm(
+                    name=name,
+                    algorithm_function=algorithm_function,
+                    description=metadata["description"],
+                    parameters=metadata["parameters"],
+                    example_usage=metadata["example_usage"],
+                )
             except Exception as e:
                 logger.warning("Could not load algorithm '%s': %s", name, e)
 

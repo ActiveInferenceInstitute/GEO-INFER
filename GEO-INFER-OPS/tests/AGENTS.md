@@ -23,7 +23,6 @@
 
 - `integration/`
 - `unit/`
-- `__init__.py`
 - `conftest.py`
 - `test_acceptance_ops.py`
 - `test_cache.py`

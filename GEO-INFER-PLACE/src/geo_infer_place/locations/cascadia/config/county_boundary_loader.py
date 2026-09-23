@@ -17,7 +17,6 @@ from shapely.geometry import Polygon, MultiPolygon, mapping
 import requests
 import tempfile
 import zipfile
-import io
 
 logger = logging.getLogger(__name__)
 
