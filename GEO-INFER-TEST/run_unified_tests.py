@@ -298,6 +298,12 @@ def run_command(
             "CRASH-COMPLETION rc=%d — one bounded retry for crash-class failure"
             % completed.returncode
         )
+        # A killed interpreter's faulthandler banner (the crash reason and
+        # the faulting import) sits at the HEAD of stderr; the default
+        # failure print below only shows the tail, so surface the head.
+        banner = (completed.stderr or "")[:1500]
+        if banner:
+            print("--- crash stderr head ---\n" + banner)
         return run_command(
             command,
             name,
