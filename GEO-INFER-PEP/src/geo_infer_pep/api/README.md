@@ -23,6 +23,7 @@ Api workspace within `GEO-INFER-PEP`.
 - `__init__.py:create_learning_course` (function)
 - `__init__.py:get_learning_courses` (function)
 - `__init__.py:enroll_employee` (function)
+- `__init__.py:get_learning_enrollments` (function)
 - `__init__.py:create_conflict_case` (function)
 - `__init__.py:get_conflict_cases` (function)
 - `__init__.py:update_conflict_case` (function)
@@ -31,7 +32,6 @@ Api workspace within `GEO-INFER-PEP`.
 - `__init__.py:submit_survey_response` (function)
 - `__init__.py:validate_employee_data` (function)
 - `__init__.py:validate_customer_data` (function)
-- `__init__.py:validate_candidate_data` (function)
 
 ## Module Metadata
 

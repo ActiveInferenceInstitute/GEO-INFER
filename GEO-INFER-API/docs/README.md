@@ -22,11 +22,11 @@ Docs workspace within `GEO-INFER-API`.
 
 ## Dependencies
 
+- `starlette>=0.27.0`
 - `fastapi>=0.100.0`
 - `pydantic>=2.0.0`
 - `pydantic-settings>=2.0.0`
 - `uvicorn>=0.21.0`
-- `starlette>=0.27.0`
 
 
 ## Validation

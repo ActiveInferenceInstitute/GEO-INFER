@@ -31,16 +31,18 @@ Bioinformatics and biological data analysis with geospatial context for spatial 
 
 - `biopython>=1.79`
 - `fastapi>=0.100.0`
-- `geopandas>=0.9.0`
+- `geopandas>=0.13.0`
 - `graphql-core>=3.1.0`
 - `matplotlib>=3.4.0`
 - `numpy>=1.21.0`
 - `pandas>=1.3.0`
 - `pydantic>=2.0.0`
+- `python-multipart>=0.0.7`
 - `requests>=2.28`
 - `seaborn>=0.11.0`
-- `shapely>=1.8.0`
+- `shapely>=2.0.0`
 - `strawberry-graphql>=0.96.0`
+- `uvicorn>=0.15.0`
 
 
 ## Validation

@@ -4,7 +4,6 @@ Integration workspace within `GEO-INFER-EDU`.
 
 ## Contents
 
-- `__init__.py`
 - `test_education_workflow.py`
 
 ## Public Interface

@@ -24,6 +24,7 @@
 - `test_ai_convenience.py`
 - `test_bayes_convenience.py`
 - `test_clustering.py`
+- `test_config_contract.py`
 - `test_convenience_api.py`
 - `test_free_energy.py`
 - `test_geometry.py`
@@ -37,6 +38,7 @@
 - `test_optimization.py`
 - `test_regression.py`
 - `test_spatial_statistics.py`
+- `test_symbolic_math.py`
 - `test_theorem_proving.py`
 - `test_transforms.py`
 

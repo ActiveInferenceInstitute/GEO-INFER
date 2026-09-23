@@ -4,7 +4,6 @@ Integration workspace within `GEO-INFER-ENERGY`.
 
 ## Contents
 
-- `__init__.py`
 - `test_energy_integration.py`
 
 ## Public Interface

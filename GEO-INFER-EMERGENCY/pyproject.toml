@@ -42,10 +42,16 @@ dev = [
     "mypy>=0.910",
     # Test-only spatial dependencies used by tests/conftest.py fixtures.
     "numpy>=1.20.0",
-    "geopandas>=0.10.0",
+    "geopandas>=0.13.0",
     "shapely>=2.0.0",
 ]
 
+
+[project.urls]
+Homepage = "https://github.com/ActiveInferenceInstitute/GEO_INFER"
+Documentation = "https://geo-infer.readthedocs.io/"
+Repository = "https://github.com/ActiveInferenceInstitute/GEO_INFER"
+"Bug Tracker" = "https://github.com/ActiveInferenceInstitute/GEO_INFER/issues"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

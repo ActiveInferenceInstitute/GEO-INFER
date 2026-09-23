@@ -8,7 +8,6 @@ Comprehensive people operations management including HR, CRM, talent acquisition
 - `examples/`
 - `src/`
 - `tests/`
-- `setup.py`
 - `.gitignore`
 - `SKILL.md`
 - `pyproject.toml`

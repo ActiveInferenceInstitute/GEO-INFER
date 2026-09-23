@@ -7,14 +7,31 @@ Core workspace within `GEO-INFER-AI`.
 - `__init__.py`
 - `explainability.py`
 - `model_evaluation.py`
+- `secure_serialization.py`
 - `training.py`
 
 ## Public Interface
 
 - `explainability.py:ModelExplainer` (class)
 - `model_evaluation.py:GeospatialModelEvaluator` (class)
-- `training.py:TrainingConfig` (class)
-- `training.py:ModelTrainer` (class)
+- `secure_serialization.py:PayloadSecurityError` (class)
+- `secure_serialization.py:SigningKeyUnavailableError` (class)
+- `secure_serialization.py:MalformedEnvelopeError` (class)
+- `secure_serialization.py:UnsignedPayloadError` (class)
+- `secure_serialization.py:SignatureMismatchError` (class)
+- `secure_serialization.py:clear_signing_key_cache` (function)
+- `secure_serialization.py:default_key_path` (function)
+- `secure_serialization.py:resolve_signing_key` (function)
+- `secure_serialization.py:derive_context_key` (function)
+- `secure_serialization.py:is_signed_envelope` (function)
+- `secure_serialization.py:sign_payload` (function)
+- `secure_serialization.py:verify_payload` (function)
+- `secure_serialization.py:sign_payload_text` (function)
+- `secure_serialization.py:verify_payload_text` (function)
+- `secure_serialization.py:dumps_signed` (function)
+- `secure_serialization.py:loads_signed` (function)
+- `secure_serialization.py:dumps_signed_text` (function)
+- `secure_serialization.py:loads_signed_text` (function)
 
 ## Module Metadata
 

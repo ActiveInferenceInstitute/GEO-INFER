@@ -69,7 +69,7 @@ Modules workspace within `GEO-INFER-INTRA`.
 
 - `h3>=4.5.0,<5`
 - `jsonschema>=4.0.0`
-- `Pillow>=10.0`
+- `pillow>=10.0.0`
 - `pyyaml>=6.0`
 
 

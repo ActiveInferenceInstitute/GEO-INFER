@@ -29,7 +29,6 @@ Emergency management and disaster response capabilities for geospatial systems.
 - `networkx>=2.6.0`
 
 
-
 ## Validation
 
 ```bash

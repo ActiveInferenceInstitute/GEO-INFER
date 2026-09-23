@@ -26,6 +26,7 @@
 - `test_consumer_theory.py`
 - `test_demand_systems_spatial.py`
 - `test_enhanced_capabilities.py`
+- `test_exported_model_classes.py`
 - `test_game_theory.py`
 - `test_growth_models.py`
 - `test_import_smoke.py`

@@ -24,6 +24,7 @@
 - `__init__.py`
 - `explainability.py`
 - `model_evaluation.py`
+- `secure_serialization.py`
 - `training.py`
 
 ## Validation

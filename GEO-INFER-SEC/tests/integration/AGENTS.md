@@ -21,7 +21,6 @@
 
 ## Local Contents
 
-- `__init__.py`
 - `test_sec_integration.py`
 - `test_serialization_security.py`
 

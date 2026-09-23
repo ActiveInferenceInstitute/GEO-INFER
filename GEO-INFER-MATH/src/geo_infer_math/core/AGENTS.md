@@ -27,7 +27,6 @@
 - `geometry.py`
 - `gpu_acceleration.py`
 - `graph_theory.py`
-- `integration.py`
 - `interpolation.py`
 - `linalg_tensor.py`
 - `numerical_methods.py`

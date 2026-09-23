@@ -4,7 +4,6 @@ Integration workspace within `GEO-INFER-FOREST`.
 
 ## Contents
 
-- `__init__.py`
 - `test_forest_integration.py`
 
 ## Public Interface

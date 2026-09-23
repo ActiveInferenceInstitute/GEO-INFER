@@ -4,7 +4,6 @@ Integration workspace within `GEO-INFER-MARINE`.
 
 ## Contents
 
-- `__init__.py`
 - `test_marine_integration.py`
 
 ## Public Interface

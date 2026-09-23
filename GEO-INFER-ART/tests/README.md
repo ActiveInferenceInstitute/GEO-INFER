@@ -32,7 +32,7 @@ Tests workspace within `GEO-INFER-ART`.
 
 ## Dependencies
 
-- `geopandas>=0.10.0`
+- `geopandas>=0.13.0`
 - `matplotlib>=3.4.0`
 - `numpy>=1.21.0`
 - `pillow>=8.3.0`

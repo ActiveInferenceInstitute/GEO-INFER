@@ -9,6 +9,7 @@ Unit workspace within `GEO-INFER-ECON`.
 - `test_consumer_theory.py`
 - `test_demand_systems_spatial.py`
 - `test_enhanced_capabilities.py`
+- `test_exported_model_classes.py`
 - `test_game_theory.py`
 - `test_growth_models.py`
 - `test_import_smoke.py`
@@ -38,7 +39,7 @@ Unit workspace within `GEO-INFER-ECON`.
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
 - `scipy>=1.7.0`
-- `geopandas>=0.12.0`
+- `geopandas>=0.13.0`
 - `shapely>=2.0.0`
 - `scikit-learn>=1.0.0`
 - `matplotlib>=3.5.0`

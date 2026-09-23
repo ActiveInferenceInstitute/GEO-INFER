@@ -21,7 +21,6 @@
 
 ## Local Contents
 
-- `__init__.py`
 - `test_agent_pipeline.py`
 
 ## Validation

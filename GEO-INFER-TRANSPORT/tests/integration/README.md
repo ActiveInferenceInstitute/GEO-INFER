@@ -4,7 +4,6 @@ Integration workspace within `GEO-INFER-TRANSPORT`.
 
 ## Contents
 
-- `__init__.py`
 - `test_network_workflow.py`
 
 ## Public Interface

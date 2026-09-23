@@ -4,7 +4,6 @@ Integration workspace within `GEO-INFER-PEP`.
 
 ## Contents
 
-- `__init__.py`
 - `test_pep_integration.py`
 
 ## Public Interface

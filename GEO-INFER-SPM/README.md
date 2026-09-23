@@ -28,7 +28,7 @@ Statistical parametric mapping methodology adapted for geospatial analysis to id
 
 ## Dependencies
 
-- `geopandas>=0.10.0`
+- `geopandas>=0.13.0`
 - `h5py>=3.6.0`
 - `matplotlib>=3.5.0`
 - `numpy>=1.20.0`

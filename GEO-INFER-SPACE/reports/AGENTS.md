@@ -22,28 +22,6 @@
 ## Local Contents
 
 - `visualizations/`
-- `enhanced_status_report_20260114_142208.json`
-- `enhanced_status_report_20260114_142325.json`
-- `enhanced_status_report_20260114_142331.json`
-- `enhanced_status_report_20260114_142428.json`
-- `enhanced_status_report_20260115_081712.json`
-- `enhanced_status_report_20260115_081813.json`
-- `enhanced_status_report_20260115_081856.json`
-- `enhanced_status_report_20260115_081920.json`
-- `enhanced_status_report_20260115_082048.json`
-- `enhanced_status_report_20260115_082510.json`
-- `enhanced_status_report_20260115_082640.json`
-- `status_dashboard_20260114_142208.html`
-- `status_dashboard_20260114_142325.html`
-- `status_dashboard_20260114_142331.html`
-- `status_dashboard_20260114_142428.html`
-- `status_dashboard_20260115_081712.html`
-- `status_dashboard_20260115_081813.html`
-- `status_dashboard_20260115_081856.html`
-- `status_dashboard_20260115_081920.html`
-- `status_dashboard_20260115_082048.html`
-- `status_dashboard_20260115_082510.html`
-- `status_dashboard_20260115_082640.html`
 
 ## Validation
 

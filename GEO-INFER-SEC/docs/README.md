@@ -22,13 +22,13 @@ Docs workspace within `GEO-INFER-SEC`.
 
 - `cryptography>=36.0.0`
 - `flask>=2.0`
-- `geopandas>=0.10.0`
+- `geopandas>=0.13.0`
 - `h3>=4.5.0,<5`
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
 - `pyjwt>=2.3.0`
 - `pyyaml>=6.0`
-- `shapely>=1.8.0`
+- `shapely>=2.0.0`
 
 
 ## Validation

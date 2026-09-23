@@ -29,8 +29,10 @@
 - `test_delivery_behavior.py`
 - `test_geo_utils.py`
 - `test_log_init.py`
+- `test_log_lifecycle.py`
 - `test_observability.py`
 - `test_optimization.py`
+- `test_optimization_ortools.py`
 - `test_supply_chain.py`
 - `test_transport.py`
 - `test_transport_behavior.py`

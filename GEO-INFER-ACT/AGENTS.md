@@ -33,7 +33,6 @@
 - `SKILL.md`
 - `pyproject.toml`
 - `requirements.txt`
-- `uv.lock`
 
 ## Validation
 

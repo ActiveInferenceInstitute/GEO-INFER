@@ -21,7 +21,6 @@
 
 ## Local Contents
 
-- `__init__.py`
 - `test_awareness_workflow.py`
 
 ## Validation

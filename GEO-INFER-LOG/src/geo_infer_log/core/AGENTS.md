@@ -24,6 +24,7 @@
 - `__init__.py`
 - `delivery.py`
 - `routing.py`
+- `secure_serialization.py`
 - `supply_chain.py`
 - `transport.py`
 

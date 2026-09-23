@@ -4,7 +4,6 @@ Integration workspace within `GEO-INFER-NORMS`.
 
 ## Contents
 
-- `__init__.py`
 - `test_norms_integration.py`
 
 ## Public Interface
