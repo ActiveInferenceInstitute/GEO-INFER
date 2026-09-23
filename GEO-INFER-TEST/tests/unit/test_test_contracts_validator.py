@@ -84,7 +84,7 @@ class TestScanSurface:
         module_dir = _seed_module(tmp_path, "CLEAN")
         (module_dir / "tests" / "conftest.py").write_text(
             "import pytest\n\n\n"
-            '@pytest.fixture\ndef sample():\n'
+            "@pytest.fixture\ndef sample():\n"
             '    """Provide shared test data."""\n'
             "    return {}\n",
             encoding="utf-8",
@@ -107,14 +107,14 @@ class TestMarkerRegistry:
         _seed_root(tmp_path)
         module_dir = _seed_module(tmp_path, "MARK")
         (module_dir / "tests" / "conftest.py").write_text(
-            'def pytest_configure(config):\n'
+            "def pytest_configure(config):\n"
             '    """Register runtime markers."""\n'
             '    config.addinivalue_line("markers", "temporal: Temporal data tests")\n',
             encoding="utf-8",
         )
         (module_dir / "tests" / "test_marked.py").write_text(
             '"""Behavior under test."""\n\nimport pytest\n\n'
-            '@pytest.mark.temporal\n'
+            "@pytest.mark.temporal\n"
             "def test_temporal() -> None:\n"
             '    """The behavior holds."""\n'
             "    assert True\n",
@@ -129,7 +129,7 @@ class TestMarkerRegistry:
         module_dir = _seed_module(tmp_path, "UMARK")
         (module_dir / "tests" / "test_marked.py").write_text(
             '"""Behavior under test."""\n\nimport pytest\n\n'
-            '@pytest.mark.banana\n'
+            "@pytest.mark.banana\n"
             "def test_marked() -> None:\n"
             '    """The behavior holds."""\n'
             "    assert True\n",
@@ -156,6 +156,4 @@ class TestInventoryParity:
         )
         errors = module.inventory_parity_errors()
         assert any("listed but missing: test_ghost.py" in error for error in errors)
-        assert any(
-            "present but unlisted: test_real.py" in error for error in errors
-        )
+        assert any("present but unlisted: test_real.py" in error for error in errors)

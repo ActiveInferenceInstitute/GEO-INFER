@@ -20,6 +20,7 @@ from geo_infer_log.api.transport import (
 from geo_infer_log.core.transport import TransportationNetworkAnalyzer, TrafficSimulator
 from geo_infer_log.core.routing import save_gpickle
 
+
 def _write_network(tmp_path, nodes=("a", "b", "c")):
     graph = nx.DiGraph()
     graph.add_edge(nodes[0], nodes[1], distance=2.0, free_flow_speed=60)

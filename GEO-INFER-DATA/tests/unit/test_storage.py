@@ -446,8 +446,7 @@ class TestDevCredentialBoundary:
             AdaptiveDataStorage(storage_backends=["postgresql", "minio", "local"])
 
         assert not any(
-            "development credential" in record.getMessage()
-            for record in caplog.records
+            "development credential" in record.getMessage() for record in caplog.records
         )
 
     def test_non_loopback_host_fails_closed(self, monkeypatch):

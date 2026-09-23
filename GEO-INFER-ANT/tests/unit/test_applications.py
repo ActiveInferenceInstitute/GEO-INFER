@@ -314,13 +314,10 @@ class TestEnvironmentalMonitoringSwarm:
                     overlap = np.pi * radius**2
                 else:
                     ratio = np.clip(distance / (2.0 * radius), -1.0, 1.0)
-                    overlap = (
-                        2.0 * radius**2 * np.arccos(ratio)
-                        - 0.5
-                        * distance
-                        * np.sqrt(
-                            float(max(0.0, float(4.0 * radius**2 - distance**2)))
-                        )
+                    overlap = 2.0 * radius**2 * np.arccos(
+                        ratio
+                    ) - 0.5 * distance * np.sqrt(
+                        float(max(0.0, float(4.0 * radius**2 - distance**2)))
                     )
                 covered_area -= overlap
         bruteforce = float(np.clip(covered_area, 0.0, swarm._calculate_total_area()))

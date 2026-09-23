@@ -73,9 +73,10 @@ class TestEndogenousGrowthModels:
         # High growth triggers the resource-constraint limiter.
         analysis = result["balanced_growth_analysis"]
         assert analysis["growth_sustainability"]["sustainability_score"] == 0.8
-        assert "resource_constraints" in analysis["growth_sustainability"][
-            "limiting_factors"
-        ]
+        assert (
+            "resource_constraints"
+            in analysis["growth_sustainability"]["limiting_factors"]
+        )
 
 
 class TestRegionalConvergenceAnalysis:
@@ -108,9 +109,7 @@ class TestRegionalConvergenceAnalysis:
         assert result["alpha_coefficient"] == pytest.approx(0.30, rel=1e-6)
         assert result["r_squared"] == pytest.approx(1.0, abs=1e-9)
         assert result["convergence_rate"] == pytest.approx(0.02, rel=1e-6)
-        assert result["half_life_years"] == pytest.approx(
-            math.log(2) / 0.02, rel=1e-6
-        )
+        assert result["half_life_years"] == pytest.approx(math.log(2) / 0.02, rel=1e-6)
         assert result["converging"]
 
     def test_sigma_convergence_declining_dispersion(self) -> None:
@@ -118,12 +117,18 @@ class TestRegionalConvergenceAnalysis:
         rows = []
         for year in range(4):
             rows.append(
-                {"region_id": "a", "year": year,
-                 "gdp_per_capita": 100.0 * math.exp(0.05 * year)}
+                {
+                    "region_id": "a",
+                    "year": year,
+                    "gdp_per_capita": 100.0 * math.exp(0.05 * year),
+                }
             )
             rows.append(
-                {"region_id": "b", "year": year,
-                 "gdp_per_capita": 200.0 * math.exp(0.01 * year)}
+                {
+                    "region_id": "b",
+                    "year": year,
+                    "gdp_per_capita": 200.0 * math.exp(0.01 * year),
+                }
             )
         analysis = RegionalConvergenceAnalysis(pd.DataFrame(rows))
         result = analysis.sigma_convergence_analysis()
@@ -204,8 +209,16 @@ class TestEcologicalEconomicsEngine:
             "carrying_capacity",
             {
                 "resources": [
-                    {"name": "water", "available": 1000.0, "per_capita_requirement": 5.0},
-                    {"name": "food", "available": 2000.0, "per_capita_requirement": 4.0},
+                    {
+                        "name": "water",
+                        "available": 1000.0,
+                        "per_capita_requirement": 5.0,
+                    },
+                    {
+                        "name": "food",
+                        "available": 2000.0,
+                        "per_capita_requirement": 4.0,
+                    },
                 ],
                 "current_population": 80.0,
                 "safety_margin": 0.2,
@@ -225,8 +238,11 @@ class TestEcologicalEconomicsEngine:
             "carrying_capacity",
             {
                 "resources": [
-                    {"name": "grazing", "available": 100.0,
-                     "per_capita_requirement": 10.0}
+                    {
+                        "name": "grazing",
+                        "available": 100.0,
+                        "per_capita_requirement": 10.0,
+                    }
                 ],
                 "current_population": 15.0,  # capacity is 8 with 20% margin
                 "safety_margin": 0.2,

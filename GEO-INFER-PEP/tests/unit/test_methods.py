@@ -373,7 +373,9 @@ def test_import_talent_data_from_csv_round_trip(tmp_path):
             encoding="utf-8",
         )
 
-        result = import_talent_data_from_csv(str(candidates_file), str(requisitions_file))
+        result = import_talent_data_from_csv(
+            str(candidates_file), str(requisitions_file)
+        )
 
         assert result["processed_successfully"] is True
         assert result["candidates"] == 1  # post-extend store length (store was cleared)

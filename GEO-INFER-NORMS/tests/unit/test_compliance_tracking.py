@@ -198,9 +198,7 @@ class TestComplianceTracker:
             range_max=8.0,
         )
         violator = _make_metric("reg-1", "threshold")
-        tracker = ComplianceTracker(
-            name="test", compliance_metrics=[crasher, violator]
-        )
+        tracker = ComplianceTracker(name="test", compliance_metrics=[crasher, violator])
         # The non-numeric value crashes the range comparison (TypeError) while
         # the threshold metric genuinely fails (80.0 is not < 50.0).
         status = tracker.evaluate_compliance(

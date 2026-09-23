@@ -163,8 +163,7 @@ def test_citation_version_mismatch_warns_against_fleet_majority(tmp_path):
         citation_path=citation,
     )
     assert any(
-        "CITATION.cff" in warning and "9.9.9" in warning
-        for warning in report.warnings
+        "CITATION.cff" in warning and "9.9.9" in warning for warning in report.warnings
     )
 
 

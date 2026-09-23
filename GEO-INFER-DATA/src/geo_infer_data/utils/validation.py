@@ -693,9 +693,7 @@ class GeospatialValidator:
         for rule_name in rules:
             if rule_name in self._report_rules:
                 try:
-                    check_result = await self._report_rules[rule_name](
-                        data, metadata
-                    )
+                    check_result = await self._report_rules[rule_name](data, metadata)
                     checks[rule_name] = check_result
 
                     # Update overall score

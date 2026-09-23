@@ -193,9 +193,7 @@ class TestDependencyChecker:
         """GS19-87: known distributions probe their real import root."""
         assert DependencyChecker._normalize_dep_name(distribution) == import_root
 
-    def test_check_module_dependencies_probes_import_roots(
-        self, tmp_path, monkeypatch
-    ):
+    def test_check_module_dependencies_probes_import_roots(self, tmp_path, monkeypatch):
         """GS19-87: the full probe path strips extras and maps import roots.
 
         Pre-fix this module reported status "missing": pyyaml was probed as
@@ -203,7 +201,7 @@ class TestDependencyChecker:
         """
         (tmp_path / "GEO-INFER-SAMPLE").mkdir()
         (tmp_path / "GEO-INFER-SAMPLE" / "pyproject.toml").write_text(
-            '[project]\n'
+            "[project]\n"
             'name = "sample"\n'
             'dependencies = ["pyyaml>=6.0", "coverage[toml]>=7.6"]\n'
         )

@@ -32,9 +32,7 @@ from geo_infer_art.utils.animation import save_animation_with_fallback
 def _sample_algorithm(data, params, width, height):
     """Deterministic grid generator (pure builtins; exec'd from saved source)."""
     offset = float(params.get("offset", 0.0))
-    return [
-        [(x + y) * 0.01 + offset for x in range(width)] for y in range(height)
-    ]
+    return [[(x + y) * 0.01 + offset for x in range(width)] for y in range(height)]
 
 
 # Source-text fixture for legacy saved-file entries (the framework exec's
@@ -274,7 +272,9 @@ class TestPerformanceOptimizer(unittest.TestCase):
                 raise RuntimeError("boom")
             return ok
 
-        results = self.optimizer.parallel_execution(flaky, [{"ok": True}, {"ok": False}])
+        results = self.optimizer.parallel_execution(
+            flaky, [{"ok": True}, {"ok": False}]
+        )
         self.assertEqual(results, [True, None])
 
     def test_cache_result_decorator_caches_numpy_results(self):
@@ -343,9 +343,10 @@ class TestSaveAnimationWithFallback(unittest.TestCase):
 
         anim = self._make_animation()
         mp4_path = os.path.join(self.tmpdir, "out.mp4")
-        with mock.patch(
-            "matplotlib.animation.FuncAnimation.save", fake_save
-        ), self.assertLogs("geo_infer_art.utils.animation", level="WARNING"):
+        with (
+            mock.patch("matplotlib.animation.FuncAnimation.save", fake_save),
+            self.assertLogs("geo_infer_art.utils.animation", level="WARNING"),
+        ):
             returned = save_animation_with_fallback(anim, mp4_path, 2)
         # The mocked save never starts a real draw, so mark the animation as
         # rendered to keep its __del__ from emitting an unraisable warning.

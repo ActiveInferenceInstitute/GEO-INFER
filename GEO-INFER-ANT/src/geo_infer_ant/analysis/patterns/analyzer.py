@@ -36,7 +36,6 @@ except ImportError as e:
 logger = logging.getLogger(__name__)
 
 
-
 from ._config import AnalysisConfiguration
 
 

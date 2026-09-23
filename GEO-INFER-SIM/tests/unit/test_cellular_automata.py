@@ -21,17 +21,29 @@ class TestNeighborTopology:
     def test_moore_interior_has_eight_neighbors(self, automaton) -> None:
         neighbors = automaton.get_neighbors(1, 1, "moore")
         assert sorted(neighbors) == [
-            (0, 0), (0, 1), (0, 2), (1, 0), (1, 2), (2, 0), (2, 1), (2, 2),
+            (0, 0),
+            (0, 1),
+            (0, 2),
+            (1, 0),
+            (1, 2),
+            (2, 0),
+            (2, 1),
+            (2, 2),
         ]
 
     def test_moore_corner_has_three_neighbors(self, automaton) -> None:
         assert sorted(automaton.get_neighbors(0, 0, "moore")) == [
-            (0, 1), (1, 0), (1, 1)
+            (0, 1),
+            (1, 0),
+            (1, 1),
         ]
 
     def test_von_neumann_excludes_diagonals(self, automaton) -> None:
         assert sorted(automaton.get_neighbors(1, 1, "von_neumann")) == [
-            (0, 1), (1, 0), (1, 2), (2, 1)
+            (0, 1),
+            (1, 0),
+            (1, 2),
+            (2, 1),
         ]
         assert sorted(automaton.get_neighbors(0, 0, "von_neumann")) == [(0, 1), (1, 0)]
 
@@ -58,9 +70,7 @@ class TestDefaultGameOfLifeRule:
     """step() without a rule applies Game of Life."""
 
     def test_blinker_oscillates(self) -> None:
-        vertical_blinker = np.array(
-            [[0, 1, 0], [0, 1, 0], [0, 1, 0]], dtype=int
-        )
+        vertical_blinker = np.array([[0, 1, 0], [0, 1, 0], [0, 1, 0]], dtype=int)
         automaton = CellularAutomata((3, 3), initial_states=vertical_blinker)
 
         automaton.step()
@@ -102,8 +112,9 @@ class TestCustomRules:
 
         # Majority rule: a cell adopts the most common neighbor state.
         automaton.apply_rule(
-            lambda current, neighbors:
+            lambda current, neighbors: (
                 1 if sum(n == 1 for n in neighbors) > len(neighbors) / 2 else current
+            )
         )
         # Every non-center cell sees exactly one alive neighbor → stays 0.
         assert automaton.grid.tolist() == grid.tolist()

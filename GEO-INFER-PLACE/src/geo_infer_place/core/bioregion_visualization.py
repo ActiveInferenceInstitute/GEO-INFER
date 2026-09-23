@@ -477,9 +477,7 @@ def create_bioregion_map(
             )
         popup_html = (
             '<div style="font-family:sans-serif;min-width:180px">'
-            f"<b>🌋 {name}</b><br>"
-            + "<br>".join(rows)
-            + "</div>"
+            f"<b>🌋 {name}</b><br>" + "<br>".join(rows) + "</div>"
         )
         folium.CircleMarker(
             location=[lat, lon],

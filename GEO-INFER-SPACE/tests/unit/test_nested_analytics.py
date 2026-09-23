@@ -4,9 +4,6 @@ Covers flow_analysis, pattern_detection, hierarchy_metrics and
 performance_metrics with deterministic synthetic data.
 """
 
-
-
-
 # Nine well-separated res-9 cells (no two adjacent). The last index carries
 # the outlier value used by the pattern-detection tests.
 SPREAD_INDICES = [

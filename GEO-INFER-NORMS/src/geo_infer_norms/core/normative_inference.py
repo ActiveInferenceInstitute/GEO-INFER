@@ -31,7 +31,6 @@ class NormEvaluationError(RuntimeError):
     """
 
 
-
 class NormativeInference:
     """
     A class for probabilistic inference about norms and compliance.

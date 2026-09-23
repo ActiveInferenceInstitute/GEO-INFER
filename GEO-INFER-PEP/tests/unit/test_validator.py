@@ -118,9 +118,7 @@ def test_validate_employee_terminated_without_date_warns_but_stays_valid():
     employee.employment_status = EmploymentStatus.TERMINATED
     result = validator.validate_employee(employee)
     assert result.is_valid is True
-    assert (
-        "Terminated employee should have termination date" in result.warnings
-    )
+    assert "Terminated employee should have termination date" in result.warnings
 
 
 def test_validate_employee_strict_mode_turns_warnings_into_errors():
@@ -147,9 +145,7 @@ def test_validate_customer_rejects_unknown_status():
     customer = _valid_customer()
     customer.status = "banana"
     result = validator.validate_customer(customer)
-    assert any(
-        error.startswith("Invalid status 'banana'") for error in result.errors
-    )
+    assert any(error.startswith("Invalid status 'banana'") for error in result.errors)
 
 
 def test_validate_customer_rejects_unschemed_website():
@@ -281,9 +277,7 @@ def test_validate_job_requisition_rejects_inverted_salary_and_priority():
     result = validator.validate_job_requisition(requisition)
     assert result.is_valid is False
     assert "Minimum salary cannot be greater than maximum salary" in result.errors
-    assert any(
-        error.startswith("Invalid priority 'banana'") for error in result.errors
-    )
+    assert any(error.startswith("Invalid priority 'banana'") for error in result.errors)
 
 
 # --- Workflow and integrity ------------------------------------------------

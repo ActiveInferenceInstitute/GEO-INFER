@@ -76,8 +76,7 @@ def test_packaged_default_resolves_from_empty_cwd(
     target_users = loader.load_target_users_config()
     assert target_users
     assert all(
-        isinstance(entry, TargetUser) and entry.username
-        for entry in target_users
+        isinstance(entry, TargetUser) and entry.username for entry in target_users
     )
 
     # Convenience constructor follows the same packaged default

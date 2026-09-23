@@ -5,7 +5,6 @@ This module provides powerful spatial indexing, analytics, and integration
 with external geospatial tools and libraries through a unified, backend-agnostic API.
 """
 
-
 __version__ = "0.3.0"
 
 # Import the generic spatial interfaces

@@ -23,8 +23,10 @@ FALLBACK_CONFIG = {
 @pytest.fixture
 def broken_config_loader(monkeypatch):
     """Force the app-level config loader to fail, triggering the fallback."""
+
     def _boom():
         raise RuntimeError("no config available")
+
     monkeypatch.setattr("geo_infer_ops.app.load_config", _boom)
 
 

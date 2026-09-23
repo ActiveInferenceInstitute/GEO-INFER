@@ -46,8 +46,7 @@ def test_credit_bureau_connection_error_logs_warning_and_returns_none(caplog):
     with caplog.at_level(logging.WARNING, logger=MODULE_LOGGER):
         assert get_credit_score("123-45-6789", data_manager=manager) is None
     assert any(
-        "Credit bureau fetch failed" in record.getMessage()
-        for record in caplog.records
+        "Credit bureau fetch failed" in record.getMessage() for record in caplog.records
     )
 
 
@@ -76,10 +75,11 @@ def test_unexpected_error_propagates_from_property_history():
 def test_no_record_returns_none_without_fetch_warning(caplog):
     """A successful no-record lookup is not logged as an outage."""
     with caplog.at_level(logging.WARNING, logger=MODULE_LOGGER):
-        assert get_credit_score("123-45-6789", data_manager=NoRecordDataManager()) is None
+        assert (
+            get_credit_score("123-45-6789", data_manager=NoRecordDataManager()) is None
+        )
     assert not any(
-        "Credit bureau fetch failed" in record.getMessage()
-        for record in caplog.records
+        "Credit bureau fetch failed" in record.getMessage() for record in caplog.records
     )
 
 

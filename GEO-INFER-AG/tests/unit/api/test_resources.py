@@ -41,25 +41,32 @@ class TestFieldsResource:
 
     def test_create_rejects_missing_location_keys(self) -> None:
         with pytest.raises(ValueError, match="'lat' and 'lon'"):
-            self.resource.create(
-                name="Bad", area_hectares=1.0, location={"lat": 1.0}
-            )
+            self.resource.create(name="Bad", area_hectares=1.0, location={"lat": 1.0})
 
     def test_get_unknown_field_returns_none(self) -> None:
         assert self.resource.get("does-not-exist") is None
 
     def test_list_filters_by_soil_crop_and_area(self) -> None:
         corn = self.resource.create(
-            name="Corn Field", area_hectares=10.0, location={"lat": 40, "lon": -95},
-            soil_type="clay", crop_type="corn",
+            name="Corn Field",
+            area_hectares=10.0,
+            location={"lat": 40, "lon": -95},
+            soil_type="clay",
+            crop_type="corn",
         )
         small_sandy = self.resource.create(
-            name="Sandy Patch", area_hectares=2.0, location={"lat": 41, "lon": -96},
-            soil_type="sand", crop_type="corn",
+            name="Sandy Patch",
+            area_hectares=2.0,
+            location={"lat": 41, "lon": -96},
+            soil_type="sand",
+            crop_type="corn",
         )
         self.resource.create(
-            name="Big Loam", area_hectares=20.0, location={"lat": 42, "lon": -97},
-            soil_type="loam", crop_type="wheat",
+            name="Big Loam",
+            area_hectares=20.0,
+            location={"lat": 42, "lon": -97},
+            soil_type="loam",
+            crop_type="wheat",
         )
 
         by_soil = self.resource.list(soil_type="clay")
@@ -72,7 +79,10 @@ class TestFieldsResource:
         by_crop_and_area = self.resource.list(crop_type="corn", min_area=5.0)
         assert [f["id"] for f in by_crop_and_area.data] == [corn["id"]]
         assert small_sandy["id"] not in [f["id"] for f in by_crop_and_area.data]
-        assert by_crop_and_area.filters_applied == {"crop_type": "corn", "min_area": 5.0}
+        assert by_crop_and_area.filters_applied == {
+            "crop_type": "corn",
+            "min_area": 5.0,
+        }
 
         everything = self.resource.list()
         assert everything.count == 3
@@ -174,9 +184,7 @@ class TestYieldResource:
         assert result["confidence"] == pytest.approx(0.95)
 
     def test_estimate_unknown_crop_uses_default_base(self) -> None:
-        result = self.resource.estimate(
-            crop_name="dragonfruit", area_hectares=2.0
-        )
+        result = self.resource.estimate(crop_name="dragonfruit", area_hectares=2.0)
         assert result["yield_per_hectare"] == pytest.approx(5.0)  # default base
         assert result["total_tonnes"] == pytest.approx(10.0)
         assert result["confidence"] == pytest.approx(1.0)  # no deviation
@@ -199,8 +207,11 @@ class TestYieldResource:
             notes="dry year",
         )
         self.resource.record_observation(
-            crop_name="wheat", area_hectares=5.0,
-            actual_yield_tonnes=17.5, season="summer", year=2024,
+            crop_name="wheat",
+            area_hectares=5.0,
+            actual_yield_tonnes=17.5,
+            season="summer",
+            year=2024,
         )
 
         assert obs["yield_per_hectare"] == pytest.approx(7.0)
@@ -220,18 +231,27 @@ class TestYieldResource:
         assert self.resource.average_yield("corn") is None
 
         self.resource.record_observation(
-            crop_name="corn", area_hectares=10.0,
-            actual_yield_tonnes=60.0, season="summer", year=2023,
+            crop_name="corn",
+            area_hectares=10.0,
+            actual_yield_tonnes=60.0,
+            season="summer",
+            year=2023,
         )
         self.resource.record_observation(
-            crop_name="corn", area_hectares=10.0,
-            actual_yield_tonnes=80.0, season="summer", year=2024,
+            crop_name="corn",
+            area_hectares=10.0,
+            actual_yield_tonnes=80.0,
+            season="summer",
+            year=2024,
         )
         assert self.resource.average_yield("corn") == pytest.approx(7.0)
         # Wheat observations do not leak into corn's average.
         self.resource.record_observation(
-            crop_name="wheat", area_hectares=5.0,
-            actual_yield_tonnes=10.0, season="summer", year=2024,
+            crop_name="wheat",
+            area_hectares=5.0,
+            actual_yield_tonnes=10.0,
+            season="summer",
+            year=2024,
         )
         assert self.resource.average_yield("corn") == pytest.approx(7.0)
 

@@ -140,9 +140,7 @@ class TestNumpyFallbackBackend:
     """Documented CAN-do capabilities of the numeric fallback."""
 
     def test_numeric_integration_hand_computed(self, numpy_engine) -> None:
-        result = numpy_engine.integrate(
-            "x**2", numpy_engine.Symbol("x"), 0.0, 1.0
-        )
+        result = numpy_engine.integrate("x**2", numpy_engine.Symbol("x"), 0.0, 1.0)
         assert result == pytest.approx(1.0 / 3.0, abs=1e-6)
 
     def test_linear_system_solved_hand_computed(self, numpy_engine) -> None:
@@ -157,8 +155,12 @@ class TestNumpyFallbackBackend:
         assert derivative == pytest.approx(3.0, rel=1e-4)
 
     def test_symbol_descriptor_identity_and_zero_rules(self, numpy_engine) -> None:
-        assert numpy_engine.diff(numpy_engine.Symbol("x"), numpy_engine.Symbol("x")) == 1.0
-        assert numpy_engine.diff(numpy_engine.Symbol("y"), numpy_engine.Symbol("x")) == 0.0
+        assert (
+            numpy_engine.diff(numpy_engine.Symbol("x"), numpy_engine.Symbol("x")) == 1.0
+        )
+        assert (
+            numpy_engine.diff(numpy_engine.Symbol("y"), numpy_engine.Symbol("x")) == 0.0
+        )
         assert numpy_engine.diff(5, numpy_engine.Symbol("x")) == 0.0
 
     def test_compound_descriptor_yields_unevaluated_derivative(

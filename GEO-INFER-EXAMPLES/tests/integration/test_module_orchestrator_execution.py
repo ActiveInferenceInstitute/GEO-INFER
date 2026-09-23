@@ -61,7 +61,9 @@ class _ScriptedAPIConnector(APIConnector):
         self.calls: list[tuple[str, str, str]] = []
         self._handlers: dict[tuple[str, str], Callable[[dict], dict]] = {}
 
-    def register(self, module: str, endpoint: str, handler: Callable[[dict], dict]) -> None:
+    def register(
+        self, module: str, endpoint: str, handler: Callable[[dict], dict]
+    ) -> None:
         self._handlers[(module, endpoint)] = handler
 
     def get(
@@ -78,8 +80,13 @@ class _ScriptedAPIConnector(APIConnector):
         return self.get(module=module, endpoint=endpoint, timeout=timeout)
 
     async def post_async(
-        self, *, module: str, endpoint: str, data: dict,
-        timeout: int | None = None, **_: Any
+        self,
+        *,
+        module: str,
+        endpoint: str,
+        data: dict,
+        timeout: int | None = None,
+        **_: Any,
     ) -> _FakeResponse:
         self.calls.append(("POST", module, endpoint))
         handler = self._handlers.get((module, endpoint))
@@ -95,9 +102,7 @@ def orchestrator(
     """Orchestrator whose transport is the scripted docstring-sanctioned seam."""
     config_path = tmp_path / "orchestrator_config.yaml"
     config_path.write_text(_CONFIG_YAML, encoding="utf-8")
-    monkeypatch.setattr(
-        module_orchestrator, "APIConnector", _ScriptedAPIConnector
-    )
+    monkeypatch.setattr(module_orchestrator, "APIConnector", _ScriptedAPIConnector)
     orchestrator = module_orchestrator.ModuleOrchestrator(config_path=str(config_path))
     # Both declared modules were health-checked through the injected transport.
     health = orchestrator.get_module_health()
@@ -113,9 +118,7 @@ async def test_sequential_workflow_executes_steps_in_order_and_chains_data(
     connector = orchestrator.api_connector
     assert isinstance(connector, _ScriptedAPIConnector)
     connector.register("DATA", "/ingest", lambda data: {"records": 3})
-    connector.register(
-        "DATA", "/enrich", lambda data: {"enriched": data["raw"] * 10}
-    )
+    connector.register("DATA", "/enrich", lambda data: {"enriched": data["raw"] * 10})
     connector.register(
         "COG",
         "/report",
@@ -218,8 +221,7 @@ async def test_feedback_loop_reaches_convergence_and_exits_converged(
     assert list(result.data) == [f"iteration_{i}" for i in range(4)]
 
     estimates = [
-        result.data[f"iteration_{i}"]["update_belief"]["estimate"]
-        for i in range(4)
+        result.data[f"iteration_{i}"]["update_belief"]["estimate"] for i in range(4)
     ]
     assert estimates[-1] == pytest.approx(10.0625)
     final_change = abs(estimates[-1] - estimates[-2]) / abs(estimates[-2])

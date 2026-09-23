@@ -437,9 +437,7 @@ class TestMultiScaleHierarchicalAnalyzer(unittest.TestCase):
     def test_pattern_diversity_matches_pairwise_bruteforce(self):
         """Vectorized pattern diversity must equal the pairwise-distance mean."""
         rng = np.random.default_rng(5)
-        beliefs = {
-            f"cell_{index}": rng.dirichlet(np.ones(4)) for index in range(30)
-        }
+        beliefs = {f"cell_{index}": rng.dirichlet(np.ones(4)) for index in range(30)}
 
         analysis = analyze_multi_scale_patterns(
             {"res_8": {"cells": list(beliefs.keys())}}, {"res_8": beliefs}
@@ -462,9 +460,8 @@ class TestMultiScaleHierarchicalAnalyzer(unittest.TestCase):
         single = analyze_multi_scale_patterns(
             {"res_8": {"cells": ["c0"]}}, {"res_8": {"c0": beliefs["cell_0"]}}
         )
-        self.assertEqual(
-            single["scale_statistics"]["res_8"]["pattern_diversity"], 0.0
-        )
+        self.assertEqual(single["scale_statistics"]["res_8"]["pattern_diversity"], 0.0)
+
 
 class TestDataStructures(unittest.TestCase):
     """Test suite for data structures."""

@@ -202,13 +202,10 @@ def assert_packaged_config_loads(
             )
             missing_keys = [k for k in item_keys if k not in item]
             assert not missing_keys, (
-                f"section {section!r}[{index}] missing keys {missing_keys}: "
-                f"{packaged}"
+                f"section {section!r}[{index}] missing keys {missing_keys}: {packaged}"
             )
 
     return parsed
-
-
 
 
 def assert_visualization_manifest(

@@ -217,9 +217,7 @@ class PEPDataManager:
 
         return requisitions
 
-    def add_learning_courses(
-        self, courses: List[LearningCourse]
-    ) -> int:
+    def add_learning_courses(self, courses: List[LearningCourse]) -> int:
         """Add learning courses to the data store."""
         self._learning_courses.extend(courses)
         self._last_updated = datetime.now()
@@ -288,9 +286,7 @@ class PEPDataManager:
                 cases = [case for case in cases if getattr(case, key) == value]
         return cases
 
-    def get_surveys(
-        self, filters: Optional[Dict[str, Any]] = None
-    ) -> List[Survey]:
+    def get_surveys(self, filters: Optional[Dict[str, Any]] = None) -> List[Survey]:
         """Get surveys with optional filtering."""
         surveys = self._surveys.copy()
         if filters:

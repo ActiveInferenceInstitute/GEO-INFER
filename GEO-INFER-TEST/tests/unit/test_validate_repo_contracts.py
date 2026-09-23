@@ -166,9 +166,7 @@ def test_module_task_marker_contract_scans_source_and_tests(tmp_path, monkeypatc
     assert "test_module.py" in errors
 
 
-def test_module_task_marker_contract_scans_module_root_scripts(
-    tmp_path, monkeypatch
-):
+def test_module_task_marker_contract_scans_module_root_scripts(tmp_path, monkeypatch):
     """GS19-85: module-root scripts are scanned; ledger references are not.
 
     A real marker in a module-root script must be caught by the scan, while

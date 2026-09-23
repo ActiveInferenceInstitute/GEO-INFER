@@ -194,7 +194,9 @@ def _fake_git_diff(monkeypatch, name_only_output: str, per_file_output: str):
 
     def fake_run(cmd, **kwargs):
         if "-U0" in cmd:
-            return subprocess.CompletedProcess(cmd, 0, stdout=per_file_output, stderr="")
+            return subprocess.CompletedProcess(
+                cmd, 0, stdout=per_file_output, stderr=""
+            )
         return subprocess.CompletedProcess(cmd, 0, stdout=name_only_output, stderr="")
 
     monkeypatch.setattr(subprocess, "run", fake_run)

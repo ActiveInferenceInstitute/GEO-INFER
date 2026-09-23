@@ -77,24 +77,49 @@ def make_metric_router(name: str = "metrics") -> MessageRouter:
     for node in ("S", "X", "Y", "T"):
         router.add_node(node)
     router.add_edge(
-        "S", "T", distance=5.0, latency=10.0, cost=1.0,
-        reliability=1.0, bandwidth=100.0,
+        "S",
+        "T",
+        distance=5.0,
+        latency=10.0,
+        cost=1.0,
+        reliability=1.0,
+        bandwidth=100.0,
     )
     router.add_edge(
-        "S", "X", distance=2.0, latency=2.0, cost=6.0,
-        reliability=0.8, bandwidth=50.0,
+        "S",
+        "X",
+        distance=2.0,
+        latency=2.0,
+        cost=6.0,
+        reliability=0.8,
+        bandwidth=50.0,
     )
     router.add_edge(
-        "X", "T", distance=2.0, latency=2.0, cost=6.0,
-        reliability=0.8, bandwidth=50.0,
+        "X",
+        "T",
+        distance=2.0,
+        latency=2.0,
+        cost=6.0,
+        reliability=0.8,
+        bandwidth=50.0,
     )
     router.add_edge(
-        "S", "Y", distance=4.0, latency=1.0, cost=2.0,
-        reliability=0.5, bandwidth=10.0,
+        "S",
+        "Y",
+        distance=4.0,
+        latency=1.0,
+        cost=2.0,
+        reliability=0.5,
+        bandwidth=10.0,
     )
     router.add_edge(
-        "Y", "T", distance=4.0, latency=1.0, cost=2.0,
-        reliability=0.5, bandwidth=10.0,
+        "Y",
+        "T",
+        distance=4.0,
+        latency=1.0,
+        cost=2.0,
+        reliability=0.5,
+        bandwidth=10.0,
     )
     return router
 
@@ -205,8 +230,14 @@ class TestStrategySelection:
 
     def test_delegated_strategy_failure_returns_none(self) -> None:
         router = add_triangle(make_router())
-        assert router.find_route("A", "GHOST", strategy=RoutingStrategy.HIERARCHICAL) is None
-        assert router.find_route("A", "GHOST", strategy=RoutingStrategy.LOAD_BALANCED) is None
+        assert (
+            router.find_route("A", "GHOST", strategy=RoutingStrategy.HIERARCHICAL)
+            is None
+        )
+        assert (
+            router.find_route("A", "GHOST", strategy=RoutingStrategy.LOAD_BALANCED)
+            is None
+        )
 
     def test_least_congested_reroutes_after_load(self) -> None:
         """Load updates do not invalidate the cache; clear_cache() must."""
@@ -303,12 +334,22 @@ class TestMetricOrdering:
             destination="T",
             segments=[
                 RouteSegment(
-                    from_node="S", to_node="X", distance=3.0, latency=1.5,
-                    bandwidth=10.0, reliability=0.5, cost=2.0,
+                    from_node="S",
+                    to_node="X",
+                    distance=3.0,
+                    latency=1.5,
+                    bandwidth=10.0,
+                    reliability=0.5,
+                    cost=2.0,
                 ),
                 RouteSegment(
-                    from_node="X", to_node="T", distance=4.0, latency=0.5,
-                    bandwidth=100.0, reliability=0.9, cost=3.0,
+                    from_node="X",
+                    to_node="T",
+                    distance=4.0,
+                    latency=0.5,
+                    bandwidth=100.0,
+                    reliability=0.9,
+                    cost=3.0,
                 ),
             ],
         )
@@ -415,7 +456,9 @@ class TestCacheAndStats:
         assert isinstance(stats["updated_at"], str)
 
         router.update_node_load("A", 4.0)
-        assert router.get_routing_statistics()["average_node_load"] == pytest.approx(4.0)
+        assert router.get_routing_statistics()["average_node_load"] == pytest.approx(
+            4.0
+        )
 
 
 class TestProtocols:
@@ -527,19 +570,16 @@ class TestProtocols:
         assert protocol.subscribe("sub-1", "alerts") is True
         assert protocol.subscribe("sub-2", "alerts") is True
 
-        result = protocol.send_message(
-            "publisher", "unused", "hot", topic="alerts"
-        )
+        result = protocol.send_message("publisher", "unused", "hot", topic="alerts")
         assert result == "published_to_2_subscribers"
-        assert {call["recipient_id"] for call in broker.sent} == {
-            "sub-1", "sub-2"
-        }
+        assert {call["recipient_id"] for call in broker.sent} == {"sub-1", "sub-2"}
         assert protocol.statistics["messages_sent"] == 2
 
         assert protocol.unsubscribe("sub-1", "alerts") is True
-        assert protocol.send_message(
-            "publisher", "unused", "hot", topic="alerts"
-        ) == "published_to_1_subscribers"
+        assert (
+            protocol.send_message("publisher", "unused", "hot", topic="alerts")
+            == "published_to_1_subscribers"
+        )
 
     def test_protocol_type_members(self) -> None:
         assert {member.name: member.value for member in ProtocolType} == {

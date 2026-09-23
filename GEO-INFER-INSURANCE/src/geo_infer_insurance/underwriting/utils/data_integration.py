@@ -194,9 +194,7 @@ class DataIntegrationManager:
         distinguish "no record" from "integration never worked". Unconfigured
         sources are refused before any network attempt instead.
         """
-        configured = any(
-            str(value).strip() for value in source.authentication.values()
-        )
+        configured = any(str(value).strip() for value in source.authentication.values())
         if not configured:
             raise ValueError(
                 f"Data source {source.name!r} has no configured credentials; "
@@ -521,9 +519,7 @@ class DataIntegrationManager:
                 test_data = self.get_data(name, {"test": True})
                 source_status[name] = "operational" if test_data else "error"
             except (KeyError, ValueError, OSError) as e:
-                logger.warning(
-                    "Health check failed for data source %s: %s", name, e
-                )
+                logger.warning("Health check failed for data source %s: %s", name, e)
                 source_status[name] = "error"
 
         health_status["source_status"] = source_status

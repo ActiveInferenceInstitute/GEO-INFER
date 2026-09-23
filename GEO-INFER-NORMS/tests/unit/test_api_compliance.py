@@ -112,7 +112,6 @@ def test_evaluate_compliance_missing_field(client):
     )
 
 
-
 def test_evaluate_compliance_evaluation_error_maps_to_5xx(client):
     """An evaluation error must surface as 5xx, not fold into ValueError -> 400."""
     client.post("/metrics", json=_metric_payload(evaluation_type="telepathy"))

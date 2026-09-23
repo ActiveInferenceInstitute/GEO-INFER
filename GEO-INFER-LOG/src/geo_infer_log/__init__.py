@@ -415,10 +415,7 @@ class EnhancedLogger:
         # Queue for async processing or process immediately. After stop()
         # the worker is gone: write synchronously so late entries are not
         # silently lost in the queue.
-        if (
-            self.config.get("async_logging", True)
-            and not self._log_processor_stopped
-        ):
+        if self.config.get("async_logging", True) and not self._log_processor_stopped:
             try:
                 self.log_queue.put_nowait(entry)
             except queue.Full:

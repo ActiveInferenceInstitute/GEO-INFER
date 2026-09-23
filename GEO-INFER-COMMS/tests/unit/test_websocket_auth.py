@@ -50,7 +50,9 @@ def test_pyjwt_is_importable_in_declared_environments():
 
 def test_rejects_when_secret_configured_but_pyjwt_absent(monkeypatch):
     """Secret configured + PyJWT missing must reject, not authenticate."""
-    monkeypatch.setenv("COMMS_JWT_SECRET", "unit-test-secret-0123456789abcdef-0123456789abcdef")
+    monkeypatch.setenv(
+        "COMMS_JWT_SECRET", "unit-test-secret-0123456789abcdef-0123456789abcdef"
+    )
     monkeypatch.setitem(sys.modules, "jwt", None)
 
     conn = _connection()
@@ -91,7 +93,9 @@ def test_accepts_valid_jwt_when_secret_configured(monkeypatch):
 
 def test_rejects_tampered_jwt_when_secret_configured(monkeypatch):
     """A token signed with the wrong secret is rejected."""
-    monkeypatch.setenv("COMMS_JWT_SECRET", "unit-test-secret-0123456789abcdef-0123456789abcdef")
+    monkeypatch.setenv(
+        "COMMS_JWT_SECRET", "unit-test-secret-0123456789abcdef-0123456789abcdef"
+    )
     token = jwt.encode(
         {"sub": "mallory"},
         "other-secret-0123456789abcdef-0123456789abcdef",

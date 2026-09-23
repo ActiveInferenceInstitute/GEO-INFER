@@ -73,6 +73,7 @@ def _load_gpickle(path: str) -> nx.Graph:
 
 class RouteOptimizer:
     """Base class for route optimization."""
+
     def __init__(self, parameters: Optional[RoutingParameters] = None):
         """Initialize a route optimizer.
 

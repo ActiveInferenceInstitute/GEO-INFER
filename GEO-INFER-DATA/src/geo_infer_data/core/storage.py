@@ -845,9 +845,7 @@ class AdaptiveDataStorage:
     @staticmethod
     def _is_loopback_host(host: str) -> bool:
         """True when host is a loopback alias or address/host:port literal."""
-        normalized = (
-            host.rsplit(":", 1)[0] if host.count(":") == 1 else host
-        )
+        normalized = host.rsplit(":", 1)[0] if host.count(":") == 1 else host
         if normalized in ("localhost", "127.0.0.1", "::1"):
             return True
         return normalized.endswith(".localhost")

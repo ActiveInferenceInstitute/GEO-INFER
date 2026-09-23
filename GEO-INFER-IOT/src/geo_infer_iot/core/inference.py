@@ -183,9 +183,7 @@ class BayesianSpatialInference:
         confidence_bounds = {}
         for ci in confidence_intervals:
             if not 0.0 < ci < 1.0:
-                raise ValueError(
-                    f"Confidence interval must be in (0, 1), got {ci!r}"
-                )
+                raise ValueError(f"Confidence interval must be in (0, 1), got {ci!r}")
             z_score = float(norm.ppf(0.5 + ci / 2.0))
             confidence_bounds[ci] = {
                 "lower": (

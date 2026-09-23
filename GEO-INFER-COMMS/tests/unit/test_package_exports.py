@@ -69,4 +69,3 @@ def test_first_call_race_yields_single_instance(monkeypatch):
 
     assert len(results) == 4
     assert len({id(instance) for instance in results}) == 1
-

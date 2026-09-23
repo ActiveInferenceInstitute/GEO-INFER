@@ -440,7 +440,10 @@ class EnvironmentalActiveInferenceEngine:
                     else:
                         factors["spatial_correlation"] = 0.0
                 except (
-                    ValueError, TypeError, FloatingPointError, RuntimeWarning
+                    ValueError,
+                    TypeError,
+                    FloatingPointError,
+                    RuntimeWarning,
                 ) as exc:
                     logger.debug(
                         "spatial_correlation fell back to 0.0: %s", exc, exc_info=True
@@ -468,9 +471,7 @@ class EnvironmentalActiveInferenceEngine:
                     )
                 else:
                     factors["temporal_autocorrelation"] = 0.0
-            except (
-                ValueError, TypeError, FloatingPointError, RuntimeWarning
-            ) as exc:
+            except (ValueError, TypeError, FloatingPointError, RuntimeWarning) as exc:
                 logger.debug(
                     "temporal_autocorrelation fell back to 0.0: %s",
                     exc,
@@ -857,7 +858,10 @@ class EnvironmentalActiveInferenceEngine:
                             )
 
                         except (
-                            ValueError, TypeError, FloatingPointError, RuntimeWarning
+                            ValueError,
+                            TypeError,
+                            FloatingPointError,
+                            RuntimeWarning,
                         ) as exc:
                             logger.debug(
                                 "GP free-energy prediction failed; using prior-based "

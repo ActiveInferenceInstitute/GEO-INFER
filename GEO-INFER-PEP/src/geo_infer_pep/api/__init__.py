@@ -204,8 +204,7 @@ async def create_conflict_case(case_data: Dict[str, Any]) -> Dict[str, Any]:
     except ValidationError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     if any(
-        existing.case_id == case.case_id
-        for existing in pep_data_manager.conflict_cases
+        existing.case_id == case.case_id for existing in pep_data_manager.conflict_cases
     ):
         raise HTTPException(
             status_code=409,
@@ -269,8 +268,7 @@ async def create_survey(survey_data: Dict[str, Any]) -> Dict[str, Any]:
     except ValidationError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     if any(
-        existing.survey_id == survey.survey_id
-        for existing in pep_data_manager.surveys
+        existing.survey_id == survey.survey_id for existing in pep_data_manager.surveys
     ):
         raise HTTPException(
             status_code=409,

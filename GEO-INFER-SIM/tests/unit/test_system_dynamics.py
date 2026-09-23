@@ -14,8 +14,9 @@ def _two_stock_model(min_source=None, max_target=None) -> SystemDynamicsModel:
     model = SystemDynamicsModel()
     model.add_stock("reservoir", 100.0, min_value=min_source)
     model.add_stock("pond", 0.0, max_value=max_target)
-    model.add_flow("drain", source_stock="reservoir", target_stock="pond",
-                   constant_rate=2.0)
+    model.add_flow(
+        "drain", source_stock="reservoir", target_stock="pond", constant_rate=2.0
+    )
     return model
 
 
@@ -79,8 +80,12 @@ class TestIntegration:
 
     def test_min_bound_clamps_source_at_zero(self) -> None:
         model = _two_stock_model(min_source=0.0)
-        model.add_flow("big_drain", source_stock="reservoir", target_stock="pond",
-                       constant_rate=150.0)
+        model.add_flow(
+            "big_drain",
+            source_stock="reservoir",
+            target_stock="pond",
+            constant_rate=150.0,
+        )
         model.step(time_step=1.0)  # drain 2 + big_drain 150 = 152 outflow
 
         assert model.stocks["reservoir"].current_value == pytest.approx(0.0)

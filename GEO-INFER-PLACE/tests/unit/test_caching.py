@@ -48,9 +48,7 @@ class TestCacheLifecycle:
             def now(cls):
                 return frozen_now
 
-        monkeypatch.setattr(
-            "geo_infer_place.utils.caching.datetime", _FrozenDatetime
-        )
+        monkeypatch.setattr("geo_infer_place.utils.caching.datetime", _FrozenDatetime)
 
         result = wrapper._read_cache(key)
         assert result is None

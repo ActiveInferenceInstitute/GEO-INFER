@@ -4,7 +4,6 @@ Regression contract: ``load_cognitive_model`` accepts str and Path inputs,
 parses JSON and YAML by suffix, and reports failures as an empty dict.
 """
 
-
 import pytest
 
 from geo_infer_cog.utils.helpers import load_cognitive_model, save_cognitive_model

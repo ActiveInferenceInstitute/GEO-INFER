@@ -661,9 +661,7 @@ class TestQualityControllerParametric:
             (_QC_SENSOR_DATA, _QC_INFERENCE, _QC_PERF),
         ],
     )
-    def test_run_full_system_test_delegate_parity(
-        self, sensor_data, inference, perf
-    ):
+    def test_run_full_system_test_delegate_parity(self, sensor_data, inference, perf):
         """run_full_system_test must delegate exactly to QualityController."""
         direct = QualityController().run_comprehensive_validation(
             sensor_data=sensor_data,
@@ -676,6 +674,4 @@ class TestQualityControllerParametric:
             inference_results=inference,
             performance_metrics=perf,
         )
-        assert _parity_equal(
-            _strip_timing(via_export), _strip_timing(direct)
-        )
+        assert _parity_equal(_strip_timing(via_export), _strip_timing(direct))

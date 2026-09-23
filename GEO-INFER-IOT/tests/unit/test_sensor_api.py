@@ -40,7 +40,14 @@ MEASUREMENT_DATA: Dict[str, Any] = {
 class StubSensorRecord:
     """Minimal stand-in for registry.SensorMetadata."""
 
-    def __init__(self, sensor_id: str, network_id: str, sensor_type: str, latitude: float, longitude: float) -> None:
+    def __init__(
+        self,
+        sensor_id: str,
+        network_id: str,
+        sensor_type: str,
+        latitude: float,
+        longitude: float,
+    ) -> None:
         self.sensor_id = sensor_id
         self.network_id = network_id
         self.sensor_type = sensor_type
