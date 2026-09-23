@@ -94,7 +94,7 @@ scope pass, CODE-01 index refresh, GNN pair-pin procedure).
 Shipped as the SCOPE-2026-09-11 campaign ([spec](SCOPE-2026-09-11.md),
 shipped at `f1b5b376`): a 14-lane scoping swarm over all 45 modules produced
 189 bounded items (48 Medium / 141 Minor / 0 Major), executed in six
-reviewed waves ([PR #28](https://github.com/ActiveInferenceInstitute/GEO-INFER/pull/28)
+reviewed waves ([PR #28](https://github.com/ActiveInferenceInstitute/GEO_INFER/pull/28)
 and the wave commits it merges) with per-fix regression tests and CI green
 at every wave boundary.
 

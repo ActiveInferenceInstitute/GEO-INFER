@@ -103,7 +103,7 @@ entity-safe XML parsing and make the CI matrix select the declared interpreter;
 of medium/high findings.
 
 Published GEO implementation: `b0c07568372191ffc71efd924e4f6c4525c9a4f2`,
-[PR 8](https://github.com/ActiveInferenceInstitute/GEO-INFER/pull/8). Both topic
+[PR 8](https://github.com/ActiveInferenceInstitute/GEO_INFER/pull/8). Both topic
 refs matched their remote SHAs. GNN hosted documentation, dependency, MCP,
 security and CodeQL checks passed after the CI corrections; its test jobs and
 GEO hosted jobs were still running when this publication receipt was written.
