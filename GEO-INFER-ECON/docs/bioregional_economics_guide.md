@@ -11,13 +11,11 @@ Bioregional economics focuses on economic analysis that respects ecological boun
 A bioregion is an area defined by natural boundaries (watersheds, ecosystems) rather than political ones.
 
 ```python
-from geo_infer_econ import BioregionalAnalyzer
+from geo_infer_econ import EcologicalEconomicsEngine
 
-# Define bioregion
-bioregion = BioregionalAnalyzer(
-    boundary=watershed_boundary,
-    include=["agriculture", "forestry", "fisheries"]
-)
+# The engine runs equilibrium, emergy, footprint, and carrying-capacity
+# analyses over a bioregion's data
+bioregion = EcologicalEconomicsEngine()
 ```
 
 ### Local Multipliers
@@ -25,13 +23,12 @@ bioregion = BioregionalAnalyzer(
 Economic activity within a bioregion has multiplier effects:
 
 ```python
-# Calculate local multiplier effect
-multiplier = bioregion.calculate_multiplier(
-    sector="local_food",
-    method="input_output"
+# Emergy analysis quantifies how much total ecological work backs each
+# sector's flows (the engine's multiplier-style lens)
+flows = bioregion.run_analysis(
+    analysis_type="emergy",
+    data={"sectors": ["local_food"], "region": "watershed_boundary"},
 )
-
-print(f"Local food dollar circulates {multiplier}x in region")
 ```
 
 ## Analysis Types
@@ -39,10 +36,10 @@ print(f"Local food dollar circulates {multiplier}x in region")
 ### Resource Flow Analysis
 
 ```python
-# Track resource flows
-flows = bioregion.analyze_flows(
-    resources=["water", "energy", "materials"],
-    direction="both"  # imports and exports
+# Equilibrium analysis tracks biophysical resource flows
+flows = bioregion.run_analysis(
+    analysis_type="equilibrium",
+    data={"resources": ["water", "energy", "materials"]},
 )
 ```
 
@@ -50,9 +47,9 @@ flows = bioregion.analyze_flows(
 
 ```python
 # Assess ecological carrying capacity
-capacity = bioregion.carrying_capacity(
-    population=current_pop,
-    consumption=consumption_patterns
+capacity = bioregion.run_analysis(
+    analysis_type="carrying_capacity",
+    data={"population": current_pop, "consumption": consumption_patterns},
 )
 ```
 

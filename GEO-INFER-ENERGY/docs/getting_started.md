@@ -21,7 +21,7 @@ Verify the installation:
 ```python
 import geo_infer_energy
 print(geo_infer_energy.__version__)
-# 0.1.0
+# 0.3.0
 ```
 
 ## Core Concepts

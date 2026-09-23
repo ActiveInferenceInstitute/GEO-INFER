@@ -4,6 +4,13 @@
 > metrics, API sketches, and integration claims as historical; verify against
 > the current module sources, `GEO-INFER-TEST/` validators, and the INTRA
 > documentation hub before relying on them.
+>
+> **Illustrative example notice.** This page contains historical or
+> conceptual integration sketches. Names such as `DataManager`,
+> `SpatialProcessor`, `MLPredictor`, and `APIManager` are not public
+> GEO-INFER exports in the current checkout; verify imports against each
+> module's `src/` package and use the module README/tests for executable
+> examples.
 
 [![Integration Status](https://img.shields.io/badge/integration-comprehensive-brightgreen.svg)]() [![Module Coverage](https://img.shields.io/badge/modules-28%2F28-blue.svg)]() [![Examples](https://img.shields.io/badge/examples-45+-success.svg)]()
 

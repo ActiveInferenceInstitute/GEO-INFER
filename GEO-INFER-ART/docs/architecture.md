@@ -43,12 +43,11 @@ graph TB
 Handles the low-level rendering of geospatial features:
 
 ```python
-from geo_infer_art.engine import RenderEngine
+from geo_infer_art import GeoArt
 
-engine = RenderEngine(
-    backend="cairo",  # or "skia", "svg"
-    dpi=300
-)
+geo_art = GeoArt.load_geojson("boundaries.geojson")
+geo_art.apply_style(style="blueprint", title="Study area")
+geo_art.save("map.png", dpi=300)
 ```
 
 ### 2. Style Engine
@@ -56,10 +55,9 @@ engine = RenderEngine(
 Applies cartographic styles:
 
 ```python
-from geo_infer_art.styles import StyleEngine
+from geo_infer_art import MapStyle
 
-styles = StyleEngine()
-styles.load("watercolor.yaml")
+style = MapStyle(name="blueprint", theme="technical")
 ```
 
 ### 3. Generative Art Engine
@@ -67,11 +65,13 @@ styles.load("watercolor.yaml")
 Creates algorithmic visualizations:
 
 ```python
-from geo_infer_art.generative import GenerativeEngine
+from geo_infer_art import GenerativeMap
 
-gen = GenerativeEngine(
-    algorithm="flow_field",
-    seed=42
+gen = GenerativeMap.from_elevation(
+    region="alps",
+    resolution=512,
+    abstraction_level=0.6,
+    style="contour",
 )
 ```
 

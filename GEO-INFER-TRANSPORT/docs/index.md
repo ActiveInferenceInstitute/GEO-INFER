@@ -93,8 +93,8 @@ GEO-INFER-TRANSPORT/
 
 ## Dependencies
 
-Core dependency: `networkx` for graph algorithms. No heavy GIS dependencies required for basic operation. Optional dependencies include `geopandas` for spatial network data, `folium` for map visualization, and `osmnx` for OpenStreetMap network import.
+Core dependency: `networkx` for graph algorithms. No heavy GIS dependencies required for basic operation. Optional dependencies include `geopandas` for spatial network data (test extra) and the `geo-infer-log` workspace package (log extra).
 
 ## Version
 
-Current version: `0.2.0`
+Current version: `0.3.0`

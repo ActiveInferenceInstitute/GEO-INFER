@@ -1,3 +1,11 @@
+# DESIGN SPECIFICATION — NOT IMPLEMENTED
+#
+# This OpenAPI document is a forward-looking design for a REST layer over
+# GEO-INFER-RISK. No HTTP transport ships in GEO-INFER-RISK today: there is no
+# api/ package under src/geo_infer_risk/ and no Flask/FastAPI dependency, so
+# the server URLs and auth schemes below are design targets only — no
+# production or staging deployment exists. Treat this file as a design spec,
+# not a description of running code.
 openapi: 3.0.3
 info:
   title: GEO-INFER-RISK API
@@ -30,6 +38,8 @@ info:
     url: https://creativecommons.org/licenses/by-nc-sa/4.0/
   termsOfService: https://geo-infer.org/terms
 
+# NOTE (design spec): the server URLs and security schemes below are design
+# targets only — no production or staging deployment of this HTTP layer exists.
 servers:
   - url: https://api.geo-infer.org/risk/v2
     description: Production server
@@ -38,6 +48,8 @@ servers:
   - url: http://localhost:8000/risk/v2
     description: Development server
 
+# NOTE (design spec): the server URLs and security schemes below are design
+# targets only — no production or staging deployment of this HTTP layer exists.
 security:
   - ApiKeyAuth: []
   - BearerAuth: []

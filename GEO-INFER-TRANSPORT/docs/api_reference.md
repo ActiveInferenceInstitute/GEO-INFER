@@ -99,11 +99,11 @@ RoutingEngine(
 | `modes` | `Optional[List[str]]` | `["car"]` | Transport modes |
 | `real_time_traffic` | `bool` | `False` | Enable traffic-adjusted routing |
 
-Optionally integrates with GEO-INFER-LOG `EmissionsCalculator` for emissions-aware routing.
+There is no emissions-aware routing in this module; emissions calculation lives in GEO-INFER-LOG, and the optional `log` extra only enables the critical-links integration in `TransportNetwork.analyze_connectivity(method="critical_links")`.
 
 ### Methods
 
-#### `route(origin: Dict, destination: Dict, mode: str = "car", optimization: str = "time", avoid: Optional[List[str]] = None, via: Optional[List[Dict]] = None) -> Route`
+#### `route(origin: Dict, destination: Dict, optimization: str = "time") -> Route`
 
 Calculate a route between two points.
 
@@ -111,12 +111,11 @@ Calculate a route between two points.
 |-----------|------|---------|-------------|
 | `origin` | `Dict` | -- | Origin point: `{node_id: str}` or `{lat, lon}` |
 | `destination` | `Dict` | -- | Destination point |
-| `mode` | `str` | `"car"` | Transport mode |
 | `optimization` | `str` | `"time"` | `"time"` or `"distance"` |
-| `avoid` | `Optional[List[str]]` | `None` | Features to avoid |
-| `via` | `Optional[List[Dict]]` | `None` | Intermediate waypoints |
 
-**Returns**: `Route` object with path, distance, time, and instructions.
+`route()` takes only the three parameters above; there are no mode-selection, exclusion-list, or intermediate-waypoint parameters, and routing follows the edge set of the underlying graph.
+
+**Returns**: `Route` object with path, distance, time, and instructions. `route.route_source` records how the route was produced: `"network"` when computed on the graph, `"estimated_fallback"` when no network is available (haversine estimate). When no path exists on the network, or the origin/destination node is not present in the graph, the returned Route has an empty `path` and zero distance/time — check `route_source` before treating metrics as exact.
 
 #### `optimize_route(waypoints: List[Dict], constraints: Dict, objective: str = "minimize_time") -> Dict[str, Any]`
 
@@ -183,7 +182,7 @@ TrafficAnalyzer(
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `data_sources` | `Optional[List[str]]` | `["sensor", "probe"]` | Traffic data sources |
-| `model_type` | `str` | `"bpr"` | Congestion model: `"bpr"`, `"akcelik"`, `"hcm"` |
+| `model_type` | `str` | `"bpr"` | Congestion model: only `"bpr"` (the BPR delay function) is implemented and accepted — any other value raises `ValueError` |
 | `time_resolution` | `str` | `"15min"` | Temporal resolution |
 
 ### Level of Service Thresholds
@@ -207,7 +206,7 @@ Analyze traffic flow on a road segment.
 
 #### `model_congestion(network_flows: Dict[str, float], capacity_data: Dict[str, float], algorithm: str = "bpr") -> Dict[str, Any]`
 
-Model congestion across the network using the BPR function.
+Model congestion across the network. `algorithm="bpr"` applies the standard BPR delay function; any other value applies a linear volume/capacity delay factor.
 
 **Returns**: Dictionary with per-segment congestion and summary statistics.
 

@@ -10,14 +10,14 @@ Sync the module from the root uv workspace:
 uv sync --package geo-infer-transport
 ```
 
-Core dependency is `networkx`. Optional dependencies for visualization (`folium`, `geopandas`) are declared as package extras in the root `pyproject.toml`; consult the package metadata for the extras group that installs them.
+Core dependency is `networkx`. Optional dependencies: the `test` extra adds `numpy`, `pandas`, `shapely`, and `geopandas`, and the `log` extra enables the GEO-INFER-LOG critical-links integration. (`folium` is not declared by this package.)
 
 Verify the installation:
 
 ```python
 import geo_infer_transport
 print(geo_infer_transport.__version__)
-# 0.2.0
+# 0.3.0
 ```
 
 ## Core Concepts
@@ -117,7 +117,6 @@ router = RoutingEngine(network=network, algorithm="dijkstra")
 route = router.route(
     origin={"node_id": "A"},
     destination={"node_id": "D"},
-    mode="car",
     optimization="time",
 )
 

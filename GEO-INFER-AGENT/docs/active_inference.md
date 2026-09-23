@@ -99,39 +99,48 @@ agent.learner.update(
 
 ## Geospatial Agent Types
 
-### Survey Agent
+The package ships concrete agent architectures under `geo_infer_agent.models`.
+Create them directly or through the registry:
+
+### Rule-Based Survey Agent
 
 ```python
-from geo_infer_agent import SurveyAgent
+from geo_infer_agent import RuleBasedAgent
 
-agent = SurveyAgent(
-    region=study_area,
-    sensors=["camera", "lidar"],
-    goal="complete_coverage"
+agent = RuleBasedAgent(
+    agent_id="survey-01",
+    config={"name": "survey_agent", "description": "Cover the study area"},
 )
 ```
 
-### Monitoring Agent
+### Monitoring with Reinforcement Learning
 
 ```python
-from geo_infer_agent import MonitoringAgent
+from geo_infer_agent import RLAgent
 
-agent = MonitoringAgent(
-    target="air_quality",
-    threshold=50,  # alert level
-    update_rate=60  # seconds
+agent = RLAgent(
+    agent_id="monitor-01",
+    config={"name": "air_quality_monitor"},
 )
 ```
 
-### Coordination Agent
+### Coordinating through the Registry
 
 ```python
-from geo_infer_agent import CoordinationAgent
+from geo_infer_agent import AgentRegistry
 
-coordinator = CoordinationAgent(
-    subordinates=[agent1, agent2],
-    objective="maximize_coverage"
+registry = AgentRegistry()
+survey_id = await registry.create_agent(
+    agent_type="rule_based",
+    config={"name": "survey_agent"},
+    region=study_area_geojson,
 )
+monitor_id = await registry.create_agent(
+    agent_type="reinforcement_learning",
+    config={"name": "air_quality_monitor"},
+)
+await registry.start_agent(survey_id)
+await registry.start_agent(monitor_id)
 ```
 
 ## Multi-Agent Systems
@@ -141,13 +150,23 @@ coordinator = CoordinationAgent(
 Multiple agents share beliefs and coordinate:
 
 ```python
-swarm = AgentSwarm(agents=[a1, a2, a3])
+from geo_infer_agent import AgentRegistry, MessagingService, Message
 
-# Agents share observations
-swarm.share_beliefs()
+registry = AgentRegistry()
+messaging = MessagingService()
 
-# Coordinate actions to avoid overlap
-swarm.coordinate_actions()
+coordinator_id = await registry.create_agent(
+    agent_type="active_inference",
+    config={"name": "coverage_coordinator"},
+)
+
+message = Message(
+    from_agent_id=coordinator_id,
+    to_agent_id="survey-01",
+    content={"instruction": "expand_coverage"},
+    message_type="request",
+)
+delivered = await messaging.send_message(message)
 ```
 
 ## Integration with GEO-INFER

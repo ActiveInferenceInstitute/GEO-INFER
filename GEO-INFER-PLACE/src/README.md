@@ -20,18 +20,20 @@ Src workspace within `GEO-INFER-PLACE`.
 
 ## Dependencies
 
+- `urllib3>=2.0.6`
 - `geopandas>=0.10.0`
-- `shapely>=1.8.0`
+- `networkx>=2.6.0`
+- `shapely>=2.0.0`
 - `h3>=4.5.0,<5`
 - `numpy>=1.20.0`
 - `pandas>=1.3.0`
 - `pyyaml>=6.0`
-- `geo-infer-space`
 - `folium>=0.14.0`
 - `plotly>=5.0.0`
 - `matplotlib>=3.5.0`
 - `branca>=0.6.0`
 - `requests>=2.28.0`
+- `geo-infer-space`
 
 
 ## Validation

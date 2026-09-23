@@ -71,30 +71,32 @@ GEO-INFER-EMERGENCY operates across three functional areas:
 ```
 geo_infer_emergency/
   core/
-    evacuation.py      -- EvacuationPlanner, zones, routes, shelters
-    coordinator.py     -- EmergencyCoordinator, ICS, multi-agency
-    resources.py       -- ResourceDeployer, allocation, redeployment
-  models/
-    emergency_models.py -- Data models for incidents and resources
-  api/
-    endpoints.py       -- REST API for emergency operations
-  utils/
-    hazard_mapping.py  -- Hazard zone geometry utilities
+    evacuation.py    -- EvacuationPlanner, zones, routes, shelters
+    coordinator.py   -- EmergencyCoordinator, ICS, multi-agency
+    resources.py     -- ResourceDeployer, allocation, redeployment
+    awareness.py     -- SituationalAwareness, threat levels, sensory inputs
+    sar.py           -- Search and rescue patterns, subjects, teams
+    geo.py           -- Spatial helpers (haversine distance, geometry utilities)
 ```
 
 ## Quick Start
 
 ```python
-from geo_infer_emergency.core.evacuation import (
-    EvacuationPlanner,
-    EvacuationLevel,
+import networkx as nx
+
+from geo_infer_emergency.core.evacuation import EvacuationPlanner
+
+road_network = nx.Graph()
+road_network.add_edge(
+    "zone_1", "shelter_a", travel_time=25.0, distance=18.0, capacity=1200
 )
 
 planner = EvacuationPlanner(
+    road_network=road_network,
     shelters=[
         {"id": "shelter_a", "name": "Community Center", "capacity": 500,
          "location": {"lat": 47.62, "lon": -122.34}},
-    ]
+    ],
 )
 
 plan = planner.plan(

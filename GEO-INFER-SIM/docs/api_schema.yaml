@@ -1,3 +1,11 @@
+# DESIGN SPECIFICATION — NOT IMPLEMENTED
+#
+# This OpenAPI document is a forward-looking design for a REST layer over
+# GEO-INFER-SIM. No HTTP transport ships in GEO-INFER-SIM today: there is no
+# api/ package under src/geo_infer_sim/ and no Flask/FastAPI dependency, so
+# the server URLs and auth schemes below are design targets only — no
+# production or staging deployment exists. Treat this file as a design spec,
+# not a description of running code.
 openapi: 3.0.3
 info:
   title: GEO-INFER-SIM API
@@ -33,6 +41,8 @@ info:
     name: CC BY-NC-SA 4.0
     url: https://creativecommons.org/licenses/by-nc-sa/4.0/
 
+# NOTE (design spec): the server URLs and security schemes below are design
+# targets only — no production or staging deployment of this HTTP layer exists.
 servers:
   - url: https://api.geo-infer.org/sim/v1
     description: Production server
@@ -41,6 +51,8 @@ servers:
   - url: http://localhost:8000/api/sim/v1
     description: Development server
 
+# NOTE (design spec): the server URLs and security schemes below are design
+# targets only — no production or staging deployment of this HTTP layer exists.
 security:
   - ApiKeyAuth: []
   - BearerAuth: []

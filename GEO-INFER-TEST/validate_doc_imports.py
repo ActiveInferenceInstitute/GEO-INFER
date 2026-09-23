@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Validate that ``from geo_infer_*`` imports in the documentation hub resolve.
+"""Validate that ``from geo_infer_*`` imports in the documentation hub and
+every module's ``docs/`` tree resolve.
 
 Historical hub pages shipped code snippets importing symbols no module defines
 (phantom top-level facades such as ``SpatialAnalyzer``/``DataManager``) or
@@ -26,7 +27,8 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-DOC_ROOT = "GEO-INFER-INTRA/docs"
+DOC_GLOB = "GEO-INFER-*/docs"
+
 
 # Pages deliberately holding legacy narrative snippets. These carry the
 # illustrative-example descope banner; keep this list in sync with it.
@@ -41,6 +43,10 @@ IMPORT_RE = re.compile(
     r"(?P<names>.+?)(?=from\s+geo_infer_|$)"
 )
 ALL_RE = re.compile(r"__all__\s*(?::\s*list\[[^\]]*\]\s*)?=\s*(\[[^\]]*\])", re.DOTALL)
+# Conditional exports: packages extend ``__all__`` for optional modules
+# (e.g. ``if "information_theory" in _available_core: __all__.extend([...])``).
+# Those names are genuine package-root exports when available, so collect them.
+ALL_EXTEND_RE = re.compile(r"__all__\.extend\(\s*(\[[^\]]*\])\s*\)", re.DOTALL)
 
 
 def package_dirs(repo_root: Path) -> dict[str, Path]:
@@ -73,8 +79,9 @@ def module_file(package_dir: Path, dotted: str) -> Path | None:
 
 def _all_names(module_text: str) -> set[str]:
     names: set[str] = set()
-    match = ALL_RE.search(module_text)
-    if match:
+    for match in ALL_RE.finditer(module_text):
+        names |= set(re.findall(r"[\w.]+", match.group(1)))
+    for match in ALL_EXTEND_RE.finditer(module_text):
         names |= set(re.findall(r"[\w.]+", match.group(1)))
     for line in module_text.splitlines():
         stripped = line.strip()
@@ -171,26 +178,32 @@ def validate(repo_root: Path) -> tuple[list[str], list[str], int]:
     mapping = package_dirs(repo_root)
     text_cache: dict[Path, str] = {}
     pages_checked = 0
-    doc_root = repo_root / DOC_ROOT
-    for page in sorted(doc_root.rglob("*.md")):
+    pages = sorted(
+        page
+        for doc_root in repo_root.glob(DOC_GLOB)
+        for page in doc_root.rglob("*.md")
+    )
+    for page in pages:
         rel = str(page.relative_to(repo_root))
         text = page.read_text(encoding="utf-8", errors="replace")
         if BANNER_MARKER in text or rel in LEGACY_NARRATIVE_ALLOWLIST:
             diagnostics.append(f"{rel}: skipped (legacy narrative allowlist)")
             continue
         pages_checked += 1
+        page_errors: list[str] = []
         for _, module, names in extract_imports(page):
             if not names:
                 continue
             top, *rest = module.split(".")
             package_dir = mapping.get(top)
             if package_dir is None:
-                errors.append(f"{rel}: phantom package {top} (no src tree)")
+                page_errors.append(f"{rel}: phantom package {top} (no src tree)")
                 continue
             for name in names:
                 if name_resolves(package_dir, ".".join(rest), name, text_cache):
                     continue
-                errors.append(f"{rel}: cannot resolve {module} import {name}")
+                page_errors.append(f"{rel}: cannot resolve {module} import {name}")
+        errors.extend(page_errors)
     return errors, diagnostics, pages_checked
 
 
@@ -199,7 +212,7 @@ def main() -> int:
     parser.add_argument(
         "--strict",
         action="store_true",
-        help="Emit skipped-legacy diagnostics as stderr notes (same exit contract).",
+        help="Emit skip diagnostics as stderr notes (same exit contract).",
     )
     args = parser.parse_args()
 
@@ -214,7 +227,7 @@ def main() -> int:
         return 1
     print(
         f"Documentation import validation passed for {pages_checked} pages "
-        f"({len(diagnostics)} legacy-narrative pages skipped)."
+        f"({len(diagnostics)} diagnostic notes: legacy-narrative skips)."
     )
     return 0
 

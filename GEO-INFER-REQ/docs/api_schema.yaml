@@ -1,3 +1,11 @@
+# DESIGN SPECIFICATION — NOT IMPLEMENTED
+#
+# This OpenAPI document is a forward-looking design for a REST layer over
+# GEO-INFER-REQ. No HTTP transport ships in GEO-INFER-REQ today: there is no
+# api/ package under src/geo_infer_req/ and no Flask/FastAPI dependency, so
+# the server URLs and auth schemes below are design targets only — no
+# production or staging deployment exists. Treat this file as a design spec,
+# not a description of running code.
 openapi: 3.0.3
 info:
   title: GEO-INFER-REQ API
@@ -13,16 +21,21 @@ info:
     - Quality assurance and testing requirements
   version: 1.0.0
   contact:
-    name: GEO-INFER-REQ Support
-    email: req-support@geo-infer.org
+    name: GEO-INFER Development Team
+    email: geo-infer@activeinference.institute
+    url: https://github.com/ActiveInferenceInstitute/GEO-INFER
   license:
     name: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
     url: https://creativecommons.org/licenses/by-nc-sa/4.0/
 
+# NOTE (design spec): the server URLs and security schemes below are design
+# targets only — no production or staging deployment of this HTTP layer exists.
 servers:
   - url: https://api.geo-infer.org/req/v1
     description: Production server
 
+# NOTE (design spec): the server URLs and security schemes below are design
+# targets only — no production or staging deployment of this HTTP layer exists.
 security:
   - ApiKeyAuth: []
   - BearerAuth: []

@@ -13,6 +13,7 @@ Complete class and method reference for the GEO-INFER-EDU education analytics mo
 | `ELEMENTARY` | Ages 6-11 |
 | `MIDDLE_SCHOOL` | Ages 11-14 |
 | `HIGH_SCHOOL` | Ages 14-18 |
+| `INTERMEDIATE` | Upper secondary / pre-university |
 | `UNDERGRADUATE` | University |
 | `GRADUATE` | Masters/PhD |
 | `PROFESSIONAL` | Practitioners |
@@ -74,43 +75,43 @@ class Curriculum:
 
 ### CurriculumDesigner
 
-Design and generate standards-aligned geospatial curricula.
+Design and generate standards-aligned geospatial curricula. Supports the standards keys `bok`, `gistbok`, and `ngss`.
 
 ```python
 class CurriculumDesigner:
     def __init__(
         self,
-        education_standard: str = "geospatial_bok",
-        pedagogical_approach: PedagogicalApproach = PedagogicalApproach.PROJECT_BASED,
-        level: EducationLevel = EducationLevel.UNDERGRADUATE,
+        standards: Optional[List[str]] = None,
+        pedagogical_approach: str = "constructivist",
+        assessment_framework: str = "competency_based",
     )
 ```
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `education_standard` | `str` | `"geospatial_bok"` | Standards framework (geospatial_bok, gistbok, ngss) |
-| `pedagogical_approach` | `PedagogicalApproach` | `PROJECT_BASED` | Teaching methodology |
-| `level` | `EducationLevel` | `UNDERGRADUATE` | Target education level |
+| `standards` | `Optional[List[str]]` | `None` | Standards keys to align against (`bok`, `gistbok`, `ngss`) |
+| `pedagogical_approach` | `str` | `"constructivist"` | Teaching methodology name |
+| `assessment_framework` | `str` | `"competency_based"` | Assessment framework name |
 
-#### `create_module(title, description, objectives, duration_hours, **kwargs) -> CurriculumModule`
+#### `design(topic: str, level: str, duration: str, learning_objectives: Optional[List[str]] = None) -> Curriculum`
 
-Create a curriculum module with learning objectives.
+Design a complete curriculum for a topic (e.g. `design("geospatial_analysis", "undergraduate", "8_weeks")`).
 
-#### `generate_curriculum(title, description, modules, duration_weeks, **kwargs) -> Curriculum`
+#### `generate_modules(topic: str, level: EducationLevel, duration_weeks: int, objectives: List[LearningObjective], hours_per_module: float = 4.0) -> List[CurriculumModule]`
 
-Generate a complete curriculum from modules.
+Generate curriculum modules from a topic and objectives.
 
-#### `align_to_standard(curriculum, standard) -> Dict[str, List[str]]`
+#### `align_with_standards(curriculum: Curriculum, target_standards: List[str], coverage_report: bool = False) -> Dict[str, Any]`
 
-Map curriculum objectives to educational standard competencies.
+Align a curriculum with target standards; optionally returns a coverage report.
 
-#### `sequence_modules(modules) -> List[CurriculumModule]`
+#### `create_learning_pathway(learner_profile: Dict[str, Any], target_competencies: List[str], available_time: str, optimization: str = "efficiency") -> Dict[str, Any]`
 
-Order modules based on prerequisite dependencies using topological sort.
+Create a personalized learning pathway for a learner profile.
 
-#### `generate_assessment(objectives, assessment_type) -> Dict[str, Any]`
+#### `export_curriculum(curriculum: Curriculum, format: str = "yaml") -> str`
 
-Generate assessment items for given learning objectives. Assessment types: `quiz`, `project`, `portfolio`, `practical`.
+Export a curriculum to `yaml` or `json`.
 
 ---
 
@@ -189,37 +190,29 @@ class ProgressTracker:
 | `analytics_level` | `str` | `"detailed"` | Analytics detail level (basic, detailed) |
 | `privacy_compliance` | `str` | `"ferpa"` | Privacy regulation compliance (ferpa, gdpr) |
 
-#### `add_learner(learner_id: str) -> LearnerProgress`
+#### `track_progress(learner_id: str, activity_log: List[Dict[str, Any]], assessments: Optional[List[Dict[str, Any]]] = None) -> LearnerProgress`
 
-Register a new learner in the tracking system.
+Record a learner's activity log (and optional assessment results) and return the updated `LearnerProgress`.
 
-#### `record_activity(learner_id, activity: LearnerActivity) -> None`
+#### `generate_competency_report(learner_id: str, competencies: Optional[List[str]] = None, visualization: str = "radar_chart") -> Dict[str, Any]`
 
-Record a learning activity for a learner.
+Generate a competency achievement report, optionally restricted to named competencies.
 
 #### `export_progress(learner_id, format: str = "json") -> str`
 
 Export a learner's progress honouring the configured privacy policy. Under `ferpa` the student identifier is replaced with a one-way pseudonym; under `gdpr` data-retention metadata (retention period, erasure availability) is attached; under `none` the raw identifier is included.
 
-#### `assess_competency(learner_id, competency_id, evidence) -> CompetencyRecord`
+#### `identify_gaps(learner_progress: LearnerProgress, required_competencies: List[str], recommendations: bool = True) -> Dict[str, Any]`
 
-Assess a learner's competency level based on evidence (activity scores, assessment results).
+Identify knowledge gaps between the learner's current competencies and the required set; optionally includes recommended activities.
 
-#### `get_progress(learner_id) -> LearnerProgress`
+#### `generate_analytics(cohort: List[str], metrics: List[str], aggregation: str = "weekly", visualization: str = "dashboard") -> Dict[str, Any]`
 
-Get complete progress record for a learner.
+Generate learning analytics for a cohort of learner IDs over the requested metrics.
 
-#### `identify_gaps(learner_id, target_competencies) -> List[Dict[str, Any]]`
+#### `identify_at_risk(cohort: List[str], risk_indicators: List[str], intervention_recommendations: bool = True) -> List[Dict[str, Any]]`
 
-Identify competency gaps between current level and target requirements. Returns list of gaps with competency ID, current level, target level, and recommended activities.
-
-#### `detect_at_risk(threshold_days: int = 7) -> List[str]`
-
-Identify learners who have not engaged for longer than `threshold_days`. Returns list of at-risk learner IDs.
-
-#### `generate_analytics(learner_id) -> Dict[str, Any]`
-
-Generate learning analytics summary: activity distribution, time patterns, score progression, competency progress, and engagement metrics.
+Identify learners at risk of failure from the given risk indicators; optionally attaches intervention recommendations.
 
 ---
 
@@ -231,37 +224,81 @@ Generate interactive geospatial exercises.
 
 ```python
 class ExerciseGenerator:
-    def __init__(self, difficulty: str = "intermediate")
+    def __init__(
+        self,
+        exercise_types: Optional[List[str]] = None,
+        difficulty_scaling: str = "adaptive",
+        feedback_mode: str = "immediate",
+    )
 ```
 
-#### `generate_exercise(topic, exercise_type, **kwargs) -> Dict[str, Any]`
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `exercise_types` | `Optional[List[str]]` | `["mapping", "analysis", "coding"]` | Exercise types to generate |
+| `difficulty_scaling` | `str` | `"adaptive"` | `'adaptive'`, `'fixed'`, or `'progressive'` |
+| `feedback_mode` | `str` | `"immediate"` | `'immediate'`, `'delayed'`, or `'on_submit'` |
 
-Generate an exercise. Types: `map_reading`, `spatial_query`, `coordinate_conversion`, `data_analysis`, `visualization`.
+#### `create(concepts: List[str], format: str = "interactive_map", difficulty: str = "progressive", include_hints: bool = True) -> List[Exercise]`
 
-#### `assess_submission(exercise_id, submission) -> Dict[str, Any]`
+Create exercises covering the given concepts. Formats: `interactive_map`, `code`, `quiz`, `practical`.
 
-Assess a learner's exercise submission. Returns score, feedback, and competency mapping.
+#### `create_coding_exercises(topic: str, language: str = "python", framework: str = "geo_infer", test_cases: bool = True, starter_code: bool = True) -> List[Exercise]`
+
+Generate coding exercises for a topic, optionally with test cases and starter code.
+
+#### `create_pbl_scenario(context: str, problem: str, data_provided: List[str], expected_deliverables: List[str]) -> Exercise`
+
+Create a problem-based learning scenario for a real-world context.
+
+#### `create_assessment(learning_objectives: List[Dict[str, str]], item_types: List[str], difficulty_distribution: Dict[str, float], rubrics: bool = True) -> Assessment`
+
+Create an assessment with multiple items over the given objectives. Item types: `multiple_choice`, `practical`, `project`.
 
 ---
 
 ## core.personalization
 
-### PersonalizedPathBuilder
+### PersonalizedLearning
 
-Build adaptive learning paths.
+Provide personalized learning experiences through adaptive pathways, intelligent recommendations, and spaced repetition.
 
 ```python
-class PersonalizedPathBuilder:
-    def __init__(self, learner_profile: Dict[str, Any])
+class PersonalizedLearning:
+    def __init__(
+        self,
+        adaptation_method: str = "knowledge_tracing",
+        recommendation_algorithm: str = "collaborative_filtering",
+        learning_styles: Optional[List[str]] = None,
+    )
 ```
 
-#### `build_path(target_competencies, available_modules) -> List[CurriculumModule]`
+#### `register_resource(resource: LearningResource | Dict[str, Any]) -> LearningResource`
 
-Build an ordered learning path to achieve target competencies, considering prerequisites and learner's current state.
+Register a learning resource supplied by the content owner.
 
-#### `adapt_path(current_progress, path) -> List[CurriculumModule]`
+#### `register_learner(learner_profile: Dict[str, Any]) -> LearnerProfile`
 
-Adjust an existing learning path based on updated progress (skip mastered content, add remediation for weak areas).
+Register a new learner. Mastery state is initialized only for genuinely new learners; re-registering an existing learner keeps accumulated mastery.
+
+#### `create_pathway(learner_profile: Dict[str, Any], learning_goals: List[str], constraints: Dict[str, Any], optimization: str = "mastery") -> LearningPathway`
+
+Create a personalized learning pathway toward the given learning goals under the supplied constraints.
+
+#### `recommend_resources(learner_id: str, current_topic: str, resource_types: Optional[List[str]] = None, difficulty: str = "appropriate") -> List[Dict[str, Any]]`
+
+Recommend learning resources for a learner.
+
+#### `deliver_adaptive_content(learner_id: str, topic: str, format_preference: Optional[str] = None, mastery_level: Optional[float] = None) -> Dict[str, Any]`
+
+Deliver adaptive content tailored to the learner's mastery level and preferred format.
+
+#### `schedule_review(learner_id: str, mastered_topics: List[str], retention_model: str = "forgetting_curve", review_frequency: str = "optimal") -> List[Dict[str, Any]]`
+
+Schedule spaced-repetition reviews for mastered topics.
+
+#### `update_mastery(learner_id: str, topic: str, performance_score: float) -> float`
+
+Update a learner's mastery level for a topic based on a performance score.
 
 ---
 
@@ -269,21 +306,38 @@ Adjust an existing learning path based on updated progress (skip mastered conten
 
 ### ProfessionalDevelopment
 
-Continuing education resources.
+Continuing education and professional development for GIS professionals.
 
 ```python
 class ProfessionalDevelopment:
-    def __init__(self, certification_body: str = "gis_professional")
+    def __init__(
+        self,
+        certification_bodies: Optional[List[str]] = None,
+        credit_tracking: bool = True,
+        competency_framework: str = "professional",
+    )
 ```
 
-#### `get_certification_requirements(certification: str) -> Dict[str, Any]`
+#### `register_professional(profile_data: Dict[str, Any]) -> ProfessionalProfile`
 
-Get requirements for a professional certification (GISP, GIS-P, etc.).
+Register a professional in the system from a profile data dict.
 
-#### `track_credits(professional_id, activity) -> Dict[str, Any]`
+#### `track_continuing_education(professional_id: str, activities: List[Dict[str, Any]], credits_earned: Optional[float] = None) -> Dict[str, Any]`
 
-Track continuing education credits for professional certification maintenance.
+Track continuing education activities and credit totals for a professional.
 
-#### `recommend_development(professional_id, career_goals) -> List[Dict[str, Any]]`
+#### `create_certification_pathway(target_certification: str, current_qualifications: Dict[str, Any], timeline: str = "12_months") -> CertificationPathway`
 
-Recommend professional development activities based on career goals and current competencies.
+Create a pathway toward a target certification from current qualifications.
+
+#### `analyze_career_skills(current_skills: List[str], target_role: str, job_market_data: Optional[Dict[str, Any]] = None, recommendations: bool = True) -> Dict[str, Any]`
+
+Analyze skill gaps for a target career role, optionally against job-market data.
+
+#### `develop_portfolio(projects: List[Dict[str, Any]], competencies_demonstrated: Dict[str, List[str]], format: str = "professional_portfolio") -> Dict[str, Any]`
+
+Develop a professional portfolio from projects and demonstrated competencies.
+
+#### `get_recertification_status(professional_id: str, certification: str) -> Dict[str, Any]`
+
+Check recertification status for a certification.
