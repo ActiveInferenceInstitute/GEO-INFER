@@ -65,7 +65,6 @@
 - `TRANSPORT/`
 - `WATER/`
 - `_lib.py`
-- `generate_orchestrators.py`
 - `update_to_thin_orchestrators.py`
 
 ## Validation

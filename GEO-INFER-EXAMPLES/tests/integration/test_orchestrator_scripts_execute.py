@@ -26,7 +26,22 @@ _TIMEOUT_SECONDS = 180
 
 #: Fast, deterministic orchestrators (synthetic data, no network, no heavy
 #: Monte Carlo / optimization loops). Each runs in a few seconds.
-SUBSET = ("SPACE", "TIME", "LOG", "TEST", "CIV", "DATA", "OPS", "MATH")
+SUBSET = (
+    "SPACE",
+    "TIME",
+    "LOG",
+    "TEST",
+    "CIV",
+    "DATA",
+    "OPS",
+    "MATH",
+    # Timed individually before admission (all < 3 s, synthetic data,
+    # no network): ECON 2.6 s, EDU 0.1 s, EMERGENCY 0.3 s, ENERGY 1.4 s.
+    "ECON",
+    "EDU",
+    "EMERGENCY",
+    "ENERGY",
+)
 
 
 @pytest.mark.parametrize("module", SUBSET)

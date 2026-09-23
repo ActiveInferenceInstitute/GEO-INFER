@@ -48,14 +48,11 @@ Module Orchestrators workspace within `GEO-INFER-EXAMPLES`.
 - `TRANSPORT/`
 - `WATER/`
 - `_lib.py`
-- `generate_orchestrators.py`
 - `update_to_thin_orchestrators.py`
 
 ## Public Interface
 
 - `_lib.py:run_module_orchestrator` (function)
-- `generate_orchestrators.py:create_orchestrator_structure` (function)
-- `generate_orchestrators.py:main` (function)
 - `update_to_thin_orchestrators.py:create_thin_orchestrator_script` (function)
 - `update_to_thin_orchestrators.py:main` (function)
 
