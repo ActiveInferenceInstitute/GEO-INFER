@@ -4,10 +4,6 @@ import numpy as np
 import pytest
 import xarray as xr
 
-import sys
-
-sys.path.insert(0, "GEO-INFER-ENERGY/src")
-
 from geo_infer_energy.core.carbon_footprint import CarbonFootprintAnalyzer
 
 
