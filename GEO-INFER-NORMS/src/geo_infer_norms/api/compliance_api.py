@@ -431,6 +431,29 @@ class ComplianceAPI:
                 regulation=regulation,
                 evaluation_data=evaluation_data.evaluation_data,
             )
+            # An evaluation error is a server fault, not a compliance verdict:
+            # map it to 5xx instead of folding it into the ValueError -> 400 path.
+            error_metrics = [
+                m
+                for m in (status.metric_results or [])
+                if m.get("is_compliant") is None
+            ]
+            if error_metrics:
+                failed = ", ".join(
+                    sorted(
+                        {
+                            str(m.get("name") or m.get("metric_id"))
+                            for m in error_metrics
+                        }
+                    )
+                )
+                raise HTTPException(
+                    status_code=500,
+                    detail=(
+                        "Compliance evaluation failed for metric(s): "
+                        f"{failed}; an evaluation error is not a compliance verdict"
+                    ),
+                )
 
             return {
                 "status": "success",

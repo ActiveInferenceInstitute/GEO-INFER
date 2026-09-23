@@ -323,7 +323,7 @@ class PEPValidator:
         if candidate.offer:
             if (
                 candidate.offer.accepted_at
-                and candidate.offer.accepted_at < candidate.applied_at
+                and candidate.offer.accepted_at < candidate.applied_at.date()
             ):
                 result.add_error(
                     "Offer acceptance date cannot be before application date"

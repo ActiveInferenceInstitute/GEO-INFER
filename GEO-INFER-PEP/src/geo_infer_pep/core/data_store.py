@@ -14,6 +14,9 @@ import logging
 from ..models.hr_models import Employee
 from ..models.crm_models import Customer
 from ..models.talent_models import Candidate, JobRequisition
+from ..models.learning_models import LearningCourse, LearningEnrollment
+from ..models.conflict_models import ConflictCase
+from ..models.survey_models import Survey, SurveyResponse
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +54,11 @@ class PEPDataManager:
         self._customers: List[Customer] = []
         self._candidates: List[Candidate] = []
         self._requisitions: List[JobRequisition] = []
+        self._learning_courses: List[LearningCourse] = []
+        self._enrollments: List[LearningEnrollment] = []
+        self._conflict_cases: List[ConflictCase] = []
+        self._surveys: List[Survey] = []
+        self._survey_responses: List[SurveyResponse] = []
         self._last_updated = datetime.now()
 
     @property
@@ -72,6 +80,31 @@ class PEPDataManager:
     def requisitions(self) -> List[JobRequisition]:
         """Live requisition list (shared with any code holding this manager)."""
         return self._requisitions
+
+    @property
+    def learning_courses(self) -> List[LearningCourse]:
+        """Live learning-course list (shared with any code holding this manager)."""
+        return self._learning_courses
+
+    @property
+    def enrollments(self) -> List[LearningEnrollment]:
+        """Live enrollment list (shared with any code holding this manager)."""
+        return self._enrollments
+
+    @property
+    def conflict_cases(self) -> List[ConflictCase]:
+        """Live conflict-case list (shared with any code holding this manager)."""
+        return self._conflict_cases
+
+    @property
+    def surveys(self) -> List[Survey]:
+        """Live survey list (shared with any code holding this manager)."""
+        return self._surveys
+
+    @property
+    def survey_responses(self) -> List[SurveyResponse]:
+        """Live survey-response list (shared with any code holding this manager)."""
+        return self._survey_responses
 
     def add_employees(self, employees: List[Employee]) -> int:
         """Add employees to the data store."""
@@ -184,6 +217,105 @@ class PEPDataManager:
 
         return requisitions
 
+    def add_learning_courses(
+        self, courses: List[LearningCourse]
+    ) -> int:
+        """Add learning courses to the data store."""
+        self._learning_courses.extend(courses)
+        self._last_updated = datetime.now()
+        return len(courses)
+
+    def add_enrollments(self, enrollments: List[LearningEnrollment]) -> int:
+        """Add learning enrollments to the data store."""
+        self._enrollments.extend(enrollments)
+        self._last_updated = datetime.now()
+        return len(enrollments)
+
+    def add_conflict_cases(self, cases: List[ConflictCase]) -> int:
+        """Add conflict-resolution cases to the data store."""
+        self._conflict_cases.extend(cases)
+        self._last_updated = datetime.now()
+        return len(cases)
+
+    def add_surveys(self, surveys: List[Survey]) -> int:
+        """Add surveys to the data store."""
+        self._surveys.extend(surveys)
+        self._last_updated = datetime.now()
+        return len(surveys)
+
+    def add_survey_responses(self, responses: List[SurveyResponse]) -> int:
+        """Add survey responses to the data store."""
+        self._survey_responses.extend(responses)
+        self._last_updated = datetime.now()
+        return len(responses)
+
+    def get_learning_courses(
+        self, filters: Optional[Dict[str, Any]] = None
+    ) -> List[LearningCourse]:
+        """Get learning courses with optional filtering."""
+        courses = self._learning_courses.copy()
+        if filters:
+            _validate_filter_keys(LearningCourse, filters)
+            for key, value in filters.items():
+                courses = [
+                    course for course in courses if getattr(course, key) == value
+                ]
+        return courses
+
+    def get_enrollments(
+        self, filters: Optional[Dict[str, Any]] = None
+    ) -> List[LearningEnrollment]:
+        """Get learning enrollments with optional filtering."""
+        enrollments = self._enrollments.copy()
+        if filters:
+            _validate_filter_keys(LearningEnrollment, filters)
+            for key, value in filters.items():
+                enrollments = [
+                    enrollment
+                    for enrollment in enrollments
+                    if getattr(enrollment, key) == value
+                ]
+        return enrollments
+
+    def get_conflict_cases(
+        self, filters: Optional[Dict[str, Any]] = None
+    ) -> List[ConflictCase]:
+        """Get conflict-resolution cases with optional filtering."""
+        cases = self._conflict_cases.copy()
+        if filters:
+            _validate_filter_keys(ConflictCase, filters)
+            for key, value in filters.items():
+                cases = [case for case in cases if getattr(case, key) == value]
+        return cases
+
+    def get_surveys(
+        self, filters: Optional[Dict[str, Any]] = None
+    ) -> List[Survey]:
+        """Get surveys with optional filtering."""
+        surveys = self._surveys.copy()
+        if filters:
+            _validate_filter_keys(Survey, filters)
+            for key, value in filters.items():
+                surveys = [
+                    survey for survey in surveys if getattr(survey, key) == value
+                ]
+        return surveys
+
+    def get_survey_responses(
+        self, filters: Optional[Dict[str, Any]] = None
+    ) -> List[SurveyResponse]:
+        """Get survey responses with optional filtering."""
+        responses = self._survey_responses.copy()
+        if filters:
+            _validate_filter_keys(SurveyResponse, filters)
+            for key, value in filters.items():
+                responses = [
+                    response
+                    for response in responses
+                    if getattr(response, key) == value
+                ]
+        return responses
+
     def get_data_summary(self) -> Dict[str, Any]:
         """Get a summary of all data in the store."""
         return {
@@ -220,6 +352,28 @@ class PEPDataManager:
                     [req for req in self._requisitions if req.status.value == "open"]
                 ),
             },
+            "learning": {
+                "courses": len(self._learning_courses),
+                "enrollments": len(self._enrollments),
+                "active_enrollments": len(
+                    [
+                        enrollment
+                        for enrollment in self._enrollments
+                        if enrollment.status == "enrolled"
+                    ]
+                ),
+            },
+            "conflicts": {
+                "total": len(self._conflict_cases),
+                "open": len(
+                    [case for case in self._conflict_cases if case.status == "open"]
+                ),
+            },
+            "surveys": {
+                "total": len(self._surveys),
+                "active": len([survey for survey in self._surveys if survey.active]),
+                "responses": len(self._survey_responses),
+            },
             "last_updated": self._last_updated.isoformat(),
         }
 
@@ -236,6 +390,11 @@ class PEPDataManager:
         self._customers.clear()
         self._candidates.clear()
         self._requisitions.clear()
+        self._learning_courses.clear()
+        self._enrollments.clear()
+        self._conflict_cases.clear()
+        self._surveys.clear()
+        self._survey_responses.clear()
         self._last_updated = datetime.now()
         return True
 

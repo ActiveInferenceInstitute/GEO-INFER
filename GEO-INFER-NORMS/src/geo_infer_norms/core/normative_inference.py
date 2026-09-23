@@ -23,6 +23,15 @@ from shapely.geometry import Point, Polygon
 logger = logging.getLogger(__name__)
 
 
+class NormEvaluationError(RuntimeError):
+    """Raised when a norm condition cannot be evaluated (evaluator fault).
+
+    A raising condition callable is an evaluation failure, not a genuine
+    compliance verdict; consumers must never fold it into non-compliance.
+    """
+
+
+
 class NormativeInference:
     """
     A class for probabilistic inference about norms and compliance.
@@ -236,7 +245,9 @@ class NormativeInference:
 
         return result
 
-    def check_norm_compliance(self, norm_id: str, entity_id: str) -> Tuple[bool, float]:
+    def check_norm_compliance(
+        self, norm_id: str, entity_id: str
+    ) -> Tuple[Union[bool, str], Optional[float]]:
         """
         Check if an entity complies with a norm.
 
@@ -245,7 +256,10 @@ class NormativeInference:
             entity_id: ID of the entity
 
         Returns:
-            Tuple of (compliant, certainty)
+            Tuple of (compliant, certainty), or ('error', None) when the norm
+            condition raises during evaluation. The ('error', None) state is an
+            evaluation error and must never be confused with a genuine
+            non-compliance verdict.
         """
         if norm_id not in self.norms:
             logger.warning(f"Cannot check compliance: norm {norm_id} not found")
@@ -311,7 +325,9 @@ class NormativeInference:
             return compliant, certainty
         except Exception as e:
             logger.error(f"Error checking norm compliance: {str(e)}")
-            return False, 0.0
+            # An evaluation error is distinct from a genuine verdict: surface
+            # ('error', None) rather than fabricating non-compliance.
+            return "error", None
 
     def infer_compliance(
         self, entity_id: str, norm_id: Optional[str] = None
@@ -333,7 +349,12 @@ class NormativeInference:
                 return 0.0
 
             # Simple case: check compliance for a single norm
-            is_compliant, certainty = self.check_norm_compliance(norm_id, entity_id)
+            verdict, certainty = self.check_norm_compliance(norm_id, entity_id)
+            if verdict == "error":
+                raise NormEvaluationError(
+                    f"Norm '{norm_id}' condition raised during evaluation for "
+                    f"entity '{entity_id}'; cannot infer a compliance probability"
+                )
 
             # Get prior belief
             prior_key = (norm_id, entity_id)
@@ -347,7 +368,7 @@ class NormativeInference:
                 prior = 0.5  # Default prior
 
             # Simple Bayesian update
-            if is_compliant:
+            if verdict:
                 # P(compliant|observation) = P(observation|compliant) * P(compliant) / P(observation)
                 # With P(observation|compliant) = certainty
                 probability = (certainty * prior) / (

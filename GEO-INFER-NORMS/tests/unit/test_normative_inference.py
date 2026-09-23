@@ -10,7 +10,10 @@ import pytest
 from shapely.geometry import Point, Polygon
 import numpy as np
 
-from geo_infer_norms.core.normative_inference import NormativeInference
+from geo_infer_norms.core.normative_inference import (
+    NormEvaluationError,
+    NormativeInference,
+)
 
 
 class TestNormativeInference:
@@ -347,6 +350,43 @@ class TestNormativeInference:
             # Original assertions removed:
             # assert speed_suggestion is not None
             # assert helmet_suggestion is not None
+
+    def test_check_norm_compliance_condition_error_is_distinct(self):
+        """A raising condition surfaces as ('error', None), never (False, 0.0)."""
+        norm_id = self.inference.add_norm(
+            name="Broken evaluator",
+            condition=lambda obs: 1 / 0,
+            description="Condition that raises",
+        )
+        self.inference.add_observation(self.entity1_id, "speed", 40.0, certainty=1.0)
+        verdict, certainty = self.inference.check_norm_compliance(
+            norm_id, self.entity1_id
+        )
+        assert verdict == "error"
+        assert certainty is None
+
+    def test_infer_compliance_condition_error_propagates(self):
+        """infer_compliance must not fold a condition crash into a probability."""
+        norm_id = self.inference.add_norm(
+            name="Broken evaluator",
+            condition=lambda obs: 1 / 0,
+        )
+        self.inference.add_observation(self.entity1_id, "speed", 40.0, certainty=1.0)
+        with pytest.raises(NormEvaluationError):
+            self.inference.infer_compliance(self.entity1_id, norm_id)
+
+    def test_check_norm_compliance_genuine_violation_remains_verdict(self):
+        """A genuinely violated norm still yields (False, certainty), not error."""
+        norm_id = self.inference.add_norm(
+            name="Speed cap 60",
+            condition=lambda obs: obs.get("speed", 0.0) <= 60.0,
+        )
+        self.inference.add_observation(self.entity2_id, "speed", 80.0, certainty=1.0)
+        verdict, certainty = self.inference.check_norm_compliance(
+            norm_id, self.entity2_id
+        )
+        assert verdict is False
+        assert certainty == 1.0
 
 
 class TestSocialNormDiffusion:

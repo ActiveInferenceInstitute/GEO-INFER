@@ -28,10 +28,14 @@
 - `test_hr.py`
 - `test_hr_models.py`
 - `test_methods.py`
+- `test_orchestrator.py`
 - `test_pep_engine.py`
 - `test_performance_reviews_api.py`
+- `test_store_backed_endpoints.py`
 - `test_talent.py`
 - `test_talent_models.py`
+- `test_validator.py`
+- `test_visualizations_import_purity.py`
 
 ## Validation
 

@@ -1,11 +1,15 @@
 # API endpoints for GEO-INFER-PEP
 from fastapi import APIRouter, HTTPException
-from typing import Dict, Any
+from typing import Any, Dict, Optional
 
 from pydantic import ValidationError
 
 from ..models.hr_models import PerformanceReview
 from ..performance_store import performance_review_store
+from ..models.learning_models import LearningCourse, LearningEnrollment
+from ..models.conflict_models import ConflictCase
+from ..models.survey_models import Survey, SurveyResponse
+from ..core.data_store import pep_data_manager
 from .crm_endpoints import router as crm_router
 from .hr_endpoints import router as hr_router
 from .talent_endpoints import router as talent_router
@@ -112,64 +116,218 @@ async def get_performance_reviews(employee_id: str) -> Dict[str, Any]:
 # Learning & Development endpoints
 @api_router.post("/learning/courses", response_model=Dict[str, Any])
 async def create_learning_course(course_data: Dict[str, Any]) -> Dict[str, Any]:
-    """Create a learning course."""
-    return {"message": "Learning course created", "data": course_data}
+    """Create a learning course in the shared store."""
+    try:
+        course = LearningCourse(**course_data)
+    except ValidationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    if any(
+        existing.course_id == course.course_id
+        for existing in pep_data_manager.learning_courses
+    ):
+        raise HTTPException(
+            status_code=409,
+            detail=f"Learning course with id '{course.course_id}' already exists.",
+        )
+    pep_data_manager.add_learning_courses([course])
+    return {
+        "message": "Learning course created",
+        "data": course.model_dump(mode="json"),
+    }
 
 
 @api_router.get("/learning/courses", response_model=Dict[str, Any])
 async def get_learning_courses() -> Dict[str, Any]:
-    """Get all learning courses."""
-    return {"courses": []}
+    """Get all learning courses stored in the shared store."""
+    return {
+        "courses": [
+            course.model_dump(mode="json")
+            for course in pep_data_manager.learning_courses
+        ]
+    }
 
 
 @api_router.post("/learning/enrollments", response_model=Dict[str, Any])
 async def enroll_employee(enrollment_data: Dict[str, Any]) -> Dict[str, Any]:
-    """Enroll employee in a learning course."""
-    return {"message": "Employee enrolled", "data": enrollment_data}
+    """Enroll an employee in a stored learning course."""
+    try:
+        enrollment = LearningEnrollment(**enrollment_data)
+    except ValidationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    if not pep_data_manager.get_learning_courses({"course_id": enrollment.course_id}):
+        raise HTTPException(
+            status_code=404,
+            detail=f"Learning course with id '{enrollment.course_id}' not found.",
+        )
+    if any(
+        existing.enrollment_id == enrollment.enrollment_id
+        for existing in pep_data_manager.enrollments
+    ):
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                f"Learning enrollment with id '{enrollment.enrollment_id}' "
+                "already exists."
+            ),
+        )
+    pep_data_manager.add_enrollments([enrollment])
+    return {
+        "message": "Employee enrolled",
+        "data": enrollment.model_dump(mode="json"),
+    }
+
+
+@api_router.get("/learning/enrollments", response_model=Dict[str, Any])
+async def get_learning_enrollments(
+    employee_id: Optional[str] = None, course_id: Optional[str] = None
+) -> Dict[str, Any]:
+    """Get learning enrollments with optional employee/course filters."""
+    filters: Dict[str, Any] = {}
+    if employee_id is not None:
+        filters["employee_id"] = employee_id
+    if course_id is not None:
+        filters["course_id"] = course_id
+    return {
+        "enrollments": [
+            enrollment.model_dump(mode="json")
+            for enrollment in pep_data_manager.get_enrollments(filters or None)
+        ]
+    }
 
 
 # Conflict resolution endpoints
 @api_router.post("/conflicts/cases", response_model=Dict[str, Any])
 async def create_conflict_case(case_data: Dict[str, Any]) -> Dict[str, Any]:
-    """Create a conflict resolution case."""
-    return {"message": "Conflict case created", "data": case_data}
+    """Create a conflict resolution case in the shared store."""
+    try:
+        case = ConflictCase(**case_data)
+    except ValidationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    if any(
+        existing.case_id == case.case_id
+        for existing in pep_data_manager.conflict_cases
+    ):
+        raise HTTPException(
+            status_code=409,
+            detail=f"Conflict case with id '{case.case_id}' already exists.",
+        )
+    pep_data_manager.add_conflict_cases([case])
+    return {
+        "message": "Conflict case created",
+        "data": case.model_dump(mode="json"),
+    }
 
 
 @api_router.get("/conflicts/cases", response_model=Dict[str, Any])
 async def get_conflict_cases() -> Dict[str, Any]:
-    """Get all conflict resolution cases."""
-    return {"cases": []}
+    """Get all conflict resolution cases stored in the shared store."""
+    return {
+        "cases": [
+            case.model_dump(mode="json") for case in pep_data_manager.conflict_cases
+        ]
+    }
 
 
 @api_router.put("/conflicts/cases/{case_id}", response_model=Dict[str, Any])
 async def update_conflict_case(
     case_id: str, update_data: Dict[str, Any]
 ) -> Dict[str, Any]:
-    """Update a conflict resolution case."""
-    return {"message": f"Conflict case {case_id} updated", "data": update_data}
+    """Update a stored conflict resolution case."""
+    existing_index = next(
+        (
+            index
+            for index, existing in enumerate(pep_data_manager.conflict_cases)
+            if existing.case_id == case_id
+        ),
+        None,
+    )
+    if existing_index is None:
+        raise HTTPException(
+            status_code=404, detail=f"Conflict case with id '{case_id}' not found."
+        )
+    if "case_id" in update_data and update_data["case_id"] != case_id:
+        raise HTTPException(status_code=400, detail="case_id cannot be changed")
+    merged_data = pep_data_manager.conflict_cases[existing_index].model_dump()
+    merged_data.update(update_data)
+    try:
+        updated = ConflictCase(**merged_data)
+    except ValidationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    pep_data_manager.conflict_cases[existing_index] = updated
+    return {
+        "message": f"Conflict case {case_id} updated",
+        "data": updated.model_dump(mode="json"),
+    }
 
 
 # Survey endpoints
 @api_router.post("/surveys", response_model=Dict[str, Any])
 async def create_survey(survey_data: Dict[str, Any]) -> Dict[str, Any]:
-    """Create a survey."""
-    return {"message": "Survey created", "data": survey_data}
+    """Create a survey in the shared store."""
+    try:
+        survey = Survey(**survey_data)
+    except ValidationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    if any(
+        existing.survey_id == survey.survey_id
+        for existing in pep_data_manager.surveys
+    ):
+        raise HTTPException(
+            status_code=409,
+            detail=f"Survey with id '{survey.survey_id}' already exists.",
+        )
+    pep_data_manager.add_surveys([survey])
+    return {
+        "message": "Survey created",
+        "data": survey.model_dump(mode="json"),
+    }
 
 
 @api_router.get("/surveys/{survey_id}/responses", response_model=Dict[str, Any])
 async def get_survey_responses(survey_id: str) -> Dict[str, Any]:
-    """Get responses for a survey."""
-    return {"survey_id": survey_id, "responses": []}
+    """Get responses stored for a survey."""
+    if not pep_data_manager.get_surveys({"survey_id": survey_id}):
+        raise HTTPException(
+            status_code=404, detail=f"Survey with id '{survey_id}' not found."
+        )
+    return {
+        "survey_id": survey_id,
+        "responses": [
+            response.model_dump(mode="json")
+            for response in pep_data_manager.get_survey_responses(
+                {"survey_id": survey_id}
+            )
+        ],
+    }
 
 
 @api_router.post("/surveys/{survey_id}/responses", response_model=Dict[str, Any])
 async def submit_survey_response(
     survey_id: str, response_data: Dict[str, Any]
 ) -> Dict[str, Any]:
-    """Submit a survey response."""
+    """Submit and store a response for a survey (path survey_id wins)."""
+    if not pep_data_manager.get_surveys({"survey_id": survey_id}):
+        raise HTTPException(
+            status_code=404, detail=f"Survey with id '{survey_id}' not found."
+        )
+    try:
+        response = SurveyResponse(**{**response_data, "survey_id": survey_id})
+    except ValidationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    if any(
+        existing.response_id == response.response_id
+        for existing in pep_data_manager.survey_responses
+    ):
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                f"Survey response with id '{response.response_id}' already exists."
+            ),
+        )
+    pep_data_manager.add_survey_responses([response])
     return {
         "message": f"Response submitted for survey {survey_id}",
-        "data": response_data,
+        "data": response.model_dump(mode="json"),
     }
 
 

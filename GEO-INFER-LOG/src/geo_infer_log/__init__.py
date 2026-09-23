@@ -14,10 +14,11 @@ Key Features:
 - Enhanced structured logging with spatial context and performance metrics
 """
 
+import atexit
 import json
-import importlib.util
 import time
 import threading
+import weakref
 from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, field, asdict
@@ -28,9 +29,6 @@ import logging.handlers
 import uuid
 import queue
 
-# Optional dependencies
-HAS_STRUCTLOG = importlib.util.find_spec("structlog") is not None
-HAS_PROMETHEUS = importlib.util.find_spec("prometheus_client") is not None
 
 __version__ = "0.3.0"
 __all__ = [
@@ -59,6 +57,21 @@ __all__ = [
     "MultiObjectiveOptimizer",
     "RealTimeTracker",
 ]
+
+
+def _shutdown_logger_at_exit(ref: "weakref.ref[EnhancedLogger]") -> None:
+    """Drain queued log entries at interpreter shutdown.
+
+    Registered per async logger through a weak reference so the atexit
+    registry never keeps a logger (or its worker thread) alive.
+    """
+    logger = ref()
+    if logger is None:
+        return
+    try:
+        logger.stop()
+    except Exception:  # interpreter shutdown is best-effort
+        pass
 
 
 def __getattr__(name: str) -> Any:
@@ -232,6 +245,10 @@ class EnhancedLogger:
         # Log queue for async processing
         self.log_queue: "queue.Queue[LogEntry]" = queue.Queue()
         self.log_processor_running = False
+        # Stop latch + processor handle; stop() must never resurrect the
+        # background processor once it has drained.
+        self._log_processor_stopped = False
+        self._log_processor_thread: Optional[threading.Thread] = None
 
         # Start background log processor
         if self.config.get("async_logging", True):
@@ -295,8 +312,11 @@ class EnhancedLogger:
         """Start background log processor for async logging."""
         if not self.log_processor_running:
             self.log_processor_running = True
-            thread = threading.Thread(target=self._process_logs, daemon=True)
-            thread.start()
+            self._log_processor_thread = threading.Thread(
+                target=self._process_logs, daemon=True
+            )
+            self._log_processor_thread.start()
+        atexit.register(_shutdown_logger_at_exit, weakref.ref(self))
 
     def _process_logs(self) -> None:
         """Process logs from the queue."""
@@ -309,6 +329,32 @@ class EnhancedLogger:
                 continue
             except Exception as e:
                 logging.getLogger(__name__).error("Error processing log entry: %s", e)
+
+    def stop(self, timeout: float = 2.0) -> None:
+        """Stop the background log processor, draining remaining entries.
+
+        Sets the running flag, joins the worker with a deadline, then
+        processes any entries still queued so exit-burst logs are not lost.
+        Idempotent; after stop(), log() writes synchronously and never
+        resurrects the worker.
+        """
+        self._log_processor_stopped = True
+        if not self.log_processor_running:
+            # Idempotent; also covers loggers created with async_logging=False.
+            return
+        self.log_processor_running = False
+        if self._log_processor_thread is not None:
+            self._log_processor_thread.join(timeout)
+        # Drain entries the worker missed, processing them synchronously.
+        while True:
+            try:
+                entry = self.log_queue.get_nowait()
+            except queue.Empty:
+                break
+            try:
+                self._write_log_entry(entry)
+            finally:
+                self.log_queue.task_done()
 
     def _write_log_entry(self, entry: LogEntry) -> None:
         """Write log entry to configured outputs."""
@@ -366,8 +412,13 @@ class EnhancedLogger:
         # Update metrics
         self.metrics.increment_counter(f"{entry.module}_{entry.operation}")
 
-        # Queue for async processing or process immediately
-        if self.config.get("async_logging", True):
+        # Queue for async processing or process immediately. After stop()
+        # the worker is gone: write synchronously so late entries are not
+        # silently lost in the queue.
+        if (
+            self.config.get("async_logging", True)
+            and not self._log_processor_stopped
+        ):
             try:
                 self.log_queue.put_nowait(entry)
             except queue.Full:

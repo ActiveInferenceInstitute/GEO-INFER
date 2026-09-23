@@ -24,13 +24,12 @@ from _lib import run_module_orchestrator  # noqa: E402
 
 def _operation() -> Dict[str, Any]:
     import math
-    import pickle
 
     import networkx as nx
     import numpy as np
 
     from geo_infer_log import RouteOptimizer
-    from geo_infer_log.core.routing import RoutingParameters
+    from geo_infer_log.core.routing import RoutingParameters, save_gpickle
 
     rng = np.random.default_rng(7)
 
@@ -73,8 +72,9 @@ def _operation() -> Dict[str, Any]:
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         network_path = Path(tmp_dir) / "synthetic_street_grid.gpickle"
-        with network_path.open("wb") as handle:
-            pickle.dump(graph, handle)
+        # Persist through the authenticated GISP1 envelope writer: LOG's
+        # loader refuses unsigned payloads by design (GS19-07).
+        save_gpickle(str(network_path), graph)
 
         optimizer = RouteOptimizer(RoutingParameters(weight_factor="time"))
         optimizer.load_network(str(network_path))

@@ -19,6 +19,9 @@ from .talent_models import (
     CandidateStatus,
     InterviewType,
 )
+from .learning_models import LearningCourse, LearningEnrollment
+from .conflict_models import ConflictCase
+from .survey_models import Survey, SurveyResponse
 
 __all__ = [
     # CRM Models
@@ -40,5 +43,12 @@ __all__ = [
     "Offer",
     "Interview",
     "InterviewType",
-    "InterviewFeedback",
+    # Learning & Development Models
+    "LearningCourse",
+    "LearningEnrollment",
+    # Conflict Resolution Models
+    "ConflictCase",
+    # Survey Models
+    "Survey",
+    "SurveyResponse",
 ]

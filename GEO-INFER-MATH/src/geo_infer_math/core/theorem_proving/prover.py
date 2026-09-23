@@ -44,15 +44,20 @@ class TheoremProver:
     Supports multiple backends including Z3, Isabelle, and Lean.
     """
 
-    def __init__(self, backend: str = "z3", timeout: float = 10.0) -> None:
+    def __init__(self, backend: Optional[str] = None, timeout: float = 10.0) -> None:
         """
         Initialize theorem prover.
 
         Args:
-            backend: Prover backend ('z3', 'isabelle', 'lean', 'numpy')
+            backend: Prover backend ('z3', 'isabelle', 'lean', 'numpy').
+                When omitted, the default selection is 'z3' with a silent
+                fallback to 'numpy' if the z3-solver package is not
+                installed. An explicit 'z3' request raises ValueError
+                when z3-solver is absent.
             timeout: Timeout in seconds
         """
-        self.backend = backend
+        self._explicit_backend = backend is not None
+        self.backend = backend if backend is not None else "z3"
         self.timeout = timeout
         self._prover: Any = None
         self._initialize_backend()
@@ -66,6 +71,15 @@ class TheoremProver:
                 self._prover = z3
                 logger.info("Initialized Z3 theorem prover")
             except ImportError:
+                if self._explicit_backend:
+                    raise ValueError(
+                        "The z3 backend was explicitly requested, but "
+                        "z3-solver is not installed. Install the "
+                        "theorem-proving extra with: "
+                        "`uv pip install geo-infer-math[theorem-proving]` "
+                        "(or `uv sync --all-extras` in the monorepo), or "
+                        "omit the backend argument to select numpy."
+                    )
                 logger.warning("Z3 not available, using numpy backend")
                 self.backend = "numpy"
                 self._prover = None
@@ -291,12 +305,13 @@ class TheoremProver:
             )
 
 
-def create_prover(backend: str = "z3", **kwargs: Any) -> TheoremProver:
+def create_prover(backend: Optional[str] = None, **kwargs: Any) -> TheoremProver:
     """
     Create a theorem prover instance.
 
     Args:
-        backend: Prover backend
+        backend: Prover backend (default selection when omitted; see
+            TheoremProver)
         **kwargs: Additional parameters
 
     Returns:
