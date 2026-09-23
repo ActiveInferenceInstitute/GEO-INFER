@@ -63,7 +63,7 @@ geo-infer-risk = { workspace = true }
 geo-infer-space = { workspace = true }
 
 [project.urls]
-Homepage = "https://github.com/ActiveInferenceInstitute/GEO-INFER"
+Homepage = "https://github.com/ActiveInferenceInstitute/GEO_INFER"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

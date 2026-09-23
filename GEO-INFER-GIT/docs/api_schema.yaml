@@ -29,7 +29,7 @@ info:
   version: 1.0.0
   contact:
     name: GEO-INFER Development Team
-    url: https://github.com/ActiveInferenceInstitute/GEO-INFER
+    url: https://github.com/ActiveInferenceInstitute/GEO_INFER
     email: geo-infer@activeinference.institute
   license:
     name: CC BY-NC-SA 4.0

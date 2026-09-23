@@ -69,10 +69,10 @@ docs = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/ActiveInferenceInstitute/GEO-INFER"
+Homepage = "https://github.com/ActiveInferenceInstitute/GEO_INFER"
 Documentation = "https://geo-infer.readthedocs.io/"
-Repository = "https://github.com/ActiveInferenceInstitute/GEO-INFER"
-"Bug Tracker" = "https://github.com/ActiveInferenceInstitute/GEO-INFER/issues"
+Repository = "https://github.com/ActiveInferenceInstitute/GEO_INFER"
+"Bug Tracker" = "https://github.com/ActiveInferenceInstitute/GEO_INFER/issues"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

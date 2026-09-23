@@ -826,7 +826,7 @@ def render_root_readme(
 
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](pyproject.toml)
 [![uv workspaces](https://img.shields.io/badge/uv-workspace-4C65F6?logo=astral&logoColor=white)](pyproject.toml)
-[![CI](https://img.shields.io/github/actions/workflow/status/ActiveInferenceInstitute/GEO-INFER/ci.yml?branch=main&label=CI)](.github/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/ActiveInferenceInstitute/GEO_INFER/ci.yml?branch=main&label=CI)](.github/workflows/ci.yml)
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC_BY--NC--SA_4.0-lightgrey.svg)](LICENSE)
 [![Active Inference Institute](https://img.shields.io/badge/Active_Inference_Institute-6C3483?style=flat)](https://activeinference.org)
 

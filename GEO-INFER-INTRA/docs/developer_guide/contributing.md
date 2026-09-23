@@ -20,8 +20,8 @@ signposts until the code and tests exist.
 ## Development setup
 
 ```bash
-git clone https://github.com/ActiveInferenceInstitute/GEO-INFER.git
-cd GEO-INFER
+git clone https://github.com/ActiveInferenceInstitute/GEO_INFER.git
+cd GEO_INFER
 uv sync --all-packages --all-extras
 ```
 

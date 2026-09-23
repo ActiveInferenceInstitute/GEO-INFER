@@ -23,7 +23,7 @@ publication:
   doi: ""
   version_doi: ""
   version_record: ""
-  github_repository: "ActiveInferenceInstitute/GEO-INFER"
+  github_repository: "ActiveInferenceInstitute/GEO_INFER"
   year: "2026"  # generator-owned (MANUSCRIPT_SOURCE_YEAR)
   transmission_bookends:
     enabled: false

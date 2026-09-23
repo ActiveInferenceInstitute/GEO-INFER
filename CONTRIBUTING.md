@@ -16,8 +16,8 @@ Start with the [documentation hub](GEO-INFER-INTRA/docs/index.md) and the
 ## Setup
 
 ```bash
-git clone https://github.com/ActiveInferenceInstitute/GEO-INFER.git
-cd GEO-INFER
+git clone https://github.com/ActiveInferenceInstitute/GEO_INFER.git
+cd GEO_INFER
 uv sync --all-packages --all-extras
 uv run python -c "import geo_infer_space, geo_infer_act; print('workspace ready')"
 ```
