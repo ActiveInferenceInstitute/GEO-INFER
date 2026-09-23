@@ -2605,7 +2605,7 @@ integrations = [
 [package.metadata]
 requires-dist = [
     { name = "black", marker = "extra == 'dev'", specifier = ">=21.9.0" },
-    { name = "geopandas", specifier = ">=0.10.0" },
+    { name = "geopandas", specifier = ">=0.13.0" },
     { name = "joblib", specifier = ">=1.0.0" },
     { name = "matplotlib", specifier = ">=3.3.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.910" },
@@ -2926,7 +2926,7 @@ viz3d = [
 requires-dist = [
     { name = "black", marker = "extra == 'dev'", specifier = ">=21.9.0" },
     { name = "folium", marker = "extra == 'integrations'", specifier = ">=0.12.0" },
-    { name = "geopandas", specifier = ">=0.10.0" },
+    { name = "geopandas", specifier = ">=0.13.0" },
     { name = "matplotlib", specifier = ">=3.4.0" },
     { name = "mayavi", marker = "python_full_version < '3.12' and extra == 'viz3d'", specifier = ">=4.7.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.910" },
@@ -2988,7 +2988,7 @@ test = [
 requires-dist = [
     { name = "arviz", specifier = ">=0.12.0" },
     { name = "black", marker = "extra == 'dev'", specifier = ">=21.9.0" },
-    { name = "geopandas", marker = "extra == 'test'", specifier = ">=0.10.0" },
+    { name = "geopandas", marker = "extra == 'test'", specifier = ">=0.13.0" },
     { name = "matplotlib", specifier = ">=3.5.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.910" },
     { name = "myst-parser", marker = "extra == 'docs'", specifier = ">=0.15.0" },
@@ -3060,7 +3060,7 @@ requires-dist = [
     { name = "geo-infer-ai", marker = "extra == 'geo-infer'", editable = "GEO-INFER-AI" },
     { name = "geo-infer-space", marker = "extra == 'geo-infer'", editable = "GEO-INFER-SPACE" },
     { name = "geo-infer-time", marker = "extra == 'geo-infer'", editable = "GEO-INFER-TIME" },
-    { name = "geopandas", specifier = ">=0.9.0" },
+    { name = "geopandas", specifier = ">=0.13.0" },
     { name = "graphql-core", specifier = ">=3.1.0" },
     { name = "matplotlib", specifier = ">=3.4.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.910" },
@@ -3147,7 +3147,7 @@ grib = [
 [package.metadata]
 requires-dist = [
     { name = "cfgrib", marker = "extra == 'grib'", specifier = ">=0.9.9" },
-    { name = "geopandas", marker = "extra == 'dev'", specifier = ">=0.11.0" },
+    { name = "geopandas", marker = "extra == 'dev'", specifier = ">=0.13.0" },
     { name = "h3", marker = "extra == 'dev'", specifier = ">=4.5.0,<5" },
     { name = "numpy", specifier = ">=1.20.0" },
     { name = "pandas", marker = "extra == 'dev'", specifier = ">=1.3.0" },
@@ -3327,7 +3327,7 @@ requires-dist = [
     { name = "minio", specifier = ">=7.1.0" },
     { name = "mkdocs", marker = "extra == 'docs'", specifier = ">=1.5.0" },
     { name = "mkdocs-material", marker = "extra == 'docs'", specifier = ">=9.1.0" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.5.0" },
+    { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.910" },
     { name = "numpy", specifier = ">=1.24.0" },
     { name = "pandas", specifier = ">=2.0.0" },
     { name = "psutil", specifier = ">=5.9.0" },
@@ -3407,7 +3407,7 @@ requires-dist = [
     { name = "esda", marker = "extra == 'econometrics'", specifier = ">=2.5.0" },
     { name = "fastapi", marker = "extra == 'api'", specifier = ">=0.100.0" },
     { name = "folium", marker = "extra == 'visualization'", specifier = ">=0.14.0" },
-    { name = "geopandas", specifier = ">=0.12.0" },
+    { name = "geopandas", specifier = ">=0.13.0" },
     { name = "h3", specifier = ">=4.5.0,<5" },
     { name = "libpysal", marker = "extra == 'econometrics'", specifier = ">=4.6.0" },
     { name = "matplotlib", specifier = ">=3.5.0" },
@@ -3469,10 +3469,10 @@ test = [
 
 [package.metadata]
 requires-dist = [
-    { name = "black", marker = "extra == 'dev'", specifier = ">=24.0.0" },
+    { name = "black", marker = "extra == 'dev'", specifier = ">=21.9.0" },
     { name = "geo-infer-edu", extras = ["test"], marker = "extra == 'dev'" },
-    { name = "geopandas", marker = "extra == 'test'", specifier = ">=0.12.0" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.8.0" },
+    { name = "geopandas", marker = "extra == 'test'", specifier = ">=0.13.0" },
+    { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.910" },
     { name = "numpy", marker = "extra == 'test'", specifier = ">=1.20.0" },
     { name = "pandas", marker = "extra == 'test'", specifier = ">=1.3.0" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=6.2.0" },
@@ -3506,7 +3506,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "black", marker = "extra == 'dev'", specifier = ">=21.9.0" },
-    { name = "geopandas", marker = "extra == 'dev'", specifier = ">=0.10.0" },
+    { name = "geopandas", marker = "extra == 'dev'", specifier = ">=0.13.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.910" },
     { name = "networkx", specifier = ">=2.6.0" },
     { name = "numpy", marker = "extra == 'dev'", specifier = ">=1.20.0" },
@@ -3538,7 +3538,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "geopandas", marker = "extra == 'dev'", specifier = ">=0.10.0" },
+    { name = "geopandas", marker = "extra == 'dev'", specifier = ">=0.13.0" },
     { name = "h3", marker = "extra == 'dev'", specifier = ">=4.5.0,<5" },
     { name = "numpy", specifier = ">=1.20.0" },
     { name = "numpy", marker = "extra == 'dev'", specifier = ">=1.20.0" },
@@ -3981,12 +3981,12 @@ integrations = [
 
 [package.metadata]
 requires-dist = [
-    { name = "black", marker = "extra == 'dev'", specifier = ">=23.3.0" },
+    { name = "black", marker = "extra == 'dev'", specifier = ">=21.9.0" },
     { name = "fastapi", specifier = ">=0.104.0" },
     { name = "gitpython", specifier = ">=3.1.0" },
     { name = "isort", marker = "extra == 'dev'", specifier = ">=5.12.0" },
     { name = "jsonschema", specifier = ">=4.17.0" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.3.0" },
+    { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.910" },
     { name = "myst-parser", marker = "extra == 'docs'", specifier = ">=0.15.0" },
     { name = "nbsphinx", marker = "extra == 'docs'", specifier = ">=0.8.0" },
     { name = "pydantic", specifier = ">=2.5.0" },
@@ -4038,10 +4038,10 @@ docs = [
 [package.metadata]
 requires-dist = [
     { name = "fastapi", specifier = ">=0.104.0" },
-    { name = "geopandas", specifier = ">=0.14.0" },
+    { name = "geopandas", specifier = ">=0.13.0" },
     { name = "httpx", marker = "extra == 'dev'", specifier = ">=0.25.0" },
     { name = "loguru", specifier = ">=0.7.0" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.7.0" },
+    { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.910" },
     { name = "myst-parser", marker = "extra == 'docs'", specifier = ">=0.15.0" },
     { name = "nbsphinx", marker = "extra == 'docs'", specifier = ">=0.8.0" },
     { name = "pydantic", specifier = ">=2.5.0" },
@@ -4228,7 +4228,7 @@ requires-dist = [
     { name = "folium", specifier = ">=0.12.0" },
     { name = "geo-infer-bayes", editable = "GEO-INFER-BAYES" },
     { name = "geo-infer-space", editable = "GEO-INFER-SPACE" },
-    { name = "geopandas", marker = "extra == 'dev'", specifier = ">=0.10.0" },
+    { name = "geopandas", marker = "extra == 'dev'", specifier = ">=0.13.0" },
     { name = "gpytorch", marker = "extra == 'advanced'", specifier = ">=1.6.0" },
     { name = "h3", specifier = ">=4.5.0,<5" },
     { name = "influxdb-client", marker = "extra == 'storage'", specifier = ">=1.24.0" },
@@ -4305,7 +4305,7 @@ requires-dist = [
     { name = "black", marker = "extra == 'dev'", specifier = ">=21.9.0" },
     { name = "fastapi", specifier = ">=0.100.0" },
     { name = "folium", specifier = ">=0.14.0" },
-    { name = "geopandas", specifier = ">=0.10.0" },
+    { name = "geopandas", specifier = ">=0.13.0" },
     { name = "matplotlib", specifier = ">=3.5.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.910" },
     { name = "myst-parser", marker = "extra == 'docs'", specifier = ">=0.15.0" },
@@ -4715,7 +4715,7 @@ requires-dist = [
     { name = "geo-infer-data", marker = "extra == 'full'", editable = "GEO-INFER-DATA" },
     { name = "geo-infer-space", editable = "GEO-INFER-SPACE" },
     { name = "geo-infer-time", marker = "extra == 'full'", editable = "GEO-INFER-TIME" },
-    { name = "geopandas", specifier = ">=0.10.0" },
+    { name = "geopandas", specifier = ">=0.13.0" },
     { name = "h3", specifier = ">=4.5.0,<5" },
     { name = "matplotlib", specifier = ">=3.5.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.910" },
@@ -4881,7 +4881,7 @@ requires-dist = [
     { name = "black", marker = "extra == 'dev'", specifier = ">=21.9.0" },
     { name = "cryptography", specifier = ">=36.0.0" },
     { name = "flask", specifier = ">=2.0" },
-    { name = "geopandas", specifier = ">=0.10.0" },
+    { name = "geopandas", specifier = ">=0.13.0" },
     { name = "h3", specifier = ">=4.5.0,<5" },
     { name = "joblib", marker = "extra == 'ml'", specifier = ">=1.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.910" },
@@ -5030,7 +5030,7 @@ requires-dist = [
     { name = "folium", marker = "extra == 'viz'", specifier = ">=0.12.0" },
     { name = "geo-infer-space", extras = ["optional", "viz"], marker = "extra == 'all'" },
     { name = "geojson-pydantic", specifier = ">=2.0.0" },
-    { name = "geopandas", specifier = ">=0.10.0" },
+    { name = "geopandas", specifier = ">=0.13.0" },
     { name = "h3", specifier = ">=4.5.0,<5" },
     { name = "laspy", marker = "extra == 'optional'", specifier = ">=2.0.0" },
     { name = "matplotlib", marker = "extra == 'viz'", specifier = ">=3.5.0" },
@@ -5039,7 +5039,7 @@ requires-dist = [
     { name = "nbsphinx", marker = "extra == 'docs'", specifier = ">=0.8.0" },
     { name = "networkx", specifier = ">=2.6.0" },
     { name = "numba", marker = "extra == 'optional'", specifier = ">=0.56.0" },
-    { name = "numpy", specifier = ">=1.20.0,<2.0" },
+    { name = "numpy", specifier = ">=1.20.0" },
     { name = "osmnx", marker = "extra == 'optional'", specifier = ">=1.2.0" },
     { name = "pandas", specifier = ">=1.3.0" },
     { name = "plotly", marker = "extra == 'viz'", specifier = ">=5.0.0" },
@@ -5111,7 +5111,7 @@ docs = [
 requires-dist = [
     { name = "arviz", marker = "extra == 'bayesian'", specifier = ">=0.12.0" },
     { name = "black", marker = "extra == 'dev'", specifier = ">=21.9.0" },
-    { name = "geopandas", specifier = ">=0.10.0" },
+    { name = "geopandas", specifier = ">=0.13.0" },
     { name = "h5py", specifier = ">=3.6.0" },
     { name = "matplotlib", specifier = ">=3.5.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.910" },
@@ -5200,7 +5200,7 @@ requires-dist = [
     { name = "coverage", extras = ["toml"], specifier = ">=7.0.0" },
     { name = "factory-boy", marker = "extra == 'synthetic'", specifier = ">=3.2.0" },
     { name = "faker", marker = "extra == 'synthetic'", specifier = ">=18.0.0" },
-    { name = "geopandas", specifier = ">=0.10.0" },
+    { name = "geopandas", specifier = ">=0.13.0" },
     { name = "h3", specifier = ">=4.5.0,<5" },
     { name = "hypothesis", specifier = ">=6.0.0" },
     { name = "jinja2", marker = "extra == 'reporting'", specifier = ">=3.1.0" },
@@ -5316,7 +5316,7 @@ test = [
 requires-dist = [
     { name = "black", marker = "extra == 'dev'", specifier = ">=21.9.0" },
     { name = "geo-infer-log", marker = "extra == 'log'", editable = "GEO-INFER-LOG" },
-    { name = "geopandas", marker = "extra == 'test'", specifier = ">=0.10.0" },
+    { name = "geopandas", marker = "extra == 'test'", specifier = ">=0.13.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.910" },
     { name = "networkx", specifier = ">=2.6.0" },
     { name = "numpy", marker = "extra == 'test'", specifier = ">=1.20.0" },

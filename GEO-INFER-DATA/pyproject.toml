@@ -73,7 +73,7 @@ dev = [
     "pytest-mock>=3.11.0",
     "httpx>=0.24.0",
     "pyarrow>=14.0.0",
-    "mypy>=1.5.0",
+    "mypy>=0.910",
     "black>=21.9.0",
 ]
 docs = [
